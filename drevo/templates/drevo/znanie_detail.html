@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ znanie.name }}</h1>>
+
+{% for field in znanie.items %}
+<div>
+  {{ field.label }}: {{ field }}
+</div>>
+{% endfor %}
+
+{% endblock %}

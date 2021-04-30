@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load mptt_tags %}
+
+{% block content %}
+<h1>Древо</h1>>
+
+{% for zn in znanie %}
+<div>
+  <a href="{% url 'zdetail' zn.pk %}">{{ zn.name }}</a> {{ zn.author }} {{ zn.date }}
+</div>>
+{% endfor %}
+
+{% endblock %}

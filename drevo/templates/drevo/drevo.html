@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load mptt_tags %}
+
+{% block content %}
+<h1>Древо</h1>>
+
+<ul class="root">
+    {% recursetree ztypes %}
+        <li>
+            <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
+            {% if not node.is_leaf_node %}
+                <ul class="children">
+                    {{ children }}
+                </ul>
+            {% endif %}
+        </li>
+    {% endrecursetree %}
+</ul>
+
+{% endblock %}
