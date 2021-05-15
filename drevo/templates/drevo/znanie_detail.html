@@ -1,12 +1,68 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{{ znanie.name }}</h1>>
+<h6><a href="{% url 'drevo_type' znanie.category.pk %}"><<< {{ znanie.category }}</a></h6>
 
-{% for field in znanie.items %}
-<div>
-  {{ field.label }}: {{ field }}
-</div>>
+<h1>{{ znanie.name }}</h1>
+<div class="container">
+  <div class="row">
+    <div class="col">
+      Вид знания: {{ znanie.tz }}
+    </div>
+    <div class="col">
+      Автор: {{ znanie.author }}
+    </div>
+    <div class="col">
+      Дата: {{ znanie.date }}
+    </div>
+  </div>
+</div>
+
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Связанное знание</th>
+      <th scope="col">Вид знания</th>
+      <th scope="col">Автор</th>
+    </tr>
+  </thead>
+  <tbody>
+<br/><br/>
+{% for item in rels %}
+
+<tr>
+  <td colspan="3">
+<h3>{{ item.0 }}</h3>
+  </td>
+</tr>
+ {% for z in item.1 %}
+    <tr>
+      <th scope="row">1</th>
+      <td><a href="{% url 'zdetail' z.rz.pk %}">{{ z.rz }}</a></td>
+      <td> {{ z.rz.tz }}</td>
+      <td> {{ z.rz.author }}</td>
+    </tr>
+  {% empty %}
+  <tr>
+    <td colspan="3">
+  <h5>данных нет</h5>
+    </td>
+  </tr>
+  {% endfor %}
+
+  {% empty %}
+  <tr>
+    <td colspan="3">
+  <h5>данных нет</h5>
+    </td>
+  </tr>
 {% endfor %}
+
+  </tbody>
+</table>
+
+
 
 {% endblock %}

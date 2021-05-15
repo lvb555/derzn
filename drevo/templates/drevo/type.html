@@ -2,7 +2,8 @@
 {% load mptt_tags %}
 
 {% block content %}
-<h1>Древо</h1>>
+<h6><a href="{% url 'drevo' %}"><<< дерево категорий</a></h6>
+<h1>{{ category }}</h1>>
 
 {% for zn in znanie %}
 <div>

@@ -1,9 +1,9 @@
 from django.contrib import admin
-from drevo.models import Znanie, Tz, Author, Label
+from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category
 from mptt.admin import DraggableMPTTAdmin
 
 admin.site.register(
-    Tz,
+    Category,
     DraggableMPTTAdmin,
     list_display=(
         'tree_actions',
@@ -35,3 +35,21 @@ class AuthorAdmin(admin.ModelAdmin):
 
 admin.site.register(Author, AuthorAdmin)
 
+
+class TrAdmin(admin.ModelAdmin):
+    list_display = ('name', )
+    ordering = ('name',)
+
+admin.site.register(Tr, TrAdmin)
+
+class TzAdmin(admin.ModelAdmin):
+    list_display = ('name', )
+    ordering = ('name',)
+
+admin.site.register(Tz, TzAdmin)
+
+class RelationAdmin(admin.ModelAdmin):
+    list_display = ('bz', 'tr', 'rz', 'author', 'date', 'user' )
+    ordering = ('-date',)
+
+admin.site.register(Relation, RelationAdmin)
