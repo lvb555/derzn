@@ -97,7 +97,8 @@ class Znanie(models.Model):
     category = models.ForeignKey(Category,
                            on_delete=models.PROTECT,
                            verbose_name='Категория',
-                           null=True
+                           null=True,
+                           blank=True
                            )
     tz = models.ForeignKey(Tz,
                            on_delete=models.PROTECT,
@@ -108,10 +109,15 @@ class Znanie(models.Model):
                                null=True,
                                verbose_name='Содержание'
                                )
-    href = models.URLField(verbose_name='Источник',
-                           help_text='укажите www-адрес источника')
-    source_com = models.CharField(max_length=128,
-                                  verbose_name='Комментарий к источнику'
+    href = models.URLField(max_length=256,
+                           verbose_name='Источник',
+                           help_text='укажите www-адрес источника',
+                           null=True,
+                           blank=True)
+    source_com = models.CharField(max_length=256,
+                                  verbose_name='Комментарий к источнику',
+                                  null=True,
+                                  blank=True
                                   )
     author = models.ForeignKey(Author,
                                on_delete=models.PROTECT,

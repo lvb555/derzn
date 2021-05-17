@@ -4,6 +4,7 @@
 <h6><a href="{% url 'drevo_type' znanie.category.pk %}"><<< {{ znanie.category }}</a></h6>
 
 <h1>{{ znanie.name }}</h1>
+
 <div class="container">
   <div class="row">
     <div class="col">
@@ -17,6 +18,30 @@
     </div>
   </div>
 </div>
+
+<hr>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      Содержание: {{ znanie.content }}
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      Источник: {{ znanie.href }}
+    </div>
+    <div class="col">
+      Комментарий к источнику: {{ znanie.source_com }}
+    </div>
+  </div>
+</div>
+
 
 
 <table class="table">
@@ -39,7 +64,7 @@
 </tr>
  {% for z in item.1 %}
     <tr>
-      <th scope="row">1</th>
+      <th scope="row">{{ forloop.counter }}</th>
       <td><a href="{% url 'zdetail' z.rz.pk %}">{{ z.rz }}</a></td>
       <td> {{ z.rz.tz }}</td>
       <td> {{ z.rz.author }}</td>
