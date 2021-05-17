@@ -124,9 +124,14 @@ class Znanie(models.Model):
                                verbose_name='Автор',
                                help_text='укажите автора'
                                )
-    date = models.DateField(auto_now=True,
+    date = models.DateField(auto_now_add=True,
                             verbose_name='Дата создания',
                             )
+    user = models.ForeignKey(User,
+                               on_delete=models.PROTECT,
+                               editable=False,
+                               verbose_name='Пользователь'
+                               )
 
     def __str__(self):
         return self.name
@@ -184,13 +189,13 @@ class Relation(models.Model):
                                verbose_name='Автор',
                                help_text='укажите автора'
                                )
-    date = models.DateField(auto_now=True,
+    date = models.DateField(auto_now_add=True,
                             verbose_name='Дата создания',
                             )
     user = models.ForeignKey(User,
                                on_delete=models.PROTECT,
-                               verbose_name='Пользователь',
-                               help_text='укажите пользователя'
+                               editable=False,
+                               verbose_name='Пользователь'
                                )
 
     def __str__(self):

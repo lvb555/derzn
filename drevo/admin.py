@@ -23,8 +23,12 @@ admin.site.register(Label, LabelAdmin)
 
 
 class ZnanieAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tz', 'href', 'author', 'date')
+    list_display = ('name', 'tz', 'href', 'author', 'date', 'user')
     ordering = ('name',)
+
+    def save_model(self, request, obj, form, change):
+        obj.user = request.user
+        super().save_model(request, obj, form, change)
 
 admin.site.register(Znanie, ZnanieAdmin)
 
@@ -51,5 +55,10 @@ admin.site.register(Tz, TzAdmin)
 class RelationAdmin(admin.ModelAdmin):
     list_display = ('bz', 'tr', 'rz', 'author', 'date', 'user' )
     ordering = ('-date',)
+
+    def save_model(self, request, obj, form, change):
+        obj.user = request.user
+        super().save_model(request, obj, form, change)
+
 
 admin.site.register(Relation, RelationAdmin)
