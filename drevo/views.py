@@ -15,7 +15,7 @@ class DrevoListView(ListView):
         формирует выборку из сущностей Знание для вывода
         """
         category_pk = self.kwargs['pk']
-        qs = Znanie.objects.filter(category__pk=category_pk)
+        qs = Znanie.objects.filter(category__pk=category_pk).order_by('order')
         return qs
 
     def get_context_data(self, *, object_list=None, **kwargs):
