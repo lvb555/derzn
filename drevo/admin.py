@@ -24,7 +24,7 @@ admin.site.register(Label, LabelAdmin)
 
 class ZnanieAdmin(admin.ModelAdmin):
     list_display = ('name', 'tz', 'href', 'author', 'date', 'user')
-    ordering = ('name',)
+    ordering = ('order',)
 
     def save_model(self, request, obj, form, change):
         obj.user = request.user

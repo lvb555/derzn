@@ -19,8 +19,9 @@
   </div>
 </div>
 
-<hr>
 
+{% if znanie.content %}
+<hr>
 <div class="container">
   <div class="row">
     <div class="col">
@@ -28,20 +29,23 @@
     </div>
   </div>
 </div>
+{% endif %}
 
+{% if znanie.href %}
 <hr>
-
 <div class="container">
   <div class="row">
     <div class="col">
       Источник: {{ znanie.href }}
     </div>
+    {% if znanie.source_com %}
     <div class="col">
       Комментарий к источнику: {{ znanie.source_com }}
     </div>
+    {% endif %}
   </div>
 </div>
-
+{% endif %}
 
 
 <table class="table">
