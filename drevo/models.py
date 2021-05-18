@@ -132,8 +132,12 @@ class Znanie(models.Model):
                                editable=False,
                                verbose_name='Пользователь'
                                )
-    order = models.IntegerField(verbose_name='Порядок',
-                                help_text='укажите порядковый номер')
+    #order = models.IntegerField(verbose_name='Порядок',
+    #                            help_text='укажите порядковый номер')
+
+    is_published = models.BooleanField(default=False,
+                                       verbose_name='Опубликовано?'
+                                       )
 
     def __str__(self):
         return self.name
@@ -141,7 +145,7 @@ class Znanie(models.Model):
     class Meta:
         verbose_name = 'Знание'
         verbose_name_plural = 'Знания'
-        ordering = ('order', )
+        ordering = ('name', )
 
 
 class Tr(models.Model):

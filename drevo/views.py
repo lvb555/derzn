@@ -15,7 +15,7 @@ class DrevoListView(ListView):
         формирует выборку из сущностей Знание для вывода
         """
         category_pk = self.kwargs['pk']
-        qs = Znanie.objects.filter(category__pk=category_pk).order_by('order')
+        qs = Znanie.objects.filter(category__pk=category_pk, is_published=True).order_by('name')
         return qs
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -70,7 +70,7 @@ class ZnanieDetailView(DetailView):
 
         related_knowlwdeges = {}
         for item in ts:
-            related_knowlwdeges[item] = qs.filter(tr=item)
+            related_knowlwdeges[item] = qs.filter(tr=item, rz__is_published=True)
 
         context['rels'] = [[item.name, related_knowlwdeges[item]] for item in ts if qs.filter(tr=item).count()>0]
 
