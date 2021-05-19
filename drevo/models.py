@@ -36,6 +36,11 @@ class Category(MPTTModel):
                             blank=True,
                             related_name='children'
                             )
+    content = models.TextField(max_length=512,
+                               blank=True,
+                               null=True,
+                               verbose_name='Содержание'
+                               )
 
     def __str__(self):
         return self.name
