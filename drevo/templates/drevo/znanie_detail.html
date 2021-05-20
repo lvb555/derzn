@@ -47,6 +47,17 @@
 </div>
 {% endif %}
 
+{% if znanie.labels.all %}
+<hr>
+<div class="container">
+  <div class="row">
+    <div class="col">
+        Метки: {% for label in znanie.labels.all %} #<a href="{% url 'zlabel' label.pk %}">{{ label }}</a> {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
 
 <table class="table">
   <thead>
@@ -59,8 +70,8 @@
   </thead>
   <tbody>
 <br/><br/>
-{% for item in rels %}
 
+{% for item in rels %}
 <tr>
   <td colspan="3">
 <h3>{{ item.0 }}</h3>

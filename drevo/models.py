@@ -109,7 +109,7 @@ class Znanie(models.Model):
                            on_delete=models.PROTECT,
                            verbose_name='Вид знания'
                            )
-    content = models.TextField(max_length=512,
+    content = models.TextField(max_length=2048,
                                blank=True,
                                null=True,
                                verbose_name='Содержание'
@@ -143,6 +143,10 @@ class Znanie(models.Model):
     is_published = models.BooleanField(default=False,
                                        verbose_name='Опубликовано?'
                                        )
+    labels = models.ManyToManyField(Label,
+                                    verbose_name='Метки',
+                                    blank=True
+                                    )
 
     def __str__(self):
         return self.name

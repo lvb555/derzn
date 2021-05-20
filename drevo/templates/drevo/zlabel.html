@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+{% regroup znanie by category as z_list %}
+
+<div class="container">
+<ul style="list-style-type: none;">
+{% for z in z_list %}
+    <li> <i class="bi bi-list-ul"></i> <a href="{% url 'drevo_type' z.grouper.pk %}"> {{ z.grouper }} </a> </li>
+    <ul>
+     {% for zn in z.list %}
+        <li><a href="{% url 'zdetail' zn.pk %}">{{ zn.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% endfor %}
+</ul>
+</div>
+
+{% endblock %}

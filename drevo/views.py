@@ -75,3 +75,23 @@ class ZnanieDetailView(DetailView):
         context['rels'] = [[item.name, related_knowlwdeges[item]] for item in ts if qs.filter(tr=item).count()>0]
 
         return context
+
+
+class ZnanieByLabelView(ListView):
+    """
+    выводит сущности Знание для заданной метки
+    """
+    template_name = 'drevo/zlabel.html'
+    model = Znanie
+    context_object_name = 'znanie'
+
+    def get_queryset(self):
+        """
+        формирует выборку из сущностей Знание для вывода
+        """
+        # получаем из запроса порядковый номер текущей метки
+        label_pk = self.kwargs['pk']
+
+        # получаем query set Знание, имеющих такую же метку
+        qs = Znanie.objects.filter(labels__id__in=[label_pk, ], is_published=True).order_by('order')
+        return qs
