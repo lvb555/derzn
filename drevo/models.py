@@ -88,6 +88,7 @@ class Label(models.Model):
     class Meta:
         verbose_name = 'Метка'
         verbose_name_plural = 'Метки'
+        ordering = ('name',)
 
 
 class Znanie(models.Model):
@@ -99,7 +100,7 @@ class Znanie(models.Model):
                             verbose_name='Тема',
                             unique=True
                             )
-    category = models.ForeignKey(Category,
+    category = TreeForeignKey(Category,
                            on_delete=models.PROTECT,
                            verbose_name='Категория',
                            null=True,
@@ -138,7 +139,10 @@ class Znanie(models.Model):
                                verbose_name='Пользователь'
                                )
     order = models.IntegerField(verbose_name='Порядок',
-                                help_text='укажите порядковый номер')
+                                help_text='укажите порядковый номер',
+                                null=True,
+                                blank=True
+                                )
 
     is_published = models.BooleanField(default=False,
                                        verbose_name='Опубликовано?'
@@ -147,7 +151,9 @@ class Znanie(models.Model):
                                     verbose_name='Метки',
                                     blank=True
                                     )
-
+    photo = models.ImageField(upload_to='photos/%Y/%m/%d/', verbose_name='Фото',
+                              blank=True
+                              )
     def __str__(self):
         return self.name
 

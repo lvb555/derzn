@@ -68,11 +68,8 @@ class ZnanieDetailView(DetailView):
         # получаем список всех видов связей
         ts = Tr.objects.all()
 
-        related_knowlwdeges = {}
-        for item in ts:
-            related_knowlwdeges[item] = qs.filter(tr=item, rz__is_published=True)
-
-        context['rels'] = [[item.name, related_knowlwdeges[item]] for item in ts if qs.filter(tr=item).count()>0]
+        context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True)]
+                           for item in ts if qs.filter(tr=item, rz__is_published=True).count()>0]
 
         return context
 

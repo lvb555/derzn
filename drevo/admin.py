@@ -1,6 +1,7 @@
 from django.contrib import admin
 from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category
 from mptt.admin import DraggableMPTTAdmin
+from .forms import ZnanieForm
 
 admin.site.register(
     Category,
@@ -29,6 +30,10 @@ class ZnanieAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.user = request.user
         super().save_model(request, obj, form, change)
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['form'] = ZnanieForm
+        return super().get_form(request, obj, **kwargs)
 
 admin.site.register(Znanie, ZnanieAdmin)
 

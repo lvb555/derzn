@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+{% if znanie.category.pk %}
 <h6><a href="{% url 'drevo_type' znanie.category.pk %}"><<< {{ znanie.category }}</a></h6>
+{% endif %}
 
 <h1>{{ znanie.name }}</h1>
 
