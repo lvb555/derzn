@@ -86,7 +86,9 @@ admin.site.register(Tz, TzAdmin)
 
 class RelationAdmin(admin.ModelAdmin):
     list_display = ('bz', 'tr', 'rz', 'author', 'date', 'user' )
+    save_as = True
     autocomplete_fields = ['bz', 'rz']
+    search_fields = ['bz__name', 'rz__name']
     ordering = ('-date',)
 
     def save_model(self, request, obj, form, change):

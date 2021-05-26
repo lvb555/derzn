@@ -13,12 +13,14 @@ class ZnanieForm(forms.ModelForm):
     name = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
                                                         'rows': 3,
                                                         }
-                                                 )
+                                                 ),
+                           label='Тема'
                            )
     content = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
                                                         'rows': 10,
                                                         }
-                                                    )
+                                                    ),
+                              label='Содержание'
                               )
     class Meta:
         model = Znanie
