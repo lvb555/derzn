@@ -2,6 +2,7 @@ from django.contrib import admin
 from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category
 from mptt.admin import DraggableMPTTAdmin
 from .forms import ZnanieForm
+from django.utils.safestring import mark_safe
 
 class CategoryMPTT(DraggableMPTTAdmin):
     search_fields = ['name']
@@ -38,11 +39,13 @@ admin.site.register(Label, LabelAdmin)
 
 
 class ZnanieAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tz', 'href', 'author', 'date', 'user')
+    list_display = ('name', 'tz', 'href2link', 'author', 'date', 'user')
     ordering = ('order',)
     save_as = True
     autocomplete_fields = ['labels', 'category']
     search_fields = ['name']
+    list_filter = ('tz', 'author', 'date', 'is_published', 'labels', )
+    list_per_page = 30
 
     def save_model(self, request, obj, form, change):
         obj.user = request.user
@@ -51,6 +54,16 @@ class ZnanieAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         kwargs['form'] = ZnanieForm
         return super().get_form(request, obj, **kwargs)
+
+    def href2link(self, obj):
+        """
+        Выводит ссылку вместо текста в поле href
+        """
+        if obj.href:
+            return mark_safe(f'<a href="{obj.href}">источник</a>')
+        else:
+            return ''
+    href2link.short_description = 'Ссылка'
 
     class Media:
         css = {

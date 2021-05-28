@@ -20,8 +20,10 @@ class ZnanieForm(forms.ModelForm):
                                                         'rows': 10,
                                                         }
                                                     ),
-                              label='Содержание'
+                              label='Содержание',
+                              required=False
                               )
+
     class Meta:
         model = Znanie
         fields = '__all__'

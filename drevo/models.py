@@ -128,7 +128,9 @@ class Znanie(models.Model):
     author = models.ForeignKey(Author,
                                on_delete=models.PROTECT,
                                verbose_name='Автор',
-                               help_text='укажите автора'
+                               help_text='укажите автора',
+                               null = True,
+                               blank = True
                                )
     date = models.DateField(auto_now_add=True,
                             verbose_name='Дата создания',
