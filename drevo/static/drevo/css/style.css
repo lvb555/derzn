@@ -39,3 +39,10 @@
 #changelist-search img {
     width: 20px;
 }
+
+
+/* Стили картинок в сущности Znanie */
+
+.col img {
+    margin-bottom: 1em;
+}

@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block title %}Знание: {{ znanie.name }}{% endblock %}
+
 {% block content %}
 
 {% if znanie.category.pk %}
@@ -14,7 +16,11 @@
       Вид знания: {{ znanie.tz }}
     </div>
     <div class="col">
-      Автор: {{ znanie.author }}
+        {% if znanie.author %}
+            Автор: <a href="{% url 'author' znanie.author.pk %}">{{ znanie.author }}</a>
+        {% else %}
+            Автор: не указан
+        {% endif %}
     </div>
     <div class="col">
       Дата: {{ znanie.date }}
@@ -28,7 +34,7 @@
 <div class="container">
   <div class="row">
     <div class="col">
-      Содержание: {{ znanie.content }}
+      Содержание: {{ znanie.content|safe }}
     </div>
   </div>
 </div>
@@ -39,7 +45,7 @@
 <div class="container">
   <div class="row">
     <div class="col">
-      Источник: {{ znanie.href }}
+      <a href="{{ znanie.href }}">Источник</a>
     </div>
     {% if znanie.source_com %}
     <div class="col">
@@ -56,6 +62,17 @@
   <div class="row">
     <div class="col">
         Метки: {% for label in znanie.labels.all %} #<a href="{% url 'zlabel' label.pk %}">{{ label }}</a> {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if znanie.photos.all %}
+<hr>
+<div class="container">
+  <div class="row">
+    <div class="col">
+        {% for photo in znanie.photos.all %} <a href="{{ MEDIA_URL }}{{ photo.photo }}"><img src="{{ MEDIA_URL }}{{ photo.photo }}" height="150"></a>&nbsp;&nbsp;&nbsp;{% endfor %}
     </div>
   </div>
 </div>

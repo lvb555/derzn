@@ -4,6 +4,21 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 
 
+class AuthorType(models.Model):
+    """
+    Класс для описания вида авторов
+    """
+    title = 'Вид Автора'
+    name = models.CharField(max_length=128,
+                            verbose_name='Вид авторов')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Вид авторов'
+        verbose_name_plural = 'Виды авторов'
+
 
 class Author(models.Model):
     """
@@ -12,6 +27,23 @@ class Author(models.Model):
     title = 'Автор'
     name = models.CharField(max_length=128,
                             verbose_name='Имя')
+    info = models.TextField(max_length=2048,
+                            blank=True,
+                            null=True,
+                            verbose_name='Сведения об авторе'
+                            )
+    photo = models.ImageField(upload_to='photos/authors/',
+                              verbose_name='Фото',
+                              blank=True,
+                              null=True
+                              )
+    type = models.ForeignKey(AuthorType,
+                             on_delete=models.PROTECT,
+                             verbose_name='Вид автора',
+                             blank=True,
+                             null=True
+                             )
+    objects = models.Manager()
 
     def __str__(self):
         return self.name
@@ -46,7 +78,7 @@ class Category(MPTTModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('drevo_type', kwargs = {"pk": self.pk})
+        return reverse('drevo_type', kwargs={"pk": self.pk})
 
     class Meta:
         verbose_name = 'Категория'
@@ -101,11 +133,11 @@ class Znanie(models.Model):
                             unique=True
                             )
     category = TreeForeignKey(Category,
-                           on_delete=models.PROTECT,
-                           verbose_name='Категория',
-                           null=True,
-                           blank=True
-                           )
+                              on_delete=models.PROTECT,
+                              verbose_name='Категория',
+                              null=True,
+                              blank=True
+                              )
     tz = models.ForeignKey(Tz,
                            on_delete=models.PROTECT,
                            verbose_name='Вид знания'
@@ -129,17 +161,20 @@ class Znanie(models.Model):
                                on_delete=models.PROTECT,
                                verbose_name='Автор',
                                help_text='укажите автора',
-                               null = True,
-                               blank = True
+                               null=True,
+                               blank=True
                                )
     date = models.DateField(auto_now_add=True,
                             verbose_name='Дата создания',
                             )
+    updated_at = models.DateTimeField(auto_now=True,
+                                      verbose_name='Дата и время редактирования',
+                                      )
     user = models.ForeignKey(User,
-                               on_delete=models.PROTECT,
-                               editable=False,
-                               verbose_name='Пользователь'
-                               )
+                             on_delete=models.PROTECT,
+                             editable=False,
+                             verbose_name='Пользователь'
+                             )
     order = models.IntegerField(verbose_name='Порядок',
                                 help_text='укажите порядковый номер',
                                 null=True,
@@ -153,16 +188,30 @@ class Znanie(models.Model):
                                     verbose_name='Метки',
                                     blank=True
                                     )
-    photo = models.ImageField(upload_to='photos/%Y/%m/%d/', verbose_name='Фото',
-                              blank=True
-                              )
+    objects = models.Manager()
+
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = 'Знание'
         verbose_name_plural = 'Знания'
-        ordering = ('order', )
+        ordering = ('order',)
+
+
+class ZnImage(models.Model):
+    znanie = models.ForeignKey(Znanie,
+                               related_name='photos',
+                               on_delete=models.PROTECT
+                               )
+    photo = models.ImageField(upload_to='photos/%Y/%m/%d/',
+                              verbose_name='Фото',
+                              blank=True
+                              )
+
+    def __str__(self):
+        zn_name = str(self.znanie)[:40]
+        return f'Фото № {self.id} для "{zn_name}"'
 
 
 class Tr(models.Model):
@@ -181,7 +230,7 @@ class Tr(models.Model):
     class Meta:
         verbose_name = 'Вид связи'
         verbose_name_plural = 'Виды связи'
-        ordering = ('name', )
+        ordering = ('name',)
 
 
 class Relation(models.Model):
@@ -194,7 +243,7 @@ class Relation(models.Model):
                            on_delete=models.PROTECT,
                            verbose_name='Базовое знание',
                            help_text='укажите базовое знание',
-                           related_name = 'base'
+                           related_name='base'
                            )
     tr = models.ForeignKey(Tr,
                            on_delete=models.PROTECT,
@@ -216,10 +265,11 @@ class Relation(models.Model):
                             verbose_name='Дата создания',
                             )
     user = models.ForeignKey(User,
-                               on_delete=models.PROTECT,
-                               editable=False,
-                               verbose_name='Пользователь'
-                               )
+                             on_delete=models.PROTECT,
+                             editable=False,
+                             verbose_name='Пользователь'
+                             )
+    objects = models.Manager()
 
     def __str__(self):
         return f"{self.title} {self.bz.pk}-{self.bz}-{self.rz.pk}"
@@ -227,4 +277,4 @@ class Relation(models.Model):
     class Meta:
         verbose_name = 'Связь'
         verbose_name_plural = 'Связи'
-        ordering = ('-date', )
+        ordering = ('-date',)

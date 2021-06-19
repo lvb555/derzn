@@ -35,3 +35,15 @@
 #id_tr {
     width: 100%;
 }
+
+#changelist-search img {
+    width: 20px;
+}
+
+
+/* Стили картинок в сущности Znanie */
+
+.col a img {
+    margin-bottom: 1em;
+    margin-top: 1em;
+}

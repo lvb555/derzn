@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Автор {{ author.name }}{% endblock %}
+
+{% block content %}
+
+<h2>Автор {{ author.name }}</h2>
+
+{% if author.info %}
+<div class="row">
+        <div class="col-md-4">
+            {{ author.info|safe }}
+        </div>
+        {% if author.photo %}
+        <div class="col-md-2">
+            <img src="{% get_media_prefix %}{{ author.photo }}" class="rounded float-end img-thumbnail" alt="{{ author.name }}" width="200">
+       </div>
+        {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

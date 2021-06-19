@@ -1,5 +1,5 @@
 from django.views.generic import ListView, TemplateView, DetailView
-from .models import Category, Znanie, Relation, Tr
+from .models import Category, Znanie, Relation, Tr, Author
 
 
 class DrevoListView(ListView):
@@ -44,6 +44,7 @@ class DrevoView(TemplateView):
         ztypes = Category.objects.all()
         context['ztypes'] = ztypes
         return context
+
 
 class ZnanieDetailView(DetailView):
     """
@@ -92,3 +93,21 @@ class ZnanieByLabelView(ListView):
         # получаем query set Знание, имеющих такую же метку
         qs = Znanie.objects.filter(labels__id__in=[label_pk, ], is_published=True).order_by('order')
         return qs
+
+class AuthorsListView(ListView):
+    """
+    выводит список авторов
+    """
+    template_name = 'drevo/authors_list.html'
+    model = Author
+    context_object_name = 'authors'
+    queryset = Author.objects.all()
+
+
+class AuthorDetailView(DetailView):
+    """
+    Выводит подробную информацию об Авторе
+    """
+    model = Author
+    context_object_name = 'author'
+    template_name = 'drevo/author_details.html'

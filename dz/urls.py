@@ -14,9 +14,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, reverse
+from django.views.generic import RedirectView
+
+
+class DrevoRedirectView(RedirectView):
+    permanent = False
+    query_string = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse('drevo')
+
 
 urlpatterns = [
+    path('', DrevoRedirectView.as_view(), name='main-redirect'),
     path('admin/', admin.site.urls),
-    path('', include('drevo.urls'))
+    path('drevo/', include('drevo.urls'))
 ]
