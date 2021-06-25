@@ -1,5 +1,5 @@
 from django.views.generic import ListView, TemplateView, DetailView
-from .models import Category, Znanie, Relation, Tr, Author
+from .models import Category, Znanie, Relation, Tr, Author, Label
 
 
 class DrevoListView(ListView):
@@ -75,6 +75,16 @@ class ZnanieDetailView(DetailView):
         return context
 
 
+class LabelsListView(ListView):
+    """
+    выводит список меток
+    """
+    template_name = 'drevo/labels.html'
+    model = Label
+    context_object_name = 'labels'
+    queryset = Label.objects.all().order_by('name')
+
+
 class ZnanieByLabelView(ListView):
     """
     выводит сущности Знание для заданной метки
@@ -91,8 +101,19 @@ class ZnanieByLabelView(ListView):
         label_pk = self.kwargs['pk']
 
         # получаем query set Знание, имеющих такую же метку
-        qs = Znanie.objects.filter(labels__id__in=[label_pk, ], is_published=True).order_by('order')
+        qs = Znanie.objects.filter(labels__id__in=[label_pk, ], is_published=True).order_by('category')
         return qs
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """
+        Передает в шаблон данные через контекст
+        """
+        context = super().get_context_data(**kwargs)
+
+        context['label'] = Label.objects.get(pk=self.kwargs['pk'])
+
+        return context
+
 
 class AuthorsListView(ListView):
     """

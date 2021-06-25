@@ -62,7 +62,7 @@ class ZnanieAdmin(admin.ModelAdmin):
     list_display = ('name', 'tz', 'href2link', 'author', 'updated_at', 'user')
     ordering = ('order',)
     save_as = True
-    autocomplete_fields = ['labels', 'category']
+    autocomplete_fields = ['labels', 'category', 'author']
     search_fields = ['name']
     list_filter = ('tz', 'author', 'updated_at', 'is_published', 'labels', )
     list_per_page = 30
@@ -96,8 +96,10 @@ admin.site.register(Znanie, ZnanieAdmin)
 
 
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ('name', )
+    list_display = ('name', 'type', )
     ordering = ('name',)
+    search_fields = ['name']
+    list_filter = ('type', )
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['form'] = AuthorForm
@@ -139,7 +141,7 @@ admin.site.register(Tz, TzAdmin)
 class RelationAdmin(admin.ModelAdmin):
     list_display = ('bz', 'tr', 'rz', 'author', 'date', 'user' )
     save_as = True
-    autocomplete_fields = ['bz', 'rz']
+    autocomplete_fields = ['bz', 'rz', 'author']
     search_fields = ['bz__name', 'rz__name']
     ordering = ('-date',)
 

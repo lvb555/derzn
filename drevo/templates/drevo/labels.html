@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Список тегов{% endblock %}
+
+{% block content %}
+
+<h2>Теги</h2>
+
+{% for label in labels %}
+
+<div class="row">
+    <div class="col">
+        <a href="{% url 'zlabel' label.pk %}">{{ label.name }}</a>
+    </div>
+</div>
+
+{% empty %}
+ <div class="row">
+    <div class="col">
+        Список авторов пуст
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
