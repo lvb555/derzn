@@ -2,7 +2,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import DrevoListView, DrevoView, ZnanieDetailView, \
-    ZnanieByLabelView, AuthorDetailView, AuthorsListView, LabelsListView
+    ZnanieByLabelView, AuthorDetailView, AuthorsListView, LabelsListView, GlossaryListView
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),
@@ -12,6 +12,7 @@ urlpatterns = [
     path('author/<int:pk>', AuthorDetailView.as_view(), name='author'),
     path('authors/', AuthorsListView.as_view(), name='authors'),
     path('labels/', LabelsListView.as_view(), name='labels'),
+    path('glossary/', GlossaryListView.as_view(), name='glossary'),
 ]
 
 if settings.DEBUG:

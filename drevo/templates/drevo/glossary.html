@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Глоссарий{% endblock %}
+
+{% block content %}
+
+<h2>Глоссарий</h2>
+
+{% for term in glossary_terms %}
+
+<div class="row">
+    <div class="col">
+        <strong>{{ term.name }}</strong>,  {{ term.description }}
+    </div>
+</div>
+
+{% empty %}
+ <div class="row">
+    <div class="col">
+        Глоссарий пуст
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

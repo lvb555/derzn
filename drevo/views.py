@@ -1,5 +1,6 @@
+from django.db.models import Count, Q
 from django.views.generic import ListView, TemplateView, DetailView
-from .models import Category, Znanie, Relation, Tr, Author, Label
+from .models import Category, Znanie, Relation, Tr, Author, Label, GlossaryTerm
 
 
 class DrevoListView(ListView):
@@ -15,7 +16,7 @@ class DrevoListView(ListView):
         формирует выборку из сущностей Знание для вывода
         """
         category_pk = self.kwargs['pk']
-        qs = Znanie.objects.filter(category__pk=category_pk, is_published=True).order_by('order')
+        qs = Znanie.published.filter(category__pk=category_pk)
         return qs
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -24,7 +25,7 @@ class DrevoListView(ListView):
         """
         context = super().get_context_data(**kwargs)
         # текущая категория
-        category = Category.objects.get(pk=self.kwargs['pk'])
+        category = Category.published.get(pk=self.kwargs['pk'])
         context['category'] = category
         return context
 
@@ -41,8 +42,17 @@ class DrevoView(TemplateView):
         """
         context = super().get_context_data(**kwargs)
         # формирует список категорий
-        ztypes = Category.objects.all()
-        context['ztypes'] = ztypes
+        categories = Category.published.all().order_by('tree_id')
+        context['ztypes'] = categories
+
+        # формирование списка Знаний по категориям
+        zn = Znanie.published.all()
+        zn_dict = {}
+        for category in categories:
+            zn_in_this_category = zn.filter(category=category)
+            zn_dict[category.name] = zn_in_this_category
+        context['zn_dict'] = zn_dict
+
         return context
 
 
@@ -70,7 +80,7 @@ class ZnanieDetailView(DetailView):
         ts = Tr.objects.all()
 
         context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True)]
-                           for item in ts if qs.filter(tr=item, rz__is_published=True).count()>0]
+                           for item in ts if qs.filter(tr=item, rz__is_published=True).count() > 0]
 
         return context
 
@@ -82,7 +92,9 @@ class LabelsListView(ListView):
     template_name = 'drevo/labels.html'
     model = Label
     context_object_name = 'labels'
-    queryset = Label.objects.all().order_by('name')
+    queryset = Label.objects.annotate(zn_num=Count('znanie',
+                                                   filter=Q(znanie__is_published=True))).\
+        all().order_by('name')
 
 
 class ZnanieByLabelView(ListView):
@@ -101,7 +113,7 @@ class ZnanieByLabelView(ListView):
         label_pk = self.kwargs['pk']
 
         # получаем query set Знание, имеющих такую же метку
-        qs = Znanie.objects.filter(labels__id__in=[label_pk, ], is_published=True).order_by('category')
+        qs = Znanie.published.filter(labels__id__in=[label_pk, ])
         return qs
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -122,7 +134,7 @@ class AuthorsListView(ListView):
     template_name = 'drevo/authors_list.html'
     model = Author
     context_object_name = 'authors'
-    queryset = Author.objects.all()
+    queryset = Author.objects.annotate(zn_num=Count('znanie', filter=Q(znanie__is_published=True))).all()
 
 
 class AuthorDetailView(DetailView):
@@ -132,3 +144,12 @@ class AuthorDetailView(DetailView):
     model = Author
     context_object_name = 'author'
     template_name = 'drevo/author_details.html'
+
+
+class GlossaryListView(ListView):
+    """
+    выводит список терминов глоссария
+    """
+    template_name = 'drevo/glossary.html'
+    model = GlossaryTerm
+    context_object_name = 'glossary_terms'

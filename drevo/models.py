@@ -2,6 +2,7 @@ from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 from django.urls import reverse
 from django.contrib.auth.models import User
+from .managers import ZManager, CategoryManager
 
 
 class AuthorType(models.Model):
@@ -73,6 +74,11 @@ class Category(MPTTModel):
                                null=True,
                                verbose_name='Содержание'
                                )
+    is_published = models.BooleanField(default=False,
+                                       verbose_name='Опубликовано?'
+                                       )
+    objects = models.Manager()
+    published = CategoryManager()
 
     def __str__(self):
         return self.name
@@ -96,6 +102,8 @@ class Tz(models.Model):
     name = models.CharField(max_length=128,
                             unique=True,
                             verbose_name='Название')
+    is_systemic = models.BooleanField(default=False,
+                                      verbose_name='Системный?')
 
     def __str__(self):
         return self.name
@@ -136,7 +144,8 @@ class Znanie(models.Model):
                               on_delete=models.PROTECT,
                               verbose_name='Категория',
                               null=True,
-                              blank=True
+                              blank=True,
+                              limit_choices_to={'is_published': True}
                               )
     tz = models.ForeignKey(Tz,
                            on_delete=models.PROTECT,
@@ -188,10 +197,17 @@ class Znanie(models.Model):
                                     verbose_name='Метки',
                                     blank=True
                                     )
+    # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
+    # в котором уже установлена фильтрация по is_published и сортировка
     objects = models.Manager()
+    published = ZManager()
+
 
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        return reverse('zdetail', kwargs={"pk": self.pk})    
 
     class Meta:
         verbose_name = 'Знание'
@@ -278,3 +294,38 @@ class Relation(models.Model):
         verbose_name = 'Связь'
         verbose_name_plural = 'Связи'
         ordering = ('-date',)
+
+
+class GlossaryTerm(models.Model):
+    """
+    Класс для описания термина глоссария
+    """
+    title = 'Термин глоссария'
+    name = models.CharField(max_length=256,
+                            verbose_name='Термин',
+                            unique=True
+                            )
+    description = models.TextField(max_length=2048,
+                                    blank=True,
+                                    null=True,
+                                    verbose_name='Описание'
+                                    )
+    created_at = models.DateTimeField(auto_now_add=True,
+                                      verbose_name='Дата и время создания',
+                                     )
+    updated_at = models.DateTimeField(auto_now=True,
+                                      verbose_name='Дата и время редактирования',
+                                      )
+
+    is_published = models.BooleanField(default=True,
+                                       verbose_name='Опубликовано?'
+                                       )
+    objects = models.Manager()
+
+    def __str__(self):
+        return self.name   
+
+    class Meta:
+        verbose_name = 'Термин глоссария'
+        verbose_name_plural = 'Термины глоссария'
+        ordering = ('name',)

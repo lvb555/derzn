@@ -1,12 +1,31 @@
 from django.contrib import admin
-from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType
+from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType, GlossaryTerm
 from mptt.admin import DraggableMPTTAdmin
 from .forms import ZnanieForm, AuthorForm
 from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 
 class CategoryMPTT(DraggableMPTTAdmin):
     search_fields = ['name']
+    list_display = (
+        'tree_actions',
+        'indented_title_ispublished',
+    )
+    list_display_links = (
+        'indented_title_ispublished',
+    )
+
+    def indented_title_ispublished(self, instance):
+        published_str = 'published' if instance.is_published else 'unpublished'
+        return format_html(
+            '<div style="text-indent:{}px" class="{}">{}</div>',
+            instance._mpttfield('level') * self.mptt_level_indent,
+            published_str,
+            instance.name,  # Or whatever you want to put here
+        )
+
+    indented_title_ispublished.short_description = 'Категория'
 
     class Media:
         css = {
@@ -14,17 +33,7 @@ class CategoryMPTT(DraggableMPTTAdmin):
         }
 
 
-admin.site.register(
-    Category,
-    CategoryMPTT,
-    list_display=(
-        'tree_actions',
-        'indented_title',
-    ),
-    list_display_links=(
-        'indented_title',
-    ),
-)
+admin.site.register(Category, CategoryMPTT)
 
 
 class LabelAdmin(admin.ModelAdmin):
@@ -156,3 +165,11 @@ class RelationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Relation, RelationAdmin)
+
+
+class GlossaryTermAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description' )
+    ordering = ('name',)
+
+
+admin.site.register(GlossaryTerm, GlossaryTermAdmin)

@@ -46,3 +46,7 @@
 .col img {
     margin-bottom: 1em;
 }
+
+.unpublished {
+    color: #ff0000;
+}
