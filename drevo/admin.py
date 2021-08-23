@@ -1,7 +1,7 @@
 from django.contrib import admin
 from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType, GlossaryTerm
 from mptt.admin import DraggableMPTTAdmin
-from .forms import ZnanieForm, AuthorForm
+from .forms import ZnanieForm, AuthorForm, GlossaryTermForm
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 
@@ -170,6 +170,10 @@ admin.site.register(Relation, RelationAdmin)
 class GlossaryTermAdmin(admin.ModelAdmin):
     list_display = ('name', 'description' )
     ordering = ('name',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['form'] = GlossaryTermForm
+        return super().get_form(request, obj, **kwargs)    
 
 
 admin.site.register(GlossaryTerm, GlossaryTermAdmin)

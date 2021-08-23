@@ -23,40 +23,27 @@ ul.root > li {
 
 <ul class="root">
     {% recursetree ztypes %}
-        <li>
+    <li {% if node.get_level == 0 %}style="font-weight: 600;"{% else %}style="font-weight: 400;"{% endif %}>
             <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
+
+            <ul>
+              {% for zn in zn_dict|dict_value:node.name %}
+              <li style="font-weight: 400;"><a href="{{ zn.get_absolute_url }}" style="color: rgb(155, 75, 0);">{{ zn.name }}</a></li>
+              {% endfor %}                
+            </ul>
+
             {% if not node.is_leaf_node %}
                 <ul class="children">
                     {{ children }}
                 </ul>
-            {% else %}
-              <ul>
-                {% for zn in zn_dict|dict_value:node.name %}
-                <li><a href="{{ zn.get_absolute_url }}" style="color: rgb(155, 75, 0);">{{ zn.name }}</a></li>
-                {% endfor %}                
-              </ul>
             {% endif %}
+            
         </li>
     {% endrecursetree %}
 </ul>
 
-
-{% comment "Временное отключаем метод recursetree для проверки full_tree_for_model" %}
-
-{% full_tree_for_model drevo.Category as categories %}
-
-  {% for category, structure in categories|tree_info %}
-    {% if structure.new_level %}<ul><li>{% else %}</li><li>{% endif %}
-      <a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
-    {% for level in structure.closed_levels %}</li></ul>{% endfor %}
-{% endfor %}
-
-{% endcomment %}
-
 {% endblock %}
 
-
-{}
 
 {% comment "Временное отключаем js скрипт для разворачивания дерева" %}
 

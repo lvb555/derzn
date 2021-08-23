@@ -42,7 +42,7 @@ class DrevoView(TemplateView):
         """
         context = super().get_context_data(**kwargs)
         # формирует список категорий
-        categories = Category.published.all().order_by('tree_id')
+        categories = Category.tree_objects.exclude(is_published=False)
         context['ztypes'] = categories
 
         # формирование списка Знаний по категориям
@@ -153,3 +153,4 @@ class GlossaryListView(ListView):
     template_name = 'drevo/glossary.html'
     model = GlossaryTerm
     context_object_name = 'glossary_terms'
+    queryset = GlossaryTerm.objects.filter(is_published=True)

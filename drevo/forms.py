@@ -41,3 +41,20 @@ class AuthorForm(forms.ModelForm):
     class Meta:
         model = Author
         fields = '__all__'
+
+
+class GlossaryTermForm(forms.ModelForm):
+    """
+    Форма для вывода терминов глоссария.
+    """
+    description = forms.CharField(widget=CKEditorWidget(attrs={'cols': 40,
+                                                           'rows': 10,
+                                                           }
+                                                    ),
+                              label='Описание',
+                              required=False
+                              )
+
+    class Meta:
+        model = Znanie
+        fields = '__all__'

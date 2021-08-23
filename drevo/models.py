@@ -1,5 +1,5 @@
 from django.db import models
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import MPTTModel, TreeForeignKey, TreeManager
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .managers import ZManager, CategoryManager
@@ -77,7 +77,8 @@ class Category(MPTTModel):
     is_published = models.BooleanField(default=False,
                                        verbose_name='Опубликовано?'
                                        )
-    objects = models.Manager()
+    # менеджеры объектов
+    tree_objects = TreeManager()
     published = CategoryManager()
 
     def __str__(self):
