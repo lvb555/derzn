@@ -5,12 +5,8 @@
 
 {% block cssfiles %}
 <style>
-ul.root > li > ul li {
-  list-style-type: circle;
-}
-
-ul.root > li {
-  list-style: none;
+ul {
+  list-style-type: none;
 }
 
 </style>
@@ -20,20 +16,37 @@ ul.root > li {
 {% block content %}
 <h1>Древо</h1>
 
+<button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть древо</button>
+&nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть древо</button>
 
-<ul class="root">
+<br><br>
+
+<ul class="root" id="tree_root">
     {% recursetree ztypes %}
-    <li {% if node.get_level == 0 %}style="font-weight: 600;"{% else %}style="font-weight: 400;"{% endif %}>
+    <li {% if node.get_level == 0 %}
+         style="font-weight: 600;"
+        {% else %}
+         style="font-weight: 400;"
+        {% endif %}
+        id="li_{{ node.id }}"
+        >
+        
+
+        {% if not node.has_published_children and zn_dict|dict_value:node.name|length_is:"0" %}
+          <i class="bi-file-plus-fill" style="color: #d4d4d4a9;" ></i>
+        {% else %}
+          <i class="bi-file-plus-fill" style="color: #FFCC66; cursor: pointer;" onclick="toggleHiddenElement(this);"></i>          
+        {% endif %}
             <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
 
-            <ul>
+            <ul hidden>
               {% for zn in zn_dict|dict_value:node.name %}
-              <li style="font-weight: 400;"><a href="{{ zn.get_absolute_url }}" style="color: rgb(155, 75, 0);">{{ zn.name }}</a></li>
+              <li style="font-weight: 400;"><i class="bi-file-text-fill" style="color: #99CCFF;"></i> <a href="{{ zn.get_absolute_url }}">{{ zn.name }}</a></li>
               {% endfor %}                
             </ul>
 
             {% if not node.is_leaf_node %}
-                <ul class="children">
+                <ul class="children" hidden>
                     {{ children }}
                 </ul>
             {% endif %}
@@ -45,42 +58,60 @@ ul.root > li {
 {% endblock %}
 
 
-{% comment "Временное отключаем js скрипт для разворачивания дерева" %}
+
 
 {% block jsfiles %}
+
 <script>
-window.onload = function() {
-  for (let item of document.querySelectorAll('.root > li > ul')) {
-   item.hidden = true;
-  }
+
+function toggleHiddenElement(element){
+let li_id = element.parentNode.id; 
+let selector_string = "li#" + li_id + " > ul";
+let ulToHidden = document.querySelectorAll(selector_string);
+ulToHidden.forEach(function(item){
+  item.hidden = !item.hidden;
+})
+
+if (element.className == "bi-file-minus-fill") {
+	element.className = "bi-file-plus-fill";
+}
+else {
+element.className = "bi-file-minus-fill";
+}
 }
 
-for (let item of document.querySelectorAll('.root > li')) {
-   let itag = document.createElement('i');
-    itag.classList.add('bi');
-    itag.classList.add('bi-file-plus-fill');
-    item.prepend(itag);
-    itag.style.color = '#FFCC66';
+function showAll(){
+  let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+  
+  ulToHidden.forEach(function(x){
+    x.hidden = false;
   }
+  )
 
-for (let item of document.querySelectorAll('.root > li > i')) {
-  item.addEventListener("click", function(event) {
-                       let ulka = event.target.parentNode.querySelector("li > ul");
-                       ulka.hidden = !ulka.hidden;
+let treeRoot = document.getElementById("tree_root");
+let listIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
+for (let icon of listIconsToChange) {
+  icon.className = "bi-file-minus-fill";
+}
 
-                      let itag = event.target;
-                      if (ulka.hidden) {
-                        itag.classList.add("bi-file-plus-fill");
-                        itag.classList.remove("bi-file-minus-fill");
-                      } else {
-                        itag.classList.remove("bi-file-plus-fill");
-                        itag.classList.add("bi-file-minus-fill");
-                      }
+}
 
-                                           })
-};
+function hiddenAll(){
+  let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+  ulToHidden.forEach(function(item){
+  item.hidden = true;
+})
+
+let treeRoot = document.getElementById("tree_root");
+let listIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
+for (let item of listIconsToChange) {
+  item.className = "bi-file-plus-fill";
+}
+
+}
+
+
 </script>
 
 {% endblock %}
 
-{% endcomment %}

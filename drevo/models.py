@@ -86,6 +86,17 @@ class Category(MPTTModel):
 
     def get_absolute_url(self):
         return reverse('drevo_type', kwargs={"pk": self.pk})
+    
+    def has_published_children(self) -> bool():
+        """
+        Возвращает True, если среди потомков объекта имеются опубликованные,
+        False в противном случае.
+        """
+        children = self.get_children()
+        for child in children:
+            if child.is_published:
+                return True
+        return False
 
     class Meta:
         verbose_name = 'Категория'
