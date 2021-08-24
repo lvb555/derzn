@@ -6,6 +6,12 @@
 
 <h2>Авторы</h2>
 
+<form action="" id="rform">
+    {{ rform.author_type }}   
+</form>
+
+<br>
+
 {% for author in authors %}
 
 <div class="row">
@@ -22,4 +28,12 @@
 </div>
 {% endfor %}
 
+{% endblock %}
+
+{% block jsfiles %}
+<script>
+    function doSubmit(s) {
+  document.getElementById(s).submit();
+}
+</script>
 {% endblock %}

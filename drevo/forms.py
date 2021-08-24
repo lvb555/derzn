@@ -1,5 +1,5 @@
 from django import forms
-from .models import Znanie, Author
+from .models import Znanie, Author, AuthorType
 from ckeditor.widgets import CKEditorWidget
 
 
@@ -58,3 +58,14 @@ class GlossaryTermForm(forms.ModelForm):
     class Meta:
         model = Znanie
         fields = '__all__'
+
+
+class AuthorsFilterForm(forms.Form):
+    """
+    Форма для фильтрации списка авторов по типу авторов (AuthorType)
+    """
+    author_type = forms.ModelChoiceField(queryset=AuthorType.objects.all(),
+                                   empty_label='Все',
+                                   widget=forms.Select(attrs={'oninput': 'doSubmit(this.form.id)'
+                                                              })                                   
+                                   )    

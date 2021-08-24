@@ -1,6 +1,7 @@
 from django.db.models import Count, Q
 from django.views.generic import ListView, TemplateView, DetailView
-from .models import Category, Znanie, Relation, Tr, Author, Label, GlossaryTerm
+from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm
+from .forms import AuthorsFilterForm
 
 
 class DrevoListView(ListView):
@@ -134,7 +135,36 @@ class AuthorsListView(ListView):
     template_name = 'drevo/authors_list.html'
     model = Author
     context_object_name = 'authors'
-    queryset = Author.objects.annotate(zn_num=Count('znanie', filter=Q(znanie__is_published=True))).all()
+
+    def get_queryset(self):
+        """
+        Возвращает queryset авторов в соответствии с фильтром, полученным из формы 
+        на странице со списком авторов
+        """
+
+        # получаем значение фильтра из запроса
+        author_type_to_filter = self.request.GET.get('author_type')
+
+        queryset = Author.objects.annotate(zn_num=Count('znanie', filter=Q(znanie__is_published=True))).all().order_by('name')
+
+        # валидируем значение и возвращаем queryset
+        list_of_author_types = AuthorType.objects.all().values_list('id', flat=True)
+        if not author_type_to_filter in list(map(str, list_of_author_types)):
+            return queryset
+        else:
+            return queryset.filter(type=author_type_to_filter)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """
+        Контекст, передаваемый в шаблон
+        """
+        context = super().get_context_data(**kwargs)
+        
+        rform = AuthorsFilterForm(self.request.GET)
+        rform.is_valid()
+        context['rform'] = rform
+
+        return context
 
 
 class AuthorDetailView(DetailView):
