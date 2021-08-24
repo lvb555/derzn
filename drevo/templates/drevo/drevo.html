@@ -1,16 +1,10 @@
 {% extends 'base.html' %}
 {% load mptt_tags %}
 {% load filter %}
-
+{% load static %}
 
 {% block cssfiles %}
-<style>
-ul {
-  list-style-type: none;
-}
-
-</style>
-
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -33,9 +27,9 @@ ul {
         
 
         {% if not node.has_published_children and zn_dict|dict_value:node.name|length_is:"0" %}
-          <i class="bi-file-plus-fill" style="color: #d4d4d4a9;" ></i>
+          <i class="bi-file-plus-fill lonely"></i>
         {% else %}
-          <i class="bi-file-plus-fill" style="color: #FFCC66; cursor: pointer;" onclick="toggleHiddenElement(this);"></i>          
+          <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>          
         {% endif %}
             <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
 
@@ -72,11 +66,13 @@ ulToHidden.forEach(function(item){
   item.hidden = !item.hidden;
 })
 
-if (element.className == "bi-file-minus-fill") {
-	element.className = "bi-file-plus-fill";
+if (element.classList.contains("bi-file-minus-fill")) {
+	element.classList.remove("bi-file-minus-fill")
+  element.classList.add("bi-file-plus-fill");
 }
 else {
-element.className = "bi-file-minus-fill";
+  element.classList.remove("bi-file-plus-fill")
+  element.classList.add("bi-file-minus-fill");
 }
 }
 
@@ -91,7 +87,8 @@ function showAll(){
 let treeRoot = document.getElementById("tree_root");
 let listIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
 for (let icon of listIconsToChange) {
-  icon.className = "bi-file-minus-fill";
+  icon.classList.remove("bi-file-plus-fill")
+  icon.classList.add("bi-file-minus-fill");
 }
 
 }
@@ -104,8 +101,9 @@ function hiddenAll(){
 
 let treeRoot = document.getElementById("tree_root");
 let listIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
-for (let item of listIconsToChange) {
-  item.className = "bi-file-plus-fill";
+for (let icon of listIconsToChange) {
+  icon.classList.remove("bi-file-minus-fill")
+  icon.classList.add("bi-file-plus-fill");
 }
 
 }

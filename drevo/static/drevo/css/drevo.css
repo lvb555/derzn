@@ -1,0 +1,23 @@
+/* Древо на главной странице сайта */
+
+ul {
+    list-style-type: none;
+  }
+
+a {
+    text-decoration: none;
+}
+
+.lonely {
+    color: #d4d4d4a9; 
+}
+
+.family {
+    color: #FFCC66; 
+    cursor: pointer; 
+    font-size: 1em;
+    background-image: radial-gradient(circle, rgba(0,0,0,1) 100%, rgba(0,0,0,1) 100%);
+    background-size: 10px 10px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
