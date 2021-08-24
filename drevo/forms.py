@@ -62,7 +62,12 @@ class GlossaryTermForm(forms.ModelForm):
 
 class AuthorsFilterForm(forms.Form):
     """
-    Форма для фильтрации списка авторов по типу авторов (AuthorType)
+    Форма для фильтрации списка авторов по типу авторов (AuthorType).
+
+    В поле author_type добавляем атрибут oninput для поля формы Select. Это
+    необходимо для вызова JS функции в шаблоне, которая при вводе данных
+    в форму, т.е. по настплении события oninput, отправляет её на сервер.
+    Т.о. форма не требует кнопки типа "Отправить".
     """
     author_type = forms.ModelChoiceField(queryset=AuthorType.objects.all(),
                                    empty_label='Все',

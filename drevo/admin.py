@@ -132,7 +132,7 @@ admin.site.register(AuthorType, AuthorTypeAdmin)
 
 
 class TrAdmin(admin.ModelAdmin):
-    list_display = ('name', )
+    list_display = ('name', 'is_systemic', )
     ordering = ('name',)
 
 
@@ -140,7 +140,7 @@ admin.site.register(Tr, TrAdmin)
 
 
 class TzAdmin(admin.ModelAdmin):
-    list_display = ('name', )
+    list_display = ('name', 'is_systemic', )
     ordering = ('name',)
 
 

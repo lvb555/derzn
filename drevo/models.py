@@ -252,6 +252,9 @@ class Tr(models.Model):
                             unique=True
                             )
 
+    is_systemic = models.BooleanField(default=False,
+                                      verbose_name='Системный?')
+
     def __str__(self):
         return self.name
 
