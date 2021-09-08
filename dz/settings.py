@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'drevo.apps.DrevoConfig',
     'mptt',
     'ckeditor',
+    'loguru',
 ]
 
 MIDDLEWARE = [

@@ -2,7 +2,9 @@ from django.db.models import Count, Q
 from django.views.generic import ListView, TemplateView, DetailView
 from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm
 from .forms import AuthorsFilterForm
+from loguru import logger
 
+logger.add('logs/main.log', format="{time} {level} {message}", rotation='100Kb', level="ERROR")
 
 class DrevoListView(ListView):
     """
@@ -174,6 +176,42 @@ class AuthorDetailView(DetailView):
     model = Author
     context_object_name = 'author'
     template_name = 'drevo/author_details.html'
+
+    @logger.catch
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """
+        Контекст, передаваемый в шаблон
+        """
+        context = super().get_context_data(**kwargs)
+        
+        # получаем категории, в которых есть знания данного автора
+        categories = Category.tree_objects.filter(znanie__author__id=int(self.kwargs['pk'])).exclude(is_published=False)
+        context['categories'] = categories
+
+        # получаем базовые знания данного автора
+        zn_base = Znanie.published.filter(author__id=int(self.kwargs['pk'])).exclude(category=None)
+        
+        # распределяем знания по их категориям
+        zn_base_in_category = {}
+        for category in categories:
+            zn_in_this_category = zn_base.filter(category=category)
+            zn_base_in_category[category.name] = zn_in_this_category
+        context['zn_base_in_category'] = zn_base_in_category
+
+        # получаем связанные знания данного автора
+        zn_add2base = {}
+        for znanie in zn_base:
+            # получим список id знаний, которые присутствуют в сущностях Relation с
+            # текущим базовым знанием
+            zn_related_ids = list(Relation.objects.filter(bz=znanie).values_list('rz', flat=True))
+
+            # получаем query со знаниями по этому списку и записываем его в словарь 
+            # с ключом = id текущего базового знания
+            zn_add2base[znanie.id] = Znanie.objects.filter(id__in=zn_related_ids)
+        context['zn_base'] = zn_base 
+        context['zn_add2base'] = zn_add2base
+
+        return context    
 
 
 class GlossaryListView(ListView):

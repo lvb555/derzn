@@ -21,3 +21,11 @@ a {
     background-repeat: no-repeat;
     background-position: center;
 }
+
+.zn_base {
+    color: blue;
+}
+
+.zn_add {
+    color: red;
+}
