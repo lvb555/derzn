@@ -300,6 +300,9 @@ class Relation(models.Model):
                              editable=False,
                              verbose_name='Пользователь'
                              )
+    is_published = models.BooleanField(default=False,
+                                       verbose_name='Опубликовано?'
+                                       )                             
     objects = models.Manager()
 
     def __str__(self):

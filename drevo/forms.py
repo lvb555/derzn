@@ -1,6 +1,7 @@
 from django import forms
-from .models import Znanie, Author, AuthorType
+from .models import Znanie, Author, AuthorType, Category
 from ckeditor.widgets import CKEditorWidget
+from mptt.forms import TreeNodeChoiceField
 
 
 class ZnanieForm(forms.ModelForm):
@@ -20,6 +21,10 @@ class ZnanieForm(forms.ModelForm):
                               label='Содержание',
                               required=False
                               )
+    category = TreeNodeChoiceField(queryset=Category.tree_objects.all(), 
+                                      empty_label="(нет категории)",
+                                      label='Категория',
+                                      required=False)                              
 
     class Meta:
         model = Znanie
