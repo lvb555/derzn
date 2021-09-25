@@ -38,7 +38,7 @@ class Author(models.Model):
                               blank=True,
                               null=True
                               )
-    type = models.ForeignKey(AuthorType,
+    atype = models.ForeignKey(AuthorType,
                              on_delete=models.PROTECT,
                              verbose_name='Вид автора',
                              blank=True,

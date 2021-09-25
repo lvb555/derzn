@@ -156,7 +156,7 @@ class AuthorsListView(ListView):
         if not author_type_to_filter in list(map(str, list_of_author_types)):
             return queryset
         else:
-            return queryset.filter(type=author_type_to_filter)
+            return queryset.filter(atype=author_type_to_filter)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """

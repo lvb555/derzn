@@ -105,10 +105,10 @@ admin.site.register(Znanie, ZnanieAdmin)
 
 
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', )
+    list_display = ('name', 'atype', )
     ordering = ('name',)
     search_fields = ['name']
-    list_filter = ('type', )
+    list_filter = ('atype', )
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['form'] = AuthorForm
