@@ -68,7 +68,8 @@ class ZnImageInline(admin.StackedInline):
 
 
 class ZnanieAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tz', 'href2link', 'author', 'updated_at', 'user')
+    list_display = ('pk', 'name', 'tz', 'href2link', 'author', 'updated_at', 'user')
+    list_display_links = ('pk', 'name')
     ordering = ('order',)
     save_as = True
     autocomplete_fields = ['labels', 'category', 'author']
@@ -94,6 +95,22 @@ class ZnanieAdmin(admin.ModelAdmin):
         else:
             return ''
     href2link.short_description = 'Ссылка'
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        """
+        Изменяет заголовок в форме редактирования объекта, см. https://docs.djangoproject.com/en/3.2/ref/contrib/admin/#django.contrib.admin.ModelAdmin.change_view
+
+        Контекстные переменные см. шаблон https://github.com/django/django/blob/main/django/contrib/admin/templates/admin/change_form.html
+        а также шаблоны-родители base_site.html и base.html.
+        Контекстная переменная subtitle прописана именно в base.html.
+        """
+        extra_context = extra_context or {}
+        # Получаем объект Znanie с соотв. id
+        z = Znanie.objects.get(id=object_id)
+        extra_context['subtitle'] = f"{z.pk} - {z.name}"
+        return super().change_view(
+            request, object_id, form_url, extra_context=extra_context,
+        )    
 
     class Media:
         css = {

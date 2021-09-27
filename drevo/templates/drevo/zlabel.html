@@ -1,29 +1,15 @@
-{% extends 'base.html' %}
+{% extends 'drevo/author_details.html' %}
+
+{% block title %}{{ label }}{% endblock %}
+
+{% block precontent %}
+<h2>Знания по тегу "{{ label }}"</h2>
+
+{% endblock %}
 
 {% block content %}
 
-<h2>{{ label }}</h2>
-
-{% regroup znanie by category as z_list %}
-
-<div class="container">
-<ul style="list-style-type: none;">
-{% for z in z_list %}
-    <li> <i class="bi bi-list-ul"></i>
-        {# проверяем, не пустая ли категория #}
-        {% if z.grouper.pk %}
-        <a href="{% url 'drevo_type' z.grouper.pk %}">
-            {{ z.grouper }}
-        </a>
-        {% endif %}
-    </li>
-    <ul>
-     {% for zn in z.list %}
-        <li><a href="{% url 'zdetail' zn.pk %}">{{ zn.name }}</a></li>
-    {% endfor %}
-    </ul>
-{% endfor %}
-</ul>
-</div>
+{% include "drevo/includes/knowledges_by_categories.html" %}
 
 {% endblock %}
+

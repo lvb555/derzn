@@ -8,6 +8,69 @@ import collections
 
 logger.add('logs/main.log', format="{time} {level} {message}", rotation='100Kb', level="ERROR")
 
+def get_knowledges_by_categories(knowledges_queryset):
+    """
+    Распределяет дополнительные знания по категориям.
+    Возвращает список категорий, к которым относятся входные знания,
+    и словарь, в котором ключ - категория, а значение - 
+    словарь со списками осн. и доп. знаний в этой категории:
+    {
+        category_name : {
+            'base' : [список основных знаний],
+            'additional' : [список дополнительных знаний],
+        }
+    }
+    """
+    # инициализируем словарь 
+    # используем defaultdict, чтобы при первом обращении по
+    # ключу (еще несуществующему) возвращался пустой словарь
+    knowledges_by_categories = collections.defaultdict(dict)
+
+    # получаем категории для знаний автора
+    for knowledge in knowledges_queryset:
+        
+        # получаем категорию для текущего знания
+        # если в результате поиска категории нет, в словарь 
+        # добавляет псевдокатегория с именем 'None' 
+        category = get_category_for_knowledge(knowledge)
+        category_name = category.name if category else 'None'
+
+        # открываем словарь с категорией текущего знания
+        knowledges = knowledges_by_categories[category_name]
+        # если категория указана, то добавляем знание в список
+        # основных знаний, если нет - то дополнительных            
+        if knowledge.category:
+            # проверяем, что элемент словаря для списка
+            # основных знаний существует, если нет - создаём.
+            try:
+                base_knowledges = knowledges['base']
+            except KeyError:
+                knowledges['base'] = []
+                base_knowledges = knowledges['base']
+            base_knowledges.append(knowledge)
+            knowledges['base'] = base_knowledges
+        else:
+            try:
+                additional_knowledges = knowledges['additional']
+            except KeyError:
+                knowledges['additional'] = []
+                additional_knowledges = knowledges['additional']
+            additional_knowledges.append(knowledge)
+            knowledges['additional'] = additional_knowledges
+
+    # список id категорий, в которых есть знания автора
+    ids = list(knowledges_by_categories.keys())
+    if 'None' in ids:
+        ids.remove('None')
+    categories_id_list = [Category.objects.get(name=x).id for x in ids]
+
+    # формируем список категорий в соответствии с порядком, заданным mptt 
+    categories = Category.tree_objects.filter(pk__in=categories_id_list).\
+        exclude(is_published=False)
+
+    return categories, knowledges_by_categories
+
+
 class DrevoListView(ListView):
     """
     выводит сущности Знание для заданной рубрики
@@ -102,34 +165,29 @@ class LabelsListView(ListView):
         all().order_by('name')
 
 
-class ZnanieByLabelView(ListView):
+class ZnanieByLabelView(DetailView):
     """
     выводит сущности Знание для заданной метки
     """
     template_name = 'drevo/zlabel.html'
-    model = Znanie
-    context_object_name = 'znanie'
-
-    def get_queryset(self):
-        """
-        формирует выборку из сущностей Знание для вывода
-        """
-        # получаем из запроса порядковый номер текущей метки
-        label_pk = self.kwargs['pk']
-
-        # получаем query set Знание, имеющих такую же метку
-        qs = Znanie.published.filter(labels__id__in=[label_pk, ])
-        return qs
+    model = Label
+    context_object_name = 'label'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
-        Передает в шаблон данные через контекст
+        Контекст, передаваемый в шаблон
         """
-        context = super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)        
 
-        context['label'] = Label.objects.get(pk=self.kwargs['pk'])
+        # получаем знания, содержащие данную метку
 
-        return context
+        label_id=int(self.kwargs['pk'])
+        label = Label.objects.get(id=label_id)
+        knowledges_of_label = Znanie.published.filter(labels__in=[label])
+        context['categories'], context['knowledges'] = \
+            get_knowledges_by_categories(knowledges_of_label)
+
+        return context  
 
 
 class AuthorsListView(ListView):
@@ -189,52 +247,8 @@ class AuthorDetailView(DetailView):
         # получаем знания данного автора
         knowledges_of_author = Znanie.published.filter(author__id=int(self.kwargs['pk']))
         
-        # готовим словарь, в котором ключ - категория, а значение - 
-        # словарь со списками осн. и доп. знаний в этой категории
-        # используем defaultdict, чтобы при первом обращении по
-        # ключу (еще несуществующему) возвращался пустой словарь
-        knowledges_by_categories = collections.defaultdict(dict)
-
-        # получаем категории для знаний автора
-        for knowledge in knowledges_of_author:
-            
-            # получаем категорию для текущего знания
-            # если в результате поиска категории нет, в словарь 
-            # добавляет псевдокатегория с именем 'None' 
-            category = get_category_for_knowledge(knowledge)
-            category_name = category.name if category else 'None'
-
-            # открываем словарь с категорией текущего знания
-            knowledges = knowledges_by_categories[category_name]            
-            if knowledge.category:
-                try:
-                    base_knowledges = knowledges['base']
-                except KeyError:
-                    knowledges['base'] = []
-                    base_knowledges = knowledges['base']
-                base_knowledges.append(knowledge)
-                knowledges['base'] = base_knowledges
-            else:
-                try:
-                    additional_knowledges = knowledges['additional']
-                except KeyError:
-                    knowledges['additional'] = []
-                    additional_knowledges = knowledges['additional']
-                additional_knowledges.append(knowledge)
-                knowledges['additional'] = additional_knowledges
-
-        # список id категорий, в которых есть знания автора
-        ids = list(knowledges_by_categories.keys())
-        if 'None' in ids:
-            ids.remove('None')
-        categories_id_list = [Category.objects.get(name=x).id for x in ids]
-
-        # формируем список категорий в соответствии с порядком, заданным mptt 
-        categories = Category.tree_objects.filter(pk__in=categories_id_list).\
-            exclude(is_published=False)
-        context['categories'] = categories
-
-        context['knowledges'] = knowledges_by_categories
+        context['categories'], context['knowledges'] = \
+            get_knowledges_by_categories(knowledges_of_author)
 
         return context    
 
