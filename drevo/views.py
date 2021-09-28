@@ -36,28 +36,22 @@ def get_knowledges_by_categories(knowledges_queryset):
         category_name = category.name if category else 'None'
 
         # открываем словарь с категорией текущего знания
-        knowledges = knowledges_by_categories[category_name]
+        knowledges = knowledges_by_categories[category_name] 
+        # сразу создаем два ключа и присоединяем к ним по пустому списку, 
+        # один для основных знаний, другой для дополнительных.
+        # это позволит обойтись далее без проверок на существование этих списков,
+        # а в шаблоне при отсутствии соотв. знаний в категории будет выводится пустой лист.
+        if not 'base' in knowledges:
+            knowledges['base'] = [] 
+        if not 'additional' in knowledges:
+            knowledges['additional'] = [] 
+
         # если категория указана, то добавляем знание в список
         # основных знаний, если нет - то дополнительных            
         if knowledge.category:
-            # проверяем, что элемент словаря для списка
-            # основных знаний существует, если нет - создаём.
-            try:
-                base_knowledges = knowledges['base']
-            except KeyError:
-                knowledges['base'] = []
-                base_knowledges = knowledges['base']
-            base_knowledges.append(knowledge)
-            knowledges['base'] = base_knowledges
+            knowledges['base'].append(knowledge)
         else:
-            try:
-                additional_knowledges = knowledges['additional']
-            except KeyError:
-                knowledges['additional'] = []
-                additional_knowledges = knowledges['additional']
-            additional_knowledges.append(knowledge)
-            knowledges['additional'] = additional_knowledges
-
+            knowledges['additional'].append(knowledge)
     # список id категорий, в которых есть знания автора
     ids = list(knowledges_by_categories.keys())
     if 'None' in ids:
@@ -186,6 +180,9 @@ class ZnanieByLabelView(DetailView):
         knowledges_of_label = Znanie.published.filter(labels__in=[label])
         context['categories'], context['knowledges'] = \
             get_knowledges_by_categories(knowledges_of_label)
+        
+        for z in knowledges_of_label:
+            logger.debug(z.labels) 
 
         return context  
 
