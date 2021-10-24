@@ -4,6 +4,24 @@ from ckeditor.widgets import CKEditorWidget
 from mptt.forms import TreeNodeChoiceField
 
 
+
+class CategoryForm(forms.ModelForm):
+    """
+    Форма для вывода сущности Category.
+    """
+    content = forms.CharField(widget=CKEditorWidget(attrs={'cols': 40,
+                                                           'rows': 10,
+                                                           }
+                                                    ),
+                              label='Содержание',
+                              required=False
+                              )
+
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
 class ZnanieForm(forms.ModelForm):
     """
     Форма для вывода сущности Знания.

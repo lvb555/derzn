@@ -78,7 +78,7 @@ class DrevoListView(ListView):
         формирует выборку из сущностей Знание для вывода
         """
         category_pk = self.kwargs['pk']
-        qs = Znanie.published.filter(category__pk=category_pk)
+        qs = Znanie.published.filter(category__pk=category_pk).order_by('-order')
         return qs
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -111,7 +111,7 @@ class DrevoView(TemplateView):
         zn = Znanie.published.all()
         zn_dict = {}
         for category in categories:
-            zn_in_this_category = zn.filter(category=category)
+            zn_in_this_category = zn.filter(category=category).order_by('-order')
             zn_dict[category.name] = zn_in_this_category
         context['zn_dict'] = zn_dict
 

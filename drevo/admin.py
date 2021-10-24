@@ -1,7 +1,7 @@
 from django.contrib import admin
 from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType, GlossaryTerm
 from mptt.admin import DraggableMPTTAdmin
-from .forms import ZnanieForm, AuthorForm, GlossaryTermForm
+from .forms import ZnanieForm, AuthorForm, GlossaryTermForm, CategoryForm
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 
@@ -15,6 +15,10 @@ class CategoryMPTT(DraggableMPTTAdmin):
     list_display_links = (
         'indented_title_ispublished',
     )
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['form'] = CategoryForm
+        return super().get_form(request, obj, **kwargs)
 
     def indented_title_ispublished(self, instance):
         published_str = 'published' if instance.is_published else 'unpublished'
@@ -68,8 +72,8 @@ class ZnImageInline(admin.StackedInline):
 
 
 class ZnanieAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'tz', 'href2link', 'author', 'updated_at', 'user')
-    list_display_links = ('pk', 'name')
+    list_display = ('id', 'order', 'name', 'tz', 'href2link', 'author', 'updated_at', 'user')
+    list_display_links = ('id', 'name')
     ordering = ('order',)
     save_as = True
     autocomplete_fields = ['labels', 'category', 'author']
