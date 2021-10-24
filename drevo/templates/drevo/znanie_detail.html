@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load mptt_tags %}
 
 {% block title %}Знание: {{ znanie.name }}{% endblock %}
 
@@ -77,6 +78,19 @@
   </div>
 </div>
 {% endif %}
+
+{% for c in categories %}
+<ul>
+  <li>  
+  {% if c == category %} <a href="{{ c.get_absolute_url }}" class="fw-bold">{{ c.name }} </a>
+  {% else %} <a href="{{ c.get_absolute_url }}">{{ c.name }} </a>
+  {% endif %}
+  </li>
+{% endfor %}
+
+{% for c in categories %}
+</ul>
+{% endfor %}
 
 {% if rels %}
 <table class="table">

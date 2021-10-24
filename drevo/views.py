@@ -144,6 +144,13 @@ class ZnanieDetailView(DetailView):
         context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True)]
                            for item in ts if qs.filter(tr=item, rz__is_published=True).count() > 0]
 
+        # формируем дерево категорий для категории текущего знания
+        knowledge = Znanie.objects.get(pk=pk)
+        category = get_category_for_knowledge(knowledge)
+        categories = category.get_ancestors(ascending=False, include_self=True)
+        context['category'] = category
+        context['categories'] = categories
+
         return context
 
 
