@@ -114,8 +114,13 @@ class Tz(models.Model):
     name = models.CharField(max_length=128,
                             unique=True,
                             verbose_name='Название')
+    order = models.IntegerField(verbose_name='Порядок',
+                                help_text='укажите порядковый номер',
+                                null=True,
+                                blank=True
+                                )                                  
     is_systemic = models.BooleanField(default=False,
-                                      verbose_name='Системный?')
+                                      verbose_name='Системный?')                                
 
     def __str__(self):
         return self.name
@@ -251,7 +256,11 @@ class Tr(models.Model):
                             verbose_name='Название',
                             unique=True
                             )
-
+    order = models.IntegerField(verbose_name='Порядок',
+                                help_text='укажите порядковый номер',
+                                null=True,
+                                blank=True
+                                )
     is_systemic = models.BooleanField(default=False,
                                       verbose_name='Системный?')
 

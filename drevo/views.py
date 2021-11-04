@@ -3,7 +3,8 @@ from django.views.generic import ListView, TemplateView, DetailView
 from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm
 from .forms import AuthorsFilterForm
 from loguru import logger
-from .services import get_category_for_knowledge
+from .services import get_category_for_knowledge, get_ancestors_for_knowledge, \
+    get_siblings_for_knowledge, get_children_for_knowledge 
 import collections
 
 logger.add('logs/main.log', format="{time} {level} {message}", rotation='100Kb', level="ERROR")
@@ -147,9 +148,15 @@ class ZnanieDetailView(DetailView):
         # формируем дерево категорий для категории текущего знания
         knowledge = Znanie.objects.get(pk=pk)
         category = get_category_for_knowledge(knowledge)
-        categories = category.get_ancestors(ascending=False, include_self=True)
+        if category:
+            categories = category.get_ancestors(ascending=False, include_self=True)
+        else:
+            categories = []
         context['category'] = category
         context['categories'] = categories
+        context['chain'] = get_ancestors_for_knowledge(knowledge)
+        context['siblings'] = get_siblings_for_knowledge(knowledge)
+        context['children'] = get_children_for_knowledge(knowledge)
 
         return context
 

@@ -88,9 +88,61 @@
   </li>
 {% endfor %}
 
+  {# Цепочка знаний #}
+  {% for z in chain %}
+    <ul>
+      <li>  
+      <a href="{{ z.get_absolute_url }}">{{ z.name }} </a>
+    </li>
+    {% empty %}
+    <div class="container">
+      <div class='row'>
+      Родственных знаний не найдено.
+      </div>
+    </div>
+    {% endfor %}
+
+    {# Текущее знание, без ссылки #}
+    <ul>
+      <li>  
+      <p class='fw-bold'>{{ znanie.name }}</p>
+    </li>
+
+        {# Дети текущего знания #}
+        {% if children %}
+        <ul>
+          {% for child in children %}
+          <li>  
+            <a href="{{ child.get_absolute_url }}">{{ child.name }} </a>
+        </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+    </ul>
+
+    {# Братья/сёстры текущего знания #}
+    {% if siblings %}
+    <ul>
+      {% for s in siblings %}
+      <li>  
+        <a href="{{ s.get_absolute_url }}">{{ s.name }} </a>
+    </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+
+    {# Закрывающие теги для дерева предков #}
+    {% for z in chain %}
+    </ul>
+   {% endfor %}
+
+{# Закрывающие теги для дерева категорий #}
 {% for c in categories %}
 </ul>
 {% endfor %}
+
 
 {% if rels %}
 <table class="table">
