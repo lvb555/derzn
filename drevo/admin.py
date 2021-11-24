@@ -155,6 +155,8 @@ admin.site.register(AuthorType, AuthorTypeAdmin)
 
 class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = ('name', 'order', 'is_systemic', )
+    sortable_by = ('name', 'is_systemic', )
+    ordering = ['order', ]
 
 
 admin.site.register(Tr, TrAdmin)
