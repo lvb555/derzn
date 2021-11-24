@@ -139,7 +139,7 @@ def get_children_by_relation_type_for_knowledge(knowledge):
     def sort_key(s):
         relation = Tr.objects.get(name=s[0])
         order = relation.order
-        return -order if order else 0
+        return order if order else 0
 
     children = get_children_for_knowledge(knowledge)
     children_grouped_by_relation_type = {}
