@@ -4,6 +4,7 @@ from mptt.admin import DraggableMPTTAdmin
 from .forms import ZnanieForm, AuthorForm, GlossaryTermForm, CategoryForm
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
+from adminsortable2.admin import SortableAdminMixin
 
 
 class CategoryMPTT(DraggableMPTTAdmin):
@@ -152,9 +153,8 @@ class AuthorTypeAdmin(admin.ModelAdmin):
 admin.site.register(AuthorType, AuthorTypeAdmin)
 
 
-class TrAdmin(admin.ModelAdmin):
+class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = ('name', 'order', 'is_systemic', )
-    ordering = ('name',)
 
 
 admin.site.register(Tr, TrAdmin)
@@ -169,10 +169,11 @@ admin.site.register(Tz, TzAdmin)
 
 
 class RelationAdmin(admin.ModelAdmin):
-    list_display = ('bz', 'tr', 'rz', 'author', 'date', 'user' )
+    list_display = ('id', 'bz', 'tr', 'rz', 'author', 'date', 'user' )
     save_as = True
     autocomplete_fields = ['bz', 'rz', 'author']
     search_fields = ['bz__name', 'rz__name']
+    list_filter = ('tr', 'author', 'date', 'is_published', )
     ordering = ('-date',)
 
     def save_model(self, request, obj, form, change):

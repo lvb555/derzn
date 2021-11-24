@@ -40,6 +40,11 @@
     width: 20px;
 }
 
+/* Список сущности Связь (Relation) */
+.column-bz, .field-bz {
+    width: 20%;
+}
+
 
 /* Стили картинок в сущности Znanie */
 

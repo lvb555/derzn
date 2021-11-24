@@ -3,67 +3,12 @@ from django.views.generic import ListView, TemplateView, DetailView
 from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm
 from .forms import AuthorsFilterForm
 from loguru import logger
-from .services import get_category_for_knowledge, get_ancestors_for_knowledge, \
-    get_siblings_for_knowledge, get_children_for_knowledge 
+from .relations_tree import get_category_for_knowledge, get_ancestors_for_knowledge, \
+    get_siblings_for_knowledge, get_children_for_knowledge, get_knowledges_by_categories, \
+    get_children_by_relation_type_for_knowledge
 import collections
 
 logger.add('logs/main.log', format="{time} {level} {message}", rotation='100Kb', level="ERROR")
-
-def get_knowledges_by_categories(knowledges_queryset):
-    """
-    Распределяет дополнительные знания по категориям.
-    Возвращает список категорий, к которым относятся входные знания,
-    и словарь, в котором ключ - категория, а значение - 
-    словарь со списками осн. и доп. знаний в этой категории:
-    {
-        category_name : {
-            'base' : [список основных знаний],
-            'additional' : [список дополнительных знаний],
-        }
-    }
-    """
-    # инициализируем словарь 
-    # используем defaultdict, чтобы при первом обращении по
-    # ключу (еще несуществующему) возвращался пустой словарь
-    knowledges_by_categories = collections.defaultdict(dict)
-
-    # получаем категории для знаний автора
-    for knowledge in knowledges_queryset:
-        
-        # получаем категорию для текущего знания
-        # если в результате поиска категории нет, в словарь 
-        # добавляет псевдокатегория с именем 'None' 
-        category = get_category_for_knowledge(knowledge)
-        category_name = category.name if category else 'None'
-
-        # открываем словарь с категорией текущего знания
-        knowledges = knowledges_by_categories[category_name] 
-        # сразу создаем два ключа и присоединяем к ним по пустому списку, 
-        # один для основных знаний, другой для дополнительных.
-        # это позволит обойтись далее без проверок на существование этих списков,
-        # а в шаблоне при отсутствии соотв. знаний в категории будет выводится пустой лист.
-        if not 'base' in knowledges:
-            knowledges['base'] = [] 
-        if not 'additional' in knowledges:
-            knowledges['additional'] = [] 
-
-        # если категория указана, то добавляем знание в список
-        # основных знаний, если нет - то дополнительных            
-        if knowledge.category:
-            knowledges['base'].append(knowledge)
-        else:
-            knowledges['additional'].append(knowledge)
-    # список id категорий, в которых есть знания автора
-    ids = list(knowledges_by_categories.keys())
-    if 'None' in ids:
-        ids.remove('None')
-    categories_id_list = [Category.objects.get(name=x).id for x in ids]
-
-    # формируем список категорий в соответствии с порядком, заданным mptt 
-    categories = Category.tree_objects.filter(pk__in=categories_id_list).\
-        exclude(is_published=False)
-
-    return categories, knowledges_by_categories
 
 
 class DrevoListView(ListView):
@@ -156,7 +101,8 @@ class ZnanieDetailView(DetailView):
         context['categories'] = categories
         context['chain'] = get_ancestors_for_knowledge(knowledge)
         context['siblings'] = get_siblings_for_knowledge(knowledge)
-        context['children'] = get_children_for_knowledge(knowledge)
+        # context['children'] = get_children_for_knowledge(knowledge)
+        context['children_by_tr'] = get_children_by_relation_type_for_knowledge(knowledge)
 
         return context
 

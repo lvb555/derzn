@@ -97,7 +97,7 @@
     {% empty %}
     <div class="container">
       <div class='row'>
-      Родственных знаний не найдено.
+      &nbsp;
       </div>
     </div>
     {% endfor %}
@@ -108,12 +108,18 @@
       <p class='fw-bold'>{{ znanie.name }}</p>
     </li>
 
-        {# Дети текущего знания #}
-        {% if children %}
+        {# Дети текущего знания, сгруппированные по видам связей #}
+        {% if children_by_tr %}
         <ul>
-          {% for child in children %}
-          <li>  
-            <a href="{{ child.get_absolute_url }}">{{ child.name }} </a>
+          {% for rel_type, children in children_by_tr.items %}
+          <li>  {{ rel_type }}
+            <ul>
+            {% for child in children %}
+            <li>
+              {{ child.tz }}&#10000;<a href="{{ child.get_absolute_url }}">{{ child.name }} </a>, {{ child.author }}
+            </li>
+            {% endfor %}
+            </ul>
         </li>
           {% endfor %}
         </ul>

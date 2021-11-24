@@ -256,10 +256,10 @@ class Tr(models.Model):
                             verbose_name='Название',
                             unique=True
                             )
-    order = models.IntegerField(verbose_name='Порядок',
+    order = models.PositiveSmallIntegerField(
+                                verbose_name='Порядок',
                                 help_text='укажите порядковый номер',
-                                null=True,
-                                blank=True
+                                default=0,
                                 )
     is_systemic = models.BooleanField(default=False,
                                       verbose_name='Системный?')
@@ -270,7 +270,7 @@ class Tr(models.Model):
     class Meta:
         verbose_name = 'Вид связи'
         verbose_name_plural = 'Виды связи'
-        ordering = ('name',)
+        ordering = ('order', 'name',)
 
 
 class Relation(models.Model):
