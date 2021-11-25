@@ -116,7 +116,8 @@
             <ul>
             {% for child in children %}
             <li>
-              {{ child.tz }}&#10000;<a href="{{ child.get_absolute_url }}">{{ child.name }} </a>, {{ child.author }}
+              {{ child.tz }}&#10000;<a href="{{ child.get_absolute_url }}">{{ child.name }} </a>, 
+              {{ child.author|default_if_none:'автор не указан' }}
             </li>
             {% endfor %}
             </ul>
