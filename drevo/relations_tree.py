@@ -135,7 +135,6 @@ def get_children_for_knowledge(knowledge):
 
 
 def get_children_by_relation_type_for_knowledge(knowledge):
-    import pprint
 
     def sort_by_relation_type(s):
         relation_type = Tr.objects.get(name=s[0])
@@ -143,24 +142,20 @@ def get_children_by_relation_type_for_knowledge(knowledge):
         return order if order else 0
     
     def sort_by_knoweledge_type(s):
-        order = s.tz.order
-        print(s.tz.name, order)
-        return order if order else 0
+        order_tz = s.tz.order
+        order_z = s.order or 0
+        return order_tz, order_z
 
     children = get_children_for_knowledge(knowledge)
     children_grouped_by_relation_type = {}
     for child in children:
         relation = Relation.objects.filter(bz=knowledge, rz=child).first()
         children_grouped_by_relation_type.setdefault(relation.tr, []).append(child)
-   
-    pprint.pprint(children_grouped_by_relation_type)
 
-    # Сортировка по видам знания
+    # Сортировка по видам знания и его параметру order
     for relation_type, children in children_grouped_by_relation_type.items():
         children.sort(key=sort_by_knoweledge_type)
         
-    pprint.pprint(children_grouped_by_relation_type)
-
     # Сортировка по видам связи    
     children_sorted_by_relation_order = sorted(children_grouped_by_relation_type.items(), 
                                                key=sort_by_relation_type)
