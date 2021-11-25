@@ -162,9 +162,10 @@ class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
 admin.site.register(Tr, TrAdmin)
 
 
-class TzAdmin(admin.ModelAdmin):
+class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = ('name', 'order', 'is_systemic', )
-    ordering = ('name',)
+    sortable_by = ('name', 'is_systemic', )
+    ordering = ['order', ]
 
 
 admin.site.register(Tz, TzAdmin)

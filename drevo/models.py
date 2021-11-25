@@ -114,9 +114,10 @@ class Tz(models.Model):
     name = models.CharField(max_length=128,
                             unique=True,
                             verbose_name='Название')
-    order = models.IntegerField(verbose_name='Порядок',
+    order = models.PositiveSmallIntegerField(
+                                verbose_name='Порядок',
                                 help_text='укажите порядковый номер',
-                                null=True,
+                                default=0,
                                 blank=True
                                 )                                  
     is_systemic = models.BooleanField(default=False,
@@ -128,6 +129,7 @@ class Tz(models.Model):
     class Meta:
         verbose_name = 'Вид знания'
         verbose_name_plural = 'Виды знания'
+        ordering = ('order', )
 
 
 class Label(models.Model):
