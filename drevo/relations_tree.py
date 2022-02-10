@@ -2,6 +2,7 @@
 Функции для построения деревьев отношений.
 """
 from .models import Author, Relation, Znanie, Category, Tr
+import collections
 
 
 def get_knowledges_by_categories(knowledges_queryset):
