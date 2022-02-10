@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="container">
+        <div class="row">
+            <div class="col-lg-7">
+                <h4 class="mt-3 mb-3">Ваш профиль</h4>
+                <div class="col-lg-12 text-center">
+                    <img width="200" height="200"
+                         src="{% if user.profile.avatar %} {{ user.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}"
+                         class="img-thumbnail">
+                </div>
+                <form action="{% url 'profiles:myprofile' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    {{ profile_form.as_p }}
+                    <div class="form-row">
+                        <div class="col-lg-12" style="margin-top: 32px;margin-bottom: 32px;">
+                            <input class="btn btn-primary" type="submit" value="Сохранить">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

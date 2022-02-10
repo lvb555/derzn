@@ -16,7 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, reverse
 from django.views.generic import RedirectView
-
+from django.conf import settings
+from django.conf.urls.static import static
 
 class DrevoRedirectView(RedirectView):
     permanent = False
@@ -29,5 +30,9 @@ class DrevoRedirectView(RedirectView):
 urlpatterns = [
     path('', DrevoRedirectView.as_view(), name='main-redirect'),
     path('admin/', admin.site.urls),
-    path('drevo/', include('drevo.urls'))
+    path('drevo/', include('drevo.urls')),
+    path('profiles/', include('profiles.urls', namespace='profiles')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

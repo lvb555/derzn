@@ -15,24 +15,47 @@
     <title>{% block title %}Древо{% endblock %}</title>
   </head>
   <body>
-
-<ul class="nav nav-pills">
-  <li class="nav-item">
-    <a class="nav-link" aria-current="page" href="{% url 'drevo' %}">Древо знания</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" aria-current="page" href="{% url 'authors' %}">Авторы</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" aria-current="page" href="{% url 'labels' %}">Теги</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" aria-current="page" href="{% url 'glossary' %}">Глоссарий</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="/admin">Панель управления</a>
-  </li>
-</ul>
+<div style="display: flex; justify-content: space-between">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="{% url 'drevo' %}">Древо знания</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="{% url 'authors' %}">Авторы</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="{% url 'labels' %}">Теги</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="{% url 'glossary' %}">Глоссарий</a>
+      </li>
+    {% if user.is_staff %}
+      <li class="nav-item">
+        <a class="nav-link" href="/admin">Панель управления</a>
+      </li>
+    {% endif %}
+    </ul>
+    <ul class="nav nav-pills">
+    {% if user.is_authenticated %}
+      <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="{% url 'profiles:myprofile' %}">
+            <span>{{ user.username }} <i class="bi bi-person-circle"></i></span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="{% url 'profiles:logout' %}">
+            <span>Выйти <i class="bi bi-door-closed"></i></span>
+        </a>
+      </li>
+    {% else %}
+      <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="{% url 'profiles:login' %}">
+            <span>Войти <i class="bi bi-door-open"></i></span>
+        </a>
+      </li>
+    {% endif %}
+    </ul>
+</div>
 <hr class="col-3 col-md-2 mb-5">
     {% block precontent %}
     {% endblock %}
