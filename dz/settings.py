@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'loguru',
     'adminsortable2',
+    'profiles',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +55,7 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(BASE_DIR, 'templates'),
             os.path.join(BASE_DIR, 'drevo/templates'),
+            os.path.join(BASE_DIR, 'profiles/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -112,6 +114,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'drevo/static'),
+    os.path.join(BASE_DIR, 'profiles/static'),
 ]
 
 # Default primary key field type
@@ -121,3 +124,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+LOGIN_URL = '/profiles/login/'
+
+BASE_URL = env.str('BASE_URL')
+
+if not DEBUG:
+    EMAIL_HOST = env.str('EMAIL_HOST')
+    EMAIL_PORT = env.str('EMAIL_PORT')
+    EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
+    EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS')
+    EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL')
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    EMAIL_HOST = 'localhost'
+    EMAIL_PORT = '25'
+    EMAIL_HOST_USER = 'test@test.test'
+    EMAIL_HOST_PASSWORD = 'test'
+    EMAIL_USE_SSL = False

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-7">
+                <h4 class="mt-3 mb-3">Профиль пользователя {{ object.username }}</h4>
+                <div class="col-lg-12 text-center">
+                    <img width="200" height="200"
+                         src="{% if object.profile.avatar %} {{ object.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}"
+                         class="img-thumbnail">
+                </div>
+                <form>
+                    <p>
+                        <label for="id_username">Имя пользователя:</label>
+                        <input type="text" name="username"
+                               value="{{ object.username }}" readonly=""
+                               class="form-control py-2" required=""
+                               id="id_username">
+                    </p>
+{#                    <p>#}
+{#                        <label for="id_email">Адрес эл. почты:</label>#}
+{#                        <input type="email" name="email"#}
+{#                               value="{{ object.email }}" readonly=""#}
+{#                               class="form-control py-2" required=""#}
+{#                               id="id_email">#}
+{#                    </p>#}
+                    <p>
+                        <label for="{{ object.first_name.id_for_label }}">Имя:</label>
+                        <input type="text" name="first_name" value="{{ object.first_name }}" readonly=""
+                               class="form-control py-2" id="id_first_name"></p>
+                    <p>
+                        <label for="{{ object.last_name.id_for_label }}">Фамилия:</label>
+                        <input type="text" name="last_name" value="{{ object.last_name }}" readonly=""
+                               class="form-control py-2" id="id_last_name">
+                    </p>
+                    <p>
+                        <label for="{{ object.profile.patronymic.id_for_label }}">Отчество:</label>
+                        <input type="text" name="patronymic" value="{{ object.profile.patronymic }}"
+                               readonly="" class="form-control py-2" id="id_patronymic">
+                    </p>
+                    <p>
+                        <label for="{{ object.profile.get_gender_display.id_for_label }}">Пол:</label>
+                        <input type="text" name="gender" value="{{ object.profile.get_gender_display }}"
+                               readonly="" class="form-control py-2" id="id_gender">
+                    </p>
+                    <p>
+                        <label for="{{ object.profile.birthday_at.id_for_label }}">Дата рождения:</label>
+                        <input type="date" name="birthday_at" value="{{ object.profile.birthday_at }}" readonly=""
+                               class="form-control py-2" id="id_birthday_at">
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
