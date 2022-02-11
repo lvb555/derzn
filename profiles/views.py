@@ -2,11 +2,13 @@ from django.contrib.auth.models import User
 from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.contrib import auth, messages
-from django.views.generic import FormView, CreateView, UpdateView, TemplateView, View
+from django.views.generic import FormView, CreateView, UpdateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
 
-from profiles.forms import UserLoginForm, UserRegistrationForm, UserModelForm, ProfileModelForm, \
-    ProfilePasswordRecoveryForm, ProfileSetPasswordForm
+from profiles.forms import UserLoginForm, UserRegistrationForm, UserModelForm
+from profiles.forms import ProfileModelForm, ProfilePasswordRecoveryForm
+from profiles.forms import ProfileSetPasswordForm
 from profiles.models import Profile
 
 
@@ -75,7 +77,6 @@ class ProfileFormView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('profiles:myprofile')
     form_class = UserModelForm
     model = User
-    pk_url_kwarg = 'id'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -112,9 +113,14 @@ class ProfileTemplateView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        _id = self.kwargs['id']
-        _object = User.objects.get(id=_id)
-        context['object'] = _object
+        context['object'] = None
+
+        _id = self.kwargs.get(self.pk_url_kwarg)
+        if _id:
+            _object = get_object_or_404(User, id=_id)
+
+            if _object:
+                context['object'] = _object
 
         context['title'] = f'Профиль пользователя {_object.username}'
         return context
@@ -124,18 +130,19 @@ class ProfileVerifyView(TemplateView):
     template_name = 'profiles/verification.html'
 
     def get(self, request, *args, **kwargs):
-        username = kwargs['username']
-        activation_key = kwargs['activation_key']
-
         response = super().get(request, *args, **kwargs)
         response.context_data['user'] = None
 
-        user = User.objects.get(username=username)
+        username = kwargs.get('username')
+        activation_key = kwargs.get('activation_key')
 
-        if user:
-            if user.profile.verify(username, activation_key):
-                auth.login(request, user)
-                response.context_data['user'] = user
+        if username and activation_key:
+            user = User.objects.get(username=username)
+
+            if user:
+                if user.profile.verify(username, activation_key):
+                    auth.login(request, user)
+                    response.context_data['user'] = user
 
         return response
 
@@ -178,19 +185,21 @@ class ProfileSetPasswordFormView(FormView):
 
     def form_valid(self, form):
         if form.is_valid():
-            email = self.kwargs['email']
-            key = self.kwargs['password_recovery_key']
+            email = self.kwargs.get('email')
+            key = self.kwargs.get('password_recovery_key')
 
-            profile = Profile.objects.get(user__email=email)
+            if email and key:
+                profile = Profile.objects.get(user__email=email)
 
-            if profile.recovery_valid(email, key):
-                profile.password_recovery_key = None
-                profile.password_recovery_key_expires = None
-                profile.save()
+                if profile.recovery_valid(email, key):
+                    form.save()
 
-                form.save()
-                messages.success(self.request, 'Ваш пароль успешно изменён.')
-                return HttpResponseRedirect(self.get_success_url())
+                    profile.password_recovery_key = ''
+                    profile.password_recovery_key_expires = None
+                    profile.save()
+
+                    messages.success(self.request, 'Ваш пароль успешно изменён.')
+                    return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -200,21 +209,28 @@ class ProfileSetPasswordFormView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        user = User.objects.get(email=self.kwargs['email'])
+
+        email = self.kwargs.get('email')
+
+        user = User.objects.get(email=email)
         kwargs['user'] = user
+
         return kwargs
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('profiles:myprofile'))
+            raise Http404
 
-        email = self.kwargs['email']
-        key = self.kwargs['password_recovery_key']
+        email = self.kwargs.get('email')
+        key = self.kwargs.get('password_recovery_key')
 
-        user = User.objects.get(email=self.kwargs['email'])
+        if not email or not key:
+            raise Http404
+
+        user = get_object_or_404(User, email=email)
         self.kwargs['user'] = user
 
         if not user.profile.recovery_valid(email, key):
-            return HttpResponseRedirect(reverse('profiles:login'))
+            raise Http404
 
         return super().get(request, *args, **kwargs)
