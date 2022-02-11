@@ -1,6 +1,7 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, \
-    UserChangeForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import User
 from profiles.models import Profile
 
@@ -54,7 +55,7 @@ class UserRegistrationForm(UserCreationForm):
 class UserModelForm(forms.ModelForm):
     username = forms.CharField(
         widget=forms.TextInput(attrs={'readonly': True}),
-        label='Имя пользователя'
+        label='Имя пользователя',
     )
     email = forms.CharField(
         widget=forms.EmailInput(attrs={'readonly': True}),
@@ -91,7 +92,6 @@ class ProfileModelForm(forms.ModelForm):
         choices=Profile.GENDERS,
         widget=forms.Select(),
         label='Пол',
-        required=False,
     )
     birthday_at = forms.DateField(
         widget=forms.DateInput(),
