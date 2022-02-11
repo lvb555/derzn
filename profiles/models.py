@@ -71,7 +71,7 @@ class Profile(models.Model):
                 and self.activation_key == activation_key \
                 and not self.is_activation_key_expired():
             self.activate_user()
-            self.activation_key = None
+            self.activation_key = ''
             self.activation_key_expires = None
             self.user.save()
             self.save()
