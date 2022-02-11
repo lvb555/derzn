@@ -5,8 +5,8 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from django.urls import reverse
 from django.core.mail import send_mail
+from django.utils import timezone
 
-from datetime import datetime, timedelta
 from hashlib import sha1
 from random import random
 
@@ -51,11 +51,11 @@ class Profile(models.Model):
 
     def generate_activation_key(self):
         self.activation_key = sha1(str(random()).encode('utf8')).hexdigest()
-        self.activation_key_expires = datetime.now() + timedelta(hours=48)
+        self.activation_key_expires = timezone.now() + timezone.timedelta(hours=48)
         self.save()
 
     def is_activation_key_expired(self):
-        if datetime.now().timestamp() < self.activation_key_expires.timestamp():
+        if timezone.now() < self.activation_key_expires:
             return False
         return True
 
@@ -80,11 +80,11 @@ class Profile(models.Model):
 
     def generate_password_recovery_key(self):
         self.password_recovery_key = sha1(str(random()).encode('utf8')).hexdigest()
-        self.password_recovery_key_expires = datetime.now() + timedelta(hours=48)
+        self.password_recovery_key_expires = timezone.now() + timezone.timedelta(hours=48)
         self.save()
 
     def is_password_recovery_key_expired(self):
-        if datetime.now().timestamp() < self.password_recovery_key_expires.timestamp():
+        if timezone.now() < self.password_recovery_key_expires:
             return False
         return True
 
