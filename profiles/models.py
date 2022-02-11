@@ -24,13 +24,13 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    patronymic = models.CharField(max_length=150, blank=True, null=True, verbose_name='Очество')
+    patronymic = models.CharField(max_length=150, blank=True, verbose_name='Очество')
     gender = models.CharField(max_length=1, choices=GENDERS, default=UNKNOWN, verbose_name='Пол')
     birthday_at = models.DateField(null=True, blank=True, verbose_name='Дата рождения')
     avatar = models.ImageField(upload_to='avatars', blank=True, null=True, verbose_name='Аватар')
-    activation_key = models.CharField(max_length=128, blank=True, null=True)
+    activation_key = models.CharField(max_length=128, blank=True)
     activation_key_expires = models.DateTimeField(blank=True, null=True)
-    password_recovery_key = models.CharField(max_length=128, blank=True, null=True)
+    password_recovery_key = models.CharField(max_length=128, blank=True)
     password_recovery_key_expires = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
