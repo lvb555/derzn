@@ -5,8 +5,8 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from django.urls import reverse
 from django.core.mail import send_mail
+from django.utils import timezone
 
-from datetime import datetime, timedelta
 from hashlib import sha1
 from random import random
 
@@ -24,13 +24,13 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    patronymic = models.CharField(max_length=150, blank=True, null=True, verbose_name='Очество')
+    patronymic = models.CharField(max_length=150, blank=True, verbose_name='Очество')
     gender = models.CharField(max_length=1, choices=GENDERS, default=UNKNOWN, verbose_name='Пол')
     birthday_at = models.DateField(null=True, blank=True, verbose_name='Дата рождения')
     avatar = models.ImageField(upload_to='avatars', blank=True, null=True, verbose_name='Аватар')
-    activation_key = models.CharField(max_length=128, blank=True, null=True)
+    activation_key = models.CharField(max_length=128, blank=True)
     activation_key_expires = models.DateTimeField(blank=True, null=True)
-    password_recovery_key = models.CharField(max_length=128, blank=True, null=True)
+    password_recovery_key = models.CharField(max_length=128, blank=True)
     password_recovery_key_expires = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
@@ -51,11 +51,11 @@ class Profile(models.Model):
 
     def generate_activation_key(self):
         self.activation_key = sha1(str(random()).encode('utf8')).hexdigest()
-        self.activation_key_expires = datetime.now() + timedelta(hours=48)
+        self.activation_key_expires = timezone.now() + timezone.timedelta(hours=48)
         self.save()
 
     def is_activation_key_expired(self):
-        if datetime.now().timestamp() < self.activation_key_expires.timestamp():
+        if timezone.now() < self.activation_key_expires:
             return False
         return True
 
@@ -71,7 +71,7 @@ class Profile(models.Model):
                 and self.activation_key == activation_key \
                 and not self.is_activation_key_expired():
             self.activate_user()
-            self.activation_key = None
+            self.activation_key = ''
             self.activation_key_expires = None
             self.user.save()
             self.save()
@@ -80,11 +80,11 @@ class Profile(models.Model):
 
     def generate_password_recovery_key(self):
         self.password_recovery_key = sha1(str(random()).encode('utf8')).hexdigest()
-        self.password_recovery_key_expires = datetime.now() + timedelta(hours=48)
+        self.password_recovery_key_expires = timezone.now() + timezone.timedelta(hours=48)
         self.save()
 
     def is_password_recovery_key_expired(self):
-        if datetime.now().timestamp() < self.password_recovery_key_expires.timestamp():
+        if timezone.now() < self.password_recovery_key_expires:
             return False
         return True
 
