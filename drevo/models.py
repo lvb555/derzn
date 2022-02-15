@@ -226,7 +226,35 @@ class Znanie(models.Model):
         return self.name
     
     def get_absolute_url(self):
-        return reverse('zdetail', kwargs={"pk": self.pk})    
+        return reverse('zdetail', kwargs={"pk": self.pk})
+
+    def voting(self, user, value):
+        rating_obj = self.znrating_set.filter(user=user).first()
+
+        if rating_obj:
+            if value == rating_obj.value:
+                rating_obj.value = ZnRating.BLANK
+            else:
+                rating_obj.value = value
+
+            rating_obj.save()
+        else:
+            ZnRating.objects.create(znanie=self, user=user, value=value)
+
+    def get_users_vote(self, user):
+        rating_obj = self.znrating_set.filter(user=user).first()
+
+        if rating_obj:
+            if rating_obj.value in (ZnRating.LIKE, ZnRating.DISLIKE):
+                return rating_obj.value
+
+        return None
+
+    def get_likes_count(self):
+        return self.znrating_set.filter(value=ZnRating.LIKE).count()
+
+    def get_dislikes_count(self):
+        return self.znrating_set.filter(value=ZnRating.DISLIKE).count()
 
     class Meta:
         verbose_name = 'Знание'
@@ -358,3 +386,31 @@ class GlossaryTerm(models.Model):
         verbose_name = 'Термин глоссария'
         verbose_name_plural = 'Термины глоссария'
         ordering = ('name',)
+
+
+class ZnRating(models.Model):
+    LIKE = 'like'
+    DISLIKE = 'dislike'
+    BLANK = ''
+
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             verbose_name='Пользователь'
+                             )
+    znanie = models.ForeignKey(Znanie,
+                               on_delete=models.CASCADE,
+                               verbose_name='Знание'
+                               )
+    value = models.CharField(max_length=7,
+                             blank=True,
+                             verbose_name='Значение'
+                             )
+    created_at = models.DateTimeField(auto_now_add=True,
+                                      verbose_name='Дата и время создания',
+                                      )
+    updated_at = models.DateTimeField(auto_now=True,
+                                      verbose_name='Дата и время изменения',
+                                      )
+
+    class Meta:
+        unique_together = ('user', 'znanie')
