@@ -1,0 +1,128 @@
+/* Стили основной страницы base.html, включая хэдер, футер, и основной контент*/
+
+body {
+background-image: radial-gradient(
+    farthest-corner at 40px 40px,
+    #2a8f60 0%,
+    #212529 100%);
+background-repeat: no-repeat;
+    /* farthest-corner at 40px 40px,
+    rgba(70, 40, 25, 0.7) 0%,
+    rgba(70, 40, 25, 1) 100%) */
+}
+
+header {
+    display: flex;
+    justify-content: space-evenly;
+    /* background-color: #0f5132b8; */
+    /* width: 80%; */
+    margin: 0 auto 2rem auto;
+}
+
+nav a{
+    color: white;
+    font-size: 1.2rem;
+    line-height: 1.2rem;
+}
+
+.nav-logo {
+    display: block;
+    height: 5vw;
+}
+
+main {
+    width: 80%;
+    margin: auto;
+    background-color: #ffffff;
+}
+
+.main-container{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content:space-between;
+    padding-top: 3rem;
+    margin: auto;
+    background-color: #ffffff;
+    /* border: 3px solid black; */
+    /* border-radius: 2rem; */
+}
+
+.main-about {
+    padding: 0 2rem;
+    /* max-width: 55%; */
+    max-width: 55%;
+    margin-left: 2rem;
+}
+
+main h1 {
+    /* margin: 20px 20px; */
+    font-size: 3.5rem;
+    font-weight: 500;
+    font-family: Georgia, Times, 'Times New Roman', serif;
+}
+
+.main-about p {
+    padding: 10px 10px;
+    /* font-size: 1rem; */
+}
+
+.main-tree {
+    display: block;
+    height: 80vh;
+    margin-top: 1rem;
+}
+
+blockquote {
+    color: #6d4403db;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 40px;
+    margin: 0 auto;
+}
+
+.quote {
+    font-style: italic;
+    font-size: 1.6rem;
+    margin-bottom: 0;
+    margin-left: 2rem;
+}
+ 
+.quote::before,
+.quote::after {
+    content: "“";
+    font-family: Georgia;
+    font-size: 8rem;
+    margin: -2rem 0 0 -4rem;
+    position: absolute;
+    opacity: 0.5;
+}
+ 
+.quote::after {
+    content: "”";
+    margin: -1rem -4rem 0 0;
+}
+ 
+blockquote cite {
+    font-size: 1rem;
+}
+
+footer {
+    margin-top: 2rem;
+}
+
+.footer-trees {
+    background-image: url("../img/forest_footer_90x45.png");
+    background-repeat: repeat-x;
+    /* background-color: green; */
+    height: 2rem;
+    width: 100%;
+    margin-bottom: none;
+}
+
+footer p{
+    background-color: #1B2A27;
+    color: white;
+    font-size: 1rem;
+    margin-top: none;
+}
+
