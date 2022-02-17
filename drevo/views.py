@@ -90,8 +90,12 @@ class ZnanieDetailView(DetailView):
         context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True)]
                            for item in ts if qs.filter(tr=item, rz__is_published=True).count() > 0]
 
-        # формируем дерево категорий для категории текущего знания
+        # изменения числа просмотров
         knowledge = Znanie.objects.get(pk=pk)
+        knowledge.visits = knowledge.visits + 1
+        knowledge.save(update_fields=['visits'])
+
+        # формируем дерево категорий для категории текущего знания
         category = get_category_for_knowledge(knowledge)
         if category:
             categories = category.get_ancestors(ascending=False, include_self=True)
@@ -103,6 +107,7 @@ class ZnanieDetailView(DetailView):
         context['siblings'] = get_siblings_for_knowledge(knowledge)
         # context['children'] = get_children_for_knowledge(knowledge)
         context['children_by_tr'] = get_children_by_relation_type_for_knowledge(knowledge)
+        context['visits'] = knowledge.visits
 
         return context
 

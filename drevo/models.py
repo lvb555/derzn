@@ -216,6 +216,7 @@ class Znanie(models.Model):
                                     verbose_name='Метки',
                                     blank=True
                                     )
+    visits = models.IntegerField(blank=True,default=0)
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
     objects = models.Manager()
