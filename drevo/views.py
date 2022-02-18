@@ -1,6 +1,8 @@
 from django.db.models import Count, Q
+from django.http import Http404, JsonResponse
 from django.views.generic import ListView, TemplateView, DetailView
-from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm
+from django.views.generic.edit import ProcessFormView
+from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm, ZnRating
 from .forms import AuthorsFilterForm
 from loguru import logger
 from .relations_tree import get_category_for_knowledge, get_ancestors_for_knowledge, \
@@ -103,6 +105,11 @@ class ZnanieDetailView(DetailView):
         context['siblings'] = get_siblings_for_knowledge(knowledge)
         # context['children'] = get_children_for_knowledge(knowledge)
         context['children_by_tr'] = get_children_by_relation_type_for_knowledge(knowledge)
+
+        if self.request.user.is_authenticated:
+            user_vote = knowledge.get_users_vote(self.request.user)
+            if user_vote:
+                context['user_vote'] = {user_vote: True}
 
         return context
 
@@ -218,3 +225,18 @@ class GlossaryListView(ListView):
     model = GlossaryTerm
     context_object_name = 'glossary_terms'
     queryset = GlossaryTerm.objects.filter(is_published=True)
+
+
+class ZnanieRatingView(ProcessFormView):
+    def get(self, request, pk, vote, *args, **kwargs):
+        if request.is_ajax():
+            if not self.request.user.is_authenticated:
+                return JsonResponse({}, status=403)
+
+            if pk and vote:
+                if vote in (ZnRating.LIKE, ZnRating.DISLIKE):
+                    znanie = Znanie.objects.get(pk=pk)
+                    znanie.voting(self.request.user, vote)
+                    return JsonResponse({}, status=200)
+
+        raise Http404
