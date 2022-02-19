@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.forms import SetPasswordForm, PasswordChangeForm
+from django.core.exceptions import ValidationError
+
 from users.models import User, Profile
 
 
@@ -111,6 +113,18 @@ class ProfileModelForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             if field_name not in ('image',):
                 field.widget.attrs['class'] = 'form-control py-2'
+
+    def validate_avatar_size(self):
+        max_file_size = 1048576
+        image = self.cleaned_data.get('image')
+
+        if not image:
+            return None, None
+
+        if image.size > max_file_size:
+            return image, 'Ошибка! Максимальный размер загружаемого файла - 1 МБ.'
+
+        return image, None
 
 
 class UserPasswordRecoveryForm(forms.Form):

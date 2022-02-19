@@ -94,15 +94,18 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
         profile_form.instance = Profile.objects.get(user=self.object)
 
         if profile_form.is_valid():
-            image = self.request.FILES.get('image')
+            image, error = profile_form.validate_avatar_size()
+
             if image:
-                image.name = f'{self.request.user.username}.{image.name.split(".")[-1]}'
-                profile_form.instance.avatar = image
+                if error:
+                    messages.error(self.request, error)
+                else:
+                    image.name = f'{self.request.user.username}.{image.name.split(".")[-1]}'
+                    profile_form.instance.avatar = image
 
             profile_form.save()
-            return super().form_valid(form)
 
-        return HttpResponseRedirect(reverse('users:myprofile'))
+        return super().form_valid(form)
 
 
 class UserProfileTemplateView(LoginRequiredMixin, TemplateView):
