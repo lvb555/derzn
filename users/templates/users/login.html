@@ -1,4 +1,4 @@
-{% extends 'profiles/base.html' %}
+{% extends 'users/base.html' %}
 
 {% block content %}
     <div class="container">
@@ -27,7 +27,7 @@
                     <div class="card-header"><h3 class="text-center font-weight-light my-4">Авторизация</h3>
                     </div>
                     <div class="card-body card">
-                        <form action="{% url 'profiles:login' %}" method="post">
+                        <form action="{% url 'users:login' %}" method="post">
                             {% csrf_token %}
                             <div class="form-group">
                                 <label class="small mb-1" for="{{ form.username.id_for_label }}">Имя пользователя</label>
@@ -38,14 +38,14 @@
                                 {{ form.password }}
                             </div>
                             <div class="form-group d-flex justify-content-between mt-4 mb-0">
-                                <a class="medium text-decoration-none" href="{% url 'profiles:password-recovery' %}">Забыли пароль?</a>
+                                <a class="medium text-decoration-none" href="{% url 'users:password-recovery' %}">Забыли пароль?</a>
                                 <input class="btn btn-primary" type="submit" value="Авторизоваться">
                             </div>
                         </form>
                     </div>
                     <div class="card-footer text-center">
                         <div class="medium my-4">
-                            <a class="text-decoration-none" href="{% url 'profiles:register' %}">Нужен аккаунт? Зарегистрируйся!</a>
+                            <a class="text-decoration-none" href="{% url 'users:register' %}">Нужен аккаунт? Зарегистрируйся!</a>
                         </div>
                     </div>
                 </div>
