@@ -1,7 +1,7 @@
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey, TreeManager
 from django.urls import reverse
-from django.contrib.auth.models import User
+from users.models import User
 from .managers import ZManager, CategoryManager
 
 
