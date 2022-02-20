@@ -25,8 +25,58 @@
                 </div>
                 <form action="{% url 'users:myprofile' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {{ form.as_p }}
-                    {{ profile_form.as_p }}
+                    <div class="form-row">
+                        <div class="col mb-3">
+                            <label class="mb-1" for="{{ form.username.id_for_label }}">Имя пользователя:</label>
+                            {{ form.username }}
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col mb-3">
+                            <label class="mb-1" for="{{ form.email.id_for_label }}">Адрес эл. почты:</label>
+                            {{ form.email }}
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col mb-3">
+                            <label class="mb-1" for="{{ form.first_name.id_for_label }}">Имя:</label>
+                            {{ form.first_name }}
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col mb-3">
+                            <label class="mb-1" for="{{ form.last_name.id_for_label }}">Фамилия:</label>
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col mb-3">
+                            <label class="mb-1" for="{{ profile_form.patronymic.id_for_label }}">Отчество:</label>
+                            {{ profile_form.patronymic }}
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col mb-3">
+                            <label class="mb-1" for="{{ profile_form.gender.id_for_label }}">Пол:</label>
+                            {{ profile_form.gender }}
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col mb-3">
+                            <label class="mb-1" for="{{ profile_form.birthday_at.id_for_label }}">Дата рождения:</label>
+                            <input type="date"
+                                   name="birthday_at"
+                                   value="{{ profile_form.birthday_at.value|date:"Y-m-d" }}"
+                                   class="form-control py-2" id="{{ profile_form.birthday_at.id_for_label }}">
+                            <span class="validity"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col mb-3">
+                            <label class="mb-1" for="{{ profile_form.image.id_for_label }}">Аватар (максимальный размер файла - 1 МБ):</label>
+                            {{ profile_form.image }}
+                        </div>
+                    </div>
                     <div class="form-row">
                         <div class="col-lg-12" style="margin-top: 32px;margin-bottom: 32px;">
                             <input class="btn btn-primary" type="submit" value="Сохранить">

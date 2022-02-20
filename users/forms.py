@@ -94,7 +94,7 @@ class ProfileModelForm(forms.ModelForm):
         label='Пол',
     )
     birthday_at = forms.DateField(
-        widget=forms.DateInput(),
+        widget=forms.DateInput(attrs={'type': 'date'}),
         label='Дата рождения',
         required=False,
     )
