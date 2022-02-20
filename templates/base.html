@@ -25,13 +25,13 @@
 
 <body>
   <header>
-    <!-- <a href="{% url 'drevo' %}" aria-current="page">
-      <img class="nav-logo" src="./img/logo_with_text.png" alt="logo" />
-    </a> -->
+    <a href="{% url 'drevo' %}" aria-current="page">
+      <img class="nav-logo" src="./img/derzn_logo_round_small.png" alt="logo" />
+    </a>
     <nav style="display: flex; justify-content: space-between">
       <ul class="nav nav-pills">
         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="{% url 'drevo' %}">Древо знания</a>
+          <a class="nav-link" aria-current="page" href="{% url 'drevo' %}">Дерево знания</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" aria-current="page" href="#">О проекте</a>
@@ -47,7 +47,7 @@
         </li>
         <!-- {% if user.is_staff %} -->
         <li class="nav-item">
-          <a class="nav-link" href="/admin">Панель управления</a>
+          <a class="nav-link" href="#">Избранное</a>
         </li>
         <!-- {% endif %} -->
       </ul>
@@ -78,9 +78,10 @@
     <section>
       <div class="main-container">
         <div class="main-about">
-          <h1>Древо знания</h1>
+          <h1>Дерево знания</h1>
           <blockquote>
-            <p class="quote">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a erat ultrices, tempus justo non, congue
+            <p class="quote">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a erat ultrices, tempus
+              justo non, congue
               nunc.</p>
             <cite> - Some famous man </cite>
           </blockquote>
@@ -98,7 +99,7 @@
             sagittis interdum massa sit amet consequat.
           </p>
         </div>
-        <img class="main-tree" src="./img/Tree_black_half_w_roots_no_back_fin.png" alt="test-test" />
+        <img class="main-tree" src="./img/tree_2var_black_half.png" alt="derevo" />
       </div>
     </section>
 
@@ -108,9 +109,15 @@
     {% endblock %} -->
 
   </main>
-  <footer>
-    <div class="footer-trees"></div>
-    <p>(c)2022 All rights reserved.</p>
+
+  <footer class="fixed-bottom d-flex flex-wrap justify-content-around align-items-center py-3 my-4">
+    <p class="col-md-4 mb-0">&copy; 2021 Derzn.ru. Все права защищены.</p>
+
+    <ul class="nav col-md-4 justify-content-end">
+      <li class="nav-item"><a href="#" class="nav-link px-2">Контакты</a></li>
+      <li class="nav-item"><a href="#" class="nav-link px-2">Карта сайта</a></li>
+      <li class="nav-item"><a href="#" class="nav-link px-2">О проекте</a></li>
+    </ul>
   </footer>
 
 

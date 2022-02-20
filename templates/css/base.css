@@ -2,21 +2,22 @@
 
 body {
 background-image: radial-gradient(
-    farthest-corner at 40px 40px,
-    #2a8f60 0%,
-    #212529 100%);
+    farthest-corner at 40px 40px, #80e4a6 0%, #198754 50%, #5A5050 88%);
 background-repeat: no-repeat;
-    /* farthest-corner at 40px 40px,
-    rgba(70, 40, 25, 0.7) 0%,
-    rgba(70, 40, 25, 1) 100%) */
+background-size: cover;
+background-attachment: fixed;
+/* height: 100vh; */
+
 }
 
 header {
     display: flex;
     justify-content: space-evenly;
-    /* background-color: #0f5132b8; */
-    /* width: 80%; */
     margin: 0 auto 2rem auto;
+}
+
+nav {
+    align-items: center;
 }
 
 nav a{
@@ -27,11 +28,12 @@ nav a{
 
 .nav-logo {
     display: block;
-    height: 5vw;
+    width: 40%;
+    margin: 0.4rem;
 }
 
 main {
-    width: 80%;
+    width: 80vw;
     margin: auto;
     background-color: #ffffff;
 }
@@ -41,17 +43,16 @@ main {
     display: flex;
     flex-wrap: wrap;
     justify-content:space-between;
-    padding-top: 3rem;
+    padding: 2.6rem 0;
     margin: auto;
     background-color: #ffffff;
-    /* border: 3px solid black; */
-    /* border-radius: 2rem; */
 }
 
 .main-about {
     padding: 0 2rem;
     /* max-width: 55%; */
-    max-width: 55%;
+    width: 50%;
+    min-width: 35%;
     margin-left: 2rem;
 }
 
@@ -69,7 +70,7 @@ main h1 {
 
 .main-tree {
     display: block;
-    height: 80vh;
+    height: 58vh;
     margin-top: 1rem;
 }
 
@@ -107,22 +108,28 @@ blockquote cite {
 }
 
 footer {
-    margin-top: 2rem;
+margin-top: 2rem;
+color: white;
 }
 
-.footer-trees {
+a {
+    color: white;
+}
+
+
+/* .footer-trees {
     background-image: url("../img/forest_footer_90x45.png");
     background-repeat: repeat-x;
     /* background-color: green; */
-    height: 2rem;
+    /* height: 2rem;
     width: 100%;
     margin-bottom: none;
-}
+} */ 
 
-footer p{
+/* footer p{
     background-color: #1B2A27;
     color: white;
     font-size: 1rem;
     margin-top: none;
-}
+} */
 
