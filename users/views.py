@@ -37,6 +37,21 @@ class RegistrationFormView(CreateView):
     form_class = UserRegistrationForm
     model = User
 
+    @staticmethod
+    def email_validation(email):
+        if User.objects.filter(email=email).exists():
+            return False
+        return True
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if self.request.method == 'POST':
+            email = form.data.get('email')
+            if email:
+                if not self.email_validation(email):
+                    messages.error(self.request, 'Пользователь с таким адресом эл. почты уже существует.')
+        return form
+
     def form_valid(self, form):
         if form.is_valid():
             user = form.save()
