@@ -163,7 +163,7 @@ class UserPasswordRecoveryFormView(FormView):
                 users_set = User.objects.filter(email=email)
 
                 if not users_set.exists():
-                    form.add_error(None, 'dasfasdfasdfa')
+                    form.add_error(None, 'Пользователя с таким адресом эл. почты не существует.')
 
         return form
 
