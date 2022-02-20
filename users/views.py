@@ -155,19 +155,30 @@ class UserPasswordRecoveryFormView(FormView):
     success_url = reverse_lazy('users:login')
     form_class = UserPasswordRecoveryForm
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if self.request.method == 'POST':
+            email = form.data.get('email')
+            if email:
+                users_set = User.objects.filter(email=email)
+
+                if not users_set.exists():
+                    form.add_error(None, 'dasfasdfasdfa')
+
+        return form
+
     def form_valid(self, form):
         if form.is_valid():
             email = form.cleaned_data.get('email')
             user = User.objects.get(email=email)
-
-            if user:
-                profile = user.profile
-                profile.generate_password_recovery_key()
-                profile.send_password_recovery_mail()
-                messages.success(
-                    self.request,
-                    'Письмо со ссылкой для восстановления пароля '
-                    'отправлено на указанный адрес эл. почты.')
+            print(user.username)
+            profile = user.profile
+            profile.generate_password_recovery_key()
+            profile.send_password_recovery_mail()
+            messages.success(
+                self.request,
+                'Письмо со ссылкой для восстановления пароля '
+                'отправлено на указанный адрес эл. почты.')
 
         return super().form_valid(form)
 
