@@ -81,12 +81,12 @@ class Profile(models.Model):
             Profile.objects.create(user=instance).save()
 
     def deactivate_user(self):
-        self.is_active = False
-        self.save()
+        self.user.is_active = False
+        self.user.save()
 
     def activate_user(self):
-        self.is_active = True
-        self.save()
+        self.user.is_active = True
+        self.user.save()
 
     def generate_activation_key(self):
         self.activation_key = sha1(str(random()).encode('utf8')).hexdigest()
@@ -99,7 +99,7 @@ class Profile(models.Model):
         return True
 
     def send_verify_mail(self):
-        verify_link = reverse('profiles:verify', args=[self.user.username, self.activation_key])
+        verify_link = reverse('users:verify', args=[self.user.username, self.activation_key])
         subject = 'Активация аккаунта'
         message = f'Чтобы активировать аккаунт, перейдите по ссылке: ' \
                   f'{settings.BASE_URL}{verify_link}'
@@ -128,7 +128,7 @@ class Profile(models.Model):
         return True
 
     def send_password_recovery_mail(self):
-        recovery_link = reverse('profiles:password-recovery-link', args=[self.user.email, self.password_recovery_key])
+        recovery_link = reverse('users:password-recovery-link', args=[self.user.email, self.password_recovery_key])
         subject = 'Восстановление пароля'
         message = f'Для восстановления пароля, перейдите по ссылке: ' \
                   f'{settings.BASE_URL}{recovery_link}'

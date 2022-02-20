@@ -32,26 +32,28 @@
                         <form action="{% url 'users:login' %}" method="post">
                             {% csrf_token %}
                             <div class="form-group">
-                                <label class="small mb-1" for="{{ form.username.id_for_label }}">Имя пользователя</label>
+                                <label class="small mb-1" for="{{ form.username.id_for_label }}">Имя
+                                    пользователя</label>
                                 {{ form.username }}
                             </div>
                             <div class="form-group">
                                 <label class="small mb-1 b4-pass" for="{{ form.password.id_for_label }}">Пароль</label>
                                 <div class="input-group" id="show_hide_password">
                                     {{ form.password }}
-{#                                    <button></button>#}
-                                    <a class="btn" href=""><i class="bi bi-eye-slash" aria-hidden="true"></i></a>
+                                    <a class="btn btn-outline-secondary"><i class="bi bi-eye-slash"></i></a>
                                 </div>
                             </div>
                             <div class="form-group d-flex justify-content-between mt-4 mb-0">
-                                <a class="medium text-decoration-none" href="{% url 'users:password-recovery' %}">Забыли пароль?</a>
+                                <a class="medium text-decoration-none" href="{% url 'users:password-recovery' %}">Забыли
+                                    пароль?</a>
                                 <input class="btn btn-primary" type="submit" value="Авторизоваться">
                             </div>
                         </form>
                     </div>
                     <div class="card-footer text-center">
                         <div class="medium my-4">
-                            <a class="text-decoration-none" href="{% url 'users:register' %}">Нужен аккаунт? Зарегистрируйся!</a>
+                            <a class="text-decoration-none" href="{% url 'users:register' %}">Нужен аккаунт?
+                                Зарегистрируйся!</a>
                         </div>
                     </div>
                 </div>
@@ -65,19 +67,19 @@
 
 {% block jsfiles %}
     <script>
-    {#    $(document).ready(function() {#}
-    {#    $("#show_hide_password a").on('click', function(event) {#}
-    {#        event.preventDefault();#}
-    {#        if($('#show_hide_password input').attr("type") == "text"){#}
-    {#            $('#show_hide_password input').attr('type', 'password');#}
-    {#            $('#show_hide_password i').addClass( "fa-eye-slash" );#}
-    {#            $('#show_hide_password i').removeClass( "fa-eye" );#}
-    {#        }else if($('#show_hide_password input').attr("type") == "password"){#}
-    {#            $('#show_hide_password input').attr('type', 'text');#}
-    {#            $('#show_hide_password i').removeClass( "fa-eye-slash" );#}
-    {#            $('#show_hide_password i').addClass( "fa-eye" );#}
-    {#        }#}
-    {#    });#}
-    {#});#}
+        $(document).ready(function () {
+            $("#show_hide_password a").on('click', function (event) {
+                event.preventDefault();
+                if ($('#show_hide_password input').attr("type") === "text") {
+                    $('#show_hide_password input').attr('type', 'password');
+                    $('#show_hide_password i').addClass("bi-eye-slash");
+                    $('#show_hide_password i').removeClass("bi-eye");
+                } else if ($('#show_hide_password input').attr("type") === "password") {
+                    $('#show_hide_password input').attr('type', 'text');
+                    $('#show_hide_password i').removeClass("bi-eye-slash");
+                    $('#show_hide_password i').addClass("bi-eye");
+                }
+            });
+        });
     </script>
 {% endblock %}

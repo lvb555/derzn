@@ -40,10 +40,11 @@ class RegistrationFormView(CreateView):
     def form_valid(self, form):
         if form.is_valid():
             user = form.save()
+            profile = user.profile
 
-            user.deactivate_user()
-            user.generate_activation_key()
-            user.send_verify_mail()
+            profile.deactivate_user()
+            profile.generate_activation_key()
+            profile.send_verify_mail()
 
             messages.success(
                 self.request,
@@ -142,7 +143,7 @@ class UserVerifyView(TemplateView):
             user = User.objects.get(username=username)
 
             if user:
-                if user.verify(username, activation_key):
+                if user.profile.verify(username, activation_key):
                     auth.login(request, user)
                     response.context_data['user'] = user
 
@@ -160,8 +161,9 @@ class UserPasswordRecoveryFormView(FormView):
             user = User.objects.get(email=email)
 
             if user:
-                user.generate_password_recovery_key()
-                user.send_password_recovery_mail()
+                profile = user.profile
+                profile.generate_password_recovery_key()
+                profile.send_password_recovery_mail()
                 messages.success(
                     self.request,
                     'Письмо со ссылкой для восстановления пароля '
@@ -192,13 +194,14 @@ class UserSetPasswordFormView(FormView):
 
             if email and key:
                 user = User.objects.get(email=email)
+                profile = user.profile
 
-                if user.recovery_valid(email, key):
+                if profile.recovery_valid(email, key):
                     form.save()
 
-                    user.password_recovery_key = ''
-                    user.password_recovery_key_expires = None
-                    user.save()
+                    profile.password_recovery_key = ''
+                    profile.password_recovery_key_expires = None
+                    profile.save()
 
                     messages.success(self.request, 'Ваш пароль успешно изменён.')
                     return HttpResponseRedirect(self.get_success_url())
@@ -232,7 +235,7 @@ class UserSetPasswordFormView(FormView):
         user = get_object_or_404(User, email=email)
         self.kwargs['user'] = user
 
-        if not user.recovery_valid(email, key):
+        if not user.profile.recovery_valid(email, key):
             raise Http404
 
         return super().get(request, *args, **kwargs)
