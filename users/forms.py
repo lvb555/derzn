@@ -99,7 +99,7 @@ class ProfileModelForm(forms.ModelForm):
         required=False,
     )
     image = forms.ImageField(
-        widget=forms.FileInput(attrs={'class': 'custom-file-input'}),
+        widget=forms.FileInput(),
         label='Аватар',
         required=False,
     )
@@ -113,6 +113,8 @@ class ProfileModelForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             if field_name not in ('image',):
                 field.widget.attrs['class'] = 'form-control py-2'
+            else:
+                field.widget.attrs['class'] = 'form-control'
 
     def validate_avatar_size(self):
         max_file_size = 1048576
