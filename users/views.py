@@ -44,6 +44,12 @@ class RegistrationFormView(CreateView):
         return True
 
     @staticmethod
+    def username_validation(username):
+        if User.objects.filter(username=username).exists():
+            return False
+        return True
+
+    @staticmethod
     def password_validation(form):
         password1 = form.data.get('password1')
         password2 = form.data.get('password2')
@@ -56,12 +62,19 @@ class RegistrationFormView(CreateView):
         form = super().get_form(form_class)
         if self.request.method == 'POST':
             email = form.data.get('email')
+            username = form.data.get('username')
+
             if email:
                 if not self.email_validation(email):
                     messages.error(self.request, 'Пользователь с таким адресом эл. почты уже существует.')
 
+            if username:
+                if not self.username_validation(username):
+                    messages.error(self.request, 'Имя пользователя уже занято.')
+
             if not self.password_validation(form):
                 messages.error(self.request, 'Введенные пароли не совпадают.')
+
 
         return form
 
