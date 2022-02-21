@@ -22,28 +22,32 @@
                     <form action="{% url 'users:register' %}" method="post">
                         {% csrf_token %}
                         <div class="form-group">
-                            <div class="form-row mb-2">
+                            <p class="form-row mb-2">
+                                {{ form.username.errors }}
                                 <label for="{{ form.username.id_for_label }}">Имя пользователя:</label>
                                 {{ form.username }}
-                            </div>
-                            <div class="form-row mb-2">
+                            </p>
+                            <p class="form-row mb-2">
+                                {{ form.email.errors }}
                                 <label for="{{ form.email.id_for_label }}">Адрес эл. почты:</label>
                                 {{ form.email }}
-                            </div>
-                            <div class="form-row mb-2">
+                            </p>
+                            <p class="form-row mb-2">
+                                {{ form.password1.errors }}
                                 <label for="{{ form.password1.id_for_label }}">Пароль:</label>
                                 <div class="input-group" id="show_hide_password1">
                                     {{ form.password1 }}
                                     <a class="btn btn-outline-secondary"><i class="bi bi-eye-slash large"></i></a>
                                 </div>
-                            </div>
-                            <div class="form-row mb-2">
+                            </p>
+                            <p class="form-row mb-2">
+                                {{ form.password2.errors }}
                                 <label for="{{ form.password2.id_for_label }}">Подтверждение пароля:</label>
                                 <div class="input-group" id="show_hide_password2">
                                     {{ form.password2 }}
                                     <a class="btn btn-outline-secondary"><i class="bi bi-eye-slash large"></i></a>
                                 </div>
-                            </div>
+                            </p>
                         </div>
                         <div class="form-group text-center mt-4 mb-4">
                             <input class="btn btn-primary" type="submit" value="Зарегистрироваться">
