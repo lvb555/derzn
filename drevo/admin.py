@@ -82,6 +82,7 @@ class ZnanieAdmin(admin.ModelAdmin):
     list_filter = ('tz', 'author', 'updated_at', 'is_published', 'labels', )
     list_per_page = 30
     inlines = [ZnImageInline, ]
+    exclude = ('visits',)
 
     def save_model(self, request, obj, form, change):
         obj.user = request.user
