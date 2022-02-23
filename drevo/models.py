@@ -150,6 +150,14 @@ class Label(models.Model):
         ordering = ('name',)
 
 
+class IP(models.Model):
+    """
+    IP пользавателей
+    """
+    title = 'IP'
+    ip = models.CharField(max_length=100)
+
+
 class Znanie(models.Model):
     """
     Класс для описания сущности 'Знание'
@@ -214,6 +222,10 @@ class Znanie(models.Model):
                                        )
     labels = models.ManyToManyField(Label,
                                     verbose_name='Метки',
+                                    blank=True
+                                    )
+    visits = models.ManyToManyField(IP,
+                                    verbose_name='ID',
                                     blank=True
                                     )
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,

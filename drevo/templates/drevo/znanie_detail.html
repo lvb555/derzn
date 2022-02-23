@@ -58,6 +58,17 @@
 </div>
 {% endif %}
 
+{% if znanie.visits %}
+<hr>
+<div class="container">
+  <div class="row">
+    <div class="col">
+        Просмотры: {{ znanie.visits.all.count }}
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <hr>
 <div class="container">
     <div class="row mb-2">
