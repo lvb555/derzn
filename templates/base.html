@@ -38,18 +38,18 @@
     <ul class="nav nav-pills">
     {% if user.is_authenticated %}
       <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'profiles:myprofile' %}">
+        <a class="nav-link" aria-current="page" href="{% url 'users:myprofile' %}">
             <span>{{ user.username }} <i class="bi bi-person-circle"></i></span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'profiles:logout' %}">
+        <a class="nav-link" aria-current="page" href="{% url 'users:logout' %}">
             <span>Выйти <i class="bi bi-door-closed"></i></span>
         </a>
       </li>
     {% else %}
       <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'profiles:login' %}">
+        <a class="nav-link" aria-current="page" href="{% url 'users:login' %}">
             <span>Войти <i class="bi bi-door-open"></i></span>
         </a>
       </li>

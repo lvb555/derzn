@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'loguru',
     'adminsortable2',
-    'profiles',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -143,3 +143,5 @@ else:
     EMAIL_HOST_USER = 'test@test.test'
     EMAIL_HOST_PASSWORD = 'test'
     EMAIL_USE_SSL = False
+
+AUTH_USER_MODEL = 'users.User'
