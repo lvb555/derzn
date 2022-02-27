@@ -150,14 +150,6 @@ class Label(models.Model):
         ordering = ('name',)
 
 
-class IP(models.Model):
-    """
-    IP пользавателей
-    """
-    title = 'IP'
-    ip = models.CharField(max_length=100)
-
-
 class Znanie(models.Model):
     """
     Класс для описания сущности 'Знание'
@@ -224,10 +216,6 @@ class Znanie(models.Model):
                                     verbose_name='Метки',
                                     blank=True
                                     )
-    visits = models.ManyToManyField(IP,
-                                    verbose_name='ID',
-                                    blank=True
-                                    )
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
     objects = models.Manager()
@@ -272,6 +260,18 @@ class Znanie(models.Model):
         verbose_name = 'Знание'
         verbose_name_plural = 'Знания'
         ordering = ('order',)
+
+
+class IP(models.Model):
+    """
+    IP пользавателей
+    """
+    title = 'IP'
+    visits = models.ManyToManyField(Znanie,
+                                    verbose_name='ID',
+                                    blank=True
+                                    )
+    ip = models.CharField(max_length=100)
 
 
 class ZnImage(models.Model):

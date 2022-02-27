@@ -92,8 +92,17 @@ class ZnanieDetailView(DetailView):
         context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True)]
                            for item in ts if qs.filter(tr=item, rz__is_published=True).count() > 0]
 
-        # формируем дерево категорий для категории текущего знания
+        # сохранение ip пользователя
         knowledge = Znanie.objects.get(pk=pk)
+        ip = self.request.META.get('REMOTE_ADDR')
+        if IP.objects.filter(ip=ip).count() == 0:
+            IP(ip=ip).save()
+
+        IP.objects.get(ip=ip).visits.add(knowledge)
+
+        knowledge.save()
+
+        # формируем дерево категорий для категории текущего знания
         category = get_category_for_knowledge(knowledge)
         if category:
             categories = category.get_ancestors(ascending=False, include_self=True)
@@ -105,13 +114,7 @@ class ZnanieDetailView(DetailView):
         context['siblings'] = get_siblings_for_knowledge(knowledge)
         # context['children'] = get_children_for_knowledge(knowledge)
         context['children_by_tr'] = get_children_by_relation_type_for_knowledge(knowledge)
-
-        # сохранение ip пользователя
-        ip = self.request.META.get('REMOTE_ADDR')
-        if IP.objects.filter(ip=ip).count() == 0:
-            IP(ip=ip).save()
-
-        knowledge.visits.add(IP.objects.get(ip=ip))
+        context['visits'] = knowledge.ip_set.all().count()
 
         if self.request.user.is_authenticated:
             user_vote = knowledge.get_users_vote(self.request.user)
