@@ -39,11 +39,11 @@ class Author(models.Model):
                               null=True
                               )
     atype = models.ForeignKey(AuthorType,
-                             on_delete=models.PROTECT,
-                             verbose_name='Вид автора',
-                             blank=True,
-                             null=True
-                             )
+                              on_delete=models.PROTECT,
+                              verbose_name='Вид автора',
+                              blank=True,
+                              null=True
+                              )
     objects = models.Manager()
 
     def __str__(self):
@@ -86,7 +86,7 @@ class Category(MPTTModel):
 
     def get_absolute_url(self):
         return reverse('drevo_type', kwargs={"pk": self.pk})
-    
+
     def has_published_children(self) -> bool():
         """
         Возвращает True, если среди потомков объекта имеются опубликованные,
@@ -221,10 +221,9 @@ class Znanie(models.Model):
     objects = models.Manager()
     published = ZManager()
 
-
     def __str__(self):
         return self.name
-    
+
     def get_absolute_url(self):
         return reverse('zdetail', kwargs={"pk": self.pk})
 

@@ -152,16 +152,16 @@ class ZnanieByLabelView(DetailView):
 
         # получаем знания, содержащие данную метку
 
-        label_id=int(self.kwargs['pk'])
+        label_id = int(self.kwargs['pk'])
         label = Label.objects.get(id=label_id)
         knowledges_of_label = Znanie.published.filter(labels__in=[label])
         context['categories'], context['knowledges'] = \
             get_knowledges_by_categories(knowledges_of_label)
-        
-        for z in knowledges_of_label:
-            logger.debug(z.labels) 
 
-        return context  
+        for z in knowledges_of_label:
+            logger.debug(z.labels)
+
+        return context
 
 
 class AuthorsListView(ListView):
@@ -174,7 +174,7 @@ class AuthorsListView(ListView):
 
     def get_queryset(self):
         """
-        Возвращает queryset авторов в соответствии с фильтром, полученным из формы 
+        Возвращает queryset авторов в соответствии с фильтром, полученным из формы
         на странице со списком авторов
         """
 
@@ -185,7 +185,7 @@ class AuthorsListView(ListView):
 
         # валидируем значение и возвращаем queryset
         list_of_author_types = AuthorType.objects.all().values_list('id', flat=True)
-        if not author_type_to_filter in list(map(str, list_of_author_types)):
+        if author_type_to_filter not in list(map(str, list_of_author_types)):
             return queryset
         else:
             return queryset.filter(atype=author_type_to_filter)
@@ -195,7 +195,7 @@ class AuthorsListView(ListView):
         Контекст, передаваемый в шаблон
         """
         context = super().get_context_data(**kwargs)
-        
+
         rform = AuthorsFilterForm(self.request.GET)
         rform.is_valid()
         context['rform'] = rform
@@ -211,20 +211,19 @@ class AuthorDetailView(DetailView):
     context_object_name = 'author'
     template_name = 'drevo/author_details.html'
 
-
     def get_context_data(self, *, object_list=None, **kwargs):
         """
         Контекст, передаваемый в шаблон
         """
-        context = super().get_context_data(**kwargs)        
+        context = super().get_context_data(**kwargs)
 
         # получаем знания данного автора
         knowledges_of_author = Znanie.published.filter(author__id=int(self.kwargs['pk']))
-        
+
         context['categories'], context['knowledges'] = \
             get_knowledges_by_categories(knowledges_of_author)
 
-        return context    
+        return context
 
 
 class GlossaryListView(ListView):
