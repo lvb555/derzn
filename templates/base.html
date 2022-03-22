@@ -43,13 +43,13 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'users:logout' %}">
+        <a class="nav-link" aria-current="page" href="{% url 'users:logout' %}?next={{ request.path }}">
             <span>Выйти <i class="bi bi-door-closed"></i></span>
         </a>
       </li>
     {% else %}
       <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'users:login' %}">
+        <a class="nav-link" aria-current="page" href="{% url 'users:login' %}?next={{ request.path }}">
             <span>Войти <i class="bi bi-door-open"></i></span>
         </a>
       </li>
