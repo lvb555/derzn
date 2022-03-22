@@ -1,5 +1,5 @@
 from django.contrib import admin
-from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType, GlossaryTerm
+from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType, GlossaryTerm, ZnRating
 from mptt.admin import DraggableMPTTAdmin
 from .forms import ZnanieForm, AuthorForm, GlossaryTermForm, CategoryForm
 from django.utils.safestring import mark_safe
@@ -116,7 +116,7 @@ class ZnanieAdmin(admin.ModelAdmin):
         extra_context['subtitle'] = f"{z.pk} - {z.name}"
         return super().change_view(
             request, object_id, form_url, extra_context=extra_context,
-        )    
+        )
 
     class Media:
         css = {
@@ -199,7 +199,16 @@ class GlossaryTermAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['form'] = GlossaryTermForm
-        return super().get_form(request, obj, **kwargs)    
+        return super().get_form(request, obj, **kwargs)
 
 
 admin.site.register(GlossaryTerm, GlossaryTermAdmin)
+
+
+class ZnRatingAdmin(admin.ModelAdmin):
+    list_display = ('znanie', 'user', 'value', 'created_at', 'updated_at')
+    readonly_fields = ('znanie', 'user', 'value', 'created_at', 'updated_at')
+    list_filter = ('value', 'znanie')
+
+
+admin.site.register(ZnRating, ZnRatingAdmin)
