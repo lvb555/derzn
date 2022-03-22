@@ -18,6 +18,11 @@ class LoginFormView(FormView):
 
     def form_valid(self, form):
         auth.login(self.request, form.get_user())
+
+        next_url = self.request.session.get('next')
+        if next_url:
+            return HttpResponseRedirect(next_url)
+
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -26,6 +31,10 @@ class LoginFormView(FormView):
         return context
 
     def get(self, request, *args, **kwargs):
+        next_url = request.GET.get('next')
+        if next_url:
+            request.session['next'] = next_url
+
         if request.user.is_authenticated:
             return HttpResponseRedirect(reverse('users:myprofile'))
         return super().get(request, *args, **kwargs)
@@ -75,7 +84,6 @@ class RegistrationFormView(CreateView):
             if not self.password_validation(form):
                 messages.error(self.request, 'Введенные пароли не совпадают.')
 
-
         return form
 
     def form_valid(self, form):
@@ -110,6 +118,11 @@ class RegistrationFormView(CreateView):
 class LogoutFormView(LoginRequiredMixin, FormView):
     def get(self, request, *args, **kwargs):
         auth.logout(self.request)
+
+        next_url = request.GET.get('next')
+        if next_url:
+            return HttpResponseRedirect(next_url)
+
         return HttpResponseRedirect(reverse('drevo'))
 
 
