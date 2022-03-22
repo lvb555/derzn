@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from environs import Env
 import dj_database_url
+import humanize
 
 env = Env()
 env.read_env()
@@ -105,6 +106,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+humanize.i18n.activate("ru")
 
 
 # Static files (CSS, JavaScript, Images)
