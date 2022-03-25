@@ -107,7 +107,7 @@
         Войдите в свой аккаунт, чтобы поставить отметку.
       </div>
       <div class="modal-footer">
-        <a href="{% url 'users:login' %}" class="btn btn-primary">Войти</a>
+        <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-primary">Войти</a>
         <a href="{% url 'users:register' %}" class="btn btn-secondary">Зарегистрироваться</a>
       </div>
     </div>
