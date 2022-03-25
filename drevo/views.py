@@ -95,7 +95,11 @@ class ZnanieDetailView(DetailView):
 
         # сохранение ip пользователя
         knowledge = Znanie.objects.get(pk=pk)
-        ip = self.request.META.get('REMOTE_ADDR')
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = self.request.META.get('REMOTE_ADDR')
         if IP.objects.filter(ip=ip).count() == 0:
             IP(ip=ip).save()
 
