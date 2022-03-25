@@ -100,7 +100,7 @@ class ZnanieDetailView(DetailView):
 
         IP.objects.get(ip=ip).visits.add(knowledge)
 
-        IP.objects.get(ip=ip).save()
+        knowledge.save()
 
         # формируем дерево категорий для категории текущего знания
         category = get_category_for_knowledge(knowledge)
