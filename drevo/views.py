@@ -9,6 +9,7 @@ from .relations_tree import get_category_for_knowledge, get_ancestors_for_knowle
     get_siblings_for_knowledge, get_children_for_knowledge, get_knowledges_by_categories, \
     get_children_by_relation_type_for_knowledge
 import collections
+import humanize
 
 logger.add('logs/main.log', format="{time} {level} {message}", rotation='100Kb', level="ERROR")
 
@@ -116,10 +117,14 @@ class ZnanieDetailView(DetailView):
         context['children_by_tr'] = get_children_by_relation_type_for_knowledge(knowledge)
         context['visits'] = knowledge.ip_set.all().count()
 
-        if self.request.user.is_authenticated:
-            user_vote = knowledge.get_users_vote(self.request.user)
+        user = self.request.user
+        if user.is_authenticated:
+            user_vote = knowledge.get_users_vote(user)
             if user_vote:
                 context['user_vote'] = {user_vote: True}
+
+        context['likes_count'] = humanize.intword(knowledge.get_likes_count())
+        context['dislikes_count'] = humanize.intword(knowledge.get_dislikes_count())
 
         return context
 

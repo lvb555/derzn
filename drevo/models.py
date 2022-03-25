@@ -424,4 +424,6 @@ class ZnRating(models.Model):
                                       )
 
     class Meta:
+        verbose_name = 'Рейтинг знаний'
+        verbose_name_plural = 'Рейтинг знаний'
         unique_together = ('user', 'znanie')

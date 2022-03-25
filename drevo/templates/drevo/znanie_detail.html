@@ -80,7 +80,7 @@
                         <i class="bi {% if user_vote.like %} bi-hand-thumbs-up-fill {% else %} bi-hand-thumbs-up {% endif %} fs-5"
                            id="likeIcon"></i>
                     </button>
-                    <span id="likesCounter">{{ znanie.get_likes_count }}</span>
+                    <span id="likesCounter">{{ likes_count }}</span>
                 </div>
                 <div class="mx-3" style="white-space: nowrap">
                     <button type="button" id="dislikeButton" class="btn btn-outline-secondary shadow-none mx-1"
@@ -88,7 +88,7 @@
                         <i class="bi {% if user_vote.dislike %} bi-hand-thumbs-down-fill {% else %} bi-hand-thumbs-down {% endif %} fs-5"
                            id="dislikeIcon"></i>
                     </button>
-                    <span id="dislikesCounter">{{ znanie.get_dislikes_count }}</span>
+                    <span id="dislikesCounter">{{ dislikes_count }}</span>
                 </div>
             </div>
         </div>
