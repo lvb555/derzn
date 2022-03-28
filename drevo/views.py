@@ -2,7 +2,7 @@ from django.db.models import Count, Q
 from django.http import Http404, JsonResponse
 from django.views.generic import ListView, TemplateView, DetailView
 from django.views.generic.edit import ProcessFormView
-from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm, ZnRating, IP
+from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm, ZnRating, IP, Visits
 from .forms import AuthorsFilterForm
 from loguru import logger
 from .relations_tree import get_category_for_knowledge, get_ancestors_for_knowledge, \
@@ -94,13 +94,20 @@ class ZnanieDetailView(DetailView):
 
         # сохранение ip пользователя
         knowledge = Znanie.objects.get(pk=pk)
-        ip = self.request.META.get('REMOTE_ADDR')
-        if IP.objects.filter(ip=ip).count() == 0:
-            IP(ip=ip).save()
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = self.request.META.get('REMOTE_ADDR')
+        if knowledge not in IP.objects.get(ip=ip).visits.all() and self.request.user.is_anonymous:
+            IP.objects.get(ip=ip).visits.add(knowledge)
 
-        IP.objects.get(ip=ip).visits.add(knowledge)
+        IP.objects.get(ip=ip).save()
 
-        knowledge.save()
+        # добавление просмотра
+        if self.request.user.is_authenticated:
+            if not Visits.objects.filter(znanie=knowledge, user=self.request.user).count():
+                Visits.objects.create(znanie=knowledge, user=self.request.user).save()
 
         # формируем дерево категорий для категории текущего знания
         category = get_category_for_knowledge(knowledge)
@@ -114,7 +121,7 @@ class ZnanieDetailView(DetailView):
         context['siblings'] = get_siblings_for_knowledge(knowledge)
         # context['children'] = get_children_for_knowledge(knowledge)
         context['children_by_tr'] = get_children_by_relation_type_for_knowledge(knowledge)
-        context['visits'] = knowledge.ip_set.all().count()
+        context['visits'] = Visits.objects.filter(znanie=knowledge).count() + knowledge.ip_set.all().count()
 
         if self.request.user.is_authenticated:
             user_vote = knowledge.get_users_vote(self.request.user)

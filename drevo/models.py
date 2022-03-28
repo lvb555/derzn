@@ -261,6 +261,18 @@ class Znanie(models.Model):
         ordering = ('order',)
 
 
+class Visits(models.Model):
+    """
+    Просмотры
+    """
+    znanie = models.ForeignKey(Znanie,
+                               models.CASCADE
+                               )
+    user = models.ForeignKey(User,
+                             models.CASCADE
+                             )
+
+
 class IP(models.Model):
     """
     IP пользавателей
