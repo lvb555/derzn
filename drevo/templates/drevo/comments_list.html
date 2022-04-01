@@ -1,0 +1,26 @@
+{% load static %}
+
+{% if comments %}
+    <div class="row {% if comments.0.parent %}collapse{% endif %}" style="--bs-gutter-x: 0;"
+         {% if comments.0.parent %}id="collapsedAnswers{{ comments.0.parent.id }}"{% endif %}>
+        {% if comments.0.parent %}
+            <div class="col-auto">
+                <a class="sticky-top m-2" title="Вернутся на уровень выше" style="cursor: pointer;"
+                   onclick="scrollToComment({{ comments.0.parent.id }})">
+                    <img src="{% static 'drevo/img/corner-right-down-arrow.svg' %}"
+                         alt="arrow" width="20px" height="20px" style="opacity: 0.5; vertical-align: top"/>
+                </a>
+            </div>
+        {% endif %}
+        <div class="col">
+            {% for comment in comments %}
+                {% include 'drevo/comments_card.html' with comment=comment %}
+                <div class="answers-block" id="answersBlock{{ comment.id }}">
+                    {% if comment.answers.exists %}
+                        {% include 'drevo/comments_list.html' with comments=comment.get_answers %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

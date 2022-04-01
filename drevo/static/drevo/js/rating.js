@@ -29,7 +29,7 @@ function init() {
 
     function likeClickHandler(event) {
         let target = event.currentTarget;
-        let url = document.location.href + '/vote/like';
+        let url = document.location.pathname + '/vote/like';
 
         $.ajax({
             url: url,
@@ -44,7 +44,7 @@ function init() {
 
     function dislikeClickHandler(event) {
         let target = event.currentTarget;
-        let url = document.location.href + '/vote/dislike';
+        let url = document.location.pathname + '/vote/dislike';
 
         $.ajax({
             url: url,

@@ -136,6 +136,65 @@
 </div>
 {% endif %}
 
+<hr>
+{# Блок комментариев #}
+<div class="container">
+    {# Заголовок #}
+    <div class="row">
+        <div class="col">
+            <span>Комментарии ({{ znanie.get_comments_count }}):</span>
+        </div>
+    </div>
+
+    {# Форма #}
+    <div class="row my-2">
+        <div class="col">
+            {% if user.is_authenticated %}
+                <div id="comments-form-block">
+                    {% include 'drevo/comments_form.html' with parent_comment_id='' %}
+                </div>
+            {% else %}
+                <div class="card alert-warning">
+                    <div class="card-body">
+                        <span class="card-text">
+                            <a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
+                            или
+                            <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                            чтобы написать комментарий.
+                        </span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Дерево комментариев #}
+    <div class="row">
+        <div class="col">
+            <div id="comments-list-block"></div>
+            <div class="my-4" id="commentsListSpinner">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Кнопка загрузки #}
+    <div class="row">
+        <div class="col">
+            <div class="my-4">
+                <div class="d-flex justify-content-center">
+                    <button class="btn btn-outline-secondary"id="loadMoreCommentsButton" disabled>
+                        Загрузить ещё
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
+
 {% for c in categories %}
 <ul>
   <li>  
@@ -260,4 +319,5 @@
 {% block jsfiles %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{% static 'drevo/js/rating.js' %}"></script>
+    <script src="{% static 'drevo/js/comments.js' %}"></script>
 {% endblock %}

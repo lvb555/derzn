@@ -1,8 +1,11 @@
 from django.db.models import Count, Q
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.http import Http404, JsonResponse
 from django.views.generic import ListView, TemplateView, DetailView
 from django.views.generic.edit import ProcessFormView
-from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm, ZnRating, IP
+from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm, ZnRating, IP, Comment
+from users.models import User
 from .forms import AuthorsFilterForm
 from loguru import logger
 from .relations_tree import get_category_for_knowledge, get_ancestors_for_knowledge, \
@@ -129,6 +132,7 @@ class ZnanieDetailView(DetailView):
 
         context['likes_count'] = humanize.intword(knowledge.get_likes_count())
         context['dislikes_count'] = humanize.intword(knowledge.get_dislikes_count())
+        context['comment_max_length'] = Comment.CONTENT_MAX_LENGTH
 
         return context
 
@@ -256,5 +260,99 @@ class ZnanieRatingView(ProcessFormView):
                     znanie = Znanie.objects.get(pk=pk)
                     znanie.voting(self.request.user, vote)
                     return JsonResponse({}, status=200)
+
+        raise Http404
+
+
+class CommentPageView(ProcessFormView):
+    def get(self, request, pk, *args, **kwargs):
+        if request.is_ajax():
+            if not self.request.user.is_authenticated:
+                return JsonResponse({}, status=403)
+
+            if pk:
+                offset = Comment.COMMENTS_PER_PAGE
+                is_last_page = False
+
+                last_comment_id = request.GET.get('last_comment_id')
+                if last_comment_id:
+                    if last_comment_id.isdigit():
+                        last_comment_id = int(last_comment_id)
+                    else:
+                        raise Http404
+                else:
+                    last_comment_id = None
+
+                znanie = get_object_or_404(Znanie, id=pk)
+
+                if last_comment_id:
+                    comments = znanie.comments.filter(
+                        parent=None,
+                        id__lt=int(last_comment_id),
+                    ).select_related('parent', 'author')[0:offset]
+                else:
+                    comments = znanie.comments.filter(
+                        parent=None,
+                    ).select_related('parent', 'author')[0:offset]
+
+                if not comments:
+                    return JsonResponse({'data': [], 'is_last_page': True}, status=200)
+
+                if comments.count() in range(1, offset) or \
+                        last_comment_id == znanie.comments.filter(parent=None).last().id:
+                    is_last_page = True
+
+                context = {
+                    'comments': comments,
+                    'comment_max_length': Comment.CONTENT_MAX_LENGTH,
+                    'is_authenticated': self.request.user.is_authenticated,
+                }
+
+                data = render_to_string('drevo/comments_list.html', context)
+                return JsonResponse({'data': data, 'is_last_page': is_last_page}, status=200)
+
+        raise Http404
+
+
+class CommentSendView(ProcessFormView):
+    def get(self, request, pk, *args, **kwargs):
+        if request.is_ajax():
+            user = self.request.user
+
+            if not user.is_authenticated:
+                return JsonResponse({}, status=403)
+
+            if pk:
+                parent_id = self.request.GET.get('parent')
+                content = self.request.GET.get('content').strip()
+
+                if not content:
+                    raise Http404
+
+                znanie = get_object_or_404(Znanie, id=pk)
+                author = get_object_or_404(User, id=user.id)
+                parent_comment = None
+                if parent_id:
+                    parent_comment = get_object_or_404(Comment, id=parent_id)
+
+                new_comment = Comment.objects.create(
+                    author=author,
+                    parent=parent_comment,
+                    znanie=znanie,
+                    content=content,
+                )
+                context = {
+                    'is_authenticated': user.is_authenticated,
+                    'comment_max_length': Comment.CONTENT_MAX_LENGTH,
+                }
+
+                if parent_id:
+                    context['comments'] = Comment.objects.filter(parent_id=parent_id).select_related('parent', 'author')
+                    data = render_to_string('drevo/comments_list.html', context)
+                else:
+                    context['comments'] = [new_comment]
+                    data = render_to_string('drevo/comments_list.html', context)
+
+                return JsonResponse({'data': data, 'new_comment_id': new_comment.id}, status=200)
 
         raise Http404
