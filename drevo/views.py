@@ -267,9 +267,6 @@ class ZnanieRatingView(ProcessFormView):
 class CommentPageView(ProcessFormView):
     def get(self, request, pk, *args, **kwargs):
         if request.is_ajax():
-            if not self.request.user.is_authenticated:
-                return JsonResponse({}, status=403)
-
             if pk:
                 offset = Comment.COMMENTS_PER_PAGE
                 is_last_page = False
