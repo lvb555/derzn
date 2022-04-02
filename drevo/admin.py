@@ -1,5 +1,6 @@
 from django.contrib import admin
-from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType, GlossaryTerm, ZnRating
+from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType, GlossaryTerm, \
+    ZnRating, Comment
 from mptt.admin import DraggableMPTTAdmin
 from .forms import ZnanieForm, AuthorForm, GlossaryTermForm, CategoryForm
 from django.utils.safestring import mark_safe
@@ -212,3 +213,25 @@ class ZnRatingAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ZnRating, ZnRatingAdmin)
+
+
+class CommentAnswersInline(admin.TabularInline):
+    model = Comment
+    ordering = ('-created_at',)
+    extra = 0
+    readonly_fields = ('author', 'parent', 'znanie', 'content', 'created_at', 'updated_at', 'is_published')
+    can_delete = False
+    verbose_name = 'Ответ'
+    verbose_name_plural = 'Ответы'
+
+
+class CommentAdmin(admin.ModelAdmin):
+    readonly_fields = ('author', 'parent', 'znanie', 'content', 'created_at', 'updated_at')
+    list_filter = ('is_published', 'created_at', 'znanie', 'author')
+    ordering = ('-created_at',)
+    inlines = (CommentAnswersInline,)
+    verbose_name = 'Комментарий'
+    verbose_name_plural = 'Комментарии'
+
+
+admin.site.register(Comment, CommentAdmin)

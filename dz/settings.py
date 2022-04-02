@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'drevo.apps.DrevoConfig',
+    'django.contrib.humanize',
     'mptt',
     'ckeditor',
     'loguru',
@@ -56,7 +57,7 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(BASE_DIR, 'templates'),
             os.path.join(BASE_DIR, 'drevo/templates'),
-            os.path.join(BASE_DIR, 'profiles/templates'),
+            os.path.join(BASE_DIR, 'users/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -117,7 +118,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'drevo/static'),
-    os.path.join(BASE_DIR, 'profiles/static'),
+    os.path.join(BASE_DIR, 'users/static'),
 ]
 
 # Default primary key field type
@@ -128,7 +129,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-LOGIN_URL = '/profiles/login/'
+LOGIN_URL = '/users/login/'
 
 BASE_URL = env.str('BASE_URL')
 
