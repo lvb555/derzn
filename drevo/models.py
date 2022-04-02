@@ -473,7 +473,7 @@ class Comment(models.Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        return f'{self.author} - {self.znanie} ({self.created_at:%d.%m.%Y %H:%M})'
+        return f'{self.id} - {self.author} - {self.znanie} ({self.created_at:%d.%m.%Y %H:%M})'
 
     def publish(self):
         self.is_published = True

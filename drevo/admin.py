@@ -233,12 +233,5 @@ class CommentAdmin(admin.ModelAdmin):
     verbose_name = 'Комментарий'
     verbose_name_plural = 'Комментарии'
 
-    def get_queryset(self, request):
-        qs = Comment.objects.get_queryset().select_related('parent', 'author', 'znanie')
-        ordering = self.get_ordering(request)
-        if ordering:
-            qs = qs.order_by(*ordering)
-        return qs
-
 
 admin.site.register(Comment, CommentAdmin)
