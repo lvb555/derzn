@@ -37,8 +37,8 @@
                                class="form-control py-2" id="id_last_name">
                     </p>
                     <p>
-                        <label for="{{ object.profile.patronymic.id_for_label }}">Отчество:</label>
-                        <input type="text" name="patronymic" value="{{ object.profile.patronymic }}"
+                        <label for="{{ object.patronymic.id_for_label }}">Отчество:</label>
+                        <input type="text" name="patronymic" value="{{ object.patronymic }}"
                                readonly="" class="form-control py-2" id="id_patronymic">
                     </p>
                     <p>
@@ -48,7 +48,7 @@
                     </p>
                     <p>
                         <label for="{{ object.profile.birthday_at.id_for_label }}">Дата рождения:</label>
-                        <input type="text" name="birthday_at" value="{{ object.profile.birthday_at }}" readonly=""
+                        <input type="text" name="birthday_at" value="{{ object.profile.birthday_at|date:"d.m.Y" }}" readonly=""
                                class="form-control py-2" id="id_birthday_at">
                     </p>
                 </form>

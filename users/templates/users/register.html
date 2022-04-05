@@ -1,0 +1,96 @@
+{% extends 'users/base.html' %}
+
+{% block content %}
+    <div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            {% if messages %}
+                <div class="alert alert-danger alert-dismissible fade show"
+                     role="alert"
+                     style="margin-top: 50px;">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                <div class="card-header"><h3 class="text-center font-weight-light my-4">Регистрация</h3>
+                </div>
+                <div class="card-body card">
+                    <form action="{% url 'users:register' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <p class="form-row mb-2">
+                                {{ form.username.errors }}
+                                <label for="{{ form.username.id_for_label }}">Имя пользователя:</label>
+                                {{ form.username }}
+                            </p>
+                            <p class="form-row mb-2">
+                                {{ form.email.errors }}
+                                <label for="{{ form.email.id_for_label }}">Адрес эл. почты:</label>
+                                {{ form.email }}
+                            </p>
+                            <p class="form-row mb-2">
+                                {{ form.password1.errors }}
+                                <label for="{{ form.password1.id_for_label }}">Пароль:</label>
+                                <div class="input-group" id="show_hide_password1">
+                                    {{ form.password1 }}
+                                    <a class="btn btn-outline-secondary"><i class="bi bi-eye-slash large"></i></a>
+                                </div>
+                            </p>
+                            <p class="form-row mb-2">
+                                {{ form.password2.errors }}
+                                <label for="{{ form.password2.id_for_label }}">Подтверждение пароля:</label>
+                                <div class="input-group" id="show_hide_password2">
+                                    {{ form.password2 }}
+                                    <a class="btn btn-outline-secondary"><i class="bi bi-eye-slash large"></i></a>
+                                </div>
+                            </p>
+                        </div>
+                        <div class="form-group text-center mt-4 mb-4">
+                            <input class="btn btn-primary" type="submit" value="Зарегистрироваться">
+                        </div>
+                    </form>
+                    <div class="card-footer text-center">
+                        <div class="medium mt-2 mb-2">
+                            <a class="text-decoration-none" href="{% url 'users:login' %}">Уже есть аккаунт</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block jsfiles %}
+    <script>
+        $(document).ready(function () {
+            $("#show_hide_password1 a").on('click', function (event) {
+                event.preventDefault();
+                if ($('#show_hide_password1 input').attr("type") === "text") {
+                    $('#show_hide_password1 input').attr('type', 'password');
+                    $('#show_hide_password1 i').addClass("bi-eye-slash");
+                    $('#show_hide_password1 i').removeClass("bi-eye");
+                } else if ($('#show_hide_password1 input').attr("type") === "password") {
+                    $('#show_hide_password1 input').attr('type', 'text');
+                    $('#show_hide_password1 i').addClass("bi-eye");
+                    $('#show_hide_password1 i').removeClass("bi-eye-slash");
+                }
+            });
+            $("#show_hide_password2 a").on('click', function (event) {
+                event.preventDefault();
+                if ($('#show_hide_password2 input').attr("type") === "text") {
+                    $('#show_hide_password2 input').attr('type', 'password');
+                    $('#show_hide_password2 i').addClass("bi-eye-slash");
+                    $('#show_hide_password2 i').removeClass("bi-eye");
+                } else if ($('#show_hide_password2 input').attr("type") === "password") {
+                    $('#show_hide_password2 input').attr('type', 'text');
+                    $('#show_hide_password2 i').addClass("bi-eye");
+                    $('#show_hide_password2 i').removeClass("bi-eye-slash");
+                }
+            });
+        });
+    </script>
+{% endblock %}

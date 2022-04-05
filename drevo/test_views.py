@@ -8,7 +8,7 @@ Test{View name}
 
 from django.test import TestCase
 from .models import Znanie, Category, Tz, AuthorType, Author
-from django.contrib.auth.models import User
+from users.models import User
 from django.urls import reverse
 
 

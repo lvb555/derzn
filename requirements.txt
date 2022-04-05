@@ -13,3 +13,4 @@ python-dotenv==0.19.2
 pytz==2021.1
 sqlparse==0.4.1
 whitenoise==5.3.0
+humanize==4.0.0

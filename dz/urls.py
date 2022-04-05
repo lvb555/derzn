@@ -31,7 +31,7 @@ urlpatterns = [
     path('', DrevoRedirectView.as_view(), name='main-redirect'),
     path('admin/', admin.site.urls),
     path('drevo/', include('drevo.urls')),
-    path('profiles/', include('profiles.urls', namespace='profiles')),
+    path('users/', include('users.urls', namespace='users')),
 ]
 
 if settings.DEBUG:

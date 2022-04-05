@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.forms import SetPasswordForm, PasswordChangeForm
-from django.contrib.auth.models import User
-from profiles.models import Profile
+from django.core.exceptions import ValidationError
+
+from users.models import User, Profile
 
 
 class UserLoginForm(AuthenticationForm):
@@ -93,12 +94,12 @@ class ProfileModelForm(forms.ModelForm):
         label='Пол',
     )
     birthday_at = forms.DateField(
-        widget=forms.DateInput(),
+        widget=forms.DateInput(attrs={'type': 'date'}),
         label='Дата рождения',
         required=False,
     )
     image = forms.ImageField(
-        widget=forms.FileInput(attrs={'class': 'custom-file-input'}),
+        widget=forms.FileInput(),
         label='Аватар',
         required=False,
     )
@@ -112,9 +113,23 @@ class ProfileModelForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             if field_name not in ('image',):
                 field.widget.attrs['class'] = 'form-control py-2'
+            else:
+                field.widget.attrs['class'] = 'form-control'
+
+    def validate_avatar_size(self):
+        max_file_size = 1048576
+        image = self.cleaned_data.get('image')
+
+        if not image:
+            return None, None
+
+        if image.size > max_file_size:
+            return image, 'Ошибка! Максимальный размер загружаемого файла - 1 МБ.'
+
+        return image, None
 
 
-class ProfilePasswordRecoveryForm(forms.Form):
+class UserPasswordRecoveryForm(forms.Form):
     email = forms.CharField(
         widget=forms.EmailInput(),
         label='Адрес эл. почты'
@@ -130,7 +145,7 @@ class ProfilePasswordRecoveryForm(forms.Form):
             field.widget.attrs['class'] = 'form-control py-2'
 
 
-class ProfileSetPasswordForm(SetPasswordForm):
+class UserSetPasswordForm(SetPasswordForm):
     new_password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'Введите новый пароль'}),
         label='Новый пароль'
