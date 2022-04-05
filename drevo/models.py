@@ -276,6 +276,18 @@ class IP(models.Model):
     ip = models.CharField(max_length=100)
 
 
+class Visits(models.Model):
+    """
+    Просмотры
+    """
+    znanie = models.ForeignKey(Znanie,
+                               models.CASCADE
+                               )
+    user = models.ForeignKey(User,
+                             models.CASCADE
+                             )
+
+
 class ZnImage(models.Model):
     znanie = models.ForeignKey(Znanie,
                                related_name='photos',

@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.http import Http404, JsonResponse
 from django.views.generic import ListView, TemplateView, DetailView
 from django.views.generic.edit import ProcessFormView
-from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm, ZnRating, IP, Comment
+from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm, ZnRating, IP, Visits, Comment
 from users.models import User
 from .forms import AuthorsFilterForm
 from loguru import logger
@@ -103,12 +103,17 @@ class ZnanieDetailView(DetailView):
             ip = x_forwarded_for.split(',')[0]
         else:
             ip = self.request.META.get('REMOTE_ADDR')
-        if IP.objects.filter(ip=ip).count() == 0:
-            IP(ip=ip).save()
-
-        IP.objects.get(ip=ip).visits.add(knowledge)
+        if not IP.objects.filter(ip=ip):
+            IP.objects.create(ip=ip)
+        if knowledge not in IP.objects.get(ip=ip).visits.all() and self.request.user.is_anonymous:
+            IP.objects.get(ip=ip).visits.add(knowledge)
 
         IP.objects.get(ip=ip).save()
+
+        # добавление просмотра
+        if self.request.user.is_authenticated:
+            if not Visits.objects.filter(znanie=knowledge, user=self.request.user).count():
+                Visits.objects.create(znanie=knowledge, user=self.request.user).save()
 
         # формируем дерево категорий для категории текущего знания
         category = get_category_for_knowledge(knowledge)
@@ -122,7 +127,7 @@ class ZnanieDetailView(DetailView):
         context['siblings'] = get_siblings_for_knowledge(knowledge)
         # context['children'] = get_children_for_knowledge(knowledge)
         context['children_by_tr'] = get_children_by_relation_type_for_knowledge(knowledge)
-        context['visits'] = knowledge.ip_set.all().count()
+        context['visits'] = Visits.objects.filter(znanie=knowledge).count() + knowledge.ip_set.all().count()
 
         user = self.request.user
         if user.is_authenticated:
