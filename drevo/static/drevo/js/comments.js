@@ -27,7 +27,7 @@ function onInputHandler(textarea) {
         currentButtonId = basicButtonId + id;
     }
 
-    let value = textarea.value;
+    let value = textarea.value.trim();
     document.getElementById(currentButtonId).disabled = !value;
 
     document.getElementById(currentCounterId).innerHTML = textarea.value.length;
@@ -147,6 +147,7 @@ function sendComment(data, form) {
             document.getElementById('commentCharCounter' + object.parent).innerText = '0';
 
             sendFormButton.value = buttonValue;
+            textareaForm.style.height = 'auto';
             textareaForm.disabled = false;
 
             animateCard(newCommentId);

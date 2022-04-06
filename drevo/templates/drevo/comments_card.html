@@ -4,46 +4,52 @@
 <div class="{% if comment.parent %} comment-answer {% else %} comment-card {% endif %} card shadow border-0 rounded-lg mb-2"
      id="{{ comment.id }}">
     <div class="card-body">
-        <div class="comment-header-user-container d-flex align-items-center flex-wrap">
-            <div class="avatar-block d-flex align-items-center">
-                <a class="me-2" href="{% url 'users:usersprofile' comment.author.id %}"
-                   target="_blank" aria-hidden="true"
-                   style='background-image: {% if comment.author.profile.avatar %}
-                       url("{{ comment.author.profile.avatar.url }}")
-                   {% else %}
-                       url("{% static 'drevo/img/default_avatar.jpg' %}")
-                   {% endif %};
-                           background-color: rgb(254, 254, 254);
-                           background-size: cover;
-                           background-repeat: no-repeat;
-                           background-position: 50%;
-                           display: block;
-                           height: 32px;
-                           width: 32px;
-                           border-radius: 50%;
-                           overflow: hidden;'></a>
-                <div class="author-name-block card-link pe-2">
-                    <a href="{% url 'users:usersprofile' comment.author.id %}" target="_blank"
-                       class="text-decoration-none">
-                        {% if comment.author.first_name %}
-                            {{ comment.author.first_name }}
-                            {% if comment.author.last_name %}
-                                {{ comment.author.last_name }}
+        {% if comment.is_published %}
+            <div class="comment-header-user-container d-flex align-items-center flex-wrap">
+                <div class="avatar-block d-flex align-items-center">
+                    <a class="me-2" href="{% url 'users:usersprofile' comment.author.id %}"
+                       target="_blank" aria-hidden="true"
+                       style='background-image: {% if comment.author.profile.avatar %}
+                           url("{{ comment.author.profile.avatar.url }}")
+                       {% else %}
+                           url("{% static 'drevo/img/default_avatar.jpg' %}")
+                       {% endif %};
+                               background-color: rgb(254, 254, 254);
+                               background-size: cover;
+                               background-repeat: no-repeat;
+                               background-position: 50%;
+                               display: block;
+                               height: 32px;
+                               width: 32px;
+                               border-radius: 50%;
+                               overflow: hidden;'></a>
+                    <div class="author-name-block card-link pe-2">
+                        <a href="{% url 'users:usersprofile' comment.author.id %}" target="_blank"
+                           class="text-decoration-none">
+                            {% if comment.author.first_name %}
+                                {{ comment.author.first_name }}
+                                {% if comment.author.last_name %}
+                                    {{ comment.author.last_name }}
+                                {% endif %}
+                            {% else %}
+                                {{ comment.author.username }}
                             {% endif %}
-                        {% else %}
-                            {{ comment.author.username }}
-                        {% endif %}
-                    </a>
+                        </a>
+                    </div>
+                </div>
+                <div class="created-date-block" style="opacity: 0.8;">
+                    <span title="{{ comment.created_at }}" style="cursor: pointer;">
+                        {{ comment.created_at|naturaltime }}
+                    </span>
                 </div>
             </div>
-            <div class="created-date-block" style="opacity: 0.8;">
-                <span title="{{ comment.created_at }}" style="cursor: pointer;">
-                    {{ comment.created_at|naturaltime }}
-                </span>
-            </div>
-        </div>
-        <div class="card-text p-2">
-            {{ comment.content|linebreaksbr }}
+        {% endif %}
+        <div class="card-text p-2" style="overflow-wrap: anywhere;" >
+            {% if comment.is_published %}
+                {{ comment.content|linebreaksbr }}
+            {% else %}
+                <span style="opacity: 0.7">Комментарий удалён.</span>
+            {% endif %}
         </div>
         <div class="d-flex justify-content-between">
             <button class="btn btn-link text-decoration-none shadow-none p-0" type="button"
@@ -55,13 +61,16 @@
             </button>
             <button data-bs-toggle="collapse" data-bs-target="#collapsedReplyForm{{ comment.id }}"
                     aria-expanded="false" aria-controls="collapsedReplyForm{{ comment.id }}"
-                    {% if not is_authenticated %} disabled {% endif %}
+                    {% if not is_authenticated or not comment.is_published %} disabled {% endif %}
                     class="reply-button btn btn-link text-decoration-none shadow-none p-0"
                     style="cursor: pointer;" id="replyButton{{ comment.id }}" onclick="onCollapseRepyFormShow(this)">
                 Ответить
             </button>
         </div>
     </div>
+
+
+
     <div class="reply-form-block collapse" id="collapsedReplyForm{{ comment.id }}">
         <div class="p-3">
             {% include 'drevo/comments_form.html' with comment=comment %}

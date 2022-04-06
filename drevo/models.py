@@ -256,7 +256,7 @@ class Znanie(models.Model):
         return self.znrating_set.filter(value=ZnRating.DISLIKE).count()
 
     def get_comments_count(self):
-        return self.comments.count()
+        return self.comments.filter(parent=None).count()
 
     class Meta:
         verbose_name = 'Знание'
