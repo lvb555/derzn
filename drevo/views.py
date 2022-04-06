@@ -1,14 +1,22 @@
 from django.db.models import Count, Q
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.http import Http404, JsonResponse
 from django.views.generic import ListView, TemplateView, DetailView
 from django.views.generic.edit import ProcessFormView
-from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm, ZnRating, IP
+from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm, ZnRating, IP, Visits, \
+    Comment
+from users.models import User
 from .forms import AuthorsFilterForm
 from loguru import logger
 from .relations_tree import get_category_for_knowledge, get_ancestors_for_knowledge, \
     get_siblings_for_knowledge, get_children_for_knowledge, get_knowledges_by_categories, \
     get_children_by_relation_type_for_knowledge
 import collections
+import humanize
+import humanize
 
 logger.add('logs/main.log', format="{time} {level} {message}", rotation='100Kb', level="ERROR")
 
@@ -94,13 +102,36 @@ class ZnanieDetailView(DetailView):
 
         # сохранение ip пользователя
         knowledge = Znanie.objects.get(pk=pk)
-        ip = self.request.META.get('REMOTE_ADDR')
-        if IP.objects.filter(ip=ip).count() == 0:
-            IP(ip=ip).save()
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = self.request.META.get('REMOTE_ADDR')
+        if not IP.objects.filter(ip=ip):
+            IP.objects.create(ip=ip)
+        if knowledge not in IP.objects.get(ip=ip).visits.all() and self.request.user.is_anonymous:
+            IP.objects.get(ip=ip).visits.add(knowledge)
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = self.request.META.get('REMOTE_ADDR')
+        if not IP.objects.filter(ip=ip):
+            IP.objects.create(ip=ip)
+        if knowledge not in IP.objects.get(ip=ip).visits.all() and self.request.user.is_anonymous:
+            IP.objects.get(ip=ip).visits.add(knowledge)
 
-        IP.objects.get(ip=ip).visits.add(knowledge)
+        IP.objects.get(ip=ip).save()
 
-        IP.objects.save()
+        # добавление просмотра
+        if self.request.user.is_authenticated:
+            if not Visits.objects.filter(znanie=knowledge, user=self.request.user).count():
+                Visits.objects.create(znanie=knowledge, user=self.request.user).save()
+
+        # добавление просмотра
+        if self.request.user.is_authenticated:
+            if not Visits.objects.filter(znanie=knowledge, user=self.request.user).count():
+                Visits.objects.create(znanie=knowledge, user=self.request.user).save()
 
         # формируем дерево категорий для категории текущего знания
         category = get_category_for_knowledge(knowledge)
@@ -114,12 +145,25 @@ class ZnanieDetailView(DetailView):
         context['siblings'] = get_siblings_for_knowledge(knowledge)
         # context['children'] = get_children_for_knowledge(knowledge)
         context['children_by_tr'] = get_children_by_relation_type_for_knowledge(knowledge)
-        context['visits'] = knowledge.ip_set.all().count()
+        context['visits'] = Visits.objects.filter(znanie=knowledge).count() + knowledge.ip_set.all().count()
+        context['visits'] = Visits.objects.filter(znanie=knowledge).count() + knowledge.ip_set.all().count()
 
-        if self.request.user.is_authenticated:
-            user_vote = knowledge.get_users_vote(self.request.user)
+        user = self.request.user
+        if user.is_authenticated:
+            user_vote = knowledge.get_users_vote(user)
+        user = self.request.user
+        if user.is_authenticated:
+            user_vote = knowledge.get_users_vote(user)
             if user_vote:
                 context['user_vote'] = {user_vote: True}
+
+        context['likes_count'] = humanize.intword(knowledge.get_likes_count())
+        context['dislikes_count'] = humanize.intword(knowledge.get_dislikes_count())
+        context['comment_max_length'] = Comment.CONTENT_MAX_LENGTH
+
+        context['likes_count'] = humanize.intword(knowledge.get_likes_count())
+        context['dislikes_count'] = humanize.intword(knowledge.get_dislikes_count())
+        context['comment_max_length'] = Comment.CONTENT_MAX_LENGTH
 
         return context
 
@@ -148,7 +192,7 @@ class ZnanieByLabelView(DetailView):
         """
         Контекст, передаваемый в шаблон
         """
-        context = super().get_context_data(**kwargs)        
+        context = super().get_context_data(**kwargs)
 
         # получаем знания, содержащие данную метку
 
@@ -247,5 +291,187 @@ class ZnanieRatingView(ProcessFormView):
                     znanie = Znanie.objects.get(pk=pk)
                     znanie.voting(self.request.user, vote)
                     return JsonResponse({}, status=200)
+
+        raise Http404
+
+
+class CommentPageView(ProcessFormView):
+    def get(self, request, pk, *args, **kwargs):
+        if request.is_ajax():
+            if pk:
+                offset = Comment.COMMENTS_PER_PAGE
+                is_last_page = False
+
+                last_comment_id = request.GET.get('last_comment_id')
+                if last_comment_id:
+                    if last_comment_id.isdigit():
+                        last_comment_id = int(last_comment_id)
+                    else:
+                        raise Http404
+                else:
+                    last_comment_id = None
+
+                znanie = get_object_or_404(Znanie, id=pk)
+
+                if last_comment_id:
+                    comments = znanie.comments.filter(
+                        parent=None,
+                        id__lt=int(last_comment_id),
+                    ).select_related('parent', 'author')[0:offset]
+                else:
+                    comments = znanie.comments.filter(
+                        parent=None,
+                    ).select_related('parent', 'author')[0:offset]
+
+                if not comments:
+                    return JsonResponse({'data': [], 'is_last_page': True}, status=200)
+
+                if comments.count() in range(1, offset) or \
+                        last_comment_id == znanie.comments.filter(parent=None).last().id:
+                    is_last_page = True
+
+                context = {
+                    'comments': comments,
+                    'comment_max_length': Comment.CONTENT_MAX_LENGTH,
+                    'is_authenticated': self.request.user.is_authenticated,
+                }
+
+                data = render_to_string('drevo/comments_list.html', context)
+                return JsonResponse({'data': data, 'is_last_page': is_last_page}, status=200)
+
+        raise Http404
+
+
+class CommentSendView(ProcessFormView):
+    def get(self, request, pk, *args, **kwargs):
+        if request.is_ajax():
+            user = self.request.user
+
+            if not user.is_authenticated:
+                return JsonResponse({}, status=403)
+
+            if pk:
+                parent_id = self.request.GET.get('parent')
+                content = self.request.GET.get('content').strip()
+
+                if not content:
+                    raise Http404
+
+                znanie = get_object_or_404(Znanie, id=pk)
+                author = get_object_or_404(User, id=user.id)
+                parent_comment = None
+                if parent_id:
+                    parent_comment = get_object_or_404(Comment, id=parent_id)
+
+                new_comment = Comment.objects.create(
+                    author=author,
+                    parent=parent_comment,
+                    znanie=znanie,
+                    content=content,
+                )
+                context = {
+                    'is_authenticated': user.is_authenticated,
+                    'comment_max_length': Comment.CONTENT_MAX_LENGTH,
+                }
+
+                if parent_id:
+                    context['comments'] = Comment.objects.filter(parent_id=parent_id).select_related('parent', 'author')
+                    data = render_to_string('drevo/comments_list.html', context)
+                else:
+                    context['comments'] = [new_comment]
+                    data = render_to_string('drevo/comments_list.html', context)
+
+                return JsonResponse({'data': data, 'new_comment_id': new_comment.id}, status=200)
+
+        raise Http404
+
+
+class CommentPageView(ProcessFormView):
+    def get(self, request, pk, *args, **kwargs):
+        if request.is_ajax():
+            if pk:
+                offset = Comment.COMMENTS_PER_PAGE
+                is_last_page = False
+
+                last_comment_id = request.GET.get('last_comment_id')
+                if last_comment_id:
+                    if last_comment_id.isdigit():
+                        last_comment_id = int(last_comment_id)
+                    else:
+                        raise Http404
+                else:
+                    last_comment_id = None
+
+                znanie = get_object_or_404(Znanie, id=pk)
+
+                if last_comment_id:
+                    comments = znanie.comments.filter(
+                        parent=None,
+                        id__lt=int(last_comment_id),
+                    ).select_related('parent', 'author')[0:offset]
+                else:
+                    comments = znanie.comments.filter(
+                        parent=None,
+                    ).select_related('parent', 'author')[0:offset]
+
+                if not comments:
+                    return JsonResponse({'data': [], 'is_last_page': True}, status=200)
+
+                if comments.count() in range(1, offset) or \
+                        last_comment_id == znanie.comments.filter(parent=None).last().id:
+                    is_last_page = True
+
+                context = {
+                    'comments': comments,
+                    'comment_max_length': Comment.CONTENT_MAX_LENGTH,
+                    'is_authenticated': self.request.user.is_authenticated,
+                }
+
+                data = render_to_string('drevo/comments_list.html', context)
+                return JsonResponse({'data': data, 'is_last_page': is_last_page}, status=200)
+
+        raise Http404
+
+
+class CommentSendView(ProcessFormView):
+    def get(self, request, pk, *args, **kwargs):
+        if request.is_ajax():
+            user = self.request.user
+
+            if not user.is_authenticated:
+                return JsonResponse({}, status=403)
+
+            if pk:
+                parent_id = self.request.GET.get('parent')
+                content = self.request.GET.get('content').strip()
+
+                if not content:
+                    raise Http404
+
+                znanie = get_object_or_404(Znanie, id=pk)
+                author = get_object_or_404(User, id=user.id)
+                parent_comment = None
+                if parent_id:
+                    parent_comment = get_object_or_404(Comment, id=parent_id)
+
+                new_comment = Comment.objects.create(
+                    author=author,
+                    parent=parent_comment,
+                    znanie=znanie,
+                    content=content,
+                )
+                context = {
+                    'is_authenticated': user.is_authenticated,
+                    'comment_max_length': Comment.CONTENT_MAX_LENGTH,
+                }
+
+                if parent_id:
+                    context['comments'] = Comment.objects.filter(parent_id=parent_id).select_related('parent', 'author')
+                    data = render_to_string('drevo/comments_list.html', context)
+                else:
+                    context['comments'] = [new_comment]
+                    data = render_to_string('drevo/comments_list.html', context)
+
+                return JsonResponse({'data': data, 'new_comment_id': new_comment.id}, status=200)
 
         raise Http404
