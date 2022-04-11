@@ -304,7 +304,7 @@ class CommentPageView(ProcessFormView):
                         status=200
                     )
 
-                if znanie.comments.filter(parent=None).last().id in [comment.id for comment in comments]:
+                if znanie.comments.filter(parent=None).last() in comments:
                     is_last_page = True
                 if last_comment_id:
                     is_first_page = False
@@ -356,13 +356,24 @@ class CommentSendView(ProcessFormView):
                     'comment_max_length': Comment.CONTENT_MAX_LENGTH,
                 }
 
-                if parent_id:
-                    context['comments'] = Comment.objects.filter(parent_id=parent_id).select_related('parent', 'author')
+                is_first_answer = True
+                if parent_id and parent_comment.answers.count() > 1:
+                    is_first_answer = False
+
+                if parent_id and not is_first_answer:
+                    context['comment'] = new_comment
+                    data = render_to_string('drevo/comments_card.html', context)
                 else:
                     context['comments'] = [new_comment]
+                    data = render_to_string('drevo/comments_list.html', context)
 
-                data = render_to_string('drevo/comments_list.html', context)
-
-                return JsonResponse({'data': data, 'new_comment_id': new_comment.id}, status=200)
+                return JsonResponse(
+                    {
+                        'data': data,
+                        'new_comment_id': new_comment.id,
+                        'is_first_answer': is_first_answer
+                    },
+                    status=200
+                )
 
         raise Http404

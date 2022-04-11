@@ -136,16 +136,22 @@ function sendComment(data, form) {
             $('#no-comments-text').hide();
 
             let answersBlock = document.getElementById('answersBlock' + object.parent);
+
             let newCommentId = '';
             if (response.new_comment_id) {
                 newCommentId = response.new_comment_id;
             }
 
             if (object.parent) {
-                answersBlock.innerHTML = response.data;
-
-                document.getElementById('collapsedAnswers' + object.parent).classList.add('show');
-
+                if (response.is_first_answer) {
+                    answersBlock.insertAdjacentHTML('afterbegin', response.data);
+                    let collapsedBlock = document.getElementById('collapsedAnswers' + object.parent);
+                    collapsedBlock.classList.add('show');
+                } else {
+                    let collapsedBlock = document.getElementById('collapsedAnswers' + object.parent);
+                    collapsedBlock.querySelector('.col').insertAdjacentHTML('afterbegin', response.data);
+                    collapsedBlock.classList.add('show');
+                }
                 let answersCountElement = document.getElementById('answersCount' + object.parent);
                 let currentAnswersCount = parseInt(answersCountElement.innerText);
                 answersCountElement.innerText = currentAnswersCount + 1;
@@ -164,4 +170,32 @@ function sendComment(data, form) {
             animateCard(newCommentId);
         }
     });
+}
+
+function showMoreAnswersClick(button) {
+    const collapsedAnswersBasicId = 'collapsedAnswers';
+    const buttonBasicId = 'showMoreAnswersButton';
+    const id = button.id.replace(buttonBasicId, '');
+    let offset = parseInt(button.getAttribute('data-offset'));
+    const answers = document.querySelector('#' + collapsedAnswersBasicId + id)
+        .querySelector('.col').children;
+
+    let hasHiddenAnswers = false;
+    for (let answer of answers) {
+        if (!answer.classList.contains('row')) {
+            if (offset === 0) {
+                if (answer.hidden) {
+                    hasHiddenAnswers = true;
+                    break;
+                }
+            }
+            if (answer.hidden) {
+                answer.hidden = false;
+                offset -= 1;
+            }
+        }
+        if (!hasHiddenAnswers) {
+            button.style.display = 'none';
+        }
+    }
 }

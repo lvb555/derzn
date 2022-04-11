@@ -2,7 +2,7 @@
 {% load static %}
 
 <div class="{% if comment.parent %} comment-answer {% else %} comment-card {% endif %} card shadow border-0 rounded-lg mb-2"
-     id="{{ comment.id }}">
+     id="{{ comment.id }}" {% if card_is_hidden %} hidden {% endif %}>
     <div class="card-body">
         {% if comment.is_published %}
             <div class="comment-header-user-container d-flex align-items-center flex-wrap">
@@ -74,4 +74,9 @@
             {% include 'drevo/comments_form.html' with comment=comment %}
         </div>
     </div>
+</div>
+<div class="answers-block" id="answersBlock{{ comment.id }}">
+    {% if comment.answers.exists %}
+        {% include 'drevo/comments_list.html' with comments=comment.get_answers %}
+    {% endif %}
 </div>

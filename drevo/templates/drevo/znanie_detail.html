@@ -169,9 +169,6 @@
     </div>
 
     {# Дерево комментариев #}
-    {% if not znanie.comments.exists %}
-        <div class="text-center mt-4" id="no-comments-text">Комментариев ещё нет.</div>
-    {% endif %}
     <div class="row">
         <div class="col">
             <div id="comments-list-block"></div>
@@ -182,6 +179,9 @@
             </div>
         </div>
     </div>
+    {% if not znanie.comments.exists %}
+        <div class="text-center mt-4" id="no-comments-text">Комментариев ещё нет.</div>
+    {% endif %}
 
     {# Кнопка загрузки и спиннер #}
     <div class="row mb-2">
