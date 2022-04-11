@@ -14,13 +14,44 @@
         {% endif %}
         <div class="col">
             {% for comment in comments %}
-                {% include 'drevo/comments_card.html' with comment=comment %}
-                <div class="answers-block" id="answersBlock{{ comment.id }}">
-                    {% if comment.answers.exists %}
-                        {% include 'drevo/comments_list.html' with comments=comment.get_answers %}
-                    {% endif %}
-                </div>
+{#                {% if forloop.counter <= offset %}#}
+                    {% include 'drevo/comments_card.html' with comment=comment %}
+                    <div class="answers-block" id="answersBlock{{ comment.id }}">
+                        {% if comment.answers.exists %}
+                            {% include 'drevo/comments_list.html' with comments=comment.get_answers %}
+                        {% endif %}
+{#                        {% if is_first_page %}#}
+{#                            <div class="my-1" id="commentsListSpinner{{ comment.id }}">#}
+{#                                <div class="d-flex justify-content-center">#}
+{#                                    <div class="spinner-border" role="status" style="display: none"></div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        {% endif %}#}
+                    </div>
+{#                {% endif %}#}
             {% endfor %}
+
         </div>
     </div>
+{#    {% if comments.count >= offset %}#}
+{#        {% if is_first_page %}#}
+{#            <div class="row mb-2">#}
+{#                <div class="my-1" id="commentsListSpinner{{ comment.id }}">#}
+{#                    <div class="d-flex justify-content-center">#}
+{#                        <div class="spinner-border" role="status" style="display: none"></div>#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="col">#}
+{#                    <div class="d-flex justify-content-center my-1">#}
+{#                        <button class="btn btn-outline-secondary"#}
+{#                                style="display: {% if comments.answers.count > offset %} inherit {% else %} none {% endif %}"#}
+{#                                id="loadMoreCommentsButton{{ comments.0.parent.id }}"#}
+{#                                onclick="getComments(this)">#}
+{#                            Загрузить ещё#}
+{#                        </button>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        {% endif %}#}
+{#    {% endif %}#}
 {% endif %}

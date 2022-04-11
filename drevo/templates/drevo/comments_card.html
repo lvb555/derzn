@@ -44,7 +44,7 @@
                 </div>
             </div>
         {% endif %}
-        <div class="card-text p-2" style="overflow-wrap: anywhere;" >
+        <div class="card-text p-2" style="overflow-wrap: anywhere;">
             {% if comment.is_published %}
                 {{ comment.content|linebreaksbr }}
             {% else %}
@@ -68,8 +68,6 @@
             </button>
         </div>
     </div>
-
-
 
     <div class="reply-form-block collapse" id="collapsedReplyForm{{ comment.id }}">
         <div class="p-3">

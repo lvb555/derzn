@@ -1,12 +1,12 @@
 $(document).ready(init)
 
 function init() {
-    const loadMoreCommentsButton = document.getElementById('loadMoreCommentsButton');
-    loadMoreCommentsButton.addEventListener('click', function (event) {
-        getComments();
-    })
+    // const loadMoreCommentsButton = document.getElementById('loadMoreCommentsButton');
+    // loadMoreCommentsButton.addEventListener('click', function (event) {
+    //     getComments();
+    // })
 
-    getComments();
+    getComments(null);
 }
 
 function onInputHandler(textarea) {
@@ -30,7 +30,7 @@ function onInputHandler(textarea) {
     let value = textarea.value.trim();
     document.getElementById(currentButtonId).disabled = !value;
 
-    document.getElementById(currentCounterId).innerHTML = textarea.value.length;
+    document.getElementById(currentCounterId).innerText = textarea.value.length;
     textarea.style.height = 'auto';
     textarea.style.height = textarea.scrollHeight + "px";
 }
@@ -48,13 +48,17 @@ function animateCard(id) {
     );
 }
 
-function getComments() {
+function getComments(loadMoreCommentsButton) {
     const commentsListBlock = document.getElementById('comments-list-block');
     const commentsListSpinner = document.getElementById('commentsListSpinner');
-    const loadMoreCommentsButton = document.getElementById('loadMoreCommentsButton');
+    if (!loadMoreCommentsButton) {
+        loadMoreCommentsButton = document.getElementById('loadMoreCommentsButton');
+    }
 
-    commentsListSpinner.style.display = '';
-    loadMoreCommentsButton.disabled = true;
+    commentsListSpinner.style.display = 'inherit';
+    if (loadMoreCommentsButton) {
+        loadMoreCommentsButton.disabled = true;
+    }
 
     const url = document.location.pathname + '/comments/';
 
@@ -63,6 +67,7 @@ function getComments() {
     let cards = document.getElementsByClassName('comment-card');
     if (cards.length > 0) {
         data['last_comment_id'] = cards[cards.length - 1].id;
+        data['parent_comment_id'] = cards[cards.length - 1].id;
     }
 
     $.ajax({
@@ -72,9 +77,18 @@ function getComments() {
             const isLastPage = response.is_last_page;
 
             commentsListSpinner.style.display = 'none';
+
             commentsListBlock.insertAdjacentHTML('beforeend', response.data);
 
-            if (!isLastPage) {
+            if (!loadMoreCommentsButton) {
+                loadMoreCommentsButton = document.getElementById('loadMoreCommentsButton');
+            }
+
+            if (isLastPage) {
+                loadMoreCommentsButton.style.display = 'none';
+                loadMoreCommentsButton.disabled = true;
+            } else {
+                loadMoreCommentsButton.style.display = 'block';
                 loadMoreCommentsButton.disabled = false;
             }
         }
@@ -124,6 +138,8 @@ function sendComment(data, form) {
         data: object,
         url: document.location.pathname + '/comments/send/',
         success: function (response) {
+            $('#no-comments-text').hide();
+
             let answersBlock = document.getElementById('answersBlock' + object.parent);
             let newCommentId = '';
             if (response.new_comment_id) {

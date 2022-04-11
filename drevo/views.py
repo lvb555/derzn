@@ -275,6 +275,7 @@ class CommentPageView(ProcessFormView):
             if pk:
                 offset = Comment.COMMENTS_PER_PAGE
                 is_last_page = False
+                is_first_page = True
 
                 last_comment_id = request.GET.get('last_comment_id')
                 if last_comment_id:
@@ -298,16 +299,23 @@ class CommentPageView(ProcessFormView):
                     ).select_related('parent', 'author')[0:offset]
 
                 if not comments:
-                    return JsonResponse({'data': [], 'is_last_page': True}, status=200)
+                    return JsonResponse(
+                        {'data': render_to_string('drevo/comments_list.html'), 'is_last_page': True},
+                        status=200
+                    )
 
-                if comments.count() in range(1, offset) or \
-                        last_comment_id == znanie.comments.filter(parent=None).last().id:
+                if znanie.comments.filter(parent=None).last().id in [comment.id for comment in comments]:
                     is_last_page = True
+                if last_comment_id:
+                    is_first_page = False
 
                 context = {
                     'comments': comments,
                     'comment_max_length': Comment.CONTENT_MAX_LENGTH,
                     'is_authenticated': self.request.user.is_authenticated,
+                    'offset': offset,
+                    'is_first_page': is_first_page,
+                    'is_last_page': is_last_page,
                 }
 
                 data = render_to_string('drevo/comments_list.html', context)
@@ -350,10 +358,10 @@ class CommentSendView(ProcessFormView):
 
                 if parent_id:
                     context['comments'] = Comment.objects.filter(parent_id=parent_id).select_related('parent', 'author')
-                    data = render_to_string('drevo/comments_list.html', context)
                 else:
                     context['comments'] = [new_comment]
-                    data = render_to_string('drevo/comments_list.html', context)
+
+                data = render_to_string('drevo/comments_list.html', context)
 
                 return JsonResponse({'data': data, 'new_comment_id': new_comment.id}, status=200)
 
