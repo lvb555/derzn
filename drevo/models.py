@@ -264,18 +264,6 @@ class Znanie(models.Model):
         ordering = ('order',)
 
 
-class IP(models.Model):
-    """
-    IP пользавателей
-    """
-    title = 'IP'
-    visits = models.ManyToManyField(Znanie,
-                                    verbose_name='ID',
-                                    blank=True
-                                    )
-    ip = models.CharField(max_length=100)
-
-
 class Visits(models.Model):
     """
     Просмотры
@@ -286,6 +274,18 @@ class Visits(models.Model):
     user = models.ForeignKey(User,
                              models.CASCADE
                              )
+
+
+class IP(models.Model):
+    """
+    IP пользавателей
+    """
+    title = 'IP'
+    visits = models.ManyToManyField(Znanie,
+                                    verbose_name='ID',
+                                    blank=True
+                                    )
+    ip = models.CharField(max_length=100)
 
 
 class ZnImage(models.Model):

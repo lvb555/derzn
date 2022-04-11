@@ -4,7 +4,8 @@ from django.template.loader import render_to_string
 from django.http import Http404, JsonResponse
 from django.views.generic import ListView, TemplateView, DetailView
 from django.views.generic.edit import ProcessFormView
-from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm, ZnRating, IP, Visits, Comment
+from .models import Category, Znanie, Relation, Tr, Author, AuthorType, Label, GlossaryTerm, ZnRating, IP, Visits, \
+    Comment
 from users.models import User
 from .forms import AuthorsFilterForm
 from loguru import logger
@@ -166,7 +167,7 @@ class ZnanieByLabelView(DetailView):
         """
         Контекст, передаваемый в шаблон
         """
-        context = super().get_context_data(**kwargs)        
+        context = super().get_context_data(**kwargs)
 
         # получаем знания, содержащие данную метку
 
