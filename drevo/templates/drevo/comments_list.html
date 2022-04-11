@@ -14,13 +14,24 @@
         {% endif %}
         <div class="col">
             {% for comment in comments %}
-                {% include 'drevo/comments_card.html' with comment=comment %}
-                <div class="answers-block" id="answersBlock{{ comment.id }}">
-                    {% if comment.answers.exists %}
-                        {% include 'drevo/comments_list.html' with comments=comment.get_answers %}
-                    {% endif %}
-                </div>
+                {% if forloop.counter > offset %}
+                    {% include 'drevo/comments_card.html' with comment=comment card_is_hidden=True %}
+                {% else %}
+                    {% include 'drevo/comments_card.html' with comment=comment card_is_hidden=False %}
+                {% endif %}
             {% endfor %}
+            {% if comments.0.parent and comments.count > offset %}
+                <div class="row">
+                    <div class="col">
+                        <div class="d-flex justify-content-center">
+                            <a role="button" class="link-primary text-decoration-none mt-2 mb-4" data-offset="{{ offset }}"
+                               id="showMoreAnswersButton{{ comments.0.parent.id }}" onclick="showMoreAnswersClick(this)">
+                                Ещё ответы
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endif %}

@@ -1,12 +1,7 @@
 $(document).ready(init)
 
 function init() {
-    const loadMoreCommentsButton = document.getElementById('loadMoreCommentsButton');
-    loadMoreCommentsButton.addEventListener('click', function (event) {
-        getComments();
-    })
-
-    getComments();
+    getComments(null);
 }
 
 function onInputHandler(textarea) {
@@ -27,10 +22,10 @@ function onInputHandler(textarea) {
         currentButtonId = basicButtonId + id;
     }
 
-    let value = textarea.value;
+    let value = textarea.value.trim();
     document.getElementById(currentButtonId).disabled = !value;
 
-    document.getElementById(currentCounterId).innerHTML = textarea.value.length;
+    document.getElementById(currentCounterId).innerText = textarea.value.length;
     textarea.style.height = 'auto';
     textarea.style.height = textarea.scrollHeight + "px";
 }
@@ -48,13 +43,17 @@ function animateCard(id) {
     );
 }
 
-function getComments() {
+function getComments(loadMoreCommentsButton) {
     const commentsListBlock = document.getElementById('comments-list-block');
     const commentsListSpinner = document.getElementById('commentsListSpinner');
-    const loadMoreCommentsButton = document.getElementById('loadMoreCommentsButton');
+    if (!loadMoreCommentsButton) {
+        loadMoreCommentsButton = document.getElementById('loadMoreCommentsButton');
+    }
 
-    commentsListSpinner.style.display = '';
-    loadMoreCommentsButton.disabled = true;
+    commentsListSpinner.style.display = 'inherit';
+    if (loadMoreCommentsButton) {
+        loadMoreCommentsButton.disabled = true;
+    }
 
     const url = document.location.pathname + '/comments/';
 
@@ -63,6 +62,7 @@ function getComments() {
     let cards = document.getElementsByClassName('comment-card');
     if (cards.length > 0) {
         data['last_comment_id'] = cards[cards.length - 1].id;
+        data['parent_comment_id'] = cards[cards.length - 1].id;
     }
 
     $.ajax({
@@ -72,9 +72,18 @@ function getComments() {
             const isLastPage = response.is_last_page;
 
             commentsListSpinner.style.display = 'none';
+
             commentsListBlock.insertAdjacentHTML('beforeend', response.data);
 
-            if (!isLastPage) {
+            if (!loadMoreCommentsButton) {
+                loadMoreCommentsButton = document.getElementById('loadMoreCommentsButton');
+            }
+
+            if (isLastPage) {
+                loadMoreCommentsButton.style.display = 'none';
+                loadMoreCommentsButton.disabled = true;
+            } else {
+                loadMoreCommentsButton.style.display = 'block';
                 loadMoreCommentsButton.disabled = false;
             }
         }
@@ -124,17 +133,25 @@ function sendComment(data, form) {
         data: object,
         url: document.location.pathname + '/comments/send/',
         success: function (response) {
+            $('#no-comments-text').hide();
+
             let answersBlock = document.getElementById('answersBlock' + object.parent);
+
             let newCommentId = '';
             if (response.new_comment_id) {
                 newCommentId = response.new_comment_id;
             }
 
             if (object.parent) {
-                answersBlock.innerHTML = response.data;
-
-                document.getElementById('collapsedAnswers' + object.parent).classList.add('show');
-
+                if (response.is_first_answer) {
+                    answersBlock.insertAdjacentHTML('afterbegin', response.data);
+                    let collapsedBlock = document.getElementById('collapsedAnswers' + object.parent);
+                    collapsedBlock.classList.add('show');
+                } else {
+                    let collapsedBlock = document.getElementById('collapsedAnswers' + object.parent);
+                    collapsedBlock.querySelector('.col').insertAdjacentHTML('afterbegin', response.data);
+                    collapsedBlock.classList.add('show');
+                }
                 let answersCountElement = document.getElementById('answersCount' + object.parent);
                 let currentAnswersCount = parseInt(answersCountElement.innerText);
                 answersCountElement.innerText = currentAnswersCount + 1;
@@ -147,9 +164,38 @@ function sendComment(data, form) {
             document.getElementById('commentCharCounter' + object.parent).innerText = '0';
 
             sendFormButton.value = buttonValue;
+            textareaForm.style.height = 'auto';
             textareaForm.disabled = false;
 
             animateCard(newCommentId);
         }
     });
+}
+
+function showMoreAnswersClick(button) {
+    const collapsedAnswersBasicId = 'collapsedAnswers';
+    const buttonBasicId = 'showMoreAnswersButton';
+    const id = button.id.replace(buttonBasicId, '');
+    let offset = parseInt(button.getAttribute('data-offset'));
+    const answers = document.querySelector('#' + collapsedAnswersBasicId + id)
+        .querySelector('.col').children;
+
+    let hasHiddenAnswers = false;
+    for (let answer of answers) {
+        if (!answer.classList.contains('row')) {
+            if (offset === 0) {
+                if (answer.hidden) {
+                    hasHiddenAnswers = true;
+                    break;
+                }
+            }
+            if (answer.hidden) {
+                answer.hidden = false;
+                offset -= 1;
+            }
+        }
+        if (!hasHiddenAnswers) {
+            button.style.display = 'none';
+        }
+    }
 }
