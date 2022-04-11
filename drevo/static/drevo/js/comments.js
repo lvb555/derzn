@@ -1,11 +1,6 @@
 $(document).ready(init)
 
 function init() {
-    // const loadMoreCommentsButton = document.getElementById('loadMoreCommentsButton');
-    // loadMoreCommentsButton.addEventListener('click', function (event) {
-    //     getComments();
-    // })
-
     getComments(null);
 }
 
