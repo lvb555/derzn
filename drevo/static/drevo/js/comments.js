@@ -178,7 +178,7 @@ function showMoreAnswersClick(button) {
     const id = button.id.replace(buttonBasicId, '');
     let offset = parseInt(button.getAttribute('data-offset'));
     const answers = document.querySelector('#' + collapsedAnswersBasicId + id)
-        .querySelector('.col').children;
+        .lastElementChild.querySelectorAll('.comment-answer');
 
     let hasHiddenAnswers = false;
     for (let answer of answers) {
@@ -194,8 +194,8 @@ function showMoreAnswersClick(button) {
                 offset -= 1;
             }
         }
-        if (!hasHiddenAnswers) {
-            button.style.display = 'none';
-        }
+    }
+    if (!hasHiddenAnswers) {
+        button.style.display = 'none';
     }
 }
