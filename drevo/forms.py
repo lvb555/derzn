@@ -1,5 +1,10 @@
 from django import forms
-from .models import Znanie, Author, AuthorType, Category
+from .models import (Znanie,
+                     Author,
+                     AuthorType,
+                     Category,
+                     Tz,
+                     Tr)
 from ckeditor.widgets import CKEditorWidget
 from mptt.forms import TreeNodeChoiceField
 
@@ -98,10 +103,27 @@ class AuthorsFilterForm(forms.Form):
                                          )
 
 
+class SelectWithInput(forms.Select):
+    template_name = 'drevo/forms/select.html'
+    option_template_name = 'drevo/forms/select_option.html'
+
+
 class KnowledgeSearchForm(forms.Form):
     """
     Форма для фильтрации знаний по критериям.
     """
+    knowledge_type_choices = [(knowledge_type, knowledge_type)
+                              for knowledge_type in Tz.objects.values_list('name', flat=True)]
+
+    knowledge_category_choices = [(knowledge_category, knowledge_category)
+                                  for knowledge_category in Category.objects.values_list('name', flat=True)]
+
+    source_com_choices = [(source_com, source_com)
+                          for source_com in Znanie.objects.values_list('source_com', flat=True)]
+
+    edge_type_choices = [(edge_type, edge_type)
+                         for edge_type in Tr.objects.values_list('name', flat=True)]
+
     # Поиск по заголовку и содержанию
     main_search = forms.CharField(label="",
                                   max_length=255,
@@ -110,26 +132,26 @@ class KnowledgeSearchForm(forms.Form):
                                              'placeholder': 'Поиск по всем полям'}),
                                   required=False)
     # Вид знания
-    knowledge_type = forms.CharField(label="Вид знания",
-                                     max_length=255,
-                                     widget=forms.TextInput(
-                                         attrs={'class': 'form-control',
-                                                'placeholder': 'Тезис, Вопрос'}),
-                                     required=False)
+    knowledge_type = forms.ChoiceField(label="Вид знания",
+                                       choices=knowledge_type_choices,
+                                       widget=SelectWithInput(
+                                           attrs={'class': 'form-control',
+                                                  'placeholder': 'Тезис, Вопрос'}),
+                                       required=False)
     # Категория знания
-    knowledge_category = forms.CharField(label="Категория знания",
-                                         max_length=255,
-                                         widget=forms.TextInput(
-                                             attrs={'class': 'form-control',
-                                                    'placeholder': 'История, Наука'}),
-                                         required=False)
+    knowledge_category = forms.ChoiceField(label="Категория знания",
+                                           choices=knowledge_category_choices,
+                                           widget=SelectWithInput(
+                                               attrs={'class': 'form-control',
+                                                      'placeholder': 'История, Наука'}),
+                                           required=False)
     # Источник
-    source = forms.CharField(label="Источник знания",
-                             max_length=255,
-                             widget=forms.TextInput(
-                                 attrs={'class': 'form-control',
-                                        'placeholder': 'Опыт'}),
-                             required=False)
+    source = forms.ChoiceField(label="Источник знания",
+                               choices=source_com_choices,
+                               widget=SelectWithInput(
+                                   attrs={'class': 'form-control',
+                                          'placeholder': 'Опыт'}),
+                               required=False)
     # Автор
     author = forms.CharField(label="Автор",
                              max_length=255,
@@ -138,9 +160,9 @@ class KnowledgeSearchForm(forms.Form):
                                         'placeholder': 'Иванов, Петров'}),
                              required=False)
     # Вид связи
-    edge_type = forms.CharField(label="Тип связи",
-                                max_length=255,
-                                widget=forms.TextInput(
-                                    attrs={'class': 'form-control',
-                                           'placeholder': 'Аргумента, Контраргумент...'}),
-                                required=False)
+    edge_type = forms.ChoiceField(label="Тип связи",
+                                  choices=edge_type_choices,
+                                  widget=SelectWithInput(
+                                      attrs={'class': 'form-control',
+                                             'placeholder': 'Аргумента, Контраргумент...'}),
+                                  required=False)
