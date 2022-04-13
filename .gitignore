@@ -1,3 +1,4 @@
 /db.sqlite3
 /dz.json
 *.pyc
+.env
