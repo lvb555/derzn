@@ -4,7 +4,6 @@ from ckeditor.widgets import CKEditorWidget
 from mptt.forms import TreeNodeChoiceField
 
 
-
 class CategoryForm(forms.ModelForm):
     """
     Форма для вывода сущности Category.
@@ -39,10 +38,10 @@ class ZnanieForm(forms.ModelForm):
                               label='Содержание',
                               required=False
                               )
-    category = TreeNodeChoiceField(queryset=Category.tree_objects.all(), 
-                                      empty_label="(нет категории)",
-                                      label='Категория',
-                                      required=False)                              
+    category = TreeNodeChoiceField(queryset=Category.tree_objects.all(),
+                                   empty_label="(нет категории)",
+                                   label='Категория',
+                                   required=False)
 
     class Meta:
         model = Znanie
@@ -71,12 +70,12 @@ class GlossaryTermForm(forms.ModelForm):
     Форма для вывода терминов глоссария.
     """
     description = forms.CharField(widget=CKEditorWidget(attrs={'cols': 40,
-                                                           'rows': 10,
-                                                           }
-                                                    ),
-                              label='Описание',
-                              required=False
-                              )
+                                                               'rows': 10,
+                                                               }
+                                                        ),
+                                  label='Описание',
+                                  required=False
+                                  )
 
     class Meta:
         model = Znanie
@@ -93,7 +92,55 @@ class AuthorsFilterForm(forms.Form):
     Т.о. форма не требует кнопки типа "Отправить".
     """
     author_type = forms.ModelChoiceField(queryset=AuthorType.objects.all(),
-                                   empty_label='Все',
-                                   widget=forms.Select(attrs={'oninput': 'doSubmit(this.form.id)'
-                                                              })                                   
-                                   )    
+                                         empty_label='Все',
+                                         widget=forms.Select(attrs={'oninput': 'doSubmit(this.form.id)'
+                                                                    })
+                                         )
+
+
+class KnowledgeSearchForm(forms.Form):
+    """
+    Форма для фильтрации знаний по критериям.
+    """
+    # Поиск по заголовку и содержанию
+    main_search = forms.CharField(label="",
+                                  max_length=255,
+                                  widget=forms.TextInput(
+                                      attrs={'class': 'form-control',
+                                             'placeholder': 'Поиск по всем полям'}),
+                                  required=False)
+    # Вид знания
+    knowledge_type = forms.CharField(label="Вид знания",
+                                     max_length=255,
+                                     widget=forms.TextInput(
+                                         attrs={'class': 'form-control',
+                                                'placeholder': 'Тезис, Вопрос'}),
+                                     required=False)
+    # Категория знания
+    knowledge_category = forms.CharField(label="Категория знания",
+                                         max_length=255,
+                                         widget=forms.TextInput(
+                                             attrs={'class': 'form-control',
+                                                    'placeholder': 'История, Наука'}),
+                                         required=False)
+    # Источник
+    source = forms.CharField(label="Источник знания",
+                             max_length=255,
+                             widget=forms.TextInput(
+                                 attrs={'class': 'form-control',
+                                        'placeholder': 'Опыт'}),
+                             required=False)
+    # Автор
+    author = forms.CharField(label="Автор",
+                             max_length=255,
+                             widget=forms.TextInput(
+                                 attrs={'class': 'form-control',
+                                        'placeholder': 'Иванов, Петров'}),
+                             required=False)
+    # Вид связи
+    edge_type = forms.CharField(label="Тип связи",
+                                max_length=255,
+                                widget=forms.TextInput(
+                                    attrs={'class': 'form-control',
+                                           'placeholder': 'Аргумента, Контраргумент...'}),
+                                required=False)
