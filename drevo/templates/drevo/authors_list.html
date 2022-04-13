@@ -7,40 +7,53 @@
 <h2>Авторы</h2>
 
 {% comment %}
-форма отправляется на сервер по наступлению события oninput 
-вызовом функции doSubmit(), см. ниже.    
-Атрибут поля формы oninput прописан во вьюхе, 
+форма отправляется на сервер по наступлению события oninput
+вызовом функции doSubmit(), см. ниже.
+Атрибут поля формы oninput прописан во вьюхе,
 которая рендерит этот шаблон.
 {% endcomment %}
 
 <form action="" id="rform">
-    {{ rform.author_type }}   
+    {{ rform.author_type }}
 </form>
 
 <br>
-
-{% for author in authors %}
-
 <div class="row">
-    <div class="col">
-        <a href="{% url 'author' author.pk %}">{{ author.name }}</a> [{{ author.zn_num }}]
+    <div class="col-auto">
+        <ul class="list-group">
+
+            {% for author in authors %}
+
+            <div class="row">
+                <div class="col">
+
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="{% url 'author' author.pk %}" class="text-decoration-none d-inline-block me-3">
+                            {{ author.name }}
+                        </a>
+                        <span class="badge bg-primary rounded-pill">{{ author.zn_num }}</span>
+                    </li>
+                </div>
+            </div>
+
+            {% empty %}
+            <div class="row">
+                <div class="col">
+                    Список авторов пуст
+                </div>
+            </div>
+            {% endfor %}
+
+            {% endblock %}
+
+            {% block jsfiles %}
+            <script>
+                function doSubmit(s) {
+                    document.getElementById(s).submit();
+                }
+            </script>
+            {% endblock %}
+
+        </ul>
     </div>
 </div>
-
-{% empty %}
- <div class="row">
-    <div class="col">
-        Список авторов пуст
-    </div>
-</div>
-{% endfor %}
-
-{% endblock %}
-
-{% block jsfiles %}
-<script>
-    function doSubmit(s) {
-  document.getElementById(s).submit();
-}
-</script>
-{% endblock %}

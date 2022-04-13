@@ -9,7 +9,7 @@
     <h2 class="text-center">{{ title }}</h2>
     <div class="row">
         <dib class="col">
-            <form method="get" class="mx-auto" style="max-width:500px">
+            <form method="get" class="mx-auto d-flex flex-column" style="max-width:500px">
                 {% if form.non_field_errors %}
                 <div class="alert alert-danger mt-3" role="alert">{{ form.non_field_errors }}</div>
                 {% endif %}
@@ -27,7 +27,7 @@
                     {% endif %}
                 </div>
                 {% endfor %}
-                <button id='submit' type="submit" class="btn btn-primary my-3">
+                <button id='submit' type="submit" class="btn btn-primary my-3 px-4">
                     Искать
                 </button>
             </form>
