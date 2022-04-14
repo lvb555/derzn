@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load pagination_tag %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h2 class="text-center">{{ title }}</h2>
+    <div class="row">
+        <dib class="col">
+            <form method="get" class="mx-auto d-flex flex-column" style="max-width:500px">
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger mt-3" role="alert">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+                    <span class="text-muted">{{ field.help_text }}</span>
+                    {% if field.errors %}
+                    <div class="alert alert-danger mt-3" role="alert">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <button id='submit' type="submit" class="btn btn-primary my-3 px-4">
+                    Искать
+                </button>
+            </form>
+        </dib>
+    </div>
+    {% if page_obj %}
+    <div class="row">
+        <h5 class="col">
+            Результаты: {{ paginator.count }}
+        </h5>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col">
+            {% for knowledge in page_obj %}
+            {% include 'drevo/knowledge.html' %}
+            <hr>
+            {% endfor %}
+
+        </div>
+    </div>
+    <div class="row max-width-1000px mx-auto mb-2">
+        <div class="col-12">
+            {% pagination_tag %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+
+{% endblock content %}

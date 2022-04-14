@@ -10,17 +10,18 @@
 
 <div class="row">
     <div class="col">
-        <strong>{{ term.name }}</strong>,  {{ term.description|safe }}
+        <strong>{{ term.name }}</strong>, {{ term.description|safe }}
     </div>
 </div>
 <br>
-
+<hr>
 {% empty %}
- <div class="row">
+<div class="row">
     <div class="col">
         Глоссарий пуст
     </div>
 </div>
+
 {% endfor %}
 
 {% endblock %}

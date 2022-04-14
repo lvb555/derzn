@@ -1,0 +1,53 @@
+{% load static %}
+<div class="row">
+    <a class="text-decoration-none" href="{% url 'zdetail' pk=knowledge.pk %}">
+        <h5 class="col-8">
+            {{ knowledge.name }}
+        </h5>
+    </a>
+</div>
+<div class="row">
+
+    <div class="col mx-2" style="word-wrap: break-word; width: 100px">
+        {{ knowledge.content | safe}}
+    </div>
+
+</div>
+
+
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-end">
+        <span class="d-inline-block px-2 mb-2 rounded complexity_{{ exercise.category.complexity }}">
+            Вид знания: {{ knowledge.tz.name }}
+        </span>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 d-flex justify-content-end">
+        <span class="d-inline-block px-2 mb-2 rounded complexity_{{ exercise.category.complexity }}">
+            Категория знания: {{ knowledge.category.name }}
+        </span>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <ul class="text-muted text-end" style="list-style-type: none;">
+            <li class="d-flex flex-wrap justify-content-end">
+                <span>
+                    Создание: {{ knowledge.date }}
+                    <img src="{% static 'drevo/img/knowledge_search/exclamation-mark.svg' %}" alt="!" height="20px"
+                        class="mb-1" title="
+                {% if  knowledge.author.name %}
+                {{ knowledge.author.name }}                                   
+                {% else %}
+                нет дополнительный данных
+                {% endif %}">
+                </span>
+                <span>
+                    (Изменено: {{ knowledge.updated_at |timesince }} назад)
+                </span>
+            </li>
+        </ul>
+    </div>
+</div>

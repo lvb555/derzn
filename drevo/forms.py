@@ -1,8 +1,12 @@
 from django import forms
-from .models import Znanie, Author, AuthorType, Category
+from .models import (Znanie,
+                     Author,
+                     AuthorType,
+                     Category,
+                     Tz,
+                     Tr)
 from ckeditor.widgets import CKEditorWidget
 from mptt.forms import TreeNodeChoiceField
-
 
 
 class CategoryForm(forms.ModelForm):
@@ -39,10 +43,10 @@ class ZnanieForm(forms.ModelForm):
                               label='Содержание',
                               required=False
                               )
-    category = TreeNodeChoiceField(queryset=Category.tree_objects.all(), 
-                                      empty_label="(нет категории)",
-                                      label='Категория',
-                                      required=False)                              
+    category = TreeNodeChoiceField(queryset=Category.tree_objects.all(),
+                                   empty_label="(нет категории)",
+                                   label='Категория',
+                                   required=False)
 
     class Meta:
         model = Znanie
@@ -71,12 +75,12 @@ class GlossaryTermForm(forms.ModelForm):
     Форма для вывода терминов глоссария.
     """
     description = forms.CharField(widget=CKEditorWidget(attrs={'cols': 40,
-                                                           'rows': 10,
-                                                           }
-                                                    ),
-                              label='Описание',
-                              required=False
-                              )
+                                                               'rows': 10,
+                                                               }
+                                                        ),
+                                  label='Описание',
+                                  required=False
+                                  )
 
     class Meta:
         model = Znanie
@@ -93,7 +97,72 @@ class AuthorsFilterForm(forms.Form):
     Т.о. форма не требует кнопки типа "Отправить".
     """
     author_type = forms.ModelChoiceField(queryset=AuthorType.objects.all(),
-                                   empty_label='Все',
-                                   widget=forms.Select(attrs={'oninput': 'doSubmit(this.form.id)'
-                                                              })                                   
-                                   )    
+                                         empty_label='Все',
+                                         widget=forms.Select(attrs={'oninput': 'doSubmit(this.form.id)'
+                                                                    })
+                                         )
+
+
+class SelectWithInput(forms.Select):
+    template_name = 'drevo/forms/select.html'
+    option_template_name = 'drevo/forms/select_option.html'
+
+
+class KnowledgeSearchForm(forms.Form):
+    """
+    Форма для фильтрации знаний по критериям.
+    """
+    knowledge_type_choices = [(knowledge_type, knowledge_type)
+                              for knowledge_type in Tz.objects.values_list('name', flat=True)]
+
+    knowledge_category_choices = [(knowledge_category, knowledge_category)
+                                  for knowledge_category in Category.objects.values_list('name', flat=True)]
+
+    source_com_choices = [(source_com, source_com)
+                          for source_com in Znanie.objects.values_list('source_com', flat=True)]
+
+    edge_type_choices = [(edge_type, edge_type)
+                         for edge_type in Tr.objects.values_list('name', flat=True)]
+
+    # Поиск по заголовку и содержанию
+    main_search = forms.CharField(label="",
+                                  max_length=255,
+                                  widget=forms.TextInput(
+                                      attrs={'class': 'form-control',
+                                             'placeholder': 'Поиск по всем полям'}),
+                                  required=False)
+    # Вид знания
+    knowledge_type = forms.ChoiceField(label="Вид знания",
+                                       choices=knowledge_type_choices,
+                                       widget=SelectWithInput(
+                                           attrs={'class': 'form-control',
+                                                  'placeholder': 'Тезис, Вопрос'}),
+                                       required=False)
+    # Категория знания
+    knowledge_category = forms.ChoiceField(label="Категория знания",
+                                           choices=knowledge_category_choices,
+                                           widget=SelectWithInput(
+                                               attrs={'class': 'form-control',
+                                                      'placeholder': 'История, Наука'}),
+                                           required=False)
+    # Источник
+    source = forms.ChoiceField(label="Источник знания",
+                               choices=source_com_choices,
+                               widget=SelectWithInput(
+                                   attrs={'class': 'form-control',
+                                          'placeholder': 'Опыт'}),
+                               required=False)
+    # Автор
+    author = forms.CharField(label="Автор",
+                             max_length=255,
+                             widget=forms.TextInput(
+                                 attrs={'class': 'form-control',
+                                        'placeholder': 'Иванов, Петров'}),
+                             required=False)
+    # Вид связи
+    edge_type = forms.ChoiceField(label="Тип связи",
+                                  choices=edge_type_choices,
+                                  widget=SelectWithInput(
+                                      attrs={'class': 'form-control',
+                                             'placeholder': 'Аргумента, Контраргумент...'}),
+                                  required=False)
