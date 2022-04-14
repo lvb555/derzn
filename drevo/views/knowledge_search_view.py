@@ -1,6 +1,6 @@
 import urllib
 from django.urls import reverse_lazy
-from .. forms import *
+from ..forms import *
 from django.views.generic.edit import FormView
 from ..models import *
 from django.core.paginator import Paginator
