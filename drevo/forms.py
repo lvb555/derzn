@@ -104,16 +104,6 @@ class AuthorsFilterForm(forms.Form):
 
 
 class CustomChoiceField(forms.ChoiceField):
-    def custom_icontains(self, first_value: str, second_value: str):
-        if (first_value in second_value
-            or first_value.lower() in second_value
-            or first_value.upper() in second_value
-                or first_value.capitalize() in second_value):
-            return True
-
-        else:
-            return False
-
     def valid_value(self, value):
         """Check to see if the provided value is a valid choice."""
         text_value = str(value).lower()
