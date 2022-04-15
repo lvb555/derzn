@@ -9,44 +9,50 @@
 <div class="row">
 
     <div class="col mx-2" style="word-wrap: break-word; width: 100px">
-        {{ knowledge.content | safe}}
+        {{ knowledge.content | safe | truncatewords:50}}
     </div>
 
 </div>
 
-
-
-<div class="row">
-    <div class="col-12 d-flex justify-content-end">
-        <span class="d-inline-block px-2 mb-2 rounded complexity_{{ exercise.category.complexity }}">
-            Вид знания: {{ knowledge.tz.name }}
-        </span>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12 d-flex justify-content-end">
-        <span class="d-inline-block px-2 mb-2 rounded complexity_{{ exercise.category.complexity }}">
-            Категория знания: {{ knowledge.category.name }}
-        </span>
-    </div>
-</div>
 <div class="row">
     <div class="col-12">
-        <ul class="text-muted text-end" style="list-style-type: none;">
-            <li class="d-flex flex-wrap justify-content-end">
-                <span>
-                    Создание: {{ knowledge.date }}
-                    <img src="{% static 'drevo/img/knowledge_search/exclamation-mark.svg' %}" alt="!" height="20px"
-                        class="mb-1" title="
-                {% if  knowledge.author.name %}
-                {{ knowledge.author.name }}                                   
+        <ul class="text-end" style="list-style-type: none;">
+            <li>
+                Вид знания:
+                {% if knowledge.tz.name %}
+                {{ knowledge.tz.name }}
                 {% else %}
-                нет дополнительный данных
-                {% endif %}">
-                </span>
-                <span>
-                    (Изменено: {{ knowledge.updated_at |timesince }} назад)
-                </span>
+                –
+                {% endif %}
+            </li>
+            <li>
+                Категория знания:
+                {% if knowledge.category.name %}
+                {{ knowledge.category.name }}
+                {% else %}
+                –
+                {% endif %}
+            </li>
+            <li>
+                Автор:
+                {% if knowledge.author.name %}
+                {{ knowledge.author.name }}
+                {% else %}
+                –
+                {% endif %}
+            </li>
+            <li>
+                Вид связи:
+                {% if knowledge.related.all %}
+                {% for relations in knowledge.related.all %}
+                {{ relations.tr.name }}
+                {% endfor %}
+                {% else %}
+                –
+                {% endif %}
+            </li>
+            <li class="d-flex flex-wrap justify-content-end">
+                Изменено: {{ knowledge.updated_at |timesince }} назад
             </li>
         </ul>
     </div>

@@ -103,6 +103,22 @@ class AuthorsFilterForm(forms.Form):
                                          )
 
 
+class CustomChoiceField(forms.ChoiceField):
+    def valid_value(self, value):
+        """Check to see if the provided value is a valid choice."""
+        text_value = str(value).lower()
+        for k, v in self.choices:
+            if isinstance(v, (list, tuple)):
+                # This is an optgroup, so look inside the group for options
+                for k2, v2 in v:
+                    if value == k2 or text_value == str(k2).lower():
+                        return True
+            else:
+                if value == k or text_value == str(k).lower():
+                    return True
+        return False
+
+
 class SelectWithInput(forms.Select):
     template_name = 'drevo/forms/select.html'
     option_template_name = 'drevo/forms/select_option.html'
@@ -113,55 +129,52 @@ class KnowledgeSearchForm(forms.Form):
     Форма для фильтрации знаний по критериям.
     """
     knowledge_type_choices = [(knowledge_type, knowledge_type)
-                              for knowledge_type in Tz.objects.values_list('name', flat=True)]
+                              for knowledge_type in Tz.objects.order_by('name').values_list('name', flat=True)]
 
     knowledge_category_choices = [(knowledge_category, knowledge_category)
-                                  for knowledge_category in Category.objects.values_list('name', flat=True)]
+                                  for knowledge_category in Category.objects.order_by('name').values_list('name', flat=True)]
 
     source_com_choices = [(source_com, source_com)
-                          for source_com in Znanie.objects.values_list('source_com', flat=True)]
+                          for source_com in Znanie.objects.order_by('source_com').values_list('source_com', flat=True)]
 
-    edge_type_choices = [(edge_type, edge_type)
-                         for edge_type in Tr.objects.values_list('name', flat=True)]
+    edge_kind_choices = [(edge_kind, edge_kind)
+                         for edge_kind in Tr.objects.order_by('name').values_list('name', flat=True)]
+
+    author_choices = [(author, author)
+                      for author in Author.objects.order_by('name').values_list('name', flat=True)]
 
     # Поиск по заголовку и содержанию
     main_search = forms.CharField(label="",
                                   max_length=255,
                                   widget=forms.TextInput(
                                       attrs={'class': 'form-control',
-                                             'placeholder': 'Поиск по всем полям'}),
+                                             'placeholder': 'Основной поиск'}),
                                   required=False)
     # Вид знания
-    knowledge_type = forms.ChoiceField(label="Вид знания",
+    knowledge_type = CustomChoiceField(label="Вид знания",
                                        choices=knowledge_type_choices,
                                        widget=SelectWithInput(
                                            attrs={'class': 'form-control',
                                                   'placeholder': 'Тезис, Вопрос'}),
                                        required=False)
     # Категория знания
-    knowledge_category = forms.ChoiceField(label="Категория знания",
+    knowledge_category = CustomChoiceField(label="Категория знания",
                                            choices=knowledge_category_choices,
                                            widget=SelectWithInput(
                                                attrs={'class': 'form-control',
                                                       'placeholder': 'История, Наука'}),
                                            required=False)
-    # Источник
-    source = forms.ChoiceField(label="Источник знания",
-                               choices=source_com_choices,
+
+    # Автор
+    author = CustomChoiceField(label="Автор",
+                               choices=author_choices,
                                widget=SelectWithInput(
                                    attrs={'class': 'form-control',
-                                          'placeholder': 'Опыт'}),
+                                          'placeholder': 'Иванов, Петров'}),
                                required=False)
-    # Автор
-    author = forms.CharField(label="Автор",
-                             max_length=255,
-                             widget=forms.TextInput(
-                                 attrs={'class': 'form-control',
-                                        'placeholder': 'Иванов, Петров'}),
-                             required=False)
     # Вид связи
-    edge_type = forms.ChoiceField(label="Тип связи",
-                                  choices=edge_type_choices,
+    edge_kind = CustomChoiceField(label="Вид связи",
+                                  choices=edge_kind_choices,
                                   widget=SelectWithInput(
                                       attrs={'class': 'form-control',
                                              'placeholder': 'Аргумента, Контраргумент...'}),

@@ -118,6 +118,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'drevo/static'),
     os.path.join(BASE_DIR, 'users/static'),
+    os.path.join(BASE_DIR, 'static_common/'),
 ]
 
 # Default primary key field type
