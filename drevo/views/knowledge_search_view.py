@@ -33,28 +33,37 @@ class KnowledgeSearchView(FormView):
                                    main_search_parameter=None,
                                    knowledge_type_parameter=None,
                                    knowledge_category_parameter=None,
-                                   source_parameter=None,
                                    author_parameter=None,
-                                   edge_type_parameter=None):
+                                   edge_kind_parameter=None):
 
         def get_queryset(input_queryset: QuerySet,
                          fields_name: list[str],
                          parameter_value: str,
+                         lookup: str = '',
                          connector='AND'):
 
             if not isinstance(fields_name, list):
                 fields_name = [fields_name]
 
             result_query = Q()
+            # Так как sqlite не может искать без учета регистра,
+            # будем искать и с заглавной буквы и с маленькой
             for field_name in fields_name:
                 query = Q(
-                    **{field_name + '__contains': parameter_value})
+                    **{field_name + lookup: parameter_value})
 
                 if not parameter_value.istitle():
-                    query_capitilize = Q(
-                        **{field_name + '__contains': parameter_value.capitalize()})
+                    query = query.__or__(Q(
+                        **{field_name + lookup: parameter_value.capitalize()}))
 
-                    query = query.__or__(query_capitilize)
+                query_upper = Q(
+                    **{field_name + lookup: parameter_value.upper()})
+
+                query_lower = Q(
+                    **{field_name + lookup: parameter_value.lower()})
+
+                query = (query.__or__(query_upper)
+                         .__or__(query_lower))
 
                 if connector == 'AND':
                     result_query = result_query.__and__(query)
@@ -70,9 +79,11 @@ class KnowledgeSearchView(FormView):
         if main_search_parameter:
             # Ищем знания по главному полю
             knowledges = get_queryset(input_queryset=knowledges,
-                                      fields_name=[
-                                          'name', 'content', 'category__name'],
+                                      fields_name=['name',
+                                                   'content',
+                                                   'source_com', ],
                                       parameter_value=main_search_parameter,
+                                      lookup='__contains',
                                       connector='OR')
 
         if knowledge_type_parameter:
@@ -87,23 +98,17 @@ class KnowledgeSearchView(FormView):
                                       fields_name='category__name',
                                       parameter_value=knowledge_category_parameter)
 
-        if source_parameter:
-            # Ищем знания по источнику знания
-            knowledges = get_queryset(input_queryset=knowledges,
-                                      fields_name='source_com',
-                                      parameter_value=source_parameter)
-
         if author_parameter:
             # Ищем знания по автору знания
             knowledges = get_queryset(input_queryset=knowledges,
                                       fields_name='author__name',
                                       parameter_value=author_parameter)
 
-        if edge_type_parameter:
+        if edge_kind_parameter:
             # Ищем знания по виду связи к знанию
             knowledges = get_queryset(input_queryset=knowledges,
                                       fields_name='related__tr__name',
-                                      parameter_value=edge_type_parameter)
+                                      parameter_value=edge_kind_parameter)
 
         return knowledges
 
@@ -114,9 +119,8 @@ class KnowledgeSearchView(FormView):
         knowledge_type_parameter = self.request.GET.get('knowledge_type')
         knowledge_category_parameter = self.request.GET.get(
             'knowledge_category')
-        source_parameter = self.request.GET.get('source')
         author_parameter = self.request.GET.get('author')
-        edge_type_parameter = self.request.GET.get('edge_type')
+        edge_kind_parameter = self.request.GET.get('edge_kind')
 
         # Для сохранения любого пользовательского ввода в форме
         context['form'] = KnowledgeSearchForm(self.request.GET)
@@ -124,9 +128,8 @@ class KnowledgeSearchView(FormView):
         if (main_search_parameter
             or knowledge_type_parameter
             or knowledge_category_parameter
-            or source_parameter
             or author_parameter
-                or edge_type_parameter):
+                or edge_kind_parameter):
 
             # Для соединение с параметрами пагинации
             context['search_string_parameters'] = self.get_parameters_string(
@@ -136,14 +139,14 @@ class KnowledgeSearchView(FormView):
                 main_search_parameter=main_search_parameter,
                 knowledge_type_parameter=knowledge_type_parameter,
                 knowledge_category_parameter=knowledge_category_parameter,
-                source_parameter=source_parameter,
                 author_parameter=author_parameter,
-                edge_type_parameter=edge_type_parameter
+                edge_kind_parameter=edge_kind_parameter
             )
 
-            knowledges = knowledges.select_related('author', 'tz', 'category')
+            knowledges = knowledges.select_related(
+                'author', 'tz', 'category').prefetch_related('related__tr')
 
-            paginator = Paginator(knowledges, 3)
+            paginator = Paginator(knowledges, 10)
 
             cur_page_number = self.request.GET.get('page')
 
