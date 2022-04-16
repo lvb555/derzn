@@ -42,6 +42,19 @@
 </div>
 {% endif %}
 
+{# Таблица #}
+{% if znanie.tz.name == 'Таблица' %}
+    {% if table %}
+        <div class="container">
+          <div class="row my-2">
+            <div class="col">
+                {% include 'drevo/table.html' with table=table %}
+            </div>
+          </div>
+        </div>
+    {% endif %}
+{% endif %}
+
 {% if znanie.href %}
 <hr>
 <div class="container">
