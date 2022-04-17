@@ -1,13 +1,11 @@
-<table class="table table-bordered my-2" style="max-width: fit-content; margin: auto;">
+<table class="table table-bordered border-dark my-2" style="max-width: fit-content; margin: auto;">
     <tbody>
     {% if not table.rows.0.rz.tz.is_group and not table.cols.0.rz.tz.is_group %}
         {#  Вариант 1  #}
         <th></th>
         {% for col in table.cols %}
             <th class="text-center">
-                <a href="{{ col.rz.get_absolute_url }}">
-                    {{ col.rz.name }}
-                </a>
+                {{ col.rz.name }}
             </th>
         {% endfor %}
         {% for row in table.values %}
@@ -15,9 +13,7 @@
                 <th>
                     {% for row_name in table.rows %}
                         {% if forloop.counter0 == forloop.parentloop.counter0 %}
-                            <a href="{{ row_name.rz.get_absolute_url }}">
-                                {{ row_name.rz.name }}
-                            </a>
+                            {{ row_name.rz.name }}
                         {% endif %}
                     {% endfor %}
                 </th>
@@ -38,9 +34,7 @@
                     <th colspan="2"></th>
                 {% endif %}
                 <th class="text-center">
-                    <a href="{{ col.rz.get_absolute_url }}">
-                        {{ col.rz.name }}
-                    </a>
+                    {{ col.rz.name }}
                 </th>
             {% endfor %}
         </tr>
@@ -48,20 +42,22 @@
             <tr>
                 {% if forloop.first %}
                     <th rowspan="{{ table.rows.0.rz.base.all.count }}" style="vertical-align: middle;">
-                        <a href="{{ table.rows.0.rz.get_absolute_url }}">
-                            {{ table.rows.0.rz.name }}
-                        </a>
+                        {{ table.rows.0.rz.name }}
                     </th>
                 {% endif %}
                 <th>
-                    <a href="{{ row.rz.get_absolute_url }}">
-                        {{ row.rz.name }}
-                    </a>
+                    {{ row.rz.name }}
                 </th>
                 {% for values_row in table.values %}
                     {% if forloop.counter0 == forloop.parentloop.counter0 %}
                         {% for value in values_row %}
-                            <td>{% if value %}{{ value }}{% endif %}</td>
+                            <td>
+                                {% if value %}
+                                    <a href="{{ value.get_absolute_url }}">
+                                        {{ value.name }}
+                                    </a>
+                                {% endif %}
+                            </td>
                         {% endfor %}
                     {% endif %}
                 {% endfor %}
@@ -72,17 +68,13 @@
         <tr>
             <th rowspan="2"></th>
             <th colspan="{{ table.cols.0.rz.base.all.count }}" class="text-center">
-                <a href="{{ table.cols.0.rz.get_absolute_url }}">
-                    {{ table.cols.0.rz.name }}
-                </a>
+                {{ table.cols.0.rz.name }}
             </th>
         </tr>
         <tr>
             {% for col in table.cols.0.get_grouped_relations %}
                 <th class="text-center">
-                    <a href="{{ col.rz.get_absolute_url }}">
-                        {{ col.rz.name }}
-                    </a>
+                    {{ col.rz.name }}
                 </th>
             {% endfor %}
         </tr>
@@ -91,9 +83,7 @@
                 <th>
                     {% for row_name in table.rows %}
                         {% if forloop.counter0 == forloop.parentloop.counter0 %}
-                            <a href="{{ row_name.rz.get_absolute_url }}">
-                                {{ row_name.rz.name }}
-                            </a>
+                            {{ row_name.rz.name }}
                         {% endif %}
                     {% endfor %}
                 </th>
@@ -111,17 +101,13 @@
         <tr>
             <th rowspan="2" colspan="{{ table.cols.0.rz.base.all.count }}"></th>
             <th colspan="{{ table.cols.0.rz.base.all.count }}" class="text-center">
-                <a href="{{ table.cols.0.rz.get_absolute_url }}">
-                    {{ table.cols.0.rz.name }}
-                </a>
+                {{ table.cols.0.rz.name }}
             </th>
         </tr>
         <tr>
             {% for col in table.cols.0.get_grouped_relations %}
                 <th class="text-center">
-                    <a href="{{ col.rz.get_absolute_url }}">
-                        {{ col.rz.name }}
-                    </a>
+                    {{ col.rz.name }}
                 </th>
             {% endfor %}
         </tr>
@@ -129,20 +115,22 @@
             <tr>
                 {% if forloop.first %}
                     <th rowspan="{{ table.rows.0.rz.base.all.count }}" style="vertical-align: middle;">
-                        <a href="{{ table.rows.0.rz.get_absolute_url }}">
-                            {{ table.rows.0.rz.name }}
-                        </a>
+                        {{ table.rows.0.rz.name }}
                     </th>
                 {% endif %}
                 <th>
-                    <a href="{{ row.rz.get_absolute_url }}">
-                        {{ row.rz.name }}
-                    </a>
+                    {{ row.rz.name }}
                 </th>
                 {% for values_row in table.values %}
                     {% if forloop.counter0 == forloop.parentloop.counter0 %}
                         {% for value in values_row %}
-                            <td>{% if value %}{{ value }}{% endif %}</td>
+                            <td>
+                                {% if value %}
+                                    <a href="{{ value.get_absolute_url }}">
+                                        {{ value.name }}
+                                    </a>
+                                {% endif %}
+                            </td>
                         {% endfor %}
                     {% endif %}
                 {% endfor %}
