@@ -11,7 +11,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-
+  <link rel="icon" type="image/x-icon" href="{% static 'drevo/img/favicon.svg' %}">
   <!-- Project CSS -->
   {% block cssfiles %}{% endblock %}
 
@@ -19,58 +19,111 @@
 </head>
 
 <body>
-  <div style="display: flex; justify-content: space-between">
-    <ul class="nav nav-pills">
-      <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'drevo' %}">Древо знания</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'authors' %}">Авторы</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'labels' %}">Теги</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'glossary' %}">Глоссарий</a>
-      </li>
-      {% if user.is_staff %}
-      <li class="nav-item">
-        <a class="nav-link" href="/admin">Панель управления</a>
-      </li>
-      {% endif %}
-    </ul>
-    <ul class="nav nav-pills">
-      <li class="nav-item">
-        <a class="nav-link d-flex" aria-current="page" href="{% url 'knowledge_search' %}">
-          <span>Поиск знаний</span> <img class="ms-2" src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}"
-            alt="" style="width:25px">
+
+  <nav class="navbar navbar-expand-lg mb-2 navbar-light bg-light">
+    <div class="container-fluid">
+      <div class="logo me-2">
+        <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
+          <img src="{% static 'drevo/img/logo.svg' %}" height='68px' alt="logo-tree">
         </a>
-      </li>
-      {% if user.is_authenticated %}
-      <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'users:myprofile' %}">
-          <span>{{ user.username }} <i class="bi bi-person-circle"></i></span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'users:logout' %}">
-          <span>Выйти <i class="bi bi-door-closed"></i></span>
-        </a>
-      </li>
-      {% else %}
-      <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="{% url 'users:login' %}?next={{ request.path }}">
-          <span>Войти <i class="bi bi-door-open"></i></span>
-        </a>
-      </li>
-      {% endif %}
-    </ul>
+      </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Древо знания</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
+              id="authors_link">Авторы</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link auto_active_link" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>
+          </li>
+          {% if user.is_staff %}
+          <li class="nav-item">
+            <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель управления</a>
+          </li>
+          {% endif %}
+        </ul>
+
+        <ul class="navbar-nav d-flex justify-content-end">
+          <li class="nav-item">
+            <a class="nav-link auto_active_link d-flex" aria-current="page" href="{% url 'search_knowledge' %}"
+              id="search_knowledges_link">
+              <span>Поиск</span> <img class="ms-2" src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}"
+                alt="" style="width:20px">
+            </a>
+          </li>
+        </ul>
+        <ul class="navbar-nav mb-2 mb-lg-0">
+          {% if user.is_authenticated %}
+          <li class="nav-item me-1">
+            <a class="nav-link auto_active_link" aria-current="page" href="{% url 'users:myprofile' %}" id="user_link">
+              <span>{{ user.username }} <i class="bi bi-person-circle"></i></span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-success" aria-current="page" href="{% url 'users:logout' %}">
+              <span>Выйти </span>
+            </a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="btn btn-outline-success" aria-current="page"
+              href="{% url 'users:login' %}?next={{ request.path }}">
+              <span>Войти </span>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        {% block precontent %}
+        {% endblock %}
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
   </div>
-  <hr class="col-3 col-md-2 mb-5">
-  {% block precontent %}
-  {% endblock %}
-  {% block content %}
-  {% endblock %}
+
+  {% block jsfiles %}
+  {% endblock jsfiles %}
+
+  <script>
+    // Для визуализации активных кнопок меню
+    let menuLinks = document.querySelectorAll('.auto_active_link');
+    for (let link of menuLinks) {
+      link.classList.remove('active');
+    }
+    for (let link of menuLinks) {
+      let currentLink = localStorage.getItem('active_link');
+      if (link.id === currentLink) {
+        link.classList.add('active');
+      }
+    }
+
+    document.addEventListener('click', (event) => saveNextLink(event));
+
+    function saveNextLink(event) {
+      let link = event.target.closest('.auto_active_link');
+      if (link) {
+        localStorage.setItem('active_link', link.id);
+      }
+    }
+
+  </script>
 
   <!-- Optional JavaScript; choose one of the two! -->
 
@@ -84,7 +137,3 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js" integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js" integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous"></script>
     -->
-</body>
-{% block jsfiles %}{% endblock %}
-
-</html>

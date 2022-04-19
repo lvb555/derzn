@@ -33,3 +33,7 @@ class ZnanieForm(forms.ModelForm):
     class Meta:
         model = Znanie
         fields = '__all__'
+
+    class Meta:
+        model = Znanie
+        fields = '__all__'
