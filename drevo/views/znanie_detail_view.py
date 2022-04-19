@@ -86,4 +86,6 @@ class ZnanieDetailView(DetailView):
             knowledge.get_dislikes_count())
         context['comment_max_length'] = Comment.CONTENT_MAX_LENGTH
 
+        context['table'] = knowledge.get_table_object()
+
         return context
