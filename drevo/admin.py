@@ -1,5 +1,5 @@
 from django.contrib import admin
-from drevo.models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType, GlossaryTerm, \
+from .models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType, GlossaryTerm, \
     ZnRating, Comment
 from mptt.admin import DraggableMPTTAdmin
 from .forms import ZnanieForm, AuthorForm, GlossaryTermForm, CategoryForm
@@ -74,7 +74,8 @@ class ZnImageInline(admin.StackedInline):
 
 
 class ZnanieAdmin(admin.ModelAdmin):
-    list_display = ('id', 'order', 'name', 'tz', 'href2link', 'author', 'updated_at', 'user')
+    list_display = ('id', 'order', 'name', 'tz', 'href2link',
+                    'author', 'updated_at', 'user')
     list_display_links = ('id', 'name')
     ordering = ('order',)
     save_as = True
@@ -174,7 +175,7 @@ admin.site.register(Tz, TzAdmin)
 
 
 class RelationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'bz', 'tr', 'rz', 'author', 'date', 'user' )
+    list_display = ('id', 'bz', 'tr', 'rz', 'author', 'date', 'user')
     save_as = True
     autocomplete_fields = ['bz', 'rz', 'author']
     search_fields = ['bz__name', 'rz__name']
@@ -195,7 +196,7 @@ admin.site.register(Relation, RelationAdmin)
 
 
 class GlossaryTermAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description' )
+    list_display = ('name', 'description')
     ordering = ('name',)
 
     def get_form(self, request, obj=None, **kwargs):
@@ -219,14 +220,16 @@ class CommentAnswersInline(admin.TabularInline):
     model = Comment
     ordering = ('-created_at',)
     extra = 0
-    readonly_fields = ('author', 'parent', 'znanie', 'content', 'created_at', 'updated_at', 'is_published')
+    readonly_fields = ('author', 'parent', 'znanie', 'content',
+                       'created_at', 'updated_at', 'is_published')
     can_delete = False
     verbose_name = 'Ответ'
     verbose_name_plural = 'Ответы'
 
 
 class CommentAdmin(admin.ModelAdmin):
-    readonly_fields = ('author', 'parent', 'znanie', 'content', 'created_at', 'updated_at')
+    readonly_fields = ('author', 'parent', 'znanie',
+                       'content', 'created_at', 'updated_at')
     list_filter = ('is_published', 'created_at', 'znanie', 'author')
     ordering = ('-created_at',)
     inlines = (CommentAnswersInline,)

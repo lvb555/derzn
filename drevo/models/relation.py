@@ -1,6 +1,7 @@
 from django.db import models
 from users.models import User
 
+
 class Relation(models.Model):
     """
     Класс для связи Знание-Знание
@@ -44,6 +45,13 @@ class Relation(models.Model):
 
     def __str__(self):
         return f"{self.title} {self.tr.name}"
+
+    def get_grouped_relations(self):
+        return list(sorted(
+            self.rz.base.all(),
+            key=lambda x: x.rz.order if x.rz.order else 0,
+            reverse=True
+        ))
 
     class Meta:
         verbose_name = 'Связь'

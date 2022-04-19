@@ -18,6 +18,9 @@ class Tz(models.Model):
     is_systemic = models.BooleanField(default=False,
                                       verbose_name='Системный?')
 
+    is_group = models.BooleanField(default=False,
+                                   verbose_name='Вид является группой?')
+
     def __str__(self):
         return self.name
 

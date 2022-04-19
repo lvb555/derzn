@@ -7,7 +7,9 @@
 {% block content %}
 
 {% if znanie.category.pk %}
-<h6><a href="{% url 'drevo_type' znanie.category.pk %}"><<< {{ znanie.category }}</a></h6>
+<h6><a href="{% url 'drevo_type' znanie.category.pk %}">
+    <<< {{ znanie.category }}</a>
+</h6>
 {% endif %}
 
 <h1>{{ znanie.name }}</h1>
@@ -18,11 +20,11 @@
       Вид знания: {{ znanie.tz }}
     </div>
     <div class="col">
-        {% if znanie.author %}
-            Автор: <a href="{% url 'author' znanie.author.pk %}">{{ znanie.author }}</a>
-        {% else %}
-            Автор: не указан
-        {% endif %}
+      {% if znanie.author %}
+      Автор: <a href="{% url 'author' znanie.author.pk %}">{{ znanie.author }}</a>
+      {% else %}
+      Автор: не указан
+      {% endif %}
     </div>
     <div class="col">
       Дата: {{ znanie.date }}
@@ -44,15 +46,15 @@
 
 {# Таблица #}
 {% if znanie.tz.name == 'Таблица' %}
-    {% if table %}
-        <div class="container">
-          <div class="row my-2">
-            <div class="col">
-                {% include 'drevo/table.html' with table=table %}
-            </div>
-          </div>
-        </div>
-    {% endif %}
+{% if table %}
+<div class="container">
+  <div class="row my-2">
+    <div class="col">
+      {% include 'drevo/table.html' with table=table %}
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endif %}
 
 {% if znanie.href %}
@@ -76,7 +78,7 @@
 <div class="container">
   <div class="row">
     <div class="col">
-        Число просмотров: {{ visits }}
+      Число просмотров: {{ visits }}
     </div>
   </div>
 </div>
@@ -84,28 +86,28 @@
 
 <hr>
 <div class="container">
-    <div class="row mb-2">
-        <div class="col">
-            <div class="d-flex">
-                <div class="button-block mx-3" style="white-space: nowrap">
-                    <button type="button" id="likeButton" class="btn btn-outline-secondary shadow-none mx-1"
-                            {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
-                        <i class="bi {% if user_vote.like %} bi-hand-thumbs-up-fill {% else %} bi-hand-thumbs-up {% endif %} fs-5"
-                           id="likeIcon"></i>
-                    </button>
-                    <span id="likesCounter">{{ likes_count }}</span>
-                </div>
-                <div class="mx-3" style="white-space: nowrap">
-                    <button type="button" id="dislikeButton" class="btn btn-outline-secondary shadow-none mx-1"
-                            {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
-                        <i class="bi {% if user_vote.dislike %} bi-hand-thumbs-down-fill {% else %} bi-hand-thumbs-down {% endif %} fs-5"
-                           id="dislikeIcon"></i>
-                    </button>
-                    <span id="dislikesCounter">{{ dislikes_count }}</span>
-                </div>
-            </div>
+  <div class="row mb-2">
+    <div class="col">
+      <div class="d-flex">
+        <div class="button-block mx-3" style="white-space: nowrap">
+          <button type="button" id="likeButton" class="btn btn-outline-secondary shadow-none mx-1" 
+          {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
+            <i class="bi {% if user_vote.like %} bi-hand-thumbs-up-fill {% else %} bi-hand-thumbs-up {% endif %} fs-5"
+              id="likeIcon"></i>
+          </button>
+          <span id="likesCounter">{{ likes_count }}</span>
         </div>
+        <div class="mx-3" style="white-space: nowrap">
+          <button type="button" id="dislikeButton" class="btn btn-outline-secondary shadow-none mx-1" 
+          {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
+            <i class="bi {% if user_vote.dislike %} bi-hand-thumbs-down-fill {% else %} bi-hand-thumbs-down {% endif %} fs-5"
+              id="dislikeIcon"></i>
+          </button>
+          <span id="dislikesCounter">{{ dislikes_count }}</span>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Модальное окно -->
@@ -132,7 +134,7 @@
 <div class="container">
   <div class="row">
     <div class="col">
-        Метки: {% for label in znanie.labels.all %} #<a href="{% url 'zlabel' label.pk %}">{{ label }}</a> {% endfor %}
+      Метки: {% for label in znanie.labels.all %} #<a href="{% url 'zlabel' label.pk %}">{{ label }}</a> {% endfor %}
     </div>
   </div>
 </div>
@@ -143,7 +145,8 @@
 <div class="container">
   <div class="row">
     <div class="col">
-        {% for photo in znanie.photos.all %} <a href="{{ MEDIA_URL }}{{ photo.photo }}"><img src="{{ MEDIA_URL }}{{ photo.photo }}" height="150"></a>&nbsp;&nbsp;&nbsp;{% endfor %}
+      {% for photo in znanie.photos.all %} <a href="{{ MEDIA_URL }}{{ photo.photo }}"><img
+          src="{{ MEDIA_URL }}{{ photo.photo }}" height="150"></a>&nbsp;&nbsp;&nbsp;{% endfor %}
     </div>
   </div>
 </div>
@@ -152,117 +155,115 @@
 <hr>
 {# Блок комментариев #}
 <div class="container">
-    {# Заголовок #}
-    <div class="row">
-        <div class="col">
-            <span>Комментарии ({{ znanie.get_comments_count }}):</span>
-        </div>
+  {# Заголовок #}
+  <div class="row">
+    <div class="col">
+      <span>Комментарии ({{ znanie.get_comments_count }}):</span>
     </div>
+  </div>
 
-    {# Форма #}
-    <div class="row my-2">
-        <div class="col">
-            {% if user.is_authenticated %}
-                <div id="comments-form-block">
-                    {% include 'drevo/comments_form.html' with parent_comment_id='' %}
-                </div>
-            {% else %}
-                <div class="card alert-warning">
-                    <div class="card-body">
-                        <span class="card-text">
-                            <a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
-                            или
-                            <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
-                            чтобы написать комментарий.
-                        </span>
-                    </div>
-                </div>
-            {% endif %}
+  {# Форма #}
+  <div class="row my-2">
+    <div class="col">
+      {% if user.is_authenticated %}
+      <div id="comments-form-block">
+        {% include 'drevo/comments_form.html' with parent_comment_id='' %}
+      </div>
+      {% else %}
+      <div class="card alert-warning">
+        <div class="card-body">
+          <span class="card-text">
+            <a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
+            или
+            <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+            чтобы написать комментарий.
+          </span>
         </div>
+      </div>
+      {% endif %}
     </div>
+  </div>
 
-    {# Дерево комментариев #}
-    <div class="row">
-        <div class="col">
-            <div id="comments-list-block"></div>
-            <div class="my-4" id="commentsListSpinner">
-                <div class="d-flex justify-content-center">
-                    <div class="spinner-border" role="status"></div>
-                </div>
-            </div>
+  {# Дерево комментариев #}
+  <div class="row">
+    <div class="col">
+      <div id="comments-list-block"></div>
+      <div class="my-4" id="commentsListSpinner">
+        <div class="d-flex justify-content-center">
+          <div class="spinner-border" role="status"></div>
         </div>
+      </div>
     </div>
-    {% if not znanie.comments.exists %}
-        <div class="text-center mt-4" id="no-comments-text">Комментариев ещё нет.</div>
-    {% endif %}
+  </div>
+  {% if not znanie.comments.exists %}
+  <div class="text-center mt-4" id="no-comments-text">Комментариев ещё нет.</div>
+  {% endif %}
 
-    {# Кнопка загрузки и спиннер #}
-    <div class="row mb-2">
-        <div class="my-1" id="commentsListSpinner">
-            <div class="d-flex justify-content-center">
-                <div class="spinner-border" role="status" style="display: none"></div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="d-flex justify-content-center my-1">
-                <button class="btn btn-outline-secondary"
-                        style="display: none"
-                        id="loadMoreCommentsButton"
-                        onclick="getComments(this)">
-                    Загрузить ещё
-                </button>
-            </div>
-        </div>
+  {# Кнопка загрузки и спиннер #}
+  <div class="row mb-2">
+    <div class="my-1" id="commentsListSpinner">
+      <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status" style="display: none"></div>
+      </div>
     </div>
+    <div class="col">
+      <div class="d-flex justify-content-center my-1">
+        <button class="btn btn-outline-secondary" style="display: none" id="loadMoreCommentsButton"
+          onclick="getComments(this)">
+          Загрузить ещё
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 <hr>
 
 {% for c in categories %}
 <ul>
-  <li>  
-  {% if c == category %} <a href="{{ c.get_absolute_url }}" class="fw-bold">{{ c.name }} </a>
-  {% else %} <a href="{{ c.get_absolute_url }}">{{ c.name }} </a>
-  {% endif %}
+  <li>
+    {% if c == category %} <a href="{{ c.get_absolute_url }}" class="fw-bold">{{ c.name }} </a>
+    {% else %} <a href="{{ c.get_absolute_url }}">{{ c.name }} </a>
+    {% endif %}
   </li>
-{% endfor %}
+  {% endfor %}
 
   {# Цепочка знаний #}
   {% for z in chain %}
-    <ul>
-      <li>  
+  <ul>
+    <li>
       <a href="{{ z.get_absolute_url }}">{{ z.name }} </a>
     </li>
     {% empty %}
     <div class="container">
       <div class='row'>
-      &nbsp;
+        &nbsp;
       </div>
     </div>
     {% endfor %}
 
     {# Текущее знание, без ссылки #}
     <ul>
-      <li>  
-      <p class='fw-bold'>{{ znanie.name }}</p>
-    </li>
+      <li>
+        <p class='fw-bold'>{{ znanie.name }}</p>
+      </li>
 
-        {# Дети текущего знания, сгруппированные по видам связей #}
-        {% if children_by_tr %}
-        <ul>
-          {% for rel_type, children in children_by_tr.items %}
-          <li>  {{ rel_type }}
-            <ul>
+      {# Дети текущего знания, сгруппированные по видам связей #}
+      {% if children_by_tr %}
+      <ul>
+        {% for rel_type, children in children_by_tr.items %}
+        <li> {{ rel_type }}
+          <ul>
             {% for child in children %}
             <li>
-              {{ child.tz }}&#10000;<a href="{{ child.get_absolute_url }}">{{ child.name }} </a>, 
+              {{ child.tz }}&#10000;<a href="{{ child.get_absolute_url }}">{{ child.name }} </a>,
               {{ child.author|default_if_none:'автор не указан' }}
             </li>
             {% endfor %}
-            </ul>
+          </ul>
         </li>
-          {% endfor %}
-        </ul>
-        {% endif %}
+        {% endfor %}
+      </ul>
+      {% endif %}
 
     </ul>
 
@@ -270,9 +271,9 @@
     {% if siblings %}
     <ul>
       {% for s in siblings %}
-      <li>  
+      <li>
         <a href="{{ s.get_absolute_url }}">{{ s.name }} </a>
-    </li>
+      </li>
       {% endfor %}
     </ul>
     {% endif %}
@@ -280,11 +281,11 @@
 
     {# Закрывающие теги для дерева предков #}
     {% for z in chain %}
-    </ul>
-   {% endfor %}
+  </ul>
+  {% endfor %}
 
-{# Закрывающие теги для дерева категорий #}
-{% for c in categories %}
+  {# Закрывающие теги для дерева категорий #}
+  {% for c in categories %}
 </ul>
 {% endfor %}
 
@@ -300,36 +301,36 @@
     </tr>
   </thead>
   <tbody>
-<br/><br/>
+    <br /><br />
 
-{% for item in rels %}
-<tr>
-  <td colspan="3">
-<h3>{{ item.0 }}</h3>
-  </td>
-</tr>
- {% for z in item.1 %}
+    {% for item in rels %}
+    <tr>
+      <td colspan="3">
+        <h3>{{ item.0 }}</h3>
+      </td>
+    </tr>
+    {% for z in item.1 %}
     <tr>
       <th scope="row">{{ forloop.counter }}</th>
       <td><a href="{% url 'zdetail' z.rz.pk %}">{{ z.rz }}</a></td>
       <td> {{ z.rz.tz }}</td>
       <td> {{ z.rz.author }}</td>
     </tr>
-  {% empty %}
-  <tr>
-    <td colspan="3">
-  <h5>данных нет</h5>
-    </td>
-  </tr>
-  {% endfor %}
+    {% empty %}
+    <tr>
+      <td colspan="3">
+        <h5>данных нет</h5>
+      </td>
+    </tr>
+    {% endfor %}
 
-  {% empty %}
-  <tr>
-    <td colspan="3">
-  <h5>данных нет</h5>
-    </td>
-  </tr>
-{% endfor %}
+    {% empty %}
+    <tr>
+      <td colspan="3">
+        <h5>данных нет</h5>
+      </td>
+    </tr>
+    {% endfor %}
 
   </tbody>
 </table>
@@ -339,7 +340,7 @@
 {% endblock %}
 
 {% block jsfiles %}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{% static 'drevo/js/rating.js' %}"></script>
-    <script src="{% static 'drevo/js/comments.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'drevo/js/rating.js' %}"></script>
+<script src="{% static 'drevo/js/comments.js' %}"></script>
 {% endblock %}

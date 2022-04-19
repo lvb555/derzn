@@ -86,7 +86,6 @@ class Znanie(models.Model):
 
     def voting(self, user, value):
         rating_obj = self.znrating_set.filter(user=user).first()
-    
 
         if rating_obj:
             if value == rating_obj.value:
@@ -115,6 +114,66 @@ class Znanie(models.Model):
 
     def get_comments_count(self):
         return self.comments.filter(parent=None).count()
+
+    def get_table_object(self):
+        if self.tz.name != 'Таблица':
+            return None
+
+        row_type_name = 'Строка'
+        col_type_name = 'Столбец'
+        value_type_name = 'Значение'
+
+        row_type = Tr.objects.get(name=row_type_name)
+        col_type = Tr.objects.get(name=col_type_name)
+        value_type = Tr.objects.get(name=value_type_name)
+
+        rows = sorted(
+            self.base.filter(tr=row_type).select_related('bz', 'rz'),
+            key=lambda x: x.rz.order if x.rz.order else 0,
+            reverse=True
+        )
+        cols = sorted(
+            self.base.filter(tr=col_type).select_related('bz', 'rz'),
+            key=lambda x: x.rz.order if x.rz.order else 0,
+            reverse=True
+        )
+        values = self.base.filter(tr=value_type).select_related('rz')
+
+        target_rows = rows
+        target_cols = cols
+
+        if rows[0].rz.tz.is_group:
+            target_rows = rows[0].get_grouped_relations()
+        if cols[0].rz.tz.is_group:
+            target_cols = cols[0].get_grouped_relations()
+
+        if not all([rows, cols, values]):
+            return None
+
+        matrix = list()
+
+        for i, row in enumerate(target_rows):
+            matrix.append([])
+            for j, col in enumerate(target_cols):
+                matrix[i].append(None)
+                values_list = list(
+                    filter(
+                        lambda x: len(x.rz.base.all()) == 2 and all(
+                            map(lambda y: y.rz == row.rz or y.rz ==
+                                col.rz, x.rz.base.all())
+                        ),
+                        values
+                    )
+                )
+                if values_list:
+                    matrix[i][j] = values_list[0].rz
+
+        table_object = {
+            'rows': rows,
+            'cols': cols,
+            'values': matrix,
+        }
+        return table_object
 
     class Meta:
         verbose_name = 'Знание'
