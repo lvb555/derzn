@@ -15,7 +15,7 @@
 
 <br><br>
 
-<ul class="root" id="tree_root">
+<ul class="root ps-0" id="tree_root">
   {% recursetree ztypes %}
   <li {% if not node.get_level %} style="font-weight: 600;" {% else %} style="font-weight: 400;" {% endif %}
     id="li_{{ node.id }}">

@@ -6,28 +6,13 @@ from ..models import *
 from django.core.paginator import Paginator
 from django.db.models import (Q,
                               QuerySet)
+from .search_engine import SearchEngineMixin
 
 
-class KnowledgeSearchView(FormView):
-    template_name = "drevo/knowledge_search.html"
+class KnowledgeSearchView(FormView, SearchEngineMixin):
+    template_name = "drevo/search.html"
     form_class = KnowledgeSearchForm
-    success_url = reverse_lazy("knowledge_search")
-
-    def get_parameters_string(self, include_params: list[str] = None, exclude_params: list[str] = None):
-        if include_params and include_params:
-            raise Exception('Указаны и включаемые и исключаемые параметры')
-
-        parameters = dict()
-        if include_params:
-            for parameter, value in self.request.GET.items():
-                if parameter in include_params:
-                    parameters[parameter] = value
-        elif exclude_params:
-            for parameter, value in self.request.GET.items():
-                if parameter not in exclude_params:
-                    parameters[parameter] = value
-
-        return urllib.parse.urlencode(parameters)
+    success_url = reverse_lazy("search_knowledge")
 
     def get_knowledges_with_filter(self,
                                    main_search_parameter=None,
@@ -35,80 +20,40 @@ class KnowledgeSearchView(FormView):
                                    knowledge_category_parameter=None,
                                    author_parameter=None,
                                    edge_kind_parameter=None):
-
-        def get_queryset(input_queryset: QuerySet,
-                         fields_name: list[str],
-                         parameter_value: str,
-                         lookup: str = '',
-                         connector='AND'):
-
-            if not isinstance(fields_name, list):
-                fields_name = [fields_name]
-
-            result_query = Q()
-            # Так как sqlite не может искать без учета регистра,
-            # будем искать и с заглавной буквы и с маленькой
-            for field_name in fields_name:
-                query = Q(
-                    **{field_name + lookup: parameter_value})
-
-                if not parameter_value.istitle():
-                    query = query.__or__(Q(
-                        **{field_name + lookup: parameter_value.capitalize()}))
-
-                query_upper = Q(
-                    **{field_name + lookup: parameter_value.upper()})
-
-                query_lower = Q(
-                    **{field_name + lookup: parameter_value.lower()})
-
-                query = (query.__or__(query_upper)
-                         .__or__(query_lower))
-
-                if connector == 'AND':
-                    result_query = result_query.__and__(query)
-                elif connector == 'OR':
-                    result_query = result_query.__or__(query)
-                else:
-                    raise Exception(f'Некорректный коннектор {connector}')
-
-            outpur_queryset = input_queryset.filter(result_query)
-            return outpur_queryset
-
         knowledges = Znanie.objects.all()
         if main_search_parameter:
             # Ищем знания по главному полю
-            knowledges = get_queryset(input_queryset=knowledges,
-                                      fields_name=['name',
-                                                   'content',
-                                                   'source_com', ],
-                                      parameter_value=main_search_parameter,
-                                      lookup='__contains',
-                                      connector='OR')
+            knowledges = self.get_filtered_queryset(input_queryset=knowledges,
+                                                    fields_name=['name',
+                                                                 'content',
+                                                                 'source_com', ],
+                                                    parameter_value=main_search_parameter,
+                                                    lookup='__contains',
+                                                    connector='OR')
 
         if knowledge_type_parameter:
             # Ищем знания по виду знаний
-            knowledges = get_queryset(input_queryset=knowledges,
-                                      fields_name='tz__name',
-                                      parameter_value=knowledge_type_parameter)
+            knowledges = self.get_filtered_queryset(input_queryset=knowledges,
+                                                    fields_name='tz__name',
+                                                    parameter_value=knowledge_type_parameter)
 
         if knowledge_category_parameter:
             # Ищем знания по категории знания
-            knowledges = get_queryset(input_queryset=knowledges,
-                                      fields_name='category__name',
-                                      parameter_value=knowledge_category_parameter)
+            knowledges = self.get_filtered_queryset(input_queryset=knowledges,
+                                                    fields_name='category__name',
+                                                    parameter_value=knowledge_category_parameter)
 
         if author_parameter:
             # Ищем знания по автору знания
-            knowledges = get_queryset(input_queryset=knowledges,
-                                      fields_name='author__name',
-                                      parameter_value=author_parameter)
+            knowledges = self.get_filtered_queryset(input_queryset=knowledges,
+                                                    fields_name='author__name',
+                                                    parameter_value=author_parameter)
 
         if edge_kind_parameter:
             # Ищем знания по виду связи к знанию
-            knowledges = get_queryset(input_queryset=knowledges,
-                                      fields_name='related__tr__name',
-                                      parameter_value=edge_kind_parameter)
+            knowledges = self.get_filtered_queryset(input_queryset=knowledges,
+                                                    fields_name='related__tr__name',
+                                                    parameter_value=edge_kind_parameter)
 
         return knowledges
 
@@ -124,6 +69,7 @@ class KnowledgeSearchView(FormView):
 
         # Для сохранения любого пользовательского ввода в форме
         context['form'] = KnowledgeSearchForm(self.request.GET)
+        # breakpoint()
 
         if (main_search_parameter
             or knowledge_type_parameter

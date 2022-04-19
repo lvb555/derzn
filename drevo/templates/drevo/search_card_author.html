@@ -1,0 +1,35 @@
+{% load static %}
+<div class="row">
+    <div class="col-12 col-lg-9">
+        <a class="text-decoration-none" href="{% url 'author' pk=author.pk %}">
+            <h5>
+                {{ author.name }}
+            </h5>
+        </a>
+        <div>
+            {{ author.info |safe |truncatewords_html:30 }}
+        </div>
+    </div>
+    <div class="col-12 col-lg-3">
+        <ul class="text-end" style="list-style-type: none;">
+
+            {% if author.photo %}
+            <li>
+                <img src="{{ author.photo.url }}" class="img w-100" alt="{{ author.name }}"
+                    style="object-fit: contain;">
+            </li>
+            {% endif %}
+
+            <li>
+                Тип автора:
+                {% if author.atype.name %}
+                {{ author.atype.name }}
+                {% else %}
+                –
+                {% endif %}
+            </li>
+        </ul>
+    </div>
+</div>
+<hr class="mt-0">
+<sc>

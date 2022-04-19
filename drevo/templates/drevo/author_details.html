@@ -13,14 +13,15 @@
 
 {% if author.info %}
 <div class="row">
-        <div class="col-md-4">
-            {{ author.info|safe }}
-        </div>
-        {% if author.photo %}
-        <div class="col-md-2">
-            <img src="{% get_media_prefix %}{{ author.photo }}" class="rounded float-end img-thumbnail" alt="{{ author.name }}" width="200">
-       </div>
-        {% endif %}
+    <div class="col-12 col-lg-8">
+        {{ author.info|safe }}
+    </div>
+    {% if author.photo %}
+    <div class="col-12 col-lg-4">
+        <img src="{% get_media_prefix %}{{ author.photo }}" class="rounded float-end img-thumbnail"
+            alt="{{ author.name }}" width="200">
+    </div>
+    {% endif %}
 </div>
 {% endif %}
 {% endblock %}
@@ -33,107 +34,109 @@
         {% if not knowledges|length_is:"0" %}
         <h2>Список знаний</h2>
         <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" onchange="toggleAddZnVisibility(this);">
+            <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"
+                onchange="toggleAddZnVisibility(this);">
             <label class="form-check-label" for="flexSwitchCheckDefault">Выводить только основные знания?</label>
-          </div>
-        <br>  
+        </div>
+        <br>
         <ul>
-        {% for category in categories %}
-            <li style="font-weight: 600;"><i class="bi-file-plus-fill lonely"></i><a href="{{ category.get_absolute_url }}">{{ category }}</a>
+            {% for category in categories %}
+            <li style="font-weight: 600;"><i class="bi-file-plus-fill lonely"></i><a
+                    href="{{ category.get_absolute_url }}">{{ category }}</a>
                 <ul>
-                <li>
-                <table class="table">                
-                {% if not knowledges|dict_value:category.name|dict_value:"base"|length_is:"0" %}    
-                {% for knowledge in knowledges|dict_value:category.name|dict_value:"base" %}
-                <tr style="font-weight: 400;">
-                    <td>
-                        <i class="bi-file-text-fill zn_base"></i>
-                        <a href="{% url 'zdetail' knowledge.pk %}" class="zn_base">{{ knowledge }}</a>
-                    </td>
-                    <td>
-                        {{ knowledge.tz }}
-                    </td>    
-                    <td>
-                        
-                    </td>       
-                    <td>
-                        {{ knowledge.date }}
-                    </td>                 
-                </tr>    
-                {% endfor %}
-                {% endif %}
-                {% if not knowledges|dict_value:category.name|dict_value:"additional"|length_is:"0" %}
-                {% for knowledge in knowledges|dict_value:category.name|dict_value:"additional" %}
-                <tr class="li_add" style="font-weight: 400;">
-                    <td>
-                        <i class="bi-file-text-fill zn_add"></i>
-                        <a href="{% url 'zdetail' knowledge.pk %}" class="zn_add">{{ knowledge }}</a>
-                    </td>                
-                    <td>
-                        {{ knowledge.tz }}
-                    </td>       
-                    <td>
-                        {{ knowledge.related.all.first.tr }}
-                    </td>       
-                    <td>
-                        {{ knowledge.date }}
-                    </td>           
-                </tr>    
-                {% endfor %}             
-                {% endif %} 
-                </table>
-                </li>
-                </ul>                  
-            </li>
-        {% endfor %}
+                    <li>
+                        <table class="table">
+                            {% if not knowledges|dict_value:category.name|dict_value:"base"|length_is:"0" %}
+                            {% for knowledge in knowledges|dict_value:category.name|dict_value:"base" %}
+                            <tr style="font-weight: 400;">
+                                <td>
+                                    <i class="bi-file-text-fill zn_base"></i>
+                                    <a href="{% url 'zdetail' knowledge.pk %}" class="zn_base">{{ knowledge }}</a>
+                                </td>
+                                <td>
+                                    {{ knowledge.tz }}
+                                </td>
+                                <td>
 
-        {# знания, не имеющие категории #}
-        {% if not knowledges|dict_value:'None'|length_is:"0" %}
-        <li style="font-weight: 600;" class="li_add">Знания, не имеющие категории
-            <ul>
-            <li>
-
-            <table class="table">  
-            {% for knowledge in knowledges|dict_value:'None'|dict_value:"base" %}
-            <tr style="font-weight: 400;">
-            <td>
-                <i class="bi-file-text-fill zn_base"></i>
-                <a href="{% url 'zdetail' knowledge.pk %}" class="zn_base">{{ knowledge }}</a>
-            </td>
-                    <td>
-                        {{ knowledge.tz }}
-                    </td>       
-                    <td>
-                        {{ knowledge.related.all.first.tr }}
-                    </td>       
-                    <td>
-                        {{ knowledge.date }}
-                    </td> 
-            </tr>
-            {% endfor %}
-                
-            {% for knowledge in knowledges|dict_value:'None'|dict_value:"additional" %}
-            <tr style="font-weight: 400;" class="li_add">
-            <td>
-                <i class="bi-file-text-fill zn_add"></i>
-                <a href="{% url 'zdetail' knowledge.pk %}" class="zn_add">{{ knowledge }}</a>
-            </td>
-                    <td>
-                        {{ knowledge.tz }}
-                    </td>       
-                    <td>
-                        {{ knowledge.related.all.first.tr }}
-                    </td>       
-                    <td>
-                        {{ knowledge.date }}
-                    </td> 
-            </tr>
-            {% endfor %}
-            </table>
+                                </td>
+                                <td>
+                                    {{ knowledge.date }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                            {% if not knowledges|dict_value:category.name|dict_value:"additional"|length_is:"0" %}
+                            {% for knowledge in knowledges|dict_value:category.name|dict_value:"additional" %}
+                            <tr class="li_add" style="font-weight: 400;">
+                                <td>
+                                    <i class="bi-file-text-fill zn_add"></i>
+                                    <a href="{% url 'zdetail' knowledge.pk %}" class="zn_add">{{ knowledge }}</a>
+                                </td>
+                                <td>
+                                    {{ knowledge.tz }}
+                                </td>
+                                <td>
+                                    {{ knowledge.related.all.first.tr }}
+                                </td>
+                                <td>
+                                    {{ knowledge.date }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                        </table>
+                    </li>
+                </ul>
             </li>
-            </ul> 
-        </li> 
-        {% endif %}
+            {% endfor %}
+
+            {# знания, не имеющие категории #}
+            {% if not knowledges|dict_value:'None'|length_is:"0" %}
+            <li style="font-weight: 600;" class="li_add">Знания, не имеющие категории
+                <ul>
+                    <li>
+
+                        <table class="table">
+                            {% for knowledge in knowledges|dict_value:'None'|dict_value:"base" %}
+                            <tr style="font-weight: 400;">
+                                <td>
+                                    <i class="bi-file-text-fill zn_base"></i>
+                                    <a href="{% url 'zdetail' knowledge.pk %}" class="zn_base">{{ knowledge }}</a>
+                                </td>
+                                <td>
+                                    {{ knowledge.tz }}
+                                </td>
+                                <td>
+                                    {{ knowledge.related.all.first.tr }}
+                                </td>
+                                <td>
+                                    {{ knowledge.date }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                            {% for knowledge in knowledges|dict_value:'None'|dict_value:"additional" %}
+                            <tr style="font-weight: 400;" class="li_add">
+                                <td>
+                                    <i class="bi-file-text-fill zn_add"></i>
+                                    <a href="{% url 'zdetail' knowledge.pk %}" class="zn_add">{{ knowledge }}</a>
+                                </td>
+                                <td>
+                                    {{ knowledge.tz }}
+                                </td>
+                                <td>
+                                    {{ knowledge.related.all.first.tr }}
+                                </td>
+                                <td>
+                                    {{ knowledge.date }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
         </ul>
         {% endif %}
     </div>
@@ -146,22 +149,21 @@
 
 <script>
 
-function toggleAddZnVisibility(element){
-    let ulToToggle = document.querySelectorAll('.li_add');
-    if (element.checked == true) {
-        ulToToggle.forEach(function(x){
-            x.hidden = true;
+    function toggleAddZnVisibility(element) {
+        let ulToToggle = document.querySelectorAll('.li_add');
+        if (element.checked == true) {
+            ulToToggle.forEach(function (x) {
+                x.hidden = true;
+            }
+            )
         }
-        )
-    }
-    else {
-        ulToToggle.forEach(function(x){
-            x.hidden = false;
+        else {
+            ulToToggle.forEach(function (x) {
+                x.hidden = false;
+            }
+            )
         }
-        )        
     }
-}
 </script>
 
 {% endblock %}
-

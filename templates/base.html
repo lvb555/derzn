@@ -23,7 +23,7 @@
   <nav class="navbar navbar-expand-lg mb-2 navbar-light bg-light">
     <div class="container-fluid">
       <div class="logo me-2">
-        <a href="{% url 'drevo' %}">
+        <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
           <img src="{% static 'drevo/img/logo.svg' %}" height='68px' alt="logo-tree">
         </a>
       </div>
@@ -34,36 +34,38 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" href="{% url 'drevo' %}">Древо знания</a>
+            <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Древо знания</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'authors' %}">Авторы</a>
+            <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
+              id="authors_link">Авторы</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'labels' %}">Теги</a>
+            <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'glossary' %}">Глоссарий</a>
+            <a class="nav-link auto_active_link" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>
           </li>
           {% if user.is_staff %}
           <li class="nav-item">
-            <a class="nav-link" href="/admin">Панель управления</a>
+            <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель управления</a>
           </li>
           {% endif %}
         </ul>
 
         <ul class="navbar-nav d-flex justify-content-end">
           <li class="nav-item">
-            <a class="nav-link d-flex" aria-current="page" href="{% url 'knowledge_search' %}">
-              <span>Поиск знаний</span> <img class="ms-2"
-                src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}" alt="" style="width:20px">
+            <a class="nav-link auto_active_link d-flex" aria-current="page" href="{% url 'search_knowledge' %}"
+              id="search_knowledges_link">
+              <span>Поиск</span> <img class="ms-2" src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}"
+                alt="" style="width:20px">
             </a>
           </li>
         </ul>
         <ul class="navbar-nav mb-2 mb-lg-0">
           {% if user.is_authenticated %}
           <li class="nav-item me-1">
-            <a class="nav-link" aria-current="page" href="{% url 'users:myprofile' %}">
+            <a class="nav-link auto_active_link" aria-current="page" href="{% url 'users:myprofile' %}" id="user_link">
               <span>{{ user.username }} <i class="bi bi-person-circle"></i></span>
             </a>
           </li>
@@ -84,11 +86,12 @@
       </div>
     </div>
   </nav>
-  {% block precontent %}
-  {% endblock %}
+
   <div class="container">
     <div class="row">
       <div class="col">
+        {% block precontent %}
+        {% endblock %}
         {% block content %}
         {% endblock %}
       </div>
@@ -97,6 +100,30 @@
 
   {% block jsfiles %}
   {% endblock jsfiles %}
+
+  <script>
+    // Для визуализации активных кнопок меню
+    let menuLinks = document.querySelectorAll('.auto_active_link');
+    for (let link of menuLinks) {
+      link.classList.remove('active');
+    }
+    for (let link of menuLinks) {
+      let currentLink = localStorage.getItem('active_link');
+      if (link.id === currentLink) {
+        link.classList.add('active');
+      }
+    }
+
+    document.addEventListener('click', (event) => saveNextLink(event));
+
+    function saveNextLink(event) {
+      let link = event.target.closest('.auto_active_link');
+      if (link) {
+        localStorage.setItem('active_link', link.id);
+      }
+    }
+
+  </script>
 
   <!-- Optional JavaScript; choose one of the two! -->
 

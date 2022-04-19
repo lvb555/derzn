@@ -12,7 +12,8 @@ from .views import (DrevoListView,
                     ZnanieRatingView,
                     CommentPageView,
                     CommentSendView,
-                    KnowledgeSearchView)
+                    KnowledgeSearchView,
+                    AuthorSearchView)
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),
@@ -27,9 +28,12 @@ urlpatterns = [
     path('authors/', AuthorsListView.as_view(), name='authors'),
     path('labels/', LabelsListView.as_view(), name='labels'),
     path('glossary/', GlossaryListView.as_view(), name='glossary'),
-    path('knownladge-search/',
+    path('search/knowledge',
          KnowledgeSearchView.as_view(),
-         name='knowledge_search'),
+         name='search_knowledge'),
+    path('search/author',
+         AuthorSearchView.as_view(),
+         name='search_author'),
 ]
 
 if settings.DEBUG:

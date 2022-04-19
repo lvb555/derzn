@@ -12,10 +12,14 @@
 Атрибут поля формы oninput прописан во вьюхе,
 которая рендерит этот шаблон.
 {% endcomment %}
+<div class="row">
+    <div class="col-3">
+        <form action="" id="rform">
+            {{ rform.author_type }}
+        </form>
+    </div>
 
-<form action="" id="rform">
-    {{ rform.author_type }}
-</form>
+</div>
 
 <br>
 <div class="row">

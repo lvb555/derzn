@@ -24,17 +24,22 @@ class AuthorsListView(ListView):
         """
 
         # получаем значение фильтра из запроса
+        # breakpoint()
         author_type_to_filter = self.request.GET.get('author_type')
-
-        queryset = Author.objects.annotate(zn_num=Count(
-            'znanie', filter=Q(znanie__is_published=True))).all().order_by('name')
-
-        # валидируем значение и возвращаем queryset
-        list_of_author_types = AuthorType.objects.all().values_list('id', flat=True)
-        if author_type_to_filter not in list(map(str, list_of_author_types)):
-            return queryset
+        queryset = Author.objects.all()
+        if author_type_to_filter:
+            queryset = (queryset.filter(
+                znanie__is_published=True,
+                atype__name=author_type_to_filter)
+                .order_by('name'))
         else:
-            return queryset.filter(atype=author_type_to_filter)
+            queryset = (queryset.filter(
+                znanie__is_published=True)
+                .order_by('name'))
+
+        queryset = queryset.annotate(zn_num=Count('znanie'))
+
+        return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
