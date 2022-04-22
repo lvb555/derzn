@@ -84,6 +84,17 @@
 </div>
 {% endif %}
 
+{% if znanie.tz.can_be_rated %}
+<hr>
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <a href="{% url 'grade' znanie.id %}" class="btn btn-secondary">Оценка знания</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <hr>
 <div class="container">
   <div class="row mb-2">

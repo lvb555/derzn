@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    {% if not user.is_authenticated %}
+        <div class="card alert-warning my-2">
+            <div class="card-body">
+          <span class="card-text">
+            <a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
+            или
+            <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+            чтобы поставить оценку.
+          </span>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="my-2">
+        <form action="{{ request.get_full_path }}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-secondary"
+            {% if not user.is_authenticated %} disabled {% endif %}>Сохранить</button>
+        </form>
+    </div>
+{% endblock %}

@@ -6,6 +6,10 @@ from .forms import ZnanieForm, AuthorForm, GlossaryTermForm, CategoryForm
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from adminsortable2.admin import SortableAdminMixin
+from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
+from drevo.models.relation_grade_scale import RelationGradeScale
+from drevo.models.knowledge_grade import KnowledgeGrade
+from drevo.models.relation_grade import RelationGrade
 
 
 class CategoryMPTT(DraggableMPTTAdmin):
@@ -157,7 +161,7 @@ admin.site.register(AuthorType, AuthorTypeAdmin)
 
 
 class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
-    list_display = ('name', 'order', 'is_systemic', )
+    list_display = ('name', 'order', 'is_systemic', 'is_argument', 'argument_type',)
     sortable_by = ('name', 'is_systemic', )
     ordering = ['order', ]
 
@@ -166,7 +170,7 @@ admin.site.register(Tr, TrAdmin)
 
 
 class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
-    list_display = ('name', 'order', 'is_systemic', 'is_group', )
+    list_display = ('name', 'order', 'is_systemic', 'is_group', 'can_be_rated',)
     sortable_by = ('name', 'is_systemic', )
     ordering = ['order', ]
 
@@ -238,3 +242,33 @@ class CommentAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Comment, CommentAdmin)
+
+
+class KnowledgeGradeScaleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'low_value', 'high_value', 'is_high_in_range',)
+
+
+admin.site.register(KnowledgeGradeScale, KnowledgeGradeScaleAdmin)
+
+
+class RelationGradeScaleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'value',)
+
+
+admin.site.register(RelationGradeScale, RelationGradeScaleAdmin)
+
+
+class KnowledgeGradeAdmin(admin.ModelAdmin):
+    list_display = ('knowledge', 'user', 'grade', 'created_at',)
+    list_filter = ('grade', 'created_at', 'knowledge')
+
+
+admin.site.register(KnowledgeGrade, KnowledgeGradeAdmin)
+
+
+class RelationGradeAdmin(admin.ModelAdmin):
+    list_display = ('relation', 'user', 'grade', 'created_at',)
+    list_filter = ('grade', 'created_at', 'relation')
+
+
+admin.site.register(RelationGrade, RelationGradeAdmin)
