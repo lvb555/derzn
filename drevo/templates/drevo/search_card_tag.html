@@ -1,0 +1,11 @@
+{% load static %}
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <a class="text-decoration-none" href="{% url 'zlabel' pk=tag.pk %}">
+            <h5>
+                {{ tag.name }}
+            </h5>
+        </a>
+    </div>
+</div>
+<hr class="mt-0">

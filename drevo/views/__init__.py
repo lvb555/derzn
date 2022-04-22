@@ -11,6 +11,7 @@ from .znanie_detail_view import ZnanieDetailView
 from .znanie_rating_view import ZnanieRatingView
 from .knowledge_search_view import KnowledgeSearchView
 from .author_search_view import AuthorSearchView
+from .tag_search_view import TagSearchView
 
 
 __all__ = [
@@ -26,5 +27,6 @@ __all__ = [
     'ZnanieDetailView',
     'ZnanieRatingView',
     'KnowledgeSearchView',
-    'AuthorSearchView'
+    'AuthorSearchView',
+    'TagSearchView',
 ]
