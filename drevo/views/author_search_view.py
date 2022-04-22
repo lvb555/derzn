@@ -5,7 +5,8 @@ from django.views.generic.edit import FormView
 from ..models import *
 from django.core.paginator import Paginator
 from django.db.models import (Q,
-                              QuerySet)
+                              QuerySet,
+                              Count)
 from .search_engine import SearchEngineMixin
 
 
@@ -14,27 +15,32 @@ class AuthorSearchView(FormView, SearchEngineMixin):
     form_class = AuthorSearchForm
     success_url = reverse_lazy("search_author")
 
-    def get_authors_with_filter(self,
-                                main_search_parameter=None,
-                                author_type_parameter=None,
-                                ):
+    def get_published_authors_with_filter(self,
+                                          main_search_parameter=None,
+                                          author_type_parameter=None,
+                                          ):
 
-        authors = Author.objects.all()
+        authors = (Author.objects
+                   .annotate(published_knowledges=Count('znanie',
+                             filter=Q(znanie__is_published=True)))
+                   .filter(znanie__gt=0))
+
+        result_query = Q()
         if main_search_parameter:
             # Ищем знания по главному полю
-            authors = self.get_filtered_queryset(input_queryset=authors,
-                                                 fields_name=['name',
-                                                              'info',
-                                                              ],
-                                                 parameter_value=main_search_parameter,
-                                                 lookup='__contains',
-                                                 connector='OR')
+            result_query = result_query | self.get_query(fields_name=['name',
+                                                                      'info',
+                                                                      ],
+                                                         parameter_value=main_search_parameter,
+                                                         lookup='__contains',
+                                                         connector='OR')
 
         if author_type_parameter:
             # Ищем знания по типу автора
-            authors = self.get_filtered_queryset(input_queryset=authors,
-                                                 fields_name='atype__name',
-                                                 parameter_value=author_type_parameter)
+            result_query = result_query | self.get_query(fields_name='atype__name',
+                                                         parameter_value=author_type_parameter)
+
+        authors = authors.filter(result_query)
 
         return authors
 
@@ -54,12 +60,12 @@ class AuthorSearchView(FormView, SearchEngineMixin):
             context['search_string_parameters'] = self.get_parameters_string(
                 exclude_params=['page'])
 
-            authors = self.get_authors_with_filter(
+            authors = self.get_published_authors_with_filter(
                 main_search_parameter=main_search_parameter,
                 author_type_parameter=author_type_parameter
             )
 
-            authors = authors.select_related('atype')
+            authors = authors.order_by('name').select_related('atype')
 
             paginator = Paginator(authors, 10)
 

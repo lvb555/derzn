@@ -5,6 +5,7 @@ from users.models import User
 from ..managers import ZManager
 from .category import Category
 from .knowledge_rating import ZnRating
+from .relation_type import Tr
 
 
 class Znanie(models.Model):

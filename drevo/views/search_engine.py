@@ -21,12 +21,11 @@ class SearchEngineMixin:
 
         return urllib.parse.urlencode(parameters)
 
-    def get_filtered_queryset(self,
-                              input_queryset: QuerySet,
-                              fields_name: list[str],
-                              parameter_value: str,
-                              lookup: str = '',
-                              connector='AND'):
+    def get_query(self,
+                  fields_name: list[str],
+                  parameter_value: str,
+                  lookup: str = '',
+                  connector='AND'):
 
         if not isinstance(fields_name, list):
             fields_name = [fields_name]
@@ -57,6 +56,4 @@ class SearchEngineMixin:
                 result_query = result_query.__or__(query)
             else:
                 raise Exception(f'Некорректный коннектор {connector}')
-
-        outpur_queryset = input_queryset.filter(result_query)
-        return outpur_queryset
+        return result_query
