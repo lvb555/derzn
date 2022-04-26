@@ -24,6 +24,10 @@ class Author(models.Model):
                               blank=True,
                               null=True
                               )
+    updated_at = models.DateTimeField(auto_now=True,
+                                      verbose_name='Дата и время редактирования',
+                                      )
+
     objects = models.Manager()
 
     def __str__(self):

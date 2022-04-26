@@ -14,6 +14,7 @@ from .views import (DrevoListView,
                     CommentSendView,
                     KnowledgeSearchView,
                     AuthorSearchView,
+                    TagSearchView,
                     KnowledgeFormView)
 
 urlpatterns = [
@@ -36,6 +37,9 @@ urlpatterns = [
     path('search/author',
          AuthorSearchView.as_view(),
          name='search_author'),
+    path('search/tag',
+         TagSearchView.as_view(),
+         name='search_tag'),
 ]
 
 if settings.DEBUG:

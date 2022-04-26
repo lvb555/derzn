@@ -14,46 +14,44 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
     form_class = KnowledgeSearchForm
     success_url = reverse_lazy("search_knowledge")
 
-    def get_knowledges_with_filter(self,
-                                   main_search_parameter=None,
-                                   knowledge_type_parameter=None,
-                                   knowledge_category_parameter=None,
-                                   author_parameter=None,
-                                   edge_kind_parameter=None):
-        knowledges = Znanie.objects.all()
+    def get_published_knowledges_with_filter(self,
+                                             main_search_parameter=None,
+                                             knowledge_type_parameter=None,
+                                             knowledge_category_parameter=None,
+                                             author_parameter=None,
+                                             edge_kind_parameter=None):
+        knowledges = Znanie.objects.filter(is_published=True)
+        result_query = Q()
         if main_search_parameter:
             # Ищем знания по главному полю
-            knowledges = self.get_filtered_queryset(input_queryset=knowledges,
-                                                    fields_name=['name',
-                                                                 'content',
-                                                                 'source_com', ],
-                                                    parameter_value=main_search_parameter,
-                                                    lookup='__contains',
-                                                    connector='OR')
+            result_query = result_query | self.get_query(fields_name=['name',
+                                                                      'content',
+                                                                      'source_com', ],
+                                                         parameter_value=main_search_parameter,
+                                                         lookup='__contains',
+                                                         connector='OR')
 
         if knowledge_type_parameter:
             # Ищем знания по виду знаний
-            knowledges = self.get_filtered_queryset(input_queryset=knowledges,
-                                                    fields_name='tz__name',
-                                                    parameter_value=knowledge_type_parameter)
+            result_query = result_query | self.get_query(fields_name='tz__name',
+                                                         parameter_value=knowledge_type_parameter)
 
         if knowledge_category_parameter:
             # Ищем знания по категории знания
-            knowledges = self.get_filtered_queryset(input_queryset=knowledges,
-                                                    fields_name='category__name',
-                                                    parameter_value=knowledge_category_parameter)
+            result_query = result_query | self.get_query(fields_name='category__name',
+                                                         parameter_value=knowledge_category_parameter)
 
         if author_parameter:
             # Ищем знания по автору знания
-            knowledges = self.get_filtered_queryset(input_queryset=knowledges,
-                                                    fields_name='author__name',
-                                                    parameter_value=author_parameter)
+            result_query = result_query | self.get_query(fields_name='author__name',
+                                                         parameter_value=author_parameter)
 
         if edge_kind_parameter:
             # Ищем знания по виду связи к знанию
-            knowledges = self.get_filtered_queryset(input_queryset=knowledges,
-                                                    fields_name='related__tr__name',
-                                                    parameter_value=edge_kind_parameter)
+            result_query = result_query | self.get_query(fields_name='related__tr__name',
+                                                         parameter_value=edge_kind_parameter)
+
+        knowledges = knowledges.filter(result_query)
 
         return knowledges
 
@@ -81,7 +79,7 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
             context['search_string_parameters'] = self.get_parameters_string(
                 exclude_params=['page'])
 
-            knowledges = self.get_knowledges_with_filter(
+            knowledges = self.get_published_knowledges_with_filter(
                 main_search_parameter=main_search_parameter,
                 knowledge_type_parameter=knowledge_type_parameter,
                 knowledge_category_parameter=knowledge_category_parameter,
@@ -89,8 +87,10 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
                 edge_kind_parameter=edge_kind_parameter
             )
 
-            knowledges = knowledges.select_related(
-                'author', 'tz', 'category').prefetch_related('related__tr')
+            knowledges = (knowledges
+                          .order_by('name')
+                          .select_related('author', 'tz', 'category')
+                          .prefetch_related('related__tr'))
 
             paginator = Paginator(knowledges, 10)
 

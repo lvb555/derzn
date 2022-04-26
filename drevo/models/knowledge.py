@@ -5,8 +5,8 @@ from users.models import User
 from ..managers import ZManager
 from .category import Category
 from .knowledge_rating import ZnRating
-from .knowledge_grade_scale import KnowledgeGradeScale
 from .relation_type import Tr
+from .knowledge_grade_scale import KnowledgeGradeScale
 
 
 class Znanie(models.Model):

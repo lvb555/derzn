@@ -32,7 +32,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav me-auto">
           <li class="nav-item">
             <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Древо знания</a>
           </li>
@@ -64,7 +64,7 @@
         </ul>
         <ul class="navbar-nav mb-2 mb-lg-0">
           {% if user.is_authenticated %}
-          <li class="nav-item me-1">
+          <li class="nav-item me-1 mb-1 mb-lg-0">
             <a class="nav-link auto_active_link" aria-current="page" href="{% url 'users:myprofile' %}" id="user_link">
               <span>{{ user.username }} <i class="bi bi-person-circle"></i></span>
             </a>
