@@ -23,7 +23,6 @@ class KnowledgeFormView(TemplateView):
         raise Http404
 
     def get_context_data(self, **kwargs):
-        print(self.request.GET)
         context = super().get_context_data(**kwargs)
         context['title'] = 'Оценка знания'
         knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
