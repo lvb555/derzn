@@ -1,29 +1,209 @@
 {% extends 'base.html' %}
+{% load grades %}
 
 {% block title %}
     {{ title }}
 {% endblock %}
 
 {% block content %}
+    <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
+        <i class="bi-arrow-left"></i>&nbsp;{{ knowledge.name }}
+    </a>
+    <h2 class="my-2">{{ title }}</h2>
+
     {% if not user.is_authenticated %}
-        <div class="card alert-warning my-2">
-            <div class="card-body">
-          <span class="card-text">
-            <a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
-            или
-            <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
-            чтобы поставить оценку.
-          </span>
+        <div class="col">
+            <div class="row">
+                <div class="card alert-warning my-4">
+                    <div class="card-body">
+                      <span class="card-text">
+                        <a href="{% url 'users:login' %}?next={{ request.path }}"
+                           style="text-decoration: none">Войдите</a>
+                        или
+                        <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                        чтобы поставить оценку.
+                      </span>
+                    </div>
+                </div>
             </div>
         </div>
     {% endif %}
 
-    <div class="my-2">
-        <form action="{{ request.get_full_path }}" method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-secondary"
-            {% if not user.is_authenticated %} disabled {% endif %}>Сохранить</button>
+    {% if messages %}
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+            <div class="d-flex align-self-center">
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    <div class="my-4">
+        <form action="{{ request.get_full_path }}" method="get">
+            <div class="d-flex flex-row align-items-center">
+                <span><strong>Вариант расчета:</strong></span>
+                <span class="ms-2">
+                    <fieldset class="" id="variant" class="input-group">
+                        <span>
+                            <input class="ms-2" type="radio" id="var1" name="variant" value="1"
+                            {% if request.GET.variant == '1' %} checked {% endif %}>
+                            <label for="var1">Оценка знания</label>
+                        </span>
+                        <span>
+                            <input class="ms-2" type="radio" id="var2" name="variant" value="2"
+                            {% if request.GET.variant != '1' %} checked {% endif %}>
+                            <label for="var2">Общая оценка знания</label>
+                        </span>
+                    </fieldset>
+                </span>
+                <button class="btn btn-outline-secondary m-2"
+                        {% if not user.is_authenticated %} disabled {% endif %}>Расчёт оценок
+                </button>
+            </div>
         </form>
     </div>
+
+    <form action="{{ request.get_full_path }}" method="post">
+        {% csrf_token %}
+        <table class="table-sm table-borderless"
+               style="border-collapse: collapse; word-break: break-word;">
+            <tbody>
+            <tr>
+                <th>Тема знания:</th>
+                <td colspan="2" class="text-wrap">{{ knowledge.name }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Оценка знания:</th>
+                <td>
+                    <select name="base_knowledge_grade" style="max-width: 200px" id="id_base_knowledge_grade">
+                        {% for grade in knowledge_scale %}
+                            <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
+                                    {% if selected_base_grade and selected_base_grade.grade == grade %}
+                                    selected {% endif %}>
+                                {{ grade.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td id="currentGrade" style="width: 48px">
+                    {% if selected_base_grade %}
+                        {{ selected_base_grade.grade.get_base_grade|floatformat:-2 }}
+                    {% else %}
+                        {{ knowledge_scale.first.get_base_grade|floatformat:-2 }}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Оценка доказательной базы:</th>
+                <td>{{ proof_base_grade.name }}</td>
+                <td>{{ proof_base_value|floatformat:-2 }}</td>
+            </tr>
+            <tr>
+                <th>Общая оценка знания:</th>
+                <td>{{ common_grade.name }}</td>
+                <td>{{ common_grade_value|floatformat:-2 }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h4 class="text-center my-4">Доказательная база знания</h4>
+        <div class="table-responsive">
+            <style>
+                .table-border {
+                    border: 2px black solid;
+                }
+            </style>
+            <table class="table align-middle my-2">
+                <tbody class="table-border">
+                <th class="table-border text-center">
+                    Знание
+                </th>
+                <th class="table-border text-center">
+                    Вид связи
+                </th>
+                <th colspan="2" class="table-border text-center">
+                    Оценка знания
+                </th>
+                <th colspan="2" class="table-border text-center">
+                    Оценка связи
+                </th>
+                <th colspan="2" class="table-border text-center">
+                    Расчетная оценка довода
+                </th>
+                {% for relation in proof_relations %}
+                    <tr>
+                        <input type="hidden" name="relation_row" value="{{ relation.id }}">
+                        <td class="table-border">
+                            <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}">
+                                {{ relation.rz.name }}
+                            </a>
+                        </td>
+                        <td class="table-border">
+                            {{ relation.tr.name }}
+                        </td>
+                        <td class="table-border">
+                            <select name="knowledge_grade" style="max-width: 200px"
+                                    id="id_relation_grade{{ relation.id }}">
+                                {% for grade in knowledge_scale %}
+                                    <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
+                                            id="proofRelationId{{ relation.id }}"
+                                            {% if relation.rz|object_grade:user == grade %} selected {% endif %}>
+                                        {{ grade.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="table-border text-center">
+                            {{ relation.rz|object_grade_num:user|floatformat:-2 }}
+                        </td>
+                        <td class="table-border">
+                            <select name="relation_grade" style="max-width: 200px"
+                                    id="id_relation_grade{{ relation.id }}">
+                                {% for grade in relation_scale %}
+                                    <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
+                                            id="proofRelationId{{ relation.id }}"
+                                            {% if relation|object_grade:user == grade %} selected {% endif %}>
+                                        {{ grade.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="table-border text-center">
+                            {{ relation|object_grade_num:user|floatformat:-2 }}
+                        </td>
+                        <td class="table-border">
+                            {% with relation|object_grade_num:user as rg %}
+                                {% with relation.rz|object_grade_num:user as zg %}
+                                    {{ rg|multiply:zg|grade_name }}
+                                {% endwith %}
+                            {% endwith %}
+                        </td>
+                        <td class="table-border text-center">
+                            {% with relation|object_grade_num:user as rg %}
+                                {% with relation.rz|object_grade_num:user as zg %}
+                                    {{ rg|multiply:zg|floatformat:-2 }}
+                                {% endwith %}
+                            {% endwith %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-secondary my-2"
+                            {% if not user.is_authenticated %} disabled {% endif %}>Сохранить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
 {% endblock %}

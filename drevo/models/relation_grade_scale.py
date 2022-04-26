@@ -9,10 +9,13 @@ class RelationGradeScale(models.Model):
     )
     value = models.FloatField(verbose_name='Значение')
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'Градация'
         verbose_name_plural = 'Шкала оценок связей'
         ordering = ('-value',)
+
+    def __str__(self):
+        return self.name
+
+    def get_base_grade(self):
+        return self.value

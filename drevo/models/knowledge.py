@@ -5,6 +5,8 @@ from users.models import User
 from ..managers import ZManager
 from .category import Category
 from .knowledge_rating import ZnRating
+from .knowledge_grade_scale import KnowledgeGradeScale
+from .relation_type import Tr
 
 
 class Znanie(models.Model):
@@ -174,6 +176,12 @@ class Znanie(models.Model):
             'values': matrix,
         }
         return table_object
+
+    def get_users_grade(self, user: User):
+        queryset = self.grades.filter(user=user)
+        if queryset.exists():
+            return queryset.first().grade.get_base_grade()
+        return KnowledgeGradeScale.objects.first().get_base_grade()
 
     class Meta:
         verbose_name = 'Знание'

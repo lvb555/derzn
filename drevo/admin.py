@@ -245,7 +245,13 @@ admin.site.register(Comment, CommentAdmin)
 
 
 class KnowledgeGradeScaleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'low_value', 'high_value', 'is_high_in_range',)
+    list_display = (
+        'name',
+        'low_value',
+        'is_low_in_range',
+        'high_value',
+        'is_high_in_range',
+    )
 
 
 admin.site.register(KnowledgeGradeScale, KnowledgeGradeScaleAdmin)
