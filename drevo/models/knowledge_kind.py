@@ -20,6 +20,8 @@ class Tz(models.Model):
 
     is_group = models.BooleanField(default=False,
                                    verbose_name='Вид является группой?')
+    can_be_rated = models.BooleanField(default=False,
+                                       verbose_name='Возможна оценка знания')
 
     def __str__(self):
         return self.name
@@ -27,4 +29,4 @@ class Tz(models.Model):
     class Meta:
         verbose_name = 'Вид знания'
         verbose_name_plural = 'Виды знания'
-        ordering = ('order', )
+        ordering = ('order',)

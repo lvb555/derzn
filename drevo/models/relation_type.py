@@ -1,9 +1,19 @@
 from django.db import models
 
+
 class Tr(models.Model):
     """
     Виды связей
     """
+
+    FOR = False
+    AGAINST = True
+
+    ARGUMENT_TYPES = (
+        (FOR, 'За'),
+        (AGAINST, 'Против'),
+    )
+
     title = 'Вид связи'
     name = models.CharField(max_length=256,
                             verbose_name='Название',
@@ -16,6 +26,11 @@ class Tr(models.Model):
     )
     is_systemic = models.BooleanField(default=False,
                                       verbose_name='Системный?')
+    is_argument = models.BooleanField(default=False,
+                                      verbose_name='Доказательная связь')
+    argument_type = models.BooleanField(choices=ARGUMENT_TYPES,
+                                        default=FOR,
+                                        verbose_name='Тип довода')
 
     def __str__(self):
         return self.name
