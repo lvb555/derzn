@@ -33,3 +33,8 @@ def grade_name(value):
     if obj:
         return obj.name
     return ''
+
+
+@register.filter
+def common_grades(knowledge, request):
+    return knowledge.get_common_grades(request)

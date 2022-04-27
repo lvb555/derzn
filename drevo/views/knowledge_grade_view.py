@@ -43,15 +43,9 @@ class KnowledgeFormView(TemplateView):
                 user=user,
             ).first()
 
-        is_general = True
-        variant = self.request.GET.get('variant')
-        if variant and variant.isdigit() and int(variant) == 1:
-            is_general = False
-
-        proof_base_value = KnowledgeGrade.get_proof_base_grade(knowledge, user, is_general=is_general)
+        common_grade_value, proof_base_value = knowledge.get_common_grades(request=self.request)
         context['proof_base_value'] = proof_base_value
         context['proof_base_grade'] = KnowledgeGradeScale.get_grade_object(proof_base_value)
-        common_grade_value = (proof_base_value + knowledge.get_users_grade(user)) / 2
         context['common_grade_value'] = common_grade_value
         context['common_grade'] = KnowledgeGradeScale.get_grade_object(common_grade_value)
 
