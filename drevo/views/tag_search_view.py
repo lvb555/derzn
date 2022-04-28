@@ -8,42 +8,12 @@ from django.db.models import (Q,
                               Count,
                               Value)
 from .search_engine import SearchEngineMixin
-from itertools import permutations
 
 
 class TagSearchView(FormView, SearchEngineMixin):
     template_name = "drevo/search.html"
     form_class = TagSearchForm
     success_url = reverse_lazy("search_tag")
-
-    def get_parameter_combinations(self, main_search_parameter: str):
-        parameters = main_search_parameter.split()
-        parameter_combinations = []
-        for num_elements in range(len(parameters), 0, -1):
-            for combination in permutations(parameters, num_elements):
-                combination_to_string = ' '.join(combination)
-                parameter_combinations.append(combination_to_string)
-        return parameter_combinations
-
-    def cut_ending_word(self, value):
-        # breakpoint()
-        vowels = ['а', 'е', 'ё', 'и', 'й', 'о', 'у', 'ы', 'э', 'ю' 'я']
-        vowels = vowels + [char.capitalize() for char in vowels]
-        if vowels[-1] not in vowels:
-            return value
-
-        if len(value) <= 3:
-            return value
-
-        result = []
-
-        cut_off_the_end = False
-        for char in reversed(value):
-            if cut_off_the_end or char not in vowels:
-                cut_off_the_end = True
-                result.append(char)
-        value = ''.join(reversed(result))
-        return value
 
     def get_published_tags_with_filter(self,
                                        main_search_parameter=None,
@@ -59,26 +29,38 @@ class TagSearchView(FormView, SearchEngineMixin):
 
         result_tags = []
         if main_search_parameter:
-            # Ищем знания по главному полю
+            # Ищем теги по главному полю
+            # Вначале необходимо получить наборы слов в виде общего списк
+            # После чего беру набор и ищу через или
             parameter_value_combinations = self.get_parameter_combinations(
                 main_search_parameter)
-            result_query = None
-            for value in parameter_value_combinations:
-                value = self.cut_ending_word(value)
+            exclude_query = None
+            combination_queries = []
+            for combination in parameter_value_combinations:
+                query_previously = None
+                for value in combination:
+                    query = Q(name__contains=value)
+                    if value != value.upper():
+                        query = query | Q(name__contains=value.upper())
 
-                query = self.get_query(fields_name=['name'],
-                                       parameter_value=value,
-                                       lookup='__contains',
-                                       )
+                    if value != value.lower():
+                        query = query | Q(name__contains=value.lower())
 
-                tags_tmp = tags.filter(query)
+                    if query_previously:
+                        query = query & query_previously
 
-                if not result_tags:
-                    result_tags = list(tags_tmp)
+                    query_previously = query
+
+                if not exclude_query:
+                    combination_queries.append(query)
+                    exclude_query = ~query
                 else:
-                    for tag in list(tags_tmp):
-                        if tag not in result_tags:
-                            result_tags.append(tag)
+                    combination_queries.append(query & exclude_query)
+                    exclude_query = exclude_query & ~query
+
+            for query in combination_queries:
+                tags_tmp = tags.filter(query)
+                result_tags.extend(list(tags_tmp))
 
         return result_tags
 
