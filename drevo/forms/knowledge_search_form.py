@@ -1,6 +1,4 @@
 from django import forms
-from django.db import connection
-
 from ..models import (Znanie,
                       Author,
                       Category,

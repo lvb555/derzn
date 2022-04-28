@@ -15,8 +15,7 @@ class Stub:
 
 def get_model_or_stub(model):
     try:
-        # breakpoint()
-        model.objects.first()
+        model.objects.exists()
         return model
     except OperationalError:
         return Stub()
