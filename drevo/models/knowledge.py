@@ -6,6 +6,7 @@ from ..managers import ZManager
 from .category import Category
 from .knowledge_rating import ZnRating
 from .relation_type import Tr
+from .knowledge_grade_scale import KnowledgeGradeScale
 
 
 class Znanie(models.Model):
@@ -161,7 +162,7 @@ class Znanie(models.Model):
                     filter(
                         lambda x: len(x.rz.base.all()) == 2 and all(
                             map(lambda y: y.rz == row.rz or y.rz ==
-                                col.rz, x.rz.base.all())
+                                          col.rz, x.rz.base.all())
                         ),
                         values
                     )
@@ -175,6 +176,55 @@ class Znanie(models.Model):
             'values': matrix,
         }
         return table_object
+
+    def get_users_grade(self, user: User):
+        queryset = self.grades.filter(user=user)
+        if queryset.exists():
+            return queryset.first().grade.get_base_grade()
+        return KnowledgeGradeScale.objects.first().get_base_grade()
+
+    def get_common_grades(self, request):
+        variant = request.GET.get('variant')
+        if variant and variant.isdigit():
+            variant = int(variant)
+        else:
+            variant = 2
+
+        proof_base_value = self.get_proof_base_grade(request, variant)
+        common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
+        return common_grade_value, proof_base_value
+
+    def get_proof_base_grade(self, request, variant=2, sum_list=None, base_flag=True):
+        if sum_list is None:
+            sum_list = []
+
+        queryset = self.base.filter(
+            tr__is_argument=True,
+            rz__tz__can_be_rated=True,
+        )
+        summ = 0
+        if queryset.exists():
+            if variant == 1:
+                sum_list.append(sum(map(lambda x: x.rz.get_users_grade(request.user), queryset)) / len(queryset))
+            else:
+                sum_list.append(sum(map(lambda x: x.get_proof_weight(request.user), queryset)) / len(queryset))
+
+            for relation in queryset:
+                child = relation.rz
+                child_list = child.get_proof_base_grade(request, sum_list=sum_list, base_flag=False)
+                cl = list(filter(lambda x: x > 0, child_list))
+                if cl:
+                    summ += sum(cl) / len(cl)
+            if summ:
+                sum_list.append(summ)
+
+        if base_flag:
+            sum_list = list(filter(lambda x: x > 0, sum_list))
+            if sum_list:
+                return sum(sum_list) / len(sum_list)
+            else:
+                return 0
+        return [summ]
 
     class Meta:
         verbose_name = 'Знание'

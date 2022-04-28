@@ -14,7 +14,8 @@ from .views import (DrevoListView,
                     CommentSendView,
                     KnowledgeSearchView,
                     AuthorSearchView,
-                    TagSearchView)
+                    TagSearchView,
+                    KnowledgeFormView)
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),
@@ -24,6 +25,7 @@ urlpatterns = [
     path('znanie/<int:pk>/comments/send/', CommentSendView.as_view()),
     path('znanie/<int:pk>/vote/<str:vote>/',
          ZnanieRatingView.as_view(), name='znrating'),
+    path('znanie/<int:pk>/grade/', KnowledgeFormView.as_view(), name='grade'),
     path('label/<int:pk>', ZnanieByLabelView.as_view(), name='zlabel'),
     path('author/<int:pk>', AuthorDetailView.as_view(), name='author'),
     path('authors/', AuthorsListView.as_view(), name='authors'),
