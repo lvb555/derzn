@@ -2,6 +2,7 @@ import urllib
 from ..models import *
 from django.db.models import (Q,
                               QuerySet)
+from itertools import permutations, combinations
 
 
 class SearchEngineMixin:
@@ -34,8 +35,7 @@ class SearchEngineMixin:
         # Так как sqlite не может искать без учета регистра,
         # будем искать и с заглавной буквы и с маленькой
         for field_name in fields_name:
-            query = Q(
-                **{field_name + lookup: parameter_value})
+            query = Q(**{field_name + lookup: parameter_value})
 
             if not parameter_value.istitle():
                 query = query.__or__(Q(
@@ -57,3 +57,32 @@ class SearchEngineMixin:
             else:
                 raise Exception(f'Некорректный коннектор {connector}')
         return result_query
+
+    def get_parameter_combinations(self, main_search_parameter: str):
+        parameters = main_search_parameter.split()
+        parameters = [self.cut_ending_word(par) for par in parameters]
+        parameter_combinations = []
+        for num_elements in range(len(parameters), 0, -1):
+            for combination in combinations(parameters, num_elements):
+
+                parameter_combinations.append(combination)
+        return parameter_combinations
+
+    def cut_ending_word(self, value):
+        vowels = ['а', 'е', 'ё', 'и', 'й', 'о', 'у', 'ы', 'э', 'ю' 'я']
+        vowels = vowels + [char.capitalize() for char in vowels]
+        if vowels[-1] not in vowels:
+            return value
+
+        if len(value) <= 3:
+            return value
+
+        result = []
+
+        cut_off_the_end = False
+        for char in reversed(value):
+            if cut_off_the_end or char not in vowels:
+                cut_off_the_end = True
+                result.append(char)
+        value = ''.join(reversed(result))
+        return value

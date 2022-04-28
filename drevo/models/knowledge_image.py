@@ -10,6 +10,7 @@ class ZnImage(models.Model):
                               verbose_name='Фото',
                               blank=True
                               )
+    objects = models.Manager()
 
     def __str__(self):
         zn_name = str(self.znanie)[:40]

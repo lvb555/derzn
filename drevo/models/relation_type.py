@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Tr(models.Model):
     """
     Виды связей
@@ -16,6 +17,8 @@ class Tr(models.Model):
     )
     is_systemic = models.BooleanField(default=False,
                                       verbose_name='Системный?')
+
+    objects = models.Manager()
 
     def __str__(self):
         return self.name

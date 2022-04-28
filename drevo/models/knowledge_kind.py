@@ -20,6 +20,7 @@ class Tz(models.Model):
 
     is_group = models.BooleanField(default=False,
                                    verbose_name='Вид является группой?')
+    objects = models.Manager()
 
     def __str__(self):
         return self.name

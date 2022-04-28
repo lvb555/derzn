@@ -1,4 +1,6 @@
 from django import forms
+from django.db import connection
+
 from ..models import (Znanie,
                       Author,
                       Category,
@@ -7,6 +9,7 @@ from ..models import (Znanie,
 
 from .custom_choice_field import CustomChoiceField
 from .select_with_input import SelectWithInput
+from ..models.utils import get_model_or_stub
 
 
 class KnowledgeSearchForm(forms.Form):
@@ -14,19 +17,19 @@ class KnowledgeSearchForm(forms.Form):
     Форма для фильтрации знаний по критериям.
     """
     knowledge_type_choices = [(knowledge_type, knowledge_type)
-                              for knowledge_type in Tz.objects.order_by('name').values_list('name', flat=True)]
+                              for knowledge_type in get_model_or_stub(Tz).objects.order_by('name').values_list('name', flat=True)]
 
     knowledge_category_choices = [(knowledge_category, knowledge_category)
-                                  for knowledge_category in Category.objects.order_by('name').values_list('name', flat=True)]
+                                  for knowledge_category in get_model_or_stub(Category).objects.order_by('name').values_list('name', flat=True)]
 
     source_com_choices = [(source_com, source_com)
-                          for source_com in Znanie.objects.order_by('source_com').values_list('source_com', flat=True)]
+                          for source_com in get_model_or_stub(Znanie).objects.order_by('source_com').values_list('source_com', flat=True)]
 
     edge_kind_choices = [(edge_kind, edge_kind)
-                         for edge_kind in Tr.objects.order_by('name').values_list('name', flat=True)]
+                         for edge_kind in get_model_or_stub(Tr).objects.order_by('name').values_list('name', flat=True)]
 
     author_choices = [(author, author)
-                      for author in Author.objects.order_by('name').values_list('name', flat=True)]
+                      for author in get_model_or_stub(Author).objects.order_by('name').values_list('name', flat=True)]
 
     # Поиск по заголовку и содержанию
     main_search = forms.CharField(label="",

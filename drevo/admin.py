@@ -1,11 +1,18 @@
+
+from re import S
 from django.contrib import admin
 from .models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType, GlossaryTerm, \
     ZnRating, Comment
 from mptt.admin import DraggableMPTTAdmin
-from .forms import ZnanieForm, AuthorForm, GlossaryTermForm, CategoryForm
+
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from adminsortable2.admin import SortableAdminMixin
+
+from .forms import (ZnanieForm,
+                    AuthorForm,
+                    GlossaryTermForm,
+                    CategoryForm)
 
 
 class CategoryMPTT(DraggableMPTTAdmin):

@@ -8,6 +8,7 @@ class AuthorType(models.Model):
     title = 'Вид Автора'
     name = models.CharField(max_length=128,
                             verbose_name='Вид авторов')
+    objects = models.Manager()
 
     def __str__(self):
         return self.name

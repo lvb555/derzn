@@ -1,9 +1,10 @@
 from django import forms
 from ..models import (Znanie,
-                     Category,
-                     )
+                      Category,
+                      )
 from ckeditor.widgets import CKEditorWidget
 from mptt.forms import TreeNodeChoiceField
+from ..models.utils import get_model_or_stub
 
 
 class ZnanieForm(forms.ModelForm):
@@ -23,7 +24,8 @@ class ZnanieForm(forms.ModelForm):
                               label='Содержание',
                               required=False
                               )
-    category = TreeNodeChoiceField(queryset=Category.tree_objects.all(),
+
+    category = TreeNodeChoiceField(queryset=get_model_or_stub(Category).tree_objects.all(),
                                    empty_label="(нет категории)",
                                    label='Категория',
                                    required=False)

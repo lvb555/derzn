@@ -12,3 +12,5 @@ class Visits(models.Model):
     user = models.ForeignKey(User,
                              models.CASCADE
                              )
+
+    objects = models.Manager()

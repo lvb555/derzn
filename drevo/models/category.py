@@ -1,7 +1,7 @@
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey, TreeManager
 from django.urls import reverse
-from ..managers import  CategoryManager
+from ..managers import CategoryManager
 
 
 class Category(MPTTModel):
@@ -28,6 +28,7 @@ class Category(MPTTModel):
                                        verbose_name='Опубликовано?'
                                        )
     # менеджеры объектов
+    objects = models.Manager()
     tree_objects = TreeManager()
     published = CategoryManager()
 

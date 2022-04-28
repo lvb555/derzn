@@ -10,6 +10,8 @@ class Label(models.Model):
                             unique=True,
                             verbose_name='Название')
 
+    objects = models.Manager()
+
     def __str__(self):
         return self.name
 
