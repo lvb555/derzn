@@ -15,16 +15,19 @@ def object_grade(obj, user):
 
 @register.filter
 def object_grade_num(obj, user):
-    grade = ''
     grades = obj.grades.filter(user=user)
     if grades.exists():
         grade = grades.first().grade.get_base_grade()
+    else:
+        grade = f'{KnowledgeGradeScale.objects.all().first().get_base_grade()}'
     return grade
 
 
 @register.filter
 def multiply(a, b):
-    return a * b
+    if a and b:
+        return a * b
+    return KnowledgeGradeScale.objects.all().first().get_base_grade()
 
 
 @register.filter
