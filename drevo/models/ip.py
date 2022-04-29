@@ -11,3 +11,4 @@ class IP(models.Model):
                                     blank=True
                                     )
     ip = models.CharField(max_length=100)
+    objects = models.Manager()

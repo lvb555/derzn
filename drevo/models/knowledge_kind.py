@@ -20,8 +20,10 @@ class Tz(models.Model):
 
     is_group = models.BooleanField(default=False,
                                    verbose_name='Вид является группой?')
+
     can_be_rated = models.BooleanField(default=False,
                                        verbose_name='Возможна оценка знания')
+    objects = models.Manager()
 
     def __str__(self):
         return self.name

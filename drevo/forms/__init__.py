@@ -7,6 +7,7 @@ from .knowledge_search_form import KnowledgeSearchForm
 from .author_search_form import AuthorSearchForm
 from .tag_search_form import TagSearchForm
 
+
 __all__ = [
     'AuthorForm',
     'AuthorsFilterForm',

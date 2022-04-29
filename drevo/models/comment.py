@@ -36,6 +36,7 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True,
                                       verbose_name='Дата и время изменения',
                                       )
+    objects = models.Manager()
 
     class Meta:
         verbose_name = 'Комментарий знания'

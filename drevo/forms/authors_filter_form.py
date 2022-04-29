@@ -4,6 +4,7 @@ from ..models import AuthorType
 
 from ckeditor.widgets import CKEditorWidget
 from mptt.forms import TreeNodeChoiceField
+from ..models.utils import get_model_or_stub
 
 
 class AuthorsFilterForm(forms.Form):
@@ -16,7 +17,7 @@ class AuthorsFilterForm(forms.Form):
     Т.о. форма не требует кнопки типа "Отправить".
     """
     author_type = forms.ModelChoiceField(
-        queryset=AuthorType.objects.order_by(
+        queryset=get_model_or_stub(AuthorType).objects.order_by(
             'name').values_list('name', flat=True),
         empty_label='Все',
         widget=SelectWithInput(attrs={'class': 'form-control',

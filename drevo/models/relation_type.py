@@ -32,6 +32,8 @@ class Tr(models.Model):
                                         default=FOR,
                                         verbose_name='Тип довода')
 
+    objects = models.Manager()
+
     def __str__(self):
         return self.name
 

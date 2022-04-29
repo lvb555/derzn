@@ -5,7 +5,8 @@ from django.views.generic.edit import FormView
 from ..models import *
 from django.core.paginator import Paginator
 from django.db.models import (Q,
-                              QuerySet)
+                              QuerySet,
+                              Count)
 from .search_engine import SearchEngineMixin
 
 
@@ -20,40 +21,98 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
                                              knowledge_category_parameter=None,
                                              author_parameter=None,
                                              edge_kind_parameter=None):
-        knowledges = Znanie.objects.filter(is_published=True)
-        result_query = Q()
+        knowledges = (Znanie.objects.filter(is_published=True)
+                      .order_by('name')
+                      .select_related('author', 'tz', 'category')
+                      .prefetch_related('related__tr'))
+
+        result_knowledges = []
+        exclude_query_main_search = None
         if main_search_parameter:
             # Ищем знания по главному полю
-            result_query = result_query | self.get_query(fields_name=['name',
-                                                                      'content',
-                                                                      'source_com', ],
-                                                         parameter_value=main_search_parameter,
-                                                         lookup='__contains',
-                                                         connector='OR')
+            # Вначале необходимо получить наборы слов в виде общего списка
+            # После чего беру набор и ищу через или
+            parameter_value_combinations = self.get_parameter_combinations(
+                main_search_parameter)
+            combination_queries = []
+            for combination in parameter_value_combinations:
+                query_previously = None
+                for value in combination:
+                    query = Q(name__contains=value)
+                    query = query | Q(content__contains=value)
+                    query = query | Q(source_com__contains=value)
 
+                    if value != value.upper():
+                        query = query | Q(name__contains=value.upper())
+                        query = query | Q(content__contains=value.upper())
+                        query = query | Q(source_com__contains=value.upper())
+
+                    if value != value.lower():
+                        query = query | Q(name__contains=value.lower())
+                        query = query | Q(content__contains=value.lower())
+                        query = query | Q(source_com__contains=value.lower())
+
+                    if query_previously:
+                        query = query & query_previously
+
+                    query_previously = query
+
+                if not exclude_query_main_search:
+                    combination_queries.append(query)
+                    exclude_query_main_search = ~query
+                else:
+                    combination_queries.append(
+                        query & exclude_query_main_search)
+                    exclude_query_main_search = exclude_query_main_search & ~query
+
+            for query in combination_queries:
+                knowledges_tmp = knowledges.filter(query)
+                result_knowledges.extend(list(knowledges_tmp))
+
+        result_query = None
         if knowledge_type_parameter:
             # Ищем знания по виду знаний
-            result_query = result_query | self.get_query(fields_name='tz__name',
-                                                         parameter_value=knowledge_type_parameter)
+            query = self.get_query(fields_name='tz__name',
+                                   parameter_value=knowledge_type_parameter)
+            if not result_query:
+                result_query = query
+            else:
+                result_query = result_query | query
 
         if knowledge_category_parameter:
             # Ищем знания по категории знания
-            result_query = result_query | self.get_query(fields_name='category__name',
-                                                         parameter_value=knowledge_category_parameter)
+            query = self.get_query(fields_name='category__name',
+                                   parameter_value=knowledge_category_parameter)
+            if not result_query:
+                result_query = query
+            else:
+                result_query = result_query | query
 
         if author_parameter:
             # Ищем знания по автору знания
-            result_query = result_query | self.get_query(fields_name='author__name',
-                                                         parameter_value=author_parameter)
+            query = self.get_query(fields_name='author__name',
+                                   parameter_value=author_parameter)
+            if not result_query:
+                result_query = query
+            else:
+                result_query = result_query | query
 
         if edge_kind_parameter:
             # Ищем знания по виду связи к знанию
-            result_query = result_query | self.get_query(fields_name='related__tr__name',
-                                                         parameter_value=edge_kind_parameter)
+            query = self.get_query(fields_name='related__tr__name',
+                                   parameter_value=edge_kind_parameter)
+            if not result_query:
+                result_query = query
+            else:
+                result_query = result_query | query
 
-        knowledges = knowledges.filter(result_query)
+        if result_query:
+            knowledges = knowledges.filter(
+                result_query & exclude_query_main_search)
 
-        return knowledges
+            result_knowledges.extend(list(knowledges))
+
+        return result_knowledges
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -86,11 +145,6 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
                 author_parameter=author_parameter,
                 edge_kind_parameter=edge_kind_parameter
             )
-
-            knowledges = (knowledges
-                          .order_by('name')
-                          .select_related('author', 'tz', 'category')
-                          .prefetch_related('related__tr'))
 
             paginator = Paginator(knowledges, 10)
 
