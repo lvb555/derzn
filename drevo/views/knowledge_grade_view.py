@@ -25,29 +25,32 @@ class KnowledgeFormView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Оценка знания'
-        knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
-        context['knowledge'] = knowledge
-        context['proof_relations'] = knowledge.base.filter(
-            tr__is_argument=True,
-            rz__tz__can_be_rated=True,
-        )
-        context['knowledge_scale'] = KnowledgeGradeScale.objects.all()
-        context['relation_scale'] = RelationGradeScale.objects.all()
 
         user = self.request.user
-        knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
-
         if user.is_authenticated:
+            knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
+
             context['selected_base_grade'] = KnowledgeGrade.objects.filter(
                 knowledge=knowledge,
                 user=user,
             ).first()
 
-        common_grade_value, proof_base_value = knowledge.get_common_grades(request=self.request)
-        context['proof_base_value'] = proof_base_value
-        context['proof_base_grade'] = KnowledgeGradeScale.get_grade_object(proof_base_value)
-        context['common_grade_value'] = common_grade_value
-        context['common_grade'] = KnowledgeGradeScale.get_grade_object(common_grade_value)
+            knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
+            context['knowledge'] = knowledge
+            context['proof_relations'] = knowledge.base.filter(
+                tr__is_argument=True,
+                rz__tz__can_be_rated=True,
+            )
+            context['knowledge_scale'] = KnowledgeGradeScale.objects.all()
+            context['relation_scale'] = RelationGradeScale.objects.all()
+
+            common_grade_value, proof_base_value = knowledge.get_common_grades(request=self.request)
+            if not proof_base_value:
+                proof_base_value = KnowledgeGradeScale.objects.all().first().get_base_grade()
+            context['proof_base_value'] = proof_base_value
+            context['proof_base_grade'] = KnowledgeGradeScale.get_grade_object(proof_base_value)
+            context['common_grade_value'] = common_grade_value
+            context['common_grade'] = KnowledgeGradeScale.get_grade_object(common_grade_value)
 
         return context
 
