@@ -4,6 +4,8 @@ from django.views.generic import ListView
 
 from drevo.models import Znanie
 
+from ..forms import DateNewForm
+
 
 class NewKnowledgeListView(ListView):
     """
@@ -25,3 +27,8 @@ class NewKnowledgeListView(ListView):
         for n_k in last_knldgs:
             nstd_l[n_k.category].append(n_k)
         return nstd_l
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['dform'] = DateNewForm()
+        return context
