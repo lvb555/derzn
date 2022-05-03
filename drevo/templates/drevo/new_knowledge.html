@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Список новых знаний{% endblock %}
+
+{% block content %}
+
+<h2>Новые знания</h2>
+
+
+{% comment %}
+Сделано по примеру раздела Авторы
+{% endcomment %}
+<h4>Показать знания, начиная с:</h4>
+<div class="row">
+    <div class="col-3">
+        <form action="" id="dform" method="get">
+            {{ dform.new_knowledge_date }}
+            <input type="search" value="search">
+        </form>
+    </div>
+</div>
+
+<br>
+<div class="row">
+    <div class="col-auto">
+        <ul class="list-group">
+            {% for category, knowledge in categorized_new_knowledges.items %}
+
+            <div class="row">
+                <div class="col">
+                    <li class="list-group-item">
+                        {{category.name}}
+                        <div>
+                            <ul class="list-group">
+                                {% for new_knowledge in knowledge %}
+                                <div class="row">
+                                    <div class="col">
+                                        <li class="list-group-item">
+                                            {{new_knowledge.name}}
+                                        </li>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </li>
+                </div>
+            </div>
+            {% empty %}
+            <div class="row">
+                <div class="col">
+                  Новых знаний за истекший период не обнаружено
+                </div>
+            </div>
+            {% endfor %}
+
+            {% endblock %}
+        </ul>
+    </div>
+</div>
