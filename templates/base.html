@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <link rel="icon" type="image/x-icon" href="{% static 'drevo/img/favicon.svg' %}">
     <!-- Project CSS -->
+    <link rel="stylesheet" type="text/css" href="./dropdown.css"/>
     {% block cssfiles %}{% endblock %}
 
     <title>{% block title %}Древо{% endblock %}</title>
@@ -32,7 +33,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
+            <div class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Древо знания</a>
                 </li>
@@ -43,13 +44,12 @@
                 <li class="nav-item">
                     <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
                 </li>
-                <li class="nav-item">
-
-                    <ul class>Другое
-                        <li><a class="nav-link" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a></li>
-                    </ul>
-
+                <li class="nav-item dropdown">
+                    <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a>
+                        <a class="dropdown-item" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>
+                    </div>
                 </li>
                 {% if user.is_staff %}
                 <li class="nav-item">
