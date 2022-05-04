@@ -15,11 +15,22 @@ class NewKnowledgeListView(ListView):
     model = Znanie
     context_object_name = 'categorized_new_knowledges'
 
+
+
     def get_queryset(self):
+        # possible to refactor with FormMixin
         # knowledge_later_than = self.request.GET.get('date_point')
         # if knowledge_later_than
-
-        last_knldgs = Znanie.objects.filter(date__gt=datetime.date.today() - datetime.timedelta(days=7))
+        date_for_new = ''
+        # if self.request.method == 'POST':
+        self.dform = DateNewForm(self.request.GET)
+        if self.dform.is_valid():
+            day = self.dform.cleaned_data.get('day')
+            month = self.dform.cleaned_data.get('month')
+            year = self.dform.cleaned_data.get('year')
+            date_for_new = datetime.date(year, month, day)
+        new_knowledge_point = date_for_new or datetime.date.today() - datetime.timedelta(days=7)
+        last_knldgs = Znanie.objects.filter(date__gt=new_knowledge_point)
         ctgrs = [knldg.category for knldg in last_knldgs]
         nstd_l = {}
         for ctgr in ctgrs:
@@ -30,5 +41,5 @@ class NewKnowledgeListView(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['dform'] = DateNewForm()
+        context['dform'] = self.dform if hasattr(self, 'dform') else DateNewForm()
         return context
