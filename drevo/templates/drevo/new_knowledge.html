@@ -14,7 +14,7 @@
 <div class="row">
     <div class="col-3">
         <form action="" id="dform" method="get">
-            {{ dform }}
+            {{ dform.as_p }}
             <input type="submit" value="Искать">
         </form>
     </div>
@@ -36,7 +36,9 @@
                                 <div class="row">
                                     <div class="col">
                                         <li class="list-group-item">
-                                            {{new_knowledge.name}}
+                                            <a href="{{ new_knowledge.get_absolute_url }}">
+                                                {{new_knowledge.name}}
+                                            </a>
                                         </li>
                                     </div>
                                 </div>
