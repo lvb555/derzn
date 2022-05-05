@@ -37,7 +37,7 @@ class Profile(models.Model):
     patronymic = models.CharField(
         max_length=150,
         blank=True,
-        verbose_name='Очество'
+        verbose_name='Отчество'
     )
     gender = models.CharField(
         max_length=1,

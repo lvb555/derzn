@@ -26,7 +26,7 @@ def object_grade_num(obj, user):
 @register.filter
 def multiply(a, b):
     if a and b:
-        return a * b
+        return float(a) * float(b)
     return KnowledgeGradeScale.objects.all().first().get_base_grade()
 
 
