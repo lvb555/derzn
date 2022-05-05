@@ -1,11 +1,14 @@
 {% load static %}
-<div class="row">
-    <div class="col-12 col-lg-8">
+<div class="row tag_row">
+    <div class="col-8">
         <a class="text-decoration-none" href="{% url 'zlabel' pk=tag.pk %}">
-            <h5>
+            <h5 class="tag_name">
                 {{ tag.name }}
             </h5>
         </a>
+    </div>
+    <div class="col-4 add_tag_to_set" style="cursor:pointer">
+        Добавить в пользовательский набор
     </div>
 </div>
 <hr class="mt-0">

@@ -42,6 +42,15 @@
                 {% endfor %}
             </li>
             {% endif %}
+            <li>
+                Теги:
+                {% for tag in knowledge.labels.all %}
+                {{ tag.name }}
+                {% if not forloop.last %}
+                ,
+                {% endif %}
+                {% endfor %}
+            </li>
             <li class="d-flex flex-wrap justify-content-end">
                 Изменено: {{ knowledge.updated_at |timesince }} назад
             </li>
