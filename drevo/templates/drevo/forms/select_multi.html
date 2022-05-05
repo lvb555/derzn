@@ -1,0 +1,21 @@
+{% load static %}
+<div class="_wrapper__multi_input">
+    <input name="{{ widget.name }}" {% include "django/forms/widgets/attrs.html" %}
+        list="datalistOptions_{{ widget.name }}" value="{{ widget.value.0 }}">
+    <img width='28' src="{% static 'drevo/img/knowledge_search/plus.svg' %}" class="tag_swither add-input" alt="Добавить еще"
+        style="visibility: hidden">
+
+    <img width='28' src="{% static 'drevo/img/knowledge_search/minus.svg' %}" class="tag_swither delete-input" alt="Убрать">
+</div>
+
+<datalist id="datalistOptions_{{ widget.name }}">
+    {% for group_name, group_choices, group_index in widget.optgroups %}
+
+    {% for option in group_choices %}
+
+    {% include option.template_name with widget=option %}
+
+    {% endfor %}
+
+    {% endfor %}
+</datalist>
