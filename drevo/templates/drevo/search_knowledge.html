@@ -57,8 +57,9 @@
                 </div>
                 {% endif %}
                 {% endfor %}
+                {% include 'drevo/snippets/tag_snippet.html' with formset=tag_formset %}
             </div>
-            {% include 'drevo/snippets/tag_snippet.html' with formset=tag_formset %}
+
             <button id='submit' type="submit" class="btn btn-primary my-3 px-4">
                 Искать
             </button>

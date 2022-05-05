@@ -162,7 +162,7 @@ class Znanie(models.Model):
                     filter(
                         lambda x: len(x.rz.base.all()) == 2 and all(
                             map(lambda y: y.rz == row.rz or y.rz ==
-                                          col.rz, x.rz.base.all())
+                                col.rz, x.rz.base.all())
                         ),
                         values
                     )
@@ -191,7 +191,8 @@ class Znanie(models.Model):
             variant = 2
 
         proof_base_value = self.get_proof_base_grade(request, variant)
-        common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
+        common_grade_value = (
+            proof_base_value + self.get_users_grade(request.user)) / 2
         return common_grade_value, proof_base_value
 
     def get_proof_base_grade(self, request, variant=2, sum_list=None, base_flag=True):
@@ -205,13 +206,16 @@ class Znanie(models.Model):
         summ = 0
         if queryset.exists():
             if variant == 1:
-                sum_list.append(sum(map(lambda x: x.rz.get_users_grade(request.user), queryset)) / len(queryset))
+                sum_list.append(sum(map(lambda x: x.rz.get_users_grade(
+                    request.user), queryset)) / len(queryset))
             else:
-                sum_list.append(sum(map(lambda x: x.get_proof_weight(request.user), queryset)) / len(queryset))
+                sum_list.append(
+                    sum(map(lambda x: x.get_proof_weight(request.user), queryset)) / len(queryset))
 
             for relation in queryset:
                 child = relation.rz
-                child_list = child.get_proof_base_grade(request, sum_list=sum_list, base_flag=False)
+                child_list = child.get_proof_base_grade(
+                    request, sum_list=sum_list, base_flag=False)
                 cl = list(filter(lambda x: x > 0, child_list))
                 if cl:
                     summ += sum(cl) / len(cl)

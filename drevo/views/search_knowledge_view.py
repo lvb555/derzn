@@ -60,13 +60,20 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
 
         if tag_parameters:
             # Ищем знания по виду тегам
+            tag_queries = []
             for tag_name in tag_parameters:
-                query = self.get_query(fields_name='labels__name__contains',
-                                       parameter_value=tag_name)
-                extra_query = query if not extra_query else extra_query & query
+                query = Q(labels__name=tag_name)
+                tag_queries.append(query)
+                # extra_query = query if not extra_query else extra_query & query
 
+        from django.db import connection
+        from pprint import pprint
         if extra_query:
             knowledges = knowledges.filter(extra_query)
+
+        if tag_parameters:
+            for query in tag_queries:
+                knowledges = knowledges.filter(query)
 
         exclude_query = None
         if main_search_parameter:
@@ -143,8 +150,8 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
         RE_TAG = re.compile(r'tags-\d+-tag')
         tags = []
         for parameter_name, parameter_value in request.GET.items():
-            if RE_TAG.findall(parameter_name):
-                tags.append(parameter_value)
+            if RE_TAG.findall(parameter_name) and parameter_value.strip():
+                tags.append(parameter_value.strip())
         return tags
 
     def get_context_data(self, **kwargs):
