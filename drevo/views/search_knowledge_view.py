@@ -62,12 +62,10 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
             # Ищем знания по виду тегам
             tag_queries = []
             for tag_name in tag_parameters:
-                query = Q(labels__name=tag_name)
+                query = self.get_query(fields_name='labels__name',
+                                       parameter_value=tag_name)
                 tag_queries.append(query)
-                # extra_query = query if not extra_query else extra_query & query
 
-        from django.db import connection
-        from pprint import pprint
         if extra_query:
             knowledges = knowledges.filter(extra_query)
 
