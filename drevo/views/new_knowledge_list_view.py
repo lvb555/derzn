@@ -9,6 +9,10 @@ from django.views.generic.edit import FormMixin
 from drevo.models import Znanie
 
 from ..forms import DateNewForm
+from loguru import logger
+
+logger.add('logs/main.log',
+           format="{time} {level} {message}", rotation='100Kb', level="ERROR")
 
 
 class NewKnowledgeListView(ListView, FormMixin):
@@ -22,7 +26,6 @@ class NewKnowledgeListView(ListView, FormMixin):
     form_class = DateNewForm
     success_url = ''
 
-
     def get_queryset(self):
         date_form = DateNewForm(self.request.GET or None)
         date_for_new = datetime.date.today() - datetime.timedelta(days=7)
@@ -31,8 +34,7 @@ class NewKnowledgeListView(ListView, FormMixin):
             month = date_form.cleaned_data.get('month')
             day = date_form.cleaned_data.get('day')
             date_for_new = datetime.date(year, month, day)
-        new_knowledge_point = date_for_new
-        last_knldgs = Znanie.objects.filter(date__gt=new_knowledge_point)
+        last_knldgs = Znanie.objects.filter(date__gte=date_for_new)
         ctgrs = [knldg.category for knldg in last_knldgs]
         nstd_l = {}
         for ctgr in ctgrs:
@@ -44,7 +46,5 @@ class NewKnowledgeListView(ListView, FormMixin):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         _get = self.request.GET
-        context['efform'] = DateNewForm(_get)
         context['dform'] = DateNewForm(initial=_get.dict()) if not _get else DateNewForm(_get)
         return context
-
