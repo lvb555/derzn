@@ -37,6 +37,7 @@ class NewKnowledgeListView(ListView, FormMixin):
         last_knldgs = Znanie.objects.filter(date__gte=date_for_new)
         ctgrs = [knldg.category for knldg in last_knldgs]
         nstd_l = {}
+        ctgrs = set(ctgrs)
         for ctgr in ctgrs:
             nstd_l[ctgr] = []
         for n_k in last_knldgs:

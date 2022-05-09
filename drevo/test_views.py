@@ -94,29 +94,27 @@ class TestDrevoView(TestCase):
         self.assertIsInstance(form, DateNewForm)
         self.assertEqual(len(
             resp.context['categorized_new_knowledges']), 1)
-        # self.assertEqual(len(resp.context['categorized_new_knowledges'][0]), 3)
+        self.assertEqual(len(resp.context['categorized_new_knowledges'][0]), 3)
 
     def test_requested_news(self):
-        # resp = self.client.get(reverse('new_knowledge',
-        #                                {"day": 3, "month": 4, "year": 2022}))
-        # resp = self.client.get(reverse('new_knowledge',
-        #                                {"day": 26, "month": 3, "year": 2022}))
         resp = self.client.get(reverse('new_knowledge'), {"day": 8, "month": 5, "year": 2022})
         self.assertIn('знаний за истекший период не обнаружено'.encode('utf8'), resp.content)
 
     def test_requested_wrong(self):
-        # resp = self.client.get(reverse('new_knowledge'),
-        #                        {"day": 3, "month": 2, "year": 2027})
-        # self.assertIn('Следующую дату можно будет ввести позже'.encode('utf8'), resp.content)
-        # resp = self.client.get(reverse('new_knowledge'),
-        #                                {"day": 3, "month": 2, "year": -7})
+        resp = self.client.get(reverse('new_knowledge'),
+                               {"day": 3, "month": 2, "year": 2027})
+        self.assertNotIn('Следующую дату можно будет ввести позже'.encode('utf8'), resp.content)
+        resp = self.client.get(reverse('new_knowledge'),
+                                       {"day": 3, "month": 2, "year": -7})
+        self.assertIn('это значение больше либо равно'.encode('utf8'),
+                      resp.content)
         resp = self.client.get(reverse('new_knowledge'),
                                {"month": 2, })
         self.assertIn('бязательн'.encode('utf8'), resp.content, 2)
 
     def test_created_dates(self):
-        date_4d_ago = datetime.date.today() - datetime.timedelta(days=4)
-        zn1 = Znanie.objects.filter(date__gte=date_4d_ago)
+        date_4th_m = datetime.date(2022, 5, 4)
+        zn1 = Znanie.objects.filter(date__gte=date_4th_m)
         zn2 = Znanie.objects.filter(date__gt=datetime.date.today())
         self.assertEqual(zn2.count(), 0)
         self.assertEqual(zn1.count(), 3)
