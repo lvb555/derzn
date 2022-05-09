@@ -9,9 +9,9 @@ from .labels_list_view import LabelsListView
 from .znanie_by_label_view import ZnanieByLabelView
 from .znanie_detail_view import ZnanieDetailView
 from .znanie_rating_view import ZnanieRatingView
-from .knowledge_search_view import KnowledgeSearchView
-from .author_search_view import AuthorSearchView
-from .tag_search_view import TagSearchView
+from .search_knowledge_view import KnowledgeSearchView
+from .search_author_view import AuthorSearchView
+from .search_tag_view import TagSearchView
 from .knowledge_grade_view import KnowledgeFormView
 from .new_knowledge_list_view import NewKnowledgeListView
 

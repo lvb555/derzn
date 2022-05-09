@@ -11,7 +11,7 @@ from .search_engine import SearchEngineMixin
 
 
 class AuthorSearchView(FormView, SearchEngineMixin):
-    template_name = "drevo/search.html"
+    template_name = "drevo/search_author.html"
     form_class = AuthorSearchForm
     success_url = reverse_lazy("search_author")
 

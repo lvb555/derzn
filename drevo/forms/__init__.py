@@ -18,5 +18,5 @@ __all__ = [
     'ZnanieForm',
     'KnowledgeSearchForm',
     'AuthorSearchForm',
-    'TagSearchForm'
+    'TagSearchForm',
 ]
