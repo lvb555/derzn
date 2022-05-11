@@ -13,6 +13,7 @@ from .search_knowledge_view import KnowledgeSearchView
 from .search_author_view import AuthorSearchView
 from .search_tag_view import TagSearchView
 from .knowledge_grade_view import KnowledgeFormView
+from .new_knowledge_list_view import NewKnowledgeListView
 
 
 __all__ = [
@@ -27,6 +28,7 @@ __all__ = [
     'ZnanieByLabelView',
     'ZnanieDetailView',
     'ZnanieRatingView',
+    'NewKnowledgeListView',
     'KnowledgeSearchView',
     'AuthorSearchView',
     'TagSearchView',
