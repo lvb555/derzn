@@ -8,6 +8,7 @@ Test{View name}
 import datetime
 from unittest import mock
 
+import pytest
 import pytz as pytz
 from django.test import TestCase
 
@@ -69,6 +70,16 @@ class TestDrevoView(TestCase):
                                       order=1,
                                       is_published=False,
                                       )
+        Znanie.objects.create(name='test_we_category2',
+                              tz=tz,
+                              # category=category,
+                              content='Empty category1',
+                              href='https://ya.ru',
+                              source_com='Best source',
+                              author=author,
+                              user=user,
+                              order=1,
+                              is_published=False,)
                 # assert Znanie.objects.filter(name=f'{name}')[0].date == time_mocks[i]
 
     def test_view_url_exists_at_desired_location(self):
@@ -92,9 +103,12 @@ class TestDrevoView(TestCase):
         resp = self.client.get(reverse('new_knowledge'))
         form = resp.context['dform']
         self.assertIsInstance(form, DateNewForm)
+        knowledges_fltrd_q = resp.context['categorized_new_knowledges']
         self.assertEqual(len(
-            resp.context['categorized_new_knowledges']), 1)
-        self.assertEqual(len(resp.context['categorized_new_knowledges'][0]), 3)
+            knowledges_fltrd_q), 1)
+        # print(knowledges_fltrd_q)
+        # print(knowledges_fltrd_q.keys())
+        self.assertEqual(len(knowledges_fltrd_q[list(knowledges_fltrd_q.keys())[0]]), 3)
 
     def test_requested_news(self):
         resp = self.client.get(reverse('new_knowledge'), {"day": 8, "month": 5, "year": 2022})
@@ -118,3 +132,17 @@ class TestDrevoView(TestCase):
         zn2 = Znanie.objects.filter(date__gt=datetime.date.today())
         self.assertEqual(zn2.count(), 0)
         self.assertEqual(zn1.count(), 3)
+
+    # @pytest.mark.skip
+    def test_additional(self):
+        addtnl_kn = Znanie.objects.filter(name='test_we_category2')[0]
+        print(type(addtnl_kn.category))
+        print(addtnl_kn.category)
+        self.assertEqual(addtnl_kn.category, None)
+
+    def test_additional_ctxt(self):
+        resp = self.client.get(reverse('new_knowledge'))
+        qry_set_new_kn = resp.context['categorized_new_knowledges']
+        self.assertIn('Дополнительные знания', qry_set_new_kn.keys())
+
+

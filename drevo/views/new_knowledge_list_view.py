@@ -42,6 +42,7 @@ class NewKnowledgeListView(ListView, FormMixin):
             nstd_l[ctgr] = []
         for n_k in last_knldgs:
             nstd_l[n_k.category].append(n_k)
+        nstd_l['Дополнительные знания'] = nstd_l.pop(None)
         return nstd_l
 
     def get_context_data(self, *, object_list=None, **kwargs):
