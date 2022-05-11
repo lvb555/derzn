@@ -24,19 +24,35 @@
             <div class="row">
                 <div class="col">
                     <li class="list-group-item">
+                        <table class="table">
+                            <tr>
+                        {% if category is None %}
+                        <strong>Дополнительные знания</strong>
+                        {% else %}
                         <strong>{{ category.name }}</strong>
-                        <ta class="table">
+                        {% endif %}
+                            </tr>
                         {% for knowledge in new_knowledge %}
                         <tr>
-                            <td>
-                                <a href="{{ knowledge.name }}"></a>
-                            </td>
+                            <td><a href="{{ knowledge.get_absolute_url }}">{{ knowledge.name}}</a></td>
+                            {% if knowledge.author %}
                             <td>{{ knowledge.author }}</td>
+                            {% else %}
+                            <td>
+
+                            </td>
+                            {% endif %}
+                            {% if knowledge.tz %}
                             <td>{{ knowledge.tz }}</td>
+                            {% else %}
+                            <td>
+
+                            </td>
+                            {% endif %}
                             <td>{{ knowledge.date }}</td>
                         </tr>
                         {% endfor %}
-                        </ta>
+                        </table>
                     </li>
                 </div>
             </div>

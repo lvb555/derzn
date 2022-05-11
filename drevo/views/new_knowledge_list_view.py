@@ -33,6 +33,7 @@ class NewKnowledgeListView(ListView):
         if date_form.is_valid():
             date_for_new = date_form.cleaned_data.get('date')
         last_knldgs = Znanie.objects.filter(date__gte=date_for_new)
+        # possible to ease hustle by using 'regroup' template kw
         ctgrs = [knldg.category for knldg in last_knldgs]
         nstd_l = {}
         ctgrs = set(ctgrs)
@@ -40,8 +41,6 @@ class NewKnowledgeListView(ListView):
             nstd_l[ctgr] = []
         for n_k in last_knldgs:
             nstd_l[n_k.category].append(n_k)
-        if None in nstd_l.keys():
-            nstd_l['Дополнительные знания'] = nstd_l.pop(None)
         return nstd_l
 
 
