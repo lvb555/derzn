@@ -9,12 +9,11 @@
 {% comment %}
 Сделано по примеру раздела Автор
 {% endcomment %}
-<h4>Показать знания, начиная с:</h4>
 <div class="row">
     <div class="col-3">
-        <form action="" id="dform">
-            {{ dform.as_p }}
-            <input type="date" name="" id="">
+        <form action="" id="datepick_form">
+            {{ datepick_form }}
+            <input type="submit" value="Искать">
         </form>
     </div>
 </div>
@@ -26,7 +25,7 @@
                 <div class="col">
                     <li class="list-group-item">
                         <strong>{{ category.name }}</strong>
-                        <ta class="table"></ta>
+                        <ta class="table">
                         {% for knowledge in new_knowledge %}
                         <tr>
                             <td>
@@ -37,6 +36,7 @@
                             <td>{{ knowledge.date }}</td>
                         </tr>
                         {% endfor %}
+                        </ta>
                     </li>
                 </div>
             </div>
