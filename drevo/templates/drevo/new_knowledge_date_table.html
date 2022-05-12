@@ -19,52 +19,46 @@
 </div>
 <div class="row">
     <div class="col-auto">
-        <ul class="list-group">
+        <table class="table">
             {% for category, new_knowledge in categorized_new_knowledges.items %}
-            <div class="row">
-                <div class="col">
-                    <li class="list-group-item">
-                        <table class="table">
-                            <tr>
-                        {% if category is None %}
-                        <strong>Дополнительные знания</strong>
-                        {% else %}
-                        <strong>{{ category.name }}</strong>
-                        {% endif %}
-                            </tr>
-                        {% for knowledge in new_knowledge %}
-                        <tr>
-                            <td><a href="{{ knowledge.get_absolute_url }}">{{ knowledge.name}}</a></td>
-                            {% if knowledge.author %}
-                            <td>{{ knowledge.author }}</td>
-                            {% else %}
-                            <td>
-
-                            </td>
-                            {% endif %}
-                            {% if knowledge.tz %}
-                            <td>{{ knowledge.tz }}</td>
-                            {% else %}
-                            <td>
-
-                            </td>
-                            {% endif %}
-                            <td>{{ knowledge.date }}</td>
-                        </tr>
-                        {% endfor %}
-                        </table>
-                    </li>
-                </div>
-            </div>
-            {% empty %}
-            <div class="row">
-                <div class="col">
-                  Новых знаний за истекший период не обнаружено
-                </div>
-            </div>
+            <tr>
+                <td colspan="4">
+                    {% if category is None %}
+                    <strong>Дополнительные знания</strong>
+                    {% else %}
+                    <strong>{{ category.name }}</strong>
+                    {% endif %}
+                </td>
+            </tr>
+            {% for knowledge in new_knowledge %}
+            <tr>
+                <td>
+                    <a href="{{ knowledge.get_absolute_url }}">{{ knowledge.name}}</a>
+                </td>
+                {% if knowledge.author %}
+                <td>{{ knowledge.author }}</td>
+                {% else %}
+                <td>
+                </td>
+                {% endif %}
+                {% if knowledge.tz %}
+                <td>{{ knowledge.tz }}</td>
+                {% else %}
+                <td>
+                </td>
+                {% endif %}
+                <td>{{ knowledge.date }}</td>
+            </tr>
             {% endfor %}
+        {% empty %}
+        <div class="row">
+            <div class="col">
+                Новых знаний за истекший период не обнаружено
+            </div>
+        </div>
+        {% endfor %}
+        </table>
 
-            {% endblock %}
-        </ul>
+        {% endblock %}
     </div>
 </div>
