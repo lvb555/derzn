@@ -18,6 +18,7 @@ logger.add('logs/main.log',
 
 
 class NewKnowledgeListView(ListView):
+    # TODO clean up unused files
     """
     полный список недавно опубликованных знаний
     """
@@ -32,7 +33,8 @@ class NewKnowledgeListView(ListView):
         date_for_new = datetime.date.today() - datetime.timedelta(days=7)
         if date_form.is_valid():
             date_for_new = date_form.cleaned_data.get('date')
-        last_knldgs = Znanie.objects.filter(date__gte=date_for_new)
+        last_knldgs = Znanie.objects.filter(date__gte=date_for_new,
+                                            is_published=True)
         # possible to ease hustle by using 'regroup' template kw
         ctgrs = [knldg.category for knldg in last_knldgs]
         nstd_l = {}
@@ -47,5 +49,5 @@ class NewKnowledgeListView(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         _get = self.request.GET.dict()
-        context['datepick_form'] = DatePickNewForm(_get)
+        context['datepick_form'] = DatePickNewForm(_get) if _get else DatePickNewForm()
         return context
