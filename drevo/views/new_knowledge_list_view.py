@@ -8,7 +8,7 @@ from django.views.generic.edit import FormMixin
 
 from drevo.models import Znanie
 
-from ..forms import DateNewForm, DatePickNewForm
+from ..forms import DatePickNewForm
 from loguru import logger
 
 # from ..forms.date_pick_form import DatePickNewForm
