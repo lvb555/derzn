@@ -8,7 +8,7 @@ from django.views.generic.edit import FormMixin
 
 from drevo.models import Znanie
 
-from ..forms import DateNewForm, DatePickNewForm
+from ..forms import DatePickNewForm
 from loguru import logger
 
 # from ..forms.date_pick_form import DatePickNewForm
@@ -45,9 +45,12 @@ class NewKnowledgeListView(ListView):
             nstd_l[n_k.category].append(n_k)
         return nstd_l
 
-
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         _get = self.request.GET.dict()
-        context['datepick_form'] = DatePickNewForm(_get) if _get else DatePickNewForm()
+        form_to_validate = DatePickNewForm(_get)
+        if _get and form_to_validate.is_valid():
+            context['datepick_form'] = DatePickNewForm(_get)
+        else:
+            context['datepick_form'] = DatePickNewForm()
         return context
