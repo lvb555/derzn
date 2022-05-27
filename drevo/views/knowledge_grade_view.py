@@ -37,10 +37,13 @@ class KnowledgeFormView(TemplateView):
 
             knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
             context['knowledge'] = knowledge
-            context['proof_relations'] = knowledge.base.filter(
+
+            proof_relations = knowledge.base.filter(
                 tr__is_argument=True,
                 rz__tz__can_be_rated=True,
             )
+
+            context['proof_relations'] = proof_relations
             context['knowledge_scale'] = KnowledgeGradeScale.objects.all()
             context['relation_scale'] = RelationGradeScale.objects.all()
 
