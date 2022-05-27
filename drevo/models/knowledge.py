@@ -227,6 +227,8 @@ class Znanie(models.Model):
             users_grade = self.grades.filter(user=request.user)
             if users_grade.exists():
                 sum_list.append(users_grade.first().grade.get_base_grade())
+            else:
+                sum_list.append(0)
 
         if base_flag:
             sum_list = list(filter(lambda x: x > 0, sum_list))
