@@ -1,6 +1,7 @@
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+
 from .views import (DrevoListView,
                     DrevoView,
                     ZnanieDetailView,
@@ -16,7 +17,8 @@ from .views import (DrevoListView,
                     AuthorSearchView,
                     TagSearchView,
                     KnowledgeFormView,
-                    NewKnowledgeListView,)
+                    NewKnowledgeListView,
+                    BrowsingHistoryListView)
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),
@@ -43,8 +45,13 @@ urlpatterns = [
     path('search/tag',
          TagSearchView.as_view(),
          name='search_tag'),
+    path('history/',
+         BrowsingHistoryListView.as_view(),
+         name='history'),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
+

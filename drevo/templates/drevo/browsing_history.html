@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}История просмотров{% endblock %}
+
+{% block content %}
+
+<h2 class="mt-3">История просмотров</h2>
+
+<div class="my-5">
+    {% for item in history %}
+        <a href="{% url 'zdetail' pk=item.znanie.pk %}">
+            <h4>{{ item.znanie.name }}</h4>
+        </a>
+        <div class="row my-2 border-bottom py-3">
+            <div class="col-8">
+                {{ item.znanie.content | safe | truncatewords_html:30}}
+            </div>
+            <div class="col-4 text-end pt-2">
+                <div class="text-start">
+                    <span class="text-muted">
+                        Вид знания: 
+                    </span>
+                    <span>
+                        {{ item.znanie.tz.name }}
+                    </span>
+                    <br>
+                    <span class="text-muted">
+                        Категория знания: 
+                    </span>
+                    <span>
+                        {{ item.znanie.category.name }}
+                    </span>
+                    <br>
+                    <span class="text-muted">
+                        Автор: 
+                    </span>
+                    <span>
+                        {{ item.znanie.author.name }}
+                    </span>
+                    <br>
+                    <span class="text-muted">
+                        Изменено: 
+                    </span>
+                    <span>
+                        {{ item.znanie.updated_at | timesince }}
+                    </span>
+                    <br>
+                </div> 
+            </div>
+        </div>
+    {% empty %}
+        <span class="text-muted">
+            Список просмотров пуст
+        </span>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -20,79 +20,84 @@
 </head>
 
 <body>
-
-<nav class="navbar navbar-expand-lg mb-2 navbar-light bg-light">
-    <div class="container-fluid">
-        <div class="logo me-2">
-            <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
-                <img src="{% static 'drevo/img/logo.svg' %}" height='68px' alt="logo-tree">
-            </a>
-        </div>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <div class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Древо знания</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
-                       id="authors_link">Авторы</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a>
-                        <a class="dropdown-item" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>
+    <div class="container-fluid bg-light">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg mb-2 navbar-light">
+                <div class="container-fluid">
+                    <div class="logo me-2">
+                        <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
+                            <img src="{% static 'drevo/img/logo.svg' %}" height='68px' alt="logo-tree">
+                        </a>
                     </div>
-                </li>
-                {% if user.is_staff %}
-                <li class="nav-item">
-                    <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель управления</a>
-                </li>
-                {% endif %}
-            </ul>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <div class="navbar-nav me-auto">
+                            <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Древо знания</a>
+                                </li>
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
+                                       id="authors_link">Авторы</a>
+                                </li>
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
+                                </li>
+                                <li class="nav-item mx-2 dropdown">
+                                    <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a>
+                                        <a class="dropdown-item" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>
+                                    </div>
+                                </li>
 
-            <ul class="navbar-nav d-flex justify-content-end">
-                <li class="nav-item">
-                    <a class="nav-link auto_active_link d-flex" aria-current="page" href="{% url 'search_knowledge' %}"
-                       id="search_knowledges_link">
-                        <span>Поиск</span> <img class="ms-2"
-                                                src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}"
-                                                alt="" style="width:20px">
-                    </a>
-                </li>
-            </ul>
-            <ul class="navbar-nav mb-2 mb-lg-0">
-                {% if user.is_authenticated %}
-                <li class="nav-item me-1 mb-1 mb-lg-0">
-                    <a class="nav-link auto_active_link" aria-current="page" href="{% url 'users:myprofile' %}"
-                       id="user_link">
-                        <span>{{ user.username }} <i class="bi bi-person-circle"></i></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-outline-success" aria-current="page" href="{% url 'users:logout' %}">
-                        <span>Выйти </span>
-                    </a>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="btn btn-outline-success" aria-current="page"
-                       href="{% url 'users:login' %}?next={{ request.path }}">
-                        <span>Войти </span>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
+                                {% if user.is_staff %}
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель управления</a>
+                                </li>
+                                {% endif %}
+
+                                <li class="nav-item">
+                                    <a class="nav-link auto_active_link d-flex" aria-current="page" href="{% url 'search_knowledge' %}"
+                                       id="search_knowledges_link">
+                                        <span>Поиск</span> <img class="ms-2"
+                                                                src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}"
+                                                                alt="" style="width:20px">
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+                            {% if user.is_authenticated %}
+                            <li class="nav-item me-1 mb-1 mb-lg-0">
+                                <a class="nav-link auto_active_link" aria-current="page" href="{% url 'users:myprofile' %}"
+                                   id="user_link">
+                                    <span>{{ user.username }} <i class="bi bi-person-circle"></i></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-outline-success" aria-current="page" href="{% url 'users:logout' %}">
+                                    <span>Выйти </span>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="nav-item">
+                                <a class="btn btn-outline-success" aria-current="page"
+                                   href="{% url 'users:login' %}?next={{ request.path }}">
+                                    <span>Войти </span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
         </div>
     </div>
-</nav>
 
 <div class="container">
     <div class="row">
