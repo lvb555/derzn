@@ -22,3 +22,4 @@ class AuthorsFilterForm(forms.Form):
         widget=SelectWithInput(attrs={'class': 'form-control',
                                       'oninput': 'doSubmit(this.form.id)'})
     )
+
