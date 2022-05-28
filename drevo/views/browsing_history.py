@@ -38,8 +38,8 @@ class BrowsingHistoryListView(ListView):
             obj = {}
             obj["znanie"] = item.znanie
 
-            comments = Comment.objects.filter(author=self.request.user, znanie=item.znanie)
-            obj["comments"] = comments
+            #comments = Comment.objects.filter(author=self.request.user, znanie=item.znanie)
+            #obj["comments"] = comments
             history.append(obj)
 
         context['history'] = history

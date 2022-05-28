@@ -11,25 +11,9 @@
         <a href="{% url 'zdetail' pk=item.znanie.pk %}">
             <h4>{{ item.znanie.name }}</h4>
         </a>
-        <div class="row my-3 border-bottom py-3">
+        <div class="row my-2 border-bottom py-3">
             <div class="col-8">
-                <span class="text-muted">
-                    Ваши комментарии:
-                </span>
-                <div class="mt-2">
-                    {% for comment in item.comments %}
-                    <div>
-                        {{ comment.content }}
-                        <small class="text-muted">
-                            {{ comment.updated_at | timesince }}
-                        </small>
-                    </div>
-                    {% empty %}
-                <span class="text-muted">
-                    Нет комментариев
-                </span>
-                {% endfor %}
-                </div>
+                {{ item.znanie.content | safe | truncatewords_html:30}}
             </div>
             <div class="col-4 text-end pt-2">
                 <div class="text-start">
