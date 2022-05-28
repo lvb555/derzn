@@ -17,7 +17,8 @@ from .views import (DrevoListView,
                     AuthorSearchView,
                     TagSearchView,
                     KnowledgeFormView,
-                    NewKnowledgeListView,)
+                    NewKnowledgeListView,
+                    BrowsingHistoryListView)
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),
@@ -44,6 +45,9 @@ urlpatterns = [
     path('search/tag',
          TagSearchView.as_view(),
          name='search_tag'),
+    path('history/',
+         BrowsingHistoryListView.as_view(),
+         name='history'),
 ]
 
 
