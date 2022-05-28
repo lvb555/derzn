@@ -1,7 +1,8 @@
 from django.views.generic import ListView
 from drevo.models.knowledge import Znanie
 from loguru import logger
-from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 from ..models import BrowsingHistory, Comment
 
@@ -17,10 +18,6 @@ class BrowsingHistoryListView(ListView):
     model = BrowsingHistory
     context_object_name = 'browsing_history'
     template_name = 'drevo/browsing_history.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated == False:
-            return redirect('/users/login')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
@@ -43,3 +40,9 @@ class BrowsingHistoryListView(ListView):
         context['history'] = history
 
         return context
+    
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('users:login', kwargs={}))
+        
+        return super().get(request, *args, **kwargs)
