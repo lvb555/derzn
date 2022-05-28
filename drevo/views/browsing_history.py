@@ -30,17 +30,19 @@ class BrowsingHistoryListView(ListView):
             return context
 
         # получаем список просмотров текущего пользователя
-        browsing_history_by_user = BrowsingHistory.objects.filter(user=self.request.user)
+        browsing_history_by_user = BrowsingHistory.objects.filter(user=self.request.user).order_by('-date')
         history = []
 
         # получаем комментарии
         for item in browsing_history_by_user:
-            obj = {}
-            obj["znanie"] = item.znanie
+            if item.znanie.is_published:
+                obj = {}
+                obj["znanie"] = item.znanie
 
-            #comments = Comment.objects.filter(author=self.request.user, znanie=item.znanie)
-            #obj["comments"] = comments
-            history.append(obj)
+                #comments = Comment.objects.filter(author=self.request.user, znanie=item.znanie)
+                #obj["comments"] = comments
+                
+                history.append(obj)
 
         context['history'] = history
 
