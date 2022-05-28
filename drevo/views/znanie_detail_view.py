@@ -59,13 +59,14 @@ class ZnanieDetailView(DetailView):
                     znanie=knowledge, user=self.request.user).save()
         
         # добавление историю просмотра
-        if not BrowsingHistory.objects.filter(znanie=knowledge, user=self.request.user).count():
-            BrowsingHistory.objects.create(
-                znanie=knowledge, user=self.request.user, date=datetime.now()).save()
-        else:
-            browsing_history_obj = BrowsingHistory.objects.get(znanie=knowledge, user=self.request.user)
-            browsing_history_obj.date = datetime.now()
-            browsing_history_obj.save()
+        if self.request.user.is_authenticated:
+            if not BrowsingHistory.objects.filter(znanie=knowledge, user=self.request.user).count():
+                BrowsingHistory.objects.create(
+                    znanie=knowledge, user=self.request.user, date=datetime.now()).save()
+            else:
+                browsing_history_obj = BrowsingHistory.objects.get(znanie=knowledge, user=self.request.user)
+                browsing_history_obj.date = datetime.now()
+                browsing_history_obj.save()
 
         # формируем дерево категорий для категории текущего знания
         category = get_category_for_knowledge(knowledge)
