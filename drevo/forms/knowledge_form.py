@@ -28,7 +28,7 @@ class ZnanieForm(forms.ModelForm):
     category = TreeNodeChoiceField(queryset=get_model_or_stub(Category).tree_objects.all(),
                                    empty_label="(нет категории)",
                                    label='Категория',
-                                   required=False)
+                                   required=False)              
 
     class Meta:
         model = Znanie
