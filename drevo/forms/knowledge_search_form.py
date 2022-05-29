@@ -3,10 +3,12 @@ from ..models import (Znanie,
                       Author,
                       Category,
                       Tz,
-                      Tr)
+                      Tr,
+                      Label)
 
 from .custom_choice_field import CustomChoiceField
 from .select_with_input import SelectWithInput
+from .select_with_input_multi import SelectWithInputMulti
 from ..models.utils import get_model_or_stub
 
 
@@ -65,3 +67,14 @@ class KnowledgeSearchForm(forms.Form):
                                       attrs={'class': 'form-control',
                                              'placeholder': 'Выберите вид связи'}),
                                   required=False)
+
+    class Tag(forms.Form):
+        tag_choices = [(tag_name, tag_name)
+                       for tag_name in get_model_or_stub(Label).objects.order_by('name').values_list('name', flat=True)]
+        # Теги
+        tag = CustomChoiceField(label="Тег",
+                                choices=tag_choices,
+                                widget=SelectWithInputMulti(
+                                    attrs={'class': 'form-control multi',
+                                           'placeholder': 'Выберите Тег'}),
+                                required=False)

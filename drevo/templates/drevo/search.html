@@ -8,88 +8,17 @@
 
 {% block content %}
 
+<link rel="stylesheet" href="{% static 'drevo/css/search.css' %}">
+
 <div class="container">
     <h6 class="text-center">
-        {% if request.resolver_match.url_name == 'search_knowledge' %}
-        <span class="fs-2">
-            Знания
-        </span>
-        {% else %}
-        <a href="{% url 'search_knowledge' %}" class="link-primary fs-4" style="text-decoration: none;">
-            Знания
-        </a>
-        {% endif %}
-
-        /
-        {% if request.resolver_match.url_name == 'search_author' %}
-        <span class="fs-2">
-            Авторы
-        </span>
-        {% else %}
-        <a href="{% url 'search_author' %}" class="link-primary fs-4" style="text-decoration: none;">
-            Авторы
-        </a>
-        {% endif %}
-        /
-        {% if request.resolver_match.url_name == 'search_tag' %}
-        <span class="fs-2">
-            Теги
-        </span>
-        {% else %}
-        <a href="{% url 'search_tag' %}" class="link-primary fs-4" style="text-decoration: none;">
-            Теги
-        </a>
-        {% endif %}
-
+        {% block link_switchers %}
+        {% endblock link_switchers %}
     </h6>
-    <div class="row mt-3">
-        <dib class="col">
-            <form method="get" class="mx-auto d-flex flex-column" style="max-width:500px">
-                {% if form.non_field_errors %}
-                <div class="alert alert-danger mt-3" role="alert">{{ form.non_field_errors }}</div>
-                {% endif %}
 
-                <div class="mb-3">
-                    {{ form.main_search }}
-                    <span class="text-muted">{{ form.main_search.help_text }}</span>
-                    {% if form.main_search.errors %}
-                    <div class="alert alert-danger mt-3" role="alert">{{ form.main_search.errors }}</div>
-                    {% endif %}
-                </div>
-                {% if request.resolver_match.url_name != 'search_tag' %}
-                <div class="d-flex justify-content-end">
-                    <button id="collapseExtendedSearchButton" class="btn p-0" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseExtendedSearch" aria-expanded="false"
-                        aria-controls="collapseExtendedSearch"> Расширенный поиск
-                        <img src="{% static 'drevo/img/knowledge_search/collapse_down.svg' %}"
-                            data-img-toggle="{% static 'drevo/img/knowledge_search/collapse_up.svg' %}" alt="collapse"
-                            height="20px" id="extendedSearchButtonImg">
-                    </button>
-                </div>
-                <div class="collapse" id="collapseExtendedSearch">
-                    {% for field in form %}
-                    {% if not forloop.first %}
-                    <div class="mb-3">
-                        <label for="{{ field.id_for_label }}" class="form-label">
-                            {{ field.label }}
-                        </label>
+    {% block search_block %}
+    {% endblock search_block %}
 
-                        {{ field }}
-                        <span class="text-muted">{{ field.help_text }}</span>
-                        {% if field.errors %}
-                        <div class="alert alert-danger mt-3" role="alert">{{ field.errors }}</div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    {% endfor %}
-                </div>
-                {% endif %}
-                <button id='submit' type="submit" class="btn btn-primary my-3 px-4">
-                    Искать
-                </button>
-            </form>
-        </dib>
-    </div>
     {% if paginator %}
     <div class="row">
         <h5 class="col">
@@ -106,26 +35,10 @@
     <hr>
     {% endif %}
     {% if page_obj %}
-    <div class="row">
+    <div class="row search_result">
         <div class="col">
-            {% if request.resolver_match.url_name == 'search_knowledge' %}
-
-            {% for knowledge in page_obj %}
-            {% include 'drevo/search_card_knowledge.html' %}
-            {% endfor %}
-
-            {% elif request.resolver_match.url_name == 'search_author' %}
-            {% for author in page_obj %}
-            {% include 'drevo/search_card_author.html' %}
-            {% endfor %}
-
-            {% elif request.resolver_match.url_name == 'search_tag' %}
-            {% for tag in page_obj %}
-            {% include 'drevo/search_card_tag.html' %}
-            {% endfor %}
-
-            {% endif %}
-
+            {% block search_card %}
+            {% endblock search_card %}
         </div>
     </div>
     <div class="row max-width-1000px mx-auto mb-2">
@@ -136,8 +49,8 @@
     {% endif %}
 
 </div>
-{% if request.resolver_match.url_name != 'search_tag' %}
-<script src="{% static 'drevo/js/extended_search.js' %}">
-</script>
-{% endif %}
+
+{% block search_script %}
+{% endblock search_script %}
+
 {% endblock content %}

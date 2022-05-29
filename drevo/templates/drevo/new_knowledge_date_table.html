@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Список новых знаний{% endblock %}
+
+{% block content %}
+
+<h2>Новые знания</h2>
+
+{% comment %}
+Сделано по примеру раздела Автор
+{% endcomment %}
+<div class="row">
+    <div class="col-3">
+        <form action="" id="datepick_form">
+            {{ datepick_form }}
+            <input type="submit" value="Искать">
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col-auto">
+        <table class="table">
+            {% for category, new_knowledge in categorized_new_knowledges.items %}
+            <tr>
+                <td colspan="4">
+                    {% if category is None %}
+                    <strong>Дополнительные знания</strong>
+                    {% else %}
+                    <strong>{{ category.name }}</strong>
+                    {% endif %}
+                </td>
+            </tr>
+            {% for knowledge in new_knowledge %}
+            <tr>
+                <td>
+                    <a href="{{ knowledge.get_absolute_url }}">{{ knowledge.name}}</a>
+                </td>
+                {% if knowledge.author %}
+                <td>{{ knowledge.author }}</td>
+                {% else %}
+                <td>
+                </td>
+                {% endif %}
+                {% if knowledge.tz %}
+                <td>{{ knowledge.tz }}</td>
+                {% else %}
+                <td>
+                </td>
+                {% endif %}
+                <td>{{ knowledge.date }}</td>
+            </tr>
+            {% endfor %}
+        {% empty %}
+        <div class="row">
+            <div class="col">
+                Новых знаний за истекший период не обнаружено
+            </div>
+        </div>
+        {% endfor %}
+        </table>
+
+        {% endblock %}
+    </div>
+</div>

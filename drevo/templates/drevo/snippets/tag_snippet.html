@@ -1,0 +1,34 @@
+{{ formset.management_form }}
+<div class="tags_set">
+    {% for form in formset %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger mt-3" role="alert">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+
+    {% for field in form %}
+
+    {% if forloop.parentloop.first %}
+    <label for="{{ field.id_for_label }}" class="form-label">
+        {{ field.label }}
+    </label>
+    {% endif %}
+
+    <div class="mb-3 tag_field">
+        {{ field }}
+        <span class="text-muted">{{ field.help_text }}</span>
+        {% if field.errors %}
+        <div class="alert alert-danger mt-3" role="alert">{{ field.errors }}</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endfor %}
+
+    <div class="mb-3 tag_template" hidden>
+        {% for field in formset.empty_form %}
+        {{ field }}
+        <span class="text-muted">{{ field.help_text }}</span>
+        {% endfor %}
+    </div>
+</div>

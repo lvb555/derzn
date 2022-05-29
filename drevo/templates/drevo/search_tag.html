@@ -1,0 +1,154 @@
+{% extends 'drevo/search.html' %}
+{% load static %}
+{% block link_switchers %}
+
+<a href="{% url 'search_knowledge' %}" class="link-primary fs-4" style="text-decoration: none;">
+    Знания
+</a>
+/
+<a href="{% url 'search_author' %}" class="link-primary fs-4" style="text-decoration: none;">
+    Авторы
+</a>
+/
+<span class="fs-2">
+    Теги
+</span>
+
+{% endblock link_switchers %}
+
+{% block search_block %}
+<div class="row mt-3">
+    <dib class="col">
+        <form method="get" class="mx-auto d-flex flex-column" style="max-width:500px">
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger mt-3" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="mb-3">
+                {{ form.main_search }}
+                <span class="text-muted">{{ form.main_search.help_text }}</span>
+                {% if form.main_search.errors %}
+                <div class="alert alert-danger mt-3" role="alert">{{ form.main_search.errors }}</div>
+                {% endif %}
+            </div>
+            <button id='submit' type="submit" class="btn btn-primary my-3 px-4">
+                Искать Теги
+            </button>
+        </form>
+    </dib>
+</div>
+<!-- Блок для создания пользовательского набора тегов с последующим поиском знаний -->
+<div class="row mt-3">
+    <dib class="col">
+        <div class="mx-auto d-flex flex-column" style="max-width:500px">
+            <div class="d-flex justify-content-end">
+                <button id="collapseExtendedTagsButton" class="btn p-0" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseExtendedTags" aria-expanded="false" aria-controls="collapseExtendedTags">
+                    Пользовательский набор тегов
+                    <img src="{% static 'drevo/img/knowledge_search/collapse_down.svg' %}"
+                        data-img-toggle="{% static 'drevo/img/knowledge_search/collapse_up.svg' %}" alt="collapse"
+                        height="20px" id="extendedSearchButtonImg">
+                </button>
+            </div>
+            <div class="collapse" id="collapseExtendedTags">
+                <form method="get" class="mx-auto d-flex flex-column" style="max-width:500px"
+                    action="{% url 'search_knowledge' %}">
+
+                    {% include 'drevo/snippets/tag_snippet.html' with formset=tag_formset %}
+
+                    <button id='submit' type="submit" class="btn btn-primary my-3 px-4">
+                        Искать знания
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </dib>
+</div>
+
+
+{% endblock search_block %}
+
+{% block search_card %}
+{% for tag in page_obj %}
+{% include 'drevo/search_card_tag.html' %}
+{% endfor %}
+{% endblock search_card %}
+
+
+{% block search_script %}
+<script src="{% static 'drevo/js/extended_field.js' %}">
+</script>
+
+<script src="{% static 'drevo/js/tags_formset.js' %}">
+</script>
+
+<script>
+    let tags = new Tags();
+</script>
+
+<script>
+    searchConfig = {
+        buttonId: 'collapseExtendedTagsButton',
+        extendedField: 'collapseExtendedTags',
+    }
+    let extendedField = new ExtendedField(searchConfig);
+    extendedField.restoreArea();
+</script>
+
+<script>
+    // Скрипт для добавления тегов в набор
+    const tagSet = {
+        config: {
+            resultSetSelector: '.search_result',
+            buttonAddTagToSetSelector: '.add_tag_to_set',
+            tagRowSelector: '.tag_row',
+            tagNameSelector: '.tag_name',
+        },
+
+        init(tags) {
+            this.tags = tags;
+            this.tags.restoreTagSet();
+            const searchResult = document.querySelector(this.config.resultSetSelector);
+            if (searchResult) {
+                searchResult.addEventListener('click', (event) => this.clickHandler(event))
+            }
+
+            window.onbeforeunload = (event) => this.tags.syncTagInStorage();
+        },
+
+        clickHandler(event) {
+
+            const target = event.target.closest(this.config.buttonAddTagToSetSelector);
+            if (!target) return;
+
+            this.copytTagToInput(event);
+
+        },
+
+        copytTagToInput(event) {
+            const tagRow = event.target.closest(this.config.tagRowSelector);
+            const currentTag = tagRow.querySelector(this.config.tagNameSelector);
+            const currentTagName = currentTag.textContent.trim();
+
+            let firstFreeInputTag = this.tags.getFirstFreeInputTag();
+
+            if (firstFreeInputTag) {
+                firstFreeInputTag.value = currentTagName;
+            } else {
+                this.tags.addInput();
+                firstFreeInputTag = this.tags.getFirstFreeInputTag();
+                firstFreeInputTag.value = currentTagName;
+            }
+
+        },
+
+    }
+
+    tagSet.init(tags);
+
+
+</script>
+
+{% endblock search_script %}
