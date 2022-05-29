@@ -19,7 +19,7 @@ def object_grade_num(obj, user):
     if grades.exists():
         grade = grades.first().grade.get_base_grade()
     else:
-        grade = f'{KnowledgeGradeScale.objects.all().first().get_base_grade()}'
+        grade = f'{obj.get_default_grade()}'
     return grade
 
 

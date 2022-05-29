@@ -39,4 +39,4 @@ class KnowledgeGradeScale(models.Model):
                 return obj
             elif obj.is_high_in_range and obj.high_value == grade_value:
                 return obj
-        return None
+        return cls.objects.all().last()

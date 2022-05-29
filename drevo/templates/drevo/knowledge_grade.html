@@ -29,21 +29,6 @@
             </div>
         </div>
     {% else %}
-
-        {% if messages %}
-            <div class="alert alert-success alert-dismissible fade show"
-                 role="alert">
-                <div class="d-flex align-self-center">
-                    <ul>
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endif %}
-
         {% if proof_relations.exists %}
             <div class="my-4">
                 <form action="{{ request.get_full_path }}" method="get">
@@ -71,8 +56,9 @@
             </div>
         {% endif %}
 
-        <form action="{{ request.get_full_path }}" method="post">
+        <form action="{{ request.get_full_path }}" method="post" id="gradeForm">
             {% csrf_token %}
+            <input type="hidden" name="variant" readonly value="{{ request.GET.variant }}">
             <table class="table-sm table-borderless"
                    style="border-collapse: collapse; word-break: break-word;">
                 <tbody>
@@ -194,15 +180,19 @@
                     </table>
                 </div>
             {% endif %}
-            <div class="row my-4">
-                <div class="col">
-                    <div class="d-flex justify-content-center">
-                        <button type="submit" class="btn btn-secondary my-2"
-                                {% if not user.is_authenticated %} disabled {% endif %}>Сохранить
-                        </button>
-                    </div>
-                </div>
-            </div>
         </form>
     {% endif %}
+    <script>
+        function init() {
+            const gradeForm = document.getElementById('gradeForm');
+            const selectCollection = document.getElementsByTagName('select');
+
+            for (const selectCollectionElement of selectCollection) {
+                selectCollectionElement.addEventListener('input', function () {
+                    gradeForm.submit();
+                });
+            }
+        }
+        init();
+    </script>
 {% endblock %}
