@@ -1,6 +1,6 @@
 from django.views.generic import DetailView
-from ..models import Znanie, Relation, Tr, IP, Visits, Comment
-from ..models import Znanie, Relation, Tr, IP, Visits, Comment
+from datetime import datetime
+from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory
 from loguru import logger
 from ..relations_tree import (get_category_for_knowledge, get_ancestors_for_knowledge,
                               get_siblings_for_knowledge,
@@ -57,6 +57,16 @@ class ZnanieDetailView(DetailView):
             if not Visits.objects.filter(znanie=knowledge, user=self.request.user).count():
                 Visits.objects.create(
                     znanie=knowledge, user=self.request.user).save()
+        
+        # добавление историю просмотра
+        if self.request.user.is_authenticated:
+            if not BrowsingHistory.objects.filter(znanie=knowledge, user=self.request.user).count():
+                BrowsingHistory.objects.create(
+                    znanie=knowledge, user=self.request.user, date=datetime.now()).save()
+            else:
+                browsing_history_obj = BrowsingHistory.objects.get(znanie=knowledge, user=self.request.user)
+                browsing_history_obj.date = datetime.now()
+                browsing_history_obj.save()
 
         # формируем дерево категорий для категории текущего знания
         category = get_category_for_knowledge(knowledge)
