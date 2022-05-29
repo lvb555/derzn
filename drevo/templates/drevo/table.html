@@ -1,146 +1,154 @@
-<style >
+<style>
     .table-border {
         border: 2px black solid;
     }
+    th {
+        min-width: 300px;
+        max-width: 400px;
+    }
 </style>
-<table class="table my-2" style="max-width: fit-content; margin: auto; border-collapse: collapse; word-break: break-word;">
-    <tbody class="table-border">
-    {% if not table.rows.0.rz.tz.is_group and not table.cols.0.rz.tz.is_group %}
-        {#  Вариант 1  #}
-        <th class="table-border"></th>
-        {% for col in table.cols %}
-            <th class="table-border text-center">
-                {{ col.rz.name }}
-            </th>
-        {% endfor %}
-        {% for row in table.values %}
-            <tr>
-                <th class="table-border">
-                    {% for row_name in table.rows %}
-                        {% if forloop.counter0 == forloop.parentloop.counter0 %}
-                            {{ row_name.rz.name }}
-                        {% endif %}
-                    {% endfor %}
-                </th>
-                {% for col in row %}
-                    <td class="table-border">
-                        <a href="{{ col.get_absolute_url }}">
-                            {{ col.name }}
-                        </a>
-                    </td>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-    {% elif table.rows.0.rz.tz.is_group and not table.cols.0.rz.tz.is_group %}
-        {#  Вариант 2  #}
-        <tr>
+<div class="table-responsive">
+    <table class="table align-middle my-2" style="border-collapse: collapse;">
+        <tbody class="table-border">
+        {% if not table.rows.0.rz.tz.is_group and not table.cols.0.rz.tz.is_group %}
+            {#  Вариант 1  #}
+            <th class="table-border"></th>
             {% for col in table.cols %}
-                {% if forloop.first %}
-                    <th class="table-border" colspan="2"></th>
-                {% endif %}
-                <th class="table-border text-center">
+                <th class="table-border text-center" style="min-width: content-box">
                     {{ col.rz.name }}
                 </th>
             {% endfor %}
-        </tr>
-        {% for row in table.rows.0.get_grouped_relations %}
-            <tr>
-                {% if forloop.first %}
-                    <th class="table-border" rowspan="{{ table.rows.0.rz.base.all.count }}" style="vertical-align: middle;">
-                        {{ table.rows.0.rz.name }}
-                    </th>
-                {% endif %}
-                <th class="table-border">
-                    {{ row.rz.name }}
-                </th>
-                {% for values_row in table.values %}
-                    {% if forloop.counter0 == forloop.parentloop.counter0 %}
-                        {% for value in values_row %}
-                            <td class="table-border">
-                                {% if value %}
-                                    <a href="{{ value.get_absolute_url }}">
-                                        {{ value.name }}
-                                    </a>
-                                {% endif %}
-                            </td>
+            {% for row in table.values %}
+                <tr>
+                    <th class="table-border">
+                        {% for row_name in table.rows %}
+                            {% if forloop.counter0 == forloop.parentloop.counter0 %}
+                                {{ row_name.rz.name }}
+                            {% endif %}
                         {% endfor %}
+                    </th>
+                    {% for col in row %}
+                        <td class="table-border">
+                            <a href="{{ col.get_absolute_url }}">
+                                {{ col.name }}
+                            </a>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        {% elif table.rows.0.rz.tz.is_group and not table.cols.0.rz.tz.is_group %}
+            {#  Вариант 2  #}
+            <tr>
+                {% for col in table.cols %}
+                    {% if forloop.first %}
+                        <th class="table-border" colspan="2"></th>
                     {% endif %}
+                    <th class="table-border text-center">
+                        {{ col.rz.name }}
+                    </th>
                 {% endfor %}
             </tr>
-        {% endfor %}
-    {% elif not table.rows.0.rz.tz.is_group and table.cols.0.rz.tz.is_group %}
-        {#  Вариант 3  #}
-        <tr>
-            <th class="table-border" rowspan="2"></th>
-            <th class="table-border text-center" colspan="{{ table.cols.0.rz.base.all.count }}">
-                {{ table.cols.0.rz.name }}
-            </th>
-        </tr>
-        <tr>
-            {% for col in table.cols.0.get_grouped_relations %}
-                <th class="table-border text-center">
-                    {{ col.rz.name }}
-                </th>
-            {% endfor %}
-        </tr>
-        {% for row in table.values %}
-            <tr>
-                <th class="table-border">
-                    {% for row_name in table.rows %}
+            {% for row in table.rows.0.get_grouped_relations %}
+                <tr>
+                    {% if forloop.first %}
+                        <th class="table-border" rowspan="{{ table.rows.0.rz.base.all.count }}"
+                            style="vertical-align: middle;">
+                            {{ table.rows.0.rz.name }}
+                        </th>
+                    {% endif %}
+                    <th class="table-border">
+                        {{ row.rz.name }}
+                    </th>
+                    {% for values_row in table.values %}
                         {% if forloop.counter0 == forloop.parentloop.counter0 %}
-                            {{ row_name.rz.name }}
+                            {% for value in values_row %}
+                                <td class="table-border">
+                                    {% if value %}
+                                        <a href="{{ value.get_absolute_url }}">
+                                            {{ value.name }}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
                         {% endif %}
                     {% endfor %}
-                </th>
-                {% for col in row %}
-                    <td class="table-border">
-                        <a href="{{ col.get_absolute_url }}">
-                            {{ col.name }}
-                        </a>
-                    </td>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-    {% elif table.rows.0.rz.tz.is_group and table.cols.0.rz.tz.is_group %}
-        {#  Вариант 4  #}
-        <tr>
-            <th class="table-border" rowspan="2" colspan="{{ table.cols.0.rz.base.all.count }}"></th>
-            <th class="table-border text-center" colspan="{{ table.cols.0.rz.base.all.count }}">
-                {{ table.cols.0.rz.name }}
-            </th>
-        </tr>
-        <tr>
-            {% for col in table.cols.0.get_grouped_relations %}
-                <th class="table-border text-center">
-                    {{ col.rz.name }}
-                </th>
+                </tr>
             {% endfor %}
-        </tr>
-        {% for row in table.rows.0.get_grouped_relations %}
+        {% elif not table.rows.0.rz.tz.is_group and table.cols.0.rz.tz.is_group %}
+            {#  Вариант 3  #}
             <tr>
-                {% if forloop.first %}
-                    <th class="table-border" rowspan="{{ table.rows.0.rz.base.all.count }}" style="vertical-align: middle;">
-                        {{ table.rows.0.rz.name }}
-                    </th>
-                {% endif %}
-                <th class="table-border">
-                    {{ row.rz.name }}
+                <th class="table-border" rowspan="2"></th>
+                <th class="table-border text-center" colspan="{{ table.cols.0.rz.base.all.count }}">
+                    {{ table.cols.0.rz.name }}
                 </th>
-                {% for values_row in table.values %}
-                    {% if forloop.counter0 == forloop.parentloop.counter0 %}
-                        {% for value in values_row %}
-                            <td class="table-border">
-                                {% if value %}
-                                    <a href="{{ value.get_absolute_url }}">
-                                        {{ value.name }}
-                                    </a>
-                                {% endif %}
-                            </td>
-                        {% endfor %}
-                    {% endif %}
+            </tr>
+            <tr>
+                {% for col in table.cols.0.get_grouped_relations %}
+                    <th class="table-border text-center">
+                        {{ col.rz.name }}
+                    </th>
                 {% endfor %}
             </tr>
-        {% endfor %}
-    {% endif %}
-    </tbody>
-</table>
+            {% for row in table.values %}
+                <tr>
+                    <th class="table-border">
+                        {% for row_name in table.rows %}
+                            {% if forloop.counter0 == forloop.parentloop.counter0 %}
+                                {{ row_name.rz.name }}
+                            {% endif %}
+                        {% endfor %}
+                    </th>
+                    {% for col in row %}
+                        <td class="table-border">
+                            <a href="{{ col.get_absolute_url }}">
+                                {{ col.name }}
+                            </a>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        {% elif table.rows.0.rz.tz.is_group and table.cols.0.rz.tz.is_group %}
+            {#  Вариант 4  #}
+            <tr>
+                <th class="table-border" rowspan="2" colspan="{{ table.cols.0.rz.base.all.count }}"></th>
+                <th class="table-border text-center" colspan="{{ table.cols.0.rz.base.all.count }}">
+                    {{ table.cols.0.rz.name }}
+                </th>
+            </tr>
+            <tr>
+                {% for col in table.cols.0.get_grouped_relations %}
+                    <th class="table-border text-center">
+                        {{ col.rz.name }}
+                    </th>
+                {% endfor %}
+            </tr>
+            {% for row in table.rows.0.get_grouped_relations %}
+                <tr>
+                    {% if forloop.first %}
+                        <th class="table-border" rowspan="{{ table.rows.0.rz.base.all.count }}"
+                            style="vertical-align: middle;">
+                            {{ table.rows.0.rz.name }}
+                        </th>
+                    {% endif %}
+                    <th class="table-border">
+                        {{ row.rz.name }}
+                    </th>
+                    {% for values_row in table.values %}
+                        {% if forloop.counter0 == forloop.parentloop.counter0 %}
+                            {% for value in values_row %}
+                                <td class="table-border">
+                                    {% if value %}
+                                        <a href="{{ value.get_absolute_url }}">
+                                            {{ value.name }}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+    </table>
+</div>

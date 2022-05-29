@@ -16,6 +16,7 @@ class AuthorsFilterForm(forms.Form):
     в форму, т.е. по наступлении события oninput, отправляет её на сервер.
     Т.о. форма не требует кнопки типа "Отправить".
     """
+
     author_type = forms.ModelChoiceField(
         queryset=get_model_or_stub(AuthorType).objects.order_by(
             'name').values_list('name', flat=True),
@@ -23,3 +24,4 @@ class AuthorsFilterForm(forms.Form):
         widget=SelectWithInput(attrs={'class': 'form-control',
                                       'oninput': 'doSubmit(this.form.id)'})
     )
+

@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import User
-from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
+from drevo.models.relation_grade_scale import RelationGradeScale
 
 
 class Relation(models.Model):
@@ -59,14 +59,28 @@ class Relation(models.Model):
         verbose_name_plural = 'Связи'
         ordering = ('-date',)
 
-    def get_proof_grade(self, user: User):
-        related_knowledge_grade = self.rz.get_users_grade(user)
-        grades = self.grades.filter(user=user)
+    def get_proof_grade(self, request):
+        variant = request.GET.get('variant')
+        if variant and variant.isdigit():
+            variant = int(variant)
+        else:
+            variant = 2
+
+        if variant == 2:
+            related_knowledge_grade, _ = self.rz.get_common_grades(request)
+        else:
+            related_knowledge_grade = self.rz.get_users_grade(request.user)
+
+        grades = self.grades.filter(user=request.user)
         if grades.exists():
             relation_grade = grades.first().grade.get_base_grade()
         else:
-            relation_grade = KnowledgeGradeScale.objects.first().get_base_grade()
+            relation_grade = RelationGradeScale.objects.first().get_base_grade()
         return related_knowledge_grade * relation_grade
 
-    def get_proof_weight(self, user: User):
-        return self.get_proof_grade(user) * (-2 * self.tr.argument_type + 1)
+    def get_proof_weight(self, request):
+        return self.get_proof_grade(request) * (-2 * self.tr.argument_type + 1)
+
+    @staticmethod
+    def get_default_grade():
+        return RelationGradeScale.objects.all().first().get_base_grade()

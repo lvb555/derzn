@@ -184,53 +184,50 @@ class Znanie(models.Model):
         return KnowledgeGradeScale.objects.first().get_base_grade()
 
     def get_common_grades(self, request):
-        variant = request.GET.get('variant')
-        if variant and variant.isdigit():
-            variant = int(variant)
+        relations = self.base.filter(
+            tr__is_argument=True,
+            rz__tz__can_be_rated=True,
+        )
+        proof_base_value = KnowledgeGradeScale.objects.all().last().low_value
+        if relations.exists():
+            proof_base_value = self.get_proof_base_grade(request)
+            common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
         else:
-            variant = 2
+            common_grade_value = self.get_users_grade(request.user)
 
-        proof_base_value = self.get_proof_base_grade(request, variant)
-        if not proof_base_value:
-            proof_base_value = KnowledgeGradeScale.objects.all().first().get_base_grade()
-        common_grade_value = (
-            proof_base_value + self.get_users_grade(request.user)) / 2
         return common_grade_value, proof_base_value
 
-    def get_proof_base_grade(self, request, variant=2, sum_list=None, base_flag=True):
-        if sum_list is None:
-            sum_list = []
+    def get_proof_base_grade(self, request):
+        sum_list = []
 
         queryset = self.base.filter(
             tr__is_argument=True,
             rz__tz__can_be_rated=True,
         )
-        summ = 0
         if queryset.exists():
-            if variant == 1:
-                sum_list.append(sum(map(lambda x: x.rz.get_users_grade(
-                    request.user), queryset)) / len(queryset))
-            else:
-                sum_list.append(
-                    sum(map(lambda x: x.get_proof_weight(request.user), queryset)) / len(queryset))
-
+            children_sum_list = []
             for relation in queryset:
-                child = relation.rz
-                child_list = child.get_proof_base_grade(
-                    request, sum_list=sum_list, base_flag=False)
-                cl = list(filter(lambda x: x > 0, child_list))
-                if cl:
-                    summ += sum(cl) / len(cl)
-            if summ:
-                sum_list.append(summ)
+                grade = relation.get_proof_weight(request)
 
-        if base_flag:
-            sum_list = list(filter(lambda x: x > 0, sum_list))
-            if sum_list:
-                return sum(sum_list) / len(sum_list)
-            else:
-                return 0
-        return [summ]
+                if grade:
+                    children_sum_list.append(grade)
+
+                child_grade = relation.rz.get_proof_base_grade(request)
+                if child_grade:
+                    children_sum_list.append(child_grade)
+
+            if children_sum_list:
+                children_avg = sum(children_sum_list) / len(children_sum_list)
+                sum_list.append(children_avg)
+
+        if not sum_list:
+            return 0
+
+        return sum(sum_list) / len(sum_list)
+
+    @staticmethod
+    def get_default_grade():
+        return KnowledgeGradeScale.objects.all().first().get_base_grade()
 
     class Meta:
         verbose_name = 'Знание'

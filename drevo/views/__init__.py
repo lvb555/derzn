@@ -14,6 +14,7 @@ from .search_author_view import AuthorSearchView
 from .search_tag_view import TagSearchView
 from .knowledge_grade_view import KnowledgeFormView
 from .new_knowledge_list_view import NewKnowledgeListView
+from .browsing_history import BrowsingHistoryListView
 
 
 __all__ = [
@@ -33,4 +34,5 @@ __all__ = [
     'AuthorSearchView',
     'TagSearchView',
     'KnowledgeFormView',
+    'BrowsingHistoryListView'
 ]

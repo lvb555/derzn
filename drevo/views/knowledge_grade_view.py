@@ -8,7 +8,6 @@ from drevo.models.relation_grade_scale import RelationGradeScale
 from django.shortcuts import HttpResponseRedirect, Http404, get_object_or_404
 from django.views.decorators.csrf import csrf_protect
 from django.utils.decorators import method_decorator
-from django.contrib import messages
 
 csrf_protected_method = method_decorator(csrf_protect)
 
@@ -37,21 +36,21 @@ class KnowledgeFormView(TemplateView):
 
             knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
             context['knowledge'] = knowledge
-            context['proof_relations'] = knowledge.base.filter(
+
+            proof_relations = knowledge.base.filter(
                 tr__is_argument=True,
                 rz__tz__can_be_rated=True,
             )
+
+            context['proof_relations'] = proof_relations
             context['knowledge_scale'] = KnowledgeGradeScale.objects.all()
             context['relation_scale'] = RelationGradeScale.objects.all()
 
             common_grade_value, proof_base_value = knowledge.get_common_grades(request=self.request)
-            if not proof_base_value:
-                proof_base_value = KnowledgeGradeScale.objects.all().first().get_base_grade()
             context['proof_base_value'] = proof_base_value
             context['proof_base_grade'] = KnowledgeGradeScale.get_grade_object(proof_base_value)
             context['common_grade_value'] = common_grade_value
             context['common_grade'] = KnowledgeGradeScale.get_grade_object(common_grade_value)
-
         return context
 
     @csrf_protected_method
@@ -60,6 +59,10 @@ class KnowledgeFormView(TemplateView):
             raise Http404
 
         knowledge_pk = kwargs.get('pk')
+        variant = request.POST.get('variant')
+        if variant:
+            variant = variant.strip()
+            self.request.path = f'{self.request.path}?variant={variant}'
 
         base_knowledge_grade = request.POST['base_knowledge_grade']
         user = request.user
@@ -92,7 +95,5 @@ class KnowledgeFormView(TemplateView):
                 user=user,
                 defaults={'grade': relation_grade},
             )
-
-        messages.success(request, 'Оценка успешно сохранена')
 
         return HttpResponseRedirect(self.request.path)
