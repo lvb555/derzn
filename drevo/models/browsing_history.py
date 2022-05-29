@@ -16,7 +16,7 @@ class BrowsingHistory(models.Model):
         editable=False,
         )
     
-    date = models.DateField(auto_now_add=True,
+    date = models.DateTimeField(auto_now_add=True,
         verbose_name='Дата просмотра',
         )
     
