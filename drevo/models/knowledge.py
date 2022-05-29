@@ -191,6 +191,8 @@ class Znanie(models.Model):
         proof_base_value = KnowledgeGradeScale.objects.all().last().low_value
         if relations.exists():
             proof_base_value = self.get_proof_base_grade(request)
+
+        if proof_base_value:
             common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
         else:
             common_grade_value = self.get_users_grade(request.user)
