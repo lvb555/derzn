@@ -27,17 +27,6 @@ class NewKnowledgeListView(ListView):
 
 
     def get_queryset(self):
-        date_form = DateNewForm(self.request.GET or None)
-        date_for_new = datetime.date.today() - datetime.timedelta(days=7)
-        if date_form.is_valid():
-            year = date_form.cleaned_data.get('year')
-            month = date_form.cleaned_data.get('month')
-            day = date_form.cleaned_data.get('day')
-            date_for_new = datetime.date(year, month, day)
-        new_knowledge_point = date_for_new
-        last_knldgs = Znanie.objects.filter(date__gt=new_knowledge_point)
-
-    def get_queryset(self):
         """по запросу из поля даты или за неделю
         :return Dict[category, List[knowledge]]"""
         date_form = DatePickNewForm(self.request.GET)
@@ -58,9 +47,6 @@ class NewKnowledgeListView(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        return context
-
-=======
         _get = self.request.GET.dict()
         form_to_validate = DatePickNewForm(_get)
         if _get and form_to_validate.is_valid():
