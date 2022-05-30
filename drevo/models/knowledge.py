@@ -207,24 +207,12 @@ class Znanie(models.Model):
             rz__tz__can_be_rated=True,
         )
         if queryset.exists():
-            children_sum_list = []
             for relation in queryset:
                 grade = relation.get_proof_weight(request, variant)
 
                 if grade:
                     sum_list.append(grade)
 
-                if variant == 2:
-                    child_grade = relation.rz.get_proof_base_grade(request, variant)
-                    if child_grade:
-                        children_sum_list.append(child_grade)
-
-            children_sum_list = [num for num in children_sum_list if num != 0]
-            if children_sum_list:
-                children_avg = sum(children_sum_list) / len(children_sum_list)
-                sum_list.append(children_avg)
-
-        sum_list = [num for num in sum_list if num != 0]
         if not sum_list:
             return KnowledgeGradeScale.objects.all().last().low_value
 
