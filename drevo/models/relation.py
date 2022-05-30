@@ -59,13 +59,7 @@ class Relation(models.Model):
         verbose_name_plural = 'Связи'
         ordering = ('-date',)
 
-    def get_proof_grade(self, request):
-        variant = request.GET.get('variant')
-        if variant and variant.isdigit():
-            variant = int(variant)
-        else:
-            variant = 2
-
+    def get_proof_grade(self, request, variant):
         if variant == 2:
             related_knowledge_grade, _ = self.rz.get_common_grades(request)
         else:
@@ -78,8 +72,8 @@ class Relation(models.Model):
             relation_grade = RelationGradeScale.objects.first().get_base_grade()
         return related_knowledge_grade * relation_grade
 
-    def get_proof_weight(self, request):
-        return self.get_proof_grade(request) * (-2 * self.tr.argument_type + 1)
+    def get_proof_weight(self, request, variant):
+        return self.get_proof_grade(request, variant) * (-2 * self.tr.argument_type + 1)
 
     @staticmethod
     def get_default_grade():
