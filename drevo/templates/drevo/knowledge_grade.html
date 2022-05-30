@@ -31,7 +31,7 @@
     {% else %}
         {% if proof_relations.exists %}
             <div class="my-4">
-                <form action="{{ request.get_full_path }}" method="get">
+                <form action="{{ request.get_full_path }}" method="get" id="modeForm">
                     <div class="d-flex flex-row align-items-center">
                         <span><strong>Вариант расчета:</strong></span>
                         <span class="ms-2">
@@ -48,9 +48,6 @@
                             </span>
                         </fieldset>
                     </span>
-                        <button class="btn btn-outline-secondary m-2"
-                                {% if not user.is_authenticated %} disabled {% endif %}>Расчёт оценок
-                        </button>
                     </div>
                 </form>
             </div>
@@ -190,6 +187,14 @@
             for (const selectCollectionElement of selectCollection) {
                 selectCollectionElement.addEventListener('input', function () {
                     gradeForm.submit();
+                });
+            }
+
+            const radioButtons = document.querySelectorAll('input[name=variant]');
+            const modeForm = document.getElementById('modeForm');
+            for (const button of radioButtons) {
+                button.addEventListener('input', function () {
+                    modeForm.submit();
                 });
             }
         }
