@@ -14,8 +14,8 @@
 
 {% block content %}
     <div class="row">
+        <h2>Избранное</h2>
         {% if not knowledges|length_is:"0" %}
-            <h2>Избранное</h2>
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"
                     onchange="toggleAddZnVisibility(this);">
@@ -100,6 +100,8 @@
                     </li>
                 {% endif %}
             </ul>
+        {% else %}
+            <p>Вы еще не добавили знания в избранное</p>
         {% endif %}
     </div>
 {% endblock %}
