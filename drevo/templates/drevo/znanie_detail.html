@@ -117,8 +117,8 @@
           <span id="dislikesCounter">{{ dislikes_count }}</span>
         </div>
 
-        <div class="mx-3" style="white-space: nowrap">
-          <button type="button" id="favouriteButton" class="btn btn-outline-secondary shadow-none mx-1"
+        <div class="mb-lg-0 ms-auto" style="white-space: nowrap">
+          <button type="button" id="favouriteButton" class="btn btn-outline-primary shadow-none mx-1"
                   {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
               <i class="bi bi-star{% if user_favourite %}-fill{% endif %} fs-5"
                  id="favouriteIcon"></i>
