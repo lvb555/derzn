@@ -17,15 +17,12 @@ class FavouriteProcessView(ProcessFormView):
             if not self.request.user.is_authenticated:
                 return JsonResponse({}, status=403)
 
-            try:
-                znanie = get_object_or_404(Znanie, id=pk)
-                user_favourite = Favourite.objects.get_or_create(user=request.user)[0]
-                if user_favourite.favourites.filter(id=pk).exists():
-                    user_favourite.favourites.remove(znanie)
-                else:
-                    user_favourite.favourites.add(znanie)
-            except Exception as e:
-                print(e, '-----')
+            znanie = get_object_or_404(Znanie, id=pk)
+            user_favourite = Favourite.objects.get_or_create(user=request.user)[0]
+            if user_favourite.favourites.filter(id=pk).exists():
+                user_favourite.favourites.remove(znanie)
+            else:
+                user_favourite.favourites.add(znanie)
 
             return JsonResponse({}, status=200)
 

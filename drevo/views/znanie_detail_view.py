@@ -89,12 +89,9 @@ class ZnanieDetailView(DetailView):
 
         user = self.request.user
         if user.is_authenticated:
-            try:
-                user_favourite = Favourite.objects.filter(user=user)
-                if user_favourite.exists():
-                    context['user_favourite'] = user_favourite.first().favourites.filter(id=self.object.id).exists()
-            except Exception as e:
-                print(e)
+            user_favourite = Favourite.objects.filter(user=user)
+            if user_favourite.exists():
+                context['user_favourite'] = user_favourite.first().favourites.filter(id=self.object.id).exists()
 
             user_vote = knowledge.get_users_vote(user)
             if user_vote:
