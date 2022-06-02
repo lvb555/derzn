@@ -10,6 +10,8 @@ from django.utils import timezone
 from hashlib import sha1
 from random import random
 
+from drevo.models.knowledge import Znanie
+
 
 class User(AbstractUser):
     email = models.EmailField(
@@ -140,3 +142,8 @@ class Profile(models.Model):
                 and not self.is_password_recovery_key_expired():
             return True
         return False
+
+
+class Favourites(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    favourites = models.ManyToManyField(Znanie, blank=True)
