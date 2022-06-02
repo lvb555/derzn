@@ -1,12 +1,14 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from mptt.models import TreeForeignKey
 from django.urls import reverse
-from users.models import User
 from ..managers import ZManager
 from .category import Category
 from .knowledge_rating import ZnRating
 from .relation_type import Tr
 from .knowledge_grade_scale import KnowledgeGradeScale
+
+User = get_user_model()
 
 
 class Znanie(models.Model):
