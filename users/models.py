@@ -142,6 +142,6 @@ class Profile(models.Model):
         return False
 
 
-class Favourites(models.Model):
+class Favourite(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     favourites = models.ManyToManyField('drevo.Znanie', blank=True)
