@@ -10,8 +10,6 @@ from django.utils import timezone
 from hashlib import sha1
 from random import random
 
-from drevo.models.knowledge import Znanie
-
 
 class User(AbstractUser):
     email = models.EmailField(
@@ -146,4 +144,4 @@ class Profile(models.Model):
 
 class Favourites(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    favourites = models.ManyToManyField(Znanie, blank=True)
+    favourites = models.ManyToManyField('drevo.Znanie', blank=True)
