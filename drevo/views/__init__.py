@@ -16,6 +16,7 @@ from .knowledge_grade_view import KnowledgeFormView
 from .new_knowledge_list_view import NewKnowledgeListView
 from .browsing_history import BrowsingHistoryListView
 from .favourites_view import FavouritesView
+from .favourite_processing_view import FavouriteProcessView
 
 
 __all__ = [
@@ -36,5 +37,6 @@ __all__ = [
     'TagSearchView',
     'KnowledgeFormView',
     'BrowsingHistoryListView',
-    'FavouritesView'
+    'FavouritesView',
+    'FavouriteProcessView'
 ]
