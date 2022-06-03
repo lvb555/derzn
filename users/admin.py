@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from users.models import User, Profile, Favourite
@@ -17,6 +18,14 @@ class ProfileInlined(admin.StackedInline):
 
 class UserAdmin(BaseUserAdmin):
     inlines = (ProfileInlined, FavouritesInlined)
+
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
+        (_('Permissions'), {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
+        })
+    )
 
 
 admin.site.register(User, UserAdmin)

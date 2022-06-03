@@ -17,6 +17,8 @@ class User(AbstractUser):
         verbose_name='Адрес эл. почты',
     )
 
+    date_joined = last_login = None
+
     def __str__(self):
         return self.username
 
