@@ -184,20 +184,22 @@ class Znanie(models.Model):
         return KnowledgeGradeScale.objects.first().get_base_grade()
 
     def get_common_grades(self, request):
-        relations = self.base.filter(
-            tr__is_argument=True,
-            rz__tz__can_be_rated=True,
-        )
-        proof_base_value = KnowledgeGradeScale.objects.all().last().low_value
-        if relations.exists():
-            proof_base_value = self.get_proof_base_grade(request)
+        variant = request.GET.get('variant')
+        if variant and variant.isdigit():
+            variant = int(variant)
+        else:
+            variant = 2
+
+        proof_base_value = self.get_proof_base_grade(request, variant)
+
+        if proof_base_value:
             common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
         else:
             common_grade_value = self.get_users_grade(request.user)
 
         return common_grade_value, proof_base_value
 
-    def get_proof_base_grade(self, request):
+    def get_proof_base_grade(self, request, variant):
         sum_list = []
 
         queryset = self.base.filter(
@@ -205,23 +207,14 @@ class Znanie(models.Model):
             rz__tz__can_be_rated=True,
         )
         if queryset.exists():
-            children_sum_list = []
             for relation in queryset:
-                grade = relation.get_proof_weight(request)
+                grade = relation.get_proof_weight(request, variant)
 
                 if grade:
-                    children_sum_list.append(grade)
-
-                child_grade = relation.rz.get_proof_base_grade(request)
-                if child_grade:
-                    children_sum_list.append(child_grade)
-
-            if children_sum_list:
-                children_avg = sum(children_sum_list) / len(children_sum_list)
-                sum_list.append(children_avg)
+                    sum_list.append(grade)
 
         if not sum_list:
-            return 0
+            return KnowledgeGradeScale.objects.all().last().low_value
 
         return sum(sum_list) / len(sum_list)
 
