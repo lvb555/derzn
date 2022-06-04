@@ -1,6 +1,9 @@
 from django.db import models
 
 
+# from derzn.drevo.models import Znanie
+
+
 class Author(models.Model):
     """
     Класс для описания авторов
@@ -8,6 +11,7 @@ class Author(models.Model):
     title = 'Автор'
     name = models.CharField(max_length=128,
                             verbose_name='Имя')
+    subscribers = models.ManyToManyField('users.User')
     info = models.TextField(max_length=2048,
                             blank=True,
                             null=True,
