@@ -1,5 +1,6 @@
 from django import template
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
+from drevo.models.relation import Relation
 
 register = template.Library()
 
@@ -41,3 +42,14 @@ def grade_name(value):
 @register.filter
 def common_grades(knowledge, request):
     return knowledge.get_common_grades(request)
+
+
+@register.filter
+def proof_weight(relation: Relation, request):
+    variant = request.GET.get('variant')
+    if variant and variant.isdigit():
+        variant = int(variant)
+    else:
+        variant = 2
+
+    return relation.get_proof_weight(request, variant)

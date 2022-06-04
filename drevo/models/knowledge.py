@@ -191,11 +191,7 @@ class Znanie(models.Model):
             variant = 2
 
         proof_base_value = self.get_proof_base_grade(request, variant)
-
-        if proof_base_value:
-            common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
-        else:
-            common_grade_value = self.get_users_grade(request.user)
+        common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
 
         return common_grade_value, proof_base_value
 
