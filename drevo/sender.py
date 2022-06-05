@@ -5,6 +5,7 @@
 from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from smtplib import SMTPException
 
 def send_email(from_address, to_address, subject, html_message, message):
     """
@@ -52,7 +53,8 @@ def send_email(from_address, to_address, subject, html_message, message):
             fail_silently=True,
             html_message=html_message
         )
-    except:
+    except SMTPException as e:
+        print('There was an error sending an email.'+ e)
         return False
     
     return True
