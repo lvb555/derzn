@@ -19,6 +19,8 @@ class User(AbstractUser):
         verbose_name='Адрес эл. почты',
     )
 
+    date_joined = last_login = None
+
     def __str__(self):
         return self.username
 
@@ -144,3 +146,8 @@ class Profile(models.Model):
                 and not self.is_password_recovery_key_expired():
             return True
         return False
+
+
+class Favourite(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    favourites = models.ManyToManyField('drevo.Znanie', blank=True)
