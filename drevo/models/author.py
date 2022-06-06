@@ -11,8 +11,7 @@ class Author(models.Model):
     title = 'Автор'
     name = models.CharField(max_length=128,
                             verbose_name='Имя')
-    subscribers = models.ManyToManyField('users.User',
-                                         related_name='Авторы')
+    subscribers = models.ManyToManyField('users.User', blank=True)
     info = models.TextField(max_length=2048,
                             blank=True,
                             null=True,
