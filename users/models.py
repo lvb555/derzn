@@ -10,6 +10,8 @@ from django.utils import timezone
 from hashlib import sha1
 from random import random
 
+from drevo.sender import send_email
+
 
 class User(AbstractUser):
     email = models.EmailField(
@@ -103,7 +105,8 @@ class Profile(models.Model):
         subject = 'Активация аккаунта'
         message = f'Чтобы активировать аккаунт, перейдите по ссылке: ' \
                   f'{settings.BASE_URL}{verify_link}'
-        return send_mail(subject, message, f'Дерево знаний <{settings.EMAIL_HOST_USER}>', [self.user.email])
+
+        return send_email(f'Дерево знаний <{settings.EMAIL_HOST_USER}>', self.user.email, subject, False, message)
 
     def verify(self, username: str, activation_key: str) -> bool:
         if self.user.username == username \
@@ -132,7 +135,8 @@ class Profile(models.Model):
         subject = 'Восстановление пароля'
         message = f'Для восстановления пароля, перейдите по ссылке: ' \
                   f'{settings.BASE_URL}{recovery_link}'
-        return send_mail(subject, message, f'Дерево знаний <{settings.EMAIL_HOST_USER}>', [self.user.email])
+
+        return send_email(f'Дерево знаний <{settings.EMAIL_HOST_USER}>', self.user.email, subject, False, message)
 
     def recovery_valid(self, email: str, key: str):
         if self.user.email == email \
