@@ -30,19 +30,20 @@ def send_email(from_address, to_address, subject, html_message, message):
     """
 
     try:
-        validate_email(from_address)
         validate_email(to_address)
-    except ValidationError:
+    except ValidationError as e:
+        print(e)
         return False
 
-    if not message:
+    if message is None:
+        print('Error send mail: empty message')
         return False
 
-    if not subject:
+    if subject is None:
         subject = ""
 
-    if not format:
-        format = 'text'
+    if html_message is None:
+        html_message = False
     
     try:
         send_mail(
@@ -54,7 +55,7 @@ def send_email(from_address, to_address, subject, html_message, message):
             html_message=html_message
         )
     except SMTPException as e:
-        print('There was an error sending an email.'+ e)
+        print('Error send mail: ' + e)
         return False
     
     return True
