@@ -10,25 +10,25 @@ from dz import settings
 from drevo.models import Znanie
 
 
-# @receiver(request_finished #, sender=Znanie
-#             )
-def notify(sender, # instance, created,
-           **kwargs):
+def notify(sender, instance, created, **kwargs):
     print('in reciever')
-
+    if not instance.is_published or not instance.author:
+        return
+    user_to_notify = instance.author.subscribers.all()
+    if not user_to_notify:
+        return
     message_subject = 'Новое знание'
     message_content = 'Уважаемый {}{}!\n' \
                       f'{datetime.date.today()} было создано новое' \
                       f'знание:\n  {instance.get_absolute_url()}\n' \
                       f'Автор: {instance.author}\n'
-    user_to_notify = instance.author.subscribers.all()
     for addressee in user_to_notify:
-        patr = addressee.profile.patronymic or ''
-        yield send_mail(message_subject, message_content.format(
-            addressee.first_name, ' ' + patr),  # 'b@b.com',
-                        # env.str('EMAIL_HOST_USER'),
-                        f'Дерево знаний <{settings.EMAIL_HOST_USER}>',
-                        addressee.email)
-
-# post_save.connect(notify, sender=Znanie, dispatch_uid='Knowledge created',
-#                   weak=False)
+        patr = ''
+        user_profile = addressee.profile
+        if user_profile.first_name and user_profile.patronymic:
+            patr = ' ' + user_profile.patronymic
+        appeal = user_profile.first_name or 'пользователь'
+        send_mail(message_subject, message_content.format(
+        appeal, patr),
+                    f'Дерево знаний <{settings.EMAIL_HOST_USER}>',
+                    addressee.email)
