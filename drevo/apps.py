@@ -8,4 +8,6 @@ class DrevoConfig(AppConfig):
     #
 
     def ready(self):
-        import drevo.signals
+        from drevo.models import Znanie
+        from . import signals
+        post_save.connect(signals.notify, sender=Znanie)

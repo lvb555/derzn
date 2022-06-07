@@ -1,6 +1,7 @@
 import datetime
 
 from django.core.mail import send_mail
+from django.core.signals import request_finished
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -9,8 +10,10 @@ from dz import settings
 from drevo.models import Znanie
 
 
-@receiver(post_save, sender=Znanie)
-def notify(sender, instance, created, **kwargs):
+# @receiver(request_finished #, sender=Znanie
+#             )
+def notify(sender, # instance, created,
+           **kwargs):
     print('in reciever')
 
     message_subject = 'Новое знание'
