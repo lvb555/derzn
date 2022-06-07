@@ -1,10 +1,7 @@
 from django.http import HttpResponseRedirect
-from django.views import View
-from django.views.generic import FormView, ListView, TemplateView, UpdateView
-
-from drevo.models import Author
-
+from django.views.generic import ListView
 from drevo.forms import AuthorSubscriptionForm, AuthorSubscriptionDeleteForm
+from drevo.models import Author
 
 
 class SubscribeToAuthor(ListView,#  UpdateView FormView
@@ -13,18 +10,12 @@ class SubscribeToAuthor(ListView,#  UpdateView FormView
     model = Author
     context_object_name = 'subscriptions'
     new_sub_form = AuthorSubscriptionForm
-    # unsub_form = AuthorSubscriptionDeleteForm
-    # success_url = 'subscribe_to_author'
-
-
-    # form_class = AuthorSubscriptionForm
 
     def get_context_data(self, **kwargs):
         context = super(SubscribeToAuthor, self).get_context_data(**kwargs)
         subsribed_to = self.request.user.author_set.all()
         subsribed_to__names = [(author.name, author.name)
                                for author in subsribed_to]
-        # subsribed_to = Author.objects.filter(sub)
         can_subscribe_to = Author.objects.exclude(
             subscribers=self.request.user)
         can_subscribe_to__names = [(author.name, author.name) for
@@ -42,16 +33,8 @@ class SubscribeToAuthor(ListView,#  UpdateView FormView
             print(subscribed_to_names)
             authors_subscribed_to = Author.objects.filter(
                 name__in=subscribed_to_names)
-            print('--------')
-            print(authors_subscribed_to)
-            print('--------')
             for author in authors_subscribed_to:
-                print(author)
                 author.subscribers.add(self.request.user)
-
-            # post_data = request.POST or None
-            # sub_form = self.new_sub_form(post_data)
-            print(request.POST)
         elif 'btn_unsub' in request.POST:
             unsubscribed_from_names = request.POST['unsubscribe_choices']
             authors_subscribed_to = Author.objects.filter(
