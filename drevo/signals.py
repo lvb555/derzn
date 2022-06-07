@@ -2,12 +2,14 @@ import datetime
 
 from django.core.mail import send_mail
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from dz import settings
 
 from drevo.models import Znanie
 
 
+@receiver(post_save, sender=Znanie)
 def notify(sender, instance, created, **kwargs):
     print('in reciever')
 
@@ -25,6 +27,5 @@ def notify(sender, instance, created, **kwargs):
                         f'Дерево знаний <{settings.EMAIL_HOST_USER}>',
                         addressee.email)
 
-
-post_save.connect(notify, sender=Znanie, dispatch_uid='Knowledge created',
-                  weak=False)
+# post_save.connect(notify, sender=Znanie, dispatch_uid='Knowledge created',
+#                   weak=False)
