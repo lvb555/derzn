@@ -7,25 +7,29 @@
 <h4>Подписка по авторам</h4>
 <div>
     <ul>
-{% for author in subscriptions %}
-<li>{{author.name}}</li>
-{% empty %}
+        {% for author in subscriptions %}
+        <li>{{author.name}}</li>
+        {% empty %}
         <li>У вас пока нет подписок на авторов.</li>
-{% endfor %}
+        {% endfor %}
     </ul>
 </div>
-<form class="new_subscription" method="post">
+<form class="new_subscription float-right" method="post">
     {% csrf_token %}
-<!--    {{ form.as_p }}-->
     {{ new_sub_form.as_p }}
     <input type="submit" value="Добавить в подписки" name="btn_sub">
 </form>
+<p class="mt-4"></p>
 {% if subscriptions %}
+<div class="mx-auto">
 <form class="put_sub_away" method="post">
+    <div class="form-group">
     {% csrf_token %}
     {{ remove_from_sub_form.as_p }}
+    </div>
     <input type="submit" value="Убрать из подписок" name="btn_unsub">
 </form>
+</div>
 {% endif %}
 
 {% endblock %}

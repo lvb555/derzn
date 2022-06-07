@@ -8,7 +8,7 @@ class AuthorSubscriptionForm(forms.Form):
     """
 
     subscription_choices = forms.ChoiceField(
-        choices=[], widget=SelectMultiple,
+        choices=[], widget=SelectMultiple(attrs={'style': 'width:100%;'}),
         label='Возможные подписки'
     )
 
