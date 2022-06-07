@@ -30,7 +30,8 @@ class DrevoRedirectView(RedirectView):
 urlpatterns = [
     path('', DrevoRedirectView.as_view(), name='main-redirect'),
     path('admin/', admin.site.urls),
-    path('drevo/', include('drevo.urls')),
+    path('drevo/', include('drevo.urls',# namespace='drevo_app'
+                           )),
     path('users/', include('users.urls', namespace='users')),
 ]
 

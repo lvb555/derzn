@@ -18,7 +18,9 @@ from .views import (DrevoListView,
                     TagSearchView,
                     KnowledgeFormView,
                     NewKnowledgeListView,
-                    BrowsingHistoryListView, SubscribeToAuthor)
+                    BrowsingHistoryListView,
+                    SubscribeToAuthor)
+
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),

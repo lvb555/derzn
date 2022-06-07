@@ -1,9 +1,6 @@
 from django.db import models
 
 
-# from derzn.drevo.models import Znanie
-
-
 class Author(models.Model):
     """
     Класс для описания авторов

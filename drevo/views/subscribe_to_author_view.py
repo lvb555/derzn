@@ -4,8 +4,7 @@ from drevo.forms import AuthorSubscriptionForm, AuthorSubscriptionDeleteForm
 from drevo.models import Author
 
 
-class SubscribeToAuthor(ListView,#  UpdateView FormView
-                        ):
+class SubscribeToAuthor(ListView):
     template_name = 'drevo/author_subscription.html'
     model = Author
     context_object_name = 'subscriptions'

@@ -13,7 +13,6 @@ from .relation_type import Tr
 from .relation import Relation
 from .visits import Visits
 from .browsing_history import BrowsingHistory
-from .signals import *
 
 __all__ = [
     'AuthorType',

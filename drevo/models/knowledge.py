@@ -1,12 +1,13 @@
 from django.db import models
-from mptt.models import TreeForeignKey
 from django.urls import reverse
+from mptt.models import TreeForeignKey
 from users.models import User
-from ..managers import ZManager
+
 from .category import Category
+from .knowledge_grade_scale import KnowledgeGradeScale
 from .knowledge_rating import ZnRating
 from .relation_type import Tr
-from .knowledge_grade_scale import KnowledgeGradeScale
+from ..managers import ZManager
 
 
 class Znanie(models.Model):
@@ -162,7 +163,7 @@ class Znanie(models.Model):
                     filter(
                         lambda x: len(x.rz.base.all()) == 2 and all(
                             map(lambda y: y.rz == row.rz or y.rz ==
-                                col.rz, x.rz.base.all())
+                                          col.rz, x.rz.base.all())
                         ),
                         values
                     )
