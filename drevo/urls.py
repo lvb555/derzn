@@ -19,13 +19,16 @@ from .views import (DrevoListView,
                     KnowledgeFormView,
                     NewKnowledgeListView,
                     BrowsingHistoryListView,
-                    SubscribeToAuthor)
+                    SubscribeToAuthor,
+                    FavouritesView,
+                    FavouriteProcessView)
 
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),
     path('', DrevoView.as_view(), name='drevo'),
     path('znanie/<int:pk>', ZnanieDetailView.as_view(), name='zdetail'),
+    path('znanie/<int:pk>/favourite', FavouriteProcessView.as_view()),
     path('znanie/<int:pk>/comments/', CommentPageView.as_view()),
     path('znanie/<int:pk>/comments/send/', CommentSendView.as_view()),
     path('znanie/<int:pk>/vote/<str:vote>/',
@@ -51,7 +54,10 @@ urlpatterns = [
          BrowsingHistoryListView.as_view(),
          name='history'),
     path('subscribe_to_author/', SubscribeToAuthor.as_view(),
-         name='subscribe_to_author')
+         name='subscribe_to_author'),
+    path('favourites/',
+         FavouritesView.as_view(),
+         name='favourites'),
 ]
 
 

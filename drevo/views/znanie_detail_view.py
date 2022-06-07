@@ -1,5 +1,7 @@
 from django.views.generic import DetailView
 from datetime import datetime
+
+from users.models import Favourite
 from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory
 from loguru import logger
 from ..relations_tree import (get_category_for_knowledge, get_ancestors_for_knowledge,
@@ -87,6 +89,10 @@ class ZnanieDetailView(DetailView):
 
         user = self.request.user
         if user.is_authenticated:
+            user_favourite = Favourite.objects.filter(user=user)
+            if user_favourite.exists():
+                context['user_favourite'] = user_favourite.first().favourites.filter(id=self.object.id).exists()
+
             user_vote = knowledge.get_users_vote(user)
             if user_vote:
                 context['user_vote'] = {user_vote: True}

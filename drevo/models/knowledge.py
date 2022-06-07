@@ -1,13 +1,17 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from mptt.models import TreeForeignKey
 from users.models import User
 
+from ..managers import ZManager
 from .category import Category
 from .knowledge_grade_scale import KnowledgeGradeScale
 from .knowledge_rating import ZnRating
 from .relation_type import Tr
 from ..managers import ZManager
+
+User = get_user_model()
 
 
 class Znanie(models.Model):
@@ -192,11 +196,7 @@ class Znanie(models.Model):
             variant = 2
 
         proof_base_value = self.get_proof_base_grade(request, variant)
-
-        if proof_base_value:
-            common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
-        else:
-            common_grade_value = self.get_users_grade(request.user)
+        common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
 
         return common_grade_value, proof_base_value
 

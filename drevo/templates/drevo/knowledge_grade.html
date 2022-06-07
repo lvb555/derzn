@@ -8,7 +8,13 @@
 
 {% block content %}
     <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
-        <i class="bi-arrow-left"></i>&nbsp;{{ knowledge.name }}
+        <div class="row">
+            <div class="col-auto">
+                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
+                    {{ knowledge.name }}
+                </i>
+            </div>
+        </div>
     </a>
     <h2 class="my-2">{{ title }}</h2>
 
@@ -62,7 +68,7 @@
                 <tr>
                     <th>Оценка знания:</th>
                     <td>
-                        <select name="base_knowledge_grade" style="max-width: 200px" id="id_base_knowledge_grade">
+                        <select name="base_knowledge_grade" id="id_base_knowledge_grade">
                             {% for grade in knowledge_scale %}
                                 <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                         {% if selected_base_grade and selected_base_grade.grade == grade %}
@@ -97,19 +103,22 @@
 
             {% if proof_relations.exists %}
                 <h4 class="text-center my-4">Доказательная база знания</h4>
-                <div class="table-responsive">
+                <div class="table-responsive" style="resize: horizontal;">
                     <style>
                         .table-border {
                             border: 2px black solid;
                         }
                     </style>
-                    <table class="table align-middle my-2">
+                    <table class="table align-middle my-2" style="border-collapse: collapse; display: inline-block;">
                         <tbody class="table-border">
                         <th class="table-border text-center">
                             Знание
                         </th>
                         <th class="table-border text-center">
                             Вид связи
+                        </th>
+                        <th colspan="2" class="table-border text-center">
+                            Оценка довода
                         </th>
                         <th colspan="2" class="table-border text-center">
                             Общая оценка знания
@@ -133,6 +142,14 @@
                                 <td class="table-border">
                                     {{ relation.tr.name|endings_filter }}
                                 </td>
+                                {% with relation|proof_weight:request as pw %}
+                                    <td class="table-border">
+                                        {{ pw|grade_name }}
+                                    </td>
+                                    <td class="table-border text-center">
+                                        {{ pw|floatformat:-2 }}
+                                    </td>
+                                {% endwith %}
                                 {% with relation.rz|common_grades:request as grades_iter %}
                                     <td class="table-border">
                                         {{ grades_iter.0|grade_name }}
@@ -142,8 +159,7 @@
                                     </td>
                                 {% endwith %}
                                 <td class="table-border">
-                                    <select name="knowledge_grade" style="max-width: 150px"
-                                            id="id_relation_grade{{ relation.id }}">
+                                    <select name="knowledge_grade" id="id_relation_grade{{ relation.id }}">
                                         {% for grade in knowledge_scale %}
                                             <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                                     id="proofRelationId{{ relation.id }}"
@@ -157,8 +173,7 @@
                                     {{ relation.rz|object_grade_num:user|floatformat:-2 }}
                                 </td>
                                 <td class="table-border">
-                                    <select name="relation_grade" style="max-width: 150px"
-                                            id="id_relation_grade{{ relation.id }}">
+                                    <select name="relation_grade" id="id_relation_grade{{ relation.id }}">
                                         {% for grade in relation_scale %}
                                             <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                                     id="proofRelationId{{ relation.id }}"
