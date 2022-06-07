@@ -7,8 +7,12 @@ from .knowledge_search_form import KnowledgeSearchForm
 from .author_search_form import AuthorSearchForm
 from .tag_search_form import TagSearchForm
 from .date_pick_form import DatePickNewForm
+from .author_subribtion_forms import AuthorSubscriptionForm
+from .author_subribtion_forms import AuthorSubscriptionDeleteForm
 
 __all__ = [
+    'AuthorSubscriptionDeleteForm',
+    'AuthorSubscriptionForm',
     'DatePickNewForm',
     'AuthorForm',
     'AuthorsFilterForm',

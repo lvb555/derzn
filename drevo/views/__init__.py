@@ -15,11 +15,13 @@ from .search_tag_view import TagSearchView
 from .knowledge_grade_view import KnowledgeFormView
 from .new_knowledge_list_view import NewKnowledgeListView
 from .browsing_history import BrowsingHistoryListView
+from .subscribe_to_author_view import SubscribeToAuthor
 from .favourites_view import FavouritesView
 from .favourite_processing_view import FavouriteProcessView
 
 
 __all__ = [
+    'SubscribeToAuthor',
     'AuthorDetailView',
     'AuthorsListView',
     'CommentPageView',

@@ -18,13 +18,13 @@ logger.add('logs/main.log',
 
 
 class NewKnowledgeListView(ListView):
-    # TODO clean up unused files
     """
     полный список недавно опубликованных знаний
     """
     model = Znanie
     template_name = 'drevo/new_knowledge_date_table.html'
     context_object_name = 'categorized_new_knowledges'
+
 
     def get_queryset(self):
         """по запросу из поля даты или за неделю

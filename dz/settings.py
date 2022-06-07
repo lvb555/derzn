@@ -4,7 +4,6 @@ Django settings for dz project.
 import os
 from pathlib import Path
 from environs import Env
-import dj_database_url
 import humanize
 
 env = Env()
@@ -27,13 +26,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'drevo.apps.DrevoConfig',
+    # 'drevo.apps.DrevoConfig',
     'django.contrib.humanize',
     'mptt',
     'ckeditor',
     'loguru',
     'adminsortable2',
     'users',
+    'drevo',
 ]
 
 MIDDLEWARE = [
