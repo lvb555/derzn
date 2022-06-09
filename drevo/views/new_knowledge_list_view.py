@@ -34,7 +34,7 @@ class NewKnowledgeListView(ListView):
         if date_form.is_valid():
             date_for_new = date_form.cleaned_data.get('date')
         last_knldgs = Znanie.objects.filter(updated_at__gte=date_for_new,
-                                            is_published=True)
+                                            is_published=True, tz__is_systemic=False)
         # possible to ease hustle by using 'regroup' template kw
         ctgrs = [knldg.category for knldg in last_knldgs]
         nstd_l = {}
