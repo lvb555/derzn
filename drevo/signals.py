@@ -3,9 +3,11 @@ import datetime
 from django.core.mail import send_mail
 from dz import settings
 
+from drevo.models import Znanie
 
-def notify(sender, instance, created, **kwargs):
-    if not instance.is_published or not instance.author:
+
+def notify(sender, instance: Znanie, created, **kwargs):
+    if not instance.is_published or not instance.author or instance.tz.is_systemic:
         return
     user_to_notify = instance.author.subscribers.all()
     if not user_to_notify:
