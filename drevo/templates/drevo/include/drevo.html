@@ -1,0 +1,121 @@
+{% load filter %}
+
+{% load ending %}
+
+
+<div class="row">
+    <div>
+        <h2>{{ title }}</h2>
+        {% if not knowledges|length_is:"0" %}
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"
+                       onchange="toggleAddZnVisibility(this);">
+                <label class="form-check-label" for="flexSwitchCheckDefault">Выводить только основные знания?</label>
+            </div>
+            <br>
+            <ul>
+                {% for category in categories %}
+                    <li style="font-weight: 600;"
+                        {% if not knowledges|dict_value:category.name|dict_value:"base" %}class="li_add"{% endif %}
+                    ><i class="bi-file-plus-fill lonely"></i>
+                        <a href="{{ category.get_absolute_url }}">{{ category }}</a>
+                        <ul>
+                            <li>
+                                <table class="table">
+                                    {% if not knowledges|dict_value:category.name|dict_value:"base"|length_is:"0" %}
+                                        {% for knowledge in knowledges|dict_value:category.name|dict_value:"base" %}
+                                            <tr style="font-weight: 400;">
+                                                <td>
+                                                    <i class="bi-file-text-fill zn_base"></i>
+                                                    <a href="{% url 'zdetail' knowledge.pk %}"
+                                                       class="zn_base">{{ knowledge }}</a>
+                                                </td>
+                                                <td>{{ knowledge.tz|ending:'singular' }}</td>
+                                                <td></td>
+                                                <td>{{ knowledge.date }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if not knowledges|dict_value:category.name|dict_value:"additional"|length_is:"0" %}
+                                        {% for knowledge in knowledges|dict_value:category.name|dict_value:"additional" %}
+                                            <tr class="li_add" style="font-weight: 400;">
+                                                <td>
+                                                    <i class="bi-file-text-fill zn_add"></i>
+                                                    <a href="{% url 'zdetail' knowledge.pk %}" class="zn_add">
+                                                        {{ knowledge }}</a>
+                                                </td>
+                                                <td>{{ knowledge.tz|ending:'singular' }}</td>
+                                                <td>{{ knowledge.related.all.first.tr }}</td>
+                                                <td>{{ knowledge.date }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                </table>
+                            </li>
+                        </ul>
+                    </li>
+                {% endfor %}
+
+                {# знания, не имеющие категории #}
+                {% if not knowledges|dict_value:'None'|length_is:"0" %}
+                    <li style="font-weight: 600;" class="li_add">Знания, не имеющие категории
+                        <ul>
+                            <li>
+                                <table class="table">
+                                    {% for knowledge in knowledges|dict_value:'None'|dict_value:"base" %}
+                                        <tr style="font-weight: 400;">
+                                            <td>
+                                                <i class="bi-file-text-fill zn_base"></i>
+                                                <a href="{% url 'zdetail' knowledge.pk %}"
+                                                   class="zn_base">{{ knowledge }}</a>
+                                            </td>
+                                            <td>{{ knowledge.tz }}</td>
+                                            <td>{{ knowledge.related.all.first.tr }}</td>
+                                            <td>{{ knowledge.date }}</td>
+                                        </tr>
+                                    {% endfor %}
+
+                                    {% for knowledge in knowledges|dict_value:'None'|dict_value:"additional" %}
+                                        <tr style="font-weight: 400;" class="li_add">
+                                            <td>
+                                                <i class="bi-file-text-fill zn_add"></i>
+                                                <a href="{% url 'zdetail' knowledge.pk %}" class="zn_add">
+                                                    {{ knowledge }}</a>
+                                            </td>
+                                            <td>{{ knowledge.tz }}</td>
+                                            <td>{{ knowledge.related.all.first.tr }}</td>
+                                            <td>{{ knowledge.date }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </li>
+                        </ul>
+                    </li>
+                {% endif %}
+            </ul>
+        {% else %}
+            <p>Тут еще ничего нет)</p>
+        {% endif %}
+    </div>
+</div>
+
+
+{% block jsfiles %}
+    <script>
+        function toggleAddZnVisibility(element) {
+            let ulToToggle = document.querySelectorAll('.li_add');
+            if (element.checked == true) {
+                ulToToggle.forEach(function (x) {
+                    x.hidden = true;
+                }
+                )
+            }
+            else {
+                ulToToggle.forEach(function (x) {
+                    x.hidden = false;
+                }
+                )
+            }
+        }
+    </script>
+{% endblock %}
