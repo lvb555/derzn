@@ -4,6 +4,8 @@
 
 {% load filter %}
 
+{% load ending %}
+
 
 {% block title %}Избранное{% endblock %}
 
@@ -40,7 +42,7 @@
                                                         <a href="{% url 'zdetail' knowledge.pk %}"
                                                            class="zn_base">{{ knowledge }}</a>
                                                     </td>
-                                                    <td>{{ knowledge.tz }}</td>
+                                                    <td>{{ knowledge.tz|ending:'singular' }}</td>
                                                     <td></td>
                                                     <td>{{ knowledge.date }}</td>
                                                 </tr>
@@ -54,7 +56,7 @@
                                                         <a href="{% url 'zdetail' knowledge.pk %}" class="zn_add">
                                                             {{ knowledge }}</a>
                                                     </td>
-                                                    <td>{{ knowledge.tz }}</td>
+                                                    <td>{{ knowledge.tz|ending:'singular' }}</td>
                                                     <td>{{ knowledge.related.all.first.tr }}</td>
                                                     <td>{{ knowledge.date }}</td>
                                                 </tr>
