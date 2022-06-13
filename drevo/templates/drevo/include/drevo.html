@@ -45,7 +45,7 @@
                                                         {{ knowledge }}</a>
                                                 </td>
                                                 <td>{{ knowledge.tz|ending:'singular' }}</td>
-                                                <td>{{ knowledge.related.all.first.tr }}</td>
+                                                <td>{{ knowledge.related.all.first.tr|ending:'singular' }}</td>
                                                 <td>{{ knowledge.date }}</td>
                                             </tr>
                                         {% endfor %}
@@ -69,8 +69,8 @@
                                                 <a href="{% url 'zdetail' knowledge.pk %}"
                                                    class="zn_base">{{ knowledge }}</a>
                                             </td>
-                                            <td>{{ knowledge.tz }}</td>
-                                            <td>{{ knowledge.related.all.first.tr }}</td>
+                                            <td>{{ knowledge.tz|ending:'singular' }}</td>
+                                            <td>{{ knowledge.related.all.first.tr|ending:'singular' }}</td>
                                             <td>{{ knowledge.date }}</td>
                                         </tr>
                                     {% endfor %}
@@ -82,8 +82,8 @@
                                                 <a href="{% url 'zdetail' knowledge.pk %}" class="zn_add">
                                                     {{ knowledge }}</a>
                                             </td>
-                                            <td>{{ knowledge.tz }}</td>
-                                            <td>{{ knowledge.related.all.first.tr }}</td>
+                                            <td>{{ knowledge.tz|ending:'singular' }}</td>
+                                            <td>{{ knowledge.related.all.first.tr|ending:'singular' }}</td>
                                             <td>{{ knowledge.date }}</td>
                                         </tr>
                                     {% endfor %}
@@ -94,7 +94,7 @@
                 {% endif %}
             </ul>
         {% else %}
-            <p>Тут еще ничего нет)</p>
+            <p>Тут пусто...)</p>
         {% endif %}
     </div>
 </div>

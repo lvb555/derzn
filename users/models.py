@@ -32,7 +32,7 @@ class Profile(models.Model):
         (UNKNOWN, 'Не указан'),
     )
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Пользователь')
 
     patronymic = models.CharField(
         max_length=150,
@@ -57,19 +57,23 @@ class Profile(models.Model):
     )
     activation_key = models.CharField(
         max_length=128,
-        blank=True
+        blank=True,
+        verbose_name='Ключ активации'
     )
     activation_key_expires = models.DateTimeField(
         blank=True,
-        null=True
+        null=True,
+        verbose_name='Ключ активации годен до'
     )
     password_recovery_key = models.CharField(
         max_length=128,
-        blank=True
+        blank=True,
+        verbose_name='Ключ восстановления пароля'
     )
     password_recovery_key_expires = models.DateTimeField(
         blank=True,
-        null=True
+        null=True,
+        verbose_name='Ключ восстановления пароля годен до'
     )
 
     def __str__(self):
