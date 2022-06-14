@@ -2,13 +2,7 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from users.models import User, Profile, Favourite
-
-
-class FavouritesInlined(admin.StackedInline):
-    model = Favourite
-    can_delete = False
-    filter_horizontal = ('favourites', )
+from users.models import User, Profile
 
 
 class ProfileInlined(admin.StackedInline):
@@ -17,7 +11,7 @@ class ProfileInlined(admin.StackedInline):
 
 
 class UserAdmin(BaseUserAdmin):
-    inlines = (ProfileInlined, FavouritesInlined)
+    inlines = (ProfileInlined, )
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
