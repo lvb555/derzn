@@ -13,6 +13,7 @@ from .relation_type import Tr
 from .relation import Relation
 from .visits import Visits
 from .browsing_history import BrowsingHistory
+from .expert_category import CategoryExpert
 
 __all__ = [
     'AuthorType',
@@ -29,5 +30,6 @@ __all__ = [
     'Tr',
     'Relation',
     'Visits',
-    'BrowsingHistory'
+    'BrowsingHistory',
+    'CategoryExpert',
 ]

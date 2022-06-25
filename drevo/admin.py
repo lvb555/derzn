@@ -1,6 +1,8 @@
 
 from re import S
 from django.contrib import admin
+
+from drevo.models.expert_category import CategoryExpert
 from .models import Znanie, Tz, Author, Label, Tr, Relation, Category, ZnImage, AuthorType, GlossaryTerm, \
     ZnRating, Comment
 from mptt.admin import DraggableMPTTAdmin
@@ -285,3 +287,19 @@ class RelationGradeAdmin(admin.ModelAdmin):
 
 
 admin.site.register(RelationGrade, RelationGradeAdmin)
+
+
+class CategoryExpertAdmin(admin.ModelAdmin):
+    list_display = ('expert', 'get_categories')
+
+    def get_categories(self, obj):
+        """
+        Собирает категории экспертов в список по порядку id
+        """
+        list_categories = []
+        for category_expert in obj.categories.all():
+            list_categories.append(category_expert.name)
+        list_categories = list(set(list_categories))
+        return ",\n".join(list_categories)
+
+admin.site.register(CategoryExpert, CategoryExpertAdmin)

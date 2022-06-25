@@ -1,3 +1,4 @@
+from urllib import request
 from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.contrib import auth, messages
@@ -134,6 +135,11 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        expert = self.object.expert.all()
+        if expert:
+            expert = expert[0]
+            competence = expert.categories.all()
+            context['competence'] = competence
         context['title'] = 'Ваш профиль'
         context['profile_form'] = ProfileModelForm(
             instance=Profile.objects.get(user=self.object)
