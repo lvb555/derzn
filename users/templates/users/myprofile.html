@@ -89,6 +89,18 @@
                     <a class="btn btn-primary btn-lg" href="{% url 'subscribe_to_author' %}">Подписка</a>
                 </div>
             </p>
+            {% if user.expert.all %}
+            <div class="form-row">
+                <div class="col mb-3">
+                    Компетентность:
+                    <ul class="competence">
+                        {% for el in competence %}
+                            <li>{{ el.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

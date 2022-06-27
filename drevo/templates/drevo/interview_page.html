@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Интервью: {{ znanie.name }}{% endblock %}
+
+{% block content %}
+
+<h1 class="title-interview">{{ znanie.name }}</h1>
+
+<a href="{% url 'zdetail' znanie.pk %}">{% url 'zdetail' znanie.pk %}</a>
+
+<hr>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      Вид знания: {{ znanie.tz }}
+    </div>
+    <div class="col">
+      {% if znanie.author %}
+      Автор: <a href="{% url 'author' znanie.author.pk %}">{{ znanie.author }}</a>
+      {% else %}
+      Автор: не указан
+      {% endif %}
+    </div>
+    <div class="col">
+      Дата: {{ znanie.date }}
+    </div>
+  </div>
+</div>
+
+<hr>
+
+{% for q, my_answer in q_true.items %}
+  {% if my_answer %}
+    <div class="question-interview">
+      <a href="{% url 'zdetail' q.id %}" class="interview-end">{{ q }}</a>
+    </div>
+  {% else %}
+    <div class="question-interview">
+      <a href="{% url 'zdetail' q.id %}" class="interview-start">{{ q }}</a>
+    </div>
+  {% endif %}
+{% endfor %}
+
+
+<style>
+  .title-interview {
+    display: inline;
+    margin-right: 60%;
+  }
+  .question-interview > a {
+    text-decoration: none;
+  }
+  .question-interview {
+    margin-bottom: 5px;
+  }
+  .interview-end {    
+    color: green;
+  }
+  .interview-start {
+    color: red;
+  }
+</style>
+
+{% endblock %}
+

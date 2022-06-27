@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+<head><title>{% block title %}Мои интервью{% endblock %}</title></head>
+{% block content %}
+
+<h1>Мои интервью</h1>
+
+<ul class="treeInterview">
+  <ul>
+      {% for category, list_zn in zn_dict.items %}
+      <li>
+          {{ category }} 
+          <ul>
+              {% for zn in list_zn %}
+              <li>
+                {% for zn_str, tuple in rt_dict.items %}
+                    {% if zn_str == zn.name and tuple.1 and not tuple.2.1 %}
+                        <a href="{% url 'interview' zn.pk %}" class="interview-end">
+                            {{ zn }} ({{ tuple.0 }}) <span class="period">{{ tuple.2.0 }}</span>
+                        </a> 
+                    {% elif zn_str == zn.name and not tuple.1 and not tuple.2.1 %}
+                        <a href="{% url 'interview' zn.pk %}" class="interview-end">
+                            {{ zn }} ({{ tuple.0 }}) <span class="period">{{ tuple.2.0 }}</span>
+                        </a> 
+                    {% elif zn.name == zn_str and not tuple.1 and tuple.2.1 %}
+                        <a href="{% url 'interview' zn.pk %}" class="interview-start">
+                            {{ zn }} ({{ tuple.0 }}) <span class="period">{{ tuple.2.0 }}</span>
+                        </a>
+                    {% elif zn.name == zn_str and not tuple.2 %}
+                        <a href="{% url 'interview' zn.pk %}" class="interview-end">
+                            {{ zn }} ({{ tuple.0 }}) <span class="period">ПУСТО</span>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+              </li>
+              {% endfor %}
+          </ul>
+      </li>
+      {% endfor %}
+  </ul>
+</ul>
+
+<style>
+  .period {
+    color: blueviolet;
+  }
+  .quanity {
+    color: blueviolet;
+  }
+  ul {
+      list-style-type: none;
+  }
+  .bi-file-plus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .bi-file-minus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .treeInterview .drop {
+    left: -.5em;
+    top: .4em; 
+    width: .9em;
+    height: .9em;
+    line-height: .9em;
+    text-align: center;
+    background: #fff;
+    font-size: 80%;
+    cursor: pointer;
+  }
+  .treeInterview li:last-child > .bi-file-plus-fill.lonely {
+    margin-left: 1px;
+  }
+  .treeInterview .family.bi-file-plus-fill + ul {
+    display: none;
+  }
+  .treeInterview .family.bi-file-minus-fill + ul {
+    display: block;
+  }
+
+  .interview-start {
+    color: red;
+  }
+  .interview-end {
+    color: green;
+  }
+  </style>
+  
+  <script>
+  (function() {
+    var ul = document.querySelectorAll('.treeInterview > li:not(:only-child) ul, .treeInterview ul  ul');
+    for (var i = 0; i < ul.length; i++) {
+      var div = document.createElement('div');
+      div.className = 'family bi-file-plus-fill lonely';
+      ul[i].parentNode.insertBefore(div, ul[i].previousSibling);
+      div.onclick = function() {
+        this.className = (this.className == 'family bi-file-plus-fill lonely' ? 'family bi-file-minus-fill' : 'family bi-file-plus-fill lonely');
+      }
+    }
+  })();
+  </script>
+{% endblock %}
