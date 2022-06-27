@@ -16,6 +16,10 @@ class CategoryExpert(models.Model):
                                         related_name='category_list',
                                         verbose_name='Список категорий'
                                         )
+
+    def __str__(self):
+        return f'{self.expert}'
+
     class Meta:
         verbose_name = 'Эксперта'
         verbose_name_plural = 'Эксперты'
