@@ -2,6 +2,8 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
+from drevo.views.interviews_view import interview_view
+from drevo.views.my_interview_view import my_interview_view
 from .views import (DrevoListView,
                     DrevoView,
                     ZnanieDetailView,
@@ -58,6 +60,8 @@ urlpatterns = [
     path('favourites/',
          FavouritesView.as_view(),
          name='favourites'),
+     path('my_interview/', my_interview_view, name='my_interview'),
+     path('interview/<int:pk>/', interview_view, name='interview'),
 ]
 
 
