@@ -18,7 +18,8 @@ from drevo.models.relation_grade import RelationGrade
 from .forms import (ZnanieForm,
                     AuthorForm,
                     GlossaryTermForm,
-                    CategoryForm)
+                    CategoryForm,
+                    CtegoryExpertForm)
 
 
 class CategoryMPTT(DraggableMPTTAdmin):
@@ -291,7 +292,7 @@ admin.site.register(RelationGrade, RelationGradeAdmin)
 
 class CategoryExpertAdmin(admin.ModelAdmin):
     list_display = ('expert', 'get_categories')
-
+    fields = ('expert', 'categories')
     def get_categories(self, obj):
         """
         Собирает категории экспертов в список по порядку id
@@ -301,5 +302,19 @@ class CategoryExpertAdmin(admin.ModelAdmin):
             list_categories.append(category_expert.name)
         list_categories = list(set(list_categories))
         return ",\n".join(list_categories)
+
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['categories'] = CtegoryExpertForm.base_fields['category']
+        form.base_fields["categories"].label = "Компетенции"
+        return form
+
+
+    class Media:
+        css = {
+            "all": ("drevo/css/style.css",)
+        }
+
 
 admin.site.register(CategoryExpert, CategoryExpertAdmin)
