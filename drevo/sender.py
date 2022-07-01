@@ -17,8 +17,6 @@ def send_email(to_address, subject, html_message, message):
 
     Parameters
     ----------
-    from_address : str
-        адрес отправителя
     to_address : str
         адрес получателя
     subject : str
