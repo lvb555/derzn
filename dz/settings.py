@@ -133,20 +133,12 @@ LOGIN_URL = '/users/login/'
 
 BASE_URL = env.str('BASE_URL')
 
-if not DEBUG:
-    EMAIL_HOST = env.str('EMAIL_HOST')
-    EMAIL_PORT = env.str('EMAIL_PORT')
-    EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
-    EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS')
-    EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL')
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    EMAIL_HOST = 'localhost'
-    EMAIL_PORT = '25'
-    EMAIL_HOST_USER = 'test@test.test'
-    EMAIL_HOST_PASSWORD = 'test'
-    EMAIL_USE_SSL = False
+EMAIL_HOST = env.str('EMAIL_HOST')
+EMAIL_PORT = env.str('EMAIL_PORT')
+EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS')
+EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL')
 
 AUTH_USER_MODEL = 'users.User'
 

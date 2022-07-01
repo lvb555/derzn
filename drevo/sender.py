@@ -6,8 +6,12 @@ from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from smtplib import SMTPException
+from django.conf import settings
 
-def send_email(from_address, to_address, subject, html_message, message):
+FROM_ADDRESS = f'Дерево знаний <{settings.EMAIL_HOST_USER}>'
+
+
+def send_email(to_address, subject, html_message, message):
     """
     Отправка email писем
 
@@ -44,12 +48,12 @@ def send_email(from_address, to_address, subject, html_message, message):
 
     if html_message is None:
         html_message = False
-    
+
     try:
         send_mail(
             subject,
             message,
-            from_address,
+            FROM_ADDRESS,
             [to_address],
             fail_silently=True,
             html_message=html_message
@@ -57,5 +61,5 @@ def send_email(from_address, to_address, subject, html_message, message):
     except SMTPException as e:
         print('Error send mail: ' + e)
         return False
-    
+
     return True
