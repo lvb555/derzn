@@ -112,7 +112,7 @@ class Profile(models.Model):
         message = f'Чтобы активировать аккаунт, перейдите по ссылке: ' \
                   f'{settings.BASE_URL}{verify_link}'
 
-        return send_email(f'Дерево знаний <{settings.EMAIL_HOST_USER}>', self.user.email, subject, False, message)
+        return send_email(self.user.email, subject, False, message)
 
     def verify(self, username: str, activation_key: str) -> bool:
         if self.user.username == username \
@@ -142,7 +142,7 @@ class Profile(models.Model):
         message = f'Для восстановления пароля, перейдите по ссылке: ' \
                   f'{settings.BASE_URL}{recovery_link}'
 
-        return send_email(f'Дерево знаний <{settings.EMAIL_HOST_USER}>', self.user.email, subject, False, message)
+        return send_email(self.user.email, subject, False, message)
 
     def recovery_valid(self, email: str, key: str):
         if self.user.email == email \
