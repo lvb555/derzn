@@ -29,7 +29,6 @@ class SubscribeToAuthor(ListView):
     def post(self, request, *args, **kwargs):
         if 'btn_sub' in request.POST:
             subscribed_to_names = request.POST.getlist('subscription_choices')
-            print(subscribed_to_names)
             authors_subscribed_to = Author.objects.filter(
                 name__in=subscribed_to_names)
             for author in authors_subscribed_to:
