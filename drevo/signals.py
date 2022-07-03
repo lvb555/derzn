@@ -1,9 +1,13 @@
 import datetime
 
-from django.core.mail import send_mail
+from drevo.models import Znanie
 from dz import settings
 
-from drevo.models import Znanie
+from drevo.sender import send_email
+from loguru import logger
+
+logger.add('logs/main.log',
+           format="{time} {level} {message}", rotation='100Kb', level="INFO")
 
 
 def notify(sender, instance: Znanie, created, **kwargs):
@@ -24,7 +28,5 @@ def notify(sender, instance: Znanie, created, **kwargs):
         if addressee.first_name and user_profile.patronymic:
             patr = ' ' + user_profile.patronymic
         appeal = addressee.first_name or 'пользователь'
-        send_mail(message_subject, message_content.format(
-            appeal, patr),
-                  f'Дерево знаний <{settings.EMAIL_HOST_USER}>',
-                  (addressee.email,))
+        send_email(addressee.email, message_subject, False,
+                   message_content.format(appeal, patr))
