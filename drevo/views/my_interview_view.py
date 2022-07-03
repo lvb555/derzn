@@ -20,6 +20,30 @@ def my_interview_view(request):
         return render(request, 'drevo//my_interview_page.html', context)
     return redirect('/drevo/')
 
+def search_competence(categories_expert):
+    """
+    На ввод QuerySet категорий из таблицы CategoryExpert,
+    вызывается  categories_expert = obj.categories.all(),
+    где obj = request.user.expert.all()[0].
+    На выходе получаем список всех категорий, 
+    которые относятся к эксперту.
+    Пинцип работы простой:
+    Из списка выбранных категорий по очереди фильтруется список категорий из одной ветки
+    """
+    list_category_id = []
+    for category_expert in categories_expert:
+        list_level = Category.objects.filter(tree_id=category_expert.tree_id)
+        for category_child in list_level[category_expert.level:]:
+            if category_expert.level > category_child.level:
+                continue
+            elif category_expert.level >= category_child.level:
+                list_category_id.append(category_expert.id)
+            else:
+                list_category_id.append(category_child.id)
+    list_category_id = list(set(list_category_id))
+    categories = Category.tree_objects.filter(is_published=True,
+                                                id__in=list_category_id)
+    return categories
 
 def get_tree(obj, user):
     """
@@ -33,20 +57,9 @@ def get_tree(obj, user):
     """
     context = {}
     categories_expert = obj.categories.all()
-    list_category_id = []
-    #Получаем список категорий
-    for category_expert in categories_expert:
-        list_level = Category.objects.filter(tree_id=category_expert.tree_id)
-        for category_child in list_level[category_expert.level:]:
-            if category_expert.level > category_child.level:
-                continue
-            elif category_expert.level >= category_child.level:
-                list_category_id.append(category_expert.id)
-            else:
-                list_category_id.append(category_child.id)
-    list_category_id = list(set(list_category_id))
-    categories = Category.tree_objects.filter(is_published=True,
-                                                id__in=list_category_id)
+    #Получаем список категорий по уровням
+
+    categories = search_competence(categories_expert)
     
     tz_id = Tz.objects.get(name='Интервью').id
     zn_list = Znanie.objects.filter(tz_id=tz_id)
@@ -120,7 +133,8 @@ def get_tree(obj, user):
         for zn in znanies:
             try:
                 periods_r = zn.base.filter(tr_id=tr_period)[0]
-                period = Znanie.objects.get(id=periods_r.rz_id)
+                period = Znanie.objects.get(is_published=True,
+                                        id=periods_r.rz_id)
                 delta_from, delta_after, from_, after_ = reg_collector(period)
                 result_period = collector_str_period(from_, after_)
                 if delta_from.days >= 0 and delta_after.days <= 0:
@@ -142,7 +156,7 @@ def get_tree(obj, user):
         if zn_in_this_category:
             period_dict = collector_dict_period(zn_in_this_category, dict_period)
         zn_dict[category] = zn_in_this_category
-    zn_dict = {key: value for key, value in zn_dict.items() if value[0]}
+    zn_dict = {key: value for key, value in zn_dict.items() if len(value)}
     tr_answer = Tr.objects.get(name='Ответ [ы]').id
     obj_interview = Tr.objects.get(name='Состав').id
 
@@ -153,7 +167,8 @@ def get_tree(obj, user):
         """
         counter = 0
         for answer in list_answer:
-            author_answer = Znanie.objects.get(id=answer.rz_id).author_id
+            author_answer = Znanie.objects.get(is_published=True,
+                                            id=answer.rz_id).author_id
             try:
                 author = Author.objects.filter(id=author_answer)[0]
                 author = author.name
@@ -185,7 +200,8 @@ def get_tree(obj, user):
         Генерация вопросов 
         """
         for obj in obj_quest_list:
-            relation_qi = Znanie.objects.get(id=obj.rz_id)
+            relation_qi = Znanie.objects.get(is_published=True,
+                                            id=obj.rz_id)
             yield relation_qi
 
 

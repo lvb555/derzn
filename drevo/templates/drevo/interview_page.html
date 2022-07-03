@@ -34,11 +34,11 @@
 {% for q, my_answer in q_true.items %}
   {% if my_answer %}
     <div class="question-interview">
-      <a href="{% url 'zdetail' q.id %}" class="interview-end">{{ q }}</a>
+      <a href="{% url 'zdetail' q.id %}" class="interview-end">{% url 'zdetail' q.id %}</a>
     </div>
   {% else %}
     <div class="question-interview">
-      <a href="{% url 'zdetail' q.id %}" class="interview-start">{{ q }}</a>
+      <a href="{% url 'zdetail' q.id %}" class="interview-start">{% url 'zdetail' q.id %}</a>
     </div>
   {% endif %}
 {% endfor %}

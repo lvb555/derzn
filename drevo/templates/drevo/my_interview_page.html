@@ -21,19 +21,19 @@
                 {% for zn_str, tuple in rt_dict.items %}
                     {% if zn_str == zn.name and tuple.1 and not tuple.2.1 %}
                         <a href="{% url 'interview' zn.pk %}" class="interview-end">
-                            {{ zn }} ({{ tuple.0 }}) <span class="period">{{ tuple.2.0 }}</span>
+                            {{ zn }} ({{ tuple.0 }}) {{ tuple.2.0 }}
                         </a> 
-                    {% elif zn_str == zn.name and not tuple.1 and not tuple.2.1 %}
+                    {% elif zn_str == zn.name and not tuple.1 and tuple.2 and not tuple.2.1 %}
                         <a href="{% url 'interview' zn.pk %}" class="interview-end">
-                            {{ zn }} ({{ tuple.0 }}) <span class="period">{{ tuple.2.0 }}</span>
+                            {{ zn }} ({{ tuple.0 }}) {{ tuple.2.0 }}
                         </a> 
                     {% elif zn.name == zn_str and not tuple.1 and tuple.2.1 %}
                         <a href="{% url 'interview' zn.pk %}" class="interview-start">
-                            {{ zn }} ({{ tuple.0 }}) <span class="period">{{ tuple.2.0 }}</span>
+                            {{ zn }} ({{ tuple.0 }}) {{ tuple.2.0 }}
                         </a>
-                    {% elif zn.name == zn_str and not tuple.2 %}
-                        <a href="{% url 'interview' zn.pk %}" class="interview-end">
-                            {{ zn }} ({{ tuple.0 }}) <span class="period">ПУСТО</span>
+                    {% elif zn.name == zn_str and tuple.2 == False %}
+                        <a href="{% url 'interview' zn.pk %}" class="interview-start">
+                            {{ zn }} ({{ tuple.0 }})
                         </a>
                     {% endif %}
                 {% endfor %}
@@ -44,14 +44,10 @@
       {% endfor %}
   </ul>
 </ul>
-
+<h5>Легенда:</h3> 
+<div class="interview-start">Интервью открыто для работы эксперта</div>
+<div class="interview-end">Интервью закрыто для работы эксперта</div>
 <style>
-  .period {
-    color: blueviolet;
-  }
-  .quanity {
-    color: blueviolet;
-  }
   ul {
       list-style-type: none;
   }
