@@ -223,6 +223,12 @@ class Znanie(models.Model):
     def get_default_grade():
         return KnowledgeGradeScale.objects.all().first().get_base_grade()
 
+    def get_ancestors_category(self):
+        """
+        Возвращает TreeQuerySet с категорией и предками категории данного знания
+        """
+        return self.category.get_ancestors(ascending=False, include_self=True)
+
     class Meta:
         verbose_name = 'Знание'
         verbose_name_plural = 'Знания'

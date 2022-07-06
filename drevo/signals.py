@@ -1,5 +1,8 @@
 import datetime
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 from drevo.models import Znanie
 from dz import settings
 
@@ -30,3 +33,25 @@ def notify(sender, instance: Znanie, created, **kwargs):
         appeal = addressee.first_name or 'пользователь'
         send_email(addressee.email, message_subject, False,
                    message_content.format(appeal, patr))
+
+
+@receiver(post_save, sender=Znanie)
+def notify_new_interview(sender, instance, created, **kwargs):
+    """
+    Сигнал, который создает рассылку экспертам с коментенциями соответствующей категории и ее предков о
+    публикации знания вида "Интервью"
+    """
+    if not created or not instance.is_published or instance.tz.is_systemic or instance.tz.name != 'Интервью':
+        return
+    message_subj = 'Новое интервью'
+    knowledge_url = settings.BASE_URL + instance.get_absolute_url()
+    message_text = 'Уважаемый {} {}!\n' \
+                   f'Приглашаем Вас принять участие в новом интервью, которое состоится с ' \
+                   f'{instance}'
+    categories = instance.get_ancestors_category()
+    for category in categories:
+        experts = category.get_experts()
+        if not experts:
+            continue
+        for expert in experts:
+            user = expert.expert
