@@ -60,8 +60,9 @@ def notify_new_interview(sender, instance, created, **kwargs):
     Сигнал, который создает рассылку экспертам с коментенциями соответствующей категории и ее предков о
     публикации знания вида "Интервью"
     """
-    if not created or not instance.bz.is_published or not instance.is_published or \
-            instance.bz.tz.is_systemic or instance.bz.tz.name != 'Интервью':
+    condition_elem = (not created, not instance.bz.is_published,
+                      not instance.is_published, instance.bz.tz.name != 'Интервью')
+    if any(condition_elem):
         return
     message_subj = 'Новое интервью'
     knowledge_url = settings.BASE_URL + instance.bz.get_absolute_url()
