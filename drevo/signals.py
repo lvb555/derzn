@@ -1,7 +1,10 @@
 import datetime
 import locale
 
-from drevo.models import Znanie
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from drevo.models import Znanie, Relation
 from dz import settings
 
 from drevo.sender import send_email
@@ -49,3 +52,35 @@ def notify(sender, instance: Znanie, created, **kwargs):
         appeal = addressee.first_name or 'пользователь'
         send_email(addressee.email, message_subject, False,
                    message_content.format(appeal, patr))
+
+
+@receiver(post_save, sender=Relation)
+def notify_new_interview(sender, instance, created, **kwargs):
+    """
+    Сигнал, который создает рассылку экспертам с коментенциями соответствующей категории и ее предков о
+    публикации знания вида "Интервью"
+    """
+    if not created or not instance.bz.is_published or not instance.is_published or \
+            instance.bz.tz.is_systemic or instance.bz.tz.name != 'Интервью':
+        return
+    message_subj = 'Новое интервью'
+    knowledge_url = settings.BASE_URL + instance.bz.get_absolute_url()
+    date = instance.rz.name.split('-')
+    message_text = 'Уважаемый {}{}!\n' \
+                   f'Приглашаем Вас принять участие в новом интервью, которое состоится с ' \
+                   f'{date[0]} по {date[1]}.\n' \
+                   f'{knowledge_url} - интервью, \n' \
+                   f'Администрация портала «Дерево знаний»'
+    categories = instance.bz.get_ancestors_category()
+    for category in categories:
+        experts = category.get_experts()
+        if not experts:
+            continue
+        for expert in experts:
+            patronymic = ''
+            user = expert.expert
+            user_profile = user.profile
+            if user.first_name and user_profile.patronymic:
+                patronymic = ' ' + user_profile.patronymic
+            name = user.first_name or 'Пользователь'
+            send_email(user.email, message_subj, False, message_text.format(name, patronymic))

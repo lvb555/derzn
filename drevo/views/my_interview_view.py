@@ -20,7 +20,8 @@ def my_interview_view(request):
         return render(request, 'drevo//my_interview_page.html', context)
     return redirect('/drevo/')
 
-def search_competence(categories_expert):
+
+def search_node_categories(categories_expert):
     """
     На ввод QuerySet категорий из таблицы CategoryExpert,
     вызывается  categories_expert = obj.categories.all(),
@@ -42,8 +43,9 @@ def search_competence(categories_expert):
                 list_category_id.append(category_child.id)
     list_category_id = list(set(list_category_id))
     categories = Category.tree_objects.filter(is_published=True,
-                                                id__in=list_category_id)
+                                              id__in=list_category_id)
     return categories
+
 
 def get_tree(obj, user):
     """
@@ -57,15 +59,14 @@ def get_tree(obj, user):
     """
     context = {}
     categories_expert = obj.categories.all()
-    #Получаем список категорий по уровням
+    # Получаем список категорий по уровням
 
     categories = search_competence(categories_expert)
-    
+
     tz_id = Tz.objects.get(name='Интервью').id
     zn_list = Znanie.objects.filter(tz_id=tz_id)
     tr_period = Tr.objects.get(name='Период интервью').id
     now = datetime.datetime.now()
-
 
     def reg_collector(sub):
         """
@@ -92,29 +93,28 @@ def get_tree(obj, user):
             resultat_re = re_from
             regex = regex_before
             from_sub = re.sub(regex, '20\\3', sub.name, 0, re.MULTILINE)
-        one_day  = datetime.timedelta(days=1)
+        one_day = datetime.timedelta(days=1)
         if sub.name[-1] == '-':
             from_ = datetime.datetime(int(from_sub),
-                                        int(resultat_re[0][1]),
-                                        int(resultat_re[0][0]))
+                                      int(resultat_re[0][1]),
+                                      int(resultat_re[0][0]))
             before = from_ + one_day
         elif sub.name[0] == '-':
             before = datetime.datetime(int(after_sub),
-                                        int(resultat_re[0][2]),
-                                        int(resultat_re[0][1]))
+                                       int(resultat_re[0][2]),
+                                       int(resultat_re[0][1]))
             from_ = before - one_day
         else:
             from_ = datetime.datetime(int(from_sub),
-                                        int(resultat_re[0][1]),
-                                        int(resultat_re[0][0]))
+                                      int(resultat_re[0][1]),
+                                      int(resultat_re[0][0]))
             before = datetime.datetime(int(after_sub),
-                                        int(resultat_re[0][-2]),
-                                        int(resultat_re[0][-3]))
+                                       int(resultat_re[0][-2]),
+                                       int(resultat_re[0][-3]))
 
         delta_from = now - from_
         delta_before = now - before
         return delta_from, delta_before, from_, before
-
 
     def collector_str_period(from_, after_):
         """
@@ -125,7 +125,6 @@ def get_tree(obj, user):
         result_period = from_str + '-' + after_str
         return result_period
 
-
     def collector_dict_period(znanies, dict_period):
         """
         Собирает в словарь период и проверяет условие: сегодня в периоде?
@@ -134,7 +133,7 @@ def get_tree(obj, user):
             try:
                 periods_r = zn.base.filter(tr_id=tr_period)[0]
                 period = Znanie.objects.get(is_published=True,
-                                        id=periods_r.rz_id)
+                                            id=periods_r.rz_id)
                 delta_from, delta_after, from_, after_ = reg_collector(period)
                 result_period = collector_str_period(from_, after_)
                 if delta_from.days >= 0 and delta_after.days <= 0:
@@ -149,7 +148,7 @@ def get_tree(obj, user):
 
     zn_dict = {}
     dict_period = {}
-    #Формируем словарь {"категория": QuerySet[список интервью]}
+    # Формируем словарь {"категория": QuerySet[список интервью]}
     for category in categories:
         zn_in_this_category = zn_list.filter(
             category=category).order_by('-date')
@@ -160,7 +159,6 @@ def get_tree(obj, user):
     tr_answer = Tr.objects.get(name='Ответ [ы]').id
     obj_interview = Tr.objects.get(name='Состав').id
 
-
     def my_answer(list_answer):
         """
         Считает ответы эксперта на вопросы
@@ -168,7 +166,7 @@ def get_tree(obj, user):
         counter = 0
         for answer in list_answer:
             author_answer = Znanie.objects.get(is_published=True,
-                                            id=answer.rz_id).author_id
+                                               id=answer.rz_id).author_id
             try:
                 author = Author.objects.filter(id=author_answer)[0]
                 author = author.name
@@ -178,14 +176,12 @@ def get_tree(obj, user):
                 counter += 1
         return counter
 
-
     def generator_interview(category, dict_elements):
         """
         Генерация интервью и проверка условия для исключения категории
         """
         for interview in dict_elements[category]:
             yield interview
-
 
     def generator_key(list_key):
         """
@@ -194,20 +190,18 @@ def get_tree(obj, user):
         for key in list_key:
             yield key
 
-
     def generator_question(obj_quest_list):
         """
         Генерация вопросов 
         """
         for obj in obj_quest_list:
             relation_qi = Znanie.objects.get(is_published=True,
-                                            id=obj.rz_id)
+                                             id=obj.rz_id)
             yield relation_qi
 
-
     relation_dict = {}
-    #Формируем словарь {Интервью: [ответы экспертов, число ответов, Эксперт ответил на все вопросы?]}
-    #Добавляем в словарь с категориями количество ответов Эксперта
+    # Формируем словарь {Интервью: [ответы экспертов, число ответов, Эксперт ответил на все вопросы?]}
+    # Добавляем в словарь с категориями количество ответов Эксперта
     for category in generator_key(zn_dict.keys()):
         for interview in generator_interview(category, zn_dict):
             number_answer = 0
@@ -223,14 +217,14 @@ def get_tree(obj, user):
                     relation_dict[interview.name] = [len(relation_obj), False]
             except KeyError:
                 pass
-    #Подставляем список периода в словарь к каждому существующему интервью
+    # Подставляем список периода в словарь к каждому существующему интервью
     for key, value in relation_dict.items():
         try:
             true_period = period_dict[key]
             value.append(true_period)
         except KeyError:
-            value.append(False) 
-    #Удаляем пустую категорию из словаря
+            value.append(False)
+            # Удаляем пустую категорию из словаря
     zn_dict_new = {}
     for key, value in zn_dict.items():
         counter = 0

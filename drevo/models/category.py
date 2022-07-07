@@ -49,6 +49,12 @@ class Category(MPTTModel):
                 return True
         return False
 
+    def get_experts(self):
+        """
+        Возвращает QuerySet с экспертами в данной категории
+        """
+        return self.category_list.select_related()
+
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
