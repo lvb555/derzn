@@ -36,7 +36,6 @@ def notify(sender, instance: Znanie, created, **kwargs):
         11: "ноятбря",
         12: "декабря",
     }
-    locale.setlocale(locale.LC_TIME, 'ru_RU')
     date_now = datetime.date.today()
     cur_month_formed = months[date_now.month]
     date_with_month = date_now.strftime(f'%d {cur_month_formed} %Y')
