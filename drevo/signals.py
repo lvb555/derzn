@@ -1,4 +1,5 @@
 import datetime
+import locale
 
 from drevo.models import Znanie
 from dz import settings
@@ -18,8 +19,26 @@ def notify(sender, instance: Znanie, created, **kwargs):
         return
     author_publication_url = settings.BASE_URL + instance.get_absolute_url()
     message_subject = 'Новое знание'
+    months = {
+        1: "января",
+        2: "февраля",
+        3: "марта",
+        4: "апреля",
+        5: "мая",
+        6: "июня",
+        7: "июля",
+        8: "августа",
+        9: "сентября",
+        10: "октября",
+        11: "ноятбря",
+        12: "декабря",
+    }
+    locale.setlocale(locale.LC_TIME, 'ru_RU')
+    date_now = datetime.date.today()
+    cur_month_formed = months[date_now.month]
+    date_with_month = date_now.strftime(f'%d {cur_month_formed} %Y')
     message_content = 'Уважаемый {}{}!\n' \
-                      f'{datetime.date.today()} было создано новое' \
+                      f'{date_with_month} было создано новое' \
                       f' знание:\n  {author_publication_url}\n' \
                       f'Автор: {instance.author}\n'
     for addressee in user_to_notify:
