@@ -33,7 +33,7 @@
                         </a>
                     {% elif zn.name == zn_str and tuple.2 == False %}
                         <a href="{% url 'interview' zn.pk %}" class="interview-start">
-                            {{ zn }} ({{ tuple.0 }})
+                            {{ zn }} ({{ tuple.0 }}) ПУСТО
                         </a>
                     {% endif %}
                 {% endfor %}
