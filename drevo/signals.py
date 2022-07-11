@@ -15,7 +15,9 @@ logger.add('logs/main.log',
 
 
 def notify(sender, instance: Znanie, created, **kwargs):
-    if not instance.is_published or not instance.author or instance.tz.is_systemic:
+    """Sends messages with application to author subscribers on knowledge creation"""
+    if not all((instance.is_published, instance.author, created,
+                not instance.tz.is_systemic)):
         return
     user_to_notify = instance.author.subscribers.all()
     if not user_to_notify:
