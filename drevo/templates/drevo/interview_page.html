@@ -11,37 +11,21 @@
 
 <hr>
 
-<div class="container">
-  <div class="row">
-    <div class="col">
-      Вид знания: {{ znanie.tz }}
-    </div>
-    <div class="col">
-      {% if znanie.author %}
-      Автор: <a href="{% url 'author' znanie.author.pk %}">{{ znanie.author }}</a>
-      {% else %}
-      Автор: не указан
-      {% endif %}
-    </div>
-    <div class="col">
-      Дата: {{ znanie.date }}
-    </div>
-  </div>
-</div>
-
-<hr>
-
 {% for q, my_answer in q_true.items %}
   {% if my_answer %}
     <div class="question-interview">
-      <a href="{% url 'zdetail' q.id %}" class="interview-end">{% url 'zdetail' q.id %}</a>
+      <a href="{% url 'zdetail' q.id %}" class="interview-end">{{ q.name }}</a>
     </div>
   {% else %}
     <div class="question-interview">
-      <a href="{% url 'zdetail' q.id %}" class="interview-start">{% url 'zdetail' q.id %}</a>
+      <a href="{% url 'zdetail' q.id %}" class="interview-start">{{ q.name }}</a>
     </div>
   {% endif %}
 {% endfor %}
+<br>
+<h5>Легенда:</h3> 
+<div class="interview-end">Вопросы, на которые эксперт ответил</div>
+<div class="interview-start">Вопросы, на которые эксперт не ответил</div>
 
 
 <style>
@@ -64,4 +48,3 @@
 </style>
 
 {% endblock %}
-
