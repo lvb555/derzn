@@ -1,0 +1,9 @@
+Уважаемый {{ name }}{{patronymic}}!
+Приглашаем Вас принять участие в новом интервью, которое состоится с {{ start_date }} по {{ end_date }}.
+{{ url }} - интервью.
+
+Список вопросов интервью:
+{% for item in question_set %}
+- {{ item.name }}, {{ item.tz.name }}. Ссылка: {{ question_base_url }}{{ item.id }}
+{% endfor %}
+Администрация портала «Дерево знаний»

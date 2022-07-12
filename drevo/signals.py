@@ -3,6 +3,8 @@ import locale
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.template.loader import render_to_string
+from django.urls import reverse
 
 from drevo.models import Znanie, Relation
 from dz import settings
@@ -61,18 +63,36 @@ def notify_new_interview(sender, instance, created, **kwargs):
     Сигнал, который создает рассылку экспертам с коментенциями соответствующей категории и ее предков о
     публикации знания вида "Интервью"
     """
-    condition_elem = (not created, not instance.bz.is_published,
-                      not instance.is_published, instance.bz.tz.name != 'Интервью')
-    if any(condition_elem):
+    # Настраиваем сигнал для срабатывания при создании связи вида "Период интервью"
+    # Условия для проверки публикации связи, интервью и периода интервью
+    condition_publish = (instance.is_published, instance.bz.is_published, instance.rz.is_published)
+
+    # Условия для проверки, что вид связи соответствует "Период интервью" и базовое знание "Интервью"
+    condition_name = (instance.bz.tz.name == 'Интервью', instance.tr.name == 'Период интервью')
+
+    # Проверяем первоначальные условия и, если им не соответствуем, завершаем работу сигнала
+    if not all((*condition_publish, *condition_name, created)):
         return
+
+    # Пытаемся получить список вопросов к интервью
+    question_set = Znanie.objects.filter(is_published=True, related__bz__id=instance.bz.id,
+                                         related__tr__name='Состав', related__is_published=True)
+    if not question_set:
+        return
+
     message_subj = 'Новое интервью'
     knowledge_url = settings.BASE_URL + instance.bz.get_absolute_url()
+    question_base_url = settings.BASE_URL + '/drevo/znanie/'
     date = instance.rz.name.split('-')
-    message_text = 'Уважаемый {}{}!\n' \
-                   f'Приглашаем Вас принять участие в новом интервью, которое состоится с ' \
-                   f'{date[0]} по {date[1]}.\n' \
-                   f'{knowledge_url} - интервью, \n' \
-                   f'Администрация портала «Дерево знаний»'
+    context = {
+        'start_date': date[0],
+        'end_date': date[1],
+        'url': knowledge_url,
+        'question_set': question_set,
+        'question_base_url': question_base_url,
+        'interview_name': instance.bz.name
+    }
+
     categories = instance.bz.get_ancestors_category()
     for category in categories:
         experts = category.get_experts()
@@ -85,4 +105,8 @@ def notify_new_interview(sender, instance, created, **kwargs):
             if user.first_name and user_profile.patronymic:
                 patronymic = ' ' + user_profile.patronymic
             name = user.first_name or 'Пользователь'
-            send_email(user.email, message_subj, False, message_text.format(name, patronymic))
+            context['name'] = name
+            context['patronymic'] = patronymic
+            message_text = render_to_string('interview_notify_email.txt', context)
+            message_html = render_to_string('interview_notify_email.html', context)
+            send_email(user.email, message_subj, message_html, message_text)
