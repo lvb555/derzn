@@ -204,6 +204,7 @@ class RelationAdmin(admin.ModelAdmin):
         css = {
             "all": ("drevo/css/style.css",)
         }
+        js = ("drevo/js/notify_interview.js",)
 
 
 admin.site.register(Relation, RelationAdmin)

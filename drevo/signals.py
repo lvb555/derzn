@@ -74,9 +74,10 @@ def notify_new_interview(sender, instance, created, **kwargs):
     if not all((*condition_publish, *condition_name, created)):
         return
 
-    # Пытаемся получить список вопросов к интервью
+    # Получаем список вопросов к интервью
     question_set = Znanie.objects.filter(is_published=True, related__bz__id=instance.bz.id,
                                          related__tr__name='Состав', related__is_published=True)
+    # Если вопросы в интервью отсутствуют, завершаем работу
     if not question_set:
         return
 
