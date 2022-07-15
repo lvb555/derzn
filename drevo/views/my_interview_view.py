@@ -129,8 +129,8 @@ def get_tree(obj, user):
         for zn in znanies:
             try:
                 periods_r = zn.base.filter(tr_id=tr_period, is_published=True)[0]
-                period = Znanie.objects.get(is_published=True,
-                                            id=periods_r.rz_id)
+                period = Znanie.objects.filter(is_published=True,
+                                            id=periods_r.rz_id)[0]
                 delta_from, delta_after = reg_collector(period)
                 if delta_from.days >= 0 and delta_after.days <= 0:
                     dict_period[zn.name] = [period, True]
