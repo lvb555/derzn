@@ -14,22 +14,24 @@ from .relation import Relation
 from .visits import Visits
 from .browsing_history import BrowsingHistory
 from .expert_category import CategoryExpert
+from .interview_answer_expert_proposal import InterviewAnswerExpertProposal
 
 __all__ = [
-    'AuthorType',
-    'Author',
-    'Category',
-    'Comment',
-    'GlossaryTerm',
-    'IP',
-    'ZnImage',
-    'Tz',
-    'ZnRating',
-    'Znanie',
-    'Label',
-    'Tr',
-    'Relation',
-    'Visits',
-    'BrowsingHistory',
-    'CategoryExpert',
+    "AuthorType",
+    "Author",
+    "Category",
+    "Comment",
+    "GlossaryTerm",
+    "IP",
+    "ZnImage",
+    "Tz",
+    "ZnRating",
+    "Znanie",
+    "Label",
+    "Tr",
+    "Relation",
+    "Visits",
+    "BrowsingHistory",
+    "CategoryExpert",
+    "InterviewAnswerExpertProposal",
 ]
