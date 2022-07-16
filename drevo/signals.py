@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 
 from drevo.models import Znanie, Relation
+from drevo.services import send_notify_interview
 from dz import settings
 
 from drevo.sender import send_email
@@ -74,40 +75,8 @@ def notify_new_interview(sender, instance, created, **kwargs):
     if not all((*condition_publish, *condition_name, created)):
         return
 
-    # Получаем список вопросов к интервью
-    question_set = Znanie.objects.filter(is_published=True, related__bz__id=instance.bz.id,
-                                         related__tr__name='Состав', related__is_published=True)
-    # Если вопросы в интервью отсутствуют, завершаем работу
-    if not question_set:
-        return
-
-    message_subj = 'Новое интервью'
-    knowledge_url = settings.BASE_URL + instance.bz.get_absolute_url()
-    question_base_url = settings.BASE_URL + '/drevo/znanie/'
+    # Получаем период интервью
     date = instance.rz.name.split('-')
-    context = {
-        'start_date': date[0],
-        'end_date': date[1],
-        'url': knowledge_url,
-        'question_set': question_set,
-        'question_base_url': question_base_url,
-        'interview_name': instance.bz.name
-    }
 
-    categories = instance.bz.get_ancestors_category()
-    for category in categories:
-        experts = category.get_experts()
-        if not experts:
-            continue
-        for expert in experts:
-            patronymic = ''
-            user = expert.expert
-            user_profile = user.profile
-            if user.first_name and user_profile.patronymic:
-                patronymic = ' ' + user_profile.patronymic
-            name = user.first_name or 'Пользователь'
-            context['name'] = name
-            context['patronymic'] = patronymic
-            message_text = render_to_string('interview_notify_email.txt', context)
-            message_html = render_to_string('interview_notify_email.html', context)
-            send_email(user.email, message_subj, message_html, message_text)
+    # Передаем параметры в функцию send_notify_interview, которая формирует текст сообщения
+    send_notify_interview(instance.bz, date)
