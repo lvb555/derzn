@@ -3,8 +3,11 @@ import locale
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.template.loader import render_to_string
+from django.urls import reverse
 
 from drevo.models import Znanie, Relation
+from drevo.services import send_notify_interview
 from dz import settings
 
 from drevo.sender import send_email
@@ -61,28 +64,19 @@ def notify_new_interview(sender, instance, created, **kwargs):
     Сигнал, который создает рассылку экспертам с коментенциями соответствующей категории и ее предков о
     публикации знания вида "Интервью"
     """
-    condition_elem = (not created, not instance.bz.is_published,
-                      not instance.is_published, instance.bz.tz.name != 'Интервью')
-    if any(condition_elem):
+    # Настраиваем сигнал для срабатывания при создании связи вида "Период интервью"
+    # Условия для проверки публикации связи, интервью и периода интервью
+    condition_publish = (instance.is_published, instance.bz.is_published, instance.rz.is_published)
+
+    # Условия для проверки, что вид связи соответствует "Период интервью" и базовое знание "Интервью"
+    condition_name = (instance.bz.tz.name == 'Интервью', instance.tr.name == 'Период интервью')
+
+    # Проверяем первоначальные условия и, если им не соответствуем, завершаем работу сигнала
+    if not all((*condition_publish, *condition_name, created)):
         return
-    message_subj = 'Новое интервью'
-    knowledge_url = settings.BASE_URL + instance.bz.get_absolute_url()
+
+    # Получаем период интервью
     date = instance.rz.name.split('-')
-    message_text = 'Уважаемый {}{}!\n' \
-                   f'Приглашаем Вас принять участие в новом интервью, которое состоится с ' \
-                   f'{date[0]} по {date[1]}.\n' \
-                   f'{knowledge_url} - интервью, \n' \
-                   f'Администрация портала «Дерево знаний»'
-    categories = instance.bz.get_ancestors_category()
-    for category in categories:
-        experts = category.get_experts()
-        if not experts:
-            continue
-        for expert in experts:
-            patronymic = ''
-            user = expert.expert
-            user_profile = user.profile
-            if user.first_name and user_profile.patronymic:
-                patronymic = ' ' + user_profile.patronymic
-            name = user.first_name or 'Пользователь'
-            send_email(user.email, message_subj, False, message_text.format(name, patronymic))
+
+    # Передаем параметры в функцию send_notify_interview, которая формирует текст сообщения
+    send_notify_interview(instance.bz, date)
