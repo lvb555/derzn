@@ -22,9 +22,8 @@ def send_notify_interview(interview, date):
         return False
 
     message_subj = 'Новое интервью'
-    knowledge_url = settings.BASE_URL + interview.get_absolute_url()
+    knowledge_url = settings.BASE_URL + f'/drevo/interview/{interview.id}/'
     question_base_url = settings.BASE_URL + '/drevo/znanie/'
-
     context = {
         'start_date': date[0],
         'end_date': date[1],
@@ -54,5 +53,4 @@ def send_notify_interview(interview, date):
             result = send_email(user.email, message_subj, message_html, message_text)
             if not result:
                 send_result = False
-
     return send_result

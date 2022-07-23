@@ -24,7 +24,6 @@ from .views import (DrevoListView,
                     SubscribeToAuthor,
                     FavouritesView,
                     FavouriteProcessView)
-from .views.notify_interview import send_notify_view
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),
@@ -63,7 +62,6 @@ urlpatterns = [
     path('my_interview/', my_interview_view, name='my_interview'),
     path('interview/<int:pk>/', interview_view, name='interview'),
 
-    path('notify_interview/<name>/', send_notify_view, name='notify_interview')
 ]
 
 if settings.DEBUG:

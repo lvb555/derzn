@@ -1,6 +1,9 @@
 from django.contrib import admin
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 from drevo.models.expert_category import CategoryExpert
+from .forms.relation_form import RelationAdminForm
 from .models import (
     Znanie,
     Tz,
@@ -33,6 +36,7 @@ from .forms import (
     CategoryForm,
     CtegoryExpertForm,
 )
+from .services import send_notify_interview
 
 
 class CategoryMPTT(DraggableMPTTAdmin):
@@ -251,9 +255,23 @@ class RelationAdmin(admin.ModelAdmin):
     )
     ordering = ("-date",)
 
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        kwargs['form'] = RelationAdminForm
+        return super().get_form(request, obj, change, **kwargs)
+
     def save_model(self, request, obj, form, change):
         obj.user = request.user
+        send_flag = form.cleaned_data.get('send_flag')
+        name = form.cleaned_data.get('bz')
         super().save_model(request, obj, form, change)
+
+        if send_flag:
+            interview = get_object_or_404(Znanie, name=name)
+            period = Relation.objects.filter(Q(bz=interview) & Q(tr__name='Период интервью')).first()
+            if period:
+                period_relation = period.rz.name.split('-')
+                # Передаем параметры в функцию send_notify_interview, которая формирует текст сообщения
+                result = send_notify_interview(interview, period_relation)
 
     class Media:
         css = {"all": ("drevo/css/style.css",)}
