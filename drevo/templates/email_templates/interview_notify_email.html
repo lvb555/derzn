@@ -6,8 +6,8 @@
 </head>
 <body>
     <div>
-        <h2>Уважаемый {{ name }}{{ patronymic }}!</h2>
-        <p>Приглашаем Вас принять участие в новом интервью, которое состоится с {{ start_date }} по {{ end_date }}.</p>
+        <h2>{{ appeal }} {{ name }}{{ patronymic }}!</h2>
+        <p>Приглашаем Вас принять участие в новом интервью, которое {{ period_message }}.</p>
         <a href="{{ url }}">{{ interview_name }}</a>
     </div>
     <div>

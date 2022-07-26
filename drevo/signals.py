@@ -76,7 +76,7 @@ def notify_new_interview(sender, instance, created, **kwargs):
         return
 
     # Получаем период интервью
-    date = instance.rz.name.split('-')
+    date = instance.rz.name
 
     # Передаем параметры в функцию send_notify_interview, которая формирует текст сообщения
     send_notify_interview(instance.bz, date)

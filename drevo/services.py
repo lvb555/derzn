@@ -5,7 +5,7 @@ from drevo.models import Znanie
 from drevo.sender import send_email
 
 
-def send_notify_interview(interview, date):
+def send_notify_interview(interview, date: str):
     """
     Осуществляет формирование сообщения для отправки уведомления экспертам об интервью.
     Для отправки сообщения используется функция send_email
@@ -21,12 +21,18 @@ def send_notify_interview(interview, date):
     if not question_set:
         return False
 
+    if date.startswith('-'):
+        period_message = f"будет проходить до {date.split('-')[-1].lstrip()} включительно"
+    elif date.endswith('-'):
+        period_message = f"состоится с {date.split('-')[0].rstrip()}"
+    else:
+        period_message = f"состоится с {date.split('-')[0].rstrip()} по {date.split('-')[1].lstrip()}"
+
     message_subj = 'Новое интервью'
     knowledge_url = settings.BASE_URL + f'/drevo/interview/{interview.id}/'
     question_base_url = settings.BASE_URL + '/drevo/znanie/'
     context = {
-        'start_date': date[0],
-        'end_date': date[1],
+        'period_message': period_message,
         'url': knowledge_url,
         'question_set': question_set,
         'question_base_url': question_base_url,
@@ -45,6 +51,13 @@ def send_notify_interview(interview, date):
             user_profile = user.profile
             if user.first_name and user_profile.patronymic:
                 patronymic = ' ' + user_profile.patronymic
+
+            user_gender = user_profile.gender
+            if user_gender == 'M' or user_gender == 'U':
+                context['appeal'] = 'Уважаемый'
+            else:
+                context['appeal'] = 'Уважаемая'
+
             name = user.first_name or 'Пользователь'
             context['name'] = name
             context['patronymic'] = patronymic

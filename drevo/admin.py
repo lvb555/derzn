@@ -269,7 +269,7 @@ class RelationAdmin(admin.ModelAdmin):
             interview = get_object_or_404(Znanie, name=name)
             period = Relation.objects.filter(Q(bz=interview) & Q(tr__name='Период интервью')).first()
             if period:
-                period_relation = period.rz.name.split('-')
+                period_relation = period.rz.name
                 # Передаем параметры в функцию send_notify_interview, которая формирует текст сообщения
                 result = send_notify_interview(interview, period_relation)
 
