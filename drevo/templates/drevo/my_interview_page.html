@@ -18,9 +18,6 @@
           <ul>
               {% for zn in list_zn %}
               <li>
-                  <!-- was (count:int, all_answered:bool, (period, day_in_range))
-                    become dict(count, all_answered, period, today_in_range
-                   -->
                 {% for zn_str, info in rt_dict.items %}
                    <!-- Special case, when we doesn't have period info for interview. -->
                     {% if zn.name == zn_str and info.period == "" %}
@@ -38,6 +35,7 @@
                         </a>
                     {% endif %}
                 {% endfor %}
+              <a href="{% url 'interview_expert_work' zn.id %}">Перейти к экспертизе</a>
               </li>
               {% endfor %}
           </ul>
