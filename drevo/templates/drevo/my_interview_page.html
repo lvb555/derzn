@@ -14,26 +14,27 @@
   <ul>
       {% for category, list_zn in zn_dict.items %}
       <li>
-          {{ category }} 
+          {{ category }}
           <ul>
               {% for zn in list_zn %}
               <li>
-                {% for zn_str, tuple in rt_dict.items %}
-                    {% if zn_str == zn.name and tuple.1 and not tuple.2.1 %}
-                        <a href="{% url 'interview' zn.pk %}" class="interview-end">
-                            {{ zn }} ({{ tuple.0 }}) {{ tuple.2.0 }}
-                        </a> 
-                    {% elif zn_str == zn.name and not tuple.1 and tuple.2 and not tuple.2.1 %}
-                        <a href="{% url 'interview' zn.pk %}" class="interview-end">
-                            {{ zn }} ({{ tuple.0 }}) {{ tuple.2.0 }}
-                        </a> 
-                    {% elif zn.name == zn_str and not tuple.1 and tuple.2.1 %}
+                  <!-- was (count:int, all_answered:bool, (period, day_in_range))
+                    become dict(count, all_answered, period, today_in_range
+                   -->
+                {% for zn_str, info in rt_dict.items %}
+                   <!-- Special case, when we doesn't have period info for interview. -->
+                    {% if zn.name == zn_str and info.period == "" %}
                         <a href="{% url 'interview' zn.pk %}" class="interview-start">
-                            {{ zn }} ({{ tuple.0 }}) {{ tuple.2.0 }}
+                            {{ zn }} ({{ info.count }})
                         </a>
-                    {% elif zn.name == zn_str and tuple.2 == False %}
+                    {% elif zn_str == zn.name and not info.today_in_range %}
+                        <a href="{% url 'interview' zn.pk %}" class="interview-end">
+                            {{ zn }} ({{ info.count }}) {{ info.period }}
+                        </a>
+
+                    {% elif zn.name == zn_str and not info.all_answered and info.today_in_range %}
                         <a href="{% url 'interview' zn.pk %}" class="interview-start">
-                            {{ zn }} ({{ tuple.0 }})
+                            {{ zn }} ({{ info.count }}) {{ info.period }}
                         </a>
                     {% endif %}
                 {% endfor %}
@@ -44,7 +45,7 @@
       {% endfor %}
   </ul>
 </ul>
-<h5>Легенда:</h3> 
+<h5>Легенда:</h3>
 <div class="interview-start">Интервью открыто для работы эксперта</div>
 <div class="interview-end">Интервью закрыто для работы эксперта</div>
 <style>
@@ -61,7 +62,7 @@
   }
   .treeInterview .drop {
     left: -.5em;
-    top: .4em; 
+    top: .4em;
     width: .9em;
     height: .9em;
     line-height: .9em;
@@ -87,7 +88,7 @@
     color: green;
   }
   </style>
-  
+
   <script>
   (function() {
     var ul = document.querySelectorAll('.treeInterview > li:not(:only-child) ul, .treeInterview ul  ul');
