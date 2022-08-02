@@ -33,12 +33,6 @@ class InterviewAnswerExpertProposal(models.Model):
         verbose_name="Ответивший эксперт",
     )
 
-    # реквизит "Группа ответов" - логический. Аргументы (ответ "Да") – True;
-    # Контраргументы (ответ "Нет") – False
-    is_yesno_answer_argument = models.BooleanField(
-        default=False, verbose_name="Аргумент вопроса Да-Нет? (нет - контраргумент)"
-    )
-
     # ссылка на интервью
     interview = models.ForeignKey(
         to=Znanie,
@@ -117,10 +111,13 @@ class InterviewAnswerExpertProposal(models.Model):
 
     @staticmethod
     def create_new_answer(
-        expert_user, text: str, comment: str = "{}"
+        expert_user, interview_id: int, text: str, comment: str = "{}"
     ) -> "InterviewAnswerExpertProposal":
         return InterviewAnswerExpertProposal.objects.create(
-            new_answer_text=text, expert=expert_user, comment=comment
+            new_answer_text=text,
+            expert=expert_user,
+            comment=comment,
+            interview_id=interview_id,
         )
 
     def get_arguments(self) -> list[str]:
