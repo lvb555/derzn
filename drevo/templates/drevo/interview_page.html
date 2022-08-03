@@ -32,15 +32,12 @@
 <hr>
 
 {% for q, my_answer in q_true.items %}
-  {% if my_answer %}
-    <div class="question-interview">
-      <a href="{% url 'zdetail' q.id %}" class="interview-end">{% url 'zdetail' q.id %}</a>
-    </div>
-  {% else %}
-    <div class="question-interview">
-      <a href="{% url 'zdetail' q.id %}" class="interview-start">{% url 'zdetail' q.id %}</a>
-    </div>
-  {% endif %}
+  <div class="question-interview">
+    <a href="{% url 'zdetail' q.id %}"
+       class="{% if my_answer %}interview-end{% else %}interview-start{% endif %}">
+      {{q}}
+    </a>
+  </div>
 {% endfor %}
 
 
@@ -55,7 +52,7 @@
   .question-interview {
     margin-bottom: 5px;
   }
-  .interview-end {    
+  .interview-end {
     color: green;
   }
   .interview-start {
@@ -64,4 +61,3 @@
 </style>
 
 {% endblock %}
-
