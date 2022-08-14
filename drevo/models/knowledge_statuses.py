@@ -1,6 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 
 from drevo.models import Znanie
+
+User = get_user_model()
 
 
 class KnowledgeStatuses(models.Model):
@@ -33,6 +36,12 @@ class KnowledgeStatuses(models.Model):
 
     knowledge = models.ForeignKey(Znanie, on_delete=models.CASCADE,
                                   related_name='knowledge_status', verbose_name='Знание')
-    status = models.CharField(max_length=12, choices=Status.choices, default=None, verbose_name='Статус')
+    status = models.CharField(max_length=12, choices=Status.choices, null=True, default=None, verbose_name='Статус')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                             related_name='user_know_status', verbose_name='Пользователь')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-
+    class Meta:
+        verbose_name = 'Статус знания'
+        verbose_name_plural = 'Статусы знания'
