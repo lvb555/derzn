@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from mptt.models import TreeForeignKey
 from users.models import User
@@ -228,6 +229,32 @@ class Znanie(models.Model):
         Возвращает TreeQuerySet с категорией и предками категории данного знания
         """
         return self.category.get_ancestors(ascending=False, include_self=True)
+
+    def get_expert(self):
+        """
+        Возвращает список экспертов по данному знанию
+        """
+        categories = self.get_ancestors_category()
+        expert_list = []
+        for category in categories:
+            experts = category.get_experts()
+            if not experts:
+                continue
+            for expert in experts:
+                expert_list.append(expert.expert)
+        return expert_list
+
+    def get_current_status(self):
+        """
+        Возвращает текущий статус знания
+        """
+        return self.knowledge_status.get(Q(knowledge=self) & Q(is_active=True)).select_related()
+
+    def get_status_history(self):
+        """
+        Возвращает все статусы текущего знания
+        """
+        return self.knowledge_status.filter(knowledge=self).select_related()
 
     class Meta:
         verbose_name = 'Знание'

@@ -41,6 +41,7 @@ class KnowledgeStatuses(models.Model):
                              related_name='user_know_status', verbose_name='Пользователь')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True, verbose_name='Текущий статус')
 
     class Meta:
         verbose_name = 'Статус знания'
