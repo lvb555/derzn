@@ -33,6 +33,7 @@ class KnowledgeStatuses(models.Model):
         PRE_EXPERTISE_2 = 'PRE_EXP_2', 'Экспертиза-2 ПредЗнания'
         KLZ = 'KLZ', 'Знание в КЛЗ'
         EXPERTISE_2 = 'EXP_2', 'Экспертиза-2 Знания'
+        REJECT = 'REJ', 'Отклоненное Знание'
 
     knowledge = models.ForeignKey(Znanie, on_delete=models.CASCADE,
                                   related_name='knowledge_status', verbose_name='Знание')

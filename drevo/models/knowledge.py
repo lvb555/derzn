@@ -256,6 +256,34 @@ class Znanie(models.Model):
         """
         return self.knowledge_status.filter(knowledge=self).select_related()
 
+    def get_status_action(self):
+        """
+        Возвращает список кортежей с возможным действием для изменения статуса и новым статусом
+        """
+        transitions = {
+            'PUB_PRE': [
+                ('Вернуть ПредЗнание редактору', 'PRE_REF_RED'),
+                ('Поместить ПредЗнание в КЛЗ', 'PRE_KLZ'),
+                ('Вернуть ПредЗнание на экспертизу-2', 'PRE_EXP_2'),
+                ('Отклонить ПредЗнание', 'PRE_REJ')
+            ],
+            'PUB': [
+                ('Вернуть Знание редактору', 'REF_RED'),
+                ('Поместить Знание в КЛЗ', 'KLZ'),
+                ('Вернуть Знание на экспертизу-2', 'EXP_2'),
+                ('Отклонить Знание', 'REJ')
+            ],
+            'WORK_PRE': [
+                ('Завершить ПредЗнание', 'PRE_FIN')
+            ],
+            'RET_PRE_EDIT': [
+                ('Завершить ПредЗнание', 'PRE_FIN')
+            ],
+            'PRE_FIN': [
+                ('Вернуть ПредЗнание на доработку', 'RET_PRE_EDIT')
+            ]
+        }
+
     class Meta:
         verbose_name = 'Знание'
         verbose_name_plural = 'Знания'
