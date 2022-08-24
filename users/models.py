@@ -19,6 +19,11 @@ class User(AbstractUser):
         verbose_name='Адрес эл. почты',
     )
 
+    is_expert = models.BooleanField(default=False, verbose_name='Эксперт')
+    is_redactor = models.BooleanField(default=False, verbose_name='Редактор')
+    is_director = models.BooleanField(default=False, verbose_name='Руководитель')
+    in_klz = models.BooleanField(default=False, verbose_name='Член КЛЗ')
+
     date_joined = last_login = None
 
     def __str__(self):
