@@ -60,6 +60,8 @@ class Relation(models.Model):
         ordering = ('-date',)
 
     def get_proof_grade(self, request, variant):
+        """ Значение оценки довода (ЗОД) """
+
         if variant == 2:
             related_knowledge_grade, _ = self.rz.get_common_grades(request)
         else:
@@ -73,6 +75,7 @@ class Relation(models.Model):
         return related_knowledge_grade * relation_grade
 
     def get_proof_weight(self, request, variant):
+        """ Оценка вклада довода (ОВД) """
         return self.get_proof_grade(request, variant) * (-2 * self.tr.argument_type + 1)
 
     @staticmethod
