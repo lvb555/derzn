@@ -6,6 +6,7 @@ from mptt.models import TreeForeignKey
 from users.models import User
 
 from ..managers import ZManager
+from drevo.common import variables
 from .category import Category
 from .knowledge_grade_scale import KnowledgeGradeScale
 from .knowledge_rating import ZnRating
@@ -68,6 +69,17 @@ class Znanie(models.Model):
                              editable=False,
                              verbose_name='Пользователь'
                              )
+    expert = models.ForeignKey(User,
+                               on_delete=models.PROTECT,
+                               verbose_name='Эксперт'
+                               )
+    redactor = models.ForeignKey(User,
+                                 on_delete=models.PROTECT,
+                                 verbose_name='Редактор'
+                                 )
+    director = models.ForeignKey(User,
+                                 on_delete=models.PROTECT,
+                                 verbose_name='Руководитель')
     order = models.IntegerField(verbose_name='Порядок',
                                 help_text='укажите порядковый номер',
                                 null=True,
@@ -261,101 +273,14 @@ class Znanie(models.Model):
         Возвращает список кортежей с возможным действием для изменения статуса и новым статусом
         :param user: Экземпляр класса модели пользователя
         """
-        transitions_pub = {
-            'WORK_PRE': [
-                ('Завершить ПредЗнание', 'PRE_FIN')
-            ],
-            'RET_PRE_EDIT': [
-                ('Завершить ПредЗнание', 'PRE_FIN')
-            ],
-            'PRE_FIN': [
-                ('Вернуть ПредЗнание на доработку', 'RET_PRE_EDIT')
-            ]
-        }
-
-        transitions_exp = {
-            'PRE_FIN': [
-                ('Вернуть ПредЗнание на доработку', 'RET_PRE_EDIT'),
-                ('Отклонить ПредЗнание', 'PRE_REJ'),
-                ('Завершить экспертизу ПредЗнания', 'PRE_FIN_EXP')
-            ],
-            'PRE_EXP': [
-                ('Вернуть ПредЗнание на доработку', 'RET_PRE_EDIT'),
-                ('Отказаться от экспертизы ПредЗнания', 'PRE_FIN'),
-                ('Отклонить ПредЗнание', 'PRE_REJ'),
-                ('Завершить экспертизу ПредЗнания', 'PRE_FIN_EXP')
-            ],
-            'PRE_REJ': [
-                ('Вернуть ПредЗнание на экспертизу', 'PRE_REF_EXP')
-            ],
-            'PRE_REF_EXP': [
-                ('Вернуть ПредЗнание на доработку', 'RET_PRE_EDIT'),
-                ('Отклонить ПредЗнание', 'PRE_REJ'),
-                ('Завершить экспертизу ПредЗнания', 'PRE_FIN_EXP')
-            ],
-            'PRE_FIN_EXP': [
-                ('Вернуть ПредЗнание на экспертизу', 'PRE_REF_EXP')
-            ],
-            'WORK': [
-                ('Завершить Знание', 'FIN')
-            ],
-            'RET_TO_EDIT': [
-                ('Завершить Знание', 'FIN')
-            ],
-            'FIN': [
-                ('Вернуть Знание на доработку', 'RET_TO_EDIT')
-            ]
-        }
-
-        transitions_red = {
-            'PRE_FIN_EXP': [
-                ('Вернуть ПредЗнание на экспертизу', 'PRE_REF_EXP'),
-                ('ПредЗнание готово к публикации', 'PRE_FIN_RED')
-            ],
-            'PRE_REDACT': [
-                ('Вернуть ПредЗнание на экспертизу', 'PRE_REF_EXP'),
-                ('Отказаться от редактирования ПредЗнания', 'PRE_FIN_EXP'),
-                ('ПредЗнание готово к публикации', 'PRE_FIN_RED')
-            ],
-            'PRE_REF_RED': [
-                ('ПредЗнание готово к публикации', 'PRE_FIN_RED'),
-                ('Вернуть ПредЗнание на экспертизу', 'PRE_REF_EXP')
-            ],
-            'PRE_FIN_RED': [
-                ('Вернуть ПредЗнание редактору', 'PRE_REF_RED')
-            ],
-            'FIN': [
-                ('Вернуть Знание на доработку', 'RET_TO_EDIT'),
-                ('Знание готово к публикации', 'FIN_RED')
-            ],
-            'REDACT': [
-                ('Вернуть Знание на доработку', 'RET_TO_EDIT'),
-                ('Отказаться от редактирования Знания', 'FIN'),
-                ('Знание готово к публикации', 'FIN_RED')
-            ],
-            'REF_RED': [
-                ('Вернуть Знание на доработку', 'RET_TO_EDIT'),
-                ('Знание готово к публикации', 'FIN_RED')
-            ],
-            'FIN_RED': [
-                ('Вернуть Знание редактору', 'REF_RED')
-            ]
-        }
-
-        transitions_direct = {
-            'PUB_PRE': [
-                ('Вернуть ПредЗнание редактору', 'PRE_REF_RED'),
-                ('Поместить ПредЗнание в КЛЗ', 'PRE_KLZ'),
-                ('Вернуть ПредЗнание на экспертизу-2', 'PRE_EXP_2'),
-                ('Отклонить ПредЗнание', 'PRE_REJ')
-            ],
-            'PUB': [
-                ('Вернуть Знание редактору', 'REF_RED'),
-                ('Поместить Знание в КЛЗ', 'KLZ'),
-                ('Вернуть Знание на экспертизу-2', 'EXP_2'),
-                ('Отклонить Знание', 'REJ')
-            ],
-        }
+        if user.is_director:
+            return variables.TRANSITIONS_DIRECT[self.get_current_status()]
+        elif user.is_redactor:
+            return variables.TRANSITIONS_RED[self.get_current_status()]
+        elif user.is_expert:
+            return variables.TRANSITIONS_EXP[self.get_current_status()]
+        else:
+            return variables.TRANSITIONS_PUB[self.get_current_status()]
 
     class Meta:
         verbose_name = 'Знание'

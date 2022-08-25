@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.views.generic import TemplateView
 from ..models import Category, Znanie
 from ..models import Category, Znanie
@@ -25,6 +26,8 @@ class DrevoView(TemplateView):
 
         # формирование списка Знаний по категориям
         zn = Znanie.published.all()
+        if self.request.user.in_klz:
+            zn = Znanie.objects.filter(Q())
         zn_dict = {}
         for category in categories:
             zn_in_this_category = zn.filter(
