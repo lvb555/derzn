@@ -196,12 +196,24 @@ class Znanie(models.Model):
         return table_object
 
     def get_users_grade(self, user: User):
+        """
+        Оценка пользователя user.
+        По умолчанию - числовое значение первого
+        объекта из шкалы (наивысшее значение).
+        """
+
         queryset = self.grades.filter(user=user)
         if queryset.exists():
             return queryset.first().grade.get_base_grade()
         return KnowledgeGradeScale.objects.first().get_base_grade()
 
     def get_common_grades(self, request):
+        """
+        Расчёт общей оценки знания.
+        Возвращает числовое значение общей оценки и
+        числовое значение оценки доказательной базы (ОДБ).
+        """
+
         variant = request.GET.get('variant')
         if variant and variant.isdigit():
             variant = int(variant)
@@ -214,6 +226,10 @@ class Znanie(models.Model):
         return common_grade_value, proof_base_value
 
     def get_proof_base_grade(self, request, variant):
+        """
+        Возвращает числовое значение оценки доказательной базы
+        """
+
         sum_list = []
 
         queryset = self.base.filter(
@@ -234,6 +250,7 @@ class Znanie(models.Model):
 
     @staticmethod
     def get_default_grade():
+        """ Возвращает числовое значение оценки по умолчанию """
         return KnowledgeGradeScale.objects.all().first().get_base_grade()
 
     def get_ancestors_category(self):

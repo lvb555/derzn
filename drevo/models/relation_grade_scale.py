@@ -18,4 +18,6 @@ class RelationGradeScale(models.Model):
         return self.name
 
     def get_base_grade(self):
+        """ Оценка связи в форме числа """
+
         return self.value
