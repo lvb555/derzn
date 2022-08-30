@@ -1,7 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 
 from drevo.models.knowledge import Znanie
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -120,6 +120,25 @@ class InterviewAnswerExpertProposal(models.Model):
             interview_id=interview_id,
         )
 
+    @staticmethod
+    def load_actual_proposal(
+        expert_pk: int, answer: Znanie
+    ) -> "InterviewAnswerExpertProposal":
+        """
+        для ответа эксперт может создать только 1 предложение, но из-за
+        реляционных связей мы можем иметь несколько вариантов.
+        Берем последний - самый актуальный, чтобы взять последние изменения
+        (если брать первый, то можно получить некорректное поведение, когда
+        при обновлении ничего не меняется, потому что создается новый объект).
+        """
+        return (
+            InterviewAnswerExpertProposal.objects.get(
+                answer=answer, expert_pk=expert_pk
+            )
+            .order_by("updated")
+            .last()
+        )
+
     def get_arguments(self) -> list[str]:
         return self.comment.get("arguments", [])
 
@@ -130,3 +149,10 @@ class InterviewAnswerExpertProposal(models.Model):
         verbose_name = "Предложение эксперта"
         verbose_name_plural = "Предложения эксперта"
         ordering = ("-updated",)
+        # 1 Эксперт не может сделать 2 предложения к 1му ответу
+        constraints = [
+            models.UniqueConstraint(
+                fields=["answer", "expert", "interview"],
+                name="single_proposal_from_expert_on_answer",
+            )
+        ]
