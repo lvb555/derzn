@@ -37,6 +37,7 @@
        class="{% if my_answer %}interview-end{% else %}interview-start{% endif %}">
       {{q}}
     </a>
+    <a href="{% url 'question_expert_work' znanie.id q.id  %}">Перейти к экспертизе</a>
   </div>
 {% endfor %}
 

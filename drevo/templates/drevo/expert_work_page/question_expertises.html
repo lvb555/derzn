@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block cssfiles %}
+<style type="text/css">
+    .center {
+        text-align: center;
+    }
+
+</style>
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+
+<h1 class="center"><a href="{% url 'interview' interview.id %}">{{interview.title}}</a></h1>
+
+
+<h2 class="center question"><a href="{% url 'zdetail' question.id %}">{{question.title}}</a></h2>
+<div class="container overflow-hidden">
+    <div class="row">
+        <div class="row gy-4" id="answers">
+        {% for answer in answers %}
+            {% include "./answer_block.html" with proposal=answer.proposal%}
+        {% endfor %}
+        {% for answer in answer_proposals %}
+            {% include "./answer_block.html" %}
+        {% endfor %}
+        </div>
+
+        <div class="add-new-answer row mb-5">
+                <form method="POST" action="{% url 'expertise_new_answer' interview.id question.id %}"
+                      class="col gy-5"
+                      id="new_answer_form"
+                      hx-boost="true"
+                      hx-target="#answers"
+                      hx-swap="beforeend">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-6">
+                            <input id="new_answer_text"
+                                   type="text"
+                                   class="form-control"
+                                   placeholder="Текст нового ответа"
+                                   name="text"
+                                   value='{{ new_answer_form.text.value|default:""}}'>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-outline-primary">Добавить ответ</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="response" id="new-answer-result"></div>
+            </div>
+    </div>
+</div>
+<pre style="width: 500px; white-space: pre-wrap;">
+    {{answer_proposals}}
+</pre>
+
+
+<style>
+    /* Outside link icon */
+    a[target="_blank"]::after {
+        content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+        margin: 0 3px 0 5px;
+    }
+    .proposal_answer {
+        color: gray;
+    }
+</style>
+{% endblock %}
+{% block jsfiles %}
+<script src="https://unpkg.com/htmx.org@1.7.0"
+        integrity="sha384-EzBXYPt0/T6gxNp0nuPtLkmRpmDBbjg6WmCUZRLXBBwYYmwAUxzlSGej0ARHX0Bo"
+        crossorigin="anonymous"></script>
+{% endblock %}

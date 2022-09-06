@@ -1,0 +1,11 @@
+<div class="answer row gy-2">
+    <div class="answer__title col {% if answer.id == 0 %}proposal_answer{% endif %}">
+        {% if answer.id != 0 %}
+            <a href="{% url 'zdetail' answer.id %}" target="_blank">{{answer.text}}</a>
+        {% else %}
+            <span>{{answer.text}}</span>
+        {% endif %}
+
+    </div>
+    {% include "./proposal_form.html" %}
+</div>

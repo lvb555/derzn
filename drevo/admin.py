@@ -1,6 +1,23 @@
+from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from mptt.admin import DraggableMPTTAdmin
 
+from drevo.models import InterviewAnswerExpertProposal
 from drevo.models.expert_category import CategoryExpert
+from drevo.models.knowledge_grade import KnowledgeGrade
+from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
+from drevo.models.relation_grade import RelationGrade
+from drevo.models.relation_grade_scale import RelationGradeScale
+from .forms import (
+    ZnanieForm,
+    AuthorForm,
+    GlossaryTermForm,
+    CategoryForm,
+    CtegoryExpertForm,
+)
 from .models import (
     Znanie,
     Tz,
@@ -14,24 +31,6 @@ from .models import (
     GlossaryTerm,
     ZnRating,
     Comment,
-)
-from mptt.admin import DraggableMPTTAdmin
-
-from django.utils.safestring import mark_safe
-from django.utils.html import format_html
-from adminsortable2.admin import SortableAdminMixin
-from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
-from drevo.models.relation_grade_scale import RelationGradeScale
-from drevo.models.knowledge_grade import KnowledgeGrade
-from drevo.models.relation_grade import RelationGrade
-from drevo.models import InterviewAnswerExpertProposal
-
-from .forms import (
-    ZnanieForm,
-    AuthorForm,
-    GlossaryTermForm,
-    CategoryForm,
-    CtegoryExpertForm,
 )
 
 
@@ -396,9 +395,42 @@ class CategoryExpertAdmin(admin.ModelAdmin):
 admin.site.register(CategoryExpert, CategoryExpertAdmin)
 
 
-@admin.register(InterviewAnswerExpertProposal)
-class InterviewExpertResultAdmin(admin.ModelAdmin):
-    exclude = ("updated",)
+class InterviewInline(admin.TabularInline):
+    model = Znanie
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+@admin.register(InterviewAnswerExpertProposal)
+class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
+    exclude = ("updated",)
+    autocomplete_fields = ("interview", "answer", "question")
+    # тут мы ссылаемся на методы *_link, чтобы соответствующие Знания были показаны ссылками в списке всех Proposal
+    list_display = (
+        "id",
+        "interview_link",
+        "question_link",
+        "answer_link",
+        "new_answer_text",
+        "admin_reviewer",
+        "status",
+    )
+    list_display_links = ("id",)
+
+    @staticmethod
+    def link_to_knowledge_change(obj):
+        """Превращаем поле в ссылку в админке"""
+        if obj is None:
+            return "-"
+        return format_html(
+            "<a href='{url}'>{title}</a>",
+            url=reverse("admin:drevo_znanie_change", args=(obj.id,)),
+            title=obj.name,
+        )
+
+    def interview_link(self, obj):
+        return self.link_to_knowledge_change(obj.interview)
+
+    def question_link(self, obj):
+        return self.link_to_knowledge_change(obj.question)
+
+    def answer_link(self, obj):
+        return self.link_to_knowledge_change(obj.answer)
