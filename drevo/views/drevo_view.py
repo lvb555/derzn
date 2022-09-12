@@ -1,8 +1,6 @@
 from django.db.models import Q
 from django.views.generic import TemplateView
 
-from users.models import User
-from ..models import Category, Znanie
 from ..models import Category, Znanie
 from loguru import logger
 
@@ -27,9 +25,11 @@ class DrevoView(TemplateView):
         context['ztypes'] = categories
 
         # формирование списка Знаний по категориям
+        # Формирование списка опубликованных знаний
         zn = Znanie.published.all()
-        if self.request.user.in_klz:
-            zn = Znanie.objects.filter(Q(is_published=True) | Q(get_current_status='KLZ'))
+        # Формирование списка знаний для пользователей-членов КЛЗ
+        if self.request.user.is_authenticated and self.request.user.in_klz:
+            zn = Znanie.objects.filter(Q(is_published=True) | Q(knowledge_status__status='KLZ'))
         zn_dict = {}
         for category in categories:
             zn_in_this_category = zn.filter(

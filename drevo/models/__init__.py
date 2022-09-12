@@ -15,6 +15,7 @@ from .visits import Visits
 from .browsing_history import BrowsingHistory
 from .expert_category import CategoryExpert
 from .interview_answer_expert_proposal import InterviewAnswerExpertProposal
+from .knowledge_statuses import KnowledgeStatuses
 
 __all__ = [
     "AuthorType",
@@ -34,4 +35,5 @@ __all__ = [
     "BrowsingHistory",
     "CategoryExpert",
     "InterviewAnswerExpertProposal",
+    "KnowledgeStatuses",
 ]

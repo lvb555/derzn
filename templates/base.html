@@ -55,6 +55,35 @@
                                             <a class="dropdown-item" href="{% url 'history' %}" id="history_link">История просмотров</a>
                                             <a class="dropdown-item" href="{% url 'favourites' %}"
                                                id="favourites_link">Избранное</a>
+                                            {% if not user.is_redactor and not user.is_director and not user.in_klz %}
+                                                <a class="dropdown-item" href="{% url 'znanie_create' %}" id="znanie_create">
+                                                    {% if user.is_expert %}
+                                                        Создание Знания
+                                                    {% else %}
+                                                        Создание ПредЗнания
+                                                    {% endif %}
+                                                </a>
+                                                <a class="dropdown-item" href="{% url 'znanie_process' %}" id="znanie_list">
+                                                    {% if user.is_expert %}
+                                                        Изменение Знания
+                                                    {% else %}
+                                                        Изменение ПредЗнания
+                                                    {% endif %}
+                                                </a>
+                                                {% if user.is_expert %}
+                                                    <a class="dropdown-item" href="{% url 'znanie_process' %}" id="znanie_process_exp">Экспертиза ПредЗнания</a>
+                                                {% endif %}
+                                            {% else %}
+                                                 <a class="dropdown-item" href="{% url 'znanie_process' %}" id="znanie_process">
+                                                    {% if user.is_redactor %}
+                                                        Редактирование ПредЗнания и Знания
+                                                    {% elif user.is_director %}
+                                                        Публикация ПредЗнания и Знания
+                                                    {% elif user.in_klz %}
+                                                        Клуб любителей знания (КЛЗ)
+                                                    {% endif %}
+                                                </a>
+                                            {% endif %}
                                             {% if user.expert.all %}
                                                 <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
                                             {% endif %}

@@ -16,7 +16,7 @@ from .models import (
     AuthorType,
     GlossaryTerm,
     ZnRating,
-    Comment,
+    Comment, KnowledgeStatuses,
 )
 from mptt.admin import DraggableMPTTAdmin
 
@@ -421,3 +421,8 @@ class InterviewExpertResultAdmin(admin.ModelAdmin):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+@admin.register(KnowledgeStatuses)
+class KnowledgeStatusesAdmin(admin.ModelAdmin):
+    list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)

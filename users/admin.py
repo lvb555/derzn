@@ -17,7 +17,8 @@ class UserAdmin(BaseUserAdmin):
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
         (_('Permissions'), {
-            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'is_expert',
+                       'is_redactor', 'is_director', 'in_klz', 'groups', 'user_permissions'),
         })
     )
 

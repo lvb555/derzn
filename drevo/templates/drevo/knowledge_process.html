@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load mptt_tags %}
+{% load filter %}
+{% load static %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+
+    <div class="content">
+        <div class="tree">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть древо</button>
+            &nbsp;
+            <button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть древо</button>
+
+            <br><br>
+
+            <ul class="root ps-0" id="tree_root">
+                {% recursetree ztypes %}
+                    <li {% if not node.get_level %} style="font-weight: 600;" {% else %}
+                                                    style="font-weight: 400;" {% endif %}
+                                                    id="li_{{ node.id }}">
+
+
+                        {% if not node.has_published_children and zn_dict|dict_value:node.name|length_is:"0" %}
+                            <i class="bi-file-plus-fill lonely"></i>
+                        {% else %}
+                            <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                        {% endif %}
+                        <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
+
+                        <ul hidden>
+                            {% for zn in zn_dict|dict_value:node.name %}
+                                <li style="font-weight: 400;"><i class="bi-file-text-fill" style="color: #99CCFF;"></i>
+                                    <a href="{{ zn.get_absolute_url }}">{{ zn.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+
+                        {% if not node.is_leaf_node %}
+                            <ul class="children" hidden>
+                                {{ children }}
+                            </ul>
+                        {% endif %}
+
+                    </li>
+                {% endrecursetree %}
+            </ul>
+        </div>
+        <div class="btn_legend">
+            <div class="create_button">
+                <a class="btn btn-primary" href="{% url 'znanie_create' %}">{% if user.is_expert %}Создать
+                    Знание{% else %}Создать ПредЗнание{% endif %}</a>
+            </div>
+            <div class="legend">
+                <h4 class="legend_title">Легенда</h4>
+                <ul class="legend_list">
+                    <li class="legend_element" style="color: red">Мое знание - можно изменить его</li>
+                    <li class="legend_element" style="color: green">Мое знание - можно изменить статус его</li>
+                    <li class="legend_element">Другое знание</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+
+{% block jsfiles %}
+
+    <script>
+
+        function toggleHiddenElement(element) {
+            let li_id = element.parentNode.id;
+            let selector_string = "li#" + li_id + " > ul";
+            let ulToHidden = document.querySelectorAll(selector_string);
+            ulToHidden.forEach(function (item) {
+                item.hidden = !item.hidden;
+            })
+
+            if (element.classList.contains("bi-file-minus-fill")) {
+                element.classList.remove("bi-file-minus-fill")
+                element.classList.add("bi-file-plus-fill");
+            } else {
+                element.classList.remove("bi-file-plus-fill")
+                element.classList.add("bi-file-minus-fill");
+            }
+        }
+
+        function showAll() {
+            let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+
+            ulToHidden.forEach(function (x) {
+                    x.hidden = false;
+                }
+            )
+
+            let treeRoot = document.getElementById("tree_root");
+            let listIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
+            for (let icon of listIconsToChange) {
+                icon.classList.remove("bi-file-plus-fill")
+                icon.classList.add("bi-file-minus-fill");
+            }
+
+        }
+
+        function hiddenAll() {
+            let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+            ulToHidden.forEach(function (item) {
+                item.hidden = true;
+            })
+
+            let treeRoot = document.getElementById("tree_root");
+            let listIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
+            for (let icon of listIconsToChange) {
+                icon.classList.remove("bi-file-minus-fill")
+                icon.classList.add("bi-file-plus-fill");
+            }
+
+        }
+
+
+    </script>
+
+{% endblock %}

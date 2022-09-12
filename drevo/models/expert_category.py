@@ -21,6 +21,15 @@ class CategoryExpert(models.Model):
     def __str__(self):
         return f'{self.expert}'
 
+    def save(self, *args, **kwargs):
+        """
+        Переопределяем метод save для того, чтобы у пользователя установить флаг is_expert
+        """
+        user = User.objects.get(id=self.expert.id)
+        user.is_expert = True
+        user.save()
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = 'Эксперта'
         verbose_name_plural = 'Эксперты'

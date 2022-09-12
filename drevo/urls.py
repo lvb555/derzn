@@ -24,6 +24,7 @@ from .views import (DrevoListView,
                     SubscribeToAuthor,
                     FavouritesView,
                     FavouriteProcessView)
+from .views.knowledge_tp_view import KnowledgeCreateView, KnowledgeProcessView
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),
@@ -61,6 +62,8 @@ urlpatterns = [
          name='favourites'),
     path('my_interview/', my_interview_view, name='my_interview'),
     path('interview/<int:pk>/', interview_view, name='interview'),
+    path('znanie_create/', KnowledgeCreateView.as_view(), name='znanie_create'),
+    path('znanie_tp/', KnowledgeProcessView.as_view(), name='znanie_process'),
 
 ]
 

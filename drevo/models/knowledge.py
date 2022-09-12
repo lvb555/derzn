@@ -73,18 +73,21 @@ class Znanie(models.Model):
     expert = models.ForeignKey(User,
                                on_delete=models.PROTECT,
                                null=True,
+                               blank=True,
                                related_name='knowledge_expert',
                                verbose_name='Эксперт'
                                )
     redactor = models.ForeignKey(User,
                                  on_delete=models.PROTECT,
                                  null=True,
+                                 blank=True,
                                  related_name='redactor',
                                  verbose_name='Редактор'
                                  )
     director = models.ForeignKey(User,
                                  on_delete=models.PROTECT,
                                  null=True,
+                                 blank=True,
                                  related_name='director',
                                  verbose_name='Руководитель')
     order = models.IntegerField(verbose_name='Порядок',
