@@ -185,14 +185,13 @@ class Znanie(models.Model):
     def get_users_grade(self, user: User):
         """
         Оценка пользователя user.
-        По умолчанию - числовое значение первого
-        объекта из шкалы (наивысшее значение).
+        По умолчанию - Нет оценки
         """
 
         queryset = self.grades.filter(user=user)
         if queryset.exists():
             return queryset.first().grade.get_base_grade()
-        return KnowledgeGradeScale.objects.first().get_base_grade()
+        return KnowledgeGradeScale.objects.get(name='Нет оценки').get_base_grade()
 
     def get_common_grades(self, request):
         """
@@ -208,7 +207,14 @@ class Znanie(models.Model):
             variant = 2
 
         proof_base_value = self.get_proof_base_grade(request, variant)
-        common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
+        if proof_base_value:
+            users_grade = self.get_users_grade(request.user)
+            if users_grade:
+                common_grade_value = (proof_base_value + users_grade) / 2
+            else:
+                common_grade_value = None
+        else:
+            common_grade_value = self.get_users_grade(request.user)
 
         return common_grade_value, proof_base_value
 
@@ -231,9 +237,17 @@ class Znanie(models.Model):
                     sum_list.append(grade)
 
         if not sum_list:
-            return KnowledgeGradeScale.objects.all().last().low_value
+            # Если доводов нет, Тогда ОДБ := None
+            return None
 
-        return sum(sum_list) / len(sum_list)
+        # ОДБ := среднее арифметическое Оценок вкладов доводов (ОВД) среди существенных доводов..
+        proof_base_value = sum(sum_list) / len(sum_list)
+
+        if proof_base_value < 0:
+            # Если ОДБ < 0, тогда ОДБ := 0
+            proof_base_value = 0
+
+        return proof_base_value
 
     @staticmethod
     def get_default_grade():
