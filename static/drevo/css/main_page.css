@@ -1,0 +1,14 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Gabriela&family=Kaisei+Decol:wght@400;500;700&display=swap');
+
+
+:root {
+    --main-bg-color: #083E2F;
+    --main-bg-color-dark: #052F23;
+    --main-bg-green: #23755E;
+    --main-bg-teal: #258989;
+}
+
+h1 {
+    font-family: 'Gabriela', serif;
+}

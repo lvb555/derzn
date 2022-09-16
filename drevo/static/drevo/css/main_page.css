@@ -1,0 +1,73 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Gabriela&family=Kaisei+Decol:wght@400;500;700&display=swap');
+
+
+:root {
+    --main-bg-color: #083E2F;
+    --main-bg-color-dark: #052F23;
+    --main-bg-green: #23755E;
+    --main-bg-teal: #258989;
+}
+
+.h1-drevo {
+    font-family: 'Gabriela', serif;
+}
+
+.tree-main {
+    z-index: -1;
+    padding: 0 0;
+    overflow: hidden;
+    max-height: fit-content;
+    max-width:min-content;
+}
+
+
+.main-about-p {
+    font-size: calc(1rem + .2vw);
+}
+
+.main-quote {
+    height: max-content;
+    background-color: var(--main-bg-color);
+}
+
+blockquote {
+    color: var(--bs-white);
+    font-family: 'Gabriela', serif;
+    font-size: 2rem;
+    margin: 0 auto;
+}
+
+.quote {
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin-bottom: 0;
+    margin-left: 2rem;
+    text-align: center;
+}
+
+.quote::before,
+.quote::after {
+    content: "“";
+    font-family: 'Gabriela', serif;
+    font-size: 6rem;
+    margin: -2rem 0 0 -4rem;
+    position: absolute;
+    opacity: 0.7;
+}
+
+.quote::after {
+    content: "”";
+    margin: -1rem -4rem 0 0;
+}
+
+figcaption {
+    font-size: 1rem;
+    text-align: center;
+}
+
+cite{
+    font-family: 'Gabriela', serif;
+    font-size: 1.1rem;
+    color: var(--bs-white);
+}
