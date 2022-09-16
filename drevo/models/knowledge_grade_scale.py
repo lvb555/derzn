@@ -29,7 +29,7 @@ class KnowledgeGradeScale(models.Model):
     def get_base_grade(self):
         """ Оценка знания в форме числа """
 
-        return (self.low_value + self.high_value) / 2
+        return (self.low_value + self.high_value) / 2 if self.low_value != 2.0 else None
 
     @classmethod
     def get_grade_object(cls, grade_value):
@@ -39,6 +39,8 @@ class KnowledgeGradeScale(models.Model):
 
         По умолчанию возвращает последний (с наименьшим значением)
         """
+        if grade_value is None:
+            return None
 
         queryset = cls.objects.all()
         for obj in queryset:
