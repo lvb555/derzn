@@ -34,12 +34,11 @@
 blockquote {
     color: var(--bs-white);
     font-family: 'Gabriela', serif;
-    font-size: 2rem;
     margin: 0 auto;
 }
 
 .quote {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-weight: 500;
     margin-bottom: 0;
     margin-left: 2rem;
@@ -50,6 +49,7 @@ blockquote {
 .quote::after {
     content: "“";
     font-family: 'Gabriela', serif;
+
     font-size: 6rem;
     margin: -2rem 0 0 -4rem;
     position: absolute;

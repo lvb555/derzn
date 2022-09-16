@@ -17,10 +17,12 @@
     <link rel="stylesheet" type="text/css" href="/static/drevo/css/main_page.css">
     {% block cssfiles %}{% endblock %}
 
-    <title>{% block title %}Древо{% endblock %}</title>
+    <title>{% block title %}Дeрево{% endblock %}</title>
 </head>
 
 <body>
+
+<!-- Navigation bar start -->
     <div class="container-fluid sticky-top" style="background-color: var(--main-bg-color-dark);">
         <div class="container">
             <nav class="navbar navbar-expand-md mb-2 navbar-dark">
@@ -38,7 +40,7 @@
                         <div class="navbar-nav me-auto">
                             <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
                                 <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Древо знания</a>
+                                    <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Дерево знания</a>
                                 </li>
                                 <li class="nav-item mx-2">
                                     <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
@@ -107,47 +109,15 @@
             </nav>
         </div>
     </div>
+<!-- Navigation bar end -->
 
-    <div class="container-fluid bg-ligth px-0">
-        <div class="row">
-            <picture class="tree-main">
-                <source srcset="{% static 'drevo\img\main_page\base_tree_576px.webp' %}" media="(max-width: 576px)">
-                <img class="img-fluid position-absolute top-0 end-0" src="{% static 'drevo\img\main_page\background_tree.webp' %}" alt="tree_background">
-            </picture>
-
-        </div>
-        <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3">
-            <div class="col-sm-8 col-md-9 col-lg-7 col-xl-6 p-2 p-sm-6 p-md-6 p-lg-10 my-5">
-                <h1 class="h1-drevo display-3 fw-semibold mb-4" >Дерево знаний</h1>
-                <p class="main-about-p">
-                    Общественно-политический проект.
-                    <i>Текст для заполнения. Текст для заполнения. Текст для заполнения. Текст для заполнения. Текст для заполнения.</i>
-                </p>
-                <p class="main-about-p">Мы хотим поделиться своей находкой, столь же необычной, сколь и необходимой.
-                    Информационный перегруз породил проблему – клиповое мышление, ориентированное на очень короткие
-                    видео, аудио, тексты, длинные же почти сразу бросают. Интернет создал проблему, он ее и решит.
-                </p>
-            </div>
-        </div>
-        <div class="container-fluid main-quote p-3 p-md-4">
-            <figure>
-                <blockquote class="blockquote">
-                    <p class="quote">
-                        Усилиями многих людей сухая теория может зазеленеть листьями дерева знаний.
-                    </p>
-                </blockquote>
-                <figcaption class="blockquote-footer">
-                    <cite title="Source Title"> Л.В. Бояркин</cite>
-                </figcaption>
-            </figure>
-        </div>
-    </div>
-
+<div class="container-fluid px-0">
+    {% block precontent %}
+    {% endblock %}
+</div>
 <div class="container">
     <div class="row">
-        <div class="col">
-            {% block precontent %}
-            {% endblock %}
+        <div class="col mt-3">
             {% block content %}
             {% endblock %}
         </div>

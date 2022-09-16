@@ -7,8 +7,44 @@
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
 
+{% block precontent %}
+<div class="container-fluid bg-ligth px-0">
+  <div class="row">
+      <picture class="tree-main">
+          <source srcset="{% static 'drevo\img\main_page\base_tree_576px.webp' %}" media="(max-width: 768px)">
+          <img class="img-fluid position-absolute top-0 end-0" src="{% static 'drevo\img\main_page\background_tree_crpd.webp' %}" alt="tree_background">
+      </picture>
+
+  </div>
+  <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3">
+      <div class="col-sm-8 col-md-9 col-lg-7 col-xl-6 p-2 p-sm-6 p-md-6 p-lg-10 my-5">
+          <h1 class="h1-drevo display-3 fw-bold mb-4" >Дерево знаний</h1>
+          <p class="main-about-p">
+              Общественно-политический проект. Создание концентрата знаний в форме дерева (графа) знаний.
+          </p>
+          <p class="main-about-p">Мы хотим поделиться своей находкой, столь же необычной, сколь и необходимой.
+              Информационный перегруз породил проблему – клиповое мышление, ориентированное на очень короткие
+              видео, аудио, тексты, длинные же почти сразу бросают. Интернет создал проблему, он ее и решит.
+          </p>
+      </div>
+  </div>
+  <div class="container-fluid main-quote p-3 p-md-4">
+      <figure>
+          <blockquote class="blockquote">
+              <p class="quote">
+                  Усилиями многих людей сухая теория может зазеленеть листьями дерева знаний.
+              </p>
+          </blockquote>
+          <figcaption class="blockquote-footer">
+              <cite title="Source Title"> Л.В. Бояркин</cite>
+          </figcaption>
+      </figure>
+  </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<h1>Древо</h1>
+<h1 class="h1-drevo my-3">Дерево</h1>
 
 <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть древо</button>
 &nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть древо</button>
