@@ -20,7 +20,7 @@
     <title>{% block title %}Дeрево{% endblock %}</title>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
 <!-- Navigation bar start -->
     <div class="container-fluid sticky-top" style="background-color: var(--main-bg-color-dark);">
@@ -123,6 +123,22 @@
         </div>
     </div>
 </div>
+
+<!-- Footer - start -->
+<div class="container-fluid mt-auto">
+    <footer class="static-bottom d-flex flex-wrap justify-content-between align-items-center py-3 mb-4 border-top">
+      <p class="col-md-4 mb-0 text-muted">&copy; 2020, Дерево знаний.</p>
+      <a href="#" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+        <img src="{% static 'drevo\img\main_page\logo_tree_green.png' %}" height="32px" alt="logo-tree">
+      </a>
+      <ul class="nav col-md-4 justify-content-end">
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Главная</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">О проекте</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Контакты</a></li>
+      </ul>
+    </footer>
+</div>
+<!-- Footer - end -->
 
 {% block jsfiles %}
 {% endblock jsfiles %}
