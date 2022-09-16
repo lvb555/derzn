@@ -72,11 +72,19 @@ class Relation(models.Model):
             relation_grade = grades.first().grade.get_base_grade()
         else:
             relation_grade = RelationGradeScale.objects.first().get_base_grade()
-        return related_knowledge_grade * relation_grade
+
+        return related_knowledge_grade * relation_grade if related_knowledge_grade is not None else None
 
     def get_proof_weight(self, request, variant):
         """ Оценка вклада довода (ОВД) """
-        return self.get_proof_grade(request, variant) * (-2 * self.tr.argument_type + 1)
+        proof_grade = self.get_proof_grade(request, variant)
+
+        if proof_grade:
+            # Если ЗОД имеет реальное значение, тогда расчет ОВД проводится по формуле.
+            # Если расчета нет, то ОВД равен None.
+            return proof_grade * (-2 * self.tr.argument_type + 1)
+        else:
+            return None
 
     @staticmethod
     def get_default_grade():
