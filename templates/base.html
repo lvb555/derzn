@@ -14,19 +14,22 @@
     <link rel="icon" type="image/x-icon" href="{% static 'drevo/img/favicon.svg' %}">
     <!-- Project CSS -->
     <link rel="stylesheet" type="text/css" href="./dropdown.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/drevo/css/main_page.css">
     {% block cssfiles %}{% endblock %}
 
-    <title>{% block title %}Древо{% endblock %}</title>
+    <title>{% block title %}Дeрево{% endblock %}</title>
 </head>
 
-<body>
-    <div class="container-fluid bg-light">
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Navigation bar start -->
+    <div class="container-fluid sticky-top" style="background-color: var(--main-bg-color-dark);">
         <div class="container">
-            <nav class="navbar navbar-expand-lg mb-2 navbar-light">
+            <nav class="navbar navbar-expand-md mb-2 navbar-dark">
                 <div class="container-fluid">
                     <div class="logo me-2">
                         <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
-                            <img src="{% static 'drevo/img/logo.svg' %}" height='68px' alt="logo-tree">
+                            <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height='46px' alt="logo-tree">
                         </a>
                     </div>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -37,7 +40,7 @@
                         <div class="navbar-nav me-auto">
                             <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
                                 <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Древо знания</a>
+                                    <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Дерево знаний</a>
                                 </li>
                                 <li class="nav-item mx-2">
                                     <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
@@ -88,13 +91,13 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="btn btn-outline-success" aria-current="page" href="{% url 'users:logout' %}">
+                                <a class="btn btn-outline-light" aria-current="page" href="{% url 'users:logout' %}">
                                     <span>Выйти </span>
                                 </a>
                             </li>
                             {% else %}
                             <li class="nav-item">
-                                <a class="btn btn-outline-success" aria-current="page"
+                                <a class="btn btn btn-outline-light" aria-current="page"
                                    href="{% url 'users:login' %}?next={{ request.path }}">
                                     <span>Войти </span>
                                 </a>
@@ -106,17 +109,36 @@
             </nav>
         </div>
     </div>
+<!-- Navigation bar end -->
 
+<div class="container-fluid px-0">
+    {% block precontent %}
+    {% endblock %}
+</div>
 <div class="container">
     <div class="row">
-        <div class="col">
-            {% block precontent %}
-            {% endblock %}
+        <div class="col mt-3">
             {% block content %}
             {% endblock %}
         </div>
     </div>
 </div>
+
+<!-- Footer - start -->
+<div class="container-fluid mt-auto">
+    <footer class="static-bottom d-flex flex-wrap justify-content-between align-items-center py-3 mt-5 border-top">
+      <p class="col-md-4 mb-0 text-muted">&copy; 2020, Дерево знаний.</p>
+      <a href="#" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+        <img src="{% static 'drevo\img\main_page\logo_tree_green.png' %}" height="32px" alt="logo-tree">
+      </a>
+      <ul class="nav col-md-4 justify-content-end">
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Главная</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">О проекте</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Контакты</a></li>
+      </ul>
+    </footer>
+</div>
+<!-- Footer - end -->
 
 {% block jsfiles %}
 {% endblock jsfiles %}
