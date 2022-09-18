@@ -26,6 +26,10 @@ def friends_invite_view(request):
     for profile in profiles:
         data = {}
         user = User.objects.filter(id=profile.user_id)
+        if not user.exists():
+            continue
+        if not user[0].first_name or not user[0].last_name:
+            continue
         data['first_name'] = user[0].first_name
         data['last_name'] = user[0].last_name
         data['avatar'] = profile.avatar
@@ -36,25 +40,29 @@ def friends_invite_view(request):
     return render(request, template_name, context)
 
 
-def _accept_invite(user_id, friend_id):
+def _accept_invite(user_id: int, friend_id: str) -> None:
     """
     Подтвердить дружбу
     """
     # Удалим из таблицы заявок
-    invite_table = FriendsInviteTerm.objects.filter(recipient_id=user_id, sender_id=friend_id)
+    invite_table = FriendsInviteTerm.objects.filter(recipient_id=user_id, sender_id=int(friend_id))
     invite_table.delete()
 
     # Добавим в список друзей
-    friend_table = FriendsTerm()
-    friend_table.user_id = user_id
-    friend_table.friend_id = friend_id
-    friend_table.save()
+    FriendsTerm.objects.create(
+        user_id=user_id,
+        friend_id=friend_id
+    )
+    FriendsTerm.objects.create(
+        user_id=friend_id,
+        friend_id=user_id
+    )
 
 
-def _not_accept_invite(user_id, friend_id):
+def _not_accept_invite(user_id: int, friend_id: str) -> None:
     """
     Отклонить дружбу
     """
     # Удалим из таблицы заявок
-    invite_table = FriendsInviteTerm.objects.filter(recipient_id=user_id, sender_id=friend_id)
+    invite_table = FriendsInviteTerm.objects.filter(recipient_id=user_id, sender_id=int(friend_id))
     invite_table.delete()

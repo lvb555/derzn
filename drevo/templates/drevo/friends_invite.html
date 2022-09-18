@@ -16,7 +16,7 @@
     {% for one in profiles %}
     <tr>
         <td>
-            {{ one.avatar }}
+            <img src="{{ one.avatar.url }}" height="50px" width="50px">
         </td>
         <td>
             {{ one.first_name }}

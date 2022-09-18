@@ -53,6 +53,8 @@ def friends_added_view(request):
             user = User.objects.filter(id=profile.user_id)
         if not user.exists():
             continue
+        if not user[0].first_name or not user[0].last_name:
+            continue
         data['first_name'] = user[0].first_name
         data['last_name'] = user[0].last_name
         data['avatar'] = profile.avatar
@@ -63,13 +65,13 @@ def friends_added_view(request):
     return render(request, template_name, context)
 
 
-def _add_friend(user_id, friend_id):
+def _add_friend(user_id: int, friend_id: str) -> None:
     """
     Отправить заявку на дружбу
     """
-    obj = FriendsInviteTerm()
-    obj.sender_id = int(user_id)
-    obj.recipient_id = int(friend_id)
-    obj.date_added = datetime.datetime.now()
-    obj.accept = False
-    obj.save()
+    FriendsInviteTerm.objects.create(
+        sender_id=user_id,
+        recipient_id=int(friend_id),
+        date_added=datetime.datetime.now(),
+        accept=False
+    )
