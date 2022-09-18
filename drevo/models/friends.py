@@ -12,11 +12,11 @@ class FriendsTerm(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
-        related_name='user'
+        related_name='users'
     )
     friend = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name='Друг',
-        related_name='friend'
+        related_name='friends'
     )

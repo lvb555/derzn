@@ -25,6 +25,10 @@ def friends_view(request):
         for profile in profiles:
             data = {}
             user = User.objects.filter(id=profile.user_id)
+            if not user.exists():
+                continue
+            if not user[0].first_name and not user[0].last_name:
+                continue
             data['first_name'] = user[0].first_name
             data['last_name'] = user[0].last_name
             data['avatar'] = profile.avatar
@@ -35,9 +39,9 @@ def friends_view(request):
     return render(request, template_name, context)
 
 
-def _remove_friend(user_id, friend_id):
+def _remove_friend(user_id: int, friend_id: str) -> None:
     """
     Удалить из друзей
     """
-    friend_table = FriendsTerm.objects.filter(user_id=user_id, friend_id=friend_id)
+    friend_table = FriendsTerm.objects.filter(user_id=user_id, friend_id=int(friend_id))
     friend_table.delete()
