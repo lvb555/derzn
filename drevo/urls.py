@@ -23,7 +23,10 @@ from .views import (DrevoListView,
                     BrowsingHistoryListView,
                     SubscribeToAuthor,
                     FavouritesView,
-                    FavouriteProcessView)
+                    FavouriteProcessView,
+                    friends_view,
+                    friends_added_view,
+                    friends_invite_view)
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),
@@ -61,7 +64,9 @@ urlpatterns = [
          name='favourites'),
     path('my_interview/', my_interview_view, name='my_interview'),
     path('interview/<int:pk>/', interview_view, name='interview'),
-
+    path('friends/', friends_view, name='friends'),
+    path('friends/friends_added/', friends_added_view, name='friends_added'),
+    path('friends/friends_invite/', friends_invite_view, name='friends_invite')
 ]
 
 if settings.DEBUG:

@@ -18,6 +18,9 @@ from .browsing_history import BrowsingHistoryListView
 from .subscribe_to_author_view import SubscribeToAuthor
 from .favourites_view import FavouritesView
 from .favourite_processing_view import FavouriteProcessView
+from .friends_added_view import friends_added_view
+from .friends_view import friends_view
+from .friends_invite_view import friends_invite_view
 
 
 __all__ = [
@@ -40,5 +43,8 @@ __all__ = [
     'KnowledgeFormView',
     'BrowsingHistoryListView',
     'FavouritesView',
-    'FavouriteProcessView'
+    'FavouriteProcessView',
+    'friends_view',
+    'friends_added_view',
+    'friends_invite_view'
 ]

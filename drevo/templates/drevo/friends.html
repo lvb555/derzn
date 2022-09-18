@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Друзья{% endblock %}
+
+{% block content %}
+
+<h2>Друзья <a class="btn btn-primary btn-sm" href="friends_invite/">({{ invite_count }})</a></h2>
+
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/search.css' %}">
+{% endblock %}
+
+<div class="friends_input">
+    <a class="btn btn-primary btn-sm" href="friends_added/">Добавить друга</a>
+</div>
+
+<table class="table">
+    <tr>
+        <th>Аватар</th>
+        <th>Имя</th>
+        <th>Фамилия</th>
+    </tr>
+    <tbody>
+    {% for one in profiles %}
+    <tr>
+        <td>
+            {{ one.avatar }}
+        </td>
+        <td>
+            {{ one.first_name }}
+        </td>
+        <td>
+            {{ one.last_name }}
+        </td>
+        <td>
+            <form method="GET" action="">
+                <button class="btn btn-primary btn-sm" name="remove" value="{{ one.user_id }}" >
+                    Удалить из друзей
+                </button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+    {% endfor %}
+</table>
+
+
+{% endblock %}
