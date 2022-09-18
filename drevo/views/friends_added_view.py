@@ -50,14 +50,14 @@ def friends_added_view(request):
             user = User.objects.filter(id=profile.user_id, first_name__contains=first_name_predicate,
                                        last_name__contains=last_name_predicate)
         else:
-            user = User.objects.filter(id=profile.user_id)
-        if not user.exists():
+            user = User.objects.filter(id=profile.user_id).first()
+        if not user:
             continue
-        if not user[0].first_name or not user[0].last_name:
+        if not user.first_name or not user.last_name:
             continue
-        data['first_name'] = user[0].first_name
-        data['last_name'] = user[0].last_name
-        data['avatar'] = profile.avatar
+        data['first_name'] = user.first_name
+        data['last_name'] = user.last_name
+        data['avatar'] = profile.avatar or ''
         data['user_id'] = profile.user_id
         context['profiles'].append(data)
 
