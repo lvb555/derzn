@@ -53,7 +53,7 @@ def friends_added_view(request):
             user = User.objects.filter(id=profile.user_id)
         if not user.exists():
             continue
-        if not user[0].first_name and not user[0].last_name:
+        if not user[0].first_name or not user[0].last_name:
             continue
         data['first_name'] = user[0].first_name
         data['last_name'] = user[0].last_name
