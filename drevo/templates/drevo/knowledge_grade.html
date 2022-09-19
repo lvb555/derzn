@@ -104,13 +104,13 @@
 
             {% if proof_relations.exists %}
                 <h4 class="text-center my-4">Доказательная база знания</h4>
-                <div class="table-responsive" style="resize: horizontal;">
-                    <style>
+<!--                <div class="table-responsive" style="resize: horizontal;">-->
+                    <table class="table align-middle my-2" style="border-collapse: collapse; display: inline-block;">
+                        <style>
                         .table-border {
                             border: 2px black solid;
                         }
-                    </style>
-                    <table class="table align-middle my-2" style="border-collapse: collapse; display: inline-block;">
+                        </style>
                         <tbody class="table-border">
                         <th class="table-border text-center">
                             Знание
@@ -133,8 +133,8 @@
                         {% for relation in proof_relations %}
                             <tr>
                                 <input type="hidden" name="relation_row" value="{{ relation.id }}">
-                                <td class="table-border">
-                                    <div class="knowledge-title" style="min-width: 550px;">
+                                <td class="table-border" >
+                                    <div class="knowledge-title" style="max-width: 550px;">
                                         <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}">
                                             {{ relation.rz.name }}
                                         </a>
@@ -199,7 +199,7 @@
                         {% endfor %}
                         </tbody>
                     </table>
-                </div>
+<!--                </div>-->
             {% endif %}
         </form>
     {% endif %}
