@@ -207,9 +207,9 @@ class Znanie(models.Model):
             variant = 2
 
         proof_base_value = self.get_proof_base_grade(request, variant)
-        if proof_base_value:
+        if proof_base_value is not None:
             users_grade = self.get_users_grade(request.user)
-            if users_grade:
+            if users_grade is not None:
                 common_grade_value = (proof_base_value + users_grade) / 2
             else:
                 common_grade_value = None
