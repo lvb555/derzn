@@ -160,6 +160,8 @@ class InterviewAnswerExpertProposal(models.Model):
         question_id: int = None,
         text: str = None,
         comment: t.Optional[dict] = None,
+        is_agreed: bool = False,
+        is_incorrect_answer: bool = False,
     ) -> "InterviewAnswerExpertProposal":
 
         if comment is None:
@@ -171,6 +173,8 @@ class InterviewAnswerExpertProposal(models.Model):
             comment=comment,
             interview_id=interview_id,
             question_id=question_id,
+            is_agreed=is_agreed,
+            is_incorrect_answer=is_incorrect_answer,
         )
 
     @staticmethod
