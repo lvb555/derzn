@@ -265,10 +265,7 @@ class Znanie(models.Model):
         return self.category.get_ancestors(ascending=False, include_self=True)
     
     def save(self, *args, **kwargs):
-        if self.tz.is_systemic:
-            self.is_send = False
-        elif not self.tz.is_systemic:
-            self.is_send = True
+        self.is_send = not self.tz.is_systemic
         super(Znanie, self).save(*args, **kwargs)
     
     class Meta:
