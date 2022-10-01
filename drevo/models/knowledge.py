@@ -80,6 +80,10 @@ class Znanie(models.Model):
                                     verbose_name='Метки',
                                     blank=True
                                     )
+    is_send = models.BooleanField(
+        verbose_name='Пересылать',
+        default=True
+    )
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
     objects = models.Manager()
@@ -259,7 +263,14 @@ class Znanie(models.Model):
         Возвращает TreeQuerySet с категорией и предками категории данного знания
         """
         return self.category.get_ancestors(ascending=False, include_self=True)
-
+    
+    def save(self, *args, **kwargs):
+        if self.tz.is_systemic:
+            self.is_send = False
+        elif not self.tz.is_systemic:
+            self.is_send = True
+        super(Znanie, self).save(*args, **kwargs)
+    
     class Meta:
         verbose_name = 'Знание'
         verbose_name_plural = 'Знания'
