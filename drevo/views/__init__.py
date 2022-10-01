@@ -21,6 +21,7 @@ from .favourite_processing_view import FavouriteProcessView
 from .friends_added_view import friends_added_view
 from .friends_view import friends_view
 from .friends_invite_view import friends_invite_view
+from .znanie_send_view import send_znanie
 
 
 __all__ = [
@@ -46,5 +47,6 @@ __all__ = [
     'FavouriteProcessView',
     'friends_view',
     'friends_added_view',
-    'friends_invite_view'
+    'friends_invite_view',
+    'send_znanie'
 ]
