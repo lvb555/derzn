@@ -110,6 +110,7 @@ class ZnanieAdmin(admin.ModelAdmin):
         "author",
         "updated_at",
         "user",
+        "is_send"
     )
     list_display_links = ("id", "name")
     ordering = ("order",)

@@ -10,6 +10,7 @@ from .date_pick_form import DatePickNewForm
 from .author_subribtion_forms import AuthorSubscriptionForm
 from .author_subribtion_forms import AuthorSubscriptionDeleteForm
 from .category_expert_form import CtegoryExpertForm
+from .znanie_send_message_form import ZnanieSendMessage
 
 __all__ = [
     'AuthorSubscriptionDeleteForm',
@@ -24,4 +25,5 @@ __all__ = [
     'AuthorSearchForm',
     'TagSearchForm',
     'CtegoryExpertForm',
+    'ZnanieSendMessage'
 ]

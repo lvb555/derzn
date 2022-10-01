@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load mptt_tags %}
+{% load static %}
+
+{% block title %}Сообщение об интересном знании{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <form method="post">
+        {% csrf_token %}
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            {% if message.tags == 'error' %}
+            <li class="text-danger"> {{ message }} </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <h1><input type="submit" class="btn btn-warning" value="Отправить"> Сообщение об интересном знании</h1>
+        <h3>Знание: {{ znanie_name.name }}</h3>
+        {{ form.as_p }}
+    </form>
+</div>
+
+{% endblock %}

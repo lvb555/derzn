@@ -26,7 +26,8 @@ from .views import (DrevoListView,
                     FavouriteProcessView,
                     friends_view,
                     friends_added_view,
-                    friends_invite_view)
+                    friends_invite_view,
+                    send_znanie)
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),
@@ -38,6 +39,7 @@ urlpatterns = [
     path('znanie/<int:pk>/vote/<str:vote>/',
          ZnanieRatingView.as_view(), name='znrating'),
     path('znanie/<int:pk>/grade/', KnowledgeFormView.as_view(), name='grade'),
+    path('znanie/<int:pk>/message/send/', send_znanie, name='zsend_mes'),
     path('label/<int:pk>', ZnanieByLabelView.as_view(), name='zlabel'),
     path('author/<int:pk>', AuthorDetailView.as_view(), name='author'),
     path('authors/', AuthorsListView.as_view(), name='authors'),
@@ -66,7 +68,7 @@ urlpatterns = [
     path('interview/<int:pk>/', interview_view, name='interview'),
     path('friends/', friends_view, name='friends'),
     path('friends/friends_added/', friends_added_view, name='friends_added'),
-    path('friends/friends_invite/', friends_invite_view, name='friends_invite')
+    path('friends/friends_invite/', friends_invite_view, name='friends_invite'),
 ]
 
 if settings.DEBUG:
