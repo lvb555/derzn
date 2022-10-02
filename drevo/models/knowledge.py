@@ -13,7 +13,7 @@ from ..managers import ZManager
 
 User = get_user_model()
 
-# в вид знания добавить атребут пересылать
+
 class Znanie(models.Model):
     """
     Класс для описания сущности 'Знание'
