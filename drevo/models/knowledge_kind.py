@@ -1,4 +1,5 @@
 from django.db import models
+from .knowledge import Znanie
 
 
 class Tz(models.Model):
@@ -23,10 +24,18 @@ class Tz(models.Model):
 
     can_be_rated = models.BooleanField(default=False,
                                        verbose_name='Возможна оценка знания')
+    is_send = models.BooleanField(default=True,
+                                  verbose_name='Пересылать')
     objects = models.Manager()
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        for obj in Znanie.objects.filter(tz=self).all():
+            obj.is_send = self.is_send
+            obj.save()
+        super(Tz, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Вид знания'

@@ -13,7 +13,7 @@ from ..managers import ZManager
 
 User = get_user_model()
 
-
+# в вид знания добавить атребут пересылать
 class Znanie(models.Model):
     """
     Класс для описания сущности 'Знание'
@@ -263,10 +263,6 @@ class Znanie(models.Model):
         Возвращает TreeQuerySet с категорией и предками категории данного знания
         """
         return self.category.get_ancestors(ascending=False, include_self=True)
-    
-    def save(self, *args, **kwargs):
-        self.is_send = not self.tz.is_systemic
-        super(Znanie, self).save(*args, **kwargs)
     
     class Meta:
         verbose_name = 'Знание'

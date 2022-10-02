@@ -20,7 +20,7 @@ def send_znanie(request, pk):
         if form.is_valid():
             address = form.cleaned_data['email_address']
             znanie_url = f"{settings.BASE_URL}{reverse_lazy('zdetail', kwargs={'pk': pk})}"
-            message_subject = 'Интересная информация на портале "Дерево знаний'
+            message_subject = 'Интересная информация на портале "Дерево знаний"'
             message_text = form.cleaned_data['mes_text'] + f"\n {znanie_url}"
             is_send = send_email(to_address=address, subject=message_subject, message=message_text, html_message=False)
             if is_send:
