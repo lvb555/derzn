@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Заявки на дружбу{% endblock %}
+
+{% block content %}
+<h2>Заявки на дружбу</h2>
+
+
+<table class="table">
+    <tr>
+        <th>Аватар</th>
+        <th>Имя</th>
+        <th>Фамилия</th>
+    </tr>
+    <tbody>
+    {% for one in profiles %}
+    <tr>
+        <td>
+            <img src="{{ one.avatar.url }}" height="50px" width="50px">
+        </td>
+        <td>
+            {{ one.first_name }}
+        </td>
+        <td>
+            {{ one.last_name }}
+        </td>
+        <td>
+            <form method="GET" action="">
+                <button class="btn btn-primary btn-sm" name="accept" value="{{ one.user_id }}" >
+                    Подтвердить
+                </button>
+                <button class="btn btn-primary btn-sm" name="not_accept" value="{{ one.user_id }}" >
+                    Отклонить
+                </button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+    {% endfor %}
+</table>
+
+
+{% endblock %}

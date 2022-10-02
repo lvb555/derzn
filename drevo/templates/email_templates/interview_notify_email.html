@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Новое интервью</title>
+</head>
+<body>
+    <div>
+        <h2>{{ appeal }} {{ name }}{{ patronymic }}!</h2>
+        <p>Приглашаем Вас принять участие в новом интервью, которое {{ period_message }}.</p>
+        <a href="{{ url }}">{{ interview_name }}</a>
+    </div>
+    <div>
+        <h3>Список вопросов интервью:</h3>
+        <ul>
+            {% for item in question_set %}
+                <li><a href="{{ question_base_url }}{{ item.id }}">{{ item.name }}, {{ item.tz.name }}.</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <h3>Администрация портала «Дерево знаний»</h3>
+    </div>
+</body>
+</html>

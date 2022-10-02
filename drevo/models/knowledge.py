@@ -80,6 +80,10 @@ class Znanie(models.Model):
                                     verbose_name='Метки',
                                     blank=True
                                     )
+    is_send = models.BooleanField(
+        verbose_name='Пересылать',
+        default=True
+    )
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
     objects = models.Manager()
@@ -183,12 +187,23 @@ class Znanie(models.Model):
         return table_object
 
     def get_users_grade(self, user: User):
+        """
+        Оценка пользователя user.
+        По умолчанию - Нет оценки
+        """
+
         queryset = self.grades.filter(user=user)
         if queryset.exists():
             return queryset.first().grade.get_base_grade()
-        return KnowledgeGradeScale.objects.first().get_base_grade()
+        return KnowledgeGradeScale.objects.get(name='Нет оценки').get_base_grade()
 
     def get_common_grades(self, request):
+        """
+        Расчёт общей оценки знания.
+        Возвращает числовое значение общей оценки и
+        числовое значение оценки доказательной базы (ОДБ).
+        """
+
         variant = request.GET.get('variant')
         if variant and variant.isdigit():
             variant = int(variant)
@@ -196,11 +211,22 @@ class Znanie(models.Model):
             variant = 2
 
         proof_base_value = self.get_proof_base_grade(request, variant)
-        common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
+        if proof_base_value is not None:
+            users_grade = self.get_users_grade(request.user)
+            if users_grade is not None:
+                common_grade_value = (proof_base_value + users_grade) / 2
+            else:
+                common_grade_value = None
+        else:
+            common_grade_value = self.get_users_grade(request.user)
 
         return common_grade_value, proof_base_value
 
     def get_proof_base_grade(self, request, variant):
+        """
+        Возвращает числовое значение оценки доказательной базы
+        """
+
         sum_list = []
 
         queryset = self.base.filter(
@@ -215,14 +241,36 @@ class Znanie(models.Model):
                     sum_list.append(grade)
 
         if not sum_list:
-            return KnowledgeGradeScale.objects.all().last().low_value
+            # Если доводов нет, Тогда ОДБ := None
+            return None
 
-        return sum(sum_list) / len(sum_list)
+        # ОДБ := среднее арифметическое Оценок вкладов доводов (ОВД) среди существенных доводов..
+        proof_base_value = sum(sum_list) / len(sum_list)
+
+        if proof_base_value < 0:
+            # Если ОДБ < 0, тогда ОДБ := 0
+            proof_base_value = 0
+
+        return proof_base_value
 
     @staticmethod
     def get_default_grade():
+        """ Возвращает числовое значение оценки по умолчанию """
         return KnowledgeGradeScale.objects.all().first().get_base_grade()
 
+    def get_ancestors_category(self):
+        """
+        Возвращает TreeQuerySet с категорией и предками категории данного знания
+        """
+        return self.category.get_ancestors(ascending=False, include_self=True)
+    
+    def save(self, *args, **kwargs):
+        if self.tz.is_systemic:
+            self.is_send = False
+        elif not self.tz.is_systemic:
+            self.is_send = True
+        super(Znanie, self).save(*args, **kwargs)
+    
     class Meta:
         verbose_name = 'Знание'
         verbose_name_plural = 'Знания'

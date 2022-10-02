@@ -22,7 +22,11 @@ from .search_tag_view import TagSearchView
 from .subscribe_to_author_view import SubscribeToAuthor
 from .znanie_by_label_view import ZnanieByLabelView
 from .znanie_detail_view import ZnanieDetailView
+from .friends_added_view import friends_added_view
 from .znanie_rating_view import ZnanieRatingView
+from .friends_view import friends_view
+from .friends_invite_view import friends_invite_view
+from .znanie_send_view import send_znanie
 
 __all__ = [
     "SubscribeToAuthor",
@@ -45,7 +49,12 @@ __all__ = [
     "BrowsingHistoryListView",
     "FavouritesView",
     "FavouriteProcessView",
+    "friends_view",
+    "friends_added_view",
+    "friends_invite_view",
+    "FavouriteProcessView",
     "post_new_answer",
     "post_answer_proposal",
     "QuestionExpertWorkPage",
+    "send_znanie",
 ]

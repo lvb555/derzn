@@ -3,10 +3,11 @@ from ..models import *
 from django.db.models import (Q,
                               QuerySet)
 from itertools import permutations, combinations
+import typing as t
 
 
 class SearchEngineMixin:
-    def get_parameters_string(self, include_params: list[str] = None, exclude_params: list[str] = None):
+    def get_parameters_string(self, include_params: t.List[str] = None, exclude_params: t.List[str] = None):
         if include_params and include_params:
             raise Exception('Указаны и включаемые и исключаемые параметры')
 
@@ -23,7 +24,7 @@ class SearchEngineMixin:
         return urllib.parse.urlencode(parameters)
 
     def get_query(self,
-                  fields_name: list[str],
+                  fields_name: t.List[str],
                   parameter_value: str,
                   lookup: str = '',
                   connector='AND'):

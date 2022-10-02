@@ -29,7 +29,7 @@ def get_list_question(pk, user):
     context['znanie'] = interview
 
     tz_id = Tz.objects.get(name='Вопрос').id
-    question_zn = Znanie.objects.filter(tz_id=tz_id).order_by('-order')
+    question_zn = Znanie.objects.filter(tz_id=tz_id, is_published=True).order_by('-order')
     list_d = []
     for zn in question_zn:
         relation = zn.related.all()
@@ -41,12 +41,12 @@ def get_list_question(pk, user):
     tr_answer = Tr.objects.get(name='Ответ [ы]').id
     dict_q = {}
     for q in list_d:
-        relation_answer = q.base.filter(tr_id=tr_answer)
+        relation_answer = q.base.filter(tr_id=tr_answer, is_published=True)
         if not relation_answer:
             dict_q[q] = False
             continue
         for answer in relation_answer:
-            author_answer = Znanie.objects.get(id=answer.rz_id).author_id
+            author_answer = Znanie.objects.get(id=answer.rz_id, is_published=True).author_id
             try:
                 author = Author.objects.filter(id=author_answer)[0]
                 author = author.name

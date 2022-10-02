@@ -192,10 +192,10 @@ class InterviewAnswerExpertProposal(models.Model):
             answer_id=answer_pk, expert_id=expert_pk, interview_id=interview_pk
         )
 
-    def get_arguments(self) -> list[str]:
+    def get_arguments(self) -> t.List[str]:
         return self.comment.get("arguments", [])
 
-    def get_counter_arguments(self) -> list[str]:
+    def get_counter_arguments(self) -> t.List[str]:
         return self.comment.get("counter_arguments", [])
 
     def clean(self, *args, **kwargs):

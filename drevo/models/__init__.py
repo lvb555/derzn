@@ -15,6 +15,8 @@ from .visits import Visits
 from .browsing_history import BrowsingHistory
 from .expert_category import CategoryExpert
 from .interview_answer_expert_proposal import InterviewAnswerExpertProposal
+from .friends import FriendsTerm
+from .friends_invite import FriendsInviteTerm
 
 __all__ = [
     "AuthorType",

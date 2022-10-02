@@ -28,8 +28,8 @@ class ExpertProposal:
     updated: datetime
     # Возможное предложение нового ответа от эксперта
     text: t.Optional[str] = None
-    args: list[str] = field(default_factory=list)
-    counter_args: list[str] = field(default_factory=list)
+    args: t.List[str] = field(default_factory=list)
+    counter_args: t.List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -72,7 +72,7 @@ class Interview:
 
     id: int
     title: str
-    answers: dict[Question, list[AnswerProposal]] = field(default_factory=dict)
+    answers: t.Dict[Question, t.List[AnswerProposal]] = field(default_factory=dict)
 
 
 def load_answer_proposals(
