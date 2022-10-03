@@ -32,9 +32,10 @@ class Tz(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        for obj in Znanie.objects.filter(tz=self).all():
-            obj.is_send = self.is_send
-            obj.save()
+        znaniya = Znanie.objects.filter(tz=self).all()
+        for znanie in znaniya:
+            znanie.is_send = self.is_send
+        Znanie.objects.bulk_update(znaniya, ['is_send'])
         super(Tz, self).save(*args, **kwargs)
 
     class Meta:
