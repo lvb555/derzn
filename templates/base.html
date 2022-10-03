@@ -9,11 +9,10 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <link rel="icon" type="image/x-icon" href="{% static 'drevo/img/favicon.svg' %}">
     <!-- Project CSS -->
-    <link rel="stylesheet" type="text/css" href="./dropdown.css"/>
     <link rel="stylesheet" type="text/css" href="/static/drevo/css/main_page.css">
     {% block cssfiles %}{% endblock %}
 
@@ -22,62 +21,71 @@
 
 <body class="d-flex flex-column min-vh-100">
 
-<!-- Navigation bar start -->
+    <!-- Navigation bar start -->
     <div class="container-fluid sticky-top" style="background-color: var(--main-bg-color-dark);">
         <div class="container">
             <nav class="navbar navbar-expand-md mb-2 navbar-dark">
                 <div class="container-fluid">
                     <div class="logo me-2">
                         <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
-                            <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height='46px' alt="logo-tree">
+                            <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height='46px'
+                                alt="logo-tree">
                         </a>
                     </div>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <div class="navbar-nav me-auto">
                             <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
                                 <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Дерево знаний</a>
+                                    <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Дерево
+                                        знаний</a>
                                 </li>
                                 <li class="nav-item mx-2">
                                     <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
-                                       id="authors_link">Авторы</a>
+                                        id="authors_link">Авторы</a>
                                 </li>
                                 <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
+                                    <a class="nav-link auto_active_link" href="{% url 'labels' %}"
+                                        id="tags_link">Теги</a>
                                 </li>
                                 <li class="nav-item mx-2 dropdown">
-                                    <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
+                                    <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown"
+                                        role="button">Другое</a>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a>
-                                        <a class="dropdown-item" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>
+                                        <a class="dropdown-item" href="{% url 'new_knowledge'%}"
+                                            id="new_knowledge">Новые знания</a>
+                                        <a class="dropdown-item" href="{% url 'glossary' %}"
+                                            id="glossary_link">Глоссарий</a>
                                         {% if user.is_authenticated %}
-                                            <a class="dropdown-item" href="{% url 'history' %}" id="history_link">История просмотров</a>
-                                            <a class="dropdown-item" href="{% url 'favourites' %}"
-                                               id="favourites_link">Избранное</a>
-                                            <a class="dropdown-item" href="{% url 'friends' %}" id="friends_link">Друзья</a>
-                                            {% if user.expert.all %}
-                                                <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
-                                            {% endif %}
+                                        <a class="dropdown-item" href="{% url 'history' %}" id="history_link">История
+                                            просмотров</a>
+                                        <a class="dropdown-item" href="{% url 'favourites' %}"
+                                            id="favourites_link">Избранное</a>
+                                        <a class="dropdown-item" href="{% url 'friends' %}" id="friends_link">Друзья</a>
+                                        {% if user.expert.all %}
+                                        <a class="dropdown-item" href="{% url 'my_interview' %}"
+                                            id="my_interview_link">Мои интервью</a>
+                                        {% endif %}
                                         {% endif %}
                                     </div>
                                 </li>
 
                                 {% if user.is_staff %}
                                 <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель управления</a>
+                                    <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель
+                                        управления</a>
                                 </li>
                                 {% endif %}
 
                                 <li class="nav-item">
-                                    <a class="nav-link auto_active_link d-flex" aria-current="page" href="{% url 'search_knowledge' %}"
-                                       id="search_knowledges_link">
+                                    <a class="nav-link auto_active_link d-flex" aria-current="page"
+                                        href="{% url 'search_knowledge' %}" id="search_knowledges_link">
                                         <span>Поиск</span> <img class="ms-2"
-                                                                src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}"
-                                                                alt="" style="width:20px">
+                                            src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}" alt=""
+                                            style="width:20px">
                                     </a>
                                 </li>
                             </ul>
@@ -86,8 +94,8 @@
                         <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
                             {% if user.is_authenticated %}
                             <li class="nav-item me-1 mb-1 mb-lg-0">
-                                <a class="nav-link auto_active_link" aria-current="page" href="{% url 'users:myprofile' %}"
-                                   id="user_link">
+                                <a class="nav-link auto_active_link" aria-current="page"
+                                    href="{% url 'users:myprofile' %}" id="user_link">
                                     <span>{{ user.username }} <i class="bi bi-person-circle"></i></span>
                                 </a>
                             </li>
@@ -99,7 +107,7 @@
                             {% else %}
                             <li class="nav-item">
                                 <a class="btn btn btn-outline-light" aria-current="page"
-                                   href="{% url 'users:login' %}?next={{ request.path }}">
+                                    href="{% url 'users:login' %}?next={{ request.path }}">
                                     <span>Войти </span>
                                 </a>
                             </li>
@@ -110,74 +118,75 @@
             </nav>
         </div>
     </div>
-<!-- Navigation bar end -->
+    <!-- Navigation bar end -->
 
-<div class="container-fluid px-0">
-    {% block precontent %}
-    {% endblock %}
-</div>
-<div class="container">
-    <div class="row">
-        <div class="col mt-3">
-            {% block content %}
-            {% endblock %}
+    <div class="container-fluid px-0">
+        {% block precontent %}
+        {% endblock %}
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col mt-3">
+                {% block content %}
+                {% endblock %}
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Footer - start -->
-<div class="container-fluid mt-auto">
-    <footer class="static-bottom d-flex flex-wrap justify-content-between align-items-center py-3 mt-5 border-top">
-      <p class="col-md-4 mb-0 text-muted">&copy; 2020, Дерево знаний.</p>
-      <a href="#" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
-        <img src="{% static 'drevo\img\main_page\logo_tree_green.png' %}" height="32px" alt="logo-tree">
-      </a>
-      <ul class="nav col-md-4 justify-content-end">
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Главная</a></li>
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">О проекте</a></li>
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Контакты</a></li>
-      </ul>
-    </footer>
-</div>
-<!-- Footer - end -->
+    <!-- Footer - start -->
+    <div class="container-fluid mt-auto">
+        <footer class="static-bottom d-flex flex-wrap justify-content-between align-items-center py-3 mt-5 border-top">
+            <p class="col-md-4 mb-0 text-muted">&copy; 2020, Дерево знаний.</p>
+            <a href="#"
+                class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+                <img src="{% static 'drevo\img\main_page\logo_tree_green.png' %}" height="32px" alt="logo-tree">
+            </a>
+            <ul class="nav col-md-4 justify-content-end">
+                <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Главная</a></li>
+                <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">О проекте</a></li>
+                <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Контакты</a></li>
+            </ul>
+        </footer>
+    </div>
+    <!-- Footer - end -->
 
-{% block jsfiles %}
-{% endblock jsfiles %}
+    {% block jsfiles %}
+    {% endblock jsfiles %}
 
-<script>
-    // Для визуализации активных кнопок меню
-    let menuLinks = document.querySelectorAll('.auto_active_link');
-    for (let link of menuLinks) {
-      link.classList.remove('active');
-    }
-    for (let link of menuLinks) {
-      let currentLink = localStorage.getItem('active_link');
-      if (link.id === currentLink) {
-        link.classList.add('active');
-      }
-    }
+    <script>
+        // Для визуализации активных кнопок меню
+        let menuLinks = document.querySelectorAll('.auto_active_link');
+        for (let link of menuLinks) {
+            link.classList.remove('active');
+        }
+        for (let link of menuLinks) {
+            let currentLink = localStorage.getItem('active_link');
+            if (link.id === currentLink) {
+                link.classList.add('active');
+            }
+        }
 
-    document.addEventListener('click', (event) => saveNextLink(event));
+        document.addEventListener('click', (event) => saveNextLink(event));
 
-    function saveNextLink(event) {
-      let link = event.target.closest('.auto_active_link');
-      if (link) {
-        localStorage.setItem('active_link', link.id);
-      }
-    }
+        function saveNextLink(event) {
+            let link = event.target.closest('.auto_active_link');
+            if (link) {
+                localStorage.setItem('active_link', link.id);
+            }
+        }
 
 
-</script>
+    </script>
 
-<!-- Optional JavaScript; choose one of the two! -->
+    <!-- Optional JavaScript; choose one of the two! -->
 
-<!-- Option 1: Bootstrap Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
 
-<!-- Option 2: Separate Popper and Bootstrap JS -->
-<!--
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js" integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js" integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous"></script>
   -->

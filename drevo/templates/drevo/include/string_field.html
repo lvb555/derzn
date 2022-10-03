@@ -1,0 +1,13 @@
+<div class="mb-3">
+    {% if field.label %}
+    <label for="{{ field.id_for_label }}" class="form-label">
+        {{ field.label }}
+    </label>
+    {% endif %}
+
+    {{ field }}
+    <span class="text-muted">{{ field.help_text }}</span>
+    {% if field.errors %}
+    <div class="alert alert-danger mt-3" role="alert">{{ field.errors }}</div>
+    {% endif %}
+</div>

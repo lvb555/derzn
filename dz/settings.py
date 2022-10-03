@@ -74,6 +74,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'dz.wsgi.application'
 
+# print(1111111111111111111111111111)
+# breakpoint()
+# print(env.dj_db_url("DB_URL"))
+
 DATABASES = {"default": env.dj_db_url("DB_URL")}
 
 # Password validation
@@ -116,11 +120,11 @@ humanize.i18n.activate("ru")
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'drevo/static'),
-    os.path.join(BASE_DIR, 'users/static'),
-    os.path.join(BASE_DIR, 'static_common/'),
-]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'drevo/static'),
+#     os.path.join(BASE_DIR, 'users/static'),
+#     os.path.join(BASE_DIR, 'static_common/'),
+# ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

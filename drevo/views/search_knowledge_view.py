@@ -11,6 +11,35 @@ from .search_engine import SearchEngineMixin
 from django.forms import formset_factory
 
 
+class MainSearchKnowledge:
+    def __init__(self,
+                 main_search: str,
+                 main_search__name_on: bool = True,
+                 main_search__content_on: bool = True,
+                 main_search__source_com_on: bool = True):
+        self.fields = {}
+        self.fields['name'] = main_search__name_on and main_search
+        self.fields['content'] = main_search__content_on and main_search
+        self.fields['source_com'] = main_search__source_com_on and main_search
+
+    def need_search(self):
+        for value in self.fields.values():
+            if value:
+                return True
+
+    def get_query__contains(self, value, query: Q = None):
+        for field_name, value in self.fields.items():
+            if not value:
+                continue
+            query_dict = {f'{field_name}__contains': value}
+            if not query:
+                query = Q(**query_dict)
+            else:
+                query = query | Q(**query_dict)
+
+        return query
+
+
 class KnowledgeSearchView(FormView, SearchEngineMixin):
     template_name = "drevo/search_knowledge.html"
     form_class = KnowledgeSearchForm
@@ -23,7 +52,8 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
                                              author_parameter=None,
                                              edge_kind_parameter=None,
                                              tag_parameters=None):
-        knowledges = (Znanie.objects.filter(is_published=True)
+        knowledges = (Znanie.objects.filter(is_published=True,
+                                            tz__is_systemic=False)
                       .order_by('name')
                       .select_related('author', 'tz', 'category')
                       .prefetch_related('related__tr', 'labels'))
@@ -74,7 +104,7 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
                 knowledges = knowledges.filter(query)
 
         exclude_query = None
-        if main_search_parameter:
+        if self.main_search_kwowledge.need_search():
             # Ищем знания по главному полю
             # Вначале необходимо получить наборы слов в виде общего списка
             # После чего беру набор и ищу через или
@@ -84,26 +114,9 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
             for combination in parameter_value_combinations:
                 query_previously = None
                 for value in combination:
-                    query = Q(name__contains=value)
-                    query = query | Q(content__contains=value)
-                    query = query | Q(source_com__contains=value)
-
-                    if value != value.upper():
-                        query = query | Q(name__contains=value.upper())
-                        query = query | Q(content__contains=value.upper())
-                        query = query | Q(source_com__contains=value.upper())
-
-                    if value != value.lower():
-                        query = query | Q(name__contains=value.lower())
-                        query = query | Q(content__contains=value.lower())
-                        query = query | Q(source_com__contains=value.lower())
-
-                    if value != value.capitalize():
-                        query = query | Q(name__contains=value.capitalize())
-                        query = query | Q(content__contains=value.capitalize())
-                        query = query | Q(
-                            source_com__contains=value.capitalize())
-
+                    value_list = [value, value.upper(), value.lower(), value.capitalize()]
+                    for val in value_list:
+                        query = self.main_search_kwowledge.get_query__contains(val)
                     if query_previously:
                         query = query & query_previously
 
@@ -153,9 +166,23 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
         return tags
 
     def get_context_data(self, **kwargs):
+        # breakpoint()
         context = super().get_context_data(**kwargs)
         context['title'] = 'Поиск знаний'
+
+        main_search__name_on = bool(self.request.GET.get('main_search__name'))
+        main_search__content_on = bool(self.request.GET.get('main_search__content'))
+        main_search__source_com_on = bool(self.request.GET.get('main_search__source_com'))
+
         main_search_parameter = self.request.GET.get('main_search')
+        self.main_search_kwowledge = MainSearchKnowledge(
+            main_search_parameter,
+            main_search__name_on,
+            main_search__content_on,
+            main_search__source_com_on
+        )
+        # breakpoint()
+
         knowledge_type_parameter = self.request.GET.get('knowledge_type')
         knowledge_category_parameter = self.request.GET.get(
             'knowledge_category')
@@ -168,12 +195,15 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
             self.request)
         # Для сохранения любого пользовательского ввода в форме
         # Валидация формы под капотам класса
-        context['form'] = KnowledgeSearchForm(self.request.GET)
+        if self.request.GET:
+            context['form'] = KnowledgeSearchForm(self.request.GET)
+        else:
+            context['form'] = KnowledgeSearchForm()
 
         if tag_parameters and not context['tag_formset'].is_valid():
             return context
 
-        if (main_search_parameter
+        if (self.main_search_kwowledge.need_search()
             or knowledge_type_parameter
             or knowledge_category_parameter
             or author_parameter
