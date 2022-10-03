@@ -230,6 +230,7 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
         "is_systemic",
         "is_group",
         "can_be_rated",
+        "is_send",
     )
     sortable_by = (
         "name",
