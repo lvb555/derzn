@@ -34,10 +34,28 @@ class KnowledgeSearchForm(forms.Form):
     # Поиск по заголовку и содержанию
     main_search = forms.CharField(label="",
                                   max_length=255,
+                                  help_text='Название/Содержимое знания/Комментарии к источнику',
                                   widget=forms.TextInput(
                                       attrs={'class': 'form-control',
                                              'placeholder': 'Основной поиск'}),
                                   required=False)
+    main_search__name = forms.BooleanField(label="Название",
+                                           initial=True,
+                                           widget=forms.CheckboxInput(
+                                               attrs={'class': 'form-check-input'}),
+                                           required=False)
+
+    main_search__content = forms.BooleanField(label="Содержимое знания",
+                                              initial=True,
+                                              widget=forms.CheckboxInput(
+                                                  attrs={'class': 'form-check-input'}),
+                                              required=False)
+
+    main_search__source_com = forms.BooleanField(label="Комментирии к источнику",
+                                                 initial=True,
+                                                 widget=forms.CheckboxInput(
+                                                     attrs={'class': 'form-check-input'}),
+                                                 required=False)                        
     # Вид знания
     knowledge_type = CustomChoiceField(label="Вид знания",
                                        choices=knowledge_type_choices,

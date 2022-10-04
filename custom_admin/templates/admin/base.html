@@ -1,0 +1,10 @@
+{% extends "admin/base.html" %}
+
+{% block userlinks %}
+{{ block.super }}/
+{% if user.is_superuser %}
+<a href="{% url 'get-dump' %}">Скачать дамп базы данных</a>
+{% else %}
+Скачать дамп базы данных
+{% endif %}
+{% endblock %}
