@@ -20,7 +20,13 @@
         {% endif %}
         <h1><input type="submit" class="btn btn-warning" value="Отправить"> Сообщение об интересном знании</h1>
         <h3>Знание: {{ znanie_name.name }}</h3>
-        {{ form.as_p }}
+        {% for field in form %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+        {{ field}}
+        <div class="text-danger">
+            {{ field.errors }}
+        </div>
+        {% endfor %}
     </form>
 </div>
 
