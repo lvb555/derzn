@@ -4,7 +4,6 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.conf import settings
 from django.urls import reverse
-from django.core.mail import send_mail
 from django.utils import timezone
 
 from hashlib import sha1
@@ -150,6 +149,10 @@ class Profile(models.Model):
                 and not self.is_password_recovery_key_expired():
             return True
         return False
+
+    class Meta:
+        verbose_name = "Профиль"
+        verbose_name_plural = "Профили"
 
 
 class Favourite(models.Model):
