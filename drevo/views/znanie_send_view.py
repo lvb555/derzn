@@ -28,7 +28,7 @@ def send_znanie(request, pk):
                 znanie_name=znanie.get('name'),
                 user_name=request.user.get_full_name()
             )
-            message_html = render_to_string('knowledge_send_email.html', context)
+            message_html = render_to_string('email_templates/knowledge_send_email.html', context)
             is_send = send_email(address, message_subject, message_html, message_html)
             if is_send:
                 context = {'form': ZnanieSendMessage(), 'znanie_name': znanie, 'is_send': is_send}
