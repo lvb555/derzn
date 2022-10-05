@@ -6,6 +6,9 @@
         text-align: center;
     }
 
+
+
+
 </style>
 
 {% endblock %}
@@ -22,54 +25,63 @@
     <div class="row">
         <h2>Существущие ответы</h2>
         <div class="row gy-4" id="answers">
-        {% for answer in answers %}
+            {% for answer in answers %}
             {% include "./answer_block.html" with proposal=answer.proposal %}
-        {% endfor %}
+            {% endfor %}
         </div>
         <h2>Предложенные вами ответы</h2>
         <div class="proposed_answers row gy-4" id="proposed_answers">
-        {% if new_answer_proposals %}
+            {% if new_answer_proposals %}
             {% for proposal in new_answer_proposals %}
-                {% include "./answer_proposal_block.html"  %}
+            {% include "./answer_proposal_block.html" %}
             {% endfor %}
-        {% else %}
+            {% else %}
             <span>Вы не предложили ни одного ответа. Воспользуйтесь формой ниже</span>
-        {% endif %}
+            {% endif %}
         </div>
         <div class="add-new-answer row mb-5">
-                <form method="POST" action="{% url 'new_answer_proposal' interview.id question.id %}"
-                      class="col gy-5"
-                      id="new_answer_form"
-                      hx-boost="true"
-                      hx-target="#proposed_answers"
-                      hx-swap="beforeend">
-                    {% csrf_token %}
-                    <div class="row">
-                          <div class="col-6">
-                            <input id="new_answer_text"
-                                   type="text"
-                                   class="form-control"
-                                   placeholder="Текст нового ответа"
-                                   name="text"
-                                   value='{{ new_answer_form.text.value|default:""}}'>
-                        </div>
-                        <div class="col-6">
-                            <button class="btn btn-outline-primary">Добавить ответ</button>
-                        </div>
+            <form method="POST" action="{% url 'new_answer_proposal' interview.id question.id %}"
+                  class="row gy-3"
+                  id="new_answer_form"
+                  hx-boost="true"
+                  hx-target="#proposed_answers"
+                  hx-swap="beforeend">
+                {% csrf_token %}
+                <div class="col">
+                    <input id="new_answer_text"
+                           type="text"
+                           class="form-control"
+                           placeholder="Текст нового ответа"
+                           name="text"
+                           value='{{ new_answer_form.text.value|default:""}}'>
+                </div>
+                <div class="col">
+
+                    <div class="form-check">
+                        <input type="checkbox" id="opinion_is_agreed"
+                               name="is_agreed"
+                               {% if proposal.is_agreed %} checked {% endif %}
+                               class="form-check-input">
+                        <label for="opinion_is_agreed" class="form-check-label">
+                            С ответом согласен
+                        </label>
                     </div>
-                </form>
-                <div class="response" id="new-answer-result"></div>
+                    <div class="form-check">
+                        <input type="checkbox" name="is_incorrect_answer" id="opinion_is_incorrect_answer"
+                               {% if proposal.is_incorrect_answer %} checked {% endif %}
+                               class="form-check-input">
+                        <label for="opinion_is_incorrect_answer" class="form-check-label">
+                            Некорректный ответ
+                        </label>
+                    </div>
+                                            <button class="btn btn-outline-primary">Добавить ответ</button>
+
+                </div>
+            </form>
+            <div class="response" id="new-answer-result"></div>
         </div>
     </div>
 </div>
-<h1>Answers</h1>
-<pre style="width: 500px; white-space: pre-wrap;">
-    {{answers}}
-</pre>
-<h1>new answers proposals</h1>
-<pre style="width: 500px; white-space: pre-wrap;">
-    {{new_answer_proposals}}
-</pre>
 
 <style>
     /* Outside link icon */
@@ -80,6 +92,9 @@
     .proposal_answer {
         color: gray;
     }
+
+
+
 </style>
 {% endblock %}
 {% block jsfiles %}

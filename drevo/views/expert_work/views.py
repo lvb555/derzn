@@ -42,8 +42,8 @@ class QuestionExpertWorkPage(TemplateView):
                 id=answer.pk,
                 text=answer.name,
             )
-        # собираем предложения
 
+        # собираем предложения
         proposals = orm.InterviewAnswerExpertProposal.objects.filter(
             interview_id=interview_pk,
             question_id=question_pk,
@@ -83,11 +83,15 @@ class QuestionExpertWorkPage(TemplateView):
 
 class NewAnswerFromExpertForm(forms.Form):
     text = forms.CharField()
+    is_agreed = forms.BooleanField(required=False)
+    is_incorrect_answer = forms.BooleanField(required=False)
     comment = forms.JSONField(required=False)
 
 
 @require_http_methods(["POST"])
-def post_new_answer(req: HttpRequest, interview_pk: int, question_pk: int, **kwargs):
+def new_answer_proposal(
+    req: HttpRequest, interview_pk: int, question_pk: int, **kwargs
+):
     """
     Эксперт предлагает новый ответ в качестве предложения
     """
@@ -173,28 +177,21 @@ def post_answer_proposal(
 def update_answer_proposal(req: HttpRequest, proposal_pk: int):
     form = AnswerProposalForm(req.POST)
     prop = orm.InterviewAnswerExpertProposal.objects.get(id=proposal_pk)
+    context = dict(
+        answer=prop.answer,
+        interview=dict(id=prop.interview.pk),
+        question=dict(id=prop.question.pk),
+        form=form,
+        proposal=prop,
+    )
     if form.is_valid():
-        logger.debug("form data", form.cleaned_data)
-        prop.is_agreed = form.cleaned_data.get("is_agreed", False)
-        prop.is_incorrect_answer = form.cleaned_data.get("is_incorrect_answer", False)
+        form_data = form.cleaned_data
+        logger.debug("form data", form_data)
+        prop.is_agreed = form_data.get("is_agreed", False)
+        prop.is_incorrect_answer = form_data.get("is_incorrect_answer", False)
         prop.save()
-        proposal_form_data = form.cleaned_data
-        proposal_form_data["id"] = proposal_form_data.pop("proposal_pk", None)
-        context = dict(
-            answer=prop.answer,
-            interview=dict(id=prop.interview.pk),
-            question=dict(id=prop.question.pk),
-            proposal=proposal_form_data,
-            form=form,
-        )
-    else:
-        context = dict(
-            form=form,
-            proposal=prop,
-            answer=prop.answer,
-            interview=dict(id=prop.interview.pk),
-            question=dict(id=prop.question.pk),
-        )
+        form_data["id"] = form_data.pop("proposal_pk", None)
+
     return TemplateResponse(
         req, "drevo/expert_work_page/answer_proposal_block.html", context=context
     )

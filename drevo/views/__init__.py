@@ -7,11 +7,14 @@ from .drevo_list_view import DrevoListView
 from .drevo_view import DrevoView
 from .expert_work.views import (
     QuestionExpertWorkPage,
-    post_new_answer,
+    new_answer_proposal,
     post_answer_proposal,
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
+from .friends_added_view import friends_added_view
+from .friends_invite_view import friends_invite_view
+from .friends_view import friends_view
 from .glossary_list_view import GlossaryListView
 from .knowledge_grade_view import KnowledgeFormView
 from .labels_list_view import LabelsListView
@@ -22,10 +25,7 @@ from .search_tag_view import TagSearchView
 from .subscribe_to_author_view import SubscribeToAuthor
 from .znanie_by_label_view import ZnanieByLabelView
 from .znanie_detail_view import ZnanieDetailView
-from .friends_added_view import friends_added_view
 from .znanie_rating_view import ZnanieRatingView
-from .friends_view import friends_view
-from .friends_invite_view import friends_invite_view
 from .znanie_send_view import send_znanie
 
 __all__ = [
@@ -53,7 +53,7 @@ __all__ = [
     "friends_added_view",
     "friends_invite_view",
     "FavouriteProcessView",
-    "post_new_answer",
+    "new_answer_proposal",
     "post_answer_proposal",
     "QuestionExpertWorkPage",
     "send_znanie",

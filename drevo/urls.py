@@ -32,7 +32,7 @@ from .views import (
 )
 from .views import send_znanie
 from .views.expert_work.views import (
-    post_new_answer,
+    new_answer_proposal,
     post_answer_proposal,
     update_answer_proposal,
 )
@@ -77,7 +77,7 @@ urlpatterns = [
     ),
     path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/new_answers",
-        post_new_answer,
+        new_answer_proposal,
         name="new_answer_proposal",
     ),
     path(
