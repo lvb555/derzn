@@ -28,9 +28,14 @@ from .views import (
     friends_view,
     friends_added_view,
     friends_invite_view,
+    KnowledgeFormView,
 )
 from .views import send_znanie
-from .views.expert_work.views import post_new_answer, post_answer_proposal
+from .views.expert_work.views import (
+    post_new_answer,
+    post_answer_proposal,
+    update_answer_proposal,
+)
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
@@ -43,6 +48,7 @@ urlpatterns = [
         "znanie/<int:pk>/vote/<str:vote>/", ZnanieRatingView.as_view(), name="znrating"
     ),
     path("znanie/<int:pk>/message/send/", send_znanie, name="zsend_mes"),
+    path("znanie/<int:pk>/grade/", KnowledgeFormView.as_view(), name="grade"),
     path("label/<int:pk>", ZnanieByLabelView.as_view(), name="zlabel"),
     path("author/<int:pk>", AuthorDetailView.as_view(), name="author"),
     path("authors/", AuthorsListView.as_view(), name="authors"),
@@ -60,23 +66,28 @@ urlpatterns = [
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
     path(
-        "interview/<int:interview_pk>/questions/<int:question_pk>/expertise/",
+        "interview/<int:interview_pk>/questions/<int:question_pk>/expertise",
         QuestionExpertWorkPage.as_view(),
         name="question_expert_work",
     ),
     path(
-        "interview/<int:interview_pk>/questions/<int:question_pk>/expertise/new-answer",
+        "interview/<int:interview_pk>/questions/<int:question_pk>/answers/<int:answer_pk>",
+        post_answer_proposal,
+        name="answer_proposal",
+    ),
+    path(
+        "interview/<int:interview_pk>/questions/<int:question_pk>/new_answers",
         post_new_answer,
-        name="expertise_new_answer",
+        name="new_answer_proposal",
+    ),
+    path(
+        "interview/new_answers/<int:proposal_pk>",
+        update_answer_proposal,
+        name="update_answer_proposal",
     ),
     path("friends/", friends_view, name="friends"),
     path("friends/friends_added/", friends_added_view, name="friends_added"),
     path("friends/friends_invite/", friends_invite_view, name="friends_invite"),
-    path(
-        "interview/<int:interview_pk>/questions/<int:question_pk>/proposal/",
-        post_answer_proposal,
-        name="answer_proposal",
-    ),
 ]
 
 if settings.DEBUG:

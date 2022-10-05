@@ -7,6 +7,7 @@
     }
 
 </style>
+
 {% endblock %}
 
 {% block title %}{{title}}{% endblock %}
@@ -19,25 +20,32 @@
 <h2 class="center question"><a href="{% url 'zdetail' question.id %}">{{question.title}}</a></h2>
 <div class="container overflow-hidden">
     <div class="row">
+        <h2>Существущие ответы</h2>
         <div class="row gy-4" id="answers">
         {% for answer in answers %}
-            {% include "./answer_block.html" with proposal=answer.proposal%}
-        {% endfor %}
-        {% for answer in answer_proposals %}
-            {% include "./answer_block.html" %}
+            {% include "./answer_block.html" with proposal=answer.proposal %}
         {% endfor %}
         </div>
-
+        <h2>Предложенные вами ответы</h2>
+        <div class="proposed_answers row gy-4" id="proposed_answers">
+        {% if new_answer_proposals %}
+            {% for proposal in new_answer_proposals %}
+                {% include "./answer_proposal_block.html"  %}
+            {% endfor %}
+        {% else %}
+            <span>Вы не предложили ни одного ответа. Воспользуйтесь формой ниже</span>
+        {% endif %}
+        </div>
         <div class="add-new-answer row mb-5">
-                <form method="POST" action="{% url 'expertise_new_answer' interview.id question.id %}"
+                <form method="POST" action="{% url 'new_answer_proposal' interview.id question.id %}"
                       class="col gy-5"
                       id="new_answer_form"
                       hx-boost="true"
-                      hx-target="#answers"
+                      hx-target="#proposed_answers"
                       hx-swap="beforeend">
                     {% csrf_token %}
                     <div class="row">
-                        <div class="col-6">
+                          <div class="col-6">
                             <input id="new_answer_text"
                                    type="text"
                                    class="form-control"
@@ -51,13 +59,17 @@
                     </div>
                 </form>
                 <div class="response" id="new-answer-result"></div>
-            </div>
+        </div>
     </div>
 </div>
+<h1>Answers</h1>
 <pre style="width: 500px; white-space: pre-wrap;">
-    {{answer_proposals}}
+    {{answers}}
 </pre>
-
+<h1>new answers proposals</h1>
+<pre style="width: 500px; white-space: pre-wrap;">
+    {{new_answer_proposals}}
+</pre>
 
 <style>
     /* Outside link icon */

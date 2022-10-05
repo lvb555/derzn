@@ -179,7 +179,11 @@ class InterviewAnswerExpertProposal(models.Model):
 
     @staticmethod
     def get_actual_proposal(
-        expert_pk: int, answer_pk: int, interview_pk: int
+        expert_pk: int,
+        interview_pk: int,
+        question_pk: int,
+        answer_pk: int = None,
+        proposal_pk: int = None,
     ) -> "InterviewAnswerExpertProposal":
         """
         для ответа эксперт может создать только 1 предложение, но из-за
@@ -188,9 +192,16 @@ class InterviewAnswerExpertProposal(models.Model):
         (если брать первый, то можно получить некорректное поведение, когда
         при обновлении ничего не меняется, потому что создается новый объект).
         """
-        return InterviewAnswerExpertProposal.objects.get(
-            answer_id=answer_pk, expert_id=expert_pk, interview_id=interview_pk
-        )
+        assert (answer_pk or proposal_pk) and "supply answer_pk or  proposal_pk"
+        if answer_pk is not None:
+            return InterviewAnswerExpertProposal.objects.get(
+                answer_id=answer_pk,
+                expert_id=expert_pk,
+                interview_id=interview_pk,
+                question_id=question_pk,
+            )
+        else:
+            return InterviewAnswerExpertProposal.objects.get(pk=proposal_pk)
 
     def get_arguments(self) -> t.List[str]:
         return self.comment.get("arguments", [])
