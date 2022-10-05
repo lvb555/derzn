@@ -30,4 +30,33 @@
     </form>
 </div>
 
+<!-- Модальное окно -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-dark" style="background-color:#5ad65a;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="authModalLabel">Сообщение успешно отправлено</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                Ваше сообщение было успешно отправлено. Вы можете отправить следующее сообщение или вернуться на страницу знания.
+            </div>
+            <div class="modal-footer">
+                <a href="{% url 'zdetail' znanie_name.pk %}" class="btn btn-info" style="background-color:#3399ff;">К знанию</a>
+                <button type="button" class="btn btn-info" data-bs-dismiss="modal" aria-label="Отправить новое сообщение" style="background-color:#3399ff;">Отправить новое сообщение</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jsfiles %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+if ("{{ is_send }}") {
+  $(window).on('load', function() {
+        $('#authModal').modal('show');
+    });
+}
+</script>
 {% endblock %}
