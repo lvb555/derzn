@@ -1,0 +1,16 @@
+<div class="answer_proposal row gy-2" id="answer_block">
+    <div class="answer_proposal__title col">
+        <span>{{proposal.text}}</span>
+    </div>
+    <form
+          hx-boost="true"
+          hx-trigger="change delay:500ms"
+          hx-target="this"
+          class="answer__proposal col"
+          action="{% url 'update_answer_proposal' proposal.id %}"
+          method="POST">
+        <div class="opinion">
+            {% include "./proposal_form_body.html" %}
+        </div>
+    </form>
+</div>
