@@ -20,6 +20,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 # Application definition
 
 INSTALLED_APPS = [
+    'custom_admin.apps.CustomAdminConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,10 +55,6 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'drevo/templates'),
-            os.path.join(BASE_DIR, 'users/templates'),
-            os.path.join(BASE_DIR, 'drevo/templates', 'email_templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
