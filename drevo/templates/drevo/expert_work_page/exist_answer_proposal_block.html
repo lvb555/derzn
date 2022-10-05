@@ -1,5 +1,5 @@
 <div class="answer row gy-2" id="answer_block">
-    <div class="answer__title col {% if answer.id == 0 %}proposal_answer{% endif %}">
+    <div class="answer__title col">
         {% if answer.id and answer.id != 0 %}
         <a href="{% url 'zdetail' answer.id %}" target="_blank">{{answer.text}}</a>
         {% else %}
@@ -12,10 +12,10 @@
           hx-trigger="change delay:500ms"
           hx-target="this"
           class="answer__proposal col"
-          action="{% url 'answer_proposal' interview.id question.id answer.id %}"
+          action="{% url 'update_answer_proposal' interview.id question.id answer.id %}"
           method="POST">
         <div class="opinion">
-            {% include "./proposal_form_body.html" with proposal=answer.proposal %}
+            {% include "./proposal_form_body.html" %}
         </div>
     </form>
 </div>

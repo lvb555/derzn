@@ -32,9 +32,9 @@ from .views import (
 )
 from .views import send_znanie
 from .views.expert_work.views import (
-    new_answer_proposal,
-    post_answer_proposal,
+    propose_answer,
     update_answer_proposal,
+    update_proposed_answer,
 )
 
 urlpatterns = [
@@ -72,18 +72,18 @@ urlpatterns = [
     ),
     path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/answers/<int:answer_pk>",
-        post_answer_proposal,
-        name="answer_proposal",
+        update_answer_proposal,
+        name="update_answer_proposal",
     ),
     path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/new_answers",
-        new_answer_proposal,
-        name="new_answer_proposal",
+        propose_answer,
+        name="propose_answer",
     ),
     path(
         "interview/new_answers/<int:proposal_pk>",
-        update_answer_proposal,
-        name="update_answer_proposal",
+        update_proposed_answer,
+        name="update_proposed_answer",
     ),
     path("friends/", friends_view, name="friends"),
     path("friends/friends_added/", friends_added_view, name="friends_added"),

@@ -26,21 +26,17 @@
         <h2>Существущие ответы</h2>
         <div class="row gy-4" id="answers">
             {% for answer in answers %}
-            {% include "./answer_block.html" with proposal=answer.proposal %}
+            {% include "./exist_answer_proposal_block.html" with proposal=answer.proposal %}
             {% endfor %}
         </div>
         <h2>Предложенные вами ответы</h2>
         <div class="proposed_answers row gy-4" id="proposed_answers">
-            {% if new_answer_proposals %}
-            {% for proposal in new_answer_proposals %}
-            {% include "./answer_proposal_block.html" %}
-            {% endfor %}
-            {% else %}
-            <span>Вы не предложили ни одного ответа. Воспользуйтесь формой ниже</span>
-            {% endif %}
+        {% for proposal in proposed_answers %}
+          {% include "./proposed_answer_block.html" %}
+        {% endfor %}
         </div>
         <div class="add-new-answer row mb-5">
-            <form method="POST" action="{% url 'new_answer_proposal' interview.id question.id %}"
+            <form method="POST" action="{% url 'propose_answer' interview.id question.id %}"
                   class="row gy-3"
                   id="new_answer_form"
                   hx-boost="true"
@@ -56,7 +52,6 @@
                            value='{{ new_answer_form.text.value|default:""}}'>
                 </div>
                 <div class="col">
-
                     <div class="form-check">
                         <input type="checkbox" id="opinion_is_agreed"
                                name="is_agreed"
@@ -74,7 +69,7 @@
                             Некорректный ответ
                         </label>
                     </div>
-                                            <button class="btn btn-outline-primary">Добавить ответ</button>
+                    <button class="btn btn-outline-primary">Добавить ответ</button>
 
                 </div>
             </form>

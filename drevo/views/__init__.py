@@ -7,8 +7,8 @@ from .drevo_list_view import DrevoListView
 from .drevo_view import DrevoView
 from .expert_work.views import (
     QuestionExpertWorkPage,
-    new_answer_proposal,
-    post_answer_proposal,
+    propose_answer,
+    update_answer_proposal,
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
@@ -53,8 +53,8 @@ __all__ = [
     "friends_added_view",
     "friends_invite_view",
     "FavouriteProcessView",
-    "new_answer_proposal",
-    "post_answer_proposal",
+    "propose_answer",
+    "update_answer_proposal",
     "QuestionExpertWorkPage",
     "send_znanie",
 ]

@@ -3,7 +3,7 @@
 {% endcomment %}
 <div class="answer_proposal row gy-2" id="answer_block">
     <div class="answer_proposal__title col">
-        <span>{{proposal.text}}</span>
+        <span>{{proposal.new_answer_text}}</span>
     </div>
     <form
           hx-boost="true"
@@ -11,7 +11,7 @@
           hx-target="this"
           hx-select=".opinion"
           class="answer__proposal col"
-          action="{% url 'update_answer_proposal' proposal.id %}"
+          action="{% url 'update_proposed_answer' proposal.id %}"
           method="POST">
         <div class="opinion">
             {% include "./proposal_form_body.html" %}

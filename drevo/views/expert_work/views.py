@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
-from loguru import logger
 
 from drevo import models as orm
 from drevo.views.expert_work.data_loaders import load_interview
@@ -52,31 +51,17 @@ class QuestionExpertWorkPage(TemplateView):
 
         # и если оно имеет привязку к ответу - присоединяем к нему.
         # В остальных случаях - это список новых предложенных ответов от эксперта
-        new_answer_proposals = []
+        proposed_answers = []
         for p in proposals:
             # предложение к существующему вопросу
             if p.answer is not None:
                 exist_prop = answers[p.answer.pk]
-                exist_prop["proposal"] = dict(
-                    id=p.pk,
-                    text="",
-                    is_incorrect_answer=p.is_incorrect_answer,
-                    is_agreed=p.is_agreed,
-                    updated=p.updated,
-                )
+                exist_prop["proposal"] = p
             else:
-                new_answer_proposals.append(
-                    dict(
-                        id=p.pk,
-                        text=p.new_answer_text,
-                        is_agreed=p.is_agreed,
-                        is_incorrect_answer=p.is_incorrect_answer,
-                        updated=p.updated,
-                    )
-                )
+                proposed_answers.append(p)
 
         context["answers"] = answers.values()
-        context["new_answer_proposals"] = new_answer_proposals
+        context["proposed_answers"] = proposed_answers
         context["question"] = dict(id=question_pk, title=question_raw.name)
         return context
 
@@ -89,38 +74,27 @@ class NewAnswerFromExpertForm(forms.Form):
 
 
 @require_http_methods(["POST"])
-def new_answer_proposal(
-    req: HttpRequest, interview_pk: int, question_pk: int, **kwargs
-):
+def propose_answer(req: HttpRequest, interview_pk: int, question_pk: int, **kwargs):
     """
     Эксперт предлагает новый ответ в качестве предложения
     """
-    # TODO: шаблон для ответа с мнением
     form = NewAnswerFromExpertForm(req.POST)
     context = dict(interview=dict(id=interview_pk), question=dict(id=question_pk))
 
     if form.is_valid():
         status = 201
-        new_proposal_raw = orm.InterviewAnswerExpertProposal.create_new_proposal(
+        context["proposal"] = orm.InterviewAnswerExpertProposal.create_new_proposal(
             expert_user=req.user,
             interview_id=interview_pk,
             question_id=question_pk,
             **form.cleaned_data,
         )
-
-        context["proposal"] = dict(
-            text=new_proposal_raw.new_answer_text,
-            id=new_proposal_raw.pk,
-            is_agreed=new_proposal_raw.is_agreed,
-            is_incorrect_answer=new_proposal_raw.is_incorrect_answer,
-        )
     else:
         status = 400
 
     context["form"] = form
-
     return TemplateResponse(
-        req, "drevo/expert_work_page/answer_proposal_block.html", context, status=status
+        req, "drevo/expert_work_page/proposed_answer_block.html", context, status=status
     )
 
 
@@ -132,7 +106,7 @@ class AnswerProposalForm(forms.Form):
 
 
 @require_http_methods(["POST"])
-def post_answer_proposal(
+def update_answer_proposal(
     req: HttpRequest, interview_pk: int, question_pk: int, answer_pk: int
 ):
     """
@@ -143,23 +117,25 @@ def post_answer_proposal(
     if form.is_valid():
         proposal_pk = form.cleaned_data.get("proposal_pk")
         if proposal_pk:
-            logger.warning(f"loading proposal {proposal_pk} for answer {answer_pk}")
             prop = orm.InterviewAnswerExpertProposal.objects.get(id=proposal_pk)
+
+            form.cleaned_data["id"] = form.cleaned_data.pop("proposal_pk")
         else:
-            logger.warning(f"create new proposal for answer {answer_pk}")
             prop, _ = orm.InterviewAnswerExpertProposal.objects.get_or_create(
                 expert=req.user,
                 interview_id=interview_pk,
                 answer_id=answer_pk,
                 question_id=question_pk,
             )
-        logger.debug("form data", form.cleaned_data)
+            form.cleaned_data.pop("proposal_pk")
+            form.cleaned_data["id"] = prop.pk
+
         prop.is_agreed = form.cleaned_data.get("is_agreed", False)
         prop.is_incorrect_answer = form.cleaned_data.get("is_incorrect_answer", False)
         prop.save()
+
     proposal_data = form.cleaned_data
     answer_pk = proposal_data.pop("answer_pk", None)
-    proposal_data["id"] = proposal_data.pop("proposal_pk", None)
     context = dict(
         answer=dict(id=answer_pk),
         interview=dict(id=interview_pk),
@@ -174,7 +150,10 @@ def post_answer_proposal(
 
 
 @require_http_methods(["POST"])
-def update_answer_proposal(req: HttpRequest, proposal_pk: int):
+def update_proposed_answer(req: HttpRequest, proposal_pk: int):
+    """
+    Метод обновления предложенного ответа
+    """
     form = AnswerProposalForm(req.POST)
     prop = orm.InterviewAnswerExpertProposal.objects.get(id=proposal_pk)
     context = dict(
@@ -186,12 +165,11 @@ def update_answer_proposal(req: HttpRequest, proposal_pk: int):
     )
     if form.is_valid():
         form_data = form.cleaned_data
-        logger.debug("form data", form_data)
         prop.is_agreed = form_data.get("is_agreed", False)
         prop.is_incorrect_answer = form_data.get("is_incorrect_answer", False)
         prop.save()
         form_data["id"] = form_data.pop("proposal_pk", None)
 
     return TemplateResponse(
-        req, "drevo/expert_work_page/answer_proposal_block.html", context=context
+        req, "drevo/expert_work_page/proposed_answer_block.html", context=context
     )
