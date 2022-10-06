@@ -12,12 +12,8 @@ def friends_added_view(request):
     Контрол страницы "Добавить в друзья"
     """
     context = {'profiles': []}
-    first_name_predicate = None
-    last_name_predicate = None
-    values_predicate = request.GET.getlist('q')
-    if values_predicate:
-        first_name_predicate = values_predicate[0]
-        last_name_predicate = values_predicate[1]
+    first_name_predicate = request.GET.get('first')
+    last_name_predicate = request.GET.get('last')
 
     # Добавление в друзья
     if request.GET.get('add'):
@@ -43,12 +39,12 @@ def friends_added_view(request):
     for profile in profiles:
         data = {}
         if first_name_predicate and not last_name_predicate:
-            user = User.objects.filter(id=profile.user_id, first_name__contains=first_name_predicate)
+            user = User.objects.filter(id=profile.user_id, first_name__contains=first_name_predicate).first()
         elif not first_name_predicate and last_name_predicate:
-            user = User.objects.filter(id=profile.user_id, last_name__contains=last_name_predicate)
+            user = User.objects.filter(id=profile.user_id, last_name__contains=last_name_predicate).first()
         elif first_name_predicate and last_name_predicate:
             user = User.objects.filter(id=profile.user_id, first_name__contains=first_name_predicate,
-                                       last_name__contains=last_name_predicate)
+                                       last_name__contains=last_name_predicate).first()
         else:
             user = User.objects.filter(id=profile.user_id).first()
         if not user:
