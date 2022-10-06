@@ -24,19 +24,10 @@ pip install -r requirements.txt
 Это придется делать каждый раз, аналогично активации вирт.окружения.
 
 ```bash
-export SECRET_KEY=asdaaskdw9u2r4lfkjd32
-export DEBUG=true
-export ALLOWED_HOSTS='*'
-export DB_URL=sqlite:///db.sqlite3
-export BASE_URL=/
-export EMAIL_HOST=localhost
-export EMAIL_PORT=5822
-export EMAIL_HOST_USER=admin
-export EMAIL_HOST_PASSWORD=somepass
-export EMAIL_USE_TLS=false
-export EMAIL_USE_SSL=false
+cp .env.sample .env
 ```
-
+Python-модуль `environs` автоматически загружает значения переменных окружения
+из файла `.env`.
 
 ## инициализировать БД
 
