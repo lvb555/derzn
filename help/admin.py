@@ -4,7 +4,7 @@ from .models import HelpPage
 
 
 class HelpPageAdmin(admin.ModelAdmin):
-    list_display = ("pk", "header", "content", "tag")
+    list_display = ("pk", "header", "url_tag")
     search_fields = ("header",)
     empty_value_display = "-пусто-"
 

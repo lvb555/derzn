@@ -18,7 +18,7 @@ def help(request):
     url_path = re.search(r"(?<=drevo)/\w+|/$",
                          request.META.get('HTTP_REFERER')).group(0)
     try:
-        context = HelpPage.objects.get(tag=url_path)
+        context = HelpPage.objects.get(url_tag=url_path)
     except ObjectDoesNotExist:
-        context = get_object_or_404(HelpPage, tag='/')
+        context = get_object_or_404(HelpPage, url_tag='/')
     return render(request, "help/help.html", {"context": context})
