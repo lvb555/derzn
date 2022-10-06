@@ -8,12 +8,13 @@ from .models import HelpPage
 
 def help(request):
     """
-    1. The function receives data from which URL the transition to the Help page was made.
-    2. Using a regular expression, we get the URL prefix:
+    1. Функция получает данные из какого URL был осуществлен переход на страницу помощи.
+    2. Используя регулярное выражение, получаем префикс URL:
        /drevo/ == /
        /drevo/labels/ == /labels
-    3. We are looking for the help page for the desired menu item in the tag database.
-    !!! For menu items for which there is no help page, help is called by the tag / !!!
+    3. Из БД вызывается объект HelpPage(Помощи) для нужного пункта меню.
+    !!! Пункты меню, для которых нет страницы помощи, по умолчанию вызываются с тегом '/' !!!
+    !!! Если в БД, нет объектов HelpPage, вызывается 404!!!
     """
     url_path = re.search(r"(?<=drevo)/\w+|/$",
                          request.META.get('HTTP_REFERER')).group(0)
