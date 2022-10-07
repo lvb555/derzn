@@ -237,6 +237,7 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
     )
     ordering = [
         "order",
+        "name",
     ]
 
 
