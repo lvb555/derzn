@@ -35,6 +35,7 @@ urlpatterns = [
     path('drevo/', include('drevo.urls',# namespace='drevo_app'
                            )),
     path('users/', include('users.urls', namespace='users')),
+    path('help/', include('help.urls')),
 ]
 
 if settings.DEBUG:

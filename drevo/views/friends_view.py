@@ -45,3 +45,6 @@ def _remove_friend(user_id: int, friend_id: str) -> None:
     """
     friend_table = FriendsTerm.objects.filter(user_id=user_id, friend_id=int(friend_id))
     friend_table.delete()
+
+    friend_table = FriendsTerm.objects.filter(user_id=int(friend_id), friend_id=user_id)
+    friend_table.delete()

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'adminsortable2',
     'users',
     'drevo',
+    'help',
 ]
 
 MIDDLEWARE = [
