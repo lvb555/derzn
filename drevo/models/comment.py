@@ -8,36 +8,43 @@ class Comment(models.Model):
     CONTENT_MAX_LENGTH = 2000
     COMMENTS_PER_PAGE = 3
 
-    author = models.ForeignKey(User,
-                               on_delete=models.PROTECT,
-                               verbose_name='Автор комментария',
-                               )
-    parent = models.ForeignKey('self',
-                               blank=True,
-                               null=True,
-                               default=None,
-                               on_delete=models.PROTECT,
-                               verbose_name='Родительский комментарий',
-                               related_name='answers',
-                               )
-    znanie = models.ForeignKey('Znanie',
-                               on_delete=models.CASCADE,
-                               verbose_name='Знание',
-                               related_name='comments',
-                               )
-    content = models.TextField(max_length=2000,
-                               blank=True,
-                               verbose_name='Тело комментария',
-                               )
-    is_published = models.BooleanField(default=True,
-                                       verbose_name='Опубликован'
-                                       )
-    created_at = models.DateTimeField(auto_now_add=True,
-                                      verbose_name='Дата и время создания',
-                                      )
-    updated_at = models.DateTimeField(auto_now=True,
-                                      verbose_name='Дата и время изменения',
-                                      )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        verbose_name='Автор комментария',
+    )
+    parent = models.ForeignKey(
+        'self',
+        blank=True,
+        null=True,
+        default=None,
+        on_delete=models.PROTECT,
+        verbose_name='Родительский комментарий',
+        related_name='answers',
+    )
+    znanie = models.ForeignKey(
+        'Znanie',
+        on_delete=models.CASCADE,
+        verbose_name='Знание',
+        related_name='comments',
+    )
+    content = models.TextField(
+        max_length=2000,
+        blank=True,
+        verbose_name='Тело комментария',
+    )
+    is_published = models.BooleanField(
+        default=True,
+        verbose_name='Опубликован'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата и время создания',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата и время изменения',
+    )
     objects = models.Manager()
 
     class Meta:

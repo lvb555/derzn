@@ -1,10 +1,8 @@
+
 from .select_with_input import SelectWithInput
 from django import forms
-from ..models import AuthorType
-
-from ckeditor.widgets import CKEditorWidget
-from mptt.forms import TreeNodeChoiceField
-from ..models.utils import get_model_or_stub
+from drevo.models.utils import get_model_or_stub
+from drevo.models import AuthorType
 
 
 class AuthorsFilterForm(forms.Form):
@@ -24,4 +22,3 @@ class AuthorsFilterForm(forms.Form):
         widget=SelectWithInput(attrs={'class': 'form-control',
                                       'oninput': 'doSubmit(this.form.id)'})
     )
-

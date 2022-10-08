@@ -2,7 +2,6 @@ from django import forms
 from ..models import Znanie
 
 from ckeditor.widgets import CKEditorWidget
-from mptt.forms import TreeNodeChoiceField
 
 
 class GlossaryTermForm(forms.ModelForm):
