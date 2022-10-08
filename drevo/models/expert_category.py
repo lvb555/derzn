@@ -3,6 +3,7 @@ from users.models import User
 from drevo.models.category import Category
 
 
+
 class CategoryExpert(models.Model):
     """
     Класс для описания привязки экспертов к категориям
@@ -35,3 +36,4 @@ class CategoryExpert(models.Model):
     class Meta:
         verbose_name = 'Эксперта'
         verbose_name_plural = 'Эксперты'
+
