@@ -13,6 +13,14 @@ class ProfileInlined(admin.StackedInline):
 class UserAdmin(BaseUserAdmin):
     inlines = (ProfileInlined, )
 
+    add_fieldsets =(
+        (None, {
+            'classes':('wide',),
+            'fields': ('username', 'email', 'password1', 'password2')
+        }),
+    )
+
+
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
