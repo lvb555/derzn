@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from mptt.models import TreeForeignKey
@@ -9,9 +8,6 @@ from .category import Category
 from .knowledge_grade_scale import KnowledgeGradeScale
 from .knowledge_rating import ZnRating
 from .relation_type import Tr
-from ..managers import ZManager
-
-User = get_user_model()
 
 
 class Znanie(models.Model):
@@ -19,67 +15,80 @@ class Znanie(models.Model):
     Класс для описания сущности 'Знание'
     """
     title = 'Знание'
-    name = models.CharField(max_length=256,
-                            verbose_name='Тема',
-                            unique=True
-                            )
-    category = TreeForeignKey(Category,
-                              on_delete=models.PROTECT,
-                              verbose_name='Категория',
-                              null=True,
-                              blank=True,
-                              limit_choices_to={'is_published': True}
-                              )
-    tz = models.ForeignKey('Tz',
-                           on_delete=models.PROTECT,
-                           verbose_name='Вид знания'
-                           )
-    content = models.TextField(max_length=2048,
-                               blank=True,
-                               null=True,
-                               verbose_name='Содержание'
-                               )
-    href = models.URLField(max_length=256,
-                           verbose_name='Источник',
-                           help_text='укажите www-адрес источника',
-                           null=True,
-                           blank=True)
-    source_com = models.CharField(max_length=256,
-                                  verbose_name='Комментарий к источнику',
-                                  null=True,
-                                  blank=True
-                                  )
-    author = models.ForeignKey('Author',
-                               on_delete=models.PROTECT,
-                               verbose_name='Автор',
-                               help_text='укажите автора',
-                               null=True,
-                               blank=True
-                               )
-    date = models.DateField(auto_now_add=True,
-                            verbose_name='Дата создания',
-                            )
-    updated_at = models.DateTimeField(auto_now=True,
-                                      verbose_name='Дата и время редактирования',
-                                      )
-    user = models.ForeignKey(User,
-                             on_delete=models.PROTECT,
-                             editable=False,
-                             verbose_name='Пользователь'
-                             )
-    order = models.IntegerField(verbose_name='Порядок',
-                                help_text='укажите порядковый номер',
-                                null=True,
-                                blank=True
-                                )
+    name = models.CharField(
+        max_length=256,
+        verbose_name='Тема',
+        unique=True
+    )
+    category = TreeForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        verbose_name='Категория',
+        null=True,
+        blank=True,
+        limit_choices_to={'is_published': True}
+    )
+    tz = models.ForeignKey(
+        'Tz',
+        on_delete=models.PROTECT,
+        verbose_name='Вид знания'
+    )
+    content = models.TextField(
+        max_length=2048,
+        blank=True,
+        null=True,
+        verbose_name='Содержание'
+    )
+    href = models.URLField(
+        max_length=256,
+        verbose_name='Источник',
+        help_text='укажите www-адрес источника',
+        null=True,
+        blank=True)
+    source_com = models.CharField(
+        max_length=256,
+        verbose_name='Комментарий к источнику',
+        null=True,
+        blank=True
+    )
+    author = models.ForeignKey(
+        'Author',
+        on_delete=models.PROTECT,
+        verbose_name='Автор',
+        help_text='укажите автора',
+        null=True,
+        blank=True
+    )
+    date = models.DateField(
+        auto_now_add=True,
+        verbose_name='Дата создания',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата и время редактирования',
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        editable=False,
+        verbose_name='Пользователь'
+    )
+    order = models.IntegerField(
+        verbose_name='Порядок',
+        help_text='укажите порядковый номер',
+        null=True,
+        blank=True
+    )
 
-    is_published = models.BooleanField(default=False,
-                                       verbose_name='Опубликовано?'
-                                       )
-    labels = models.ManyToManyField('Label',
-                                    verbose_name='Метки',
-                                    blank=True
-                                    )
+    is_published = models.BooleanField(
+        default=False,
+        verbose_name='Опубликовано?'
+    )
+    labels = models.ManyToManyField(
+        'Label',
+        verbose_name='Метки',
+        blank=True
+    )
     is_send = models.BooleanField(
         verbose_name='Пересылать',
         default=True
@@ -171,7 +180,7 @@ class Znanie(models.Model):
                     filter(
                         lambda x: len(x.rz.base.all()) == 2 and all(
                             map(lambda y: y.rz == row.rz or y.rz ==
-                                          col.rz, x.rz.base.all())
+                                col.rz, x.rz.base.all())
                         ),
                         values
                     )
@@ -263,7 +272,7 @@ class Znanie(models.Model):
         Возвращает TreeQuerySet с категорией и предками категории данного знания
         """
         return self.category.get_ancestors(ascending=False, include_self=True)
-    
+
     class Meta:
         verbose_name = 'Знание'
         verbose_name_plural = 'Знания'

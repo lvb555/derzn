@@ -7,24 +7,29 @@ class ZnRating(models.Model):
     DISLIKE = 'dislike'
     BLANK = ''
 
-    user = models.ForeignKey(User,
-                             on_delete=models.CASCADE,
-                             verbose_name='Пользователь'
-                             )
-    znanie = models.ForeignKey('Znanie',
-                               on_delete=models.CASCADE,
-                               verbose_name='Знание'
-                               )
-    value = models.CharField(max_length=7,
-                             blank=True,
-                             verbose_name='Значение'
-                             )
-    created_at = models.DateTimeField(auto_now_add=True,
-                                      verbose_name='Дата и время создания',
-                                      )
-    updated_at = models.DateTimeField(auto_now=True,
-                                      verbose_name='Дата и время изменения',
-                                      )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
+    )
+    znanie = models.ForeignKey(
+        'Znanie',
+        on_delete=models.CASCADE,
+        verbose_name='Знание'
+    )
+    value = models.CharField(
+        max_length=7,
+        blank=True,
+        verbose_name='Значение'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата и время создания',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата и время изменения',
+    )
     objects = models.Manager()
 
     class Meta:
