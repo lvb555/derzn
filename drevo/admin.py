@@ -216,6 +216,7 @@ class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
     )
     ordering = [
         "order",
+        "name",
     ]
 
 
