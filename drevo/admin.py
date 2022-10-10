@@ -1,9 +1,26 @@
+from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from mptt.admin import DraggableMPTTAdmin
 
+from drevo.models import InterviewAnswerExpertProposal
 from drevo.models.expert_category import CategoryExpert
+from drevo.models.knowledge_grade import KnowledgeGrade
 from .forms.relation_form import RelationAdminForm
+from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
+from drevo.models.relation_grade import RelationGrade
+from drevo.models.relation_grade_scale import RelationGradeScale
+from .forms import (
+    ZnanieForm,
+    AuthorForm,
+    GlossaryTermForm,
+    CategoryForm,
+    CtegoryExpertForm,
+)
 from .models import (
     Znanie,
     Tz,
@@ -17,24 +34,6 @@ from .models import (
     GlossaryTerm,
     ZnRating,
     Comment,
-)
-from mptt.admin import DraggableMPTTAdmin
-
-from django.utils.safestring import mark_safe
-from django.utils.html import format_html
-from adminsortable2.admin import SortableAdminMixin
-from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
-from drevo.models.relation_grade_scale import RelationGradeScale
-from drevo.models.knowledge_grade import KnowledgeGrade
-from drevo.models.relation_grade import RelationGrade
-from drevo.models import InterviewAnswerExpertProposal
-
-from .forms import (
-    ZnanieForm,
-    AuthorForm,
-    GlossaryTermForm,
-    CategoryForm,
-    CtegoryExpertForm,
 )
 from .services import send_notify_interview
 
@@ -110,7 +109,7 @@ class ZnanieAdmin(admin.ModelAdmin):
         "author",
         "updated_at",
         "user",
-        "is_send"
+        "is_send",
     )
     list_display_links = ("id", "name")
     ordering = ("order",)
@@ -217,6 +216,7 @@ class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
     )
     ordering = [
         "order",
+        "name",
     ]
 
 
@@ -230,6 +230,7 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
         "is_systemic",
         "is_group",
         "can_be_rated",
+        "is_send",
     )
     sortable_by = (
         "name",
@@ -237,6 +238,7 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
     )
     ordering = [
         "order",
+        "name",
     ]
 
 
@@ -257,18 +259,20 @@ class RelationAdmin(admin.ModelAdmin):
     ordering = ("-date",)
 
     def get_form(self, request, obj=None, change=False, **kwargs):
-        kwargs['form'] = RelationAdminForm
+        kwargs["form"] = RelationAdminForm
         return super().get_form(request, obj, change, **kwargs)
 
     def save_model(self, request, obj, form, change):
         obj.user = request.user
-        send_flag = form.cleaned_data.get('send_flag')
-        name = form.cleaned_data.get('bz')
+        send_flag = form.cleaned_data.get("send_flag")
+        name = form.cleaned_data.get("bz")
         super().save_model(request, obj, form, change)
 
         if send_flag:
             interview = get_object_or_404(Znanie, name=name)
-            period = Relation.objects.filter(Q(bz=interview) & Q(tr__name='Период интервью')).first()
+            period = Relation.objects.filter(
+                Q(bz=interview) & Q(tr__name="Период интервью")
+            ).first()
             if period:
                 period_relation = period.rz.name
                 # Передаем параметры в функцию send_notify_interview, которая формирует текст сообщения
@@ -416,9 +420,42 @@ class CategoryExpertAdmin(admin.ModelAdmin):
 admin.site.register(CategoryExpert, CategoryExpertAdmin)
 
 
-@admin.register(InterviewAnswerExpertProposal)
-class InterviewExpertResultAdmin(admin.ModelAdmin):
-    exclude = ("updated",)
+class InterviewInline(admin.TabularInline):
+    model = Znanie
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+@admin.register(InterviewAnswerExpertProposal)
+class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
+    exclude = ("updated",)
+    autocomplete_fields = ("interview", "answer", "question")
+    # тут мы ссылаемся на методы *_link, чтобы соответствующие Знания были показаны ссылками в списке всех Proposal
+    list_display = (
+        "id",
+        "interview_link",
+        "question_link",
+        "answer_link",
+        "new_answer_text",
+        "admin_reviewer",
+        "status",
+    )
+    list_display_links = ("id",)
+
+    @staticmethod
+    def link_to_knowledge_change(obj):
+        """Превращаем поле в ссылку в админке"""
+        if obj is None:
+            return "-"
+        return format_html(
+            "<a href='{url}'>{title}</a>",
+            url=reverse("admin:drevo_znanie_change", args=(obj.id,)),
+            title=obj.name,
+        )
+
+    def interview_link(self, obj):
+        return self.link_to_knowledge_change(obj.interview)
+
+    def question_link(self, obj):
+        return self.link_to_knowledge_change(obj.question)
+
+    def answer_link(self, obj):
+        return self.link_to_knowledge_change(obj.answer)
