@@ -139,3 +139,9 @@ TRANSITIONS_DIRECT = {
         ('Вернуть Знание на экспертизу-2', 'EXP_2')
     ]
 }
+
+# Статусы знания, при которых оно доступно автору
+USERS_ZN = 'WORK_PRE,RET_PRE_EDIT,PRE_FIN,WORK,RET_TO_EDIT,FIN'
+
+# Статусы, позволяющие изменять знание
+EDIT_STATUS = 'WORK_PRE,RET_PRE_EDIT,WORK,RET_TO_EDIT'

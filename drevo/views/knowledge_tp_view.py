@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, TemplateView
 
+from drevo.common import variables
 from drevo.forms.knowledge_create_form import ZnanieCreateForm, ZnImageFormSet
 from drevo.models import Znanie, KnowledgeStatuses, Category
 
@@ -89,21 +90,30 @@ class KnowledgeProcessView(LoginRequiredMixin, TemplateView):
         Передает контекст в шаблон
         """
         context = super().get_context_data(**kwargs)
+        user = self.request.user
         # формирует список категорий
         categories = Category.tree_objects.exclude(is_published=False)
         context['ztypes'] = categories
 
         # формирование списка Знаний по категориям
-        # Формирование списка опубликованных знаний
-        zn = Znanie.published.all()
+        # Формирование списка опубликованных знаний и знаний, созданных пользователем
+        zn = Znanie.objects.filter(Q(is_published=True) | Q(user=user))
+        # Формирование списка знаний, подлежащих техпроцессу или находящихся в КЛЗ
+        # zn_no_pub = Znanie.objects.filter(is_published=False)
+        # zn_union = zn.union(zn_no_pub)
         # Формирование списка знаний для пользователей-членов КЛЗ
-        if self.request.user.is_authenticated and self.request.user.in_klz:
-            zn = Znanie.objects.filter(Q(is_published=True) | Q(knowledge_status__status='KLZ'))
+        # if self.request.user.is_authenticated and self.request.user.in_klz:
+        #     zn = Znanie.objects.filter(Q(is_published=True) | Q(knowledge_status__status='KLZ'))
         zn_dict = {}
         for category in categories:
+            experts = category.get_experts()
             zn_in_this_category = zn.filter(
-                category=category).order_by('-order')
+                category=category)
+            # zn_no_pub_in_this_category = zn_no_pub.filter(
+            #     category=category)
+            # zn_union = zn_in_this_category.union(zn_no_pub_in_this_category)
             zn_dict[category.name] = zn_in_this_category
         context['zn_dict'] = zn_dict
+        context['var'] = variables
 
         return context

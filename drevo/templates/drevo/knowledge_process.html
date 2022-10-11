@@ -5,11 +5,11 @@
 
 {% block cssfiles %}
     <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/style.css' %}">
 {% endblock %}
 
 {% block content %}
     <h1>{{ title }}</h1>
-
     <div class="content">
         <div class="tree">
             <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть древо</button>
@@ -32,10 +32,37 @@
                         {% endif %}
                         <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
 
+
                         <ul hidden>
                             {% for zn in zn_dict|dict_value:node.name %}
-                                <li style="font-weight: 400;"><i class="bi-file-text-fill" style="color: #99CCFF;"></i>
-                                    <a href="{{ zn.get_absolute_url }}">{{ zn.name }}</a></li>
+                                {% if zn.is_publeshed %}
+                                    <li style="font-weight: 400;">
+                                        <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
+                                        <a href="{{ zn.get_absolute_url }}">{{ zn.name }}</a>
+                                    </li>
+
+                                {% elif user.in_klz and zn.get_current_status == 'KLZ' %}
+                                    <li style="font-weight: 400;">
+                                        <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
+                                        <a href="{{ zn.get_absolute_url }}">{{ zn.name }}</a>
+                                    </li>
+                                {% elif zn.get_current_status in var.USERS_ZN %}
+                                    <li style="font-weight: 400;">
+                                        <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
+                                        <a href="{{ zn.get_absolute_url }}"
+                                                {% if zn.get_current_status in var.EDIT_STATUS %}
+                                           style="color: red"
+                                                {% else %}
+                                           style="color: green"
+                                                {% endif %}
+                                        >
+                                            {{ zn.name }}
+                                        </a>
+                                        <a href="">
+                                            <img src="{% static '/drevo/img/pencil.png' %}">
+                                        </a>
+                                    </li>
+                                {% endif %}
                             {% endfor %}
                         </ul>
 

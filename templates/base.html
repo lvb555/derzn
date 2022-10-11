@@ -20,98 +20,122 @@
 </head>
 
 <body>
-    <div class="container-fluid bg-light">
-        <div class="container">
-            <nav class="navbar navbar-expand-lg mb-2 navbar-light">
-                <div class="container-fluid">
-                    <div class="logo me-2">
-                        <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
-                            <img src="{% static 'drevo/img/logo.svg' %}" height='68px' alt="logo-tree">
-                        </a>
-                    </div>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <div class="navbar-nav me-auto">
-                            <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
-                                <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Древо знания</a>
-                                </li>
-                                <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
-                                       id="authors_link">Авторы</a>
-                                </li>
-                                <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
-                                </li>
-                                <li class="nav-item mx-2 dropdown">
-                                    <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a>
-                                        <a class="dropdown-item" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>
-                                        {% if user.is_authenticated %}
-                                            <a class="dropdown-item" href="{% url 'history' %}" id="history_link">История просмотров</a>
-                                            <a class="dropdown-item" href="{% url 'favourites' %}"
-                                               id="favourites_link">Избранное</a>
-                                            {% if not user.is_redactor and not user.is_director and not user.in_klz %}
-                                                <a class="dropdown-item" href="{% url 'znanie_create' %}" id="znanie_create">
-                                                    {% if user.is_expert %}
-                                                        Создание Знания
-                                                    {% else %}
-                                                        Создание ПредЗнания
-                                                    {% endif %}
-                                                </a>
-                                                <a class="dropdown-item" href="{% url 'znanie_process' %}" id="znanie_list">
-                                                    {% if user.is_expert %}
-                                                        Изменение Знания
-                                                    {% else %}
-                                                        Изменение ПредЗнания
-                                                    {% endif %}
-                                                </a>
-                                                {% if user.is_expert %}
-                                                    <a class="dropdown-item" href="{% url 'znanie_process' %}" id="znanie_process_exp">Экспертиза ПредЗнания</a>
-                                                {% endif %}
-                                            {% else %}
-                                                 <a class="dropdown-item" href="{% url 'znanie_process' %}" id="znanie_process">
-                                                    {% if user.is_redactor %}
-                                                        Редактирование ПредЗнания и Знания
-                                                    {% elif user.is_director %}
-                                                        Публикация ПредЗнания и Знания
-                                                    {% elif user.in_klz %}
-                                                        Клуб любителей знания (КЛЗ)
-                                                    {% endif %}
-                                                </a>
-                                            {% endif %}
-                                            {% if user.expert.all %}
-                                                <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
-                                            {% endif %}
-                                        {% endif %}
-                                    </div>
-                                </li>
-
-                                {% if user.is_staff %}
-                                <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель управления</a>
-                                </li>
-                                {% endif %}
-
-                                <li class="nav-item">
-                                    <a class="nav-link auto_active_link d-flex" aria-current="page" href="{% url 'search_knowledge' %}"
-                                       id="search_knowledges_link">
-                                        <span>Поиск</span> <img class="ms-2"
-                                                                src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}"
-                                                                alt="" style="width:20px">
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-
+<div class="container-fluid bg-light">
+    <div class="container">
+        <nav class="navbar navbar-expand-lg mb-2 navbar-light">
+            <div class="container-fluid">
+                <div class="logo me-2">
+                    <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
+                        <img src="{% static 'drevo/img/logo.svg' %}" height='68px' alt="logo-tree">
+                    </a>
+                </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav me-auto">
                         <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
-                            {% if user.is_authenticated %}
+                            <li class="nav-item mx-2">
+                                <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Древо
+                                    знания</a>
+                            </li>
+                            <li class="nav-item mx-2">
+                                <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
+                                   id="authors_link">Авторы</a>
+                            </li>
+                            <li class="nav-item mx-2">
+                                <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
+                            </li>
+                                                        {% if user.is_authenticated %}
+                                <li class="nav-item mx-2 dropdown">
+                                    <a class="dropdown-toggle nav-link" href="#" role="button" id="dropdownMenuLink"
+                                       data-bs-toggle="dropdown" aria-expanded="false">
+                                        Подготовка знаний</a>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                        {% if not user.is_redactor and not user.is_director and not user.in_klz %}
+                                            <li><a class="dropdown-item" href="{% url 'znanie_create' %}"
+                                                   id="znanie_create">
+                                                {% if user.is_expert %}
+                                                    Создание Знания
+                                                {% else %}
+                                                    Создание ПредЗнания
+                                                {% endif %}
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="{% url 'znanie_process' %}"
+                                                   id="znanie_list">
+                                                {% if user.is_expert %}
+                                                    Изменение Знания
+                                                {% else %}
+                                                    Изменение ПредЗнания
+                                                {% endif %}
+                                            </a></li>
+                                            {% if user.is_expert %}
+                                                <li><a class="dropdown-item"
+                                                       href="{% url 'znanie_process' %}"
+                                                       id="znanie_process_exp">Экспертиза ПредЗнания</a>
+                                                </li>
+                                            {% endif %}
+                                        {% else %}
+                                            <li><a class="dropdown-item" href="{% url 'znanie_process' %}"
+                                                   id="znanie_process">
+                                                {% if user.is_redactor %}
+                                                    Редактирование ПредЗнания и Знания
+                                                {% elif user.is_director %}
+                                                    Публикация ПредЗнания и Знания
+                                                {% elif user.in_klz %}
+                                                    Клуб любителей знания (КЛЗ)
+                                                {% endif %}
+                                            </a></li>
+                                        {% endif %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+                            <li class="nav-item mx-2 dropdown">
+                                <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{% url 'new_knowledge' %}" id="new_knowledge">Новые
+                                        знания</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>
+                                    </li>
+                                    {% if user.is_authenticated %}
+                                        <li><a class="dropdown-item" href="{% url 'history' %}" id="history_link">История
+                                            просмотров</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'favourites' %}"
+                                               id="favourites_link">Избранное</a></li>
+
+                                        {% if user.expert.all %}
+                                            <li><a class="dropdown-item" href="{% url 'my_interview' %}"
+                                                   id="my_interview_link">Мои интервью</a></li>
+                                        {% endif %}
+                                    {% endif %}
+                                </ul>
+                            </li>
+
+                            {% if user.is_staff %}
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель
+                                        управления</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="nav-item">
+                                <a class="nav-link auto_active_link d-flex" aria-current="page"
+                                   href="{% url 'search_knowledge' %}"
+                                   id="search_knowledges_link">
+                                    <span>Поиск</span> <img class="ms-2"
+                                                            src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}"
+                                                            alt="" style="width:20px">
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+                        {% if user.is_authenticated %}
                             <li class="nav-item me-1 mb-1 mb-lg-0">
-                                <a class="nav-link auto_active_link" aria-current="page" href="{% url 'users:myprofile' %}"
+                                <a class="nav-link auto_active_link" aria-current="page"
+                                   href="{% url 'users:myprofile' %}"
                                    id="user_link">
                                     <span>{{ user.username }} <i class="bi bi-person-circle"></i></span>
                                 </a>
@@ -121,20 +145,20 @@
                                     <span>Выйти </span>
                                 </a>
                             </li>
-                            {% else %}
+                        {% else %}
                             <li class="nav-item">
                                 <a class="btn btn-outline-success" aria-current="page"
                                    href="{% url 'users:login' %}?next={{ request.path }}">
                                     <span>Войти </span>
                                 </a>
                             </li>
-                            {% endif %}
-                        </ul>
-                    </div>
+                        {% endif %}
+                    </ul>
                 </div>
-            </nav>
-        </div>
+            </div>
+        </nav>
     </div>
+</div>
 
 <div class="container">
     <div class="row">
@@ -154,22 +178,22 @@
     // Для визуализации активных кнопок меню
     let menuLinks = document.querySelectorAll('.auto_active_link');
     for (let link of menuLinks) {
-      link.classList.remove('active');
+        link.classList.remove('active');
     }
     for (let link of menuLinks) {
-      let currentLink = localStorage.getItem('active_link');
-      if (link.id === currentLink) {
-        link.classList.add('active');
-      }
+        let currentLink = localStorage.getItem('active_link');
+        if (link.id === currentLink) {
+            link.classList.add('active');
+        }
     }
 
     document.addEventListener('click', (event) => saveNextLink(event));
 
     function saveNextLink(event) {
-      let link = event.target.closest('.auto_active_link');
-      if (link) {
-        localStorage.setItem('active_link', link.id);
-      }
+        let link = event.target.closest('.auto_active_link');
+        if (link) {
+            localStorage.setItem('active_link', link.id);
+        }
     }
 
 
