@@ -10,6 +10,11 @@ from .expert_work.views import (
     propose_answer,
     update_answer_proposal,
 )
+from .admin_interview_work.views import (
+    AllInterviewView,
+    InterviewQuestionsView,
+    QuestionAdminWorkView,
+)
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
 from .friends_added_view import friends_added_view

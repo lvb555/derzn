@@ -36,6 +36,11 @@ from .views.expert_work.views import (
     update_answer_proposal,
     update_proposed_answer,
 )
+from .views.admin_interview_work.views import (
+    AllInterviewView,
+    InterviewQuestionsView,
+    QuestionAdminWorkView,
+)
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
@@ -85,6 +90,11 @@ urlpatterns = [
         update_proposed_answer,
         name="update_proposed_answer",
     ),
+    path("admin/interview/", AllInterviewView.as_view(), name='all_interview'),
+    path("admin/interview/<int:pk>/questions/", InterviewQuestionsView.as_view(), name='interview_quests'),
+    path("admin/interview/<int:inter_pk>/question/<int:quest_pk>/", QuestionAdminWorkView.as_view(),
+         name='question_admin_work'),
+
     path("friends/", friends_view, name="friends"),
     path("friends/friends_added/", friends_added_view, name="friends_added"),
     path("friends/friends_invite/", friends_invite_view, name="friends_invite"),
