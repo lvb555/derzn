@@ -39,7 +39,7 @@ from .views.expert_work.views import (
 from .views.admin_interview_work.views import (
     AllInterviewView,
     InterviewQuestionsView,
-    QuestionAdminWorkView,
+    question_admin_work_view,
 )
 
 urlpatterns = [
@@ -92,7 +92,7 @@ urlpatterns = [
     ),
     path("admin/interview/", AllInterviewView.as_view(), name='all_interview'),
     path("admin/interview/<int:pk>/questions/", InterviewQuestionsView.as_view(), name='interview_quests'),
-    path("admin/interview/<int:inter_pk>/question/<int:quest_pk>/", QuestionAdminWorkView.as_view(),
+    path("admin/interview/<int:inter_pk>/questions/<int:quest_pk>/", question_admin_work_view,
          name='question_admin_work'),
 
     path("friends/", friends_view, name="friends"),

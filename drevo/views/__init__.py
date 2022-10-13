@@ -13,7 +13,7 @@ from .expert_work.views import (
 from .admin_interview_work.views import (
     AllInterviewView,
     InterviewQuestionsView,
-    QuestionAdminWorkView,
+    question_admin_work_view,
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
