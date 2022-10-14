@@ -1,0 +1,78 @@
+{% extends 'drevo/base.html' %}
+
+{% load translate_status_expert_proposal %}
+
+
+{% block title %} Работа администратора по вопросу {% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+            <a href="{{ backup_url }}" class="btn btn-warning mt-2">Назад</a>
+        </div>
+        <div class="col">
+            <h1>Анализ предложений по вопросу</h1>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col">
+            <h3>Интервью: {{ interview_name }}</h3>
+            <h3>Вопрос: {{ question_name }}</h3>
+        </div>
+        <div class="col">
+            <h3>Период: {{ period }}</h3>
+        </div>
+    </div>
+
+    <br>
+    <div>
+        <form method="post">
+            {{ formset.management_form }}
+            {% csrf_token %}
+            <table class="table table-bordered">
+                <thead>
+                <th scope="col" rowspan="2">ID <br> предл.</th>
+                <th scope="col" colspan="2" class="text-center"> Информация эксперта</th>
+                <th scope="col" colspan="3" class="text-center"> Информация администратора</th>
+                <tr>
+                    <th scope="col">ФИО эксперта</th>
+                    <th scope="col">Предложение эксперта</th>
+                    <th scope="col">Существующий/<font class="text-danger">новый</font> ответ</th>
+                    <th scope="col">Комментарий администратора</th>
+                    <th scope="col">Статус предложения</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for elm, form in questions %}
+                <tr>
+                    <th scope="row">{{ elm.pk }}</th>
+                    <td>{{ elm.expert.get_full_name }}</td>
+                    <td>{{ elm.new_answer_text }}</td>
+                    {% for f in form %}
+                    <td>
+                        {% if messages and f.label == 'Комментарий администратора' %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                            {% if message.tags == 'error' %}
+                            <li class="text-danger">{{ message }}</li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {{ f }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-end me-5">
+                <input type="submit" class="btn btn-warning w-25" value="Сохранить">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
