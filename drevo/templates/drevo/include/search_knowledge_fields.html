@@ -1,0 +1,31 @@
+{% load static %}
+
+<div>
+    {{ form.main_search }}
+    <span class="text-muted">{{ form.main_search.help_text }}</span>
+    {% if field.errors %}
+    <div class="alert alert-danger mt-3" role="alert">{{ form.main_search.errors }}</div>
+    {% endif %}
+</div>
+
+{% include 'drevo/include/checkbox_field.html' with field=form.main_search__name %}
+{% include 'drevo/include/checkbox_field.html' with field=form.main_search__content %}
+{% include 'drevo/include/checkbox_field.html' with field=form.main_search__source_com %}
+
+
+<div class="d-flex justify-content-end">
+    <button id="collapseExtendedSearchButton" class="btn p-0" type="button" data-bs-toggle="collapse"
+        data-bs-target="#collapseExtendedSearch" aria-expanded="false" aria-controls="collapseExtendedSearch">
+        Расширенный поиск
+        <img src="{% static 'drevo/img/knowledge_search/collapse_down.svg' %}"
+            data-img-toggle="{% static 'drevo/img/knowledge_search/collapse_up.svg' %}" alt="collapse" height="20px"
+            id="extendedSearchButtonImg">
+    </button>
+</div>
+<div class="collapse" id="collapseExtendedSearch">
+    {% include 'drevo/include/string_field.html' with field=form.knowledge_type %}
+    {% include 'drevo/include/string_field.html' with field=form.knowledge_category %}
+    {% include 'drevo/include/string_field.html' with field=form.author %}
+    {% include 'drevo/include/string_field.html' with field=form.edge_kind %}
+    {% include 'drevo/include/tag_formset.html' with formset=tag_formset %}
+</div>

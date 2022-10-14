@@ -55,7 +55,7 @@
                 <form method="get" class="mx-auto d-flex flex-column" style="max-width:500px"
                     action="{% url 'search_knowledge' %}">
 
-                    {% include 'drevo/snippets/tag_snippet.html' with formset=tag_formset %}
+                    {% include 'drevo/include/tag_formset.html' with formset=tag_formset %}
 
                     <button id='submit' type="submit" class="btn btn-primary my-3 px-4">
                         Искать знания

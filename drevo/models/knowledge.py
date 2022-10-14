@@ -11,9 +11,6 @@ from .category import Category
 from .knowledge_grade_scale import KnowledgeGradeScale
 from .knowledge_rating import ZnRating
 from .relation_type import Tr
-from ..managers import ZManager
-
-User = get_user_model()
 
 
 class Znanie(models.Model):
@@ -21,88 +18,84 @@ class Znanie(models.Model):
     Класс для описания сущности 'Знание'
     """
     title = 'Знание'
-    name = models.CharField(max_length=256,
-                            verbose_name='Тема',
-                            unique=True
-                            )
-    category = TreeForeignKey(Category,
-                              on_delete=models.PROTECT,
-                              verbose_name='Категория',
-                              null=True,
-                              blank=True,
-                              limit_choices_to={'is_published': True}
-                              )
-    tz = models.ForeignKey('Tz',
-                           on_delete=models.PROTECT,
-                           verbose_name='Вид знания'
-                           )
-    content = models.TextField(max_length=2048,
-                               blank=True,
-                               null=True,
-                               verbose_name='Содержание'
-                               )
-    href = models.URLField(max_length=256,
-                           verbose_name='Источник',
-                           help_text='укажите www-адрес источника',
-                           null=True,
-                           blank=True)
-    source_com = models.CharField(max_length=256,
-                                  verbose_name='Комментарий к источнику',
-                                  null=True,
-                                  blank=True
-                                  )
-    author = models.ForeignKey('Author',
-                               on_delete=models.PROTECT,
-                               verbose_name='Автор',
-                               help_text='укажите автора',
-                               null=True,
-                               blank=True
-                               )
-    date = models.DateField(auto_now_add=True,
-                            verbose_name='Дата создания',
-                            )
-    updated_at = models.DateTimeField(auto_now=True,
-                                      verbose_name='Дата и время редактирования',
-                                      )
-    user = models.ForeignKey(User,
-                             on_delete=models.PROTECT,
-                             editable=False,
-                             related_name='user2user',
-                             verbose_name='Пользователь'
-                             )
-    expert = models.ForeignKey(User,
-                               on_delete=models.PROTECT,
-                               null=True,
-                               blank=True,
-                               related_name='knowledge_expert',
-                               verbose_name='Эксперт'
-                               )
-    redactor = models.ForeignKey(User,
-                                 on_delete=models.PROTECT,
-                                 null=True,
-                                 blank=True,
-                                 related_name='redactor',
-                                 verbose_name='Редактор'
-                                 )
-    director = models.ForeignKey(User,
-                                 on_delete=models.PROTECT,
-                                 null=True,
-                                 blank=True,
-                                 related_name='director',
-                                 verbose_name='Руководитель')
-    order = models.IntegerField(verbose_name='Порядок',
-                                help_text='укажите порядковый номер',
-                                null=True,
-                                blank=True
-                                )
+    name = models.CharField(
+        max_length=256,
+        verbose_name='Тема',
+        unique=True
+    )
+    category = TreeForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        verbose_name='Категория',
+        null=True,
+        blank=True,
+        limit_choices_to={'is_published': True}
+    )
+    tz = models.ForeignKey(
+        'Tz',
+        on_delete=models.PROTECT,
+        verbose_name='Вид знания'
+    )
+    content = models.TextField(
+        max_length=2048,
+        blank=True,
+        null=True,
+        verbose_name='Содержание'
+    )
+    href = models.URLField(
+        max_length=256,
+        verbose_name='Источник',
+        help_text='укажите www-адрес источника',
+        null=True,
+        blank=True)
+    source_com = models.CharField(
+        max_length=256,
+        verbose_name='Комментарий к источнику',
+        null=True,
+        blank=True
+    )
+    author = models.ForeignKey(
+        'Author',
+        on_delete=models.PROTECT,
+        verbose_name='Автор',
+        help_text='укажите автора',
+        null=True,
+        blank=True
+    )
+    date = models.DateField(
+        auto_now_add=True,
+        verbose_name='Дата создания',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата и время редактирования',
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        editable=False,
+        verbose_name='Пользователь'
+    )
+    order = models.IntegerField(
+        verbose_name='Порядок',
+        help_text='укажите порядковый номер',
+        null=True,
+        blank=True
+    )
 
-    is_published = models.BooleanField(default=False,
-                                       verbose_name='Опубликовано?'
-                                       )
-    labels = models.ManyToManyField('Label',
-                                    verbose_name='Метки',
-                                    blank=True
-                                    )
+    is_published = models.BooleanField(
+        default=False,
+        verbose_name='Опубликовано?'
+    )
+    labels = models.ManyToManyField(
+        'Label',
+        verbose_name='Метки',
+        blank=True
+    )
+    is_send = models.BooleanField(
+        verbose_name='Пересылать',
+        default=True
+    )
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
     objects = models.Manager()
@@ -190,7 +183,7 @@ class Znanie(models.Model):
                     filter(
                         lambda x: len(x.rz.base.all()) == 2 and all(
                             map(lambda y: y.rz == row.rz or y.rz ==
-                                          col.rz, x.rz.base.all())
+                                col.rz, x.rz.base.all())
                         ),
                         values
                     )
@@ -208,14 +201,13 @@ class Znanie(models.Model):
     def get_users_grade(self, user: User):
         """
         Оценка пользователя user.
-        По умолчанию - числовое значение первого
-        объекта из шкалы (наивысшее значение).
+        По умолчанию - Нет оценки
         """
 
         queryset = self.grades.filter(user=user)
         if queryset.exists():
             return queryset.first().grade.get_base_grade()
-        return KnowledgeGradeScale.objects.first().get_base_grade()
+        return KnowledgeGradeScale.objects.get(name='Нет оценки').get_base_grade()
 
     def get_common_grades(self, request):
         """
@@ -231,7 +223,14 @@ class Znanie(models.Model):
             variant = 2
 
         proof_base_value = self.get_proof_base_grade(request, variant)
-        common_grade_value = (proof_base_value + self.get_users_grade(request.user)) / 2
+        if proof_base_value is not None:
+            users_grade = self.get_users_grade(request.user)
+            if users_grade is not None:
+                common_grade_value = (proof_base_value + users_grade) / 2
+            else:
+                common_grade_value = None
+        else:
+            common_grade_value = self.get_users_grade(request.user)
 
         return common_grade_value, proof_base_value
 
@@ -254,9 +253,17 @@ class Znanie(models.Model):
                     sum_list.append(grade)
 
         if not sum_list:
-            return KnowledgeGradeScale.objects.all().last().low_value
+            # Если доводов нет, Тогда ОДБ := None
+            return None
 
-        return sum(sum_list) / len(sum_list)
+        # ОДБ := среднее арифметическое Оценок вкладов доводов (ОВД) среди существенных доводов..
+        proof_base_value = sum(sum_list) / len(sum_list)
+
+        if proof_base_value < 0:
+            # Если ОДБ < 0, тогда ОДБ := 0
+            proof_base_value = 0
+
+        return proof_base_value
 
     @staticmethod
     def get_default_grade():

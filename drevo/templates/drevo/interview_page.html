@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'drevo/base.html' %}
 {% load static %}
 
 {% block title %}Интервью: {{ znanie.name }}{% endblock %}
@@ -12,18 +12,16 @@
 <hr>
 
 {% for q, my_answer in q_true.items %}
-  {% if my_answer %}
-    <div class="question-interview">
-      <a href="{% url 'zdetail' q.id %}" class="interview-end">{{ q.name }}</a>
-    </div>
-  {% else %}
-    <div class="question-interview">
-      <a href="{% url 'zdetail' q.id %}" class="interview-start">{{ q.name }}</a>
-    </div>
-  {% endif %}
+  <div class="question-interview">
+    <a href="{% url 'zdetail' q.id %}"
+       class="{% if my_answer %}interview-end{% else %}interview-start{% endif %}">
+      {{q}}
+    </a>
+    <a href="{% url 'question_expert_work' znanie.id q.id  %}">Перейти к экспертизе</a>
+  </div>
 {% endfor %}
 <br>
-<h5>Легенда:</h3> 
+<h5>Легенда:</h3>
 <div class="interview-end">Вопросы, на которые эксперт ответил</div>
 <div class="interview-start">Вопросы, на которые эксперт не ответил</div>
 
@@ -39,7 +37,7 @@
   .question-interview {
     margin-bottom: 5px;
   }
-  .interview-end {    
+  .interview-end {
     color: green;
   }
   .interview-start {

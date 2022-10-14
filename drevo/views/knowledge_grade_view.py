@@ -47,10 +47,13 @@ class KnowledgeFormView(TemplateView):
             context['relation_scale'] = RelationGradeScale.objects.all()
 
             common_grade_value, proof_base_value = knowledge.get_common_grades(request=self.request)
-            context['proof_base_value'] = proof_base_value
-            context['proof_base_grade'] = KnowledgeGradeScale.get_grade_object(proof_base_value)
-            context['common_grade_value'] = common_grade_value
-            context['common_grade'] = KnowledgeGradeScale.get_grade_object(common_grade_value)
+
+            if proof_base_value is not None:
+                context['proof_base_value'] = proof_base_value
+                context['proof_base_grade'] = KnowledgeGradeScale.get_grade_object(proof_base_value)
+            if common_grade_value is not None:
+                context['common_grade_value'] = common_grade_value
+                context['common_grade'] = KnowledgeGradeScale.get_grade_object(common_grade_value)
         return context
 
     @csrf_protected_method

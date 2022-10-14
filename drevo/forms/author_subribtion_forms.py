@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import CheckboxInput, Select, SelectMultiple
+from django.forms import Select, SelectMultiple
 
 
 class AuthorSubscriptionForm(forms.Form):
