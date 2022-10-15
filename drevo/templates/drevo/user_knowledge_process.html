@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'drevo/base.html' %}
 {% load mptt_tags %}
 {% load filter %}
 {% load static %}
@@ -40,17 +40,11 @@
                                         <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
                                         <a href="{{ zn.get_absolute_url }}">{{ zn.name }}</a>
                                     </li>
-
-                                {% elif user.in_klz and zn.get_current_status == 'KLZ' %}
-                                    <li style="font-weight: 400;">
-                                        <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
-                                        <a href="{{ zn.get_absolute_url }}">{{ zn.name }}</a>
-                                    </li>
-                                {% elif zn.get_current_status in var.USERS_ZN %}
+                                {% elif zn.get_current_status.status in var.USERS_ZN %}
                                     <li style="font-weight: 400;">
                                         <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
                                         <a href="{{ zn.get_absolute_url }}"
-                                                {% if zn.get_current_status in var.EDIT_STATUS %}
+                                                {% if zn.get_current_status.status in var.EDIT_STATUS %}
                                            style="color: red"
                                                 {% else %}
                                            style="color: green"
@@ -58,7 +52,7 @@
                                         >
                                             {{ zn.name }}
                                         </a>
-                                        <a href="">
+                                        <a href="{% url 'znanie_update' zn.pk %}">
                                             <img src="{% static '/drevo/img/pencil.png' %}">
                                         </a>
                                     </li>

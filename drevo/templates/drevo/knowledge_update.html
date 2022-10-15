@@ -9,7 +9,7 @@
 
 {% block content %}
     <h1>{{ title }}</h1>
-    <form class="form-horizontal" action="{% url 'znanie_create' %}" method="post" enctype="multipart/form-data">
+    <form class="form-horizontal" action="{% url 'znanie_update' pk %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.media }}
         {{ form.as_p }}

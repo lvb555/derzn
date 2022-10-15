@@ -76,6 +76,26 @@ class Znanie(models.Model):
         editable=False,
         verbose_name='Пользователь'
     )
+    expert = models.ForeignKey(User,
+                               on_delete=models.PROTECT,
+                               null=True,
+                               blank=True,
+                               related_name='knowledge_expert',
+                               verbose_name='Эксперт'
+                               )
+    redactor = models.ForeignKey(User,
+                                 on_delete=models.PROTECT,
+                                 null=True,
+                                 blank=True,
+                                 related_name='redactor',
+                                 verbose_name='Редактор'
+                                 )
+    director = models.ForeignKey(User,
+                                 on_delete=models.PROTECT,
+                                 null=True,
+                                 blank=True,
+                                 related_name='director',
+                                 verbose_name='Руководитель')
     order = models.IntegerField(
         verbose_name='Порядок',
         help_text='укажите порядковый номер',
@@ -96,6 +116,7 @@ class Znanie(models.Model):
         verbose_name='Пересылать',
         default=True
     )
+
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
     objects = models.Manager()
@@ -294,7 +315,7 @@ class Znanie(models.Model):
         """
         Возвращает текущий статус знания
         """
-        return self.knowledge_status.get(Q(knowledge=self) & Q(is_active=True)).select_related()
+        return self.knowledge_status.get(Q(knowledge=self) & Q(is_active=True))
 
     def get_status_history(self):
         """
