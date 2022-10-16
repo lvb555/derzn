@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.forms import modelformset_factory
 from django.http import Http404
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView
 from ...models import Relation, Tz, Author, Tr
 from ...models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
@@ -103,8 +103,18 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     question = Znanie.objects.values('name').get(pk=quest_pk)
     context['question_name'] = question.get('name')
     context['period'] = f"с {period}".replace('-', 'по')
+    context['cur_filter'] = request.GET.get('filter')
 
-    queryset = InterviewAnswerExpertProposal.objects.filter(question__pk=quest_pk, interview__pk=inter_pk)
+    def get_queryset():
+        filter_by = request.GET.get('filter')
+        queryset_obj = InterviewAnswerExpertProposal.objects.filter(
+            question__pk=quest_pk, interview__pk=inter_pk
+        ).order_by('expert__first_name', '-updated')
+        if filter_by:
+            return queryset_obj.filter(status=filter_by)
+        return queryset_obj
+
+    queryset = get_queryset()
     InterviewAnswerExpertFormSet = modelformset_factory(InterviewAnswerExpertProposal, extra=0,
                                                         form=InterviewAnswerExpertProposalForms)
     if request.method == 'POST':
@@ -113,7 +123,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
             for form in formset:
                 obj = form.save(commit=False)
                 status = obj.status
-                answer = obj.new_answer
+                answer = obj.answer
                 comment = obj.admin_comment
                 # Проверка на наличие изменений в записи
                 if (status == form.old_status) and (answer == form.old_answer) and (comment and form.old_comment):
@@ -123,8 +133,8 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     # то создаётся новое знание и связь на основе введённых админом данных
                     if status == 'APPRVE':
                         if not form.cleaned_data.get('admin_comment'):
-                            messages.error(request, 'Не указана тема знания.')
-                            break
+                            messages.error(request, f'Не указана тема знания для предложения №{obj.pk}.')
+                            continue
                         admin_comment = obj.admin_comment
                         if '~' in admin_comment:
                             knowledge_name, knowledge_content = admin_comment.split('~')
@@ -153,13 +163,14 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                             is_published=True
                         )
                         obj.new_answer = new_knowledge
+                        obj.answer = new_knowledge
                         obj.status = 'APPRVE'
                     # Если админ изменил статус на "Не принят",
                     elif status == 'REJECT':
                         obj.status = 'REJECT'
                 # Если админ указал только ответ из списка существующих/новых ответов, то статус устанавливается сам,
-                elif not status and obj.new_answer:
-                    existing_answer = obj.new_answer
+                elif not status and obj.answer:
+                    existing_answer = obj.answer
                     # Если дата создания выбранного ответа меньше даты создания
                     # предложения эксперта, то статус "Дублирует ответ", иначе "Дублирует предложение"
                     if existing_answer.date < form.instance.updated.date():
@@ -168,9 +179,14 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                         obj.status = 'RESDPL'
                 obj.admin_reviewer = request.user
                 obj.save()
-            return redirect('question_admin_work', inter_pk=inter_pk, quest_pk=quest_pk)
+            redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
+            if context.get('cur_filter'):
+                get_params = f"?filter={context.get('cur_filter')}"
+                return redirect(f'{redirect_url}{get_params}')
+            return redirect(redirect_url)
     else:
         formset = InterviewAnswerExpertFormSet(queryset=queryset)
+    context['status_list'] = InterviewAnswerExpertProposal.STATUSES
     context['questions'] = list(zip(queryset, formset))
     context['formset'] = formset
     context['backup_url'] = reverse_lazy('interview_quests', kwargs={'pk': inter_pk})
