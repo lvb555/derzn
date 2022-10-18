@@ -39,6 +39,11 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink2">
                         <li><a class="dropdown-item" href="{{ request.path }}">Все</a></li>
+                        {% if cur_filter == 'None' %}
+                        <li><a class="dropdown-item active" href="?filter=None">Нет статуса</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="?filter=None">Нет статуса</a></li>
+                        {% endif %}
                         {% for value, label in status_list %}
                         {% if cur_filter == value %}
                         <li><a class="dropdown-item active" href="?filter={{ value }}">{{label}}</a></li>

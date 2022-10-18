@@ -70,7 +70,7 @@ class InterviewQuestionsView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(InterviewQuestionsView, self).get_context_data(**kwargs)
         tz_obj = Tz.objects.get(name='Вопрос')
-        questions = Relation.objects.filter(Q(bz=self.object) & Q(rz__tz=tz_obj)).values('rz', 'rz__name')
+        questions = Relation.objects.select_related('rz').filter(Q(bz=self.object) & Q(rz__tz=tz_obj)).order_by('rz__name', 'rz__order').values('rz', 'rz__name')
 
         data = []
 
@@ -111,12 +111,13 @@ def question_admin_work_view(request, inter_pk, quest_pk):
             question__pk=quest_pk, interview__pk=inter_pk
         ).order_by('expert__first_name', '-updated')
         if filter_by:
-            return queryset_obj.filter(status=filter_by)
+            return queryset_obj.filter(status=filter_by) if filter_by != 'None' else queryset_obj.filter(status=None)
         return queryset_obj
 
     queryset = get_queryset()
     InterviewAnswerExpertFormSet = modelformset_factory(InterviewAnswerExpertProposal, extra=0,
                                                         form=InterviewAnswerExpertProposalForms)
+
     if request.method == 'POST':
         formset = InterviewAnswerExpertFormSet(request.POST, queryset=queryset)
         if formset.is_valid():
@@ -125,58 +126,57 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                 status = obj.status
                 answer = obj.answer
                 comment = obj.admin_comment
+
                 # Проверка на наличие изменений в записи
-                if (status == form.old_status) and (answer == form.old_answer) and (comment and form.old_comment):
+                if (status == form.old_status) and (answer == form.old_answer) and (comment == form.old_comment):
                     continue
-                if form.old_status != status:
-                    # Если админ изменил статус на "Принят",
-                    # то создаётся новое знание и связь на основе введённых админом данных
-                    if status == 'APPRVE':
-                        if not form.cleaned_data.get('admin_comment'):
-                            messages.error(request, f'Не указана тема знания для предложения №{obj.pk}.')
-                            continue
-                        admin_comment = obj.admin_comment
-                        if '~' in admin_comment:
-                            knowledge_name, knowledge_content = admin_comment.split('~')
-                        else:
-                            knowledge_name, knowledge_content = admin_comment, None
-                        tz = Tz.objects.filter(name='Тезис').first()
-                        author, is_created = Author.objects.get_or_create(name=obj.expert.get_full_name)
-                        new_knowledge = Znanie.objects.create(
-                            name=knowledge_name,
-                            content=knowledge_content,
-                            tz=tz,
-                            author=author,
-                            user=obj.expert,
-                            is_published=True
-                        )
-                        if obj.question.tz.name == 'Вопрос':
-                            tr = Tr.objects.get(name='Ответ [ы]')
-                        else:
-                            tr = Tr.objects.get(name='Аргумент [ы]')
-                        Relation.objects.create(
-                            bz=obj.question,
-                            rz=new_knowledge,
-                            tr=tr,
-                            author=author,
-                            user=obj.expert,
-                            is_published=True
-                        )
-                        obj.new_answer = new_knowledge
-                        obj.answer = new_knowledge
-                        obj.status = 'APPRVE'
-                    # Если админ изменил статус на "Не принят",
-                    elif status == 'REJECT':
-                        obj.status = 'REJECT'
+
+                # Если админ изменил статус на "Принят",
+                # то создаётся новое знание и связь на основе введённых админом данных
+                if (form.old_status != status) and status == 'APPRVE':
+                    # Обрабатывать ошибку на существующее знание
+                    if not form.cleaned_data.get('admin_comment'):
+                        messages.error(request, f'Предложение  №{obj.pk}: \n Не указана тема знания.')
+                        continue
+
+                    knowledge_name, knowledge_content = comment.split('~') if '~' in comment else comment, None
+
+                    if Znanie.objects.filter(name=knowledge_name).exists():
+                        messages.error(request,
+                                       f'Предложение  №{obj.pk}: \nЗнание с темой "{knowledge_name}" уже существует.')
+                        continue
+                    tz = Tz.objects.filter(name='Тезис').first()
+                    author, is_created = Author.objects.get_or_create(name=obj.expert.get_full_name)
+                    new_knowledge = Znanie.objects.create(
+                        name=knowledge_name,
+                        content=knowledge_content,
+                        tz=tz,
+                        author=author,
+                        user=obj.expert,
+                        is_published=True
+                    )
+
+                    if obj.question.tz.name == 'Вопрос':
+                        tr = Tr.objects.get(name='Ответ [ы]')
+                    else:
+                        tr = Tr.objects.get(name='Аргумент [ы]')
+                    Relation.objects.create(
+                        bz=obj.question,
+                        rz=new_knowledge,
+                        tr=tr,
+                        author=author,
+                        user=obj.expert,
+                        is_published=True
+                    )
+                    obj.new_answer = new_knowledge
+                    obj.answer = new_knowledge
+
                 # Если админ указал только ответ из списка существующих/новых ответов, то статус устанавливается сам,
-                elif not status and obj.answer:
+                if not status and obj.answer:
                     existing_answer = obj.answer
                     # Если дата создания выбранного ответа меньше даты создания
                     # предложения эксперта, то статус "Дублирует ответ", иначе "Дублирует предложение"
-                    if existing_answer.date < form.instance.updated.date():
-                        obj.status = 'ANSDPL'
-                    else:
-                        obj.status = 'RESDPL'
+                    obj.status = 'ANSDPL' if existing_answer.date < form.instance.updated.date() else 'RESDPL'
                 obj.admin_reviewer = request.user
                 obj.save()
             redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
