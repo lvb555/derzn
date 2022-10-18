@@ -32,6 +32,24 @@
         <form method="post">
             {{ formset.management_form }}
             {% csrf_token %}
+            <div class="btn-group">
+                <div class="dropdown">
+                    <a class="nav-link text-dark bg-info rounded-top border-dark border-bottom-0" href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false">
+                        Фильтр
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink2">
+                        <li><a class="dropdown-item" href="{{ request.path }}">Все</a></li>
+                        {% for value, label in status_list %}
+                        {% if cur_filter == value %}
+                        <li><a class="dropdown-item active" href="?filter={{ value }}">{{label}}</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="?filter={{ value }}">{{label}}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
             <table class="table table-bordered">
                 <thead>
                 <th scope="col" rowspan="2">ID <br> предл.</th>
@@ -41,19 +59,9 @@
                     <th scope="col">ФИО эксперта</th>
                     <th scope="col">Предложение эксперта</th>
                     <th scope="col">Существующий/<font class="text-danger">новый</font> ответ</th>
-                    <th scope="col">Комментарий администратора</th>
-                    <th scope="col">Статус предложения</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for elm, form in questions %}
-                <tr>
-                    <th scope="row">{{ elm.pk }}</th>
-                    <td>{{ elm.expert.get_full_name }}</td>
-                    <td>{{ elm.new_answer_text }}</td>
-                    {% for f in form %}
-                    <td>
-                        {% if messages and f.label == 'Комментарий администратора' %}
+                    <th scope="col">
+                        Комментарий администратора
+                        {% if messages %}
                         <ul class="messages">
                             {% for message in messages %}
                             {% if message.tags == 'error' %}
@@ -62,6 +70,20 @@
                             {% endfor %}
                         </ul>
                         {% endif %}
+                    </th>
+                    <th scope="col">Статус предложения</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for elm, form in questions %}
+                <tr>
+                    <th scope="row">{{ elm.pk }}</th>
+                    <td>{{ elm.expert.get_full_name }}</td>
+                    <td>
+                        <textarea name="" id="" cols="30" rows="10" style="height:150px; overflow-y: scroll; width: 250px; height: 125px;" readonly>{{ elm.new_answer_text }}</textarea>
+                        </td>
+                    {% for f in form %}
+                    <td>
                         {{ f }}
                     </td>
                     {% endfor %}
