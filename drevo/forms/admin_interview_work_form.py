@@ -16,12 +16,13 @@ class CustomSelect(forms.Select):
         if 'id' in option_attrs:
             option_attrs['id'] = self.id_for_label(option_attrs['id'], index)
 
-        if len(label) > 30:
+        if len(label) > 25:
             import textwrap
-            option_attrs.update({'title': '\n'.join(textwrap.wrap(label, 30))})
-            label = f'{label[:30]}...'
+            option_attrs.update({'title': '\n'.join(textwrap.wrap(label, 25))})
+            label = f'{label[:25]}...'
         else:
             option_attrs.update({'title': label})
+
         return {
             'name': name,
             'value': value,
@@ -42,11 +43,18 @@ class InterviewAnswerExpertProposalForms(forms.ModelForm):
         model = InterviewAnswerExpertProposal
         fields = ['answer', 'admin_comment', 'status']
         widgets = {
-            'answer': CustomSelect(attrs={'class': 'form-controls', 'style': 'width: 250px'}),
+            'answer': CustomSelect(
+                attrs={
+                    'class': 'form-control',
+                    'style': 'width: 250px;',
+                    'onfocus': 'this.size=5;',
+                    'onblur': 'this.size=1;',
+                    'onchange': 'this.size=1; this.blur();'
+                }),
             'admin_comment': forms.Textarea(
                 attrs={'class': 'form-control', 'style': 'overflow-y: scroll; height: 125px; width: 250px'}
             ),
-            'status': forms.Select(attrs={'class': 'form-control'})
+            'status': forms.Select(attrs={'class': 'form-control', 'onchange': "javascript:this.form.submit()"})
         }
 
     def __init__(self, *args, **kwargs):

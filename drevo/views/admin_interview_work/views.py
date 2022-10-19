@@ -136,14 +136,14 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                 if (form.old_status != status) and status == 'APPRVE':
                     # Обрабатывать ошибку на существующее знание
                     if not form.cleaned_data.get('admin_comment'):
-                        messages.error(request, f'Предложение  №{obj.pk}: \n Не указана тема знания.')
+                        messages.error(request, f'Предложение  №{obj.pk}: Не указана тема знания.')
                         continue
-
-                    knowledge_name, knowledge_content = comment.split('~') if '~' in comment else comment, None
-
+                    if '~' in comment:
+                        knowledge_name, knowledge_content = comment.split('~')
+                    else:
+                        knowledge_name, knowledge_content = comment, None
                     if Znanie.objects.filter(name=knowledge_name).exists():
-                        messages.error(request,
-                                       f'Предложение  №{obj.pk}: \nЗнание с темой "{knowledge_name}" уже существует.')
+                        messages.error(request, f'Предложение  №{obj.pk}: Знание с такой темой уже существует.')
                         continue
                     tz = Tz.objects.filter(name='Тезис').first()
                     author, is_created = Author.objects.get_or_create(name=obj.expert.get_full_name)
