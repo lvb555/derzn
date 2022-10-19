@@ -1,4 +1,4 @@
-from django.db import OperationalError
+from django.db import OperationalError, ProgrammingError
 
 
 class Stub:
@@ -9,12 +9,12 @@ class Stub:
         return self
 
     def __iter__(self):
-        yield ''
+        yield ""
 
 
 def get_model_or_stub(model):
     try:
         model.objects.exists()
         return model
-    except OperationalError:
+    except (OperationalError, ProgrammingError):
         return Stub()
