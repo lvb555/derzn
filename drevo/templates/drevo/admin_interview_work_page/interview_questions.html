@@ -1,0 +1,30 @@
+{% extends 'drevo/base.html' %}
+
+{% block title %} Все вопросы интервью {% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+            <h3>Тема интервью: </h3>
+        </div>
+        <div class="col">
+            <h3>{{ interview.name }}</h3>
+        </div>
+    </div>
+    <br>
+    <div>
+        <h2 class="text-center"><strong>Вопросы интервью</strong></h2>
+        <br>
+        {% for pk, name, danger_cnt, status in questions %}
+        <li class="text-{{status}} fs-4">
+            <a href="{% url 'question_admin_work' interview_pk pk %}" class="text-{{status}} text-decoration-none">
+                {{ name }} {% if danger_cnt %}({{ danger_cnt }}){% endif %}
+            </a>
+        </li>
+        <br>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

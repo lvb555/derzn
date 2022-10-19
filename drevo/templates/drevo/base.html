@@ -62,6 +62,9 @@
                                             {% if user.expert.all %}
                                                 <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
                                             {% endif %}
+                                            {% if user.is_staff %}
+                                                <a class="dropdown-item" href="{% url 'all_interview' %}">Предложения экспертов</a>
+                                            {% endif %}
                                         {% endif %}
                                     </div>
                                 </li>
