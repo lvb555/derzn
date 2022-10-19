@@ -54,7 +54,7 @@ class InterviewAnswerExpertProposalForms(forms.ModelForm):
             'admin_comment': forms.Textarea(
                 attrs={'class': 'form-control', 'style': 'overflow-y: scroll; height: 125px; width: 250px'}
             ),
-            'status': forms.Select(attrs={'class': 'form-control', 'onchange': "javascript:this.form.submit()"})
+            'status': forms.Select(attrs={'class': 'form-control'})
         }
 
     def __init__(self, *args, **kwargs):

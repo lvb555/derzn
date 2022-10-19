@@ -103,3 +103,19 @@
     </div>
 </div>
 {% endblock %}
+
+
+{% block jsfiles %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const form = document.querySelector('form')
+    const selects = document.querySelectorAll('select')
+
+    selects.forEach(select => select.addEventListener('change', (e) => {
+        const value = e.target.value
+        if (value == 'APPRVE'){
+            form.submit()
+        }
+    }))
+</script>
+{% endblock %}
