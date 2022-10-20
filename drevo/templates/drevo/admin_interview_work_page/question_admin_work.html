@@ -39,6 +39,11 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink2">
                         <li><a class="dropdown-item" href="{{ request.path }}">Все</a></li>
+                        {% if cur_filter == 'None' %}
+                        <li><a class="dropdown-item active" href="?filter=None">Нет статуса</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="?filter=None">Нет статуса</a></li>
+                        {% endif %}
                         {% for value, label in status_list %}
                         {% if cur_filter == value %}
                         <li><a class="dropdown-item active" href="?filter={{ value }}">{{label}}</a></li>
@@ -97,4 +102,20 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+
+{% block jsfiles %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const form = document.querySelector('form')
+    const selects = document.querySelectorAll('select')
+
+    selects.forEach(select => select.addEventListener('change', (e) => {
+        const value = e.target.value
+        if (value == 'APPRVE'){
+            form.submit()
+        }
+    }))
+</script>
 {% endblock %}
