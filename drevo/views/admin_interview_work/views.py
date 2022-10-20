@@ -44,7 +44,7 @@ class AllInterviewView(ListView):
             status = 'success'
             for quest in questions:
                 exp_prop = InterviewAnswerExpertProposal.objects.filter(
-                    Q(question__pk=quest.get('rz')) & Q(status=None)
+                    Q(interview=elm) & Q(question__pk=quest.get('rz')) & Q(status=None)
                 )
                 if exp_prop.exists():
                     status = 'danger'
@@ -70,14 +70,18 @@ class InterviewQuestionsView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(InterviewQuestionsView, self).get_context_data(**kwargs)
         tz_obj = Tz.objects.get(name='Вопрос')
-        questions = Relation.objects.select_related('rz').filter(Q(bz=self.object) & Q(rz__tz=tz_obj)).order_by('rz__name', 'rz__order').values('rz', 'rz__name')
+        questions = Relation.objects.select_related('rz').filter(
+            Q(bz=self.object) & Q(rz__tz=tz_obj)
+        ).order_by('rz__name', 'rz__order').values('rz', 'rz__name')
 
         data = []
 
         for quest in questions:
             status = 'success'
             danger_cnt = None
-            exp_prop = InterviewAnswerExpertProposal.objects.filter(Q(question__pk=quest.get('rz')) & Q(status=None))
+            exp_prop = InterviewAnswerExpertProposal.objects.filter(
+                Q(interview__pk=self.kwargs['pk']) & Q(question__pk=quest.get('rz')) & Q(status=None)
+            )
             if exp_prop.exists():
                 status = 'danger'
                 danger_cnt = exp_prop.count()

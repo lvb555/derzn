@@ -57,14 +57,14 @@
 
             <table class="table table-bordered">
                 <thead>
-                <th scope="col" rowspan="2">ID <br> предл.</th>
+                <th scope="col" rowspan="2" class="text-center">ID <br> предл.</th>
                 <th scope="col" colspan="2" class="text-center"> Информация эксперта</th>
                 <th scope="col" colspan="3" class="text-center"> Информация администратора</th>
                 <tr>
-                    <th scope="col">ФИО эксперта</th>
-                    <th scope="col">Предложение эксперта</th>
-                    <th scope="col">Существующий/<font class="text-danger">новый</font> ответ</th>
-                    <th scope="col">
+                    <th scope="col" class="text-center">ФИО эксперта</th>
+                    <th scope="col" class="text-center">Предложение эксперта</th>
+                    <th scope="col" class="text-center">Существующий/<font class="text-danger">новый</font> ответ</th>
+                    <th scope="col" class="text-center">
                         Комментарий администратора
                         {% if messages %}
                         <ul class="messages">
@@ -76,7 +76,7 @@
                         </ul>
                         {% endif %}
                     </th>
-                    <th scope="col">Статус предложения</th>
+                    <th scope="col" class="text-center">Статус предложения</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -86,7 +86,7 @@
                     <td>{{ elm.expert.get_full_name }}</td>
                     <td>
                         <textarea name="" id="" cols="30" rows="10" style="height:150px; overflow-y: scroll; width: 250px; height: 125px;" readonly>{{ elm.new_answer_text }}</textarea>
-                        </td>
+                    </td>
                     {% for f in form %}
                     <td>
                         {{ f }}
