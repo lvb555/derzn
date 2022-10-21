@@ -63,7 +63,13 @@ class InterviewAnswerExpertProposalForms(forms.ModelForm):
         answers = Relation.objects.select_related('rz', 'tr').filter(
             bz=self.instance.question, tr__name='Ответ [ы]'
         ).order_by('rz__name', 'rz__order').values('rz__pk', 'rz__name')
-
+        self.fields['status'].choices = [
+            (None, '------'),
+            ("APPRVE", "Принят"),
+            ("REJECT", "Не принят"),
+            ("ANSDPL", "Дубль. отв."),
+            ("RESDPL", "Дубль. предл."),
+        ]
         if not self.instance.answer:
             self.fields['answer'].initial = '------'
         self.fields['answer'].choices = [(None, '------')] + \
