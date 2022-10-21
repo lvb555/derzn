@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ваше предложение принято</title>
+</head>
+<body>
+    <div>
+        <h1>Уважаемый {{ expert.first_name }} {{ expert.last_name }}!</h1>
+    </div>
+    <div>
+        <p>
+            В рамках проводимого интервью <strong>'{{ interview_name }}'</strong> на вопрос <strong>'{{ question_name }}'</strong> вы
+            предложили новый ответ '{{ expert_proposal }}'.
+        </p>
+        <p>Ваше предложение принято - был создан новый ответ, т.е. создано новое знание <a href="{{ new_answer_url }}">{{ new_answer.name }}</a> и установлена его связь с вопросом.
+        </p>
+    </div>
+</body>
+<footer>
+    <div>
+        <h3>Администрация портала «Дерево знаний»</h3>
+    </div>
+</footer>
+</html>

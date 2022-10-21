@@ -1,5 +1,6 @@
 from django import forms
 from ..models import InterviewAnswerExpertProposal, Relation, Tr
+import textwrap
 
 
 class CustomSelect(forms.Select):
@@ -17,8 +18,7 @@ class CustomSelect(forms.Select):
             option_attrs['id'] = self.id_for_label(option_attrs['id'], index)
 
         if len(label) > 25:
-            import textwrap
-            option_attrs.update({'title': '\n'.join(textwrap.wrap(label, 25))})
+            option_attrs.update({'title': '\n'.join(textwrap.wrap(label, 35))})
             label = f'{label[:25]}...'
         else:
             option_attrs.update({'title': label})
@@ -72,6 +72,8 @@ class InterviewAnswerExpertProposalForms(forms.ModelForm):
         ]
         if not self.instance.answer:
             self.fields['answer'].initial = '------'
+        if self.instance.answer:
+            self.fields['answer'].widget.attrs['title'] = '\n'.join(textwrap.wrap(self.instance.answer.name, 35))
         self.fields['answer'].choices = [(None, '------')] + \
                                         [(elm.get('rz__pk'), elm.get('rz__name')) for elm in answers]
         if self.instance.status == 'APPRVE':

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ваше предложение не принято</title>
+</head>
+<body>
+    <div>
+        <h1>Уважаемый {{ expert.first_name }} {{ expert.last_name }}!</h1>
+    </div>
+    <div>
+        <p>
+            В рамках проводимого интервью <strong>'{{ interview_name }}'</strong> на вопрос <strong>'{{ question_name }}'</strong> вы
+            предложили новый ответ '{{ expert_proposal }}'.
+        </p>
+        <p>
+            Такое предложение дублирует другое, ранее сделанное и принятое предложение, по
+            которому уже создан новый ответ: <a href="{{ existing_answer_url }}">{{ existing_answer.name }}</a>.
+        </p>
+        <p>Поэтому, Ваше предложение не было принято.</p>
+    </div>
+</body>
+<footer>
+    <div>
+        <h3>Администрация портала «Дерево знаний»</h3>
+    </div>
+</footer>
+</html>

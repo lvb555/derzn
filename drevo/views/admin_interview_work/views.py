@@ -10,6 +10,11 @@ from ...models import Relation, Tz, Author, Tr
 from ...models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from ...models.knowledge import Znanie
 from ...forms.admin_interview_work_form import InterviewAnswerExpertProposalForms
+from .interview_result_senders import (send_duplicate_answer_proposal,
+                                       send_accept_proposal,
+                                       send_not_accept_proposal,
+                                       send_duplicate_proposal,
+                                       send_new_answers)
 
 
 def chek_is_stuff(user) -> None:
@@ -175,6 +180,8 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     obj.new_answer = new_knowledge
                     obj.answer = new_knowledge
 
+                    send_accept_proposal(proposal_obj=obj)
+
                 # Если админ указал только ответ из списка существующих/новых ответов, то статус устанавливается сам,
                 if not status and obj.answer:
                     existing_answer = obj.answer
@@ -183,6 +190,23 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     obj.status = 'ANSDPL' if existing_answer.date < form.instance.updated.date() else 'RESDPL'
                 obj.admin_reviewer = request.user
                 obj.save()
+
+                send_if_status = {
+                    'REJECT': send_not_accept_proposal,
+                    'ANSDPL': send_duplicate_answer_proposal,
+                    'RESDPL': send_duplicate_proposal
+                }
+                # Занести все функции в словарь и ключами сделать статус
+                if obj.status in send_if_status.keys():
+                    send_func = send_if_status.get(obj.status)
+                    send_func(proposal_obj=obj)
+
+            # Если по вопросу имеется новый ответ/ответы, то происходит рассылка участникам интервью по данному вопросу
+            proposals = InterviewAnswerExpertProposal.objects.select_related('expert').filter(question__pk=quest_pk,
+                                                                                              interview__pk=inter_pk)
+            if ('save_input' in request.POST) and (proposals.filter(status='APPRVE').exists()):
+                send_new_answers(interview.get('name'), question.get('name'), proposals)
+
             redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
             if context.get('cur_filter'):
                 get_params = f"?filter={context.get('cur_filter')}"
