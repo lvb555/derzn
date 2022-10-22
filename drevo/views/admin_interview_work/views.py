@@ -50,7 +50,7 @@ class AllInterviewView(ListView):
             for quest in questions:
                 exp_prop = InterviewAnswerExpertProposal.objects.filter(
                     Q(interview=elm) & Q(question__pk=quest.get('rz')) & Q(status=None)
-                )
+                ).exclude(new_answer_text__isnull=True).exclude(new_answer_text__exact='')
                 if exp_prop.exists():
                     status = 'danger'
                     break
@@ -86,7 +86,7 @@ class InterviewQuestionsView(DetailView):
             danger_cnt = None
             exp_prop = InterviewAnswerExpertProposal.objects.filter(
                 Q(interview__pk=self.kwargs['pk']) & Q(question__pk=quest.get('rz')) & Q(status=None)
-            )
+            ).exclude(new_answer_text__isnull=True).exclude(new_answer_text__exact='')
             if exp_prop.exists():
                 status = 'danger'
                 danger_cnt = exp_prop.count()
@@ -117,8 +117,9 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     def get_queryset():
         filter_by = request.GET.get('filter')
         queryset_obj = InterviewAnswerExpertProposal.objects.filter(
-            question__pk=quest_pk, interview__pk=inter_pk
-        ).order_by('expert__first_name', '-updated')
+            question__pk=quest_pk, interview__pk=inter_pk)\
+            .exclude(new_answer_text__isnull=True).exclude(new_answer_text__exact='')\
+            .order_by('expert__first_name', '-updated')
         if filter_by:
             return queryset_obj.filter(status=filter_by) if filter_by != 'None' else queryset_obj.filter(status=None)
         return queryset_obj
