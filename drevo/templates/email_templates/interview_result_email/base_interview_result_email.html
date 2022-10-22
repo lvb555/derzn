@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %} {% endblock %}</title>
+</head>
+<body>
+    <div>
+        <h1>Уважаемый {{ expert.first_name }} {{ expert.last_name }}!</h1>
+    </div>
+    <div>
+        <p>
+            В рамках проводимого интервью <strong>'{{ interview_name }}'</strong> на вопрос <strong>'{{ question_name }}'</strong> вы
+            предложили новый ответ '{{ expert_proposal }}'.
+        </p>
+        {% block content %} {% endblock %}
+    </div>
+</body>
+<footer>
+    <div>
+        <h3>Администрация портала «Дерево знаний»</h3>
+    </div>
+</footer>
+</html>

@@ -179,13 +179,15 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                         is_published=True
                     )
                     obj.new_answer = new_knowledge
-                    obj.answer = new_knowledge
-
+                    if obj.is_agreed:
+                        obj.answer = new_knowledge
                     send_accept_proposal(proposal_obj=obj)
 
                 # Если админ указал только ответ из списка существующих/новых ответов, то статус устанавливается сам,
-                if not status and obj.answer:
-                    existing_answer = obj.answer
+                if not status and obj.new_answer:
+                    existing_answer = obj.new_answer
+                    if obj.is_agreed:
+                        obj.answer = existing_answer
                     # Если дата создания выбранного ответа меньше даты создания
                     # предложения эксперта, то статус "Дублирует ответ", иначе "Дублирует предложение"
                     obj.status = 'ANSDPL' if existing_answer.date < form.instance.updated.date() else 'RESDPL'

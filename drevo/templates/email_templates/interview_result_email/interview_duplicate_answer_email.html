@@ -1,27 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Ваше предложение не принято</title>
-</head>
-<body>
-    <div>
-        <h1>Уважаемый {{ expert.first_name }} {{ expert.last_name }}!</h1>
-    </div>
-    <div>
-        <p>
-            В рамках проводимого интервью <strong>'{{ interview_name }}'</strong> на вопрос <strong>'{{ question_name }}'</strong> вы
-            предложили новый ответ '{{ expert_proposal }}'.
-        </p>
-        <p>
-            Такой ответ дублирует уже существующий {{ existing_answer }}: <a href="{{ existing_answer_url }}">{{ existing_answer.name }}</a>.
-        </p>
-        <p>Поэтому, Ваше предложение не было принято.</p>
-    </div>
-</body>
-<footer>
-    <div>
-        <h3>Администрация портала «Дерево знаний»</h3>
-    </div>
-</footer>
-</html>
+{% extends 'email_templates/interview_result_email/base_interview_result_email.html' %}
+
+{% block title %} Ваше предложение не принято {% endblock %}
+
+{% block content %}
+<p>
+    Такой ответ дублирует уже существующий {{ existing_answer }}: <a href="{{ existing_answer_url }}">{{ existing_answer.name }}</a>.
+</p>
+{% if not is_agreed %}
+    <p>Поэтому, Ваше предложение не было принято.</p>
+{% else %}
+    <p>
+        Поскольку Вы выбрали предлагаемый ответ, то, по умолчанию, предполагается, что Вы
+        выбрали существующий ответ.
+    </p>
+    <p>
+        В случае своего несогласия Вы можете, перейдя по ссылке <a href="">Отменить решение редакции</a>. В
+        этом случае будет считаться, что Вы дали ответ «Другое» по данному вопросу.
+    </p>
+{% endif %}
+{% endblock %}
+
+
+
+

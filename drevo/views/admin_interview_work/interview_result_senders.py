@@ -11,7 +11,8 @@ def get_base_message_context(proposal_obj) -> dict:
         expert=proposal_obj.expert,
         interview_name=proposal_obj.interview.name,
         question_name=proposal_obj.question.name,
-        expert_proposal=proposal_obj.new_answer_text
+        expert_proposal=proposal_obj.new_answer_text,
+        is_agreed=proposal_obj.is_agreed
     )
     return context
 
@@ -24,7 +25,10 @@ def send_accept_proposal(proposal_obj) -> None:
 
     new_answer = proposal_obj.new_answer
     email_address = context.get('expert').email
-    message_subject = 'Ваше предложение принято!'
+    if context.get('is_agreed'):
+        message_subject = 'Изменение Вашего ответа'
+    else:
+        message_subject = 'Ваше предложение принято!'
     new_answer_url = f"{settings.BASE_URL}{reverse_lazy('zdetail', kwargs={'pk': new_answer.pk})}"
     context.update({'new_answer': new_answer, 'new_answer_url': new_answer_url})
     message_html = render_to_string('email_templates/interview_result_email/interview_accept_email.html', context)
@@ -50,9 +54,12 @@ def send_duplicate_answer_proposal(proposal_obj) -> None:
     """
     context = get_base_message_context(proposal_obj)
 
-    existing_answer = proposal_obj.answer
+    existing_answer = proposal_obj.new_answer
     email_address = context.get('expert').email
-    message_subject = 'Ваше предложение не принято!'
+    if context.get('is_agreed'):
+        message_subject = 'Изменение Вашего ответа'
+    else:
+        message_subject = 'Ваше предложение не принято!'
     existing_answer_url = f"{settings.BASE_URL}{reverse_lazy('zdetail', kwargs={'pk': existing_answer.pk})}"
     context.update({'existing_answer': existing_answer, 'existing_answer_url': existing_answer_url})
     message_html = render_to_string('email_templates/interview_result_email/interview_duplicate_answer_email.html',
@@ -66,9 +73,12 @@ def send_duplicate_proposal(proposal_obj) -> None:
     """
     context = get_base_message_context(proposal_obj)
 
-    existing_answer = proposal_obj.answer
+    existing_answer = proposal_obj.new_answer
     email_address = context.get('expert').email
-    message_subject = 'Ваше предложение не принято!'
+    if context.get('is_agreed'):
+        message_subject = 'Изменение Вашего ответа'
+    else:
+        message_subject = 'Ваше предложение не принято!'
     existing_answer_url = f"{settings.BASE_URL}{reverse_lazy('zdetail', kwargs={'pk': existing_answer.pk})}"
     context.update({'existing_answer': existing_answer, 'existing_answer_url': existing_answer_url})
     message_html = render_to_string('email_templates/interview_result_email/interview_duplicate_proposal_email.html',
@@ -76,11 +86,10 @@ def send_duplicate_proposal(proposal_obj) -> None:
     send_email(email_address, message_subject, message_html, message_html)
 
 
-def send_new_answers(interview_name, question_name, proposals):
+def send_new_answers(interview_name, question_name, proposals) -> None:
     """
         Функция для рассылки уведомлений экспертам о появлении новых ответов на интервью
     """
-
     experts = proposals.values(
         first_name=F('expert__first_name'), last_name=F('expert__last_name'), email=F('expert__email')
     ).order_by().distinct()

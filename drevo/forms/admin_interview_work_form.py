@@ -41,9 +41,9 @@ class InterviewAnswerExpertProposalForms(forms.ModelForm):
     """
     class Meta:
         model = InterviewAnswerExpertProposal
-        fields = ['answer', 'admin_comment', 'status']
+        fields = ['new_answer', 'admin_comment', 'status']
         widgets = {
-            'answer': CustomSelect(
+            'new_answer': CustomSelect(
                 attrs={
                     'class': 'form-control',
                     'style': 'width: 250px;',
@@ -70,14 +70,14 @@ class InterviewAnswerExpertProposalForms(forms.ModelForm):
             ("ANSDPL", "Дубль. отв."),
             ("RESDPL", "Дубль. предл."),
         ]
-        if not self.instance.answer:
-            self.fields['answer'].initial = '------'
-        if self.instance.answer:
-            self.fields['answer'].widget.attrs['title'] = '\n'.join(textwrap.wrap(self.instance.answer.name, 35))
-        self.fields['answer'].choices = [(None, '------')] + \
+        if not self.instance.new_answer:
+            self.fields['new_answer'].initial = '------'
+        if self.instance.new_answer:
+            self.fields['new_answer'].widget.attrs['title'] = '\n'.join(textwrap.wrap(self.instance.new_answer.name, 35))
+        self.fields['new_answer'].choices = [(None, '------')] + \
                                         [(elm.get('rz__pk'), elm.get('rz__name')) for elm in answers]
         if self.instance.status == 'APPRVE':
-            self.fields['answer'].widget.attrs['class'] += ' text-danger'
+            self.fields['new_answer'].widget.attrs['class'] += ' text-danger'
         self.old_status = self.instance.status
         self.old_comment = self.instance.admin_comment
         self.old_answer = self.instance.answer
