@@ -3,7 +3,6 @@ import typing as t
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from drevo.models.knowledge import Znanie
@@ -237,10 +236,6 @@ class InterviewAnswerExpertProposal(models.Model):
             models.UniqueConstraint(
                 fields=["answer", "expert", "interview", "question"],
                 name="single_proposal_from_expert_on_answer",
-            ),
-            models.CheckConstraint(
-                check=Q(answer=None) | Q(new_answer_text=None) | Q(new_answer_text=""),
-                name="can't place new text with link to exist answer",
             ),
         ]
 
