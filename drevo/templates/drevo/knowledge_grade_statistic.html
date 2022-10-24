@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
+        <div class="row">
+            <div class="col-auto">
+                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
+                    {{ knowledge.name }}
+                </i>
+            </div>
+        </div>
+    </a>
+    <h2 class="my-2">{{ title }}</h2>
+
+    {% if not user.is_authenticated %}
+        <div class="col">
+            <div class="row">
+                <div class="card alert-warning my-4">
+                    <div class="card-body">
+                      <span class="card-text">
+                        <a href="{% url 'users:login' %}?next={{ request.path }}"
+                           style="text-decoration: none">Войдите</a>
+                        или
+                        <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                        чтобы поставить оценку.
+                      </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+             {% if proof_relations.exists %}
+             <div class='row'>
+                <div class="col-6">
+                    <h4 class="text-center my-4">Cтатистика знания</h4>
+                    <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
+                        
+                        <thead align="center">
+                            <tr >
+                                <th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="2">Из них</th>
+                            </tr>
+                            <tr>
+                                <th>Мужчин</th><th>Женщин</th>
+                            </tr>
+                        </thead>
+                        <tbody align="center"> 
+                            {% for grade, value in gender_grades.items %}
+                            {% comment %}
+                            value  это список, порядок данных следующий
+                            [amount_grade, percent_grade,
+                            amount_man_grade, percent_man_grade,
+                            mount_female_grade, percent_female_grade]
+                            {% endcomment %}
+                        
+                            <tr style = "border-top: 3px solid black">
+                                <td rowspan="2" valign="middle">{{ grade }}</td>
+                                <td>{{ value.0 }}</td>
+                                <td>{{ value.2 }}</td>
+                                <td>{{ value.4 }}</td>
+                            </tr>
+                            <tr>
+                                <td>{{ value.1 }}%</td> <td>{{ value.3 }}%</td> <td>{{ value.5 }}%</td>
+                            </tr>
+                            {% endfor %}
+                            
+                            
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        
+    {% endif %}
+    
+{% endblock %}
+
+
+
+
+
+{% comment %}
+<table class="table table-bordered"  id="statisticTable"> 
+    <!---->
+    <style>
+                        .table-border {
+                            border: 2px black solid;
+                        }
+                        </style>
+    <!---->
+	<thead align="center">
+		<tr >
+			<th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="2">Из них</th>
+		</tr>
+		<tr>
+			<th>Мужчин</th><th>Женщин</th>
+		</tr>
+	</thead>
+	<tbody align="center"> 
+        {% for grade, value in gender_grades.items %}
+        {% comment %}
+        value  это список, порядок данных следующий
+        [amount_grade, percent_grade,
+        amount_man_grade, percent_man_grade,
+        mount_female_grade, percent_female_grade]
+       
+		<tr> 
+			<td rowspan="2" valign="middle">{{ grade }}</td> <td>{{ value.0 }}</td> <td>{{ value.2 }}</td> <td>{{ value.4 }}</td>
+		</tr>
+		<tr>
+			<td>{{ value.1 }}%</td> <td>{{ value.3 }}%</td> <td>{{ value.5 }}%</td>
+		</tr>
+		{% endfor %}
+		
+		
+		
+	</tbody>
+</table>
+</body>
+</html>
+{% endcomment %}
