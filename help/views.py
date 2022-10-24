@@ -1,26 +1,20 @@
 import re
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
+from .models import HelpPage, CategoryHelp
 
-from .models import HelpPage
 
-
-def help(request):
-    """
-    1. Функция получает данные из какого URL был осуществлен переход на страницу помощи.
-    2. Используя регулярное выражение, получаем префикс URL:
-       /drevo/ == /
-       /drevo/labels/ == /labels
-    3. Из БД вызывается объект HelpPage(Помощи) для нужного пункта меню.
-    !!! Пункты меню, для которых нет страницы помощи
-        или переход происходит со строннего ресурса по ссылке
-        по умолчанию вызываются с тегом '/' !!!
-    !!! Если в БД, нет объектов HelpPage, вызывается 404!!!
-    """
+def help(request, category=None):
+    nodes = CategoryHelp.objects.all()
+    if category is not None:
+        context = HelpPage.objects.filter(category__url_tag="/" + category, category__is_published=True).first()
+        if context:
+            return render(request, "help/help.html", {"context": context, "nodes": nodes})
+    url_redirect = request.META.get('HTTP_REFERER')
     try:
-        url_path = re.search(r"(?<=drevo)/\w+|/$",
-                             request.META.get('HTTP_REFERER')).group(0)
-        context = HelpPage.objects.get(url_tag=url_path)
+        url_tag = re.search(r"(?<=drevo)/\w+|/$", url_redirect).group(0)
+        context = HelpPage.objects.filter(category__url_tag=url_tag, category__is_published=True).first()
+        if context:
+            return render(request, "help/help.html", {"context": context, "nodes": nodes})
     except Exception:
-        context = get_object_or_404(HelpPage, url_tag='/')
-
-    return render(request, "help/help.html", {"context": context})
+        return render(request, "help/help_404.html", {'nodes': nodes})
+    return render(request, "help/help_404.html", {'nodes': nodes})
