@@ -1,6 +1,6 @@
 {% extends 'drevo/base.html' %}
 
-{% load translate_status_expert_proposal %}
+{% load normalize_answer_name %}
 
 
 {% block title %} Работа администратора по вопросу {% endblock %}
@@ -82,10 +82,35 @@
                 <tbody>
                 {% for elm, form in questions %}
                 <tr>
+
                     <th scope="row">{{ elm.pk }}</th>
                     <td>{{ elm.expert.get_full_name }}</td>
                     <td>
                         <textarea name="" id="" cols="30" rows="10" style="height:150px; overflow-y: scroll; width: 250px; height: 125px;" readonly>{{ elm.new_answer_text }}</textarea>
+                    </td>
+                    <td>
+                        <select
+                                name="expert-{{ elm.pk }}-answer" class="form-control {% if elm.status == 'APPRVE' %}text-danger{% endif %}" style="width: 250px;"
+                                onfocus="this.size=5;" onblur="this.size=1;" onchange="this.size=1; this.blur();"
+                                title="{% if elm.status == 'APPRVE' %}{{ elm.new_answer.name|normalize_answer_name }}{% else %}{{ elm.answer.name|normalize_answer_name }}{% endif %}"
+                                id="expert-{{ elm.pk }}-answer"
+                        >
+                            {% for value, label in answers_list %}
+                            {% if elm.status == 'APPRVE' %}
+                                {% if value == elm.new_answer.pk %}
+                                <option value="{{ value }}" selected="" title="{{ label|normalize_answer_name }}">{{ label|truncatechars:25 }}</option>
+                                {% else %}
+                                <option value="{{ value }}" title="{{ label|normalize_answer_name }}">{{ label|truncatechars:25 }}</option>
+                                {% endif %}
+                            {% else %}
+                                {% if value == elm.answer.pk %}
+                                <option value="{{ value }}" selected="" title="{{ label|normalize_answer_name }}">{{ label|truncatechars:25 }}</option>
+                                {% else %}
+                                <option value="{{ value }}" title="{{ label|normalize_answer_name }}">{{ label|truncatechars:25 }}</option>
+                                {% endif %}
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                     </td>
                     {% for f in form %}
                     <td>

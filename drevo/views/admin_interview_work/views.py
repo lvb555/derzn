@@ -114,10 +114,15 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     context['period'] = f"с {period}".replace('-', 'по')
     context['cur_filter'] = request.GET.get('filter')
 
+    answers = Relation.objects.select_related('rz', 'tr').filter(
+        bz__pk=quest_pk, tr__name='Ответ [ы]'
+    ).order_by('rz__name', 'rz__order')
+
     def get_queryset():
         filter_by = request.GET.get('filter')
-        queryset_obj = InterviewAnswerExpertProposal.objects.filter(
-            question__pk=quest_pk, interview__pk=inter_pk)\
+        queryset_obj = InterviewAnswerExpertProposal.objects\
+            .select_related('interview', 'answer', 'expert', 'question', 'new_answer')\
+            .filter(question__pk=quest_pk, interview__pk=inter_pk)\
             .exclude(new_answer_text__isnull=True).exclude(new_answer_text__exact='')\
             .order_by('expert__first_name', '-updated')
         if filter_by:
@@ -133,13 +138,23 @@ def question_admin_work_view(request, inter_pk, quest_pk):
         if formset.is_valid():
             for form in formset:
                 obj = form.save(commit=False)
+
                 status = obj.status
-                answer = obj.answer
+                answer_pk = request.POST[f'expert-{obj.pk}-answer']
+                if answer_pk != 'None':
+                    answer = answers.get(rz__pk=answer_pk).rz
+                else:
+                    answer = None
                 comment = obj.admin_comment
 
                 # Проверка на наличие изменений в записи
                 if (status == form.old_status) and (answer == form.old_answer) and (comment == form.old_comment):
                     continue
+
+                if obj.status == 'APPRVE':
+                    obj.new_answer = answer
+                else:
+                    obj.answer = answer
 
                 # Если админ изменил статус на "Принят",
                 # то создаётся новое знание и связь на основе введённых админом данных
@@ -184,13 +199,12 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     send_accept_proposal(proposal_obj=obj)
 
                 # Если админ указал только ответ из списка существующих/новых ответов, то статус устанавливается сам,
-                if not status and obj.new_answer:
-                    existing_answer = obj.new_answer
-                    if obj.is_agreed:
-                        obj.answer = existing_answer
+                if not status and answer:
                     # Если дата создания выбранного ответа меньше даты создания
                     # предложения эксперта, то статус "Дублирует ответ", иначе "Дублирует предложение"
-                    obj.status = 'ANSDPL' if existing_answer.date < form.instance.updated.date() else 'RESDPL'
+                    obj.status = 'ANSDPL' if answer.date < form.instance.updated.date() else 'RESDPL'
+                    obj.answer = answer
+
                 obj.admin_reviewer = request.user
                 obj.save()
 
@@ -204,11 +218,16 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     send_func = send_if_status.get(obj.status)
                     send_func(proposal_obj=obj)
 
+            def start_mass_mail_sending():
+                if 'save_input' not in request.POST:
+                    return
+                proposals = InterviewAnswerExpertProposal.objects.select_related('expert', 'new_answer').filter(
+                    question__pk=quest_pk, interview__pk=inter_pk)
+                if proposals.filter(status='APPRVE').exists():
+                    send_new_answers(interview.get('name'), question.get('name'), proposals)
+
             # Если по вопросу имеется новый ответ/ответы, то происходит рассылка участникам интервью по данному вопросу
-            proposals = InterviewAnswerExpertProposal.objects.select_related('expert').filter(question__pk=quest_pk,
-                                                                                              interview__pk=inter_pk)
-            if ('save_input' in request.POST) and (proposals.filter(status='APPRVE').exists()):
-                send_new_answers(interview.get('name'), question.get('name'), proposals)
+            start_mass_mail_sending()
 
             redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
             if context.get('cur_filter'):
@@ -217,6 +236,8 @@ def question_admin_work_view(request, inter_pk, quest_pk):
             return redirect(redirect_url)
     else:
         formset = InterviewAnswerExpertFormSet(queryset=queryset)
+    context['answers_list'] = [(None, '------')] + \
+                              [(elm.get('rz__pk'), elm.get('rz__name')) for elm in answers.values('rz__pk', 'rz__name')]
     context['status_list'] = InterviewAnswerExpertProposal.STATUSES
     context['questions'] = list(zip(queryset, formset))
     context['formset'] = formset

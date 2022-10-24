@@ -7,12 +7,14 @@ from ...sender import send_email
 
 
 def get_base_message_context(proposal_obj) -> dict:
+    interview_url = f"{settings.BASE_URL}{reverse_lazy('zdetail', kwargs={'pk': proposal_obj.interview.pk})}"
     context = dict(
         expert=proposal_obj.expert,
         interview_name=proposal_obj.interview.name,
         question_name=proposal_obj.question.name,
         expert_proposal=proposal_obj.new_answer_text,
-        is_agreed=proposal_obj.is_agreed
+        is_agreed=proposal_obj.is_agreed,
+        interview_url=interview_url
     )
     return context
 
@@ -54,7 +56,7 @@ def send_duplicate_answer_proposal(proposal_obj) -> None:
     """
     context = get_base_message_context(proposal_obj)
 
-    existing_answer = proposal_obj.new_answer
+    existing_answer = proposal_obj.answer
     email_address = context.get('expert').email
     if context.get('is_agreed'):
         message_subject = 'Изменение Вашего ответа'
@@ -72,8 +74,7 @@ def send_duplicate_proposal(proposal_obj) -> None:
         Функция для рассылки уведомлений экспертам чьи предложения дублируют предложение
     """
     context = get_base_message_context(proposal_obj)
-
-    existing_answer = proposal_obj.new_answer
+    existing_answer = proposal_obj.answer
     email_address = context.get('expert').email
     if context.get('is_agreed'):
         message_subject = 'Изменение Вашего ответа'
@@ -95,7 +96,7 @@ def send_new_answers(interview_name, question_name, proposals) -> None:
     ).order_by().distinct()
     new_answers = proposals.filter(status='APPRVE').values_list('new_answer__name', flat=True)
     tr_obj = Tr.objects.get(name='Ответ [ы]')
-    answers = Relation.objects.select_related('bz').filter(
+    answers = Relation.objects.select_related('bz', 'rz').filter(
         Q(bz__name=question_name) & Q(tr=tr_obj)
     ).values_list('rz__name', flat=True)
 
