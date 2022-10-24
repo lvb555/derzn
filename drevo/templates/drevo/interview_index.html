@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Мои Интервью: {% endblock %}
+
+{% block content %}
+
+<h1 class="title-interview">Cписок моих интервью</h1>
+
+    {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="my-5">
+            <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link  user-decorated" href="?page=1">Первая</a></li>
+                <li class="page-item">
+                <a class="page-link  user-decorated" href="?page={{ page_obj.previous_page_number }}">
+                    Предыдущая
+                </a>
+                </li>
+            {% endif %}
+            {% for i in page_obj.paginator.page_range %}
+                {% if page_obj.number == i %}
+                    <li class="page-item active">
+                    <span class="page-link  user-decorated">{{ i }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                    <a class="page-link  user-decorated" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                <a class="page-link  user-decorated" href="?page={{ page_obj.next_page_number }}">
+                    Следующая
+                </a>
+                </li>
+                <li class="page-item">
+                <a class="page-link  user-decorated" href="?page={{ page_obj.paginator.num_pages }}">
+                    Последняя
+                </a>
+                </li>
+            {% endif %}    
+            </ul>
+        </nav>
+    {% endif %}
+
+    <hr>
+    <table class="table table-bordered border-primary">
+        <thead>
+            <tr>
+                <th score="col">Категория Интервью</th>
+                <th score="col">Тема Интервью</th>
+                <th score="col">Дата с</th>
+                <th score="col">Дата по</th>
+                <th score="col">Опубликовано</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for interview in page_obj %}
+                <tr>
+                    <th score="col">{{ interview.name.category}}</th>
+                    <th score="col">
+                        <a href="{% url 'interview_detail' interview.pk %}">
+                            {{ interview.name}}
+                        </a>
+                    </th>
+                    <th score="col">{{ interview.date_from}}</th>
+                    <th score="col">{{ interview.date_to}}</th>
+                    <th score="col">
+                        {% if interview.is_published %}
+                            <img class="icon" src="{% static 'drevo/img/true.png' %}" alt="Да">
+                        {% else %}
+                            <img class="icon" src="{% static 'drevo/img/false.png' %}" alt="Нет"> 
+                        {% endif %}
+                    </th>
+                </tr>
+        </tbody>
+    {% endfor %}
+</table>
+
+<br>
+<h5>Легенда:</h3> 
+<div class="interview-end">Чтобы выбрать интервью нажмите на название</div>
+
+
+<style>
+  .title-interview {
+    display: inline;
+    margin-right: 60%;
+  }
+  .question-interview > a {
+    text-decoration: none;
+  }
+  .question-interview {
+    margin-bottom: 5px;
+  }
+  .interview-end {    
+    color: green;
+  }
+  .interview-start {
+    color: red;
+  }
+  .icon{
+    max-width: 35px
+  }
+</style>
+
+{% endblock %}

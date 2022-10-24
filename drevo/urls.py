@@ -1,32 +1,18 @@
-from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import include, path
 
 from drevo.views.interviews_view import interview_view
 from drevo.views.my_interview_view import my_interview_view
-from .views import (DrevoListView,
-                    DrevoView,
-                    ZnanieDetailView,
-                    ZnanieByLabelView,
-                    AuthorDetailView,
-                    AuthorsListView,
-                    LabelsListView,
-                    GlossaryListView,
-                    ZnanieRatingView,
-                    CommentPageView,
-                    CommentSendView,
-                    KnowledgeSearchView,
-                    AuthorSearchView,
-                    TagSearchView,
-                    KnowledgeFormView,
-                    NewKnowledgeListView,
-                    BrowsingHistoryListView,
-                    SubscribeToAuthor,
-                    FavouritesView,
-                    FavouriteProcessView,
-                    friends_view,
-                    friends_added_view,
-                    friends_invite_view)
+
+from .views import (AuthorDetailView, AuthorSearchView, AuthorsListView,
+                    BrowsingHistoryListView, CommentPageView, CommentSendView,
+                    DrevoListView, DrevoView, FavouriteProcessView,
+                    FavouritesView, GlossaryListView, KnowledgeFormView,
+                    KnowledgeSearchView, LabelsListView, NewKnowledgeListView,
+                    SubscribeToAuthor, TagSearchView, ZnanieByLabelView,
+                    ZnanieDetailView, ZnanieRatingView, friends_added_view,
+                    friends_invite_view, friends_view)
 
 urlpatterns = [
     path('category/<int:pk>', DrevoListView.as_view(), name='drevo_type'),
@@ -66,7 +52,8 @@ urlpatterns = [
     path('interview/<int:pk>/', interview_view, name='interview'),
     path('friends/', friends_view, name='friends'),
     path('friends/friends_added/', friends_added_view, name='friends_added'),
-    path('friends/friends_invite/', friends_invite_view, name='friends_invite')
+    path('friends/friends_invite/', friends_invite_view, name='friends_invite'),
+    path('', include('interview.urls')),
 ]
 
 if settings.DEBUG:

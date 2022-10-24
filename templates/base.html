@@ -59,6 +59,8 @@
                                             <a class="dropdown-item" href="{% url 'favourites' %}"
                                                id="favourites_link">Избранное</a>
                                             <a class="dropdown-item" href="{% url 'friends' %}" id="friends_link">Друзья</a>
+                                            <a class="dropdown-item" href="{% url 'interview_create' %}" id="interview_create">Создать интервью</a>
+                                            <a class="dropdown-item" href="{% url 'interview_index' %}" id="interview_index">Список моих интервью</a>
                                             {% if user.expert.all %}
                                                 <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
                                             {% endif %}

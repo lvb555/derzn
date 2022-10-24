@@ -3,8 +3,9 @@ Django settings for dz project.
 """
 import os
 from pathlib import Path
-from environs import Env
+
 import humanize
+from environs import Env
 
 env = Env()
 env.read_env()
@@ -34,6 +35,8 @@ INSTALLED_APPS = [
     'adminsortable2',
     'users',
     'drevo',
+    'interview',
+    'extra_views',
 ]
 
 MIDDLEWARE = [
@@ -164,3 +167,5 @@ LOGGING = {
         }
     }
 }
+# Ограничение вывода записей на странице
+RECORDS_IN_PAGE = 10

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+  {% block title %} 
+  Интервью: {{ interview.name|truncatechars:30 }}
+  {% endblock title %}
+
+  {% block content %}   
+    <div class="row">
+      <article class="col col-md">
+        <div class="row">
+            <h4> Интервью: {{ interview.name }}</h4>
+            <ul class="interview-block">
+                <li class="interview-iteams title-interview">
+                    Категория: {{ interview.name.category }}
+                </li>
+                <li class="interview.iteams title-interview">
+                    Тема интервью: {{ interview.name }}
+                </li>
+            </ul>
+            <hr>
+            <ul class="interview-block">
+                <li class="interview-iteams title-interview">
+                    Дата с: {{ interview.date_from }}
+                </li>
+                <li class="interview.iteams title-interview">
+                    Дата по: {{ interview.date_to }}
+                </li>
+                <li class="interview.iteams title-interview">
+                    Опубликовано: 
+                    {% if interview.is_published %}
+                        <img class="icon" src="{% static 'drevo/img/true.png' %}" alt="Да">
+                    {% else %}
+                        <img class="icon" src="{% static 'drevo/img/false.png' %}" alt="Нет"> 
+                    {% endif %}
+                </li>
+            </ul>
+            <hr>
+            <h4>Вопросы</h4>
+            <table class="table">
+                <thade>
+                    <tr>
+                        <th class="col-9 col-md-3" score="col">Вопрос интервью</th>
+                        <th class="col-3 col-md-1" score="col">Макс. кол-во ответов</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for question in questions %}
+                        <tr>
+                            <th>{{ question.question }}</th>
+                            <th>{{question.nmbr_answers}}</th>
+                        </tr>
+                        {% for answer in question.answers %}
+                            <tr><td colspan=2> {{answer}}</td></tr>
+                        {%endfor%}
+
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if interview.author == request.user %}
+        <a class="btn btn-primary" href="{% url 'interview_edit' interview.pk %}">
+          Редактировать
+        </a> 
+        {% endif %}
+        
+      </article>
+    </div>
+
+    
+    <style>
+        .interview-block {
+            display: flex
+
+        }
+        .title-interview {
+          display: inline;
+          margin-right: 25px;
+        }
+        .question-interview > a {
+          text-decoration: none;
+        }
+        .question-interview {
+          margin-bottom: 5px;
+        }
+        .interview-end {    
+          color: green;
+        }
+        .interview-start {
+          color: red;
+        }
+        .icon{
+            max-width: 25px
+        }
+      </style>
+    {% endblock %}

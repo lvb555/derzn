@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% block title %}
+{% if is_edit %}
+  Редактировать запись
+{% else %}
+  Добавить запись
+{% endif %}
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <!-- <div class="col-md-8 p-5"> -->
+      <div class="card">
+        <div class="card-header">       
+          {% if is_edit %}
+            Редактор интервью
+          {% else %}
+            Конструктор Интервью
+          {% endif %}                     
+        </div>
+        <div class="card-body">
+          {% if form.errors %}
+              {% for field in form %}
+                {% for error in field.errors %}            
+                  <div class="alert alert-danger">
+                    {{ error|escape }}
+                  </div>
+                {% endfor %}
+              {% endfor %}
+              {% for error in form.non_field_errors %}
+                <div class="alert alert-danger">
+                  {{ error|escape }}
+                </div>
+              {% endfor %}
+          {% endif %}
+          
+          <form class="form-body" method="post" href="{% url 'interview_create' %}" enctype="multipart/form-data">
+            {% csrf_token %} 
+              <!-- Блок ввода Темы интервью-->
+              <ul class="items zn">
+                <li class="zn-item">
+                  Интервью:
+                </li>
+                <li class="zn-item">
+                  <ul>
+                    <li class="zn-item title-interview">
+                      Категория:
+                    </li>
+                    <li class=" zn-item body-interview">
+                      {{ zn_form.category }}
+                    </li>
+                  </ul>
+                </li>
+                <li class="zn-item">
+                  <ul>
+                    <li class="zn-item title-interview">
+                      Тема интервью:
+                    </li>
+                    <li class=" zn-item body-zn ">
+                      {{ zn_form.name }}
+                    </li>
+                  </ul>  
+                </li>
+              </ul>
+              <hr>
+              <!-- Блок описания сроков интервью -->
+              <ul class="items interview">
+                <li class="zn-item body-interview">
+                  Период интервью:
+                </li>
+                <li class="zn-item body-interview">
+                  с:
+                </li>
+                <li class="zn-item body-interview">
+                  {{ i_form.date_from }} 
+                </li>
+                <li class="zn-item body-interview">
+                  по:
+                </li>
+                <li class="zn-item body-interview">
+                  {{ i_form.date_to }}
+                </li>
+              </ul>
+              <hr>
+              <!-- Блок выбора знания - вопроса интервью -->
+              <legend>Вопросы Интервью</legend>
+                <fieldset id="form-container">
+                  {{ q_formset.management_form }}
+                  {{ q_formset.non_errors }}
+                  {% for form in q_formset.forms %}
+                  <div class="q-form">
+                    <ul class="items zn">
+                      <li class="zn-item">
+                        Вопрос:
+                      </li>
+                      <li class="zn-item">
+                        <ul>
+                          <li class="zn-item title-interview">
+                            Знание:
+                          </li>
+                          <li class="zn-item question">
+                            {{ form.question }}
+                          </li>
+                        </ul>
+                      </li>
+                      <li class="zn-item">
+                        <ul>
+                          <li class="zn-item title-interview">
+                            Число ответов:
+                          </li>
+                           <li class="zn-item number">
+                              {{ form.nmbr_answers }}
+                            </li>
+                          </ul>  
+                        </li>
+                      </ul>
+                      <fieldset class="answer-container">
+                        {{ a_formset.management_form }}
+                        {{ a_formset.non_errors }}
+                        {% for a_form in a_formset %}
+                          <div class="a-form">
+                            {{ a_form.as_p }}
+                          </div>
+                        {% endfor %}
+                        <button id="add-a-form" type="button">Добавить ответ</button>
+                      </fieldset>
+                    <hr>
+                    </div>
+                  {% endfor %}
+                  <button id="add-form" type="button">Добавить вопрос</button>
+                </fieldset>
+              <div class="d-flex justify-content-end">
+                <input type="submit" class="btn btn-primary" name="save" value="Сохранить"/>
+              </div>
+          </form>
+        </div>
+      </div>
+  </div>
+</div>
+<!-- Скрипт добавления поля вопроса и ответа -->
+<script>
+  let questionForm = document.querySelectorAll(".q-form")
+  let containerInterview = document.querySelector("#form-container")
+  let addButtonQuestion = document.querySelector("#add-form")
+  let totalFormsQuestons = document.getElementById("id_interview_question-TOTAL_FORMS")
+
+
+  let answerForm = document.querySelectorAll(".a-form")
+  let containerAnswer = document.querySelector("#answer-container")
+  let addButtonAnswer = document.querySelector("#add-a-form")
+  let totalFormsAnswer = document.getElementById("id_question-TOTAL_FORMS")
+
+  let formNum = questionForm.length-1
+  addButtonQuestion.addEventListener('click', addForm)
+
+  let formNumAnswer = answerForm.length-1
+  addButtonAnswer.addEventListener('click', addFormAnswer)
+
+  function addForm(e){
+      e.preventDefault()
+
+      let newForm = questionForm[0].cloneNode(true)
+      let formRegex = RegExp(`interview_question-(\\d){1}-`,'g')
+
+      formNum++
+      newForm.innerHTML = newForm.innerHTML.replace(formRegex, `interview_question-${formNum}-`)
+      containerInterview.insertBefore(newForm, addButtonQuestion)
+      
+      totalFormsQuestons.setAttribute('value', `${formNum+1}`)
+  }
+
+  function addFormAnswer(e){
+    e.preventDefault()
+
+    let newForm = answerForm[0].cloneNode(true)
+    let formRegex = RegExp(`question-(\\d){1}-`,'g')
+
+    formNumAnswer++
+    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `question-${formNumAnswer}-`)
+    containerAnswer.insertBefore(newForm, addButtonAnswer)
+    
+    totalFormsAnswer.setAttribute('value', `${formNumAnswer+1}`)
+}
+</script>
+<!-- Встроенные стили -->
+<style>
+  .items {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    margin-left: 10px;
+    padding: 0 10px 10px;
+    font-style: bold;
+    font-size: 20px;
+
+  }
+  .zn-item {
+    display: block;
+    flex-flow: row nowrap;
+    padding: 0 10px 0 0;
+    max-width: 100%;
+  }
+  .title-interview {
+    margin: auto;
+    font-size: 10px;
+  }
+
+  .с_question * {
+    display: block;
+    min-width: 150px;
+  }
+
+  .question *,
+  .body-zn * {
+    display: block;
+    min-width: 400px;
+  }
+
+  .number * {
+    display: block;
+    max-width: 50px;
+  }
+  
+</style>
+{% endblock %}
+
