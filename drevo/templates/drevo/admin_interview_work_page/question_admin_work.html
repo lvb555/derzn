@@ -96,19 +96,9 @@
                                 id="expert-{{ elm.pk }}-answer"
                         >
                             {% for value, label in answers_list %}
-                            {% if elm.status == 'APPRVE' %}
-                                {% if value == elm.new_answer.pk %}
-                                <option value="{{ value }}" selected="" title="{{ label|normalize_answer_name }}">{{ label|truncatechars:25 }}</option>
-                                {% else %}
-                                <option value="{{ value }}" title="{{ label|normalize_answer_name }}">{{ label|truncatechars:25 }}</option>
-                                {% endif %}
-                            {% else %}
-                                {% if value == elm.answer.pk %}
-                                <option value="{{ value }}" selected="" title="{{ label|normalize_answer_name }}">{{ label|truncatechars:25 }}</option>
-                                {% else %}
-                                <option value="{{ value }}" title="{{ label|normalize_answer_name }}">{{ label|truncatechars:25 }}</option>
-                                {% endif %}
-                            {% endif %}
+                            <option value="{{ value }}" {%if value == elm.new_answer.pk or value == elm.answer.pk %} selected="" {% endif %} title="{{ label|normalize_answer_name }}">
+                                {{ label|truncatechars:25 }}
+                            </option>
                             {% endfor %}
                         </select>
                     </td>
