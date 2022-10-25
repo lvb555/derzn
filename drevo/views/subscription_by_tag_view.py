@@ -1,10 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
 from drevo.models.label import Label
 
 import json
 
-
+@login_required
 def sub_by_tag(request):
     if request.method == 'GET':
         labels = Label.objects.all()
