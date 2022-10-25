@@ -49,14 +49,18 @@ def _accept_invite(user_id: int, friend_id: str) -> None:
     invite_table.delete()
 
     # Добавим в список друзей
-    FriendsTerm.objects.create(
-        user_id=user_id,
-        friend_id=friend_id
-    )
-    FriendsTerm.objects.create(
-        user_id=friend_id,
-        friend_id=user_id
-    )
+    try:
+        user_first = FriendsTerm.objects.get(user_id=user_id, friend_id=friend_id)
+        user_second = FriendsTerm.objects.get(user_id=friend_id, friend_id=user_id)
+    except:
+        FriendsTerm.objects.create(
+            user_id=user_id,
+            friend_id=friend_id
+        )
+        FriendsTerm.objects.create(
+            user_id=friend_id,
+            friend_id=user_id
+        )
 
 
 def _not_accept_invite(user_id: int, friend_id: str) -> None:

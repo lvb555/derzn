@@ -6,7 +6,8 @@
 
 {% block content %}
 
-<h2>Друзья <a class="btn btn-primary btn-sm" href="friends_invite/">({{ invite_count }})</a></h2>
+
+<h2>Друзья {% if invite_count %} <a class="btn btn-primary btn-sm" href="friends_invite/">{{ invite_count }}</a> {% endif %}</h2>
 
 
 {% block cssfiles %}

@@ -11,11 +11,14 @@ env.read_env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = env.str('SECRET_KEY')
+# SECRET_KEY = env.str('SECRET_KEY')
+SECRET_KEY='asdaaskdw9u2r4lfkjd32'
 
-DEBUG = env.bool('DEBUG')
+# DEBUG = env.bool('DEBUG')
+DEBUG = True
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+# ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+ALLOWED_HOSTS = '*'
 
 # Application definition
 
@@ -72,7 +75,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'dz.wsgi.application'
 
-DATABASES = {"default": env.dj_db_url("DB_URL")}
+# DATABASES = {"default": env.dj_db_url("DB_URL")}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -130,14 +139,21 @@ MEDIA_URL = '/media/'
 
 LOGIN_URL = '/users/login/'
 
-BASE_URL = env.str('BASE_URL')
+# BASE_URL = env.str('BASE_URL')
+BASE_URL = '/'
 
-EMAIL_HOST = env.str('EMAIL_HOST')
-EMAIL_PORT = env.str('EMAIL_PORT')
-EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
+# EMAIL_HOST = env.str('EMAIL_HOST')
+# EMAIL_PORT = env.str('EMAIL_PORT')
+# EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
 # EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS')
-EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL')
+# EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL')
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = '5822'
+EMAIL_HOST_USER = 'admin'
+EMAIL_HOST_PASSWORD = 'somepass'
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = False
 
 AUTH_USER_MODEL = 'users.User'
 

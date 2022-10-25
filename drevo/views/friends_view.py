@@ -19,12 +19,14 @@ def friends_view(request):
     if request.GET.get('remove'):
         _remove_friend(request.user.id, request.GET.get('remove'))
 
-    user_obj = FriendsTerm.objects.filter(user_id=request.user.id).first()
-    if user_obj:
-        profiles = Profile.objects.filter(id=user_obj.friend_id)
-        for profile in profiles:
+    # user_obj = FriendsTerm.objects.filter(user_id=request.user.id).first()
+    friend_rows = FriendsTerm.objects.filter(user_id=request.user.id)
+    if friend_rows:
+        # profiles = Profile.objects.filter(id=user_obj.friend_id)
+        for friend_row in friend_rows:
             data = {}
-            user = User.objects.filter(id=profile.user_id).first()
+            user = User.objects.get(id=friend_row.friend.id)
+            profile = Profile.objects.get(user = user)
             if not user:
                 continue
             if not user.first_name or not user.last_name:
