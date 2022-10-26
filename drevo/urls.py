@@ -41,6 +41,7 @@ from .views.admin_interview_work.views import (
     InterviewQuestionsView,
     question_admin_work_view,
 )
+from .views.subscription_by_tag_view import sub_by_tag
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
@@ -67,6 +68,8 @@ urlpatterns = [
     path(
         "subscribe_to_author/", SubscribeToAuthor.as_view(), name="subscribe_to_author"
     ),
+    path('subscription_by_tag/', sub_by_tag,
+         name='subscription_by_tag'),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),

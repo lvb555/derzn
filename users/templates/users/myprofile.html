@@ -86,8 +86,13 @@
             </form>
             <p class="mt-2 p-2">
                 <div class="mr-2">
-                    <a class="btn btn-primary btn-lg" href="{% url 'subscribe_to_author' %}">Подписка</a>
+                    <a class="btn btn-primary btn-lg" href="{% url 'subscribe_to_author' %}">Подписка по авторам</a>
                 </div>
+            </p>
+            <p class="mt-2 p-2">
+            <div class="mr-2">
+                <a class="btn btn-primary btn-lg" href="{% url 'subscription_by_tag' %}">Подписка по тегам</a>
+            </div>
             </p>
             {% if user.expert.all %}
             <div class="form-row">
