@@ -36,6 +36,12 @@ from .views.expert_work.views import (
     update_answer_proposal,
     update_proposed_answer,
 )
+from .views.admin_interview_work.views import (
+    AllInterviewView,
+    InterviewQuestionsView,
+    question_admin_work_view,
+)
+from .views.subscription_by_tag_view import sub_by_tag
 from .views.knowledge_tp_view import KnowledgeCreateView, UserKnowledgeProcessView, KnowledgeUpdateView
 
 urlpatterns = [
@@ -63,6 +69,8 @@ urlpatterns = [
     path(
         "subscribe_to_author/", SubscribeToAuthor.as_view(), name="subscribe_to_author"
     ),
+    path('subscription_by_tag/', sub_by_tag,
+         name='subscription_by_tag'),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
@@ -86,6 +94,11 @@ urlpatterns = [
         update_proposed_answer,
         name="update_proposed_answer",
     ),
+    path("admin/interview/", AllInterviewView.as_view(), name='all_interview'),
+    path("admin/interview/<int:pk>/questions/", InterviewQuestionsView.as_view(), name='interview_quests'),
+    path("admin/interview/<int:inter_pk>/questions/<int:quest_pk>/", question_admin_work_view,
+         name='question_admin_work'),
+
     path("friends/", friends_view, name="friends"),
     path("friends/friends_added/", friends_added_view, name="friends_added"),
     path("friends/friends_invite/", friends_invite_view, name="friends_invite"),

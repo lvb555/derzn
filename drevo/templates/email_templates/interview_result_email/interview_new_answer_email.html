@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Новые ответы</title>
+</head>
+<body>
+    <div>
+        <h1>Уважаемый {{ expert.first_name }} {{ expert.last_name }}!</h1>
+    </div>
+    <div>
+        <p>
+            В рамках проводимого интервью <strong>'{{ interview_name }}'</strong> у вопроса <strong>'{{ question_name }}'</strong> Были созданы
+            новые ответы:
+        </p>
+        <ul>
+            <h2>Ответы на вопрос</h2>
+            {% for answer in answers %}
+            <li class="{% if answer in new_answers %}new{% endif %}"> {{answer}} </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+<footer>
+    <div>
+        <h3>Администрация портала «Дерево знаний»</h3>
+    </div>
+</footer>
+
+<style>
+  .new {color: red;}
+</style>
+
+</html>

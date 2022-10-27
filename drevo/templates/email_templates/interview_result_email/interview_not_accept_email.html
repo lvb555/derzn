@@ -1,0 +1,9 @@
+{% extends 'email_templates/interview_result_email/base_interview_result_email.html' %}
+
+{% block title %} Ваше предложение не принято {% endblock %}
+
+{% block content %}
+<p>
+    Ваше предложение не было принято редакцией {% if admin_comment %} поскольку {{ admin_comment }} {% endif %}.
+</p>
+{% endblock %}

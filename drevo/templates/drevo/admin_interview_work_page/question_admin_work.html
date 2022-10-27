@@ -1,0 +1,136 @@
+{% extends 'drevo/base.html' %}
+
+{% load normalize_answer_name %}
+
+
+{% block title %} Работа администратора по вопросу {% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+            <a href="{{ backup_url }}" class="btn btn-warning mt-2">Назад</a>
+        </div>
+        <div class="col">
+            <h1>Анализ предложений по вопросу</h1>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col">
+            <h3>Интервью: {{ interview_name }}</h3>
+            <h3>Вопрос: {{ question_name }}</h3>
+        </div>
+        <div class="col">
+            <h3>Период: {{ period }}</h3>
+        </div>
+    </div>
+
+    <br>
+    <div>
+        <form method="post">
+            {{ formset.management_form }}
+            {% csrf_token %}
+            <div class="btn-group">
+                <div class="dropdown">
+                    <a class="nav-link text-dark bg-info rounded-top border-dark border-bottom-0" href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false">
+                        Фильтр
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink2">
+                        <li><a class="dropdown-item" href="{{ request.path }}">Все</a></li>
+                        {% if cur_filter == 'None' %}
+                        <li><a class="dropdown-item active" href="?filter=None">Нет статуса</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="?filter=None">Нет статуса</a></li>
+                        {% endif %}
+                        {% for value, label in status_list %}
+                        {% if cur_filter == value %}
+                        <li><a class="dropdown-item active" href="?filter={{ value }}">{{label}}</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="?filter={{ value }}">{{label}}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <table class="table table-bordered">
+                <thead>
+                <th scope="col" rowspan="2" class="text-center">№</th>
+                <th scope="col" colspan="2" class="text-center"> Информация эксперта</th>
+                <th scope="col" colspan="3" class="text-center"> Информация администратора</th>
+                <tr>
+                    <th scope="col" class="text-center">ФИО эксперта</th>
+                    <th scope="col" class="text-center">Предложение эксперта</th>
+                    <th scope="col" class="text-center">Существующий/<font class="text-danger">новый</font> ответ</th>
+                    <th scope="col" class="text-center">
+                        Комментарий администратора
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                            {% if message.tags == 'error' %}
+                            <li class="text-danger">{{ message }}</li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </th>
+                    <th scope="col" class="text-center">Статус предложения</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for elm, form in questions %}
+                <tr>
+
+                    <th scope="row">{{ elm.pk }}</th>
+                    <td>{{ elm.expert.get_full_name }}</td>
+                    <td>
+                        <textarea name="" id="" cols="30" rows="10" style="height:150px; overflow-y: scroll; width: 250px; height: 125px;" readonly>{{ elm.new_answer_text }}</textarea>
+                    </td>
+                    <td>
+                        <select
+                                name="expert-{{ elm.pk }}-answer" class="form-control {% if elm.status == 'APPRVE' %}text-danger{% endif %}" style="width: 250px;"
+                                onfocus="this.size=5;" onblur="this.size=1;" onchange="this.size=1; this.blur();"
+                                title="{% if elm.status == 'APPRVE' %}{{ elm.new_answer.name|normalize_answer_name }}{% else %}{{ elm.answer.name|normalize_answer_name }}{% endif %}"
+                                id="expert-{{ elm.pk }}-answer"
+                        >
+                            {% for value, label in answers_list %}
+                            <option value="{{ value }}" {%if value == elm.new_answer.pk or value == elm.answer.pk %} selected="" {% endif %} title="{{ label|normalize_answer_name }}">
+                                {{ label|truncatechars:25 }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    {% for f in form %}
+                    <td>
+                        {{ f }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-end me-5">
+                <input type="submit" class="btn btn-warning w-25" name='save_input' value="Сохранить">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block jsfiles %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const form = document.querySelector('form')
+    const selects = document.querySelectorAll('select')
+
+    selects.forEach(select => select.addEventListener('change', (e) => {
+        const value = e.target.value
+        if (value == 'APPRVE'){
+            form.submit()
+        }
+    }))
+</script>
+{% endblock %}

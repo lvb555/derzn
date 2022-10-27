@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %} {% endblock %}</title>
+</head>
+<body>
+    <div>
+        <h1>Уважаемый {{ expert.first_name }} {{ expert.last_name }}!</h1>
+    </div>
+    <div>
+        <p>
+            В рамках проводимого интервью <strong>'{{ interview_name }}'</strong> на вопрос <strong>'{{ question_name }}'</strong> вы
+            предложили новый ответ '{{ expert_proposal }}'.
+        </p>
+        {% block content %} {% endblock %}
+        <p>
+            В случае своего несогласия Вы можете еще раз посетить страницу интервью  по этому вопросу: <a href="{{ interview_url }}">{{ interview_name }}</a>.
+        </p>
+    </div>
+</body>
+<footer>
+    <div>
+        <h3>Администрация портала «Дерево знаний»</h3>
+    </div>
+</footer>
+</html>
