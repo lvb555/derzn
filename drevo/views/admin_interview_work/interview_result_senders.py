@@ -7,7 +7,8 @@ from ...sender import send_email
 
 
 def get_base_message_context(proposal_obj) -> dict:
-    interview_url = f"{settings.BASE_URL}{reverse_lazy('zdetail', kwargs={'pk': proposal_obj.interview.pk})}"
+    interview_url_kwargs = {'interview_pk': proposal_obj.interview.pk, 'question_pk': proposal_obj.question.pk}
+    interview_url = f"{settings.BASE_URL}{reverse_lazy('question_expert_work', kwargs=interview_url_kwargs)}"
     context = dict(
         expert=proposal_obj.expert,
         interview_name=proposal_obj.interview.name,
@@ -56,7 +57,7 @@ def send_duplicate_answer_proposal(proposal_obj) -> None:
     """
     context = get_base_message_context(proposal_obj)
 
-    existing_answer = proposal_obj.answer
+    existing_answer = proposal_obj.duplicate_answer
     email_address = context.get('expert').email
     if context.get('is_agreed'):
         message_subject = 'Изменение Вашего ответа'
@@ -74,7 +75,7 @@ def send_duplicate_proposal(proposal_obj) -> None:
         Функция для рассылки уведомлений экспертам чьи предложения дублируют предложение
     """
     context = get_base_message_context(proposal_obj)
-    existing_answer = proposal_obj.answer
+    existing_answer = proposal_obj.duplicate_answer
     email_address = context.get('expert').email
     if context.get('is_agreed'):
         message_subject = 'Изменение Вашего ответа'
