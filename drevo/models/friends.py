@@ -20,3 +20,11 @@ class FriendsTerm(models.Model):
         verbose_name='Друг',
         related_name='friends'
     )
+
+    
+    def __str__(self):
+        return str(self.user.id) + " - " + str(self.friend.id)
+
+    class Meta:
+        verbose_name = 'Дружба'
+        verbose_name_plural = 'Друзья'

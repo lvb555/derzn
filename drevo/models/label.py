@@ -10,6 +10,8 @@ class Label(models.Model):
                             unique=True,
                             verbose_name='Название')
 
+    subscribers = models.ManyToManyField('users.User', blank=True)
+
     objects = models.Manager()
 
     def __str__(self):

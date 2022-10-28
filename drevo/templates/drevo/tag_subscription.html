@@ -1,0 +1,72 @@
+{% extends 'drevo/base.html' %}
+
+{% load static %}
+
+{% block title %}Управление подписками{% endblock %}
+
+{% block content %}
+
+<h4>Подписка по тегам</h4><br>
+
+<div class="row">
+    <div class="col-3">
+        <input type="checkbox" value="Select All" name="selectAll" onclick="selectAll()" class="selectAll"> Выделить все
+    </div>
+    <div class="col-5"></div>
+    <div class="col-1" align="right">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
+             viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+        </svg>
+    </div>
+    <div class="col-3">
+        <input class="form-control" type="text" placeholder="Найти тег" id="search-text" onkeyup="tableSearch()">
+    </div>
+</div>
+<br>
+
+
+<div id="checkbox_form">
+    <form method="post" name="tags">
+        <table border="1" width="50%" id="info-table" class="table table-striped">
+            {% for label in labels %}
+            <tr>
+                <td>
+                    <input type="checkbox" value="{{label.name}}" class="checkbox_1"
+                           onchange="changeFlag(this)"
+                           {% if request.user in label.subscribers.all %} checked {% endif %}>
+                </td>
+                <td>
+                    {{ label.name }}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <br>
+        <input type="submit" value="Сохранить" class="button" id="submit" onclick="send_data()">
+        <button id="reset" name="reset">Отменить</button>
+
+        {% csrf_token %}
+    </form>
+</div>
+<br>
+
+
+<!--Всплывающее окно для сообщения об успешном сохранении изменений-->
+<!--<div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 200px;" data-delay="1000">-->
+<!--    <div id="toastNotice" class="toast" style="position: absolute; top: 0; right: 0;">-->
+<!--        <div class="toast-header">-->
+<!--            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">-->
+<!--                <span aria-hidden="true">&times;</span>-->
+<!--            </button>-->
+<!--        </div>-->
+<!--        <div class="toast-body">-->
+<!--            Данные успешно обновлены-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+
+<script type="application/javascript" src="{% static 'drevo/js/subscription_by_tags.js' %}"></script>
+{% endblock %}
