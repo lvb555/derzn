@@ -9,7 +9,7 @@ def friends_view(request):
     """
     Контрол для страницы "Друзья"
     """
-    context = {'profiles': []}
+    context = {'friends': []}
 
     # Загрузим список заявок на дружбу
     invite_count = FriendsInviteTerm.objects.filter(recipient=request.user.id).count()
@@ -19,23 +19,10 @@ def friends_view(request):
     if request.GET.get('remove'):
         _remove_friend(request.user.id, request.GET.get('remove'))
 
-    # user_obj = FriendsTerm.objects.filter(user_id=request.user.id).first()
-    friend_rows = FriendsTerm.objects.filter(user_id=request.user.id)
-    if friend_rows:
-        # profiles = Profile.objects.filter(id=user_obj.friend_id)
-        for friend_row in friend_rows:
-            data = {}
-            user = User.objects.get(id=friend_row.friend.id)
-            profile = Profile.objects.get(user = user)
-            if not user:
-                continue
-            if not user.first_name or not user.last_name:
-                continue
-            data['first_name'] = user.first_name
-            data['last_name'] = user.last_name
-            data['avatar'] = profile.avatar or ''
-            data['user_id'] = profile.user_id
-            context['profiles'].append(data)
+    user_friend_links = FriendsTerm.objects.filter(user=request.user).prefetch_related("friend")
+    for friend_link in user_friend_links:
+        user = friend_link.friend
+        context['friends'].append(user)
 
     template_name = 'drevo/friends.html'
     return render(request, template_name, context)
