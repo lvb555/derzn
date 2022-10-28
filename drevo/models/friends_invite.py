@@ -22,10 +22,12 @@ class FriendsInviteTerm(models.Model):
         verbose_name='Получатель',
         related_name='recipient'
     )
-    accept = models.BooleanField(
-        verbose_name='Принято'
-    )
-    date_added = models.DateField(
-        auto_now=True,
-        verbose_name='Дата отправки'
-    )
+
+
+    def __str__(self):
+        return str(self.sender) + " -> " + str(self.recipient)
+
+
+    class Meta:
+        verbose_name = 'Заявка в друзья'
+        verbose_name_plural = 'Заявки в друзья'
