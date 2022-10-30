@@ -153,6 +153,10 @@ async function send_data() {
     await makeRequest('/drevo/subscription_by_tag/', 'POST', JSON.stringify(change_flag))
 }
 
+async function send_data_to_author() {
+    await makeRequest('/drevo/subscribe_to_author/', 'POST', JSON.stringify(change_flag))
+}
+
 
 // Функция для поиска тега по названию.
 function tableSearch() {
