@@ -1,8 +1,10 @@
 
 var itemForm = document.getElementById('checkbox_form'); // Берем родительский контейнер всех чекбоксов.
 var checkBoxes = itemForm.querySelectorAll('.checkbox_1'); // Берем все чекбоксы
+var checkBoxes_checked = itemForm.querySelectorAll('.checkbox_1:checked'); // Берем все чекбоксы
 var checkbox_selectAll = document.querySelector(".selectAll"); // Берем чекбокс , который отвечает за "Выделить все"
 
+var tr = itemForm.querySelectorAll('tr')
 
 let serv_data = {}; // В этом словаре храним информацию об АКТИВНЫХ подписках с сервера. {'Грамматика': True, 'Литература': True}
 let change_flag = {}; // В этом словаре будут хранится ИЗМЕНЕННЫЕ подписки на теги в процессе работы юзера на странице.
@@ -16,6 +18,47 @@ for (var i = 0; i < checkBoxes.length; i++) {
     }
 }
 
+// При загрузке страницы сразу проверяем должен ли стоять флаг на чекбоксе "Выделить все"
+check_selectAll()
+
+allTag()
+
+noSub()
+
+function noSub() {
+    console.log()
+    if (document.getElementById('flexSwitchCheckDefault').checked === false && checkBoxes_checked.length === 0) {
+        document.getElementById('noSubsText').style.display = '';
+    } else {
+        document.getElementById('noSubsText').style.display = 'none';
+    }
+}
+
+
+
+function allTag() {
+    var radio = document.getElementById('flexSwitchCheckDefault')
+    noSub()
+
+    if(radio.checked) {
+        checkbox_selectAll.disabled = false;
+        tr.forEach(item => {
+            item.style.display = 'table-row';
+
+        })
+    } else {
+        checkbox_selectAll.disabled = true;
+        tr.forEach(item => {
+            if (!(item.querySelector('.checkbox_1:checked'))) {
+                item.style.display = 'none';
+            }
+        })
+
+    }
+}
+
+
+
 // Функция для изменения состояния чекбокса "Выделить все". Если все чекбоксы тегов = True, то чекбокс "Выделить все" = True.
 function check_selectAll() {
     if(document.querySelectorAll('.checkbox_1:checked').length === checkBoxes.length) {
@@ -25,8 +68,6 @@ function check_selectAll() {
     }
 }
 
-// При загрузке страницы сразу проверяем должен ли стоять флаг на чекбоксе "Выделить все"
-check_selectAll()
 
 // Данная функция вызывается, если нажат чекбокс "Выделить все".
 function selectAll() {
@@ -79,7 +120,7 @@ function changeFlag(item) {
         // удаляем данный item из change_flag
         delete change_flag[item.value]
 
-    // Иначе добавляем в change_flag флаг тега.
+        // Иначе добавляем в change_flag флаг тега.
     } else {
         change_flag[item.value] = item.checked
 
@@ -119,6 +160,10 @@ function tableSearch() {
     var table = document.getElementById('info-table');
     var regPhrase = new RegExp(phrase.value, 'i');
     var flag = false;
+
+    document.getElementById('flexSwitchCheckDefault').checked =true;
+    allTag()
+
     for (var i = 0; i < table.rows.length; i++) {
         flag = false;
         for (var j = table.rows[i].cells.length - 1; j >= 0; j--) {
