@@ -40,7 +40,7 @@
                                         <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
                                         <a href="{{ zn.get_absolute_url }}">{{ zn.name }}</a>
                                     </li>
-                                {% elif zn.get_current_status.status in var.USERS_ZN %}
+                                {% elif zn.get_current_status.status in var.TRANSITIONS_PUB %}
                                     <li style="font-weight: 400;">
                                         <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
                                         <a href="{{ zn.get_absolute_url }}"

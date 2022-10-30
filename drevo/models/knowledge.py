@@ -311,6 +311,7 @@ class Znanie(models.Model):
                 expert_list.append(expert.expert)
         return expert_list
 
+    @property
     def get_current_status(self):
         """
         Возвращает текущий статус знания

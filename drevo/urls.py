@@ -42,7 +42,8 @@ from .views.admin_interview_work.views import (
     question_admin_work_view,
 )
 from .views.subscription_by_tag_view import sub_by_tag
-from .views.knowledge_tp_view import KnowledgeCreateView, UserKnowledgeProcessView, KnowledgeUpdateView
+from .views.knowledge_tp_view import KnowledgeCreateView, UserKnowledgeProcessView, KnowledgeUpdateView, \
+    KnowledgeChangeStatus
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
@@ -104,7 +105,8 @@ urlpatterns = [
     path("friends/friends_invite/", friends_invite_view, name="friends_invite"),
     path('znanie_create/', KnowledgeCreateView.as_view(), name='znanie_create'),
     path('znanie_user_tp/', UserKnowledgeProcessView.as_view(), name='znanie_user_process'),
-    path('znanie_update/<pk>/', KnowledgeUpdateView.as_view(), name='znanie_update')
+    path('znanie_update/<pk>/', KnowledgeUpdateView.as_view(), name='znanie_update'),
+    path('znanie_status/<pk>/<status>', KnowledgeChangeStatus.as_view(), name='znanie_change_status')
 ]
 
 if settings.DEBUG:

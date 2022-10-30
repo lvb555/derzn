@@ -23,51 +23,101 @@
 <body class="d-flex flex-column min-vh-100">
 
 <!-- Navigation bar start -->
-    <div class="container-fluid sticky-top" style="background-color: var(--main-bg-color-dark);">
-        <div class="container">
-            <nav class="navbar navbar-expand-md mb-2 navbar-dark">
-                <div class="container-fluid">
-                    <div class="logo me-2">
-                        <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
-                            <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height='46px' alt="logo-tree">
-                        </a>
-                    </div>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <div class="navbar-nav me-auto">
-                            <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
-                                <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Дерево знаний</a>
-                                </li>
-                                <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
-                                       id="authors_link">Авторы</a>
-                                </li>
-                                <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
-                                </li>
-                                <li class="nav-item mx-2 dropdown">
-                                    <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a>
-                                        <a class="dropdown-item" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>
-                                        {% if user.is_authenticated %}
-                                            <a class="dropdown-item" href="{% url 'history' %}" id="history_link">История просмотров</a>
-                                            <a class="dropdown-item" href="{% url 'favourites' %}"
-                                               id="favourites_link">Избранное</a>
-                                            <a class="dropdown-item" href="{% url 'friends' %}" id="friends_link">Друзья</a>
-                                            {% if user.expert.all %}
-                                                <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
-                                            {% endif %}
-                                            {% if user.is_staff %}
-                                                <a class="dropdown-item" href="{% url 'all_interview' %}">Предложения экспертов</a>
-                                            {% endif %}
+<div class="container-fluid sticky-top" style="background-color: var(--main-bg-color-dark);">
+    <div class="container">
+        <nav class="navbar navbar-expand-md mb-2 navbar-dark">
+            <div class="container-fluid">
+                <div class="logo me-2">
+                    <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
+                        <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height='46px'
+                             alt="logo-tree">
+                    </a>
+                </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav me-auto">
+                        <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+                            <li class="nav-item mx-2">
+                                <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Дерево
+                                    знаний</a>
+                            </li>
+                            <li class="nav-item mx-2">
+                                <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
+                                   id="authors_link">Авторы</a>
+                            </li>
+                            <li class="nav-item mx-2">
+                                <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
+                            </li>
+                            {% if user.is_authenticated %}
+                            <li class="nav-item mx-2 dropdown">
+                                <a class="dropdown-toggle nav-link" href="#" role="button" id="dropdownMenuLink"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    Подготовка знаний</a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                    {% if not user.is_redactor and not user.is_director and not user.in_klz %}
+                                    <li><a class="dropdown-item" href="{% url 'znanie_create' %}"
+                                           id="znanie_create">
+                                        {% if user.is_expert %}
+                                        Создание Знания
+                                        {% else %}
+                                        Создание ПредЗнания
                                         {% endif %}
-                                    </div>
-                                </li>
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{% url 'znanie_user_process' %}"
+                                           id="znanie_list">
+                                        {% if user.is_expert %}
+                                        Изменение Знания
+                                        {% else %}
+                                        Изменение ПредЗнания
+                                        {% endif %}
+                                    </a></li>
+                                    {% if user.is_expert %}
+                                    <li><a class="dropdown-item"
+                                           href="#"
+                                           id="znanie_process_exp">Экспертиза ПредЗнания</a>
+                                    </li>
+                                    {% endif %}
+                                    {% else %}
+                                    <li><a class="dropdown-item" href="#"
+                                           id="znanie_process">
+                                        {% if user.is_redactor %}
+                                        Редактирование ПредЗнания и Знания
+                                        {% elif user.is_director %}
+                                        Публикация ПредЗнания и Знания
+                                        {% elif user.in_klz %}
+                                        Клуб любителей знания (КЛЗ)
+                                        {% endif %}
+                                    </a></li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+                            {% endif %}
+                            <li class="nav-item mx-2 dropdown">
+                                <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые
+                                        знания</a>
+                                    <a class="dropdown-item" href="{% url 'glossary' %}"
+                                       id="glossary_link">Глоссарий</a>
+                                    {% if user.is_authenticated %}
+                                    <a class="dropdown-item" href="{% url 'history' %}" id="history_link">История
+                                        просмотров</a>
+                                    <a class="dropdown-item" href="{% url 'favourites' %}"
+                                       id="favourites_link">Избранное</a>
+                                    <a class="dropdown-item" href="{% url 'friends' %}" id="friends_link">Друзья</a>
+                                    {% if user.expert.all %}
+                                    <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои
+                                        интервью</a>
+                                    {% endif %}
+                                    {% if user.is_staff %}
+                                    <a class="dropdown-item" href="{% url 'all_interview' %}">Предложения экспертов</a>
+                                    {% endif %}
+                                    {% endif %}
+                                </div>
+                            </li>
 
                             {% if user.is_staff %}
                             <li class="nav-item mx-2">
@@ -175,6 +225,7 @@
         localStorage.setItem('active_link', link.id);
       }
     }
+
 
 
 

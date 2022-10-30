@@ -1,8 +1,9 @@
 from ckeditor.widgets import CKEditorWidget
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet
 from mptt.forms import TreeNodeChoiceField
 
+from drevo.common import variables
 from drevo.models import Category, Label, Znanie, ZnImage
 from drevo.models.utils import get_model_or_stub
 
@@ -37,12 +38,26 @@ class ZnanieUpdateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
+            if self.instance.get_current_status.status not in variables.EDIT_STATUS:
+                field.widget.attrs['readonly'] = True
+
+
+class ImageFormSet(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ImageFormSet, self).__init__(*args, **kwargs)
+        try:
+            if self.instance.znanie.get_current_status.status not in variables.EDIT_STATUS:
+                for field_name, field in self.fields.items():
+                    field.widget.attrs['hidden'] = True
+        except Exception as err:
+            pass
 
 
 ZnImageEditFormSet = inlineformset_factory(
     Znanie,
     ZnImage,
+    form=ImageFormSet,
     fields=('photo',),
-    extra=2,
+    extra=1,
     can_delete=False
 )

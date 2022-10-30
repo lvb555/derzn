@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, TemplateView, UpdateView
 
@@ -142,7 +143,15 @@ class KnowledgeUpdateView(LoginRequiredMixin, UpdateView):
         else:
             context['title'] = 'Редактирование ПредЗнания'
 
-        context['pk'] = self.kwargs.get('pk')
+        knowledge_pk = self.kwargs.get('pk')
+        knowledge = Znanie.objects.get(pk=knowledge_pk)
+        # Так как любой пользователь может создавать предзнания, получаем возможные действия как для публики
+        if knowledge:
+            current_status = knowledge.get_current_status.status
+            actions = variables.TRANSITIONS_PUB[current_status]
+            context['actions'] = actions
+
+        context['pk'] = knowledge_pk
 
         return context
 
@@ -178,3 +187,22 @@ class KnowledgeUpdateView(LoginRequiredMixin, UpdateView):
     def form_invalid(self, form, image_form):
         return self.render_to_response(self.get_context_data(form=form, image_form=image_form))
 
+
+class KnowledgeChangeStatus(LoginRequiredMixin, UpdateView):
+    """Изменяет статус знания"""
+    success_url = reverse_lazy('znanie_user_process')
+
+    def get(self, request, *args, **kwargs):
+        knowledge_pk = self.kwargs.get('pk')
+        status = self.kwargs.get('status')
+        knowledge = get_object_or_404(Znanie, pk=knowledge_pk)
+        old_status = knowledge.get_current_status
+        old_status.is_active = False
+        old_status.save()
+        new_status = KnowledgeStatuses.objects.create(
+            knowledge=knowledge,
+            status=status,
+            user=request.user,
+            is_active=True
+        )
+        return HttpResponseRedirect(reverse('znanie_user_process'))

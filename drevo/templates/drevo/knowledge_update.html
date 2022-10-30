@@ -19,7 +19,13 @@
         {% endfor %}
         <input type="submit" class="btn btn-primary" value="{% if user.is_expert %}Сохранить Знание{% else %}Сохранить ПредЗнание{% endif %}">
     </form>
-
+    <div class="knowledge_actions">
+        {% if actions %}
+            {% for action in actions %}
+                <a class="btn btn-primary know_action_btn" href="{% url 'znanie_change_status' pk action.1 %}">{{ action.0 }}</a>
+            {% endfor %}
+        {% endif %}
+    </div>
 
 
 {% endblock %}
