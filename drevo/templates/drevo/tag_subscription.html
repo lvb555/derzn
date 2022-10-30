@@ -2,17 +2,40 @@
 
 {% load static %}
 
-{% block title %}Управление подписками{% endblock %}
+{% block title %}Подписки на теги{% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/sub_by_tag.css' %}">
+{% endblock %}
 
 {% block content %}
 
-<h4>Подписка по тегам</h4><br>
+<a href="{% url 'users:myprofile' %}" class="link-dark" id="back">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left"
+         viewBox="0 0 16 16">
+        <path fill-rule="evenodd"
+              d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+    </svg>
+    Вернуться в профиль
+</a>
+
+
+<h4 align="center" class="h4">Подписка по тегам</h4>
+<br>
+<br>
 
 <div class="row">
-    <div class="col-3">
-        <input type="checkbox" value="Select All" name="selectAll" onclick="selectAll()" class="selectAll"> Выделить все
+    <div class="col-2">
+        <div class="form-check">
+            <input type="checkbox" value="Select All" name="selectAll" onclick="selectAll()"
+                   class="form-check-input selectAll" id="flexCheckDisabled">
+            <label class="form-check-label" for="flexCheckDisabled">Выделить все</label>
+        </div>
     </div>
-    <div class="col-5"></div>
+    <div class="form-check form-switch col-6">
+        <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" onclick="allTag(this)">
+        <label class="form-check-label" for="flexSwitchCheckDefault">Показать все теги</label>
+    </div>
     <div class="col-1" align="right">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
              viewBox="0 0 16 16">
@@ -26,12 +49,15 @@
 <br>
 
 
-<div id="checkbox_form">
-    <form method="post" name="tags">
-        <table border="1" width="50%" id="info-table" class="table table-striped">
+<h4 id="noSubsText" align="center">Вы не подписаны ни на один тег. Нажмите на "Показать все теги" и подпишитесь!</h4>
+
+
+<form method="post" name="tags">
+    <div id="checkbox_form">
+        <table width="50%" id="info-table" class="table table-striped">
             {% for label in labels %}
             <tr>
-                <td>
+                <td width="8%">
                     <input type="checkbox" value="{{label.name}}" class="checkbox_1"
                            onchange="changeFlag(this)"
                            {% if request.user in label.subscribers.all %} checked {% endif %}>
@@ -42,14 +68,19 @@
             </tr>
             {% endfor %}
         </table>
-        <br>
-        <br>
-        <input type="submit" value="Сохранить" class="button" id="submit" onclick="send_data()">
-        <button id="reset" name="reset">Отменить</button>
+    </div>
 
-        {% csrf_token %}
-    </form>
-</div>
+    <br>
+    <input type="submit" value="Сохранить" class="button btn btn-outline-dark" id="submit" onclick="send_data()">
+    <button id="reset" name="reset" class="btn btn-outline-dark">Отменить</button>
+
+    {% csrf_token %}
+
+</form>
+
+
+<br>
+<br>
 <br>
 
 

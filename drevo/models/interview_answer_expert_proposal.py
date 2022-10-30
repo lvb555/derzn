@@ -128,6 +128,17 @@ class InterviewAnswerExpertProposal(models.Model):
         verbose_name="Новый ответ",
     )
 
+    # реквизит "Ответ для дублей" - указатель на сущность "Знания". Это ответ,
+    # который устанавливается если предложенный экспертом ответ на вопрос уже существует.
+    duplicate_answer = models.ForeignKey(
+        to=Znanie,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="duplicate_answer_proposals",
+        verbose_name="Ответ для дублей",
+    )
+
     # реквизит "Администратор" - указатель на сущность "Пользователи"
     admin_reviewer = models.ForeignKey(
         User,

@@ -14,7 +14,7 @@ class InterviewAnswerExpertProposalForms(forms.ModelForm):
             'admin_comment': forms.Textarea(
                 attrs={'class': 'form-control', 'style': 'overflow-y: scroll; height: 125px; width: 250px'}
             ),
-            'status': forms.Select(attrs={'class': 'form-control'})
+            'status': forms.Select(attrs={'class': 'form-control', 'style': 'width: 200px'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -32,3 +32,6 @@ class InterviewAnswerExpertProposalForms(forms.ModelForm):
             self.old_answer = self.instance.new_answer
         else:
             self.old_answer = self.instance.answer
+        if self.instance.status:
+            self.fields['admin_comment'].widget.attrs['disabled'] = 'true'
+            self.fields['status'].widget.attrs['disabled'] = 'true'

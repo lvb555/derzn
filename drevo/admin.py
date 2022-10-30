@@ -14,6 +14,8 @@ from .forms.relation_form import RelationAdminForm
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation_grade import RelationGrade
 from drevo.models.relation_grade_scale import RelationGradeScale
+from drevo.models import FriendsTerm
+from drevo.models import FriendsInviteTerm
 from .forms import (
     ZnanieForm,
     AuthorForm,
@@ -459,6 +461,10 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
 
     def answer_link(self, obj):
         return self.link_to_knowledge_change(obj.answer)
+
+
+admin.site.register(FriendsTerm)
+admin.site.register(FriendsInviteTerm)
 
 
 @admin.register(KnowledgeStatuses)

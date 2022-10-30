@@ -140,21 +140,15 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                 obj = form.save(commit=False)
 
                 status = obj.status
-                answer_pk = request.POST[f'expert-{obj.pk}-answer']
+                answer_pk = request.POST.get(f'expert-{obj.pk}-answer', 'None')
                 if answer_pk != 'None':
                     answer = answers.get(rz__pk=answer_pk).rz
                 else:
                     answer = None
                 comment = obj.admin_comment
-
                 # Проверка на наличие изменений в записи
-                if (status == form.old_status) and (answer == form.old_answer) and (comment == form.old_comment):
+                if form.old_status is not None:
                     continue
-
-                if obj.status == 'APPRVE':
-                    obj.new_answer = answer
-                else:
-                    obj.answer = answer
 
                 # Если админ изменил статус на "Принят",
                 # то создаётся новое знание и связь на основе введённых админом данных
@@ -203,7 +197,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     # Если дата создания выбранного ответа меньше даты создания
                     # предложения эксперта, то статус "Дублирует ответ", иначе "Дублирует предложение"
                     obj.status = 'ANSDPL' if answer.date < form.instance.updated.date() else 'RESDPL'
-                    obj.answer = answer
+                    obj.duplicate_answer = answer
 
                 obj.admin_reviewer = request.user
                 obj.save()
@@ -242,4 +236,5 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     context['questions'] = list(zip(queryset, formset))
     context['formset'] = formset
     context['backup_url'] = reverse_lazy('interview_quests', kwargs={'pk': inter_pk})
+    context['props_without_status'] = queryset.filter(status__isnull=True).exists()
     return render(request, 'drevo/admin_interview_work_page/question_admin_work.html', context)
