@@ -29,6 +29,7 @@ from .views import (
     friends_added_view,
     friends_invite_view,
     KnowledgeFormView,
+    TestirovanieListView,
 )
 from .views import send_znanie
 from .views.expert_work.views import (
@@ -47,6 +48,7 @@ urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
     path("", DrevoView.as_view(), name="drevo"),
     path("znanie/<int:pk>", ZnanieDetailView.as_view(), name="zdetail"),
+    path("all_tests/", TestirovanieListView.as_view(), name="all_tests"),
     path("znanie/<int:pk>/favourite", FavouriteProcessView.as_view()),
     path("znanie/<int:pk>/comments/", CommentPageView.as_view()),
     path("znanie/<int:pk>/comments/send/", CommentSendView.as_view()),

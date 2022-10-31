@@ -1,3 +1,4 @@
+from drevo.views.testirovanie_list_view import TestirovanieListView
 from .author_detail_view import AuthorDetailView
 from .authors_list_view import AuthorsListView
 from .browsing_history import BrowsingHistoryListView
@@ -62,4 +63,5 @@ __all__ = [
     "update_answer_proposal",
     "QuestionExpertWorkPage",
     "send_znanie",
+    'TestirovanieListView'
 ]
