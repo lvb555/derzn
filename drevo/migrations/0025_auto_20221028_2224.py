@@ -12,10 +12,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveConstraint(
-            model_name="interviewanswerexpertproposal",
-            name="can't place new text with link to exist answer",
-        ),
         migrations.AddField(
             model_name="label",
             name="subscribers",
