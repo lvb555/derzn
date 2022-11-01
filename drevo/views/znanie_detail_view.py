@@ -2,11 +2,11 @@ from django.views.generic import DetailView
 from datetime import datetime
 
 from users.models import Favourite
-from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory
+from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory, Tz
 from loguru import logger
 from ..relations_tree import (get_category_for_knowledge, get_ancestors_for_knowledge,
                               get_siblings_for_knowledge,
-                              get_children_by_relation_type_for_knowledge)
+                              get_children_by_relation_type_for_knowledge, get_children_for_knowledge)
 import humanize
 
 
@@ -20,7 +20,12 @@ class ZnanieDetailView(DetailView):
     """
     model = Znanie
     context_object_name = 'znanie'
-    template_name = 'drevo/znanie_detail.html'
+
+    def get_template_names(self):
+        if self.object.tz in Tz.objects.filter(name='Тест'):
+            return ['drevo/testirovanie_detail.html']
+        else:
+            return ['drevo/znanie_detail.html']
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
@@ -103,5 +108,35 @@ class ZnanieDetailView(DetailView):
         context['comment_max_length'] = Comment.CONTENT_MAX_LENGTH
 
         context['table'] = knowledge.get_table_object()
+
+        # возвращает кнопку прохождения тестирования, если знание- базовое для теста
+        der = get_children_by_relation_type_for_knowledge(
+            knowledge)
+        context['button'] = []
+        for child, rez in der.items():
+            if child.pk == 24:
+                context['button'].append(rez)
+
+        # создает контекст, в котором "внуки" знания, если это знание - тест
+        if self.object.tz in Tz.objects.filter(name='Тест'):
+
+            context['pwe'] = {}
+            context['pravotvet'] = {}
+            for i in context['rels']:
+
+                for item in i[1]:
+
+                    zn = item.rz.pk
+
+                    knowledge1 = Znanie.objects.get(pk=zn)
+
+                    context['pwe'][str(item.rz)] = get_children_for_knowledge(
+                        knowledge1)
+                    c = get_children_by_relation_type_for_knowledge(
+                        knowledge1)
+
+                    for child, rez in c.items():
+                        if child.pk == 26:
+                            context['pravotvet'][str(item.rz)] = rez
 
         return context

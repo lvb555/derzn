@@ -1,0 +1,27 @@
+{% extends 'drevo/base.html' %}
+
+{% block title %}Тесты{% endblock %}
+
+{% block content %}
+
+<h2>Тесты</h2>
+
+{% for term in all_tests %}
+
+<div class="row">
+    <div class="col">
+        <a href="{{ term.get_absolute_url }}" style="color: black;text-decoration:none;">{{ term.name }}</a>
+    </div>
+</div>
+<br>
+<hr>
+{% empty %}
+<div class="row">
+    <div class="col">
+        Нет доступных тестов
+    </div>
+</div>
+
+{% endfor %}
+
+{% endblock %}
