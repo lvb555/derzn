@@ -1,0 +1,72 @@
+{% extends 'drevo/base.html' %}
+
+{% load static %}
+
+{% block title %}Лента знаний{% endblock %}
+
+{% block content %}
+
+
+<h2>Лента знаний {% if unread %} <a class="btn btn-primary btn-sm">{{ unread }}</a> {% endif %}</h2>
+
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/search.css' %}">
+{% endblock %}
+
+<div class="container mt-3">
+    {% for item in messages %}
+        <div class="card text-center mt-3" style="border-top: 1px solid #083E2F">
+            <div class="card-header d-flex justify-content-around" style="display: flex; align-items: center">
+                <div style="display: flex; align-items: center">
+                    <form method="GET" action="">
+                        {% csrf_token %}
+                        {% if item.message.was_read %}
+                            <input type="checkbox" class="message-checkbox" value="{{item.message.id}}" checked>Прочитано
+                        {% else %}
+                            <input type="checkbox" class="message-checkbox" value="{{item.message.id}}">Прочитано
+                        {% endif %}
+                    </form>
+                </div>
+                <div class="d-flex justify-content-center" style="display: flex; align-items: center">
+                    {% if item.sender.avatar %}
+                        <img src="{{ item.sender.avatar.url }}" class="rounded-circle" height="50px" width="50px">
+                    {% endif %}
+                    <h6 class="ms-2">{{item.sender.user.first_name}} {{item.sender.user.last_name}}</h6>
+                </div>
+                <h6>{{item.message.label.name}}</h6>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title text-end">{{item.znanie.tz.name}}</h5>
+                <div style="border: 1px solid #212121">
+                    <a href="{% url 'zdetail' item.znanie.id %}" style="text-decoration: none; color: #212121"><p class="card-text mb-5">{{item.znanie.name}}</p></a>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <p class="text-start mt-3">- {{item.message.text}}</p>
+                    <p class="text-end">{{item.message.get_time}}</p>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'send_to_feed' item.znanie.id %}" style="text-decoration: none; color: #212121"><i class="cart-icon material-icons text-success">reply</i>Переслать</a>
+                    <a href="{% url 'delete_message' item.message.id %}" class="delete-message" style="text-decoration: none; color: #212121"><i class="cart-icon material-icons text-danger">delete</i>Удалить</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    var all_checkboxes = document.getElementsByClassName('message-checkbox'); // все чекбоксы сообщений
+
+    // ajax-запрос на изменение значения was_read выбранного сообщения 
+    Array.from(all_checkboxes).forEach(element => {
+        element.onchange = function() {
+            $.ajax({ 
+            url:  `{% url 'knowledge_feed' %}`, 
+            type: 'POST', 
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}', "checkbox": element.value}
+            });
+        }
+    });
+</script>
+
+{% endblock %}

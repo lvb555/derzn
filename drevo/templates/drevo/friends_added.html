@@ -25,8 +25,9 @@
         <th>Имя</th>
         <th>Фамилия</th>
     </tr>
+    <tbody>
     {% for one in profiles %}
-        <tbody>
+        {% if not one.user_id == request.user.id %}
             <tr>
                 <td>
                     <img src="{{ one.avatar.url }}" height="50px" width="50px">
@@ -44,19 +45,20 @@
                                 Добавить в друзья
                             </button>
                         {% elif one.relation_to_request_user == 'subscriber' %}
-                            <button class="btn btn-sm fw-bold" disabled name="add" value="{{ one.user_id }}" style="background: #FF8A04;">
+                            <button class="btn btn-sm fw-bold" disabled name="add" style="background: #FF8A04;">
                                 Приглашение отправлено
                             </button>
                         {% elif one.relation_to_request_user == 'friend' %}
-                            <button class="btn btn-success btn-sm" disabled name="add" value="{{ one.user_id }}" >
+                            <button class="btn btn-success btn-sm" disabled name="add">
                                 Друг
                             </button>
                         {% endif %}
                     </form>
                 </td>
             </tr>
-        </tbody>
+        {% endif %}
     {% endfor %}
+    </tbody>
 </table>
 
 
