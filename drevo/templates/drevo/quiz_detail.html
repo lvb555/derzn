@@ -4,7 +4,7 @@
 {% block cssfiles %} <style type="text/css">
    TD, TH {
     padding: 5px;
-    border: 2px solid;
+    border: 2px solid black;
    }
   </style>{% endblock %}
 
@@ -13,31 +13,31 @@
 
 {% block content %}
 
-{% if pwe %}
+{% if all_answers_and_questions %}
 <div style="margin-left: auto;margin-right: auto; text-align:center; display: flex;flex-direction: row;
 justify-content: flex-start;">
     <div id="preotvet" style="width: 20%; margin-top: 50px;"></div>
-    <p style="display: none" id="countqs" >{{ pwe|length}}</p>
-    {% for vopros, otvets in pwe.items %}
-    {% for a, b in pravotvet.items %}
-    {% if vopros in a%}
+    <p style="display: none" id="countqs" >{{ all_answers_and_questions|length}}</p>
+    {% for vopros, otvets in all_answers_and_questions.items %}
+    {% for question, answer in right_answer.items %}
+    {% if vopros in question%}
     <div id='a' class="cont" style="display: none; width: 60%;">
         <p>Тест: {{ znanie.tz }}</p>
-        <div class="checkboxgroup" id="{{a}}1">
-            <h5 id="{{vopros}}" class='vopr' style="display: none">{{b|length}}</h5>
+        <div class="checkboxgroup" id="{{question}}1">
+            <h5 id="{{vopros}}" class='vopr' style="display: none">{{answer|length}}</h5>
             <p>Вопрос: {{vopros}}</p>
-            <p>Количество ответов {{b|length}}</p>
+            <p>Количество ответов {{answer|length}}</p>
             {% for otvet in otvets %}
-            {% if otvet in b %}
+            {% if otvet in answer %}
                 <label>
                     <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{vopros}}" value="1">
                     {{ otvet }}
-                </label>
+                </label><br>
             {% else %}
                 <label>
                     <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{vopros}}" value="0">
                     {{ otvet }}
-                </label>
+                </label><br>
             {% endif %}
             {% endfor %}
         </div>
@@ -48,23 +48,23 @@ justify-content: flex-start;">
 </div>
 <div  id="rezultat" style="display: none;text-align:center;">
     <p>Тест: {{ znanie.tz }}</p>
-    <table border="1" align="center" width="60%">
+    <table id="reztable" border="1" align="center" width="60%" >
 			<thead>
 				<tr>
 					<th>Вопрос</th>
 					<th>Оценка</th>
-                    <th>Число баллов</th>
+                    <th>Число верных ответов / число всех ответов</th>
 				</tr>
 			</thead>
         <tbody>
-    {%for vopros in pwe.keys %}
-    {% for a, b in pravotvet.items %}
-    {% if vopros in a%}
-				<tr id="{{vopros}}2">
+    {%for vopros in all_answers_and_questions.keys %}
+    {% for question, answer in right_answer.items %}
+    {% if vopros in question %}
+				<tr id="{{vopros}}2" style="color: red;">
 					<td id="question">{{vopros}}</td>
                     <td id="grade">Неудовлетворительно</td>
                     <td id="answer"><p style="margin: 0; display: inline;">0/</p>
-                        <p class="Allotvets" style="margin: 0; display: inline;" align="right">{{b|length}}</p> </td>
+                        <p class="Allotvets" style="margin: 0; display: inline;" align="right">{{answer|length}}</p> </td>
 				</tr>
     {% endif %}
     {% endfor %}
@@ -72,12 +72,12 @@ justify-content: flex-start;">
         </tbody>
         </table>
     <p id="result1"></p>
-    <p id="result2">Оценка теста: неудовлетворительно</p>
+    <p id="result2">Оценка теста: <span style="font-weight:bold">неудовлетворительно</span></p>
 </div>
 
 <div style="display: flex;justify-content: center;">
-    <button id="kn_sl" onclick="sled_vopr();" >Следующий вопрос</button>
-    <button id="rz" style="display: none;" ><a href="{{ znanie.get_absolute_url }}" style="color: black; text-decoration:none;">Повторить тест</a></button>
+    <button id="next_question" onclick="next_block();" >Следующий вопрос</button>
+    <button id="tryagain" style="display: none;" ><a href="{{ znanie.get_absolute_url }}" style="color: black; text-decoration:none;">Повторить тест</a></button>
 </div>
 
 {% endif %}
@@ -88,7 +88,7 @@ justify-content: flex-start;">
 
 let b = document.getElementsByClassName('cont').length;
 let res = document.getElementsByClassName('Allotvets');
-let w = 0;
+let countanswers = 0;
 
 function showFirst() {
     document.getElementsByClassName('cont')[0].style.display = "block";
@@ -99,7 +99,7 @@ function showFirst() {
     document.getElementById('preotvet').innerHTML = preanswers;
 
     for(let f=0; f< res.length; f++){
-        w+= +(res[f].textContent);
+        countanswers += +(res[f].textContent);
     }
 }
 
@@ -109,40 +109,42 @@ let d = 0;
 let step = 1;
 let result = 0;
 
-function sled_vopr(){
+function next_block(){
     var lst2 = Array.from(new Set(lst));
     if(lst2.length < step){
     document.getElementById(step).innerHTML = "<span style='color: red;'>Ответ-неверный</span>";
     lst.push('0'+step);
-    console.log('#utton was clicked');
     }else if(lst2.length == step ){
-        docs = document.getElementById(lst2[d]+'1');
-        let doccc = +(docs.querySelector('.vopr').textContent);
-        let docc = docs.querySelectorAll('input[type="checkbox"]');
+        questionblock = document.getElementById(lst2[d]+'1');
+        let countans = +(questionblock.querySelector('.vopr').textContent);
+        let answersinblock = questionblock.querySelectorAll('input[type="checkbox"]');
         let p = [];
-          for (let i=0; i<docc.length; i++) {
-             if(docc[i].checked == true){
-                p.push(+(docc[i].value));
+          for (let i=0; i<answersinblock.length; i++) {
+             if(answersinblock[i].checked == true){
+                p.push(+(answersinblock[i].value));
              }
           }
-        cer = p.reduce((partialSum, a) => partialSum + a, 0);
-        result += cer;
+        sum_of_answers = p.reduce((partialSum, a) => partialSum + a, 0);
+        result += sum_of_answers;
 
         let trs = document.getElementById(lst2[d]+'2');
 
         let td = trs.querySelectorAll('td');
-        if((~~((cer*100)/doccc)) > 90){
+        if((~~((sum_of_answers*100)/countans)) > 90){
             td[1].innerHTML = "Отлично";
-        }else if(90 >= (~~((cer*100)/doccc)) && (~~((cer*100)/doccc)) > 60){
+            trs.style.color = 'green';
+        }else if(90 >= (~~((sum_of_answers*100)/countans)) && (~~((sum_of_answers*100)/countans)) > 60){
             td[1].innerHTML = "Хорошо";
-        }else if(60 >= (~~((cer*100)/doccc)) && (~~((cer*100)/doccc)) > 30){
+            trs.style.color = 'purple';
+        }else if(60 >= (~~((sum_of_answers*100)/countans)) && (~~((sum_of_answers*100)/countans)) > 30){
             td[1].innerHTML = "Удовлетворительно";
+            trs.style.color = 'brown';
         }
-        td[2].innerHTML = cer+'/'+doccc;
+        td[2].innerHTML = sum_of_answers+'/'+countans;
 
-        if(cer == doccc){
+        if(sum_of_answers == countans){
         document.getElementById(step).innerHTML = "<span style='color: green;'>Ответ-верный</span>";
-        }else if(cer != doccc){
+        }else if(sum_of_answers != countans){
         document.getElementById(step).innerHTML = "<span style='color: red;'>Ответ-неверный</span>";
         }
         tabl = document.getElementById(lst2[d]+'2');
@@ -155,22 +157,22 @@ function sled_vopr(){
     }else if(step==b-1){
     document.getElementsByClassName('cont')[d].style.display = "none";
     document.getElementsByClassName('cont')[step].style.display = "block";
-    document.getElementById('kn_sl').innerHTML = 'Результат';
+    document.getElementById('next_question').innerHTML = 'Результат';
     d += 1;
     step +=1;
     }else if(step == b){
     document.getElementsByClassName('cont')[d].style.display = "none";
     document.getElementById('rezultat').style.display = 'block';
-    document.getElementById('kn_sl').style.display = 'none';
+    document.getElementById('next_question').style.display = 'none';
     document.getElementById('preotvet').style.display = 'none';
-    document.getElementById('rz').style.display = 'block';
-    document.getElementById('result1').innerHTML = 'Всего: ' + result + '/' +w;
-    if((~~((result*100)/w)) > 90){
-        document.getElementById('result2').innerHTML = "Оценка теста: отлично";
-    }else if(90 >= (~~((result*100)/w)) && (~~((result*100)/w)) > 60){
-        document.getElementById('result2').innerHTML = "Оценка теста: хорошо";
-    }else if(60 >= (~~((result*100)/w)) && (~~((result*100)/w)) > 30){
-        document.getElementById('result2').innerHTML = "Оценка теста: удовлетворительно";
+    document.getElementById('tryagain').style.display = 'block';
+    document.getElementById('result1').innerHTML = 'Всего: ' + result + '/' +countanswers;
+    if((~~((result*100)/countanswers)) > 90){
+        document.getElementById('result2').innerHTML = "Оценка теста: <span style='font-weight:bold'>отлично</span>";
+    }else if(90 >= (~~((result*100)/countanswers)) && (~~((result*100)/countanswers)) > 60){
+        document.getElementById('result2').innerHTML = "Оценка теста: <span style='font-weight:bold'>хорошо</span>";
+    }else if(60 >= (~~((result*100)/countanswers)) && (~~((result*100)/countanswers)) > 30){
+        document.getElementById('result2').innerHTML = "Оценка теста: <span style='font-weight:bold'>удовлетворительно</span>";
     }
     }
 }

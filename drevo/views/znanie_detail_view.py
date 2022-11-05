@@ -23,7 +23,7 @@ class ZnanieDetailView(DetailView):
 
     def get_template_names(self):
         if self.object.tz in Tz.objects.filter(name='Тест'):
-            return ['drevo/testirovanie_detail.html']
+            return ['drevo/quiz_detail.html']
         else:
             return ['drevo/znanie_detail.html']
 
@@ -42,7 +42,7 @@ class ZnanieDetailView(DetailView):
         # получаем список всех видов связей
         ts = Tr.objects.all()
 
-        context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True)]
+        context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True).prefetch_related('rz')]
                            for item in ts if qs.filter(tr=item, rz__is_published=True).count() > 0]
 
         # сохранение ip пользователя
@@ -110,33 +110,29 @@ class ZnanieDetailView(DetailView):
         context['table'] = knowledge.get_table_object()
 
         # возвращает кнопку прохождения тестирования, если знание- базовое для теста
-        der = get_children_by_relation_type_for_knowledge(
-            knowledge)
+
         context['button'] = []
-        for child, rez in der.items():
-            if child.pk == 24:
-                context['button'].append(rez)
+        for relation, children in context['children_by_tr'].items():
+            if relation.pk == 24:
+                context['button'].append(children)
 
         # создает контекст, в котором "внуки" знания, если это знание - тест
         if self.object.tz in Tz.objects.filter(name='Тест'):
 
-            context['pwe'] = {}
-            context['pravotvet'] = {}
-            for i in context['rels']:
+            context['all_answers_and_questions'] = {}
+            context['right_answer'] = {}
+            for relation_name, relations in context['rels']:
 
-                for item in i[1]:
+                for item in relations:
 
-                    zn = item.rz.pk
+                    context['all_answers_and_questions'][str(item.rz)] = get_children_for_knowledge(
+                        item.rz)
+                    grandson = get_children_by_relation_type_for_knowledge(
+                        item.rz)
 
-                    knowledge1 = Znanie.objects.get(pk=zn)
+                    for question, answer in grandson.items():
+                        if question.pk == 26:
+                            context['right_answer'][str(item.rz)] = answer
 
-                    context['pwe'][str(item.rz)] = get_children_for_knowledge(
-                        knowledge1)
-                    c = get_children_by_relation_type_for_knowledge(
-                        knowledge1)
-
-                    for child, rez in c.items():
-                        if child.pk == 26:
-                            context['pravotvet'][str(item.rz)] = rez
 
         return context

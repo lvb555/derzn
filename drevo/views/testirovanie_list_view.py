@@ -13,4 +13,5 @@ class TestirovanieListView(ListView):
     template_name = 'drevo/all_tests.html'
     model = Znanie
     context_object_name = 'all_tests'
-    queryset = Znanie.objects.filter(is_published=True,tz_id=21)
+    test_type = Tz.objects.get(name='Тест')
+    queryset = Znanie.objects.filter(tz=test_type, is_published=True)
