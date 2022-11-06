@@ -57,7 +57,7 @@
                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     Подготовка знаний</a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                    {% if not user.is_redactor and not user.is_director and not user.in_klz %}
+                                    {% if not user.is_director and not user.in_klz %}
                                     <li><a class="dropdown-item" href="{% url 'znanie_create' %}"
                                            id="znanie_create">
                                         {% if user.is_expert %}
@@ -76,16 +76,20 @@
                                     </a></li>
                                     {% if user.is_expert %}
                                     <li><a class="dropdown-item"
-                                           href="#"
+                                           href="{% url 'znanie_expert_process' %}"
                                            id="znanie_process_exp">Экспертиза ПредЗнания</a>
+                                    </li>
+                                    {% endif %}
+                                    {% if user.is_redactor %}
+                                    <li><a class="dropdown-item"
+                                           href="{% url 'znanie_redactor_process' %}"
+                                           id="znanie_process_red">Редактирование ПредЗнания и Знания</a>
                                     </li>
                                     {% endif %}
                                     {% else %}
                                     <li><a class="dropdown-item" href="#"
                                            id="znanie_process">
-                                        {% if user.is_redactor %}
-                                        Редактирование ПредЗнания и Знания
-                                        {% elif user.is_director %}
+                                        {% if user.is_director %}
                                         Публикация ПредЗнания и Знания
                                         {% elif user.in_klz %}
                                         Клуб любителей знания (КЛЗ)

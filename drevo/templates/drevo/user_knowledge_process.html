@@ -27,6 +27,8 @@
 
                         {% if not node.has_published_children and zn_dict|dict_value:node.name|length_is:"0" %}
                             <i class="bi-file-plus-fill lonely"></i>
+                        {% elif not node.has_published_children and zn_dict|dict_value:node.name is None %}
+                            <i class="bi-file-plus-fill lonely"></i>
                         {% else %}
                             <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
                         {% endif %}
@@ -40,7 +42,7 @@
                                         <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
                                         <a href="{{ zn.get_absolute_url }}">{{ zn.name }}</a>
                                     </li>
-                                {% elif zn.get_current_status.status in var.TRANSITIONS_PUB %}
+                                {% else %}
                                     <li style="font-weight: 400;">
                                         <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
                                         <a href="{{ zn.get_absolute_url }}"
@@ -52,7 +54,9 @@
                                         >
                                             {{ zn.name }}
                                         </a>
-                                        <a href="{% url 'znanie_update' zn.pk %}">
+                                        <a href="{% url 'znanie_update' zn.pk %}{%if title == 'Экспертиза ПредЗнания'%}?level=expert
+                                        {% elif title == 'Редактирование ПредЗнания и Знания' %}?level=redactor
+                                        {%endif%}">
                                             <img src="{% static '/drevo/img/pencil.png' %}">
                                         </a>
                                     </li>
@@ -71,10 +75,10 @@
             </ul>
         </div>
         <div class="btn_legend">
-            <div class="create_button">
-                <a class="btn btn-primary" href="{% url 'znanie_create' %}">{% if user.is_expert %}Создать
-                    Знание{% else %}Создать ПредЗнание{% endif %}</a>
-            </div>
+<!--            <div class="create_button">-->
+<!--                <a class="btn btn-primary" href="{% url 'znanie_create' %}">{% if user.is_expert %}Создать-->
+<!--                    Знание{% else %}Создать ПредЗнание{% endif %}</a>-->
+<!--            </div>-->
             <div class="legend">
                 <h4 class="legend_title">Легенда</h4>
                 <ul class="legend_list">

@@ -11,11 +11,12 @@ from drevo.forms.knowledge_update_form import ZnanieUpdateForm, ZnImageEditFormS
 from drevo.models import Znanie, KnowledgeStatuses, Category
 
 
-def get_knowledge_dict(knowledge):
+def get_knowledge_dict(knowledge, user=None):
     """
     Возвращает кортеж, который содержит кверисет с категориями и
     словарь, в котором ключи - категории, а значения - знания
     :param knowledge: кверисет со знаниями
+    :param user: ползьзователь
     :return: кортеж: (категории, {категория: знания})
     """
     _knowledge_dict = {}
@@ -23,11 +24,51 @@ def get_knowledge_dict(knowledge):
     _categories = Category.tree_objects.exclude(is_published=False)
 
     for category in _categories:
-        zn_in_this_category = knowledge.filter(
-            category=category)
-        _knowledge_dict[category.name] = zn_in_this_category
+        if user:
+            experts = category.get_expert_ancestors_category()
+            if user in experts:
+                zn_in_this_category = knowledge.filter(
+                    category=category)
+                _knowledge_dict[category.name] = zn_in_this_category
+        else:
+            zn_in_this_category = knowledge.filter(
+                category=category)
+            _knowledge_dict[category.name] = zn_in_this_category
 
     return _categories, _knowledge_dict
+
+
+def set_auto_status(instance: Znanie, user, level):
+    """
+    Устанавливает автоматически статус в соответствии с таблицей переходов
+    :param instance: Объект сущности Знание
+    :param user: объект пользователя
+    :param level: уровень технологического процесса
+    """
+    current_status = instance.get_current_status
+    if level == 'expert' and current_status.status == 'PRE_FIN':
+        new_status = 'PRE_EXP'
+        instance.expert = user
+    elif level == 'redactor':
+        if current_status.status == 'FIN':
+            new_status = 'REDACT'
+        elif current_status.status == 'PRE_FIN_EXP':
+            new_status = 'PRE_REDACT'
+        else:
+            return False
+        instance.redactor = user
+    else:
+        return False
+
+    current_status.is_active = False
+    current_status.save()
+    KnowledgeStatuses.objects.create(
+        knowledge=instance,
+        status=new_status,
+        user=user,
+        is_active=True
+    )
+    instance.save()
 
 
 class KnowledgeCreateView(LoginRequiredMixin, CreateView):
@@ -102,7 +143,7 @@ class KnowledgeCreateView(LoginRequiredMixin, CreateView):
 
 class UserKnowledgeProcessView(LoginRequiredMixin, TemplateView):
     """
-    Представление этапа редактирования знаний пользователя
+    Представление этапа изменения знаний пользователя
     """
     template_name = 'drevo/user_knowledge_process.html'
 
@@ -115,7 +156,16 @@ class UserKnowledgeProcessView(LoginRequiredMixin, TemplateView):
 
         # формирование списка Знаний по категориям
         # Формирование списка опубликованных знаний и знаний, созданных пользователем
-        zn = Znanie.objects.filter(Q(is_published=True) | Q(user=user))
+        zn = Znanie.objects.filter(Q(is_published=True) |
+                                   (Q(user=user) &
+                                    (Q(knowledge_status__status='WORK_PRE') |
+                                     Q(knowledge_status__status='RET_PRE_EDIT') |
+                                     Q(knowledge_status__status='PRE_FIN') |
+                                     Q(knowledge_status__status='WORK') |
+                                     Q(knowledge_status__status='RET_TO_EDIT') |
+                                     Q(knowledge_status__status='FIN')
+                                     ) & Q(knowledge_status__is_active=True))
+                                   )
 
         context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn)
         context['var'] = variables
@@ -127,8 +177,77 @@ class UserKnowledgeProcessView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class ExpertKnowledgeProcess(LoginRequiredMixin, TemplateView):
+    """Представление страницы работы эксперта"""
+    template_name = 'drevo/user_knowledge_process.html'
+
+    def get_context_data(self, **kwargs):
+        """
+        Передает контекст в шаблон
+        """
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        # Формирование списка неопубликованных знаний
+        zn = Znanie.objects.filter(
+            Q(is_published=False) &
+            (
+                    (Q(knowledge_status__status='PRE_FIN') |
+                     Q(knowledge_status__status='PRE_REJ') |
+                     (
+                             (Q(knowledge_status__status='PRE_EXP') |
+                              Q(knowledge_status__status='PRE_REF_EXP') |
+                              Q(knowledge_status__status='PRE_FIN_EXP')
+                              ) & Q(expert=user)
+                     )
+                     ) & Q(knowledge_status__is_active=True))
+        )
+
+        context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn, user=user)
+        context['var'] = variables
+        context['title'] = 'Экспертиза ПредЗнания'
+
+        return context
+
+
+class RedactorKnowledgeProcess(LoginRequiredMixin, TemplateView):
+    """Представление страницы работы редактора"""
+    template_name = 'drevo/user_knowledge_process.html'
+
+    def get_context_data(self, **kwargs):
+        """
+        Передает контекст в шаблон
+        """
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        # Формирование списка неопубликованных знаний
+        zn = Znanie.objects.filter(
+            Q(is_published=False) &
+            (
+                    (Q(knowledge_status__status='PRE_FIN_EXP') |
+                     Q(knowledge_status__status='FIN') |
+                     (
+                             (Q(knowledge_status__status='PRE_REDACT') |
+                              Q(knowledge_status__status='PRE_REF_RED') |
+                              Q(knowledge_status__status='PRE_FIN_RED') |
+                              Q(knowledge_status__status='REDACT') |
+                              Q(knowledge_status__status='REF_RED') |
+                              Q(knowledge_status__status='FIN_RED')
+                              ) & Q(redactor=user)
+                     )
+                     ) & Q(knowledge_status__is_active=True))
+        )
+
+        context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn)
+        context['var'] = variables
+        context['title'] = 'Редактирование ПредЗнания и Знания'
+
+        return context
+
+
 class KnowledgeUpdateView(LoginRequiredMixin, UpdateView):
-    """Класс представления редактирования знания"""
+    """Класс представления изменения знания"""
     model = Znanie
     form_class = ZnanieUpdateForm
     template_name = 'drevo/knowledge_update.html'
@@ -137,18 +256,27 @@ class KnowledgeUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
         context = super().get_context_data(**kwargs)
+        tp_level = self.request.GET.get('level')
         # Формируем наименование страницы в зависимости от того является пользователь экспертом или нет
-        if self.request.user.is_expert:
-            context['title'] = 'Редактирование Знания'
+        if tp_level == 'expert':
+            context['title'] = 'Экспертиза ПредЗнания'
+        elif self.request.user.is_expert:
+            context['title'] = 'Изменение Знания'
         else:
-            context['title'] = 'Редактирование ПредЗнания'
+            context['title'] = 'Изменение ПредЗнания'
 
         knowledge_pk = self.kwargs.get('pk')
         knowledge = Znanie.objects.get(pk=knowledge_pk)
-        # Так как любой пользователь может создавать предзнания, получаем возможные действия как для публики
+
         if knowledge:
+            # Получаем возможные действия
             current_status = knowledge.get_current_status.status
-            actions = variables.TRANSITIONS_PUB[current_status]
+            if tp_level == 'expert':
+                actions = variables.TRANSITIONS_EXP[current_status]
+            elif tp_level == 'redactor':
+                actions = variables.TRANSITIONS_RED[current_status]
+            else:
+                actions = variables.TRANSITIONS_PUB[current_status]
             context['actions'] = actions
 
         context['pk'] = knowledge_pk
@@ -158,6 +286,12 @@ class KnowledgeUpdateView(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         """Обрабатывает GET запрос"""
         self.object = self.get_object()
+
+        # Выполняем автоматическое изменение статуса при открытии в соответствии с таблицей переходов
+        tp_level = self.request.GET.get('level')
+        if tp_level:
+            set_auto_status(self.object, self.request.user, tp_level)
+
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         image_form = ZnImageEditFormSet(instance=self.object)
