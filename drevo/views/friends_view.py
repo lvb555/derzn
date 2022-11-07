@@ -7,7 +7,7 @@ from users.models import Profile, User
 
 def friends_view(request):
     """
-    Контрол для страницы "Друзья"
+    Контроль для страницы "Друзья"
     """
     context = {'friends': []}
 
@@ -21,8 +21,16 @@ def friends_view(request):
 
     user_friend_links = FriendsTerm.objects.filter(user=request.user).prefetch_related("friend")
     for friend_link in user_friend_links:
+        data = {}
+
         user = friend_link.friend
-        context['friends'].append(user)
+        profile = Profile.objects.get(user_id = user)
+
+        data['first_name'] = user.first_name
+        data['last_name'] = user.last_name
+        data['avatar'] = profile.avatar or ''
+        data['user_id'] = user.id
+        context['friends'].append(data)
 
     template_name = 'drevo/friends.html'
     return render(request, template_name, context)

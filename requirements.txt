@@ -1,4 +1,5 @@
 asgiref==3.3.4
+DateTime==4.7
 dj-database-url==0.5.0
 Django==3.2.4
 django-admin-sortable2==1.0.2

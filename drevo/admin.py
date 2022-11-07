@@ -14,8 +14,12 @@ from .forms.relation_form import RelationAdminForm
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation_grade import RelationGrade
 from drevo.models.relation_grade_scale import RelationGradeScale
-from drevo.models import FriendsTerm
-from drevo.models import FriendsInviteTerm
+from drevo.models.friends import FriendsTerm
+from drevo.models.friends_invite import FriendsInviteTerm
+from drevo.models.label_feed_message import LabelFeedMessage
+from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
+
+
 from .forms import (
     ZnanieForm,
     AuthorForm,
@@ -465,3 +469,5 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
 
 admin.site.register(FriendsTerm)
 admin.site.register(FriendsInviteTerm)
+admin.site.register(LabelFeedMessage)
+admin.site.register(FeedMessage)
