@@ -1,8 +1,8 @@
 {% extends "admin/base.html" %}
-
+{% load has_group %}
 {% block userlinks %}
 {{ block.super }}/
-{% if user.is_superuser %}
+{% if user.is_superuser or request.user|has_group:"Readers" %}
 <a href="{% url 'get-dump' %}">Скачать дамп базы данных</a>
 {% else %}
 Скачать дамп базы данных
