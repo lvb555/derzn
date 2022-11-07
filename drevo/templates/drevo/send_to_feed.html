@@ -46,13 +46,13 @@
             <div>
                 <p class="text-start">Получатели</p>
                 <input type="checkbox" id="all_friends" class="form-check-input shadow-none"> Все друзья
-                {% for friend in friends %}
+                {% for friendship in friendships %}
                     <div class="d-flex mt-2">
-                        <input type="checkbox" value="{{friend.user.id}}" class="me-1 form-check-input shadow-none checkbox">
-                        {% if friend.profile.avatar %}
-                            <img src="{{ friend.profile.avatar.url }}" class="rounded-circle" height="30px" width="30px">
+                        <input type="checkbox" value="{{friendship.friend.id}}" class="me-1 form-check-input shadow-none checkbox">
+                        {% if friendship.friend.profile.avatar %}
+                            <img src="{{ friendship.friend.profile.avatar.url }}" class="rounded-circle" height="30px" width="30px">
                         {% endif %}
-                        <p>{{friend.user.first_name}} {{friend.user.last_name}}</p>
+                        <p class="ms-1">{{friendship.friend.first_name}} {{friendship.friend.last_name}}</p>
                     </div>
                 {% endfor %}
             </div>
@@ -123,6 +123,9 @@
             url:  `{% url 'send_to_feed' znanie.id %}`, 
             type: 'POST', 
             data: {csrfmiddlewaretoken: '{{ csrf_token }}', "text": text, "label_id": label_id, "send_to_ids[]": friends_ids_array},
+            error: function(data){
+                alert(data.responseJSON.error); // текст ошибки
+                }
             }
         );
     })

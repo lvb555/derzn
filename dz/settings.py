@@ -13,10 +13,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = env.str('SECRET_KEY')
 
+
 DEBUG = env.bool('DEBUG')
-DEBUG = True
+
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+
 
 # Application definition
 
@@ -133,6 +135,7 @@ MEDIA_URL = '/media/'
 LOGIN_URL = '/users/login/'
 
 BASE_URL = env.str('BASE_URL')
+
 
 EMAIL_HOST = env.str('EMAIL_HOST')
 EMAIL_PORT = env.str('EMAIL_PORT')
