@@ -9,7 +9,7 @@
     {% endfor %} %}
 
     list="datalistOptions_{{ widget.name }}"
-    value="{{ widget.value.1 }}" onchange="changeInputandler(event)">
+    value="{{ widget.value.1 }}" onchange="changeInputHandler(event)">
 
 <input name="{{ widget.name }}"
     list="datalistOptions_{{ widget.name }}"
@@ -45,7 +45,7 @@
     })
 
 
-    function changeInputandler(event) {
+    function changeInputHandler(event) {
         const inputExtra = event.target;
         const input = inputExtra.nextElementSibling;
 
