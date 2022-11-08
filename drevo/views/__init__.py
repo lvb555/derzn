@@ -1,5 +1,5 @@
 from .author_detail_view import AuthorDetailView
-from drevo.views.testirovanie_list_view import TestirovanieListView
+from drevo.views.quiz_list_view import QuizListView
 from .authors_list_view import AuthorsListView
 from .browsing_history import BrowsingHistoryListView
 from .comment_page_view import CommentPageView
@@ -63,5 +63,5 @@ __all__ = [
     "update_answer_proposal",
     "QuestionExpertWorkPage",
     "send_znanie",
-    'TestirovanieListView',
+    'QuizListView',
 ]

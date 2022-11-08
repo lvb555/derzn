@@ -6,11 +6,11 @@ logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
 
 
-class TestirovanieListView(ListView):
+class QuizListView(ListView):
     """
     выводит список теcтов
     """
-    template_name = 'drevo/all_tests.html'
+    template_name = 'drevo/all_quizzes.html'
     model = Znanie
     context_object_name = 'all_tests'
     test_type = Tz.objects.get(name='Тест')
