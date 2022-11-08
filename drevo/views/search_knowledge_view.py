@@ -1,12 +1,11 @@
-import urllib
+import re
 from django.urls import reverse_lazy
-from ..forms import *
+from drevo.models import Category
+from drevo.forms import KnowledgeSearchForm
 from django.views.generic.edit import FormView
-from ..models import *
+from drevo.models import Znanie
 from django.core.paginator import Paginator
-from django.db.models import (Q,
-                              QuerySet,
-                              Count)
+from django.db.models import Q
 from .search_engine import SearchEngineMixin
 from django.forms import formset_factory
 
@@ -39,10 +38,14 @@ class MainSearchKnowledge:
 
         return query
 
+
 class KnowledgeSearchView(FormView, SearchEngineMixin):
     template_name = "drevo/search_knowledge.html"
     form_class = KnowledgeSearchForm
     success_url = reverse_lazy("search_knowledge")
+
+    def clean_category(self, knowledge_category: str) -> str:
+        return knowledge_category.strip()
 
     def get_published_knowledges_with_filter(self,
                                              main_search_parameter=None,
@@ -68,8 +71,11 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
 
         if knowledge_category_parameter:
             # Ищем знания по категории знания
-            query = self.get_query(fields_name='category__name',
-                                   parameter_value=knowledge_category_parameter)
+            category = Category.objects.get(id=knowledge_category_parameter)
+            descendants = category.get_descendants()
+            query = Q(category=category)
+            for descendant in descendants:
+                query = query | Q(category=descendant)
 
             extra_query = query if not extra_query else extra_query & query
 
@@ -156,8 +162,6 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
 
     @classmethod
     def get_tag_names(cls, request):
-        import re
-
         RE_TAG = re.compile(r'tags-\d-tag')
         tags = []
         for parameter_name, parameter_value in request.GET.items():
@@ -181,6 +185,7 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
         knowledge_type_parameter = self.request.GET.get('knowledge_type')
         knowledge_category_parameter = self.request.GET.get(
             'knowledge_category')
+
         author_parameter = self.request.GET.get('author')
         edge_kind_parameter = self.request.GET.get('edge_kind')
 

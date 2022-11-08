@@ -1,15 +1,16 @@
 from django import forms
-from ..models import (Znanie,
-                      Author,
-                      Category,
-                      Tz,
-                      Tr,
-                      Label)
+from mptt.forms import TreeNodeChoiceField
+from drevo.models import (Znanie,
+                          Author,
+                          Category,
+                          Tz,
+                          Tr,
+                          Label)
 
-from .custom_choice_field import CustomChoiceField
-from .select_with_input import SelectWithInput
-from .select_with_input_multi import SelectWithInputMulti
-from ..models.utils import get_model_or_stub
+from drevo.forms.custom_choice_field import CustomChoiceField
+from drevo.forms.select_with_input import SelectWithInput, SelectWithInputTree
+from drevo.forms.select_with_input_multi import SelectWithInputMulti
+from drevo.models.utils import get_model_or_stub
 
 
 class KnowledgeSearchForm(forms.Form):
@@ -22,14 +23,6 @@ class KnowledgeSearchForm(forms.Form):
                                .objects
                                .order_by('name')
                                .values_list('name', flat=True))
-    ]
-
-    knowledge_category_choices = [
-        (knowledge_category, knowledge_category)
-        for knowledge_category in (get_model_or_stub(Category)
-                                   .objects
-                                   .order_by('name')
-                                   .values_list('name', flat=True))
     ]
 
     source_com_choices = [
@@ -89,12 +82,15 @@ class KnowledgeSearchForm(forms.Form):
                                                   'placeholder': 'Выберите вид знания'}),
                                        required=False)
     # Категория знания
-    knowledge_category = CustomChoiceField(label="Категория",
-                                           choices=knowledge_category_choices,
-                                           widget=SelectWithInput(
-                                               attrs={'class': 'form-control',
-                                                      'placeholder': 'Выберите категорию'}),
-                                           required=False)
+    knowledge_category = TreeNodeChoiceField(
+        label="Категория",
+        queryset=Category.tree_objects.all(),
+        widget=SelectWithInputTree(
+            attrs={'class': 'form-control',
+                   'placeholder': 'Выберите категорию'}),
+        required=False,
+        help_text="Поиск проводится только по основным  знаниям"
+    )
 
     # Автор
     author = CustomChoiceField(label="Автор",
