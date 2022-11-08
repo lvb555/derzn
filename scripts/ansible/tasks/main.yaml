@@ -1,0 +1,48 @@
+- name: install sources
+  ansible.builtin.git:
+    repo: 'https://github.com/lvb555/derzn.git'
+    dest: '{{ project_root }}'
+    version: '{{ git_ref_to_install }}'
+    force: yes
+
+- name: copy env_config
+  ansible.builtin.copy:
+    src: files/test.env
+    dest: '{{ project_root }}/dz/.env'
+- name: copy settings file
+  ansible.builtin.copy:
+    src: files/test.settings.py
+    dest: '{{ project_root }}/dz/settings.py'
+
+- name: upgrade pip
+  ansible.builtin.pip:
+    name: pip
+    virtualenv: '{{ virtualenv_dir }}'
+    extra_args: '--upgrade'
+
+- name: hack the Pillow on python 3.10
+  ansible.builtin.lineinfile:
+    path: '{{ project_root }}/requirements.txt'
+    regexp: 'Pillow==8.2.0'
+    line: 'pillow==8.4'
+
+- name: create virtualenv & install dependencies
+  ansible.builtin.pip:
+    virtualenv: '{{ virtualenv_dir }}'
+    requirements: '{{ project_root }}/requirements.txt'
+
+- name: migrate
+  community.general.django_manage:
+    virtualenv: '{{ virtualenv_dir }}'
+    project_path: '{{ project_root }}'
+    # pythonpath: '{{ virtualenv_dir }}/lib/python3.10/site_packages'
+    command: migrate
+
+#- name: migrate
+#  ansible.builtin.shell: |
+#    '{{ ansible_env.HOME }}/test_derzn_env/bin/python {{ project_root }}/manage.py migrate'
+
+- name: restart
+  ansible.builtin.file:
+    state: touch
+    path: '{{ site_root }}/.restart-app'
