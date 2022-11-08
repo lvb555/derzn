@@ -2,11 +2,11 @@ from django.views.generic import DetailView
 from datetime import datetime
 
 from users.models import Favourite
-from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory
+from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory, Tz
 from loguru import logger
 from ..relations_tree import (get_category_for_knowledge, get_ancestors_for_knowledge,
                               get_siblings_for_knowledge,
-                              get_children_by_relation_type_for_knowledge)
+                              get_children_by_relation_type_for_knowledge, get_children_for_knowledge)
 import humanize
 
 
@@ -20,7 +20,12 @@ class ZnanieDetailView(DetailView):
     """
     model = Znanie
     context_object_name = 'znanie'
-    template_name = 'drevo/znanie_detail.html'
+
+    def get_template_names(self):
+        if self.object.tz in Tz.objects.filter(name='Тест'):
+            return ['drevo/quiz_detail.html']
+        else:
+            return ['drevo/znanie_detail.html']
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
@@ -37,7 +42,7 @@ class ZnanieDetailView(DetailView):
         # получаем список всех видов связей
         ts = Tr.objects.all()
 
-        context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True)]
+        context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True).prefetch_related('rz')]
                            for item in ts if qs.filter(tr=item, rz__is_published=True).count() > 0]
 
         # сохранение ip пользователя
@@ -103,5 +108,31 @@ class ZnanieDetailView(DetailView):
         context['comment_max_length'] = Comment.CONTENT_MAX_LENGTH
 
         context['table'] = knowledge.get_table_object()
+
+        # возвращает кнопку прохождения тестирования, если знание- базовое для теста
+
+        context['button'] = []
+        for relation, children in context['children_by_tr'].items():
+            if relation.pk == 24:
+                context['button'].append(children)
+
+        # создает контекст, в котором "внуки" знания, если это знание - тест
+        if self.object.tz in Tz.objects.filter(name='Тест'):
+
+            context['all_answers_and_questions'] = {}
+            context['right_answer'] = {}
+            for relation_name, relations in context['rels']:
+
+                for item in relations:
+
+                    context['all_answers_and_questions'][str(item.rz)] = get_children_for_knowledge(
+                        item.rz)
+                    grandson = get_children_by_relation_type_for_knowledge(
+                        item.rz)
+
+                    for question, answer in grandson.items():
+                        if question.pk == 26:
+                            context['right_answer'][str(item.rz)] = answer
+
 
         return context

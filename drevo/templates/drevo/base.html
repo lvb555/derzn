@@ -55,6 +55,7 @@
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a>
                                         <a class="dropdown-item" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>
+                                        <a class="dropdown-item" href="{% url 'all_quizzes' %}" id="all_quizzes_link">Тесты</a>
                                         {% if user.is_authenticated %}
                                             <a class="dropdown-item" href="{% url 'history' %}" id="history_link">История просмотров</a>
                                             <a class="dropdown-item" href="{% url 'favourites' %}"
