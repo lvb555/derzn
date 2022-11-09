@@ -26,8 +26,7 @@ allTag()
 noSub()
 
 function noSub() {
-    console.log()
-    if (document.getElementById('flexSwitchCheckDefault').checked === false && checkBoxes_checked.length === 0) {
+    if (document.getElementById('flexSwitchCheckDefault').checked === false && itemForm.querySelectorAll('.checkbox_1:checked').length === 0) {
         document.getElementById('noSubsText').style.display = '';
     } else {
         document.getElementById('noSubsText').style.display = 'none';
@@ -38,7 +37,7 @@ function noSub() {
 
 function allTag() {
     var radio = document.getElementById('flexSwitchCheckDefault')
-    noSub()
+
 
     if(radio.checked) {
         checkbox_selectAll.disabled = false;
@@ -53,8 +52,9 @@ function allTag() {
                 item.style.display = 'none';
             }
         })
-
     }
+
+    noSub()
 }
 
 

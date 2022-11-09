@@ -61,24 +61,35 @@ def notify(sender, instance: Znanie, created, **kwargs):
         8: "августа",
         9: "сентября",
         10: "октября",
-        11: "ноятбря",
+        11: "ноября",
         12: "декабря",
     }
     date_now = datetime.date.today()
     cur_month_formed = months[date_now.month]
     date_with_month = date_now.strftime(f'%d {cur_month_formed} %Y')
-    message_content = 'Уважаемый {}{}!\n' \
-                      f'{date_with_month} было создано новое' \
-                      f' знание:\n  {author_publication_url}\n' \
-                      f'Автор: {instance.author}\n'
+
+    context = {
+        'date_with_month': date_with_month,
+        'author_publication_url': author_publication_url,
+        'instance_name': instance.name,
+        'instance_author': instance.author
+    }
+
     for addressee in user_to_notify:
         patr = ''
         user_profile = addressee.profile
         if addressee.first_name and user_profile.patronymic:
             patr = ' ' + user_profile.patronymic
         appeal = addressee.first_name or 'пользователь'
-        send_email(addressee.email, message_subject, False,
-                   message_content.format(appeal, patr))
+
+        context['appeal'] = appeal
+        context['patr'] = patr
+
+        message_text = render_to_string('email_templates/subscribe_notify_email.txt', context)
+        message_html = render_to_string('email_templates/subscribe_notify_email.html', context)
+
+        send_email(addressee.email, message_subject, message_html, message_text)
+
 
 
 @receiver(post_save, sender=Relation)
