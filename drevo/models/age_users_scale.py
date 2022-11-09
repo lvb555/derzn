@@ -7,7 +7,7 @@ class AgeUsersScale(models.Model):
   
   def __str__(self):
     if self.min_age and self.max_age:
-        return f"Диапазон возраста от {self.min_age} до {self.max_age} лет"
+        return f"От {self.min_age} до {self.max_age} лет"
     
     elif self.min_age:
       return f"{self.min_age}+ лет"

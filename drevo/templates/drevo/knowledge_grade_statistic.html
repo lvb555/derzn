@@ -37,7 +37,7 @@
              {% if proof_relations.exists %}
              <div class='row'>
                 <div class="col-6">
-                    <h4 class="text-center my-4">Cтатистика знания</h4>
+                    <h4 class="text-center my-4">Распределение оценок по полу</h4>
                     <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
                         
                         <thead align="center">
@@ -51,7 +51,7 @@
                         <tbody align="center"> 
                             {% for grade, value in gender_grades.items %}
                             {% comment %}
-                            value  это список, порядок данных следующий
+                            value  это список, порядок данных следующий:
                             [amount_grade, percent_grade,
                             amount_man_grade, percent_man_grade,
                             mount_female_grade, percent_female_grade]
@@ -73,54 +73,65 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div class="col-6">
+                    <h4 class="text-center my-4">Распределение оценок по возрасту <br> (Только те, у кого указана дата рождения)</h4>
+                    
+                    <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
+                        
+                        <thead align="center">
+                            <tr >
+                                <th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="4">Из них</th>
+                            </tr>
+                            <tr>
+                                {% for segment in title_age_segment %}
+                                    <th>{{ segment }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody align="center"> 
+                            {% for grade, values in age_grades.items %}                                
+                                <tr style = "border-top: 3px solid black">
+                                    <td rowspan="2" valign="middle">{{ grade }}</td>
+                                    {% for amount_and_percent in values %}
+                                    <td> {{ amount_and_percent.0 }} </td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    {% for amount_and_percent in values %}
+                                    <td> {{ amount_and_percent.1}}% </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                            
+                            <tr style = "border-top: 3px solid black">
+                                <td rowspan="2" valign="middle">Всего: </td>
+                                {% for values in total_age_grade.values %}
+                                <td> {{values.0}} </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+
+                                {% for values in total_age_grade.values %}
+                                <td> {{values.1}}%</td>
+                                {% endfor %}
+                            </tr>
+                                
+
+                            
+                            
+                            
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {% endif %}
         
     {% endif %}
-    
+  
+
 {% endblock %}
 
 
 
 
-
-{% comment %}
-<table class="table table-bordered"  id="statisticTable"> 
-    <!---->
-    <style>
-                        .table-border {
-                            border: 2px black solid;
-                        }
-                        </style>
-    <!---->
-	<thead align="center">
-		<tr >
-			<th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="2">Из них</th>
-		</tr>
-		<tr>
-			<th>Мужчин</th><th>Женщин</th>
-		</tr>
-	</thead>
-	<tbody align="center"> 
-        {% for grade, value in gender_grades.items %}
-        {% comment %}
-        value  это список, порядок данных следующий
-        [amount_grade, percent_grade,
-        amount_man_grade, percent_man_grade,
-        mount_female_grade, percent_female_grade]
-       
-		<tr> 
-			<td rowspan="2" valign="middle">{{ grade }}</td> <td>{{ value.0 }}</td> <td>{{ value.2 }}</td> <td>{{ value.4 }}</td>
-		</tr>
-		<tr>
-			<td>{{ value.1 }}%</td> <td>{{ value.3 }}%</td> <td>{{ value.5 }}%</td>
-		</tr>
-		{% endfor %}
-		
-		
-		
-	</tbody>
-</table>
-</body>
-</html>
-{% endcomment %}

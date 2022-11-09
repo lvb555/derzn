@@ -1,8 +1,11 @@
+import datetime
 from django.shortcuts import Http404, get_object_or_404
 from django.views.generic import TemplateView
+from django.db.models import F
 from drevo.models.knowledge import Znanie
 from drevo.models.knowledge_grade import KnowledgeGrade
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
+from drevo.models.age_users_scale import AgeUsersScale
 
 
 class KnowledgeStatisticFormView(TemplateView):
@@ -29,30 +32,29 @@ class KnowledgeStatisticFormView(TemplateView):
 
         Grades = KnowledgeGrade.objects.filter(knowledge_id=kwargs['pk'])
 
+
+        # Блок 1.
+        # Формирование контекста для таблицы статистики  разделения по полу
         gender_grades = {}
         amount_all_grades = Grades.count()
         amount_all_grades_man = Grades.filter(user__profile__gender="M").count()
         amount_all_grades_female = Grades.filter(user__profile__gender="F").count()
+
+        def get_percent(numerator: int, denominator: int) -> int:
+            try:
+                percent = round(numerator / denominator * 100, 1)
+            except ZeroDivisionError:
+                percent = 0
+            return percent
 
         for GradeScale in KnowledgeGradeScale.objects.all():
             amount_grade = Grades.filter(grade=GradeScale.id).count()            
             amount_man_grade = Grades.filter(grade=GradeScale.id, user__profile__gender="M").count()                          
             amount_female_grade = Grades.filter(grade=GradeScale.id, user__profile__gender="F").count()
 
-            try:
-                percent_grade = round(amount_grade / amount_all_grades * 100, 1)
-            except ZeroDivisionError:
-                percent_grade = 0
-
-            try:
-                percent_man_grade = round(amount_man_grade / amount_all_grades_man * 100, 1)
-            except ZeroDivisionError:
-                percent_man_grade = 0  
-            
-            try:
-                percent_female_grade = round(amount_female_grade / amount_all_grades_female)
-            except ZeroDivisionError:
-                percent_female_grade = 0
+            percent_grade = get_percent(amount_grade, amount_grade)
+            percent_man_grade = get_percent(amount_man_grade, amount_grade)
+            percent_female_grade = get_percent(amount_female_grade, amount_grade)
 
             gender_grades[GradeScale] = [
                 amount_grade, percent_grade,
@@ -65,5 +67,51 @@ class KnowledgeStatisticFormView(TemplateView):
             amount_all_grades_female, 100]
 
         context['gender_grades'] = gender_grades
+
+
+        # Блок 2.
+        # Формирование контекста для разделения по возрасту
+
+        Grades_users_have_birthday = Grades.exclude(user__profile__birthday_at=None)
+        amount_all_grades = Grades_users_have_birthday.count()
+        Now = datetime.date.today()
+        Users_with_age = Grades_users_have_birthday.annotate(age=((Now - F('user__profile__birthday_at'))))
+
+        All_age_segments = AgeUsersScale.objects.all()
+
+        age_grades = {}        
+        title_age_segment = []        
+        total_age_grade = {"Всего:": [amount_all_grades, 100]}
+
+        # Перебор по всем оценкам
+        # статистика будет только для тех у кого указана дата рождения
+        for GradeScale in KnowledgeGradeScale.objects.all():
+            amount_grade = Grades_users_have_birthday.filter(grade=GradeScale.id).count()
+            percent_grade = get_percent(amount_grade, amount_grade)
+            age_grades[GradeScale] = [[amount_grade, percent_grade]]
+
+            for age_segment in All_age_segments:
+
+                if age_segment not in title_age_segment:
+                    title_age_segment.append(age_segment)
+
+                if age_segment.min_age is None:
+                    min_age = datetime.timedelta(days=0)
+                else:
+                    min_age = datetime.timedelta(days=365*age_segment.min_age)
+                if age_segment.max_age is None:
+                    max_age = datetime.timedelta(days=36500)
+                else:
+                    max_age = datetime.timedelta(days=365*age_segment.max_age)
+
+                amount_users_in_segment = Users_with_age.filter(age__gte=min_age, age__lt=max_age, grade=GradeScale.id).count()
+                percent_users_in_segment = get_percent(amount_users_in_segment, amount_grade)
+                age_grades[GradeScale].append([amount_users_in_segment, percent_users_in_segment])
+
+                total_age_grade[age_segment] = [amount_users_in_segment, 100]
+
+        context['age_grades'] = age_grades
+        context['title_age_segment'] = title_age_segment
+        context['total_age_grade'] = total_age_grade
 
         return context
