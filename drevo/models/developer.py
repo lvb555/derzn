@@ -18,9 +18,9 @@ class Developer(models.Model):
         max_length=512,
         verbose_name='Комментарий'
     )
-    admin = models.BooleanField(
-        default=False,
-        verbose_name='Администратор?'
+    admin = models.CharField(
+        max_length=512,
+        verbose_name='Админ'
     )
 
     class Meta:

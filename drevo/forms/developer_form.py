@@ -11,6 +11,12 @@ class DeveloperForm(forms.ModelForm):
                                                  ),
                            label='Комментарий'
                            )
+    admin = forms.CharField(widget=forms.Textarea(attrs={'cols': 60,
+                                                        'rows': 3,
+                                                        }
+                                                 ),
+                           label='Админ'
+                           )
 
     class Meta:
         model = Developer
