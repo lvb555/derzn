@@ -132,12 +132,14 @@
                             <tr style = "border-top: 3px solid black">
                                 <td rowspan="2" valign="middle">Всего: </td>
                                 {% for values in total_amount_age_grade.values %}
-                                <td> {{values.0}} </td>
+                                <td> {{values}} </td>
+
                                 {% endfor %}
+                                
                             </tr>
                             <tr>
                                 {% for values in total_amount_age_grade.values %}
-                                <td> {{values.1}}%</td>
+                                <td> 100%</td>
                                 {% endfor %}
                             </tr>
                            

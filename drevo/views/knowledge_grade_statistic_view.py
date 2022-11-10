@@ -84,7 +84,7 @@ class KnowledgeStatisticFormView(TemplateView):
 
         age_grades = {}
         title_age_segment = []
-        total_amount_age_grade = {"Всего:": [amount_all_grades, 100]}
+        total_amount_age_grade = {"Всего:": amount_all_grades}
 
         # Перебор по всем оценкам
         for GradeScale in KnowledgeGradeScale.objects.all():
@@ -110,7 +110,10 @@ class KnowledgeStatisticFormView(TemplateView):
                 percent_users_in_segment = get_percent(amount_users_in_segment, amount_grade)
                 age_grades[GradeScale].append([amount_users_in_segment, percent_users_in_segment])
 
-                total_amount_age_grade[age_segment] = [amount_users_in_segment, 100]
+                if age_segment in total_amount_age_grade:
+                    total_amount_age_grade[age_segment] += amount_users_in_segment
+                else:
+                    total_amount_age_grade[age_segment] = amount_users_in_segment
 
         context['age_grades'] = age_grades
         context['title_age_segment'] = title_age_segment
