@@ -116,4 +116,14 @@ class KnowledgeStatisticFormView(TemplateView):
         context['title_age_segment'] = title_age_segment
         context['total_amount_age_grade'] = total_amount_age_grade
 
+        # Блок 3. Статистика по всем оценкам
+        all_grades_statistic = {}
+
+        for GradeScale in KnowledgeGradeScale.objects.all():
+            amount_grade = Grades.filter(grade=GradeScale.id).count()
+            percent_grade = get_percent(amount_grade, Grades.count())
+            all_grades_statistic[GradeScale] = [amount_grade, percent_grade]
+
+        all_grades_statistic["Всего: "] = [Grades.count(), 100]
+        context['all_grades_statistic'] = all_grades_statistic
         return context

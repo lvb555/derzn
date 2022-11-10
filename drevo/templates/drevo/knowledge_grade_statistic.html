@@ -35,8 +35,32 @@
         </div>
     {% else %}
              {% if proof_relations.exists %}
-             <div class='row'>
-                <div class="col-6">
+             <div class='row justify-content-center'>
+                <div class="col-8">
+                    <h4 class="text-center my-4">Распределение оценок знания </h4>
+                    <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
+                        
+                        <thead align="center">
+                            <tr >
+                                <th valign="middle">Оценка знания</th> <th valign="middle">Число оценок</th> <th >Процент к оценившим</th>
+                            </tr>
+                        </thead>
+                        <tbody align="center"> 
+                            {% for grade_scale, value in all_grades_statistic.items %}
+                        
+                            <tr style = "border-top: 3px solid black">
+                                <td valign="middle">{{ grade_scale }}</td>
+                                <td>{{ value.0 }}</td>
+                                <td>{{ value.1 }}%</td>
+                            </tr>
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class='row justify-content-center'>
+                <div class="col-8">
                     <h4 class="text-center my-4">Распределение оценок по полу <br> (Только у кого указан пол)</h4>
                     <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
                         
@@ -73,8 +97,9 @@
                         </tbody>
                     </table>
                 </div>
-
-                <div class="col-6">
+            </div>
+            <div class='row justify-content-center'>
+                <div class="col-8">
                     <h4 class="text-center my-4">Распределение оценок по возрасту <br> (Только у кого указана дата рождения)</h4>
                     
                     <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
