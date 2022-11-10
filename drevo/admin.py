@@ -40,6 +40,7 @@ from .models import (
     GlossaryTerm,
     ZnRating,
     Comment,
+    AgeUsersScale
 )
 from .services import send_notify_interview
 
@@ -381,6 +382,7 @@ class KnowledgeGradeAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = ("grade", "created_at", "knowledge")
+    autocomplete_fields = ("knowledge",)
 
 
 admin.site.register(KnowledgeGrade, KnowledgeGradeAdmin)
@@ -471,3 +473,7 @@ admin.site.register(FriendsTerm)
 admin.site.register(FriendsInviteTerm)
 admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
+
+
+admin.site.register(AgeUsersScale)
+
