@@ -37,7 +37,7 @@
              {% if proof_relations.exists %}
              <div class='row'>
                 <div class="col-6">
-                    <h4 class="text-center my-4">Распределение оценок по полу</h4>
+                    <h4 class="text-center my-4">Распределение оценок по полу <br> (Только у кого указан пол)</h4>
                     <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
                         
                         <thead align="center">
@@ -75,17 +75,17 @@
                 </div>
 
                 <div class="col-6">
-                    <h4 class="text-center my-4">Распределение оценок по возрасту <br> (Только те, у кого указана дата рождения)</h4>
+                    <h4 class="text-center my-4">Распределение оценок по возрасту <br> (Только у кого указана дата рождения)</h4>
                     
                     <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
                         
                         <thead align="center">
                             <tr >
-                                <th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="4">Из них</th>
+                                <th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="{{title_age_segment|length}}">Из них</th>
                             </tr>
                             <tr>
                                 {% for segment in title_age_segment %}
-                                    <th>{{ segment }}</th>
+                                <th>{{ segment }}</th>
                                 {% endfor %}
                             </tr>
                         </thead>
@@ -106,21 +106,16 @@
                             
                             <tr style = "border-top: 3px solid black">
                                 <td rowspan="2" valign="middle">Всего: </td>
-                                {% for values in total_age_grade.values %}
+                                {% for values in total_amount_age_grade.values %}
                                 <td> {{values.0}} </td>
                                 {% endfor %}
                             </tr>
                             <tr>
-
-                                {% for values in total_age_grade.values %}
+                                {% for values in total_amount_age_grade.values %}
                                 <td> {{values.1}}%</td>
                                 {% endfor %}
                             </tr>
-                                
-
-                            
-                            
-                            
+                           
                         </tbody>
                     </table>
                 </div>

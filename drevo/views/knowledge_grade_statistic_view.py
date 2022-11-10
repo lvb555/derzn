@@ -36,7 +36,8 @@ class KnowledgeStatisticFormView(TemplateView):
         # Блок 1.
         # Формирование контекста для таблицы статистики  разделения по полу
         gender_grades = {}
-        amount_all_grades = Grades.count()
+        # статистика будет только по тем у кого указан пол
+        amount_all_grades = Grades.exclude(user__profile__gender="U").count()
         amount_all_grades_man = Grades.filter(user__profile__gender="M").count()
         amount_all_grades_female = Grades.filter(user__profile__gender="F").count()
 
@@ -48,7 +49,7 @@ class KnowledgeStatisticFormView(TemplateView):
             return percent
 
         for GradeScale in KnowledgeGradeScale.objects.all():
-            amount_grade = Grades.filter(grade=GradeScale.id).count()            
+            amount_grade = Grades.filter(grade=GradeScale.id).exclude(user__profile__gender="U").count()            
             amount_man_grade = Grades.filter(grade=GradeScale.id, user__profile__gender="M").count()                          
             amount_female_grade = Grades.filter(grade=GradeScale.id, user__profile__gender="F").count()
 
@@ -72,19 +73,20 @@ class KnowledgeStatisticFormView(TemplateView):
         # Блок 2.
         # Формирование контекста для разделения по возрасту
 
+        # статистика будет только по тем у кого указана дата рождения
         Grades_users_have_birthday = Grades.exclude(user__profile__birthday_at=None)
         amount_all_grades = Grades_users_have_birthday.count()
+        # Высчитываем возраст в днях. age: datetime.timedelta
         Now = datetime.date.today()
         Users_with_age = Grades_users_have_birthday.annotate(age=((Now - F('user__profile__birthday_at'))))
 
         All_age_segments = AgeUsersScale.objects.all()
 
-        age_grades = {}        
-        title_age_segment = []        
-        total_age_grade = {"Всего:": [amount_all_grades, 100]}
+        age_grades = {}
+        title_age_segment = []
+        total_amount_age_grade = {"Всего:": [amount_all_grades, 100]}
 
         # Перебор по всем оценкам
-        # статистика будет только для тех у кого указана дата рождения
         for GradeScale in KnowledgeGradeScale.objects.all():
             amount_grade = Grades_users_have_birthday.filter(grade=GradeScale.id).count()
             percent_grade = get_percent(amount_grade, amount_grade)
@@ -108,10 +110,10 @@ class KnowledgeStatisticFormView(TemplateView):
                 percent_users_in_segment = get_percent(amount_users_in_segment, amount_grade)
                 age_grades[GradeScale].append([amount_users_in_segment, percent_users_in_segment])
 
-                total_age_grade[age_segment] = [amount_users_in_segment, 100]
+                total_amount_age_grade[age_segment] = [amount_users_in_segment, 100]
 
         context['age_grades'] = age_grades
         context['title_age_segment'] = title_age_segment
-        context['total_age_grade'] = total_age_grade
+        context['total_amount_age_grade'] = total_amount_age_grade
 
         return context
