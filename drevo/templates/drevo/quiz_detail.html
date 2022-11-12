@@ -27,19 +27,21 @@ justify-content: flex-start;">
             <h5 id="{{question}}" class='vopr' style="display: none">{{right_answer|length}}</h5>
             <p>Вопрос: {{question}}</p>
             <p>Количество ответов {{right_answer|length}}</p>
-            {% for answer in answers %}
-            {% if answer in right_answer %}
-                <label>
-                    <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{question}}" value="1">
-                    {{ answer}}
-                </label><br>
-            {% else %}
-                <label>
-                    <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{question}}" value="0">
-                    {{ answer}}
-                </label><br>
-            {% endif %}
-            {% endfor %}
+            <div style="text-align: left;margin-left: 175px;">
+                {% for answer in answers %}
+                {% if answer in right_answer %}
+                    <label>
+                        <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{question}}" value="1">
+                        {{ answer}}
+                    </label><br>
+                {% else %}
+                    <label>
+                        <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{question}}" value="0">
+                        {{ answer}}
+                    </label><br>
+                {% endif %}
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% endif %}
