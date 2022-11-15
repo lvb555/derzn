@@ -28,8 +28,9 @@ from .views import (
     friends_added_view,
     friends_invite_view,
     KnowledgeFormView,
+    QuizListView,
 )
-from .views import send_znanie
+from .views import send_znanie, knowledge_feed_view, send_to_feed_view
 from .views.expert_work.views import (
     propose_answer,
     update_answer_proposal,
@@ -55,6 +56,7 @@ urlpatterns = [
     ),
     path("znanie/<int:pk>/message/send/", send_znanie, name="zsend_mes"),
     path("znanie/<int:pk>/grade/", KnowledgeFormView.as_view(), name="grade"),
+    path("all_quizzes/", QuizListView.as_view(), name="all_quizzes"),
     path("label/<int:pk>", ZnanieByLabelView.as_view(), name="zlabel"),
     path("author/<int:pk>", AuthorDetailView.as_view(), name="author"),
     path("authors/", AuthorsListView.as_view(), name="authors"),
@@ -101,6 +103,10 @@ urlpatterns = [
     path("friends/", friends_view, name="friends"),
     path("friends/friends_added/", friends_added_view, name="friends_added"),
     path("friends/friends_invite/", friends_invite_view, name="friends_invite"),
+
+    path('knowledge-feed/', knowledge_feed_view.knowledge_feed_view, name='knowledge_feed'),
+    path('knowledge-feed/delete/<int:message_id>/', knowledge_feed_view.delete_message, name='delete_message'),
+    path('knowledge-feed/send/<int:znanie_id>/', send_to_feed_view.send_to_feed_view, name='send_to_feed'),
 ]
 
 if settings.DEBUG:

@@ -19,22 +19,7 @@ def friends_added_view(request):
     if request.GET.get('add'):
         _add_friend(request.user.id, request.GET.get('add'))
 
-    """
-    Исключить:
-    - самого себя
-    - тех, кто уже друг
-    - кто висит в заявках и ожидает подтверждения на дружбу
-    """
-    array_invite = []
-    invite_friend = FriendsInviteTerm.objects.filter(sender_id=request.user.id)
-    for one in invite_friend:
-        array_invite.append(one.recipient_id)
-
-    exist_friends = FriendsTerm.objects.filter(user_id=request.user.id).first()
-
-    exclude_ids = [request.user.id] + array_invite
-    if exist_friends:
-        exclude_ids.append(exist_friends.friend_id)
+    exclude_ids = [request.user.id]
     profiles = Profile.objects.exclude(id__in=exclude_ids)
     for profile in profiles:
         data = {}
@@ -51,10 +36,17 @@ def friends_added_view(request):
             continue
         if not user.first_name or not user.last_name:
             continue
+
         data['first_name'] = user.first_name
         data['last_name'] = user.last_name
         data['avatar'] = profile.avatar or ''
         data['user_id'] = profile.user_id
+        data['relation_to_request_user'] = 'no_relation'
+    
+        if FriendsInviteTerm.objects.filter(sender=request.user.id, recipient = profile.user_id).exists():
+            data['relation_to_request_user'] = 'subscriber'
+        elif FriendsTerm.objects.filter(user = request.user.id, friend = profile.user_id).exists():
+            data['relation_to_request_user'] = 'friend'
         context['profiles'].append(data)
 
     template_name = 'drevo/friends_added.html'
@@ -65,9 +57,13 @@ def _add_friend(user_id: int, friend_id: str) -> None:
     """
     Отправить заявку на дружбу
     """
-    FriendsInviteTerm.objects.create(
-        sender_id=user_id,
-        recipient_id=int(friend_id),
-        date_added=datetime.datetime.now(),
-        accept=False
-    )
+    try:
+        term = FriendsInviteTerm.objects.get(sender_id = user_id, recipient_id = int(friend_id))
+    except:
+        try:
+            friendship = FriendsTerm.objects.get(user = user_id, friend = int(friend_id))
+        except:
+            if not user_id == int(friend_id):
+                FriendsInviteTerm.objects.create(sender_id=user_id, recipient_id=int(friend_id))
+            else:
+                pass

@@ -1,0 +1,62 @@
+<input name="{{ widget.name }}_extra"
+
+    {% for name, value in widget.attrs.items %}
+    {% if value is not False %}
+    {{ name }}
+    {% if value is not True %}="{{ value|stringformat:'s' }}"
+    {% endif %}
+    {% endif %}
+    {% endfor %} %}
+
+    list="datalistOptions_{{ widget.name }}"
+    value="{{ widget.value.1 }}" onchange="changeInputHandler(event)">
+
+<input name="{{ widget.name }}"
+    list="datalistOptions_{{ widget.name }}"
+    value="{{ widget.value.0 }}" hidden>
+
+
+<datalist id="datalistOptions_{{ widget.name }}">
+    {% for group_name, group_choices, group_index in widget.optgroups %}
+
+    {% for option in group_choices %}
+
+    {% include option.template_name with widget=option %}
+
+    {% endfor %}
+
+    {% endfor %}
+</datalist>
+
+<script>
+    window.addEventListener('load', (event) => {
+        const datalist = document.querySelector("#datalistOptions_{{ widget.name }}");
+        const options = datalist.querySelectorAll('option');
+
+        const input = datalist.previousElementSibling;
+        const inputExtra = input.previousElementSibling;
+
+        for (let tag of options) {
+            if (tag.dataset.value === input.value) {
+                inputExtra.value = tag.value
+                break;
+            }
+        }
+    })
+
+
+    function changeInputHandler(event) {
+        const inputExtra = event.target;
+        const input = inputExtra.nextElementSibling;
+
+        const datalist = document.querySelector("#datalistOptions_{{ widget.name }}");
+        const options = datalist.querySelectorAll('option');
+
+        for (let tag of options) {
+            if (tag.value === inputExtra.value) {
+                input.value = tag.dataset.value
+                break;
+            }
+        }
+    }
+</script>

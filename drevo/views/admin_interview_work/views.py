@@ -10,6 +10,11 @@ from ...models import Relation, Tz, Author, Tr
 from ...models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from ...models.knowledge import Znanie
 from ...forms.admin_interview_work_form import InterviewAnswerExpertProposalForms
+from .interview_result_senders import (send_duplicate_answer_proposal,
+                                       send_accept_proposal,
+                                       send_not_accept_proposal,
+                                       send_duplicate_proposal,
+                                       send_new_answers)
 
 
 def chek_is_stuff(user) -> None:
@@ -45,7 +50,7 @@ class AllInterviewView(ListView):
             for quest in questions:
                 exp_prop = InterviewAnswerExpertProposal.objects.filter(
                     Q(interview=elm) & Q(question__pk=quest.get('rz')) & Q(status=None)
-                )
+                ).exclude(new_answer_text__isnull=True).exclude(new_answer_text__exact='')
                 if exp_prop.exists():
                     status = 'danger'
                     break
@@ -81,7 +86,7 @@ class InterviewQuestionsView(DetailView):
             danger_cnt = None
             exp_prop = InterviewAnswerExpertProposal.objects.filter(
                 Q(interview__pk=self.kwargs['pk']) & Q(question__pk=quest.get('rz')) & Q(status=None)
-            )
+            ).exclude(new_answer_text__isnull=True).exclude(new_answer_text__exact='')
             if exp_prop.exists():
                 status = 'danger'
                 danger_cnt = exp_prop.count()
@@ -109,11 +114,17 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     context['period'] = f"с {period}".replace('-', 'по')
     context['cur_filter'] = request.GET.get('filter')
 
+    answers = Relation.objects.select_related('rz', 'tr').filter(
+        bz__pk=quest_pk, tr__name='Ответ [ы]'
+    ).order_by('rz__name', 'rz__order')
+
     def get_queryset():
         filter_by = request.GET.get('filter')
-        queryset_obj = InterviewAnswerExpertProposal.objects.filter(
-            question__pk=quest_pk, interview__pk=inter_pk
-        ).order_by('expert__first_name', '-updated')
+        queryset_obj = InterviewAnswerExpertProposal.objects\
+            .select_related('interview', 'answer', 'expert', 'question', 'new_answer')\
+            .filter(question__pk=quest_pk, interview__pk=inter_pk)\
+            .exclude(new_answer_text__isnull=True).exclude(new_answer_text__exact='')\
+            .order_by('expert__first_name', '-updated')
         if filter_by:
             return queryset_obj.filter(status=filter_by) if filter_by != 'None' else queryset_obj.filter(status=None)
         return queryset_obj
@@ -127,12 +138,16 @@ def question_admin_work_view(request, inter_pk, quest_pk):
         if formset.is_valid():
             for form in formset:
                 obj = form.save(commit=False)
-                status = obj.status
-                answer = obj.answer
-                comment = obj.admin_comment
 
+                status = obj.status
+                answer_pk = request.POST.get(f'expert-{obj.pk}-answer', 'None')
+                if answer_pk != 'None':
+                    answer = answers.get(rz__pk=answer_pk).rz
+                else:
+                    answer = None
+                comment = obj.admin_comment
                 # Проверка на наличие изменений в записи
-                if (status == form.old_status) and (answer == form.old_answer) and (comment == form.old_comment):
+                if form.old_status is not None:
                     continue
 
                 # Если админ изменил статус на "Принят",
@@ -173,16 +188,41 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                         is_published=True
                     )
                     obj.new_answer = new_knowledge
-                    obj.answer = new_knowledge
+                    if obj.is_agreed:
+                        obj.answer = new_knowledge
+                    send_accept_proposal(proposal_obj=obj)
 
                 # Если админ указал только ответ из списка существующих/новых ответов, то статус устанавливается сам,
-                if not status and obj.answer:
-                    existing_answer = obj.answer
+                if not status and answer:
                     # Если дата создания выбранного ответа меньше даты создания
                     # предложения эксперта, то статус "Дублирует ответ", иначе "Дублирует предложение"
-                    obj.status = 'ANSDPL' if existing_answer.date < form.instance.updated.date() else 'RESDPL'
+                    obj.status = 'ANSDPL' if answer.date < form.instance.updated.date() else 'RESDPL'
+                    obj.duplicate_answer = answer
+
                 obj.admin_reviewer = request.user
                 obj.save()
+
+                send_if_status = {
+                    'REJECT': send_not_accept_proposal,
+                    'ANSDPL': send_duplicate_answer_proposal,
+                    'RESDPL': send_duplicate_proposal
+                }
+                # Занести все функции в словарь и ключами сделать статус
+                if obj.status in send_if_status.keys():
+                    send_func = send_if_status.get(obj.status)
+                    send_func(proposal_obj=obj)
+
+            def start_mass_mail_sending():
+                if 'save_input' not in request.POST:
+                    return
+                proposals = InterviewAnswerExpertProposal.objects.select_related('expert', 'new_answer').filter(
+                    question__pk=quest_pk, interview__pk=inter_pk)
+                if proposals.filter(status='APPRVE').exists():
+                    send_new_answers(interview.get('name'), question.get('name'), proposals)
+
+            # Если по вопросу имеется новый ответ/ответы, то происходит рассылка участникам интервью по данному вопросу
+            start_mass_mail_sending()
+
             redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
             if context.get('cur_filter'):
                 get_params = f"?filter={context.get('cur_filter')}"
@@ -190,8 +230,11 @@ def question_admin_work_view(request, inter_pk, quest_pk):
             return redirect(redirect_url)
     else:
         formset = InterviewAnswerExpertFormSet(queryset=queryset)
+    context['answers_list'] = [(None, '------')] + \
+                              [(elm.get('rz__pk'), elm.get('rz__name')) for elm in answers.values('rz__pk', 'rz__name')]
     context['status_list'] = InterviewAnswerExpertProposal.STATUSES
     context['questions'] = list(zip(queryset, formset))
     context['formset'] = formset
     context['backup_url'] = reverse_lazy('interview_quests', kwargs={'pk': inter_pk})
+    context['props_without_status'] = queryset.filter(status__isnull=True).exists()
     return render(request, 'drevo/admin_interview_work_page/question_admin_work.html', context)

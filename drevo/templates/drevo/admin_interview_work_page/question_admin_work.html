@@ -1,6 +1,6 @@
 {% extends 'drevo/base.html' %}
 
-{% load translate_status_expert_proposal %}
+{% load normalize_answer_name %}
 
 
 {% block title %} Работа администратора по вопросу {% endblock %}
@@ -54,10 +54,9 @@
                     </ul>
                 </div>
             </div>
-
             <table class="table table-bordered">
                 <thead>
-                <th scope="col" rowspan="2" class="text-center">ID <br> предл.</th>
+                <th scope="col" rowspan="2" class="text-center">№</th>
                 <th scope="col" colspan="2" class="text-center"> Информация эксперта</th>
                 <th scope="col" colspan="3" class="text-center"> Информация администратора</th>
                 <tr>
@@ -87,6 +86,21 @@
                     <td>
                         <textarea name="" id="" cols="30" rows="10" style="height:150px; overflow-y: scroll; width: 250px; height: 125px;" readonly>{{ elm.new_answer_text }}</textarea>
                     </td>
+                    <td>
+                        <select
+                                name="expert-{{ elm.pk }}-answer" class="form-control {% if elm.status == 'APPRVE' %}text-danger{% endif %}" style="width: 250px;"
+                                onfocus="this.size=5;" onblur="this.size=1;" onchange="this.size=1; this.blur();"
+                                title="{% if elm.status == 'APPRVE' %}{{ elm.new_answer.name|normalize_answer_name }}{% else %}{{ elm.answer.name|normalize_answer_name }}{% endif %}"
+                                id="expert-{{ elm.pk }}-answer"
+                                {% if elm.status %} disabled="true" {% endif %}
+                        >
+                            {% for value, label in answers_list %}
+                            <option value="{{ value }}" {%if value == elm.new_answer.pk or value == elm.duplicate_answer.pk %} selected="" {% endif %} title="{{ label|normalize_answer_name }}">
+                                {{ label|truncatechars:25 }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
                     {% for f in form %}
                     <td>
                         {{ f }}
@@ -97,11 +111,19 @@
                 </tbody>
             </table>
             <div class="text-end me-5">
-                <input type="submit" class="btn btn-warning w-25" value="Сохранить">
+                <input type="submit" class="btn btn-warning w-25" name='save_input' value="Сохранить" {% if not props_without_status %} disabled="true" {% endif %}>
             </div>
         </form>
     </div>
 </div>
+
+
+<style>
+   th {border:2px solid black;}
+   td {border:2px solid black;}
+   tr {border:2px solid black;}
+</style>
+
 {% endblock %}
 
 

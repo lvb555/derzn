@@ -7,17 +7,16 @@
 <h2>Добавить друга</h2>
 
 <div class="col-md-7">
+    <div class="friends_input me-1 mb-1 mt-3">
+        <a class="btn btn-primary btn-sm" href="{% url 'friends' %}">Назад</a>
+    </div>
     <form method="GET" action="" id="searchform">
         <input class="searchfield" name="first" type="text" value="{{ request.GET.first }}"
                placeholder="Введите имя"/>
         <input class="searchfield" name="last" type="text" value="{{ request.GET.last }}"
                placeholder="Введите фамилию"/>
-        <button class="btn btn-primary btn-sm">Найти</button>
+        <button class="btn btn-primary btn-sm mt-1">Найти</button>
     </form>
-</div>
-
-<div class="friends_input">
-    <a class="btn btn-primary btn-sm" href="{% url 'friends' %}">Назад</a>
 </div>
 
 <table class="table">
@@ -28,29 +27,39 @@
     </tr>
     <tbody>
     {% for one in profiles %}
-    <tr>
-        <td>
-            <img src="{{ one.avatar.url }}" height="50px" width="50px">
-        </td>
-        <td>
-            {{ one.first_name }}
-        </td>
-        <td>
-            {{ one.last_name }}
-        </td>
-        <td>
-            <form method="GET" action="">
-                <button class="btn btn-primary btn-sm" name="add" value="{{ one.user_id }}" >
-                    Добавить в друзья
-                </button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
+        {% if not one.user_id == request.user.id %}
+            <tr>
+                <td>
+                    <img src="{{ one.avatar.url }}" height="50px" width="50px">
+                </td>
+                <td>
+                    {{ one.first_name }}
+                </td>
+                <td>
+                    {{ one.last_name }}
+                </td>
+                <td>
+                    <form method="GET" action="">
+                        {% if one.relation_to_request_user == 'no_relation' %}
+                            <button class="btn btn-primary btn-sm" name="add" value="{{ one.user_id }}" >
+                                Добавить в друзья
+                            </button>
+                        {% elif one.relation_to_request_user == 'subscriber' %}
+                            <button class="btn btn-sm fw-bold" disabled name="add" style="background: #FF8A04;">
+                                Приглашение отправлено
+                            </button>
+                        {% elif one.relation_to_request_user == 'friend' %}
+                            <button class="btn btn-success btn-sm" disabled name="add">
+                                Друг
+                            </button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+        {% endif %}
     {% endfor %}
+    </tbody>
 </table>
-
-
 
 
 {% endblock %}

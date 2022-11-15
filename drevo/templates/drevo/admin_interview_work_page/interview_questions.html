@@ -17,22 +17,14 @@
     <div>
         <h2 class="text-center"><strong>Вопросы интервью</strong></h2>
         <br>
-        <table class="table table-bordered">
-            <tbody>
-            {% for pk, name, danger_cnt, status in questions %}
-            <tr class="text-{{status}} fs-4">
-                <td>
-                    <a href="{% url 'question_admin_work' interview_pk pk %}" class="text-{{status}} text-decoration-none">
-                        {{ name }}
-                    </a>
-                </td>
-                <td class="text-center">
-                    {% if danger_cnt %}(Необработанных предложений: {{ danger_cnt }}){% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        {% for pk, name, danger_cnt, status in questions %}
+        <li class="text-{{status}} fs-4">
+            <a href="{% url 'question_admin_work' interview_pk pk %}" class="text-{{status}} text-decoration-none">
+                {{ name }} {% if danger_cnt %}({{ danger_cnt }}){% endif %}
+            </a>
+        </li>
+        <br>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

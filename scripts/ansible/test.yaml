@@ -1,0 +1,13 @@
+---
+- name: main installation
+  hosts: test
+  tasks:
+    - include: ./tasks/main.yaml
+  vars:
+    site_root: '/var/www/u1353596/data/www/test.derzn.ru'
+    project_root: '{{ site_root }}/dz'
+    virtualenv_dir: '{{ site_root }}/venv'
+    git_ref_to_install: 'develop'
+
+  environment:
+    PATH: '{{ ansible_env.PATH }}:/var/www/u1353596/data/.local/bin/'
