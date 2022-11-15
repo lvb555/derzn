@@ -21,7 +21,6 @@ from .views import (
     TagSearchView,
     NewKnowledgeListView,
     BrowsingHistoryListView,
-    SubscribeToAuthor,
     FavouritesView,
     FavouriteProcessView,
     QuestionExpertWorkPage,
@@ -42,6 +41,7 @@ from .views.admin_interview_work.views import (
     InterviewQuestionsView,
     question_admin_work_view,
 )
+from .views.subscribe_to_author_view import sub_by_author
 from .views.subscription_by_tag_view import sub_by_tag
 
 urlpatterns = [
@@ -68,7 +68,7 @@ urlpatterns = [
     path("search/tag", TagSearchView.as_view(), name="search_tag"),
     path("history/", BrowsingHistoryListView.as_view(), name="history"),
     path(
-        "subscribe_to_author/", SubscribeToAuthor.as_view(), name="subscribe_to_author"
+        "subscribe_to_author/", sub_by_author, name="subscribe_to_author"
     ),
     path('subscription_by_tag/', sub_by_tag,
          name='subscription_by_tag'),
