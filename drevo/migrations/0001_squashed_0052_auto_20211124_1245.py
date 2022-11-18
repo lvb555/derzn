@@ -9,7 +9,60 @@ import mptt.fields
 
 class Migration(migrations.Migration):
 
-    replaces = [('drevo', '0001_initial'), ('drevo', '0002_alter_znanie_rz'), ('drevo', '0003_auto_20210515_1031'), ('drevo', '0004_auto_20210515_1048'), ('drevo', '0005_alter_relation_user'), ('drevo', '0006_auto_20210515_1129'), ('drevo', '0007_auto_20210515_1357'), ('drevo', '0008_alter_znanie_category'), ('drevo', '0009_auto_20210517_1400'), ('drevo', '0010_auto_20210517_1547'), ('drevo', '0011_alter_znanie_date'), ('drevo', '0012_alter_relation_user'), ('drevo', '0013_auto_20210517_1832'), ('drevo', '0014_auto_20210517_1854'), ('drevo', '0015_alter_znanie_order'), ('drevo', '0016_auto_20210518_1455'), ('drevo', '0017_alter_znanie_is_published'), ('drevo', '0018_auto_20210518_1739'), ('drevo', '0019_category_content'), ('drevo', '0020_alter_znanie_content'), ('drevo', '0021_znanie_labels'), ('drevo', '0022_alter_znanie_labels'), ('drevo', '0023_auto_20210521_1913'), ('drevo', '0024_alter_znanie_order'), ('drevo', '0025_alter_label_options'), ('drevo', '0026_alter_znanie_author'), ('drevo', '0027_auto_20210531_1923'), ('drevo', '0028_alter_znimage_photo'), ('drevo', '0029_auto_20210617_2119'), ('drevo', '0030_alter_author_info'), ('drevo', '0031_znanie_updated_at'), ('drevo', '0032_auto_20210619_1429'), ('drevo', '0033_category_is_published'), ('drevo', '0034_alter_znanie_category'), ('drevo', '0035_alter_znanie_category'), ('drevo', '0036_alter_znanie_managers'), ('drevo', '0037_alter_category_managers'), ('drevo', '0038_alter_znanie_category'), ('drevo', '0039_alter_znanie_category'), ('drevo', '0040_alter_znanie_managers'), ('drevo', '0041_alter_znanie_managers'), ('drevo', '0042_alter_znanie_managers'), ('drevo', '0043_tz_is_systemic'), ('drevo', '0044_alter_tz_is_systemic'), ('drevo', '0045_auto_20210821_1504'), ('drevo', '0046_auto_20210824_1801'), ('drevo', '0047_relation_is_published'), ('drevo', '0048_rename_type_author_atype'), ('drevo', '0049_alter_category_content'), ('drevo', '0050_auto_20211024_2044'), ('drevo', '0051_alter_tr_order'), ('drevo', '0052_auto_20211124_1245')]
+    replaces = [
+        ("drevo", "0001_initial"),
+        ("drevo", "0002_alter_znanie_rz"),
+        ("drevo", "0003_auto_20210515_1031"),
+        ("drevo", "0004_auto_20210515_1048"),
+        ("drevo", "0005_alter_relation_user"),
+        ("drevo", "0006_auto_20210515_1129"),
+        ("drevo", "0007_auto_20210515_1357"),
+        ("drevo", "0008_alter_znanie_category"),
+        ("drevo", "0009_auto_20210517_1400"),
+        ("drevo", "0010_auto_20210517_1547"),
+        ("drevo", "0011_alter_znanie_date"),
+        ("drevo", "0012_alter_relation_user"),
+        ("drevo", "0013_auto_20210517_1832"),
+        ("drevo", "0014_auto_20210517_1854"),
+        ("drevo", "0015_alter_znanie_order"),
+        ("drevo", "0016_auto_20210518_1455"),
+        ("drevo", "0017_alter_znanie_is_published"),
+        ("drevo", "0018_auto_20210518_1739"),
+        ("drevo", "0019_category_content"),
+        ("drevo", "0020_alter_znanie_content"),
+        ("drevo", "0021_znanie_labels"),
+        ("drevo", "0022_alter_znanie_labels"),
+        ("drevo", "0023_auto_20210521_1913"),
+        ("drevo", "0024_alter_znanie_order"),
+        ("drevo", "0025_alter_label_options"),
+        ("drevo", "0026_alter_znanie_author"),
+        ("drevo", "0027_auto_20210531_1923"),
+        ("drevo", "0028_alter_znimage_photo"),
+        ("drevo", "0029_auto_20210617_2119"),
+        ("drevo", "0030_alter_author_info"),
+        ("drevo", "0031_znanie_updated_at"),
+        ("drevo", "0032_auto_20210619_1429"),
+        ("drevo", "0033_category_is_published"),
+        ("drevo", "0034_alter_znanie_category"),
+        ("drevo", "0035_alter_znanie_category"),
+        ("drevo", "0036_alter_znanie_managers"),
+        ("drevo", "0037_alter_category_managers"),
+        ("drevo", "0038_alter_znanie_category"),
+        ("drevo", "0039_alter_znanie_category"),
+        ("drevo", "0040_alter_znanie_managers"),
+        ("drevo", "0041_alter_znanie_managers"),
+        ("drevo", "0042_alter_znanie_managers"),
+        ("drevo", "0043_tz_is_systemic"),
+        ("drevo", "0044_alter_tz_is_systemic"),
+        ("drevo", "0045_auto_20210821_1504"),
+        ("drevo", "0046_auto_20210824_1801"),
+        ("drevo", "0047_relation_is_published"),
+        ("drevo", "0048_rename_type_author_atype"),
+        ("drevo", "0049_alter_category_content"),
+        ("drevo", "0050_auto_20211024_2044"),
+        ("drevo", "0051_alter_tr_order"),
+        ("drevo", "0052_auto_20211124_1245"),
+    ]
 
     initial = True
 
@@ -19,187 +72,533 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Author',
+            name="Author",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128, verbose_name='Имя')),
-                ('info', models.TextField(blank=True, max_length=2048, null=True, verbose_name='Сведения об авторе')),
-                ('photo', models.ImageField(blank=True, null=True, upload_to='photos/authors/', verbose_name='Фото')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128, verbose_name="Имя")),
+                (
+                    "info",
+                    models.TextField(
+                        blank=True,
+                        max_length=2048,
+                        null=True,
+                        verbose_name="Сведения об авторе",
+                    ),
+                ),
+                (
+                    "photo",
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="photos/authors/",
+                        verbose_name="Фото",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Автор',
-                'verbose_name_plural': 'Авторы',
+                "verbose_name": "Автор",
+                "verbose_name_plural": "Авторы",
             },
         ),
         migrations.CreateModel(
-            name='Label',
+            name="Label",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128, unique=True, verbose_name='Название')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=128, unique=True, verbose_name="Название"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Метка',
-                'verbose_name_plural': 'Метки',
-                'ordering': ('name',),
+                "verbose_name": "Метка",
+                "verbose_name_plural": "Метки",
+                "ordering": ("name",),
             },
         ),
         migrations.CreateModel(
-            name='Tz',
+            name="Tz",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128, unique=True, verbose_name='Название')),
-                ('is_systemic', models.BooleanField(default=False, verbose_name='Системный?')),
-                ('order', models.IntegerField(blank=True, help_text='укажите порядковый номер', null=True, verbose_name='Порядок')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=128, unique=True, verbose_name="Название"
+                    ),
+                ),
+                (
+                    "is_systemic",
+                    models.BooleanField(default=False, verbose_name="Системный?"),
+                ),
+                (
+                    "order",
+                    models.IntegerField(
+                        blank=True,
+                        help_text="укажите порядковый номер",
+                        null=True,
+                        verbose_name="Порядок",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Вид знания',
-                'verbose_name_plural': 'Виды знания',
+                "verbose_name": "Вид знания",
+                "verbose_name_plural": "Виды знания",
             },
         ),
         migrations.CreateModel(
-            name='Tr',
+            name="Tr",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256, unique=True, verbose_name='Название')),
-                ('is_systemic', models.BooleanField(default=False, verbose_name='Системный?')),
-                ('order', models.PositiveSmallIntegerField(default=0, help_text='укажите порядковый номер', verbose_name='Порядок')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=256, unique=True, verbose_name="Название"
+                    ),
+                ),
+                (
+                    "is_systemic",
+                    models.BooleanField(default=False, verbose_name="Системный?"),
+                ),
+                (
+                    "order",
+                    models.PositiveSmallIntegerField(
+                        default=0,
+                        help_text="укажите порядковый номер",
+                        verbose_name="Порядок",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Вид связи',
-                'verbose_name_plural': 'Виды связи',
-                'ordering': ('order', 'name'),
+                "verbose_name": "Вид связи",
+                "verbose_name_plural": "Виды связи",
+                "ordering": ("order", "name"),
             },
         ),
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128, unique=True, verbose_name='Название')),
-                ('lft', models.PositiveIntegerField(editable=False)),
-                ('rght', models.PositiveIntegerField(editable=False)),
-                ('tree_id', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('level', models.PositiveIntegerField(editable=False)),
-                ('parent', mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='drevo.category')),
-                ('content', models.TextField(blank=True, max_length=512, null=True, verbose_name='Содержание')),
-                ('is_published', models.BooleanField(default=False, verbose_name='Опубликовано?')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=128, unique=True, verbose_name="Название"
+                    ),
+                ),
+                ("lft", models.PositiveIntegerField(editable=False)),
+                ("rght", models.PositiveIntegerField(editable=False)),
+                ("tree_id", models.PositiveIntegerField(db_index=True, editable=False)),
+                ("level", models.PositiveIntegerField(editable=False)),
+                (
+                    "parent",
+                    mptt.fields.TreeForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="children",
+                        to="drevo.category",
+                    ),
+                ),
+                (
+                    "content",
+                    models.TextField(
+                        blank=True, max_length=512, null=True, verbose_name="Содержание"
+                    ),
+                ),
+                (
+                    "is_published",
+                    models.BooleanField(default=False, verbose_name="Опубликовано?"),
+                ),
             ],
             options={
-                'verbose_name': 'Категория',
-                'verbose_name_plural': 'Категории',
+                "verbose_name": "Категория",
+                "verbose_name_plural": "Категории",
             },
         ),
         migrations.CreateModel(
-            name='Znanie',
+            name="Znanie",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256, unique=True, verbose_name='Тема')),
-                ('content', models.TextField(blank=True, max_length=2048, null=True, verbose_name='Содержание')),
-                ('href', models.URLField(blank=True, help_text='укажите www-адрес источника', max_length=256, null=True, verbose_name='Источник')),
-                ('source_com', models.CharField(blank=True, max_length=256, null=True, verbose_name='Комментарий к источнику')),
-                ('date', models.DateField(auto_now_add=True, verbose_name='Дата создания')),
-                ('author', models.ForeignKey(blank=True, help_text='укажите автора', null=True, on_delete=django.db.models.deletion.PROTECT, to='drevo.author', verbose_name='Автор')),
-                ('tz', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='drevo.tz', verbose_name='Вид знания')),
-                ('category', mptt.fields.TreeForeignKey(blank=True, limit_choices_to={'is_published': True}, null=True, on_delete=django.db.models.deletion.PROTECT, to='drevo.category', verbose_name='Категория')),
-                ('user', models.ForeignKey(default=1, editable=False, on_delete=django.db.models.deletion.PROTECT, to='auth.user', verbose_name='Пользователь')),
-                ('is_published', models.BooleanField(default=False, verbose_name='Опубликовано?')),
-                ('order', models.IntegerField(blank=True, help_text='укажите порядковый номер', null=True, verbose_name='Порядок')),
-                ('labels', models.ManyToManyField(blank=True, to='drevo.Label', verbose_name='Метки')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Дата и время редактирования')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=256, unique=True, verbose_name="Тема"),
+                ),
+                (
+                    "content",
+                    models.TextField(
+                        blank=True,
+                        max_length=2048,
+                        null=True,
+                        verbose_name="Содержание",
+                    ),
+                ),
+                (
+                    "href",
+                    models.URLField(
+                        blank=True,
+                        help_text="укажите www-адрес источника",
+                        max_length=256,
+                        null=True,
+                        verbose_name="Источник",
+                    ),
+                ),
+                (
+                    "source_com",
+                    models.CharField(
+                        blank=True,
+                        max_length=256,
+                        null=True,
+                        verbose_name="Комментарий к источнику",
+                    ),
+                ),
+                (
+                    "date",
+                    models.DateField(auto_now_add=True, verbose_name="Дата создания"),
+                ),
+                (
+                    "author",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="укажите автора",
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="drevo.author",
+                        verbose_name="Автор",
+                    ),
+                ),
+                (
+                    "tz",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="drevo.tz",
+                        verbose_name="Вид знания",
+                    ),
+                ),
+                (
+                    "category",
+                    mptt.fields.TreeForeignKey(
+                        blank=True,
+                        limit_choices_to={"is_published": True},
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="drevo.category",
+                        verbose_name="Категория",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        editable=False,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Пользователь",
+                    ),
+                ),
+                (
+                    "is_published",
+                    models.BooleanField(default=False, verbose_name="Опубликовано?"),
+                ),
+                (
+                    "order",
+                    models.IntegerField(
+                        blank=True,
+                        help_text="укажите порядковый номер",
+                        null=True,
+                        verbose_name="Порядок",
+                    ),
+                ),
+                (
+                    "labels",
+                    models.ManyToManyField(
+                        blank=True, to="drevo.Label", verbose_name="Метки"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Дата и время редактирования"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Знание',
-                'verbose_name_plural': 'Знания',
-                'ordering': ('order',),
+                "verbose_name": "Знание",
+                "verbose_name_plural": "Знания",
+                "ordering": ("order",),
             },
         ),
         migrations.CreateModel(
-            name='ZnImage',
+            name="ZnImage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('photo', models.ImageField(blank=True, upload_to='photos/%Y/%m/%d/', verbose_name='Фото')),
-                ('znanie', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='photos', to='drevo.znanie')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "photo",
+                    models.ImageField(
+                        blank=True, upload_to="photos/%Y/%m/%d/", verbose_name="Фото"
+                    ),
+                ),
+                (
+                    "znanie",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="photos",
+                        to="drevo.znanie",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='AuthorType',
+            name="AuthorType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128, verbose_name='Вид авторов')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128, verbose_name="Вид авторов")),
             ],
             options={
-                'verbose_name': 'Вид авторов',
-                'verbose_name_plural': 'Виды авторов',
+                "verbose_name": "Вид авторов",
+                "verbose_name_plural": "Виды авторов",
             },
         ),
         migrations.AddField(
-            model_name='author',
-            name='atype',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='drevo.authortype', verbose_name='Вид автора'),
+            model_name="author",
+            name="atype",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="drevo.authortype",
+                verbose_name="Вид автора",
+            ),
         ),
         migrations.AlterModelManagers(
-            name='znanie',
+            name="znanie",
             managers=[
-                ('published', django.db.models.manager.Manager()),
+                ("published", django.db.models.manager.Manager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='category',
+            name="category",
             managers=[
-                ('tree_objects', django.db.models.manager.Manager()),
+                ("tree_objects", django.db.models.manager.Manager()),
             ],
         ),
         migrations.AlterField(
-            model_name='znanie',
-            name='category',
-            field=mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='drevo.category', verbose_name='Категория'),
+            model_name="znanie",
+            name="category",
+            field=mptt.fields.TreeForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="drevo.category",
+                verbose_name="Категория",
+            ),
         ),
         migrations.AlterField(
-            model_name='znanie',
-            name='category',
-            field=mptt.fields.TreeForeignKey(blank=True, limit_choices_to={'is_published': True}, null=True, on_delete=django.db.models.deletion.PROTECT, to='drevo.category', verbose_name='Категория'),
+            model_name="znanie",
+            name="category",
+            field=mptt.fields.TreeForeignKey(
+                blank=True,
+                limit_choices_to={"is_published": True},
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="drevo.category",
+                verbose_name="Категория",
+            ),
         ),
         migrations.AlterModelManagers(
-            name='znanie',
-            managers=[
-            ],
+            name="znanie",
+            managers=[],
         ),
         migrations.CreateModel(
-            name='GlossaryTerm',
+            name="GlossaryTerm",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256, unique=True, verbose_name='Термин')),
-                ('description', models.TextField(blank=True, max_length=2048, null=True, verbose_name='Описание')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата и время создания')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Дата и время редактирования')),
-                ('is_published', models.BooleanField(default=True, verbose_name='Опубликовано?')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=256, unique=True, verbose_name="Термин"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True, max_length=2048, null=True, verbose_name="Описание"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата и время создания"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Дата и время редактирования"
+                    ),
+                ),
+                (
+                    "is_published",
+                    models.BooleanField(default=True, verbose_name="Опубликовано?"),
+                ),
             ],
             options={
-                'verbose_name': 'Термин глоссария',
-                'verbose_name_plural': 'Термины глоссария',
-                'ordering': ('name',),
+                "verbose_name": "Термин глоссария",
+                "verbose_name_plural": "Термины глоссария",
+                "ordering": ("name",),
             },
         ),
         migrations.CreateModel(
-            name='Relation',
+            name="Relation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('bz', models.ForeignKey(help_text='укажите базовое знание', on_delete=django.db.models.deletion.PROTECT, related_name='base', to='drevo.znanie', verbose_name='Базовое знание')),
-                ('rz', models.ForeignKey(help_text='укажите связанное знание', on_delete=django.db.models.deletion.PROTECT, related_name='related', to='drevo.znanie', verbose_name='Связанное знание')),
-                ('author', models.ForeignKey(default=1, help_text='укажите автора', on_delete=django.db.models.deletion.PROTECT, to='drevo.author', verbose_name='Автор')),
-                ('date', models.DateField(auto_now_add=True, verbose_name='Дата создания')),
-                ('tr', models.ForeignKey(default=1, help_text='укажите вид связи', on_delete=django.db.models.deletion.PROTECT, to='drevo.tr', verbose_name='Вид связи')),
-                ('user', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
-                ('is_published', models.BooleanField(default=False, verbose_name='Опубликовано?')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "bz",
+                    models.ForeignKey(
+                        help_text="укажите базовое знание",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="base",
+                        to="drevo.znanie",
+                        verbose_name="Базовое знание",
+                    ),
+                ),
+                (
+                    "rz",
+                    models.ForeignKey(
+                        help_text="укажите связанное знание",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="related",
+                        to="drevo.znanie",
+                        verbose_name="Связанное знание",
+                    ),
+                ),
+                (
+                    "author",
+                    models.ForeignKey(
+                        default=1,
+                        help_text="укажите автора",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="drevo.author",
+                        verbose_name="Автор",
+                    ),
+                ),
+                (
+                    "date",
+                    models.DateField(auto_now_add=True, verbose_name="Дата создания"),
+                ),
+                (
+                    "tr",
+                    models.ForeignKey(
+                        default=1,
+                        help_text="укажите вид связи",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="drevo.tr",
+                        verbose_name="Вид связи",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        editable=False,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Пользователь",
+                    ),
+                ),
+                (
+                    "is_published",
+                    models.BooleanField(default=False, verbose_name="Опубликовано?"),
+                ),
             ],
             options={
-                'ordering': ('-date',),
-                'verbose_name': 'Связь',
-                'verbose_name_plural': 'Связи',
+                "ordering": ("-date",),
+                "verbose_name": "Связь",
+                "verbose_name_plural": "Связи",
             },
         ),
         migrations.AlterField(
-            model_name='category',
-            name='content',
-            field=models.TextField(blank=True, max_length=1024, null=True, verbose_name='Содержание'),
+            model_name="category",
+            name="content",
+            field=models.TextField(
+                blank=True, max_length=1024, null=True, verbose_name="Содержание"
+            ),
         ),
     ]

@@ -36,6 +36,7 @@ def friends_added_view(request):
             continue
         if not user.first_name or not user.last_name:
             continue
+
         data['first_name'] = user.first_name
         data['last_name'] = user.last_name
         data['avatar'] = profile.avatar or ''
@@ -62,6 +63,7 @@ def _add_friend(user_id: int, friend_id: str) -> None:
         try:
             friendship = FriendsTerm.objects.get(user = user_id, friend = int(friend_id))
         except:
-            FriendsInviteTerm.objects.create(
-                sender_id=user_id,
-                recipient_id=int(friend_id))
+            if not user_id == int(friend_id):
+                FriendsInviteTerm.objects.create(sender_id=user_id, recipient_id=int(friend_id))
+            else:
+                pass

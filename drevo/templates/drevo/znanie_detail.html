@@ -90,6 +90,13 @@
   <div class="row">
     <div class="col">
       <a href="{% url 'grade' znanie.id %}" class="btn btn-secondary">Оценка знания</a>
+      {% if button %}
+        {%for i in button%}
+          {%for b in i%}
+            <a href="{{ b.get_absolute_url }}" class="btn btn-secondary">Пройти тестирование: {{ b.name }} </a>
+          {%endfor%}
+        {%endfor%}
+      {% endif %}
     </div>
   </div>
 </div>
@@ -136,6 +143,9 @@
         </div>
       </div>
     </div>
+  </div>
+  <div>
+    <a href="{% url 'send_to_feed' znanie.id %}" style="text-decoration:none; color: #212121"><i class="cart-icon material-icons text-success">reply</i>Отправить в Ленту знаний</a>
   </div>
 </div>
 

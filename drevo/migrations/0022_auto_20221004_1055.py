@@ -142,16 +142,4 @@ class Migration(migrations.Migration):
                 name="single_proposal_from_expert_on_answer",
             ),
         ),
-        migrations.AddConstraint(
-            model_name="interviewanswerexpertproposal",
-            constraint=models.CheckConstraint(
-                check=models.Q(
-                    ("answer", None),
-                    ("new_answer_text", None),
-                    ("new_answer_text", ""),
-                    _connector="OR",
-                ),
-                name="can't place new text with link to exist answer",
-            ),
-        ),
     ]

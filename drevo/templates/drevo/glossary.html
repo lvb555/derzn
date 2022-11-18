@@ -4,24 +4,26 @@
 
 {% block content %}
 
-<h2>Глоссарий</h2>
+<h1>Глоссарий</h1>
 
 {% for term in glossary_terms %}
-
-<div class="row">
-    <div class="col">
-        <strong>{{ term.name }}</strong>, {{ term.description|safe }}
+<button class="container btn navbar bg-opacity-75 navbar-toggler text-white p-3 mt-3 rounded-0" data-bs-toggle="collapse" data-bs-target="#term_info{{ term.id }}" style="outline: none; box-shadow: none; background-color:#083E2F;">
+    <div>
+        <h3>{{ term.name }}</h3>
+    </div>
+</button>
+<div class="collapse text-white rounded-0" id="term_info{{ term.id }}" style="background-color:#23755E;">
+    <div class="mx-4">
+        {{ term.description|safe }}
     </div>
 </div>
 <br>
-<hr>
 {% empty %}
 <div class="row">
     <div class="col">
         Глоссарий пуст
     </div>
 </div>
-
 {% endfor %}
 
 {% endblock %}
