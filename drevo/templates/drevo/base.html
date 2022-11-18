@@ -57,7 +57,6 @@
                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     Подготовка знаний</a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                    {% if not user.is_director and not user.in_klz %}
                                     <li><a class="dropdown-item" href="{% url 'znanie_create' %}"
                                            id="znanie_create">
                                         {% if user.is_expert %}
@@ -86,15 +85,16 @@
                                            id="znanie_process_red">Редактирование ПредЗнания и Знания</a>
                                     </li>
                                     {% endif %}
-                                    {% else %}
-                                    <li><a class="dropdown-item" href="#"
-                                           id="znanie_process">
-                                        {% if user.is_director %}
-                                        Публикация ПредЗнания и Знания
-                                        {% elif user.in_klz %}
-                                        Клуб любителей знания (КЛЗ)
-                                        {% endif %}
-                                    </a></li>
+                                    {% if user.is_director %}
+                                    <li><a class="dropdown-item"
+                                           href="{% url 'znanie_director_process' %}"
+                                           id="znanie_process_dir">Публикация ПредЗнания и Знания</a>
+                                    </li>
+                                    {% endif %}
+                                    {% if user.in_klz %}
+                                    <li><a class="dropdown-item" href="{% url 'klz' %}"
+                                           id="znanie_process">Клуб любителей знания (КЛЗ)</a>
+                                    </li>
                                     {% endif %}
                                 </ul>
                             </li>

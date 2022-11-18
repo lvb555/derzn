@@ -57,6 +57,10 @@ def set_auto_status(instance: Znanie, user, level):
         else:
             return False
         instance.redactor = user
+    elif level == 'director':
+        instance.director = user
+        instance.save()
+        return False
     else:
         return False
 
@@ -246,12 +250,72 @@ class RedactorKnowledgeProcess(LoginRequiredMixin, TemplateView):
         return context
 
 
+class DirectorKnowledgeProcess(LoginRequiredMixin, TemplateView):
+    """Представление страницы работы редактора"""
+    template_name = 'drevo/user_knowledge_process.html'
+
+    def get_context_data(self, **kwargs):
+        """
+        Передает контекст в шаблон
+        """
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        # Формирование списка неопубликованных знаний
+        zn = Znanie.objects.filter(
+            (Q(knowledge_status__status='PRE_FIN_RED') |
+             Q(knowledge_status__status='FIN_RED') |
+             Q(knowledge_status__status='PRE_REJ') |
+             Q(knowledge_status__status='REJ') |
+             (
+                     (Q(knowledge_status__status='PUB_PRE') |
+                      Q(knowledge_status__status='PRE_KLZ') |
+                      Q(knowledge_status__status='PRE_EXP_2') |
+                      Q(knowledge_status__status='PUB') |
+                      Q(knowledge_status__status='KLZ') |
+                      Q(knowledge_status__status='EXP_2')
+                      ) & Q(director=user)
+             )
+             ) & Q(knowledge_status__is_active=True)
+        )
+
+        context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn)
+        context['var'] = variables
+        context['title'] = 'Публикация ПредЗнания и Знания'
+
+        return context
+
+
+class KlzKnowledgeProcess(LoginRequiredMixin, TemplateView):
+    """Представление страницы работы члена КЛЗ"""
+    template_name = 'drevo/user_knowledge_process.html'
+
+    def get_context_data(self, **kwargs):
+        """
+        Передает контекст в шаблон
+        """
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        # Формирование списка неопубликованных знаний
+        zn = Znanie.objects.filter(
+            Q(is_published=False) &
+            ((Q(knowledge_status__status='PRE_KLZ') |
+              Q(knowledge_status__status='KLZ')) & Q(knowledge_status__is_active=True)))
+
+        context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn)
+        context['var'] = variables
+        context['title'] = 'Клуб любителей знания (КЛЗ)'
+
+        return context
+
+
 class KnowledgeUpdateView(LoginRequiredMixin, UpdateView):
     """Класс представления изменения знания"""
     model = Znanie
     form_class = ZnanieUpdateForm
     template_name = 'drevo/knowledge_update.html'
-    success_url = reverse_lazy('znanie_user_process')
+    success_url = reverse_lazy('drevo')
 
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
@@ -275,6 +339,8 @@ class KnowledgeUpdateView(LoginRequiredMixin, UpdateView):
                 actions = variables.TRANSITIONS_EXP[current_status]
             elif tp_level == 'redactor':
                 actions = variables.TRANSITIONS_RED[current_status]
+            elif tp_level == 'director':
+                actions = variables.TRANSITIONS_DIRECT[current_status]
             else:
                 actions = variables.TRANSITIONS_PUB[current_status]
             context['actions'] = actions
@@ -315,7 +381,7 @@ class KnowledgeUpdateView(LoginRequiredMixin, UpdateView):
             # Перед сохранением формы с изображениями подставляем текущий объект знания
             image_form.instance = knowledge
             image_form.save()
-            return HttpResponseRedirect(reverse('znanie_user_process'))
+            return HttpResponseRedirect(reverse('drevo'))
         return self.form_invalid(form, image_form)
 
     def form_invalid(self, form, image_form):
@@ -324,7 +390,7 @@ class KnowledgeUpdateView(LoginRequiredMixin, UpdateView):
 
 class KnowledgeChangeStatus(LoginRequiredMixin, UpdateView):
     """Изменяет статус знания"""
-    success_url = reverse_lazy('znanie_user_process')
+    success_url = reverse_lazy('drevo')
 
     def get(self, request, *args, **kwargs):
         knowledge_pk = self.kwargs.get('pk')
@@ -339,4 +405,10 @@ class KnowledgeChangeStatus(LoginRequiredMixin, UpdateView):
             user=request.user,
             is_active=True
         )
-        return HttpResponseRedirect(reverse('znanie_user_process'))
+        if status == 'PUB_PRE' or status == 'PUB':
+            knowledge.is_published = True
+            knowledge.save()
+        if status == 'PRE_KLZ' or status == 'KLZ':
+            knowledge.is_published = False
+            knowledge.save()
+        return HttpResponseRedirect(reverse('drevo'))

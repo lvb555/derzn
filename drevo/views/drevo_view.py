@@ -4,7 +4,6 @@ from django.views.generic import TemplateView
 from ..models import Category, Znanie
 from loguru import logger
 
-
 logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
 
@@ -29,7 +28,9 @@ class DrevoView(TemplateView):
         zn = Znanie.published.all()
         # Формирование списка знаний для пользователей-членов КЛЗ
         if self.request.user.is_authenticated and self.request.user.in_klz:
-            zn = Znanie.objects.filter(Q(is_published=True) | Q(knowledge_status__status='KLZ'))
+            zn = Znanie.objects.filter(Q(is_published=False) &
+                                       ((Q(knowledge_status__status='PRE_KLZ') |
+                                         Q(knowledge_status__status='KLZ')) & Q(knowledge_status__is_active=True)))
         zn_dict = {}
         for category in categories:
             zn_in_this_category = zn.filter(

@@ -56,6 +56,7 @@
                                         </a>
                                         <a href="{% url 'znanie_update' zn.pk %}{%if title == 'Экспертиза ПредЗнания'%}?level=expert
                                         {% elif title == 'Редактирование ПредЗнания и Знания' %}?level=redactor
+                                        {% elif title == 'Публикация ПредЗнания и Знания' %}?level=director
                                         {%endif%}">
                                             <img src="{% static '/drevo/img/pencil.png' %}">
                                         </a>
