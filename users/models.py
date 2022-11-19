@@ -132,6 +132,7 @@ class Profile(models.Model):
         )
         subject = "Восстановление пароля"
         message = (
+            f"Ваш логин: {self.user.username} \n"
             f"Для восстановления пароля, перейдите по ссылке: "
             f"{settings.BASE_URL}{recovery_link}"
         )
