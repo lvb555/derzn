@@ -18,8 +18,9 @@ from drevo.models.friends import FriendsTerm
 from drevo.models.friends_invite import FriendsInviteTerm
 from drevo.models.label_feed_message import LabelFeedMessage
 from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
+from drevo.models.developer import Developer
 
-
+from .forms.developer_form import DeveloperForm
 from .forms import (
     ZnanieForm,
     AuthorForm,
@@ -294,8 +295,9 @@ admin.site.register(Relation, RelationAdmin)
 
 
 class GlossaryTermAdmin(admin.ModelAdmin):
-    list_display = ("name", "description")
-    ordering = ("name",)
+    list_display = ("order", "name", "description")
+    ordering = ("order", "name",)
+    list_display_links = ('name',)
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs["form"] = GlossaryTermForm
@@ -468,6 +470,15 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
     def answer_link(self, obj):
         return self.link_to_knowledge_change(obj.answer)
 
+class DeveloperAdmin(admin.ModelAdmin):
+    list_display = ("name", "surname", "contribution", "comment", "admin")
+    fields = ("name", "surname", "contribution", "comment", "admin")
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs["form"] = DeveloperForm
+        return super().get_form(request, obj, **kwargs)
+
+admin.site.register(Developer, DeveloperAdmin)
 
 admin.site.register(FriendsTerm)
 admin.site.register(FriendsInviteTerm)

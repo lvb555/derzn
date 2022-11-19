@@ -16,30 +16,44 @@
 {% if all_answers_and_questions %}
 <div style="margin-left: auto;margin-right: auto; text-align:center; display: flex;flex-direction: row;
 justify-content: flex-start;">
-    <div id="preanswer" style="width: 20%; margin-top: 50px;"></div>
     <p style="display: none" id="countqs" >{{ all_answers_and_questions|length}}</p>
     {% for question, answers in all_answers_and_questions.items %}
     {% for question_with_right_answer, right_answer in right_answer.items %}
     {% if question in question_with_right_answer %}
-    <div id='a' class="cont" style="display: none; width: 60%;">
-        <p>Тест: {{ znanie.tz }}</p>
+    <div id='a' class="cont" style="display: none; width: 100%;">
+        <p>Тест: {{ znanie.name }}</p>
         <div class="checkboxgroup" id="{{question_with_right_answer}}1">
             <h5 id="{{question}}" class='vopr' style="display: none">{{right_answer|length}}</h5>
             <p>Вопрос: {{question}}</p>
-            <p>Количество ответов {{right_answer|length}}</p>
-            {% for answer in answers %}
-            {% if answer in right_answer %}
-                <label>
-                    <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{question}}" value="1">
-                    {{ answer}}
-                </label><br>
-            {% else %}
-                <label>
-                    <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{question}}" value="0">
-                    {{ answer}}
-                </label><br>
-            {% endif %}
-            {% endfor %}
+            <p id="result_or_count">Количество ответов: {{right_answer|length}}</p>
+            <div id="firstblock" style="text-align: left;margin-left: 33%;margin-right: 22%;">
+
+                {% for answer in answers %}
+                {% if answer in right_answer %}
+                    <label>
+                        <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{question}}" value="1">
+                        {{ answer}}
+                    </label><br>
+                {% else %}
+                    <label>
+                        <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{question}}" value="0">
+                        {{ answer}}
+                    </label><br>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div id="secondblock" style="text-align: left;margin-left: 33%;display: none;margin-right: 22%;">
+                {% for answer in answers %}
+                {% if answer in right_answer %}
+                    <p style="color: green;margin: 0px;">{{answer}}</p>
+                {% else %}
+                    <p style="color: red;margin: 0px;">{{answer}}</p>
+                {% endif %}
+                {% endfor %}
+                <br><p style="margin: 0px; padding-left: 45%;">Легенда:</p>
+                <p style="color: green;margin: 0px;padding-left: 45%;">верный ответ</p>
+                <p style="color: red;margin: 0px;padding-left: 45%;">неверный ответ</p>
+            </div>
         </div>
     </div>
     {% endif %}
@@ -47,14 +61,17 @@ justify-content: flex-start;">
     {% endfor %}
 </div>
 <div  id="rezultat" style="display: none;text-align:center;">
-    <p>Тест: {{ znanie.tz }}</p>
+    <p>Тест: {{ znanie.name }}</p>
     <table id="reztable" border="1" align="center" width="60%" >
 			<thead>
 				<tr>
-					<th>Вопрос</th>
-					<th>Оценка</th>
-                    <th>Число верных ответов / число всех ответов</th>
+					<th rowspan="2" >Вопрос</th>
+					<th rowspan="2" >Оценка</th>
+                    <th>Число верных ответов</th>
 				</tr>
+                <tr>
+                    <th>Дано/Всего</th>
+                </tr>
 			</thead>
         <tbody>
     {%for question in all_answers_and_questions.keys %}
@@ -76,7 +93,8 @@ justify-content: flex-start;">
 </div>
 
 <div style="display: flex;justify-content: center;">
-    <button id="next_question" onclick="next_block();" >Следующий вопрос</button>
+    <button id="show_result_for_question" onclick="show_result_for_question();">Результат</button>
+    <button id="next_question" onclick="next_block();" style="display: none;">Далее</button>
     <button id="tryagain" style="display: none;" ><a href="{{ znanie.get_absolute_url }}" style="color: black; text-decoration:none;">Повторить тест</a></button>
 </div>
 
@@ -92,11 +110,6 @@ let countanswers = 0;
 
 function showFirst() {
     document.getElementsByClassName('cont')[0].style.display = "block";
-    preanswers = 'Ответы:<br>'
-    for(let i = 1; i < b+1; i++){
-        preanswers += "<span id="+i+">Ответ-"+i+"</span><br>";
-    }
-    document.getElementById('preanswer').innerHTML = preanswers;
 
     for(let f=0; f< res.length; f++){
         countanswers += +(res[f].textContent);
@@ -109,10 +122,36 @@ let d = 0;
 let step = 1;
 let result = 0;
 
+function show_result_for_question(){
+    var lst2 = Array.from(new Set(lst));
+    if(lst2.length == step ){
+        questionblock = document.getElementById(lst2[d]+'1');
+        let countans = +(questionblock.querySelector('.vopr').textContent);
+        let answersinblock = questionblock.querySelectorAll('input[type="checkbox"]');
+        sum_for_next_block = 0;
+          for (let i=0; i<answersinblock.length; i++) {
+             if(answersinblock[i].checked == true){
+                 sum_for_next_block += 1;
+             }
+          }
+        if(sum_for_next_block==countans){
+            document.getElementById('show_result_for_question').style.display = "none";
+            document.getElementById('next_question').style.display = "block";
+            let blockwithcolours = document.getElementsByClassName('cont')[d]
+            blockwithcolours.querySelector('#firstblock').style.display = "none";
+            blockwithcolours.querySelector('#secondblock').style.display = "block";
+            blockwithcolours.querySelector('#result_or_count').innerHTML = 'Результат вопроса теста';
+        }
+    }
+    if(step == b){
+        document.getElementById('next_question').innerHTML = 'Результат теста';
+    }
+
+}
+
 function next_block(){
     var lst2 = Array.from(new Set(lst));
     if(lst2.length < step){
-    document.getElementById(step).innerHTML = "<span style='color: red;'>Ответ-неверный</span>";
     lst.push('0'+step);
     }else if(lst2.length == step ){
         questionblock = document.getElementById(lst2[d]+'1');
@@ -128,7 +167,6 @@ function next_block(){
         result += sum_of_answers;
 
         let trs = document.getElementById(lst2[d]+'2');
-
         let td = trs.querySelectorAll('td');
         if((~~((sum_of_answers*100)/countans)) > 90){
             td[1].innerHTML = "Отлично";
@@ -141,30 +179,26 @@ function next_block(){
             trs.style.color = 'brown';
         }
         td[2].innerHTML = sum_of_answers+'/'+countans;
-
-        if(sum_of_answers == countans){
-        document.getElementById(step).innerHTML = "<span style='color: green;'>Ответ-верный</span>";
-        }else if(sum_of_answers != countans){
-        document.getElementById(step).innerHTML = "<span style='color: red;'>Ответ-неверный</span>";
-        }
         tabl = document.getElementById(lst2[d]+'2');
     }
     if(step < b-1){
     document.getElementsByClassName('cont')[d].style.display = "none";
     document.getElementsByClassName('cont')[step].style.display = "block";
+    document.getElementById('show_result_for_question').style.display = "block";
+    document.getElementById('next_question').style.display = "none";
     d += 1;
     step +=1;
     }else if(step==b-1){
     document.getElementsByClassName('cont')[d].style.display = "none";
     document.getElementsByClassName('cont')[step].style.display = "block";
-    document.getElementById('next_question').innerHTML = 'Результат';
+    document.getElementById('show_result_for_question').style.display = "block";
+    document.getElementById('next_question').style.display = "none";
     d += 1;
     step +=1;
     }else if(step == b){
     document.getElementsByClassName('cont')[d].style.display = "none";
     document.getElementById('rezultat').style.display = 'block';
     document.getElementById('next_question').style.display = 'none';
-    document.getElementById('preanswer').style.display = 'none';
     document.getElementById('tryagain').style.display = 'block';
     document.getElementById('result1').innerHTML = 'Всего: ' + result + '/' +countanswers;
     if((~~((result*100)/countanswers)) > 90){
