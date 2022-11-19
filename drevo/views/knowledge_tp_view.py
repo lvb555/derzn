@@ -160,8 +160,7 @@ class UserKnowledgeProcessView(LoginRequiredMixin, TemplateView):
 
         # формирование списка Знаний по категориям
         # Формирование списка опубликованных знаний и знаний, созданных пользователем
-        zn = Znanie.objects.filter(Q(is_published=True) |
-                                   (Q(user=user) &
+        zn = Znanie.objects.filter((Q(user=user) &
                                     (Q(knowledge_status__status='WORK_PRE') |
                                      Q(knowledge_status__status='RET_PRE_EDIT') |
                                      Q(knowledge_status__status='PRE_FIN') |
@@ -171,6 +170,7 @@ class UserKnowledgeProcessView(LoginRequiredMixin, TemplateView):
                                      ) & Q(knowledge_status__is_active=True))
                                    )
 
+        print(zn)
         context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn)
         context['var'] = variables
         if self.request.user.is_expert:
@@ -241,7 +241,7 @@ class RedactorKnowledgeProcess(LoginRequiredMixin, TemplateView):
                               ) & Q(redactor=user)
                      )
                      ) & Q(knowledge_status__is_active=True))
-        )
+        ).exclude(user=user)
 
         context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn)
         context['var'] = variables
@@ -277,7 +277,7 @@ class DirectorKnowledgeProcess(LoginRequiredMixin, TemplateView):
                       ) & Q(director=user)
              )
              ) & Q(knowledge_status__is_active=True)
-        )
+        ).exclude(user=user)
 
         context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn)
         context['var'] = variables
