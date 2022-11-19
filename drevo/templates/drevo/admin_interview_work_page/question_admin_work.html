@@ -55,7 +55,7 @@
                 </div>
             </div>
             <table class="table table-bordered">
-                <thead>
+                <thead style="position: sticky; top: 65px;" class="bg-secondary text-white">
                 <th scope="col" rowspan="2" class="text-center">№</th>
                 <th scope="col" colspan="2" class="text-center"> Информация эксперта</th>
                 <th scope="col" colspan="3" class="text-center"> Информация администратора</th>
@@ -128,6 +128,9 @@
 
 
 {% block jsfiles %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     const form = document.querySelector('form')
