@@ -16,11 +16,11 @@
         <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Фильтр</a>
         <div class="nav-item mx-2 dropdown-menu">
             {% if filter %}
-            <a class="dropdown-item filter" href="{% url 'developer_page' 'name' %}">По имени</a>
-            <a class="dropdown-item" href="{% url 'developer_page' 'contribution' %}">По вкладу</a>
+            <a class="dropdown-item filter" href="{% url 'developer_page' %}?filter=name">По имени</a>
+            <a class="dropdown-item" href="{% url 'developer_page' %}?filter=contribution">По вкладу</a>
             {% else %}
-            <a class="dropdown-item" href="{% url 'developer_page' 'name' %}">По имени</a>
-            <a class="dropdown-item filter" href="{% url 'developer_page' 'contribution' %}">По вкладу</a>
+            <a class="dropdown-item" href="{% url 'developer_page' %}?filter=name">По имени</a>
+            <a class="dropdown-item filter" href="{% url 'developer_page' %}?filter=contribution">По вкладу</a>
             {% endif %}
         </div>
     </li>

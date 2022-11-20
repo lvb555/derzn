@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from drevo.models.developer import Developer
 
-def developer_view(request, filter):
+def developer_view(request):
     """
     Отображаем страницу Разработчики
     """
-
+    filter = request.GET.get("filter")
     developers_list = Developer.objects.order_by('-contribution')
     filter_ = False
 
