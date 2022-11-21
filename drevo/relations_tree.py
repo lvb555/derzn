@@ -152,6 +152,8 @@ def get_children_by_relation_type_for_knowledge(knowledge):
         return order_tz, order_z
 
     children = get_children_for_knowledge(knowledge)
+    if not children:
+        return None
     children_grouped_by_relation_type = {}
     for child in children:
         relation = Relation.objects.filter(bz=knowledge, rz=child).first()

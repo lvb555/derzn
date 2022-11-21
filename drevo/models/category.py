@@ -60,6 +60,18 @@ class Category(MPTTModel):
         """
         return self.category_list.select_related()
 
+    def get_expert_ancestors_category(self):
+        """Возвращает список экспертов по данной категории и предками данной категории"""
+        categories = self.get_ancestors(ascending=False, include_self=True)
+        expert_list = []
+        for category in categories:
+            experts = category.get_experts()
+            if not experts:
+                continue
+            for expert in experts:
+                expert_list.append(expert.expert)
+        return expert_list
+
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'

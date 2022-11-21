@@ -45,6 +45,9 @@ from .views.admin_interview_work.views import (
 from .views.subscribe_to_author_view import sub_by_author
 from .views.subscription_by_tag_view import sub_by_tag
 from drevo.views.developer_view import developer_view
+from .views.knowledge_tp_view import KnowledgeCreateView, UserKnowledgeProcessView, KnowledgeUpdateView, \
+    KnowledgeChangeStatus, ExpertKnowledgeProcess, RedactorKnowledgeProcess, DirectorKnowledgeProcess, \
+    KlzKnowledgeProcess
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
@@ -111,6 +114,14 @@ urlpatterns = [
     path('knowledge-feed/delete/<int:message_id>/', knowledge_feed_view.delete_message, name='delete_message'),
     path('knowledge-feed/send/<int:znanie_id>/', send_to_feed_view.send_to_feed_view, name='send_to_feed'),
     path('developer/', developer_view, name='developer_page'),
+    path('znanie_create/', KnowledgeCreateView.as_view(), name='znanie_create'),
+    path('znanie_user_tp/', UserKnowledgeProcessView.as_view(), name='znanie_user_process'),
+    path('znanie_update/<pk>/', KnowledgeUpdateView.as_view(), name='znanie_update'),
+    path('znanie_status/<pk>/<status>', KnowledgeChangeStatus.as_view(), name='znanie_change_status'),
+    path('znanie_expert_tp/', ExpertKnowledgeProcess.as_view(), name='znanie_expert_process'),
+    path('znanie_redactor_tp/', RedactorKnowledgeProcess.as_view(), name='znanie_redactor_process'),
+    path('znanie_director_tp/', DirectorKnowledgeProcess.as_view(), name='znanie_director_process'),
+    path('klz/', KlzKnowledgeProcess.as_view(), name='klz')
 ]
 
 if settings.DEBUG:

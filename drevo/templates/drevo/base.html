@@ -49,6 +49,54 @@
                                 <li class="nav-item mx-2">
                                     <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
                                 </li>
+                                {% if user.is_authenticated %}
+                            <li class="nav-item mx-2 dropdown">
+                                <a class="dropdown-toggle nav-link" href="#" role="button" id="dropdownMenuLink"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    Подготовка знаний</a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                    <li><a class="dropdown-item" href="{% url 'znanie_create' %}"
+                                           id="znanie_create">
+                                        {% if user.is_expert %}
+                                        Создание Знания
+                                        {% else %}
+                                        Создание ПредЗнания
+                                        {% endif %}
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{% url 'znanie_user_process' %}"
+                                           id="znanie_list">
+                                        {% if user.is_expert %}
+                                        Изменение Знания
+                                        {% else %}
+                                        Изменение ПредЗнания
+                                        {% endif %}
+                                    </a></li>
+                                    {% if user.is_expert %}
+                                    <li><a class="dropdown-item"
+                                           href="{% url 'znanie_expert_process' %}"
+                                           id="znanie_process_exp">Экспертиза ПредЗнания</a>
+                                    </li>
+                                    {% endif %}
+                                    {% if user.is_redactor %}
+                                    <li><a class="dropdown-item"
+                                           href="{% url 'znanie_redactor_process' %}"
+                                           id="znanie_process_red">Редактирование ПредЗнания и Знания</a>
+                                    </li>
+                                    {% endif %}
+                                    {% if user.is_director %}
+                                    <li><a class="dropdown-item"
+                                           href="{% url 'znanie_director_process' %}"
+                                           id="znanie_process_dir">Публикация ПредЗнания и Знания</a>
+                                    </li>
+                                    {% endif %}
+                                    {% if user.in_klz %}
+                                    <li><a class="dropdown-item" href="{% url 'klz' %}"
+                                           id="znanie_process">Клуб любителей знания (КЛЗ)</a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+                            {% endif %}
                                 <li class="nav-item mx-2 dropdown">
                                     <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
                                     <div class="dropdown-menu">
@@ -181,6 +229,8 @@
         localStorage.setItem('active_link', link.id);
       }
     }
+
+
 
 
 </script>
