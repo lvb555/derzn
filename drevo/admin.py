@@ -40,7 +40,7 @@ from .models import (
     AuthorType,
     GlossaryTerm,
     ZnRating,
-    Comment,
+    Comment, KnowledgeStatuses,
 )
 from .services import send_notify_interview
 
@@ -482,3 +482,8 @@ admin.site.register(FriendsTerm)
 admin.site.register(FriendsInviteTerm)
 admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
+
+
+@admin.register(KnowledgeStatuses)
+class KnowledgeStatusesAdmin(admin.ModelAdmin):
+    list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)

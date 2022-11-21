@@ -41,6 +41,10 @@ class UserAdmin(BaseUserAdmin):
                 'fields': ('is_active',
                            'is_staff',
                            'is_superuser',
+                           'is_expert',
+                           'is_redactor',
+                           'is_director',
+                           'in_klz',
                            'groups',
                            'user_permissions'),
             }

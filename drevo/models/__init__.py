@@ -17,4 +17,5 @@ from .expert_category import CategoryExpert  # noqa
 from .friends_invite import FriendsInviteTerm  # noqa
 from .friends import FriendsTerm  # noqa
 from .interview_answer_expert_proposal import InterviewAnswerExpertProposal  # noqa
-from .developer import Developer 
+from .knowledge_statuses import KnowledgeStatuses
+from .developer import Developer

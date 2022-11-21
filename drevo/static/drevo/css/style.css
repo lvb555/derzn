@@ -55,3 +55,25 @@
 .unpublished {
     color: #ff0000;
 }
+
+/* Стили страниц техпроцесса работы со знаниями */
+
+.content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.btn_legend {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.create_button {
+    margin: 30px;
+}
+
+.legend {
+    margin: 40px;
+}
