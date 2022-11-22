@@ -1,5 +1,7 @@
 from django.views.generic import DetailView
 from datetime import datetime
+from drevo.models.friends import FriendsTerm
+from drevo.models.label_feed_message import LabelFeedMessage
 
 from users.models import Favourite
 from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory, Tz
@@ -133,6 +135,20 @@ class ZnanieDetailView(DetailView):
                     for question, answer in grandson.items():
                         if question.pk == 26:
                             context['right_answer'][str(item.rz)] = answer
+
+
+        labels = LabelFeedMessage.objects.all()
+        context['labels'] = labels
+
+        # создание списка для отображения в блоке отправления
+        try:
+            user_friendships = FriendsTerm.objects.filter(user_id=self.request.user).prefetch_related('friend__profile')
+            context['friendships'] = user_friendships
+            context['friendships_count'] = len(user_friendships)
+        
+        # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
+        except TypeError:
+            pass
 
 
         return context

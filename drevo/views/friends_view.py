@@ -19,18 +19,23 @@ def friends_view(request):
     if request.GET.get('remove'):
         _remove_friend(request.user.id, request.GET.get('remove'))
 
-    user_friend_links = FriendsTerm.objects.filter(user=request.user).prefetch_related("friend")
-    for friend_link in user_friend_links:
-        data = {}
+    try:
+        user_friend_links = FriendsTerm.objects.filter(user=request.user).prefetch_related("friend")
+        for friend_link in user_friend_links:
+            data = {}
 
-        user = friend_link.friend
-        profile = Profile.objects.get(user_id = user)
+            user = friend_link.friend
+            profile = Profile.objects.get(user_id = user)
 
-        data['first_name'] = user.first_name
-        data['last_name'] = user.last_name
-        data['avatar'] = profile.avatar or ''
-        data['user_id'] = user.id
-        context['friends'].append(data)
+            data['first_name'] = user.first_name
+            data['last_name'] = user.last_name
+            data['avatar'] = profile.avatar or ''
+            data['user_id'] = user.id
+            context['friends'].append(data)
+            
+    # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
+    except TypeError:
+        pass
 
     template_name = 'drevo/friends.html'
     return render(request, template_name, context)

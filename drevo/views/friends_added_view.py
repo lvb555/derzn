@@ -1,6 +1,5 @@
-import datetime
-
-from django.shortcuts import render
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
 
 from ..models import FriendsTerm
 from ..models import FriendsInviteTerm
@@ -18,6 +17,10 @@ def friends_added_view(request):
     # Добавление в друзья
     if request.GET.get('add'):
         _add_friend(request.user.id, request.GET.get('add'))
+
+    # Отмена отправки заявки
+    if request.GET.get('cancel'):
+        _cancel_invite(request.user.id, request.GET.get('cancel'))
 
     exclude_ids = [request.user.id]
     profiles = Profile.objects.exclude(id__in=exclude_ids)
@@ -67,3 +70,13 @@ def _add_friend(user_id: int, friend_id: str) -> None:
                 FriendsInviteTerm.objects.create(sender_id=user_id, recipient_id=int(friend_id))
             else:
                 pass
+
+def _cancel_invite(user_id: int, friend_id: str) -> None:
+    """
+    Отменить отправленную заявку в друзья
+    """
+    try:
+        term = get_object_or_404(FriendsInviteTerm, sender_id = user_id, recipient_id = int(friend_id))
+        term.delete()
+    except:
+        return JsonResponse({"error": "Такой заявки не было"})
