@@ -207,7 +207,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     'ANSDPL': send_duplicate_answer_proposal,
                     'RESDPL': send_duplicate_proposal
                 }
-                # Занести все функции в словарь и ключами сделать статус
+
                 if obj.status in send_if_status.keys():
                     send_func = send_if_status.get(obj.status)
                     send_func(proposal_obj=obj)
