@@ -1,0 +1,186 @@
+{% extends 'drevo/base.html' %}
+
+{% load static %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{% endblock %}
+<head><title>{% block title %}Ввод табличных знаний{% endblock %}</title></head>
+
+{% block content %}
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <h1>Ввод/изменение ячеек таблицы</h1>
+        <span>Таблица:</span>
+        <select class="js-example-basic-single" name="table" id="id_table" style="width: 180px">
+            <option value="" disabled selected hidden>Выбрать таблицу</option>
+            {% for pk, element in table_dict.items %}
+               <option value="{{ pk }}" id="{{ pk }}"> {{ element }} </option>
+            {% endfor %}
+        </select>
+        <h2>Координаты ячейки</h2>
+        <span>Строка:</span>
+        <select name="row" id="id_row" placeholder="Выбрать строку V" style="width: 180px">
+            <option value="">Выбрать строку V</option>
+
+        </select>
+        <span>Столбец:</span>
+        <select name="column" id="id_column" style="width: 180px">
+            <option value="">Выбрать столбец V</option>
+        </select>
+        <br>
+        <div>
+            <span>Знание:</span>
+           <select class="js-example-basic-single" name="znanie" id="id_znanie" style="width: 180px">
+               <option value="" disabled selected hidden>Выбрать знание V</option>
+                {% for pk, elements in znanie_dict.items %}
+                    <option value="{{ pk }}" id="{{ pk }}"> {{ elements }} </option>
+                {% endfor %}
+            </select>
+            <a id="add-znanie" onclick="var tab = window.open('/admin/drevo/znanie/add/','tab','Toolbar=1,Location=0,Directories=0,Status=0,Menubar=0,Scrollbars=0,Resizable=0,Width=550,Height=400');">
+                <img src="{% static 'drevo/img/knowledge_search/plus.svg' %}" height="20px">
+            </a>
+        </div>
+        </br>
+        <h2 class="">Параметры ячейки</h2>
+        <span>Вид знания:</span>
+        <div id="id_view" >
+            <input readonly style="width: 180px" type="text">
+        </div>
+        <div>
+            <span>Автор:</span>
+            <div id="id_author">
+                <input name="author" id="id_author" readonly style="width: 180px" type="text">
+            </div>
+        </div>
+        <div id="znanie_content"><span name="">Содержание знания:</span></div>
+        <div id="text_id">
+            <input class="text-show" value="" name="name" readonly style="width: 180px" type="text">
+        </div>
+        </br>
+        <button type="" class="zn-show" znanie-id="{{ element.pk }}"> Показать</button>
+        <input type="submit" value="Сохранить" name="_save">
+    </form>
+    <script>
+        const csrftoken = getCookie('csrftoken');
+        function getCookie(name) {
+           let cookieValue = null;
+           if (document.cookie && document.cookie !== '') {
+               const cookies = document.cookie.split(';');
+               for (let i = 0; i < cookies.length; i++) {
+                   const cookie = cookies[i].trim();
+                   if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                       cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                       break;
+                   }
+               }
+           }
+           return cookieValue;
+        }
+
+        let table_choice = document.getElementById("id_table")
+        let row_choice = document.getElementById("id_row")
+        let column_choice = document.getElementById("id_column")
+
+        let znanie_choice = document.getElementById("id_znanie")
+        let view_choice = document.getElementById("id_view")
+        let author_choice = document.getElementById("id_author")
+        let author_add = document.getElementById("author_add")
+        let content_znanie = document.getElementById("znanie_content")
+        text_show = document.getElementById("text_id")
+
+        znanie_choice.addEventListener("change", getZnanieId)
+        table_choice.addEventListener("change", getTableId);
+
+        function getZnanieId(e) {
+           let znanie_id = e.target.value
+
+           const data = { id: znanie_id};
+            let url = "{% url 'znanie_attributes' %}"
+
+            fetch(url, {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+                   'X-CSRFToken': csrftoken
+               },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                view_choice.innerHTML = `<input value = "${data[0]}" readonly>`
+                author_choice.innerHTML = `<input value = "${data[1]}" readonly>`
+                if (data[2]) {
+                    content_znanie.innerHTML = `<span name="">Содержание знания:</span>`
+                    text_show.innerHTML = `<input id="id_text" class="text-show" value = "${data[2]}" readonly>`
+                }
+                else {
+                    content_znanie.innerHTML = ``
+                    text_show.innerHTML =``
+                }
+            })
+            .catch((error) => {
+            console.log('Error:', error);
+            });
+        }
+
+        function getTableId(e) {
+           let table_id = e.target.value
+
+           const data = { id: table_id};
+           let url = "{% url 'get_rows_and_columns' %}"
+
+            fetch(url, {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+                   'X-CSRFToken': csrftoken
+               },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                let rows = data[0]
+                let r_keys = Object.keys(rows)
+                if (r_keys.length === 0) {
+                    row_choice.innerHTML = `<option value="" selected="true" disabled>Строки отсутствуют</option>`
+                }
+                else {
+                    row_choice.innerHTML = `<option value="${r_keys[0]}" selescted>${rows[r_keys[0]]}</option>`
+                    for(let i = 1; i<r_keys.length; i++){
+                      row_choice.innerHTML += `<option value = "${r_keys[i]}" selescted>${rows[r_keys[i]]}</option>`
+                    }
+                }
+                let column = data[1]
+                let c_keys = Object.keys(column)
+                if (c_keys.length === 0) {
+                    column_choice.innerHTML = `<option value="" selected="true" disabled >Столбцы отсутствуют</option>`
+                }
+                else {
+                    column_choice.innerHTML = `<option value="${c_keys[0]}" selescted>${column[c_keys[0]]}</option>`
+                    for(let i = 1; i<c_keys.length; i++){
+                      column_choice.innerHTML += `<option value="${c_keys[i]}" selescted>${column[c_keys[i]]}</option>`
+                    }
+                }
+            })
+            .catch((error) => {
+            console.log('Error:', error);
+            });
+         }
+
+    </script>
+    <style>
+        .text-show{
+            width: 450px;
+            height: 150px;
+        }
+
+    </style>
+
+{% endblock %}

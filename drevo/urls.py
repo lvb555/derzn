@@ -24,11 +24,14 @@ from .views import (
     FavouritesView,
     FavouriteProcessView,
     QuestionExpertWorkPage,
+    get_rows_and_columns,
+    filling_tables,
     friends_view,
     friends_added_view,
     friends_invite_view,
     KnowledgeFormView,
     QuizListView,
+    znanie_attributes,
 )
 from .views import send_znanie, knowledge_feed_view, send_to_feed_view
 from .views.expert_work.views import (
@@ -77,6 +80,9 @@ urlpatterns = [
     path('subscription_by_tag/', sub_by_tag,
          name='subscription_by_tag'),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
+    path("row", get_rows_and_columns, name="get_rows_and_columns"),
+    path("column", znanie_attributes, name="znanie_attributes"),
+    path("filling_tables/", filling_tables, name="filling_tables"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
     path(

@@ -18,6 +18,7 @@ from .admin_interview_work.views import (
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
+from .filling_tables import filling_tables, get_rows_and_columns, znanie_attributes
 from .friends_added_view import friends_added_view
 from .friends_invite_view import friends_invite_view
 from .friends_view import friends_view
@@ -53,6 +54,7 @@ __all__ = [
     "BrowsingHistoryListView",
     "FavouritesView",
     "FavouriteProcessView",
+    "filling_tables",
     "friends_view",
     "friends_added_view",
     "friends_invite_view",
