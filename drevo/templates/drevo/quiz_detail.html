@@ -98,6 +98,7 @@ justify-content: flex-start;">
     <button id="next_question" onclick="next_block();" style="display: none;">Далее</button>
     <button id="tryagain" style="display: none; margin-left:150px;" ><a href="{{ znanie.get_absolute_url }}" style="color: black; text-decoration:none;">Повторить тест</a></button>
 </div>
+<div id="warning" style="text-align:center;margin-right: 7%;"></div>
 
 {% endif %}
 
@@ -125,27 +126,43 @@ let result = 0;
 
 function show_result_for_question(){
     var lst2 = Array.from(new Set(lst));
-    if(lst2.length == step ){
+    if(lst2.length == step){
         questionblock = document.getElementById(lst2[d]+'1');
         let countans = +(questionblock.querySelector('.vopr').textContent);
         let answersinblock = questionblock.querySelectorAll('input[type="checkbox"]');
         let resultinblock = questionblock.querySelectorAll('#resultsecondblock')
-        console.log(resultinblock)
         sum_for_next_block = 0;
           for (let i=0; i<answersinblock.length; i++) {
              if(answersinblock[i].checked == true){
                  sum_for_next_block += 1;
                  resultinblock[i].innerHTML = "<span style='font-weight:bold'>"+resultinblock[i].textContent+"</span>";
-                 console.log(resultinblock[i])
              }
           }
-        if(sum_for_next_block==countans){
+        if(sum_for_next_block == countans){
             document.getElementById('show_result_for_question').style.display = "none";
             document.getElementById('next_question').style.display = "block";
             let blockwithcolours = document.getElementsByClassName('cont')[d]
             blockwithcolours.querySelector('#firstblock').style.display = "none";
             blockwithcolours.querySelector('#secondblock').style.display = "block";
+            document.getElementById('warning').style.display = "none";
+        }else if(sum_for_next_block<countans){
+            missing_answer = countans - sum_for_next_block
+            missing_answer = missing_answer.toString()
+            if(missing_answer.endsWith('2') || missing_answer.endsWith('3') || missing_answer.endsWith('4')){
+                document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
+                +missing_answer+" ответа</span>";
+            } else if(missing_answer.endsWith('1')){
+                document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
+                +missing_answer+" ответ</span>";
+            }else {
+                document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
+                +missing_answer+" ответов</span>";
+            }
+            document.getElementById('warning').style.display = "block";
         }
+    }else if(lst2.length < step){
+        document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Вы не дали ни одного ответа</span>";
+        document.getElementById('warning').style.display = "block";
     }
     if(step == b){
         document.getElementById('next_question').innerHTML = 'Результат теста';
