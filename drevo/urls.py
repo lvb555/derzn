@@ -36,6 +36,7 @@ from .views.expert_work.views import (
     update_answer_proposal,
     update_proposed_answer,
 )
+from .views.expert_work.proposal_delete_view import ProposalDeleteView
 from .views.admin_interview_work.views import (
     AllInterviewView,
     InterviewQuestionsView,
@@ -44,9 +45,16 @@ from .views.admin_interview_work.views import (
 from .views.subscribe_to_author_view import sub_by_author
 from .views.subscription_by_tag_view import sub_by_tag
 from drevo.views.developer_view import developer_view
-from .views.knowledge_tp_view import KnowledgeCreateView, UserKnowledgeProcessView, KnowledgeUpdateView, \
-    KnowledgeChangeStatus, ExpertKnowledgeProcess, RedactorKnowledgeProcess, DirectorKnowledgeProcess, \
-    KlzKnowledgeProcess
+from .views.knowledge_tp_view import (
+    KnowledgeCreateView,
+    UserKnowledgeProcessView,
+    KnowledgeUpdateView,
+    KnowledgeChangeStatus,
+    ExpertKnowledgeProcess,
+    RedactorKnowledgeProcess,
+    DirectorKnowledgeProcess,
+    KlzKnowledgeProcess,
+)
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
@@ -71,11 +79,8 @@ urlpatterns = [
     path("search/author", AuthorSearchView.as_view(), name="search_author"),
     path("search/tag", TagSearchView.as_view(), name="search_tag"),
     path("history/", BrowsingHistoryListView.as_view(), name="history"),
-    path(
-        "subscribe_to_author/", sub_by_author, name="subscribe_to_author"
-    ),
-    path('subscription_by_tag/', sub_by_tag,
-         name='subscription_by_tag'),
+    path("subscribe_to_author/", sub_by_author, name="subscribe_to_author"),
+    path("subscription_by_tag/", sub_by_tag, name="subscription_by_tag"),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
@@ -94,32 +99,70 @@ urlpatterns = [
         propose_answer,
         name="propose_answer",
     ),
+    path("interview/<int:pk>", ProposalDeleteView.as_view(), name="delete"),
     path(
         "interview/new_answers/<int:proposal_pk>",
         update_proposed_answer,
         name="update_proposed_answer",
     ),
-    path("admin/interview/", AllInterviewView.as_view(), name='all_interview'),
-    path("admin/interview/<int:pk>/questions/", InterviewQuestionsView.as_view(), name='interview_quests'),
-    path("admin/interview/<int:inter_pk>/questions/<int:quest_pk>/", question_admin_work_view,
-         name='question_admin_work'),
-
+    path("admin/interview/", AllInterviewView.as_view(), name="all_interview"),
+    path(
+        "admin/interview/<int:pk>/questions/",
+        InterviewQuestionsView.as_view(),
+        name="interview_quests",
+    ),
+    path(
+        "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/",
+        question_admin_work_view,
+        name="question_admin_work",
+    ),
     path("friends/", friends_view, name="friends"),
     path("friends/friends_added/", friends_added_view, name="friends_added"),
     path("friends/friends_invite/", friends_invite_view, name="friends_invite"),
-
-    path('knowledge-feed/', knowledge_feed_view.knowledge_feed_view, name='knowledge_feed'),
-    path('knowledge-feed/delete/<int:message_id>/', knowledge_feed_view.delete_message, name='delete_message'),
-    path('knowledge-feed/send/<int:znanie_id>/', send_to_feed_view.send_to_feed_view, name='send_to_feed'),
-    path('developer/', developer_view, name='developer_page'),
-    path('znanie_create/', KnowledgeCreateView.as_view(), name='znanie_create'),
-    path('znanie_user_tp/', UserKnowledgeProcessView.as_view(), name='znanie_user_process'),
-    path('znanie_update/<pk>/', KnowledgeUpdateView.as_view(), name='znanie_update'),
-    path('znanie_status/<pk>/<status>', KnowledgeChangeStatus.as_view(), name='znanie_change_status'),
-    path('znanie_expert_tp/', ExpertKnowledgeProcess.as_view(), name='znanie_expert_process'),
-    path('znanie_redactor_tp/', RedactorKnowledgeProcess.as_view(), name='znanie_redactor_process'),
-    path('znanie_director_tp/', DirectorKnowledgeProcess.as_view(), name='znanie_director_process'),
-    path('klz/', KlzKnowledgeProcess.as_view(), name='klz')
+    path(
+        "knowledge-feed/",
+        knowledge_feed_view.knowledge_feed_view,
+        name="knowledge_feed",
+    ),
+    path(
+        "knowledge-feed/delete/<int:message_id>/",
+        knowledge_feed_view.delete_message,
+        name="delete_message",
+    ),
+    path(
+        "knowledge-feed/send/<int:znanie_id>/",
+        send_to_feed_view.send_to_feed_view,
+        name="send_to_feed",
+    ),
+    path("developer/", developer_view, name="developer_page"),
+    path("znanie_create/", KnowledgeCreateView.as_view(), name="znanie_create"),
+    path(
+        "znanie_user_tp/",
+        UserKnowledgeProcessView.as_view(),
+        name="znanie_user_process",
+    ),
+    path("znanie_update/<pk>/", KnowledgeUpdateView.as_view(), name="znanie_update"),
+    path(
+        "znanie_status/<pk>/<status>",
+        KnowledgeChangeStatus.as_view(),
+        name="znanie_change_status",
+    ),
+    path(
+        "znanie_expert_tp/",
+        ExpertKnowledgeProcess.as_view(),
+        name="znanie_expert_process",
+    ),
+    path(
+        "znanie_redactor_tp/",
+        RedactorKnowledgeProcess.as_view(),
+        name="znanie_redactor_process",
+    ),
+    path(
+        "znanie_director_tp/",
+        DirectorKnowledgeProcess.as_view(),
+        name="znanie_director_process",
+    ),
+    path("klz/", KlzKnowledgeProcess.as_view(), name="klz"),
 ]
 
 if settings.DEBUG:

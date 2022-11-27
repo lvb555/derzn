@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
-
 from drevo import models as orm
 from drevo.views.expert_work.data_loaders import load_interview
 

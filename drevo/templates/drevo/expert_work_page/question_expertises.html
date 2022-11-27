@@ -17,65 +17,103 @@
 
 {% block content %}
 
-<h1 class="center"><a href="{% url 'interview' interview.id %}">{{interview.title}}</a></h1>
+<!--<h1 class="center"><a href="{% url 'interview' interview.id %}">{{interview.title}}</a></h1>-->
 
-
-<h2 class="center question"><a href="{% url 'zdetail' question.id %}">{{question.title}}</a></h2>
+<!--<h2 class="center question"><a href="{% url 'zdetail' question.id %}">{{question.title}}</a></h2>-->
 <div class="container overflow-hidden">
-    <div class="row">
-        <h2>Существущие ответы</h2>
-        <div class="row gy-4" id="answers">
+    <div class="row mt-2">
+        <div class="col">
+            Интервью на тему:
+        </div>
+        <div class="col">
+            <a href="{% url 'interview' interview.id %}"> {{ interview.title }}</a>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col">
+            Вопрос:
+        </div>
+        <div class="col">
+            <a href="{% url 'zdetail' question.id %}">{{question.title}}</a>
+        </div>
+    </div>
+            <div class="row mt-4">
+            <div class="col">
+                Существущие ответы
+            </div>
             {% for answer in answers %}
-            {% include "./exist_answer_proposal_block.html" with proposal=answer.proposal %}
+            <div class="row gy-4" id="answers">
+                <div class="col">
+                    {% include "./exist_answer_proposal_block.html" with proposal=answer.proposal %}
+                </div>
+            </div>
             {% endfor %}
-        </div>
-        <h2>Предложенные вами ответы</h2>
+            </div>
+            <div class="row mt-4 gy-4">
+            <div class="col">
+                Предложенные вами ответы
+            </div>
+            {% for proposal in proposed_answers %}
+            <div class="row gy-4" id="answers">
+                <div class="col">
+                     {% include "./proposed_answer_block.html" %}
+                </div>
+            </div>
+            {% endfor %}
         <div class="proposed_answers row gy-4" id="proposed_answers">
-        {% for proposal in proposed_answers %}
-          {% include "./proposed_answer_block.html" %}
-        {% endfor %}
         </div>
-        <div class="add-new-answer row mb-5">
-            <form method="POST" action="{% url 'propose_answer' interview.id question.id %}"
-                  class="row gy-3"
-                  id="new_answer_form"
-                  hx-boost="true"
-                  hx-target="#proposed_answers"
-                  hx-swap="beforeend">
-                {% csrf_token %}
+        <div class="add-new-answer row mt-4 mb-5">
+            <div class="row">
                 <div class="col">
-                    <input id="new_answer_text"
-                           type="text"
-                           class="form-control"
-                           placeholder="Текст нового ответа"
-                           name="text"
-                           value='{{ new_answer_form.text.value|default:""}}'>
-                </div>
-                <div class="col">
-                    <div class="form-check">
-                        <input type="checkbox" id="opinion_is_agreed"
-                               name="is_agreed"
-                               {% if proposal.is_agreed %} checked {% endif %}
-                               class="form-check-input">
-                        <label for="opinion_is_agreed" class="form-check-label">
-                            С ответом согласен
-                        </label>
+                <form method="POST" action="{% url 'propose_answer' interview.id question.id %}"
+                      class="row gy-3"
+                      id="new_answer_form"
+                      hx-boost="true"
+                      hx-target="#proposed_answers"
+                      hx-swap="beforeend"
+                      onsubmit="new_proposal_button();">
+                    {% csrf_token %}
+                        <input id="new_answer_text"
+                               type="text"
+                               class="form-control"
+                               placeholder="Текст нового ответа"
+                               name="text"
+                               >
                     </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="is_incorrect_answer" id="opinion_is_incorrect_answer"
-                               {% if proposal.is_incorrect_answer %} checked {% endif %}
-                               class="form-check-input">
-                        <label for="opinion_is_incorrect_answer" class="form-check-label">
-                            Некорректный ответ
-                        </label>
-                    </div>
-                    <button class="btn btn-outline-primary">Добавить ответ</button>
+            </div>
+            </div>
 
-                </div>
+                    <div class="row invisible">
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input type="checkbox" id="opinion_is_agreed"
+                                       name="is_agreed"
+                                       {# {% if proposal.is_agreed %} checked {% endif %} #}
+                                       checked
+                                       class="form-check-input">
+                                <label for="opinion_is_agreed" class="form-check-label">
+                                    С ответом согласен
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check">
+                                <!--<input type="checkbox" name="is_incorrect_answer" id="opinion_is_incorrect_answer"
+                                       {% if proposal.is_incorrect_answer %} checked {% endif %}
+                                       class="form-check-input">
+                                <label for="opinion_is_incorrect_answer" class="form-check-label">
+                                    Некорректный ответ
+                                </label>-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col text-center">
+                    <button type="submit"  class="btn btn-outline-primary">Добавить ответ</button>
+                    </div>
+
             </form>
             <div class="response" id="new-answer-result"></div>
         </div>
-    </div>
 </div>
 
 <style>
@@ -96,4 +134,13 @@
 <script src="https://unpkg.com/htmx.org@1.7.0"
         integrity="sha384-EzBXYPt0/T6gxNp0nuPtLkmRpmDBbjg6WmCUZRLXBBwYYmwAUxzlSGej0ARHX0Bo"
         crossorigin="anonymous"></script>
+<script src="/static/drevo/js/new_proposal_button.js"></script>
+<script>
+
+function new_proposal_button() {
+    location.reload()
+    return true
+}
+
+</script>
 {% endblock %}

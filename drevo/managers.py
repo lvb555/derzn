@@ -6,8 +6,9 @@ class ZManager(models.Manager):
     Manager записей для сущности Znanie.
     Установлены фильтр и сортировка.
     """
+
     def get_queryset(self):
-        return super().get_queryset().filter(is_published=True).order_by('category')
+        return super().get_queryset().filter(is_published=True).order_by("category")
 
 
 class CategoryManager(models.Manager):
@@ -15,5 +16,24 @@ class CategoryManager(models.Manager):
     Manager записей для сущности Category.
     Установлены фильтр по полю публикации.
     """
+
     def get_queryset(self):
         return super().get_queryset().filter(is_published=True)
+
+
+class InterviewAnswerExpertProposalManager(models.Manager):
+    """
+    Manager чтобы удалить сущности InterviewAnswerExpertProposal
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().all()
+
+
+class ProposalDeleteViewManager(models.Manager):
+    """
+    Manager чтобы удалить сущности InterviewAnswerExpertProposal
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().all()

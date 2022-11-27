@@ -1,23 +1,38 @@
-    <div class="form-check">
-        <input type="checkbox" id="opinion_is_agreed"
-               name="is_agreed"
-               {% if proposal.is_agreed %} checked {% endif %}
-               class="form-check-input">
-        <label for="opinion_is_agreed" class="form-check-label">
-            С ответом согласен
-        </label>
+    <div class="row mt-2">
+        <div class="col-6">
+            <div class="form-check">
+                <input type="checkbox" id="opinion_is_agreed"
+                       name="is_agreed"
+                       {% if proposal.is_agreed %} checked {% endif %}
+                       class="form-check-input">
+                <label for="opinion_is_agreed" class="form-check-label">
+                    С ответом согласен
+                </label>
+                </div>
+            </div>
+        <div class="col-6">
+            <div class="form-check">
+                {% if incorrect_answer_form %}
+                <input type="checkbox" name="is_incorrect_answer" id="opinion_is_incorrect_answer"
+                       {% if proposal.is_incorrect_answer %} checked {% endif %}
+                       class="form-check-input">
+                <label for="opinion_is_incorrect_answer" class="form-check-label">
+                    Некорректный ответ
+                </label>
+                {% endif %}
+                {% if proposal.id %}
+
+                <form  method="POST" action="{% url 'delete' pk=proposal.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>
+                </form>
+             {% endif %}
+            </div>
+            <!--<input type="hidden" name="proposal_pk" value="{{proposal.id}}">
+            {% csrf_token %}-->
+            {{form.errors}}
+        </div>
     </div>
-    <div class="form-check">
-        <input type="checkbox" name="is_incorrect_answer" id="opinion_is_incorrect_answer"
-               {% if proposal.is_incorrect_answer %} checked {% endif %}
-               class="form-check-input">
-        <label for="opinion_is_incorrect_answer" class="form-check-label">
-            Некорректный ответ
-        </label>
-    </div>
-    <input type="hidden" name="proposal_pk" value="{{proposal.id}}">
-    {% csrf_token %}
-    {{form.errors}}
 {% comment %}
 Данный блок был исключен из обработки т.к. дальнейшая обработка аргументов пока не возможна -->
 <!--

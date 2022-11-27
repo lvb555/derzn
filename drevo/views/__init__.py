@@ -11,11 +11,14 @@ from .expert_work.views import (
     propose_answer,
     update_answer_proposal,
 )
-from .admin_interview_work.views import (
-    AllInterviewView,
-    InterviewQuestionsView,
-    question_admin_work_view,
-)
+from .expert_work.proposal_delete_view import ProposalDeleteView
+
+""" from .admin_interview_work.views import (
+ AllInterviewView,
+ InterviewQuestionsView,
+ question_admin_work_view,
+ )
+"""
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
 from .friends_added_view import friends_added_view
@@ -61,5 +64,6 @@ __all__ = [
     "update_answer_proposal",
     "QuestionExpertWorkPage",
     "send_znanie",
-    'QuizListView',
+    "QuizListView",
+    "ProposalDeleteView",
 ]
