@@ -73,12 +73,14 @@
                       hx-swap="beforeend"
                       onsubmit="new_proposal_button();">
                     {% csrf_token %}
-                        <input id="new_answer_text"
+                        <!--<input id="new_answer_text"
                                type="text"
                                class="form-control"
                                placeholder="Текст нового ответа"
                                name="text"
-                               >
+                               >-->
+                        <textarea class="form-control" id="new_answer_text" name="text" placeholder="Текст нового ответа"></textarea>
+
                     </div>
             </div>
             </div>
