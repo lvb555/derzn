@@ -15,7 +15,7 @@
               action="{% url 'update_proposed_answer' proposal.id %}"
               method="POST">-->
             <div class="opinion">
-                {% include "./proposal_form_body.html" %}
+                {% include "./proposal_form_body.html" with interview=interview question=question %}
             </div>
        <!-- </form>-->
     </div>

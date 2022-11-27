@@ -9,4 +9,6 @@ class ProposalDeleteView(DeleteView):
     """
 
     model = InterviewAnswerExpertProposal
-    success_url = reverse_lazy("drevo")
+    success_url = reverse_lazy(
+        "question_expert_work", kwargs={"interview_pk": 1, "question_pk": 2}
+    )

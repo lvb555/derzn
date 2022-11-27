@@ -99,7 +99,11 @@ urlpatterns = [
         propose_answer,
         name="propose_answer",
     ),
-    path("interview/<int:pk>", ProposalDeleteView.as_view(), name="delete"),
+    path(
+        "interview/<int:interview_pk>/questions/<int:question_pk>/<int:pk>",
+        ProposalDeleteView.as_view(),
+        name="delete",
+    ),
     path(
         "interview/new_answers/<int:proposal_pk>",
         update_proposed_answer,

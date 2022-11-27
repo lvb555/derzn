@@ -21,11 +21,12 @@
                 </label>
                 {% endif %}
                 {% if proposal.id %}
-
-                <form  method="POST" action="{% url 'delete' pk=proposal.id %}">
+                {% if interview.id and question.id %}
+                <form  method="POST" action="{% url 'delete' interview_pk=interview.id question_pk=question.id pk=proposal.id %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>
                 </form>
+                {% endif %}
              {% endif %}
             </div>
             <!--<input type="hidden" name="proposal_pk" value="{{proposal.id}}">

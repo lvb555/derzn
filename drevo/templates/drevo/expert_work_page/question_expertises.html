@@ -56,7 +56,7 @@
             {% for proposal in proposed_answers %}
             <div class="row gy-4" id="answers">
                 <div class="col">
-                     {% include "./proposed_answer_block.html" %}
+                     {% include "./proposed_answer_block.html" with interview=interview question=question %}
                 </div>
             </div>
             {% endfor %}
