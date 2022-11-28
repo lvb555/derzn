@@ -9,11 +9,13 @@
   ansible.builtin.copy:
     src: '{{ envs_file }}'
     dest: '{{ project_root }}/dz/.env'
+  tags: ["envs", "configure"]
 
 - name: copy settings file
   ansible.builtin.copy:
     src: '{{ settings_file }}'
     dest: '{{ project_root }}/dz/settings.py'
+  tags: ["settings", "configure"]
 
 - name: copy passenger file
   ansible.builtin.copy:
@@ -26,17 +28,20 @@
     name: pip
     virtualenv: '{{ virtualenv_dir }}'
     extra_args: '--upgrade'
+  tags: ["deps"]
 
 - name: hack the Pillow on python 3.10
   ansible.builtin.lineinfile:
     path: '{{ project_root }}/requirements.txt'
     regexp: 'Pillow==8.2.0'
     line: 'pillow==8.4'
+  tags: ["hack", "deps"]
 
 - name: create virtualenv & install dependencies
   ansible.builtin.pip:
     virtualenv: '{{ virtualenv_dir }}'
     requirements: '{{ project_root }}/requirements.txt'
+  tags: ["venv", "deps"]
 
 - name: migrate
   community.general.django_manage:
@@ -44,9 +49,11 @@
     project_path: '{{ project_root }}'
     # pythonpath: '{{ virtualenv_dir }}/lib/python3.10/site_packages'
     command: migrate
+  tags: ["migrate"]
 
 - name: restart
   ansible.builtin.file:
     state: touch
     path: '{{ site_root }}/.restart-app'
-  tags: ['restart']
+  # run this with any tag
+  tags: ["restart", "migrate", "configure", "envs", "deps", "venv", "settings"]
