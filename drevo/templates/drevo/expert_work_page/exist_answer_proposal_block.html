@@ -11,15 +11,7 @@
             </div>
         </div>
     </div>
-    <!--<form id="proposal_form_{{proposal.id}}"
-          hx-boost="true"
-          hx-trigger="change delay:500ms"
-          hx-target="this"
-          class="answer__proposal col"
-          action="{% url 'update_answer_proposal' interview.id question.id answer.id %}"
-          method="POST">-->
-        <div class="opinion">
-            {% include "./proposal_form_body.html" with incorrect_answer_form=True%}
-        </div>
-    <!--</form>-->
+            <div class="row">
+                {% include "./answer_form_body.html" %}
+            </div>
 </div>

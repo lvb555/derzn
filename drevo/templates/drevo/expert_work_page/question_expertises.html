@@ -22,15 +22,15 @@
 <!--<h2 class="center question"><a href="{% url 'zdetail' question.id %}">{{question.title}}</a></h2>-->
 <div class="container overflow-hidden">
     <div class="row mt-2">
-        <div class="col">
-            Интервью на тему:
+        <div class="col proposal-bold-text">
+           Интервью на тему:
         </div>
         <div class="col">
             <a href="{% url 'interview' interview.id %}"> {{ interview.title }}</a>
         </div>
     </div>
     <div class="row mt-2">
-        <div class="col">
+        <div class="col proposal-bold-text">
             Вопрос:
         </div>
         <div class="col">
@@ -38,7 +38,7 @@
         </div>
     </div>
             <div class="row mt-4">
-            <div class="col">
+            <div class="col proposal-bold-text">
                 Существущие ответы
             </div>
             {% for answer in answers %}
@@ -50,19 +50,19 @@
             {% endfor %}
             </div>
             <div class="row mt-4 gy-4">
-            <div class="col">
+            <div class="col proposal-bold-text">
                 Предложенные вами ответы
             </div>
+        <div class="proposed_answers row gy-4" id="proposed_answers">
             {% for proposal in proposed_answers %}
             <div class="row gy-4" id="answers">
                 <div class="col">
-                     {% include "./proposed_answer_block.html" with interview=interview question=question %}
+                     {% include "./proposed_answer_block.html" %}
                 </div>
             </div>
             {% endfor %}
-        <div class="proposed_answers row gy-4" id="proposed_answers">
         </div>
-        <div class="add-new-answer row mt-4 mb-5">
+        <div class="add-new-answer row mt-2">
             <div class="row">
                 <div class="col">
                 <form method="POST" action="{% url 'propose_answer' interview.id question.id %}"
@@ -112,7 +112,6 @@
                     <div class="col text-center">
                     <button type="submit"  class="btn btn-outline-primary">Добавить ответ</button>
                     </div>
-
             </form>
             <div class="response" id="new-answer-result"></div>
         </div>
@@ -128,7 +127,9 @@
         color: gray;
     }
 
-
+    .proposal-bold-text {
+        font-weight: bold;
+    }
 
 </style>
 {% endblock %}

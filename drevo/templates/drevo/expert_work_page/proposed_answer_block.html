@@ -6,17 +6,8 @@
         <div class="answer_proposal__title col-12">
             <span>{{proposal.new_answer_text}}</span>
         </div>
-       <!-- <form
-              hx-boost="true"
-              hx-trigger="change delay:500ms"
-              hx-target="this"
-              hx-select=".opinion"
-              class="answer__proposal col"
-              action="{% url 'update_proposed_answer' proposal.id %}"
-              method="POST">-->
-            <div class="opinion">
-                {% include "./proposal_form_body.html" with interview=interview question=question %}
-            </div>
-       <!-- </form>-->
+        <div class="col-12">
+                {% include "./proposal_form_body.html" %}
+        </div>
     </div>
 </div>
