@@ -7,12 +7,19 @@
 
 - name: copy env_config
   ansible.builtin.copy:
-    src: files/test.env
+    src: '{{ envs_file }}'
     dest: '{{ project_root }}/dz/.env'
+
 - name: copy settings file
   ansible.builtin.copy:
-    src: files/test.settings.py
+    src: '{{ settings_file }}'
     dest: '{{ project_root }}/dz/settings.py'
+
+- name: copy passenger file
+  ansible.builtin.copy:
+    src: '{{ passenger_file }}'
+    dest: '{{ site_root }}/passenger_wsgi.py'
+  tags: ['config', 'passenger']
 
 - name: upgrade pip
   ansible.builtin.pip:
@@ -38,11 +45,8 @@
     # pythonpath: '{{ virtualenv_dir }}/lib/python3.10/site_packages'
     command: migrate
 
-#- name: migrate
-#  ansible.builtin.shell: |
-#    '{{ ansible_env.HOME }}/test_derzn_env/bin/python {{ project_root }}/manage.py migrate'
-
 - name: restart
   ansible.builtin.file:
     state: touch
     path: '{{ site_root }}/.restart-app'
+  tags: ['restart']
