@@ -47,8 +47,8 @@
             {% for one in friends %}
             <tr>
                 <td>
-                    {% if one.avatar %}
-                        <img class="rounded-circle" src="{{ one.avatar.url }}" height="50px" width="50px">
+                    {% if one.profile.avatar %}
+                        <img class="rounded-circle" src="{{ one.profile.avatar.url }}" height="50px" width="50px">
                     {% else %}
                         <img class="rounded-circle" src="{% static 'src/default_avatar.jpg' %}" height="50px" width="50px">
                     {% endif %}
@@ -61,7 +61,7 @@
                 </td>
                 <td>
                     <form method="GET" action="">
-                        <button class="btn btn-primary btn-sm" name="remove" value="{{ one.user_id }}" >
+                        <button class="btn btn-primary btn-sm" name="remove" value="{{ one.id }}" >
                             Удалить из друзей
                         </button>
                     </form>

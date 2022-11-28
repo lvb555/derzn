@@ -111,20 +111,20 @@
                                 {% endif %}
 
                                 <div>
-                                    {% if friendships_count > 0 %}
+                                    {% if friends_count > 0 %}
                                         <p class="text-start">Получатели</p>
                                         <div class="d-flex">
                                             <input type="checkbox" class="form-check-input shadow-none all_friends"> Все друзья
                                         </div>
-                                        {% for friendship in friendships %}
+                                        {% for friend in friends %}
                                             <div class="d-flex mt-2">
-                                                <input type="checkbox" value="{{friendship.friend.id}}" class="me-1 form-check-input shadow-none checkbox">
-                                                {% if friendship.friend.profile.avatar %}
-                                                    <img src="{{ friendship.friend.profile.avatar.url }}" class="rounded-circle" height="30px" width="30px">
+                                                <input type="checkbox" value="{{friend.id}}" class="me-1 form-check-input shadow-none checkbox">
+                                                {% if friend.profile.avatar %}
+                                                    <img src="{{ friend.profile.avatar.url }}" class="rounded-circle" height="30px" width="30px">
                                                 {% else %}
                                                     <img src="{% static 'src/default_avatar.jpg' %}" class="rounded-circle"  height="30px" width="30px">
                                                 {% endif %}
-                                                <p class="ms-1">{{friendship.friend.first_name}} {{friendship.friend.last_name}}</p>
+                                                <p class="ms-1">{{friend.first_name}} {{friend.last_name}}</p>
                                             </div>
                                         {% endfor %}
                                     {% else %}

@@ -1,9 +1,8 @@
 from django.views.generic import DetailView
 from datetime import datetime
-from drevo.models.friends import FriendsTerm
 from drevo.models.label_feed_message import LabelFeedMessage
 
-from users.models import Favourite
+from users.models import Favourite, User
 from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory, Tz
 from loguru import logger
 from ..relations_tree import (get_category_for_knowledge, get_ancestors_for_knowledge,
@@ -142,9 +141,13 @@ class ZnanieDetailView(DetailView):
 
         # создание списка для отображения в блоке отправления
         try:
-            user_friendships = FriendsTerm.objects.filter(user_id=self.request.user).prefetch_related('friend__profile')
-            context['friendships'] = user_friendships
-            context['friendships_count'] = len(user_friendships)
+            user = User.objects.get(id = self.request.user.id)
+            my_friends = user.user_friends.all().prefetch_related('profile') # те, кто в друзьях у меня
+            i_in_friends = user.users_friends.all().prefetch_related('profile') # те, у кого я в друзьях
+            
+            all_friends = my_friends.union(i_in_friends, all=False)
+            context['friends'] = all_friends
+            context['friends_count'] = len(all_friends)
         
         # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
         except TypeError:

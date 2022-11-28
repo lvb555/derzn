@@ -24,7 +24,7 @@ class UserAdmin(BaseUserAdmin):
         (
             None,
             {
-                'fields': ('username', 'password')
+                'fields': ('username', 'password', 'user_friends')
             }
         ),
         (

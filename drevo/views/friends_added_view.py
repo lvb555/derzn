@@ -1,7 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 
-from ..models import FriendsTerm
 from ..models import FriendsInviteTerm
 from users.models import Profile, User
 
@@ -48,8 +47,13 @@ def friends_added_view(request):
     
         if FriendsInviteTerm.objects.filter(sender=request.user.id, recipient = profile.user_id).exists():
             data['relation_to_request_user'] = 'subscriber'
-        elif FriendsTerm.objects.filter(user = request.user.id, friend = profile.user_id).exists():
+        
+        elif User.objects.get(id = request.user.id).user_friends.filter(id = int(user.id)).exists() or user.user_friends.filter(id = request.user.id).exists():
             data['relation_to_request_user'] = 'friend'
+
+        elif FriendsInviteTerm.objects.filter(sender=user, recipient = request.user).exists():
+            data['relation_to_request_user'] = 'was_invited'
+
         context['profiles'].append(data)
 
     template_name = 'drevo/friends_added.html'
@@ -58,16 +62,30 @@ def friends_added_view(request):
 
 def _add_friend(user_id: int, friend_id: str) -> None:
     """
-    Отправить заявку на дружбу
+    Отправить/принять заявку на дружбу
     """
     try:
         term = FriendsInviteTerm.objects.get(sender_id = user_id, recipient_id = int(friend_id))
     except:
         try:
-            friendship = FriendsTerm.objects.get(user = user_id, friend = int(friend_id))
+            user_sender = User.objects.get(id = user_id)
+            friend = user_sender.user_friends.get(id = int(friend_id))
         except:
             if not user_id == int(friend_id):
-                FriendsInviteTerm.objects.create(sender_id=user_id, recipient_id=int(friend_id))
+                if FriendsInviteTerm.objects.filter(sender_id = int(friend_id), recipient_id = user_id).exists():
+                    sent_term = FriendsInviteTerm.objects.get(sender_id = int(friend_id), recipient_id = user_id)
+                    sent_term.delete()
+
+                    user_to_add = User.objects.get(id = int(friend_id))
+                    user_sender.user_friends.add(user_to_add)
+                else:
+                    try:
+                        user_sender = User.objects.get(id = user_id)
+                        friend = User.objects.get(id = int(friend_id))
+                        if not friend.user_friends.filter(id = user_sender.id).exists():
+                            FriendsInviteTerm.objects.create(sender_id = user_id, recipient_id = int(friend_id))
+                    except:
+                        pass
             else:
                 pass
 

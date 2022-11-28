@@ -15,5 +15,4 @@ from .visits import Visits  # noqa
 from .browsing_history import BrowsingHistory  # noqa
 from .expert_category import CategoryExpert  # noqa
 from .friends_invite import FriendsInviteTerm  # noqa
-from .friends import FriendsTerm  # noqa
 from .interview_answer_expert_proposal import InterviewAnswerExpertProposal  # noqa

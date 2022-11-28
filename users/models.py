@@ -19,6 +19,7 @@ class User(AbstractUser):
     )
 
     date_joined = last_login = None
+    user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True)
 
     def __str__(self):
         return self.username
