@@ -14,7 +14,7 @@ class QuizListView(ListView):
 
     template_name = "drevo/all_quizzes.html"
     model = Znanie
-    context_object_name = "all_tests"
+    context_object_name = "all_quizzes"
 
     def get_queryset(self):
         test_type = Tz.objects.get(name="Тест")

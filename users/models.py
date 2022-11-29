@@ -18,6 +18,11 @@ class User(AbstractUser):
         verbose_name="Адрес эл. почты",
     )
 
+    is_expert = models.BooleanField(default=False, verbose_name='Эксперт')
+    is_redactor = models.BooleanField(default=False, verbose_name='Редактор')
+    is_director = models.BooleanField(default=False, verbose_name='Руководитель')
+    in_klz = models.BooleanField(default=False, verbose_name='Член КЛЗ')
+
     date_joined = last_login = None
     user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True)
 
@@ -133,6 +138,7 @@ class Profile(models.Model):
         )
         subject = "Восстановление пароля"
         message = (
+            f"Ваш логин: {self.user.username} \n"
             f"Для восстановления пароля, перейдите по ссылке: "
             f"{settings.BASE_URL}{recovery_link}"
         )
