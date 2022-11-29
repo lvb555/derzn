@@ -1,8 +1,10 @@
+from django.http import JsonResponse
 from django.shortcuts import render
 
-from ..models import FriendsTerm
 from ..models import FriendsInviteTerm
-from users.models import Profile, User
+from users.models import User
+
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def friends_view(request):
@@ -19,18 +21,18 @@ def friends_view(request):
     if request.GET.get('remove'):
         _remove_friend(request.user.id, request.GET.get('remove'))
 
-    user_friend_links = FriendsTerm.objects.filter(user=request.user).prefetch_related("friend")
-    for friend_link in user_friend_links:
-        data = {}
+    try:
+        user = User.objects.get(id = request.user.id)
 
-        user = friend_link.friend
-        profile = Profile.objects.get(user_id = user)
-
-        data['first_name'] = user.first_name
-        data['last_name'] = user.last_name
-        data['avatar'] = profile.avatar or ''
-        data['user_id'] = user.id
-        context['friends'].append(data)
+        my_friends = user.user_friends.all() # те, кто в друзьях у меня
+        i_in_friends = user.users_friends.all() # те, у кого я в друзьях
+        
+        all_friends = my_friends.union(i_in_friends, all=False)
+        context['friends'] = all_friends
+            
+    # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
+    except TypeError:
+        pass
 
     template_name = 'drevo/friends.html'
     return render(request, template_name, context)
@@ -40,8 +42,15 @@ def _remove_friend(user_id: int, friend_id: str) -> None:
     """
     Удалить из друзей
     """
-    friend_table = FriendsTerm.objects.filter(user_id=user_id, friend_id=int(friend_id))
-    friend_table.delete()
+    try:
+        user = User.objects.get(id = user_id)
+        friend = User.objects.get(id = int(friend_id))
 
-    friend_table = FriendsTerm.objects.filter(user_id=int(friend_id), friend_id=user_id)
-    friend_table.delete()
+        if user.user_friends.filter(id = friend.id).exists():
+            user.user_friends.remove(friend)
+
+        if friend.user_friends.filter(id = user.id).exists():
+            friend.user_friends.remove(user)
+        
+    except ObjectDoesNotExist:
+        return JsonResponse({"error": "Такого пользователя в друзьях нет"})
