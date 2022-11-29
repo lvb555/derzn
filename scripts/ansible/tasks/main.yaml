@@ -21,7 +21,7 @@
   ansible.builtin.copy:
     src: '{{ passenger_file }}'
     dest: '{{ site_root }}/passenger_wsgi.py'
-  tags: ['config', 'passenger']
+  tags: ['configure', 'passenger']
 
 - name: upgrade pip
   ansible.builtin.pip:
@@ -29,13 +29,6 @@
     virtualenv: '{{ virtualenv_dir }}'
     extra_args: '--upgrade'
   tags: ["deps"]
-
-- name: hack the Pillow on python 3.10
-  ansible.builtin.lineinfile:
-    path: '{{ project_root }}/requirements.txt'
-    regexp: 'Pillow==8.2.0'
-    line: 'pillow==8.4'
-  tags: ["hack", "deps"]
 
 - name: create virtualenv & install dependencies
   ansible.builtin.pip:
@@ -56,4 +49,4 @@
     state: touch
     path: '{{ site_root }}/.restart-app'
   # run this with any tag
-  tags: ["restart", "migrate", "configure", "envs", "deps", "venv", "settings"]
+  tags: ["restart", "migrate", "configure", "envs", "deps", "venv", "settings", "passenger"]

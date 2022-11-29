@@ -7,7 +7,7 @@
     site_root: '/var/www/u1353596/data/www/test.derzn.ru'
     project_root: '{{ site_root }}/dz'
     virtualenv_dir: '{{ site_root }}/venv'
-    git_ref_to_install: 'develop'
+    git_ref_to_install: 'maintenance/deploy-prod'
     files_dir: 'files/test'
     envs_file: '{{ files_dir }}/envs'
     settings_file: '{{ files_dir }}/settings.py'
