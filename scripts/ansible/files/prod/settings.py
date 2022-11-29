@@ -149,16 +149,25 @@ LOGGING = {
         }
     },
     "handlers": {
-        "console": {
+        "file": {
             "level": "DEBUG",
-            "filters": ["require_debug_true"],
-            "class": "logging.StreamHandler",
-        }
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(BASE_DIR, "logs", "main.log"),
+            "maxBytes": 1024 * 1024 * 15,  # 15Mb
+            "backupCount": 3,
+            "formatter": "verbose",
+        },
+    },
+    "formatters": {
+        "verbose": {
+            "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
+        },
+        "simple": {"format": "%(levelname)s %(message)s"},
     },
     "loggers": {
         "django.db.backends": {
-            "level": "INFO",
-            "handlers": ["console"],
+            "level": env("LOG_LEVEL", "INFO"),
+            "handlers": ["file"],
         }
     },
 }
