@@ -24,6 +24,7 @@ class User(AbstractUser):
     in_klz = models.BooleanField(default=False, verbose_name='Член КЛЗ')
 
     date_joined = last_login = None
+    user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True)
 
     def __str__(self):
         return self.username
@@ -137,6 +138,7 @@ class Profile(models.Model):
         )
         subject = "Восстановление пароля"
         message = (
+            f"Ваш логин: {self.user.username} \n"
             f"Для восстановления пароля, перейдите по ссылке: "
             f"{settings.BASE_URL}{recovery_link}"
         )

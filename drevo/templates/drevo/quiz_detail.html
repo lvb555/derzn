@@ -20,39 +20,40 @@ justify-content: flex-start;">
     {% for question, answers in all_answers_and_questions.items %}
     {% for question_with_right_answer, right_answer in right_answer.items %}
     {% if question in question_with_right_answer %}
-    <div id='a' class="cont" style="display: none; width: 100%;">
-        <p>Тест: {{ znanie.name }}</p>
+    <div id='a' class="cont" style="display: none; text-align: left;margin-left: 33%;margin-right: 22%;">
+        <p style="font-size: 24px">Тест: {{ znanie.name }}</p>
         <div class="checkboxgroup" id="{{question_with_right_answer}}1">
             <h5 id="{{question}}" class='vopr' style="display: none">{{right_answer|length}}</h5>
             <p>Вопрос: {{question}}</p>
-            <p id="result_or_count">Количество ответов: {{right_answer|length}}</p>
-            <div id="firstblock" style="text-align: left;margin-left: 33%;margin-right: 22%;">
-
+            <p>Количество ответов: {{right_answer|length}}</p>
+            <div id="firstblock" >
                 {% for answer in answers %}
                 {% if answer in right_answer %}
-                    <label>
+                    <label style="padding-bottom:16px;">
                         <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{question}}" value="1">
                         {{ answer}}
                     </label><br>
                 {% else %}
-                    <label>
+                    <label style="padding-bottom:16px;">
                         <input type="checkbox"  onclick="return keyCounter(this.name)" name="{{question}}" value="0">
                         {{ answer}}
                     </label><br>
                 {% endif %}
                 {% endfor %}
             </div>
-            <div id="secondblock" style="text-align: left;margin-left: 33%;display: none;margin-right: 22%;">
+            <div id="secondblock" style="display: none;">
+                <p style="font-size: 24px">Результат</p>
                 {% for answer in answers %}
                 {% if answer in right_answer %}
-                    <p style="color: green;margin: 0px;">{{answer}}</p>
+                    <p id='resultsecondblock' style="color: green;margin: 0px;">{{answer}}</p><br>
                 {% else %}
-                    <p style="color: red;margin: 0px;">{{answer}}</p>
+                    <p id="resultsecondblock" style="color: red;margin: 0px;">{{answer}}</p><br>
                 {% endif %}
                 {% endfor %}
                 <br><p style="margin: 0px; padding-left: 45%;">Легенда:</p>
-                <p style="color: green;margin: 0px;padding-left: 45%;">верный ответ</p>
-                <p style="color: red;margin: 0px;padding-left: 45%;">неверный ответ</p>
+                <p style="color: green;margin: 0px;padding-left: 55%;">Верный ответ</p>
+                <p style="color: red;margin: 0px;padding-left: 55%;">Неверный ответ</p>
+                <p style="margin: 0px;padding-left: 55%;"><span style='font-weight:bold'>Ответ, данный пользователем</span></p><br>
             </div>
         </div>
     </div>
@@ -61,7 +62,7 @@ justify-content: flex-start;">
     {% endfor %}
 </div>
 <div  id="rezultat" style="display: none;text-align:center;">
-    <p>Тест: {{ znanie.name }}</p>
+    <p style="font-size: 24px" >Тест: {{ znanie.name }}</p>
     <table id="reztable" border="1" align="center" width="60%" >
 			<thead>
 				<tr>
@@ -92,11 +93,12 @@ justify-content: flex-start;">
     <p id="result2">Оценка теста: <span style="font-weight:bold">неудовлетворительно</span></p>
 </div>
 
-<div style="display: flex;justify-content: center;">
-    <button id="show_result_for_question" onclick="show_result_for_question();">Результат</button>
+<div style="display: flex;justify-content: center; padding-right: 125px;">
+    <button id="show_result_for_question" onclick="show_result_for_question();" >Результат</button>
     <button id="next_question" onclick="next_block();" style="display: none;">Далее</button>
-    <button id="tryagain" style="display: none;" ><a href="{{ znanie.get_absolute_url }}" style="color: black; text-decoration:none;">Повторить тест</a></button>
+    <button id="tryagain" style="display: none; margin-left:150px;" ><a href="{{ znanie.get_absolute_url }}" style="color: black; text-decoration:none;">Повторить тест</a></button>
 </div>
+<div id="warning" style="text-align:center;margin-right: 7%;"></div>
 
 {% endif %}
 
@@ -124,24 +126,43 @@ let result = 0;
 
 function show_result_for_question(){
     var lst2 = Array.from(new Set(lst));
-    if(lst2.length == step ){
+    if(lst2.length == step){
         questionblock = document.getElementById(lst2[d]+'1');
         let countans = +(questionblock.querySelector('.vopr').textContent);
         let answersinblock = questionblock.querySelectorAll('input[type="checkbox"]');
+        let resultinblock = questionblock.querySelectorAll('#resultsecondblock')
         sum_for_next_block = 0;
           for (let i=0; i<answersinblock.length; i++) {
              if(answersinblock[i].checked == true){
                  sum_for_next_block += 1;
+                 resultinblock[i].innerHTML = "<span style='font-weight:bold'>"+resultinblock[i].textContent+"</span>";
              }
           }
-        if(sum_for_next_block==countans){
+        if(sum_for_next_block == countans){
             document.getElementById('show_result_for_question').style.display = "none";
             document.getElementById('next_question').style.display = "block";
             let blockwithcolours = document.getElementsByClassName('cont')[d]
             blockwithcolours.querySelector('#firstblock').style.display = "none";
             blockwithcolours.querySelector('#secondblock').style.display = "block";
-            blockwithcolours.querySelector('#result_or_count').innerHTML = 'Результат вопроса теста';
+            document.getElementById('warning').style.display = "none";
+        }else if(sum_for_next_block<countans){
+            missing_answer = countans - sum_for_next_block
+            missing_answer = missing_answer.toString()
+            if(missing_answer.endsWith('2') || missing_answer.endsWith('3') || missing_answer.endsWith('4')){
+                document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
+                +missing_answer+" ответа</span>";
+            } else if(missing_answer.endsWith('1')){
+                document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
+                +missing_answer+" ответ</span>";
+            }else {
+                document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
+                +missing_answer+" ответов</span>";
+            }
+            document.getElementById('warning').style.display = "block";
         }
+    }else if(lst2.length < step){
+        document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Вы не дали ни одного ответа</span>";
+        document.getElementById('warning').style.display = "block";
     }
     if(step == b){
         document.getElementById('next_question').innerHTML = 'Результат теста';
