@@ -23,8 +23,6 @@ class InterviewAnswerExpertProposalForms(forms.ModelForm):
             (None, '------'),
             ("APPRVE", "Принят"),
             ("REJECT", "Не принят"),
-            ("ANSDPL", "Дубль. отв."),
-            ("RESDPL", "Дубль. предл."),
         ]
         self.old_status = self.instance.status
         self.old_comment = self.instance.admin_comment
@@ -35,3 +33,7 @@ class InterviewAnswerExpertProposalForms(forms.ModelForm):
         if self.instance.status:
             self.fields['admin_comment'].widget.attrs['disabled'] = 'true'
             self.fields['status'].widget.attrs['disabled'] = 'true'
+            if self.instance.status == 'ANSDPL':
+                self.fields['status'].choices += [("ANSDPL", "Дубль. отв.")]
+            elif self.instance.status == 'RESDPL':
+                self.fields['status'].choices += [("RESDPL", "Дубль. предл.")]
