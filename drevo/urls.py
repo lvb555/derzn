@@ -110,7 +110,7 @@ urlpatterns = [
 
     path('knowledge-feed/', knowledge_feed_view.knowledge_feed_view, name='knowledge_feed'),
     path('knowledge-feed/delete/<int:message_id>/', knowledge_feed_view.delete_message, name='delete_message'),
-    path('knowledge-feed/send/<int:znanie_id>/', send_to_feed_view.send_to_feed_view, name='send_to_feed'),
+    # path('knowledge-feed/send/<int:znanie_id>/', send_to_feed_view.send_to_feed_view, name='send_to_feed'),
     
     path('developer/', developer_view, name='developer_page'),
     path('znanie_create/', KnowledgeCreateView.as_view(), name='znanie_create'),
