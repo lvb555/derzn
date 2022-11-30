@@ -1,0 +1,42 @@
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load static %}
+{% block cssfiles %}
+<style type="text/css">
+
+</style>
+{% endblock %}
+
+{% block title %}Максимальное число согласий с ответами на вопрос: {{ question.name }}
+{% endblock %}s
+
+{% block content %}
+
+  <div class="container">
+    <div class="row">
+    <div class="col">
+        Максимальное число согласий: {{ max_agreed.max_agreed }} с
+        <a href="{% url 'question_expert_work' max_agreed.interview_id max_agreed.question_id %}">ответами на вопрос</a>
+    </div>
+    </div>
+    <div class="row mt-2">
+    <div class="col">
+            <form  method="POST" action="{%  url 'delete_max_agreed' interview_pk=max_agreed.interview_id question_pk=max_agreed.question_id pk=max_agreed.id  %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>
+            </form>
+    </div>
+    </div>
+    <div class="row mt-2">
+    <div class="col">
+        <a href="{% url 'max_agreed_list' %}">список</a>
+    </div>
+    </div>
+  </div>
+
+{% endblock %}
+{% block jsfiles %}
+<script>
+
+</script>
+{% endblock %}

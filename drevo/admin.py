@@ -8,6 +8,7 @@ from django.utils.safestring import mark_safe
 from mptt.admin import DraggableMPTTAdmin
 
 from drevo.models import InterviewAnswerExpertProposal
+from drevo.models import MaxAgreedQuestion
 from drevo.models.expert_category import CategoryExpert
 from drevo.models.knowledge_grade import KnowledgeGrade
 from .forms.relation_form import RelationAdminForm
@@ -40,7 +41,8 @@ from .models import (
     AuthorType,
     GlossaryTerm,
     ZnRating,
-    Comment, KnowledgeStatuses,
+    Comment,
+    KnowledgeStatuses,
 )
 from .services import send_notify_interview
 
@@ -295,8 +297,11 @@ admin.site.register(Relation, RelationAdmin)
 
 class GlossaryTermAdmin(admin.ModelAdmin):
     list_display = ("order", "name", "description")
-    ordering = ("order", "name",)
-    list_display_links = ('name',)
+    ordering = (
+        "order",
+        "name",
+    )
+    list_display_links = ("name",)
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs["form"] = GlossaryTermForm
@@ -468,6 +473,7 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
     def answer_link(self, obj):
         return self.link_to_knowledge_change(obj.answer)
 
+
 class DeveloperAdmin(admin.ModelAdmin):
     list_display = ("name", "surname", "contribution", "comment", "admin")
     fields = ("name", "surname", "contribution", "comment", "admin")
@@ -476,14 +482,22 @@ class DeveloperAdmin(admin.ModelAdmin):
         kwargs["form"] = DeveloperForm
         return super().get_form(request, obj, **kwargs)
 
+
 admin.site.register(Developer, DeveloperAdmin)
 
 admin.site.register(FriendsTerm)
 admin.site.register(FriendsInviteTerm)
 admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
+admin.site.register(MaxAgreedQuestion)
 
 
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
-    list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)
+    list_display = (
+        "knowledge",
+        "status",
+        "user",
+        "time_limit",
+        "is_active",
+    )

@@ -1,0 +1,19 @@
+from django.views.generic.edit import DeleteView
+from django.urls import reverse_lazy, reverse
+from drevo.models import MaxAgreedQuestion
+from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
+
+
+class MaxAgreedQuestionDeleteView(DeleteView):
+    """
+    Удаляет (максимальное число) согласий эксперта с ответами на вопрос интервью
+    """
+
+    model = MaxAgreedQuestion
+    success_url = reverse_lazy("max_agreed_list")
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        return HttpResponseRedirect(reverse("max_agreed_list"))
