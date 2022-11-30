@@ -24,6 +24,7 @@ class User(AbstractUser):
     in_klz = models.BooleanField(default=False, verbose_name='Член КЛЗ')
 
     date_joined = last_login = None
+    user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True)
 
     def __str__(self):
         return self.username

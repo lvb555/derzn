@@ -13,12 +13,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = env.str("SECRET_KEY")
 
-
 DEBUG = env.bool("DEBUG")
 
-
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
-
 
 # Application definition
 
@@ -30,7 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    #'drevo.apps.DrevoConfig',
+    # 'drevo.apps.DrevoConfig',
     "django.contrib.humanize",
     "mptt",
     "ckeditor",
@@ -135,7 +132,6 @@ LOGIN_URL = "/users/login/"
 
 BASE_URL = env.str("BASE_URL")
 
-
 EMAIL_HOST = env.str("EMAIL_HOST")
 EMAIL_PORT = env.str("EMAIL_PORT")
 EMAIL_HOST_USER = env.str("EMAIL_HOST_USER")
@@ -143,9 +139,7 @@ EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS")
 EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL")
 
-
-
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = "users.User"
 
 LOGGING = {
     "version": 1,
@@ -155,16 +149,25 @@ LOGGING = {
         }
     },
     "handlers": {
-        "console": {
+        "file": {
             "level": "DEBUG",
-            "filters": ["require_debug_true"],
-            "class": "logging.StreamHandler",
-        }
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(BASE_DIR, "logs", "main.log"),
+            "maxBytes": 1024 * 1024 * 15,  # 15Mb
+            "backupCount": 3,
+            "formatter": "verbose",
+        },
+    },
+    "formatters": {
+        "verbose": {
+            "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
+        },
+        "simple": {"format": "%(levelname)s %(message)s"},
     },
     "loggers": {
         "django.db.backends": {
-            "level": "INFO",
-            "handlers": ["console"],
+            "level": env("LOG_LEVEL", "INFO"),
+            "handlers": ["file"],
         }
     },
 }

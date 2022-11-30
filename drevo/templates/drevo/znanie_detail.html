@@ -6,6 +6,12 @@
 
 {% block content %}
 
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/knowledge-feed.css' %}">
+{% endblock %}
+<div style="display:none" id="success-alert" class="alert alert-success">
+  Сообщение отправлено!
+</div>
 {% if znanie.category.pk %}
 <h6><a href="{% url 'drevo_type' znanie.category.pk %}">
     <<< {{ znanie.category }}</a>
@@ -144,9 +150,67 @@
       </div>
     </div>
   </div>
-  <div>
-    <a href="{% url 'send_to_feed' znanie.id %}" style="text-decoration:none; color: #212121"><i class="cart-icon material-icons text-success">reply</i>Отправить в Ленту знаний</a>
-  </div>
+  {% if request.user.is_authenticated %}
+    <div>
+      <a class="btn open-popup" style="text-decoration:none; color: #212121"><i class="cart-icon material-icons text-success">reply</i>Отправить в Ленту знаний</a>
+      <div class="popup__bg">
+        <form class="popup" method="post" id="feedmessage_form" novalidate" onsubmit="return false;">
+            {% csrf_token %}
+            <svg class="close-popup" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#052F23" d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/></svg>
+            <div class="d-flex justify-content-around">
+                <input id="send_message_btn" type="submit" value="Отправить" name="_save" class="btn shadow-none">
+            </div>
+
+            <div class="mt-1">
+                <label for="znanie">Знание:</label>
+                <h1 name="znanie" required id="id_znanie" class="form-text">{{znanie.name}}</h1>
+            </div>
+
+            <div class="mt-3">
+                <label>Ярлык:</label>
+                <select class="form-select shadow-none" name="label" required id="id_label">
+                    <option value="" selected>------</option>
+                    {% for label in labels %}
+                        <option value="{{label.id}}">{{label.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mt-3 col-auto">
+                <label class="col-form-label">Текст письма:</label>
+                <textarea name="text" cols="40" rows="10" class="vLargeTextField form-control shadow-none" maxlength="511" required id="id_text"></textarea>
+            </div>
+            {% if form.errors.text %}
+                <ul>
+                    {{form.errors.text}}
+                </ul>
+            {% endif %}
+
+            <div>
+                {% if friends_count > 0 %}
+                    <p class="text-start">Получатели</p>
+                    <div class="d-flex">
+                        <input type="checkbox" id="all_friends" class="form-check-input shadow-none"> Все друзья
+                    </div>
+                    {% for friend in friends %}
+                        <div class="d-flex mt-2">
+                            <input type="checkbox" value="{{friend.id}}" class="me-1 form-check-input shadow-none checkbox">
+                            {% if friend.profile.avatar %}
+                                <img src="{{ friend.profile.avatar.url }}" class="rounded-circle" height="30px" width="30px">
+                            {% else %}
+                                <img src="{% static 'src/default_avatar.jpg' %}" class="rounded-circle"  height="30px" width="30px">
+                            {% endif %}
+                            <p class="ms-1">{{friend.first_name}} {{friend.last_name}}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-start text-danger">У Вас пока нет друзей, чтобы отправить им сообщение</p>
+                {% endif %}
+            </div>
+        </form>
+      </div>
+    </div>
+  {% endif %}
 </div>
 
 <!-- Модальное окно -->
@@ -375,6 +439,143 @@
 </table>
 
 {% endif %}
+
+<script>
+  // обработка открытия и закрытия модального окна
+  
+  var popupBgs = document.querySelectorAll('.popup__bg');
+  var popupBg = document.querySelector('.popup__bg');
+  var popups = document.querySelectorAll('.popup');
+  var openPopupButtons = document.querySelectorAll('.open-popup');
+  var closePopupButtons = document.querySelectorAll('.close-popup');
+
+  Array.from(openPopupButtons).forEach((button) => {
+      button.addEventListener('click', (e) => {
+          e.preventDefault();
+
+          var index = 0;
+          var len = openPopupButtons.length;
+          for (var i = 0; i < len; i++) {
+              if (button == openPopupButtons[i]) {
+                  index = i;
+                  break;
+              }
+          }
+
+          popupBgs[index].classList.add('active');
+          popups[index].classList.add('active');
+          document.body.classList.add("stop-scrolling");
+      })
+  });
+
+  Array.from(closePopupButtons).forEach((button) => {
+      button.addEventListener('click', (e) => {
+
+          var index = 0;
+          var len = closePopupButtons.length;
+          for (var i = 0; i < len; i++) {
+              if (button == closePopupButtons[i]) {
+                  index = i;
+                  break;
+              }
+          }
+
+          popupBgs[index].classList.remove('active');
+          popups[index].classList.remove('active');
+          document.body.classList.remove("stop-scrolling");
+      })
+  });
+
+</script>
+
+<script>
+  var all_checkboxes = document.getElementsByClassName('checkbox'); // все чекбоксы отдельных друзей
+  var friends_ids_array = []; // массив для передачи выбранных друзей в django view
+  var checkbox_all_friends = document.getElementById('all_friends'); // чекбокс "Все друзья"
+  var send_message_btn = document.getElementById('send_message_btn'); // кнопка отправки сообщения
+
+
+  // добавление id каждого чекбокса и друга в массив
+  Array.from(all_checkboxes).forEach(element => {
+      element.onchange = function() {
+
+          // если уже есть id в массиве - удалить
+          if(friends_ids_array.includes(Number(element.value))) {
+              var index = friends_ids_array.indexOf(Number(element.value));
+              friends_ids_array.splice(index, 1);
+              checkbox_all_friends.checked = false;
+          }
+
+          // если id нет в массиве - добавить
+          else {
+              friends_ids_array.push(Number(element.value));
+          }
+      }
+  });
+
+  // нажатие на чек-бокс "Все друзья"
+  checkbox_all_friends.onchange = function() {
+
+      // очистка массива id
+      friends_ids_array = []
+
+      // если чекбокс прожат
+      if(checkbox_all_friends.checked) {
+          
+          // добавление всех id всех чекбоксов в массив
+          for (var i = 0; i < all_checkboxes.length; i++) {
+          friends_ids_array.push(Number(all_checkboxes[i].value));
+          }
+
+          // включение всех чекбоксов 
+          for (var i = 0; i < all_checkboxes.length; i++) {
+          all_checkboxes[i].checked = true;
+          }
+      }
+
+      // если чекбокс не прожат
+      else {
+          // выключение всех чекбоксов
+          for (var i = 0; i < all_checkboxes.length; i++) {
+          all_checkboxes[i].checked = false;
+          }
+      }
+  }
+
+  send_message_btn.addEventListener('click', function() {
+
+    var text = document.getElementById('id_text').value;
+    var label_id = document.getElementById('id_label').value;
+    var znanie_name = document.getElementById("id_znanie").innerHTML;
+
+    if(!(text == '') & friends_ids_array.length > 0) {
+      // ajax-запрос в базу данных, передаю текст сообщения, ярлык и список пользователей-получателей сообщения
+      $.ajax({ 
+              url:  `{% url 'knowledge_feed' %}`, 
+              type: 'POST', 
+              data: {csrfmiddlewaretoken: '{{ csrf_token }}', "text": text, "label_id": label_id, 
+                  "send_to_ids[]": friends_ids_array, "znanie_name": znanie_name, "task": "send_message"},
+              error: function(data){
+                  alert(data.responseJSON.error); // текст ошибки
+
+              }}).done(function(data) {
+                
+                var popup = document.getElementsByClassName("popup__bg active");
+                var popupBg = document.querySelector('.popup__bg');
+                Array.from(popup).forEach(p => {
+                    p.classList.remove('active')});
+                popupBg.classList.remove('active');
+
+                var success_alert = document.getElementById("success-alert");
+                success_alert.innerHTML = "Знание успешно отправлено!";
+                success_alert.style.display = "";
+                friends_ids_array = [];
+                document.body.classList.remove("stop-scrolling");
+              });
+    }
+  })
+
+</script>
 
 {% endblock %}
 
