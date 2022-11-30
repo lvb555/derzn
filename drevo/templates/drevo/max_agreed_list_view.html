@@ -14,7 +14,7 @@
     </div>
 </div>
     <div class="row mt-2">
-    <div class="col"> 
+    <div class="col">
             <form  method="POST" action="{%  url 'delete_max_agreed' interview_pk=max_agreed.interview_id question_pk=max_agreed.question_id pk=max_agreed.id  %}">
             {% csrf_token %}
             <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>

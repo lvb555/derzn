@@ -7,17 +7,48 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('drevo', '0030_auto_20221118_2101'),
+        ("drevo", "0030_auto_20221118_2101"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='MaxAgreedQuestion',
+            name="MaxAgreedQuestion",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('max_agreed', models.IntegerField(blank=True, null=True, verbose_name='Максимальное число согласий c ответами на вопрос')),
-                ('interview', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='interview', to='drevo.znanie', verbose_name='Интервью')),
-                ('question', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='question', to='drevo.znanie', verbose_name='Вопрос')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "max_agreed",
+                    models.IntegerField(
+                        blank=True,
+                        null=True,
+                        verbose_name="Максимальное число согласий c ответами на вопрос",
+                    ),
+                ),
+                (
+                    "interview",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="interview",
+                        to="drevo.znanie",
+                        verbose_name="Интервью",
+                    ),
+                ),
+                (
+                    "question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="question",
+                        to="drevo.znanie",
+                        verbose_name="Вопрос",
+                    ),
+                ),
             ],
         ),
     ]

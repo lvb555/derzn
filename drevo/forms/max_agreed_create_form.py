@@ -10,12 +10,16 @@ class MaxAgreedQuestionCreateForm(forms.ModelForm):
     """
     Форма создания сущности MaxAgreedQuestion
     """
-    max_agreed = forms.IntegerField(widget=forms.NumberInput)
 
+    max_agreed = forms.IntegerField(widget=forms.NumberInput)
 
     class Meta:
         model = MaxAgreedQuestion
-        exclude = ('id','max_agreed','author',)
+        exclude = (
+            "id",
+            "max_agreed",
+            "author",
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

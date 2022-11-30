@@ -9,23 +9,40 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('drevo', '0031_maxagreedquestion'),
+        ("drevo", "0031_maxagreedquestion"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='maxagreedquestion',
-            name='author',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='max_agreed_author', to=settings.AUTH_USER_MODEL, verbose_name='Автор'),
+            model_name="maxagreedquestion",
+            name="author",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="max_agreed_author",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Автор",
+            ),
         ),
         migrations.AlterField(
-            model_name='maxagreedquestion',
-            name='interview',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='max_agreed_interview', to='drevo.znanie', verbose_name='Интервью'),
+            model_name="maxagreedquestion",
+            name="interview",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="max_agreed_interview",
+                to="drevo.znanie",
+                verbose_name="Интервью",
+            ),
         ),
         migrations.AlterField(
-            model_name='maxagreedquestion',
-            name='question',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='max_agreed_question', to='drevo.znanie', verbose_name='Вопрос'),
+            model_name="maxagreedquestion",
+            name="question",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="max_agreed_question",
+                to="drevo.znanie",
+                verbose_name="Вопрос",
+            ),
         ),
     ]

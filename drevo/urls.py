@@ -118,8 +118,14 @@ urlpatterns = [
         MaxAgreedQuestionView.as_view(),
         name="max_agreed",
     ),
-    path("max_agreed_create/", MaxAgreedQuestionCreateView.as_view(), name="max_agreed_create"),
-    path("max_agreed_list/", MaxAgreedQuestionListView.as_view(), name="max_agreed_list"),
+    path(
+        "max_agreed_create/",
+        MaxAgreedQuestionCreateView.as_view(),
+        name="max_agreed_create",
+    ),
+    path(
+        "max_agreed_list/", MaxAgreedQuestionListView.as_view(), name="max_agreed_list"
+    ),
     path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/max_agreed/<int:pk>/",
         MaxAgreedQuestionDeleteView.as_view(),

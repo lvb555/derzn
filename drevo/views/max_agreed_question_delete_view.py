@@ -1,8 +1,9 @@
 from django.views.generic.edit import DeleteView
-from django.urls import reverse_lazy,reverse
+from django.urls import reverse_lazy, reverse
 from drevo.models import MaxAgreedQuestion
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
+
 
 class MaxAgreedQuestionDeleteView(DeleteView):
     """
@@ -10,9 +11,7 @@ class MaxAgreedQuestionDeleteView(DeleteView):
     """
 
     model = MaxAgreedQuestion
-    success_url = reverse_lazy(
-        "max_agreed_list"
-    )
+    success_url = reverse_lazy("max_agreed_list")
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()

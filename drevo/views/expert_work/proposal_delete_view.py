@@ -13,11 +13,16 @@ class ProposalDeleteView(DeleteView):
     model = InterviewAnswerExpertProposal
 
     def get_success_url(self):
-        return self.request.META.get('HTTP_REFERER')
+        return self.request.META.get("HTTP_REFERER")
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         success_url = self.get_success_url()
         self.object.delete()
-        return redirect(success_url,args=(self.request.POST.get('interview_pk'),
-        self.request.POST.get('question_pk'),))
+        return redirect(
+            success_url,
+            args=(
+                self.request.POST.get("interview_pk"),
+                self.request.POST.get("question_pk"),
+            ),
+        )

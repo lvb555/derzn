@@ -71,7 +71,6 @@ __all__ = [
     "QuizListView",
     "ProposalDeleteView",
     "MaxAgreedQuestionView",
-    "MaxAgreedQuestionCreateView"
-    "MaxAgreedQuestionDeleteView",
+    "MaxAgreedQuestionCreateView" "MaxAgreedQuestionDeleteView",
     "MaxAgreedQuestionListView",
 ]

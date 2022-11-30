@@ -216,9 +216,9 @@ class InterviewAnswerExpertProposal(models.Model):
             )
         else:
             return InterviewAnswerExpertProposal.objects.get(pk=proposal_pk)
-    
+
     def check_max_agreed(prop):
-        
+
         question = prop.question_id
         con1 = Q(interview_id=prop.interview_id)
         con2 = Q(question_id=question)
@@ -231,11 +231,13 @@ class InterviewAnswerExpertProposal(models.Model):
         con5 = Q(question=question)
         con6 = Q(interview=prop.interview_id)
         con7 = Q(is_agreed=True)
-        current_agreed = InterviewAnswerExpertProposal.objects.filter(con4 & con5 & con6 & con7).count()          
+        current_agreed = InterviewAnswerExpertProposal.objects.filter(
+            con4 & con5 & con6 & con7
+        ).count()
 
-        if max_agreed <= current_agreed:    
+        if max_agreed <= current_agreed:
             return False
-   
+
         return True
 
     def get_arguments(self) -> t.List[str]:

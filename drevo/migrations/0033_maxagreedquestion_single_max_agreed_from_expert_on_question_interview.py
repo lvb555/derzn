@@ -6,12 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('drevo', '0032_auto_20221130_0005'),
+        ("drevo", "0032_auto_20221130_0005"),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='maxagreedquestion',
-            constraint=models.UniqueConstraint(fields=('interview', 'question', 'author'), name='single_max_agreed_from_expert_on_question_interview'),
+            model_name="maxagreedquestion",
+            constraint=models.UniqueConstraint(
+                fields=("interview", "question", "author"),
+                name="single_max_agreed_from_expert_on_question_interview",
+            ),
         ),
     ]
