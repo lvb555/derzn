@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
 from drevo import models as orm
 from drevo.views.expert_work.data_loaders import load_interview
+from django.db.models import Q
 
 
 class QuestionExpertWorkPage(TemplateView):
@@ -26,6 +27,11 @@ class QuestionExpertWorkPage(TemplateView):
         if context.get("new_answer_form") is None:
             context["new_answer_form"] = NewAnswerFromExpertForm()
         context["interview"] = load_interview(interview_pk)
+        con1 = Q(interview_id=interview_pk)
+        con2 = Q(question_id=question_pk)
+        con3 = Q(author_id=self.request.user.id)
+        max_agreed = orm.MaxAgreedQuestion.objects.filter(con1 & con2 & con3)[0]
+        context["max_agreed"] = max_agreed
 
         # забираем все ответы по вопросу
         question_raw = get_object_or_404(orm.Znanie, pk=question_pk)
@@ -129,7 +135,13 @@ def update_answer_proposal(
             form.cleaned_data.pop("proposal_pk")
             form.cleaned_data["id"] = prop.pk
 
-        prop.is_agreed = form.cleaned_data.get("is_agreed", False)
+        can_agreed = orm.InterviewAnswerExpertProposal.check_max_agreed(prop)
+        if can_agreed:
+            prop.is_agreed = form.cleaned_data.get("is_agreed", False)
+        else:
+            if not form.cleaned_data.get("is_agreed"):
+                prop.is_agreed = False
+
         prop.is_incorrect_answer = form.cleaned_data.get("is_incorrect_answer", False)
         prop.save()
 
@@ -164,7 +176,18 @@ def update_proposed_answer(req: HttpRequest, proposal_pk: int):
     )
     if form.is_valid():
         form_data = form.cleaned_data
-        prop.is_agreed = form_data.get("is_agreed", False)
+        can_agreed = orm.InterviewAnswerExpertProposal.check_max_agreed(prop)
+        # изменить is_agreed с False на True, если ограничение макс не достигнуто,
+        # иначе, если меняет is_agreed с False на True - блокировать, если с True
+        # на False, то разрешить. Так контролируется максимальное чиcло согласий
+        # эксперта с ответами на вопрос по интервью
+
+        if can_agreed:
+            prop.is_agreed = form.cleaned_data.get("is_agreed", False)
+        else:
+            if not form.cleaned_data.get("is_agreed"):
+                prop.is_agreed = False
+
         prop.is_incorrect_answer = form_data.get("is_incorrect_answer", False)
         prop.save()
         form_data["id"] = form_data.pop("proposal_pk", None)

@@ -1,4 +1,5 @@
 import typing as t
+from django.db.models import Q
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -8,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 # from django.http import HttpRequest
 
 from drevo.models.knowledge import Znanie
+from drevo.models.max_agreed_question import MaxAgreedQuestion
 
 User = get_user_model()
 
@@ -214,6 +216,27 @@ class InterviewAnswerExpertProposal(models.Model):
             )
         else:
             return InterviewAnswerExpertProposal.objects.get(pk=proposal_pk)
+    
+    def check_max_agreed(prop):
+        
+        question = prop.question_id
+        con1 = Q(interview_id=prop.interview_id)
+        con2 = Q(question_id=question)
+        con3 = Q(author_id=prop.expert_id)
+        max_agreed = MaxAgreedQuestion.objects.filter(con1 & con2 & con3)
+        if not max_agreed:
+            return True
+        max_agreed = max_agreed[0].max_agreed
+        con4 = Q(expert_id=prop.expert_id)
+        con5 = Q(question=question)
+        con6 = Q(interview=prop.interview_id)
+        con7 = Q(is_agreed=True)
+        current_agreed = InterviewAnswerExpertProposal.objects.filter(con4 & con5 & con6 & con7).count()          
+
+        if max_agreed <= current_agreed:    
+            return False
+   
+        return True
 
     def get_arguments(self) -> t.List[str]:
         return self.comment.get("arguments", [])

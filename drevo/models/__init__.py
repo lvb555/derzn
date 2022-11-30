@@ -19,3 +19,4 @@ from .friends import FriendsTerm  # noqa
 from .interview_answer_expert_proposal import InterviewAnswerExpertProposal  # noqa
 from .knowledge_statuses import KnowledgeStatuses
 from .developer import Developer
+from .max_agreed_question import MaxAgreedQuestion

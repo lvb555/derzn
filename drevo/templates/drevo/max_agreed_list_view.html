@@ -1,0 +1,42 @@
+{% extends 'drevo/base.html' %}
+
+{% block title %}Тесты{% endblock %}
+
+{% block content %}
+
+<h2>Максимальные числа согласий с ответами на вопросы эксперта</h2>
+
+{% for max_agreed in all_max_agreed %}
+
+<div class="row">
+    <div class="col">
+        <a href="{% url 'max_agreed' interview_pk=max_agreed.interview_id question_pk=max_agreed.question_id pk=max_agreed.id %}" style="color: black;text-decoration:none;">{{ max_agreed.id}} Максимальное число согласий: {{ max_agreed.max_agreed }}</a>
+    </div>
+</div>
+    <div class="row mt-2">
+    <div class="col"> 
+            <form  method="POST" action="{%  url 'delete_max_agreed' interview_pk=max_agreed.interview_id question_pk=max_agreed.question_id pk=max_agreed.id  %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>
+            </form>
+    </div>
+    </div>
+<br>
+<hr>
+{% empty %}
+<div class="row">
+    <div class="col">
+        Нет максимальных согласий с ответами на вопросы эксперта
+    </div>
+</div>
+{% endfor %}
+<div class="row">
+ <form method="POST" action="{% url 'max_agreed_create' %}">
+           {% csrf_token %}
+           <div class="col text-center">
+           <button type="submit"  class="btn btn-outline-primary">Добавить новый</button>
+           </div>
+</form>
+</div>
+
+{% endblock %}

@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'drevo.apps.DrevoConfig',
+    #'drevo.apps.DrevoConfig',
     'django.contrib.humanize',
     'mptt',
     'ckeditor',

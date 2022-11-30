@@ -1,0 +1,29 @@
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load static %}
+{% block cssfiles %}
+<style type="text/css">
+
+</style>
+{% endblock %}
+
+{% block title %}Максимальное число согласий с ответами на вопрос: {{ question.name }}
+{% endblock %}
+
+{% block content %}
+
+    <form class="form-horizontal" action="{% url 'max_agreed_create' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        {{ image_form.management_form }}
+        <input type="submit" class="btn btn-primary" value="Сохранить">
+    </form>
+
+
+{% endblock %}
+{% block jsfiles %}
+<script>
+
+</script>
+{% endblock %}
