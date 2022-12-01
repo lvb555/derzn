@@ -1,10 +1,6 @@
 name: Smoke test. Check migrations
 
-on:
-  push:
-    branches: [ $default-branch ]
-  pull_request:
-    branches: [ $default-branch ]
+on: [push]
 
 jobs:
   container-job:
