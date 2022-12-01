@@ -1,6 +1,8 @@
 FROM python:3.9-slim-buster
 WORKDIR /app
 
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN apt-get update && apt-get install
 
 RUN apt-get install -y \
@@ -29,6 +31,8 @@ RUN python -m pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
+
+RUN  ./manage.py makemigrations --merge --noinput
 
 RUN ./manage.py makemigrations
 
