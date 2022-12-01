@@ -42,6 +42,16 @@
                                 <li class="nav-item mx-2">
                                     <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Дерево знаний</a>
                                 </li>
+                                <li class="nav-item mx-2 dropdown">
+                                    <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">О нас</a>
+                                    <div class="nav-item mx-2 dropdown-menu">
+                                        <a class="dropdown-item" href="#" id="about_project">О проекте</a>
+                                        <a class="dropdown-item dropdown-toggle hover" data-bs-toggle="dropdown" role="button" href="#" id="team">Команда</a>
+                                        <div class="nav-item mx-2 dropdown-menu double-menu">
+                                            <a class="dropdown-item" href="{% url 'developer_page' %}" id="developer">Разработчики</a>
+                                        </div>
+                                    </div>
+                                </li>
                                 <li class="nav-item mx-2">
                                     <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
                                        id="authors_link">Авторы</a>
@@ -123,16 +133,6 @@
                                     <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель управления</a>
                                 </li>
                                 {% endif %}
-                                <li class="nav-item mx-2 dropdown">
-                                    <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">О нас</a>
-                                    <div class="nav-item mx-2 dropdown-menu">
-                                        <a class="dropdown-item" href="#" id="about_project">О проекте</a>
-                                        <a class="dropdown-item dropdown-toggle hover" data-bs-toggle="dropdown" role="button" href="#" id="team">Команда</a>
-                                        <div class="nav-item mx-2 dropdown-menu double-menu">
-                                            <a class="dropdown-item" href="{% url 'developer_page' %}" id="developer">Разработчики</a>
-                                        </div>
-                                    </div>
-                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link auto_active_link d-flex" aria-current="page" href="{% url 'search_knowledge' %}"
                                        id="search_knowledges_link">

@@ -9,14 +9,18 @@ class DeveloperForm(forms.ModelForm):
                                                         'rows': 3,
                                                         }
                                                  ),
-                           label='Комментарий'
+                            required=False,
+                            label='Комментарий'
                            )
     admin = forms.CharField(widget=forms.Textarea(attrs={'cols': 60,
                                                         'rows': 3,
                                                         }
                                                  ),
-                           label='Админ'
+                            required=False,
+                            label='Админ'
                            )
+    contribution = forms.IntegerField(initial=0,)
+    
 
     class Meta:
         model = Developer
