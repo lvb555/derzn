@@ -1,0 +1,44 @@
+name: Smoke test. Check migrations
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  container-job:
+    runs-on: ubuntu-latest
+    container: python:3.10.8-bullseye
+    services:
+      mysql:
+        image: mysql:5.7.27
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: derzn
+        options: >-
+          --character-set-server=utf8mb4
+          --collation-server=utf8mb4_unicode_ci
+        ports:
+          - 3306:3306
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run Tests
+      run: |
+        python manage.py migrate
+      env:
+        SECRET_KEY: asdaaskdw9u2r4lfkjd32
+        DEBUG: true
+        ALLOWED_HOSTS: '*'
+        DB_URL: mysql://root:test@localhost:3306/derzn
+        BASE_URL: /
+        EMAIL_HOST: localhost
+        EMAIL_PORT: 5822
+        EMAIL_HOST_USER: admin
+        EMAIL_HOST_PASSWORD: somepass
+        EMAIL_USE_TLS: false
+        EMAIL_USE_SSL: false
