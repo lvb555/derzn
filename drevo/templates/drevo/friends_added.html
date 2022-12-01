@@ -45,12 +45,16 @@
                                 Добавить в друзья
                             </button>
                         {% elif one.relation_to_request_user == 'subscriber' %}
-                            <button class="btn btn-sm fw-bold" disabled name="add" style="background: #FF8A04;">
-                                Приглашение отправлено
+                            <button class="btn btn-sm fw-bold" name="cancel" value="{{ one.user_id }}" style="background: #FF8A04;">
+                                Отменить заявку
                             </button>
                         {% elif one.relation_to_request_user == 'friend' %}
                             <button class="btn btn-success btn-sm" disabled name="add">
                                 Друг
+                            </button>
+                        {% elif one.relation_to_request_user == 'was_invited' %}
+                            <button class="btn btn-success btn-sm" value="{{one.user_id}}" name="add">
+                                Принять заявку
                             </button>
                         {% endif %}
                     </form>

@@ -33,8 +33,9 @@ from .views import (
     MaxAgreedQuestionCreateView,
     MaxAgreedQuestionDeleteView,
     MaxAgreedQuestionListView,
+    KnowledgeStatisticFormView,
 )
-from .views import send_znanie, knowledge_feed_view, send_to_feed_view
+from .views import send_znanie, knowledge_feed_view
 from .views.expert_work.views import (
     propose_answer,
     update_answer_proposal,
@@ -65,6 +66,7 @@ urlpatterns = [
     ),
     path("znanie/<int:pk>/message/send/", send_znanie, name="zsend_mes"),
     path("znanie/<int:pk>/grade/", KnowledgeFormView.as_view(), name="grade"),
+    path('znanie/<int:pk>/grade/statistic', KnowledgeStatisticFormView.as_view(), name='grade_statistic'),
     path("all_quizzes/", QuizListView.as_view(), name="all_quizzes"),
     path("label/<int:pk>", ZnanieByLabelView.as_view(), name="zlabel"),
     path("author/<int:pk>", AuthorDetailView.as_view(), name="author"),
@@ -130,7 +132,7 @@ urlpatterns = [
     path("friends/friends_invite/", friends_invite_view, name="friends_invite"),
      path('knowledge-feed/', knowledge_feed_view.knowledge_feed_view, name='knowledge_feed'),
     path('knowledge-feed/delete/<int:message_id>/', knowledge_feed_view.delete_message, name='delete_message'),
-    path('knowledge-feed/send/<int:znanie_id>/', send_to_feed_view.send_to_feed_view, name='send_to_feed'),
+    
     path('developer/', developer_view, name='developer_page'),
     path('znanie_create/', KnowledgeCreateView.as_view(), name='znanie_create'),
     path('znanie_user_tp/', UserKnowledgeProcessView.as_view(), name='znanie_user_process'),
@@ -140,6 +142,7 @@ urlpatterns = [
     path('znanie_redactor_tp/', RedactorKnowledgeProcess.as_view(), name='znanie_redactor_process'),
     path('znanie_director_tp/', DirectorKnowledgeProcess.as_view(), name='znanie_director_process'),
     path('klz/', KlzKnowledgeProcess.as_view(), name='klz')
+
 ]
 
 if settings.DEBUG:

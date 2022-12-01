@@ -15,7 +15,6 @@ from .forms.relation_form import RelationAdminForm
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation_grade import RelationGrade
 from drevo.models.relation_grade_scale import RelationGradeScale
-from drevo.models.friends import FriendsTerm
 from drevo.models.friends_invite import FriendsInviteTerm
 from drevo.models.label_feed_message import LabelFeedMessage
 from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
@@ -41,8 +40,10 @@ from .models import (
     AuthorType,
     GlossaryTerm,
     ZnRating,
-    Comment, KnowledgeStatuses,
-)
+    Comment,
+    KnowledgeStatuses,
+    AgeUsersScale
+    )
 from .services import send_notify_interview
 
 
@@ -384,6 +385,7 @@ class KnowledgeGradeAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = ("grade", "created_at", "knowledge")
+    autocomplete_fields = ("knowledge",)
 
 
 admin.site.register(KnowledgeGrade, KnowledgeGradeAdmin)
@@ -479,13 +481,15 @@ class DeveloperAdmin(admin.ModelAdmin):
 
 admin.site.register(Developer, DeveloperAdmin)
 
-admin.site.register(FriendsTerm)
 admin.site.register(FriendsInviteTerm)
 admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
 admin.site.register(MaxAgreedQuestion)
 
 
+
+admin.site.register(AgeUsersScale)
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
     list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)
+    

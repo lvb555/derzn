@@ -39,6 +39,7 @@ from .max_agreed_question_view import MaxAgreedQuestionView
 from .max_agreed_question_create_view import MaxAgreedQuestionCreateView
 from .max_agreed_question_delete_view import MaxAgreedQuestionDeleteView
 from .max_agreed_question_list_view import MaxAgreedQuestionListView
+from .knowledge_grade_statistic_view import KnowledgeStatisticFormView
 
 __all__ = [
     "AuthorDetailView",
@@ -74,4 +75,6 @@ __all__ = [
     "MaxAgreedQuestionCreateView"
     "MaxAgreedQuestionDeleteView",
     "MaxAgreedQuestionListView",
+    'QuizListView',
+    'KnowledgeStatisticFormView'
 ]
