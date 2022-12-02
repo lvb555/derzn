@@ -13,8 +13,3 @@ class MaxAgreedQuestionDeleteView(DeleteView):
     success_url = reverse_lazy(
         "max_agreed_list"
     )
-
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.delete()
-        return HttpResponseRedirect(reverse("max_agreed_list"))

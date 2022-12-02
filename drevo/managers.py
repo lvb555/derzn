@@ -19,21 +19,3 @@ class CategoryManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().filter(is_published=True)
-
-
-class InterviewAnswerExpertProposalManager(models.Manager):
-    """
-    Manager чтобы удалить сущности InterviewAnswerExpertProposal
-    """
-
-    def get_queryset(self):
-        return super().get_queryset().all()
-
-
-class ProposalDeleteViewManager(models.Manager):
-    """
-    Manager чтобы удалить сущности InterviewAnswerExpertProposal
-    """
-
-    def get_queryset(self):
-        return super().get_queryset().all()

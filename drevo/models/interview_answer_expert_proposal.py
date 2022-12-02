@@ -216,22 +216,26 @@ class InterviewAnswerExpertProposal(models.Model):
             )
         else:
             return InterviewAnswerExpertProposal.objects.get(pk=proposal_pk)
-    
+  
     def check_max_agreed(prop):
+        """
+        Контроль максимально разрешенных чекбоксов (с ответом согласен) эксперта
+        с ответами и предложениями.
+        Возвращает true, если разрешено менять поле is_agree ответов и предложений
+        с false на true. Если число ответов и предложений с is_agree=true 
+        больше max_agreed  - возвращает false.
+        """  
         
-        question = prop.question_id
-        con1 = Q(interview_id=prop.interview_id)
-        con2 = Q(question_id=question)
-        con3 = Q(author_id=prop.expert_id)
-        max_agreed = MaxAgreedQuestion.objects.filter(con1 & con2 & con3)
+        max_agreed = MaxAgreedQuestion.objects.filter(Q(interview_id=prop.interview_id) 
+        & Q(question_id=prop.question_id) 
+        & Q(author_id=prop.expert_id)).first()
         if not max_agreed:
             return True
-        max_agreed = max_agreed[0].max_agreed
-        con4 = Q(expert_id=prop.expert_id)
-        con5 = Q(question=question)
-        con6 = Q(interview=prop.interview_id)
-        con7 = Q(is_agreed=True)
-        current_agreed = InterviewAnswerExpertProposal.objects.filter(con4 & con5 & con6 & con7).count()          
+        max_agreed = max_agreed.max_agreed
+        current_agreed = InterviewAnswerExpertProposal.objects.filter(Q(expert_id=prop.expert_id) 
+        & Q(question=prop.question_id) 
+        & Q(interview=prop.interview_id) 
+        & Q(is_agreed=True)).count()          
 
         if max_agreed <= current_agreed:    
             return False

@@ -5,7 +5,7 @@ from drevo.models import InterviewAnswerExpertProposal
 
 class InterviewAnswerExpertProposalView(DetailView):
     """
-    Удаляет мнение эксперта по ответу на вопрос интервью
+    Отображение мнения эксперта по ответу на вопрос интервью
     """
 
     model = InterviewAnswerExpertProposal

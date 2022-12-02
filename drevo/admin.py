@@ -487,9 +487,7 @@ admin.site.register(FeedMessage)
 admin.site.register(MaxAgreedQuestion)
 
 
-
 admin.site.register(AgeUsersScale)
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
     list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)
-    

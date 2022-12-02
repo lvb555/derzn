@@ -13,15 +13,6 @@ class MaxAgreedQuestionCreateView(LoginRequiredMixin, CreateView):
     template_name = 'drevo/max_agreed_question_create.html'
     success_url = reverse_lazy('max_agreed')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Передаем формы для создания знания и добавления фотографий к знанию
-        if self.request.POST:
-            context['form'] = MaxAgreedQuestionCreateForm(self.request.POST)
-        else:
-            context['form'] = MaxAgreedQuestionCreateForm(self.request.POST)
-        return context
 
     def get(self, request, *args, **kwargs):
         self.object = None

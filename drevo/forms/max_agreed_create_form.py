@@ -16,6 +16,3 @@ class MaxAgreedQuestionCreateForm(forms.ModelForm):
     class Meta:
         model = MaxAgreedQuestion
         exclude = ('id','max_agreed','author',)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
