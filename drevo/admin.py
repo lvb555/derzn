@@ -486,7 +486,6 @@ admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
 admin.site.register(MaxAgreedQuestion)
 
-
 admin.site.register(AgeUsersScale)
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
