@@ -31,6 +31,7 @@ from .views import (
     QuizListView,
 )
 from .views import send_znanie, knowledge_feed_view
+from .views.expert_work.proposal_delete_view import ProposalDeleteView
 from .views.expert_work.views import (
     propose_answer,
     update_answer_proposal,
@@ -98,6 +99,11 @@ urlpatterns = [
         "interview/new_answers/<int:proposal_pk>",
         update_proposed_answer,
         name="update_proposed_answer",
+    ),
+    path(
+        "interview/<int:interview_pk>/questions/<int:question_pk>/<int:pk>",
+        ProposalDeleteView.as_view(),
+        name="delete",
     ),
     path("admin/interview/", AllInterviewView.as_view(), name='all_interview'),
     path("admin/interview/<int:pk>/questions/", InterviewQuestionsView.as_view(), name='interview_quests'),

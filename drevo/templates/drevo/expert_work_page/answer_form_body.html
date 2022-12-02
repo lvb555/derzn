@@ -1,37 +1,39 @@
-<div class="row">
-   <form
+    <form
           hx-boost="true"
           hx-trigger="change delay:500ms"
-          hx-target=".proposal-opinion"
-          hx-select=".proposal-opinion"
+          hx-target=".answer-proposal"
+          hx-select=".answer-proposal"
           class="answer__proposal col"
-          action="{% url 'update_proposed_answer' proposal.id %}"
+          action="{% url 'update_answer_proposal' interview.id question.id answer.id %}"
           method="POST">
-        <div class="proposal-opinion">
-          <div class="col-6">
-             <div class="form-check">
-                    <input type="checkbox" id="opinion_is_agreed"
-                           name="is_agreed"
-                           {% if proposal.is_agreed %} checked {% endif %}
-                           class="form-check-input">
-                    <label for="opinion_is_agreed" class="form-check-label">
-                        С ответом согласен
-                    </label>
+   <div class="answer-opinion">
+    <div class="row mt-2">
+        <div class="col-6">
+            <div class="form-check">
+                <input type="checkbox" id="opinion_is_agreed"
+                       name="is_agreed"
+                       {% if proposal.is_agreed %} checked {% endif %}
+                       class="form-check-input">
+                <label for="opinion_is_agreed" class="form-check-label">
+                    С ответом согласен
+                </label>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="form-check">
+                <input type="checkbox" name="is_incorrect_answer" id="opinion_is_incorrect_answer"
+                       {% if proposal.is_incorrect_answer %} checked {% endif %}
+                       class="form-check-input">
+                <label for="opinion_is_incorrect_answer" class="form-check-label">
+                    Некорректный ответ
+                </label>
+            </div>
             {% csrf_token %}
             {{form.errors}}
-            </div>
-          </div>
         </div>
-    </form>
-            <div class="col-6">
-                            <form  method="POST" action="{% url 'delete' interview_pk=interview.id question_pk=question.id pk=proposal.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>
-                            </form>
-                    <input type="hidden" name="proposal_pk" value="{{proposal.id}}">
-            </div>
-<div class="proposal-opinion"></div>
-</div>
+   </div>
+</form>
+    <div class="answer-proposal"></div>
 {% comment %}
 Данный блок был исключен из обработки т.к. дальнейшая обработка аргументов пока не возможна -->
 <!--

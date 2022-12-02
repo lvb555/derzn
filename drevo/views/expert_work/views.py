@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
+from django.db.models import Q
 
 from drevo import models as orm
 from drevo.views.expert_work.data_loaders import load_interview
@@ -27,6 +28,10 @@ class QuestionExpertWorkPage(TemplateView):
         if context.get("new_answer_form") is None:
             context["new_answer_form"] = NewAnswerFromExpertForm()
         context["interview"] = load_interview(interview_pk)
+
+        max_agreed = orm.Relation.objects.filter(Q(bz_id=question_pk) & Q(tr_id=orm.Tr.objects.get(name="Число ответов").id) & Q(user_id=self.request.user.id)).order_by().last()
+        max_agreed = orm.Znanie.objects.get(id=max_agreed.rz_id)
+        context["max_agreed"] = max_agreed.name
 
         # забираем все ответы по вопросу
         question_raw = get_object_or_404(orm.Znanie, pk=question_pk)
@@ -83,6 +88,14 @@ def propose_answer(req: HttpRequest, interview_pk: int, question_pk: int, **kwar
 
     if form.is_valid():
         status = 201
+        prop = orm.InterviewAnswerExpertProposal()
+        prop.expert_user=req.user
+        prop.interview_id=interview_pk
+        prop.question_id=question_pk
+        can_agreed = orm.InterviewAnswerExpertProposal.check_max_agreed(prop)
+        if not can_agreed:
+            form.cleaned_data["is_agreed"] = False
+
         context["proposal"] = orm.InterviewAnswerExpertProposal.create_new_proposal(
             expert_user=req.user,
             interview_id=interview_pk,
@@ -129,8 +142,13 @@ def update_answer_proposal(
             )
             form.cleaned_data.pop("proposal_pk")
             form.cleaned_data["id"] = prop.pk
+        can_agreed = orm.InterviewAnswerExpertProposal.check_max_agreed(prop)
+        if can_agreed:
+            prop.is_agreed = form.cleaned_data.get("is_agreed", False)
+        else:
+            if not form.cleaned_data.get("is_agreed"):
+                prop.is_agreed = False
 
-        prop.is_agreed = form.cleaned_data.get("is_agreed", False)
         prop.is_incorrect_answer = form.cleaned_data.get("is_incorrect_answer", False)
         prop.save()
 
@@ -165,9 +183,17 @@ def update_proposed_answer(req: HttpRequest, proposal_pk: int):
     )
     if form.is_valid():
         form_data = form.cleaned_data
-        prop.is_agreed = form_data.get("is_agreed", False)
+        can_agreed = orm.InterviewAnswerExpertProposal.check_max_agreed(prop)
+
+        if can_agreed:
+            prop.is_agreed = form.cleaned_data.get("is_agreed", False)
+        else:
+            if not form.cleaned_data.get("is_agreed"):
+                prop.is_agreed = False
+
         prop.is_incorrect_answer = form_data.get("is_incorrect_answer", False)
         prop.save()
+
         form_data["id"] = form_data.pop("proposal_pk", None)
 
     return TemplateResponse(
