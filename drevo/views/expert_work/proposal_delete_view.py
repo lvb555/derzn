@@ -11,4 +11,4 @@ class ProposalDeleteView(DeleteView):
     model = InterviewAnswerExpertProposal
 
     def get_success_url(self):
-        return self.request.META.get('HTTP_REFERER')
+        return self.request.META.get("HTTP_REFERER")

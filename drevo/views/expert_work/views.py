@@ -29,7 +29,15 @@ class QuestionExpertWorkPage(TemplateView):
             context["new_answer_form"] = NewAnswerFromExpertForm()
         context["interview"] = load_interview(interview_pk)
 
-        max_agreed = orm.Relation.objects.filter(Q(bz_id=question_pk) & Q(tr_id=orm.Tr.objects.get(name="Число ответов").id) & Q(user_id=self.request.user.id)).order_by().last()
+        max_agreed = (
+            orm.Relation.objects.filter(
+                Q(bz_id=question_pk)
+                & Q(tr_id=orm.Tr.objects.get(name="Число ответов").id)
+                & Q(user_id=self.request.user.id)
+            )
+            .order_by()
+            .last()
+        )
         max_agreed = orm.Znanie.objects.get(id=max_agreed.rz_id)
         context["max_agreed"] = max_agreed.name
 
@@ -89,9 +97,9 @@ def propose_answer(req: HttpRequest, interview_pk: int, question_pk: int, **kwar
     if form.is_valid():
         status = 201
         prop = orm.InterviewAnswerExpertProposal()
-        prop.expert_user=req.user
-        prop.interview_id=interview_pk
-        prop.question_id=question_pk
+        prop.expert_user = req.user
+        prop.interview_id = interview_pk
+        prop.question_id = question_pk
         can_agreed = orm.InterviewAnswerExpertProposal.check_max_agreed(prop)
         if not can_agreed:
             form.cleaned_data["is_agreed"] = False
