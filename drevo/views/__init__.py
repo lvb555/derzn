@@ -32,6 +32,7 @@ from .znanie_by_label_view import ZnanieByLabelView
 from .znanie_detail_view import ZnanieDetailView
 from .znanie_rating_view import ZnanieRatingView
 from .znanie_send_view import send_znanie
+from .knowledge_grade_statistic_view import KnowledgeStatisticFormView
 
 __all__ = [
     "AuthorDetailView",
@@ -62,4 +63,5 @@ __all__ = [
     "QuestionExpertWorkPage",
     "send_znanie",
     'QuizListView',
+    'KnowledgeStatisticFormView'
 ]

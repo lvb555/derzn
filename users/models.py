@@ -155,6 +155,10 @@ class Profile(models.Model):
             return True
         return False
 
+    class Meta:
+        verbose_name = "Профиль"
+        verbose_name_plural = "Профили"
+
 
 class Favourite(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
