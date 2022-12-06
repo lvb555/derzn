@@ -19,7 +19,7 @@ class Znanie(models.Model):
     """
     title = 'Знание'
     name = models.CharField(
-        max_length=256,
+        max_length=255,
         verbose_name='Тема',
         unique=True
     )
