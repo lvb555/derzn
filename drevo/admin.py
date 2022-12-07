@@ -19,6 +19,7 @@ from drevo.models.friends_invite import FriendsInviteTerm
 from drevo.models.label_feed_message import LabelFeedMessage
 from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
 from drevo.models.developer import Developer
+from drevo.models.quiz_results import QuizResult
 
 from .forms.developer_form import DeveloperForm
 from .forms import (
@@ -351,6 +352,20 @@ class CommentAdmin(admin.ModelAdmin):
 
 admin.site.register(Comment, CommentAdmin)
 
+class QuizResultAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        "quiz",
+        "question",
+        "answer",
+        "user",
+        "date_time",
+    )
+
+    verbose_name = 'Результаты теста'
+    verbose_name_plural = 'Результаты тестов'
+
+
+admin.site.register(QuizResult, QuizResultAdmin)
 
 class KnowledgeGradeScaleAdmin(admin.ModelAdmin):
     list_display = (
