@@ -12,11 +12,30 @@
 
 <h1>Разработчики</h1>
 
+    <li class="nav-item mx-2 dropdown">
+        <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Фильтр</a>
+        <div class="nav-item mx-2 dropdown-menu">
+            {% if filter %}
+            <a class="dropdown-item filter" href="{% url 'developer_page' %}?filter=name">По имени</a>
+            <a class="dropdown-item" href="{% url 'developer_page' %}?filter=contribution">По вкладу</a>
+            {% else %}
+            <a class="dropdown-item" href="{% url 'developer_page' %}?filter=name">По имени</a>
+            <a class="dropdown-item filter" href="{% url 'developer_page' %}?filter=contribution">По вкладу</a>
+            {% endif %}
+        </div>
+    </li>
+
 <ul style="display: inline-block;">
     {% for developer in developers_list %}
-        <li class="developer" style="font-size: 14px;" contribution-data="{{developer.contribution}}" comment-data="{{developer.comment}}">
+    {% if developer.comment %}
+        <li class="developer comment" style="font-size: 14px;" contribution-data="{{developer.contribution}}" comment-data="{{developer.comment}}">
             {{developer.name}} {{developer.surname}}
         </li>
+    {% else %}
+        <li class="developer" style="font-size: 14px;" contribution-data="{{developer.contribution}}">
+            {{developer.name}} {{developer.surname}}
+        </li>
+    {% endif %}
     {% endfor %}
 </ul>
 
@@ -25,7 +44,7 @@
         display: block;
     }
     @media (min-width: 490px){
-        .developer:hover::after {
+        .comment:hover::after {
         content: attr(comment-data);
         position: absolute;
         overflow: hidden;
@@ -38,6 +57,12 @@
         border-radius: 25px;
         padding: 5px 5px;
         }
+    }
+    .nav-item{
+        list-style-type: none;
+    }
+    .filter {
+        background-color: rgba(43, 117, 51, 0.346);
     }
 </style>
 
