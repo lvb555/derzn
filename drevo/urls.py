@@ -7,6 +7,7 @@ from drevo.views.my_interview_view import my_interview_view
 from .views import (
     DrevoListView,
     DrevoView,
+    KnowledgeView,
     ZnanieDetailView,
     ZnanieByLabelView,
     AuthorDetailView,
@@ -62,6 +63,7 @@ urlpatterns = [
     path("authors/", AuthorsListView.as_view(), name="authors"),
     path("labels/", LabelsListView.as_view(), name="labels"),
     path("glossary/", GlossaryListView.as_view(), name="glossary"),
+    path("knowledge/", KnowledgeView.as_view(), name="knowledge"),
     path("search/knowledge", KnowledgeSearchView.as_view(), name="search_knowledge"),
     path("new_knowledge/", NewKnowledgeListView.as_view(), name="new_knowledge"),
     path("search/author", AuthorSearchView.as_view(), name="search_author"),

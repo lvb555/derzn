@@ -1,10 +1,9 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Gabriela&family=Kaisei+Decol:wght@400;500;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Gabriela&family=Kaisei+Decol&family=Rubik:wght@400;500;700&display=swap');
 
 :root {
     --main-bg-color: #083E2F;
-    --main-bg-color-dark: #052F23;
+    --main-bg-color-dark: #083E2F;
     --main-bg-green: #23755E;
     --main-bg-teal: #258989;
 }
@@ -70,4 +69,176 @@ cite{
     font-family: 'Gabriela', serif;
     font-size: 1.1rem;
     color: var(--bs-white);
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255,255,255,.55);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #FFFFFF;
+}
+
+#search_knowledges_link {
+    margin-right: 20px;
+}
+
+.btn-header {
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #083E2F;
+    border-radius: 8px !important;
+}
+
+body {
+  font-family: 'Rubik';
+    font-style: normal;
+}
+
+.header-bottom {
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #212529 !important;
+}
+
+#tree_link img {
+    height: 34px;
+    background: #083e2f;
+    padding: 5px;
+    border-radius: 20px;
+}
+
+.header-bottom-title {
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #212529;
+}
+
+.header-bottom-subtitle {
+    font-weight: 500;
+    font-size: 9px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #6C757D;
+}
+
+.header-bottom .nav-item a{
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #212529;
+    padding: 10px 0px;
+    border-right: 1px solid #DFDFE3;
+}
+
+.header-avatar {
+    border-radius: 5px;
+}
+
+.header .dropdown-menu[data-bs-popper] {
+    right: 0;
+    left: auto;
+    width: 300px
+}
+
+.header .dropdown-item:focus,.header .dropdown-item:hover {
+    color: #1e2125;
+    background-color: #ffffff;
+}
+
+.dropdown-menu-profile {
+    margin: 0;
+    display: flex;
+    padding: 16px;
+    border-bottom: 1px solid #DFDFE3;
+}
+
+.header .dropdown-item a {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #6C757D;
+
+    display: flex;
+    padding: 6px 8px;
+}
+
+.header .dropdown-item {
+    padding: 3px 13px;
+}
+
+.header .dropdown-item a:hover {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #083E2F;
+
+    background: #E7ECEB;
+    border-radius: 7px;
+}
+
+.header-menu-username {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #212529;
+}
+
+.header-menu-email {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #6C757D;
+}
+
+.header-menu::after {
+    display:none;
+}
+
+.exit-button span {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 120%;
+    padding-left: 10px;
+    letter-spacing: 0.02em;
+    color: rgba(224, 31, 39, 0.5);
+}
+
+.exit-button  {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 120%;
+    padding-left: 10px;
+    letter-spacing: 0.02em;
+    color: rgba(224, 31, 39, 0.5);
+
+    border-top: 1px solid #DFDFE3;
+    padding: 10px 14px;
+}
+
+.exit-button a:hover {
+    color: rgba(224, 31, 39, 0.5) !important;
+    background: rgb(224 31 39 / 25%) !important;
+}
+
+footer {
+    font-weight: 400 !important;
+    font-size: 12px !important;
+    line-height: 120% !important;
+    letter-spacing: 0.02em !important;
+    color: #6C757D;
 }
