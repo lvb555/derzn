@@ -152,25 +152,25 @@
                 </div>
 
                 <div class="col row mb-2 mb-lg-0 ms-auto">
-                    <div class="nav-item mx-2 col">
+                    <div class="nav-item mx-2 col-auto">
                         <a class="nav-link auto_active_link" href="{% url 'knowledge' %}" id="tree_link">Дерево знаний</a>
                     </div>
-                    <div class="nav-item mx-2 col">
+                    <div class="nav-item mx-2 col-auto">
                         <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
                            id="authors_link">Авторы знаний</a>
                     </div>
-                    <div class="nav-item mx-2 col">
+                    <div class="nav-item mx-2 col-auto">
                         <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
                     </div>
-                    <div class="nav-item mx-2 col">
+                    <div class="nav-item mx-2 col-auto">
                         <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Подготовка знаний</a>
                     </div>
                     {% if user.is_active and user.is_staff %}
-                    <div class="nav-item col">
+                    <div class="nav-item col-auto">
                         <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Панель управления</a>
                     </div>
                     {% endif%}
-                    <div class="nav-item mx-2 col dropdown">
+                    <div class="nav-item mx-2 col-auto px-2 dropdown">
                             <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
                             <div class="dropdown-menu p-3">
                                 <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a>
