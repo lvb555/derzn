@@ -29,14 +29,13 @@ from .new_knowledge_list_view import NewKnowledgeListView
 from .search_author_view import AuthorSearchView
 from .search_knowledge_view import KnowledgeSearchView
 from .search_tag_view import TagSearchView
-from .subscribe_to_author_view import SubscribeToAuthor
 from .znanie_by_label_view import ZnanieByLabelView
 from .znanie_detail_view import ZnanieDetailView
 from .znanie_rating_view import ZnanieRatingView
 from .znanie_send_view import send_znanie
+from .knowledge_grade_statistic_view import KnowledgeStatisticFormView
 
 __all__ = [
-    "SubscribeToAuthor",
     "AuthorDetailView",
     "AuthorsListView",
     "CommentPageView",
@@ -66,4 +65,5 @@ __all__ = [
     "QuestionExpertWorkPage",
     "send_znanie",
     'QuizListView',
+    'KnowledgeStatisticFormView'
 ]

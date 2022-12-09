@@ -1,8 +1,0 @@
----
-- name: main installation
-  hosts: prod
-  tasks:
-    - include: ./tasks/main.yaml
-
-  vars:
-    install_dir: /home/u1353596/www/derzn.ru/dz

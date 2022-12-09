@@ -6,8 +6,14 @@ class GlossaryTerm(models.Model):
     Класс для описания термина глоссария
     """
     title = 'Термин глоссария'
+    order = models.PositiveIntegerField(
+        verbose_name='Порядок',
+        help_text='Укажите порядковый номер',
+        null=True,
+        blank=True
+    )
     name = models.CharField(
-        max_length=256,
+        max_length=255,
         verbose_name='Термин',
         unique=True
     )
@@ -38,4 +44,4 @@ class GlossaryTerm(models.Model):
     class Meta:
         verbose_name = 'Термин глоссария'
         verbose_name_plural = 'Термины глоссария'
-        ordering = ('name',)
+        ordering = ('order', 'name', )

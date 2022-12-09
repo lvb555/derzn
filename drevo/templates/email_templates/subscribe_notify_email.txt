@@ -1,0 +1,7 @@
+Уважаемый {{ appeal }} {{ patr }}!
+
+{{ date_with_month }} было создано новое знание {{ instance.name }}:
+Ссылка на знание: {{ author_publication_url }}
+Автор: {{ instance.author }}
+
+Администрация портала "Дерево знаний"

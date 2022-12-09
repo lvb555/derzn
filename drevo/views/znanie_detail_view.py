@@ -1,7 +1,8 @@
 from django.views.generic import DetailView
 from datetime import datetime
+from drevo.models.label_feed_message import LabelFeedMessage
 
-from users.models import Favourite
+from users.models import Favourite, User
 from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory, Tz
 from loguru import logger
 from ..relations_tree import (get_category_for_knowledge, get_ancestors_for_knowledge,
@@ -126,13 +127,32 @@ class ZnanieDetailView(DetailView):
                 for item in relations:
 
                     context['all_answers_and_questions'][str(item.rz)] = get_children_for_knowledge(
-                        item.rz)
+                        item.rz).order_by('-pk')
                     grandson = get_children_by_relation_type_for_knowledge(
                         item.rz)
 
                     for question, answer in grandson.items():
                         if question.pk == 26:
                             context['right_answer'][str(item.rz)] = answer
+            context['all_answers_and_questions'] = dict(sorted(context['all_answers_and_questions'].items(),
+                                                               key=lambda a: a, reverse=True))
 
+
+        labels = LabelFeedMessage.objects.all()
+        context['labels'] = labels
+
+        # создание списка для отображения в блоке отправления
+        try:
+            user = User.objects.get(id = self.request.user.id)
+            my_friends = user.user_friends.all().prefetch_related('profile') # те, кто в друзьях у меня
+            i_in_friends = user.users_friends.all().prefetch_related('profile') # те, у кого я в друзьях
+            
+            all_friends = my_friends.union(i_in_friends, all=False)
+            context['friends'] = all_friends
+            context['friends_count'] = len(all_friends)
+        
+        # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
+        except TypeError:
+            pass
 
         return context
