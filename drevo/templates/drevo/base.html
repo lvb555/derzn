@@ -23,7 +23,8 @@
 <body class="d-flex flex-column min-vh-100">
 
 <!-- Navigation bar start -->
-    <div class="container-fluid sticky-top header" style="background-color: var(--main-bg-color-dark); height: 78px;">
+<div class="sticky-top">
+    <div class="container-fluid header" style="background-color: var(--main-bg-color-dark); height: 78px;">
         <div class="container" style="display: grid; align-content: center; height: 100%;">
             <nav class="navbar navbar-expand-md navbar-dark">
                 <div class="container-fluid">
@@ -128,10 +129,10 @@
     </div>
     <div class="container-fluid header-bottom" style="background-color: #FFFFFF; height: 104px;">
         <div class="container" style="display: grid; align-content: center; height: 100%;">
-            <div class="container-fluid row">
+            <div class="container-fluid row p-0">
                 <div class="col-auto me-auto">
                     <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
-                        <li class="nav-item mx-2 row">
+                        <li class="nav-item row">
                             <div class="logo me-2 col-auto">
                                 <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
                                     <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height='46px' alt="logo-tree">
@@ -149,7 +150,7 @@
                     </ul>
                 </div>
 
-                <div class="col row mb-2 mb-lg-0 ms-auto">
+                <div class="col row mb-2 mb-lg-0 ms-auto" style="justify-content: end;">
                     <div class="nav-item mx-2 col-auto">
                         <a class="nav-link auto_active_link" href="{% url 'knowledge' %}" id="tree_link">Дерево знаний</a>
                     </div>
@@ -237,6 +238,8 @@
             </div>
         </div>
     </div>
+</div>
+
 <!-- Navigation bar end -->
 
 <div class="container-fluid px-0">
