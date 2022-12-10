@@ -209,7 +209,6 @@ function next_block(){
           }
         sum_of_answers = p.reduce((partialSum, a) => partialSum + a, 0);
         result += sum_of_answers;
-
         let trs = document.getElementById(lst2[d]+'2');
         let td = trs.querySelectorAll('td');
         if((~~((sum_of_answers*100)/countans)) > 90){
