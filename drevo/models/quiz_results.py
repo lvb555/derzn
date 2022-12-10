@@ -8,7 +8,7 @@ class QuizResult(models.Model):
     """
     Таблица для хранения результатов теста
     """
-    quiz = models.ForeignKey(Znanie, verbose_name='Тест', related_name='passed_quiz', on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Znanie, verbose_name='Тест', related_name='passed_quizzes', on_delete=models.CASCADE)
     question = models.ForeignKey(Znanie, verbose_name='Вопрос', related_name='questions_in_quiz', on_delete=models.CASCADE)
     answer = models.ForeignKey(Znanie, verbose_name='Ответ', related_name='answers_in_quiz', on_delete=models.CASCADE)
     user = models.ForeignKey(User, verbose_name='Тестируемый', related_name='quiz_results', on_delete=models.CASCADE)
