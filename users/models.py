@@ -17,13 +17,15 @@ class User(AbstractUser):
         unique=True,
         verbose_name="Адрес эл. почты",
     )
-
+    first_name = models.CharField(max_length=150, verbose_name='Имя')
+    last_name = models.CharField( max_length=150, verbose_name='Фамилия')
     is_expert = models.BooleanField(default=False, verbose_name='Эксперт')
     is_redactor = models.BooleanField(default=False, verbose_name='Редактор')
     is_director = models.BooleanField(default=False, verbose_name='Руководитель')
     in_klz = models.BooleanField(default=False, verbose_name='Член КЛЗ')
 
     date_joined = last_login = None
+    user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True)
 
     def __str__(self):
         return self.username
@@ -152,6 +154,10 @@ class Profile(models.Model):
         ):
             return True
         return False
+
+    class Meta:
+        verbose_name = "Профиль"
+        verbose_name_plural = "Профили"
 
 
 class Favourite(models.Model):

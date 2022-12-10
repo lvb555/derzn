@@ -1,0 +1,101 @@
+.open-popup {
+    text-decoration: none;
+    color: black;
+}
+
+.open-popup:hover, .open-popup:active {
+    color: black;
+}
+
+.popup-info {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.popup__bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.5s all;
+}
+
+.popup__bg.active {
+    opacity: 1;
+    pointer-events: all;
+    transition: 0.5s all;
+    z-index: 999;
+}
+
+.popup {
+    border-radius: 16px;
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: #fff;
+    width: 550px;
+    height: 600px;
+    padding: 25px;
+    transition: 0.5s all;
+    overflow-y: scroll;
+}
+
+@media (max-width: 500px) {
+    .popup {
+      width: 90%;
+    }
+  }
+
+.popup.active {
+    transform: translate(-50%, -50%) scale(1);
+    transition: 0.5s all;
+}
+
+.close-popup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+.popup input[type = 'submit'] {
+    width: 90%;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    border: 2px solid #065c44;
+    background: #065c44;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.5s all;
+}
+
+.popup input[type = 'submit']:hover, .popup input[type = 'submit']:active {
+    width: 90%;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    border: 2px solid #052F23;
+    background: #052F23;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.5s all;
+}
+
+
+.stop-scrolling {
+    height: 100%;
+    overflow: hidden;
+}

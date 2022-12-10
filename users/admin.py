@@ -24,7 +24,7 @@ class UserAdmin(BaseUserAdmin):
         (
             None,
             {
-                'fields': ('username', 'password')
+                'fields': ('username', 'password', 'user_friends')
             }
         ),
         (
@@ -50,3 +50,19 @@ class UserAdmin(BaseUserAdmin):
             }
         )
     )
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'user_first_name', 'user_last_name', 'user_email', 'gender', 'birthday_at')
+    list_editable = ('gender', 'birthday_at')
+
+    def user_first_name(self, obj):
+        return obj.user.first_name
+    user_first_name.short_description = 'Имя'
+
+    def user_last_name(self, obj):
+        return obj.user.last_name
+    user_last_name.short_description = 'Фамилия'
+
+    def user_email(self, obj):
+        return obj.user.email
+    user_email.short_description = "Email"

@@ -6,76 +6,369 @@
 
 {% block content %}
 
-
-<h2>Лента знаний {% if unread %} <a class="btn btn-primary btn-sm">{{ unread }}</a> {% endif %}</h2>
-
-
-{% block cssfiles %}
-<link rel="stylesheet" href="{% static '/drevo/css/search.css' %}">
-{% endblock %}
-
-<div class="container mt-3">
-    {% for message in messages %}
-        <div class="card text-center mt-3" style="border-top: 1px solid #083E2F">
-            <div class="card-header d-flex justify-content-around" style="display: flex; align-items: center">
-                <div style="display: flex; align-items: center">
-                    <form method="GET" action="">
-                        {% csrf_token %}
-                        {% if message.was_read %}
-                            <input aria-checked="true" type="checkbox" class="message-checkbox" value="{{message.id}}" checked>Прочитано
-                        {% else %}
-                            <input aria-checked="false" type="checkbox" class="message-checkbox" value="{{message.id}}">Прочитано
-                        {% endif %}
-                    </form>
-                </div>
-                <div class="d-flex justify-content-center" style="display: flex; align-items: center">
-                    {% if message.sender.profile.avatar %}
-                        <img src="{{ message.sender.profile.avatar.url }}" class="rounded-circle" height="50px" width="50px">
-                    {% endif %}
-                    <h6 class="ms-2">{{message.sender.first_name}} {{message.sender.last_name}}</h6>
-                </div>
-                <h6>{{message.label.name}}</h6>
-            </div>
-            <div class="card-body">
-                <h5 class="card-title text-end">{{item.znanie.tz.name}}</h5>
-                <div style="border: 1px solid #212121">
-                    <a href="{% url 'zdetail' message.znanie.id %}" style="text-decoration: none; color: #212121"><p class="card-text mb-5">{{message.znanie.name}}</p></a>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <p class="text-start mt-3">- {{message.text}}</p>
-                    <p class="text-end">{{message.get_time}}</p>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <a href="{% url 'send_to_feed' message.znanie.id %}" style="text-decoration: none; color: #212121"><i class="cart-icon material-icons text-success">reply</i>Переслать</a>
-                    <a href="{% url 'delete_message' message.id %}" class="delete-message" style="text-decoration: none; color: #212121"><i class="cart-icon material-icons text-danger">delete</i>Удалить</a>
+{% if not user.is_authenticated %}
+        <div class="col">
+            <div class="row">
+                <div class="card alert-warning my-4">
+                    <div class="card-body">
+                      <span class="card-text">
+                        <a href="{% url 'users:login' %}?next={{ request.path }}"
+                           style="text-decoration: none">Войдите</a>
+                        или
+                        <a href="{% url 'users:register' %}?next={{ request.path }}" style="text-decoration: none">зарегистрируйтесь</a>,
+                        чтобы поставить оценку.
+                      </span>
+                    </div>
                 </div>
             </div>
         </div>
-    {% endfor %}
-</div>
+{% else %}
+    <div style="display:none" id="success-alert" class="alert alert-success">
+        Сообщение отправлено!
+    </div>
+    <div class="d-grid gap-2 d-md-block">
+        <h2>Лента знаний 
+            <a class="btn btn-primary btn-sm"><span id="countUnread">{{ unread }}</span></a>
+        </h2>
+        <div id="div-switcher" class="form-check form-switch">
+            <input class="form-check-input shadow-none" type="checkbox" id="flexSwitchCheckChecked">
+            <label class="form-check-label" for="flexSwitchCheckChecked">Непрочитанные</label>
+        </div>
+        <a href="{% url 'friends' %}" class="btn btn-primary btn-sm shadow-none mb-1 mt-2" type="button">Назад</a><br>
+    </div>
+
+
+    {% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/knowledge-feed.css' %}">
+    {% endblock %}
+
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="{% if message.was_read %} card was_read text-center mt-3 {% else %} card text-center mt-3 {% endif %}" style = "border-top: 1px solid #083E2F;">
+                <div class="card-header d-flex justify-content-around" style="display: flex; align-items: center">
+                    <div style="display: flex; align-items: center">
+                        <form method="GET" action="" class="form-check form-switch">
+                            {% csrf_token %}
+                            {% if message.was_read %}
+                                <input aria-checked="true" type="checkbox" class="shadow-none form-check-input message-checkbox" value="{{message.id}}" checked>Прочитано
+                            {% else %}
+                                <input aria-checked="false" type="checkbox" class="shadow-none form-check-input message-checkbox" value="{{message.id}}">Прочитано
+                            {% endif %}
+                        </form>
+                    </div>
+                    <div class="d-flex justify-content-center" style="display: flex; align-items: center">
+                        {% if message.sender.profile.avatar %}
+                            <img src="{{ message.sender.profile.avatar.url }}" class="rounded-circle" height="50px" width="50px">
+                                {% else %}
+                            <img src="{% static 'src/default_avatar.jpg' %}" class="rounded-circle" height="50px" width="50px">
+                        {% endif %}
+                        <h6 class="ms-2">{{message.sender.first_name}} {{message.sender.last_name}}</h6>
+                    </div>
+                    <h6>{{message.label.name}}</h6>
+                </div>
+                
+                <div class="card-body">
+                    <p class="text-end">{{message.znanie.tz}}</p>
+                    <div style="border: 1px solid #212121">
+                        <a href="{% url 'zdetail' message.znanie.id %}" style="text-decoration: none; color: #212121"><p class="card-text mb-5">{{message.znanie.name}}</p></a>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <p class="text-start mt-3">- {{message.text}}</p>
+                        <p class="text-end">{{message.get_time}}</p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a class="btn open-popup"><i class="cart-icon material-icons text-success">reply</i>Переслать</a>
+
+                        <div class="popup__bg">
+                            <form class="popup" method="post" id="feedmessage_form" novalidate" onsubmit="return false;">
+                                {% csrf_token %}
+                                <svg class="close-popup" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#052F23" d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/></svg>
+                                <div class="d-flex justify-content-around">
+                                    <input type="submit" value="Отправить" name="_save" class="btn shadow-none send_message_btn">
+                                </div>
+
+                                <div class="mt-1">
+                                    <label for="znanie">Знание:</label>
+                                    <h1 name="znanie" required id="id_znanie" class="form-text">{{message.znanie.name}}</h1>
+                                </div>
+
+                                <div class="mt-3">
+                                    <label>Ярлык:</label>
+                                    <select class="form-select shadow-none" name="label" required id="id_label">
+                                        <option value="" selected>------</option>
+                                        {% for label in labels %}
+                                            <option value="{{label.id}}">{{label.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="mt-3 col-auto message-text">
+                                    <label class="col-form-label">Текст письма:</label>
+                                    <textarea name="text" cols="40" rows="10" class="vLargeTextField form-control shadow-none" maxlength="511" required id="id_text"></textarea>
+                                </div>
+                                {% if form.errors.text %}
+                                    <ul>
+                                        {{form.errors.text}}
+                                    </ul>
+                                {% endif %}
+
+                                <div>
+                                    {% if friends_count > 0 %}
+                                        <p class="text-start">Получатели</p>
+                                        <div class="d-flex">
+                                            <input type="checkbox" class="form-check-input shadow-none all_friends"> Все друзья
+                                        </div>
+                                        {% for friend in friends %}
+                                            <div class="d-flex mt-2">
+                                                <input type="checkbox" value="{{friend.id}}" class="me-1 form-check-input shadow-none checkbox">
+                                                {% if friend.profile.avatar %}
+                                                    <img src="{{ friend.profile.avatar.url }}" class="rounded-circle" height="30px" width="30px">
+                                                {% else %}
+                                                    <img src="{% static 'src/default_avatar.jpg' %}" class="rounded-circle"  height="30px" width="30px">
+                                                {% endif %}
+                                                <p class="ms-1">{{friend.first_name}} {{friend.last_name}}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="text-start text-danger">У Вас пока нет друзей, чтобы отправить им сообщение</p>
+                                    {% endif %}
+                                </div>
+                            </form>
+                        </div>
+
+                        <a href="{% url 'delete_message' message.id %}" class="delete-message" style="text-decoration: none; color: #212121"><i class="cart-icon material-icons text-danger">delete</i>Удалить</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // обработка открытия и закрытия модального окна
+        
+        var popupBgs = document.querySelectorAll('.popup__bg');
+        var popupBg = document.querySelector('.popup__bg');
+        var popups = document.querySelectorAll('.popup');
+        var openPopupButtons = document.querySelectorAll('.open-popup');
+        var closePopupButtons = document.querySelectorAll('.close-popup');
+
+        Array.from(openPopupButtons).forEach((button) => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                var index = 0;
+                var len = openPopupButtons.length;
+                for (var i = 0; i < len; i++) {
+                    if (button == openPopupButtons[i]) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                popupBgs[index].classList.add('active');
+                popups[index].classList.add('active');
+                document.body.classList.add("stop-scrolling");
+            })
+        });
+
+        Array.from(closePopupButtons).forEach((button) => {
+            button.addEventListener('click', (e) => {
+
+                var index = 0;
+                var len = closePopupButtons.length;
+                for (var i = 0; i < len; i++) {
+                    if (button == closePopupButtons[i]) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                popupBgs[index].classList.remove('active');
+                popups[index].classList.remove('active');
+                document.body.classList.remove("stop-scrolling");
+            })
+        });
+
+    </script>
+    
+    <script>
+        // проверка, надо ли показывать "Счетчик непрочитанных сообщений" 
+        // если непрочитанных = 0, то счетчик скрывается
+        // вызывается после изменения чек-бокса "Прочитано" у каждого сообщения
+
+        function check_count_unread_value() {
+            var count_unread = document.getElementById('countUnread');
+            if(Number(count_unread.innerHTML) == 0) {
+                count_unread.parentElement.style.display = "none";
+            }
+            else {
+                count_unread.parentElement.style.display = "";
+            }
+        }
+    </script>
+
+    <script>
+        // при загрузке окна проверить, надо ли показывать счетчик
+        // если непрочитанных сообщений = 0, то автоматом скрыть, чтоб потом была возможность показать
+
+        // при загрузке окна проверить, надо ли показывать переключатель "Непрочитанные"
+        // если входящих сообщений = 0, то скрыть
+
+        window.onload = check_count_unread_value();
+        var all_messages = document.getElementsByClassName("card");
+        if(all_messages.length < 1) {
+            var div_switcher = document.getElementById('div-switcher');
+            div_switcher.style.display = "none";
+        }
+    </script>
+
+    <script>
+        // обработка клика на чек-бокс "Прочитано" для каждого сообщения
+
+        var all_checkboxes = document.getElementsByClassName('message-checkbox');
+
+        // ajax-запрос на изменение значения was_read выбранного сообщения 
+        Array.from(all_checkboxes).forEach(element => {
+            element.onchange = function(event) {
+                event.preventDefault();
+                $.ajax({ 
+                url:  `{% url 'knowledge_feed' %}`, 
+                type: 'POST', 
+                data: {csrfmiddlewaretoken: '{{ csrf_token }}', "message_id": element.value, "task": "read_message"},
+                error: function(data){
+                    element.checked = data.done;
+                    alert(data.status);
+                    alert(data.responseJSON.error);
+                }
+                }).done(function(data) {
+
+                    var count_unread = document.getElementById('countUnread');
+
+                    if (element.checked) {
+                        count_unread.innerHTML = Number(count_unread.innerHTML) - 1;
+                        check_count_unread_value();
+                    }
+                    else {
+                        count_unread.innerHTML = Number(count_unread.innerHTML) + 1;
+                        check_count_unread_value();
+                    }
+                });
+            }
+        });
+    </script>
+
+    <script>
+        // обработка переключателя "Прочитанные"
+
+        var was_read_messages = document.getElementsByClassName('was_read');
+
+        var switcher = document.getElementById("flexSwitchCheckChecked");
+        switcher.onchange = function() {
+            if(switcher.checked) {
+                Array.from(was_read_messages).forEach(element => {
+                    element.style.display = "none";
+                })
+            }
+
+            else {
+                Array.from(was_read_messages).forEach(element => {
+                    element.style.display = "";
+                })
+            }
+        }
+    </script>
 
 <script>
-    var all_checkboxes = document.getElementsByClassName('message-checkbox'); // все чекбоксы сообщений
+    var all_checkboxes = document.getElementsByClassName('checkbox'); // все чекбоксы отдельных друзей
+    var friends_ids_array = []; // массив для передачи выбранных друзей в django view
+    var checkboxes_all_friends = document.getElementsByClassName('all_friends'); // чекбоксы "Все друзья"
+    var send_message_btns = document.getElementsByClassName('send_message_btn'); // кнопка отправки сообщения
 
-    // ajax-запрос на изменение значения was_read выбранного сообщения 
+    // добавление id каждого чекбокса и друга в массив
     Array.from(all_checkboxes).forEach(element => {
-        element.onchange = function(event) {
-            event.preventDefault();
-            $.ajax({ 
-            url:  `{% url 'knowledge_feed' %}`, 
-            type: 'POST', 
-            data: {csrfmiddlewaretoken: '{{ csrf_token }}', "message_id": element.value},
-            succes: function(data) {
-                element.checked = data.done;
-            },
-            error: function(data){
-                alert(data.status); // статус ошибки
-                alert(data.responseJSON.error); // текст ошибки
-                element.checked = data.done;
+        element.onchange = function() {
+
+            // если уже есть id в массиве - удалить
+            if(friends_ids_array.includes(Number(element.value))) {
+                var index = friends_ids_array.indexOf(Number(element.value));
+                friends_ids_array.splice(index, 1);
             }
-            });
+
+            // если id нет в массиве - добавить
+            else {
+                friends_ids_array.push(Number(element.value));
+            }
         }
     });
+
+    // нажатие на чек-бокс "Все друзья"
+    Array.from(checkboxes_all_friends).forEach(element => {
+        element.onchange = function() {
+            // очистка массива id
+            friends_ids_array = [];
+
+            // если чекбокс прожат
+            if(element.checked) {
+                
+                // добавление всех id всех чекбоксов в массив
+                for (var i = 0; i < all_checkboxes.length; i++) {
+                    if(!friends_ids_array.includes(Number(all_checkboxes[i].value))) {
+                        friends_ids_array.push(Number(all_checkboxes[i].value));
+                    }
+                }
+
+                // включение всех чекбоксов 
+                for (var i = 0; i < all_checkboxes.length; i++) {
+                    all_checkboxes[i].checked = true;
+                }
+            }
+
+            // если чекбокс не прожат
+            else {
+                // выключение всех чекбоксов
+                for (var i = 0; i < all_checkboxes.length; i++) {
+                    all_checkboxes[i].checked = false;
+                }
+            }
+        }
+    })
+
+    Array.from(send_message_btns).forEach(element => {
+        element.addEventListener('click', function() {
+
+        // получение элементов формы, которые идут сразу после нажатой кнопки
+        var text = element.parentElement.parentElement.querySelector("textarea").value;      
+        var label_id = element.parentElement.parentElement.querySelector("select").value;       
+        var znanie_name = element.parentElement.parentElement.querySelector("h1").innerHTML;
+
+        if(!(text == '') & friends_ids_array.length > 0) {
+            // ajax-запрос в базу данных, передаю текст сообщения, ярлык и список пользователей-получателей сообщения
+            $.ajax({ 
+                url:  `{% url 'knowledge_feed' %}`, 
+                type: 'POST', 
+                data: {csrfmiddlewaretoken: '{{ csrf_token }}', "text": text, "label_id": label_id, 
+                    "send_to_ids[]": friends_ids_array, "znanie_name": znanie_name, "task": "send_message"},
+                error: function(data){
+                    alert(data.responseJSON.error); // текст ошибки
+
+                }}).done(function(data) {
+                    var popup = document.getElementsByClassName("popup__bg active");
+                    var popupBg = document.querySelector('.popup__bg');
+                    Array.from(popup).forEach(p => {
+                        p.classList.remove('active')});
+                    popupBg.classList.remove('active');
+
+                    var success_alert = document.getElementById("success-alert");
+                    success_alert.innerHTML = "Знание успешно отправлено!";
+                    success_alert.style.display = "";
+                    friends_ids_array = [];
+                    document.body.classList.remove("stop-scrolling");
+                });
+            }
+        })
+    })
+
 </script>
+{% endif %}
 
 {% endblock %}
