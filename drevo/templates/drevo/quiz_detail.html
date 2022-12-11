@@ -273,16 +273,9 @@ function keyCounter(question){
 
 function onButtonSendClick(){
     next_block();
-    for (const [key, value] of Object.entries(dict_to_send)) {
-        for(let i = 0; i < value.length; i++){
-            sendQuizResult(value[i],key);
-        }
-    }
-}
 
-function sendQuizResult(answer,question) {
     $.ajax({
-        data: {'answer_pk': +(answer),'question_pk': +(question)},
+        data: { 'values' : JSON.stringify(dict_to_send) },
         url: document.location.pathname + '/quiz_result/',
         success: function (response) {
         }
