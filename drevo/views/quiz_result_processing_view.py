@@ -23,13 +23,11 @@ class QuizResultAdd(ProcessFormView):
                 dict_ = json.loads(request.GET.get('values'))
                 for a, b in dict_.items():
                     for i in b:
-                        question = get_object_or_404(Znanie, id=int(a))
-                        answer = get_object_or_404(Znanie, id=int(i))
                         QuizResult.objects.create(
                             quiz=quiz,
-                            question=question,
+                            question=get_object_or_404(Znanie, id=int(a)),
                             user=user,
-                            answer=answer,
+                            answer=get_object_or_404(Znanie, id=int(i)),
                         )
 
                 return JsonResponse({}, status=200)
