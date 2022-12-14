@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import AccessMixin
 from django.db.models import Q
 from django.forms import modelformset_factory
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, UpdateView
 from ...models import Relation, Tz, Author, Tr
 from ...models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from ...models.knowledge import Znanie
@@ -15,7 +16,7 @@ from .interview_result_senders import (send_duplicate_answer_proposal,
                                        send_not_accept_proposal,
                                        send_duplicate_proposal,
                                        send_new_answers)
-
+from ...forms.knowledge_form import ZnanieForm
 
 def chek_is_stuff(user) -> None:
     if not user.is_staff:
@@ -191,6 +192,13 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     if obj.is_agreed:
                         obj.answer = new_knowledge
                     send_accept_proposal(proposal_obj=obj)
+                    obj.admin_reviewer = request.user
+                    obj.save()
+                    redirect_url = reverse(
+                        'admin_knowledge_edit',
+                        kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk, 'znanie_pk': new_knowledge.pk}
+                    )
+                    return redirect(redirect_url)
 
                 # Если админ указал только ответ из списка существующих/новых ответов, то статус устанавливается сам,
                 if not status and answer:
@@ -242,3 +250,32 @@ def question_admin_work_view(request, inter_pk, quest_pk):
         context['is_saved'] = request.session['is_saved']
         del request.session['is_saved']
     return render(request, 'drevo/admin_interview_work_page/question_admin_work.html', context)
+
+
+class AdminEditingKnowledgeView(UpdateView):
+    model = Znanie
+    template_name = 'drevo/admin_interview_work_page/editing_knowledge.html'
+    form_class = ZnanieForm
+    pk_url_kwarg = 'znanie_pk'
+
+    def get_success_url(self):
+        inter_pk, quest_pk = self.kwargs.get('inter_pk'), self.kwargs.get('quest_pk')
+        return reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})
+
+    def dispatch(self, request, *args, **kwargs):
+        chek_is_stuff(request.user)
+        return super(AdminEditingKnowledgeView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(AdminEditingKnowledgeView, self).get_context_data(**kwargs)
+        interview = Znanie.objects.get(pk=self.kwargs.get('inter_pk'))
+        question = Znanie.objects.get(pk=self.kwargs.get('quest_pk'))
+        context['knowledge_name'] = self.object.name
+        context['interview_name'] = interview.name
+        context['question_name'] = question.name
+        form = self.form_class(instance=self.object)
+        for field in form.fields:
+            if field not in ['is_published', 'is_send']:
+                form.fields[field].widget.attrs['class'] = 'form-control'
+        context['form'] = form
+        return context
