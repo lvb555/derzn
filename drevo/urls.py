@@ -29,6 +29,7 @@ from .views import (
     friends_invite_view,
     KnowledgeFormView,
     QuizListView,
+    QuizResultAdd,
     KnowledgeStatisticFormView,
 )
 from .views import send_znanie, knowledge_feed_view
@@ -63,6 +64,7 @@ urlpatterns = [
     path("znanie/<int:pk>/grade/", KnowledgeFormView.as_view(), name="grade"),
     path('znanie/<int:pk>/grade/statistic', KnowledgeStatisticFormView.as_view(), name='grade_statistic'),
     path("all_quizzes/", QuizListView.as_view(), name="all_quizzes"),
+    path("znanie/<int:pk>/quiz_result/", QuizResultAdd.as_view()),
     path("label/<int:pk>", ZnanieByLabelView.as_view(), name="zlabel"),
     path("author/<int:pk>", AuthorDetailView.as_view(), name="author"),
     path("authors/", AuthorsListView.as_view(), name="authors"),
