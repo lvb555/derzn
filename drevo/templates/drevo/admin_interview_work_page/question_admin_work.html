@@ -124,6 +124,22 @@
    tr {border:2px solid black;}
 </style>
 
+
+<!-- Модальное окно -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-dark" style="background-color:#5ad65a;">
+            <div class="modal-body text-center">
+                <h5 class="modal-title" id="authModalLabel">
+                    Сохранение успешно завершено!
+<!--                    <span class="badge">-->
+<!--                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>-->
+<!--                    </span>-->
+                </h5>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 
@@ -142,5 +158,12 @@
             form.submit()
         }
     }))
+</script>
+<script type="text/javascript">
+if ("{{ is_saved }}") {
+  $(window).on('load', function() {
+        $('#authModal').modal('show');
+    });
+}
 </script>
 {% endblock %}

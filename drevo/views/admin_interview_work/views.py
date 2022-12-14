@@ -222,7 +222,8 @@ def question_admin_work_view(request, inter_pk, quest_pk):
 
             # Если по вопросу имеется новый ответ/ответы, то происходит рассылка участникам интервью по данному вопросу
             start_mass_mail_sending()
-
+            if 'save_input' in request.POST:
+                request.session['is_saved'] = True
             redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
             if context.get('cur_filter'):
                 get_params = f"?filter={context.get('cur_filter')}"
@@ -237,4 +238,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     context['formset'] = formset
     context['backup_url'] = reverse_lazy('interview_quests', kwargs={'pk': inter_pk})
     context['props_without_status'] = queryset.filter(status__isnull=True).exists()
+    if 'is_saved' in request.session.keys():
+        context['is_saved'] = request.session['is_saved']
+        del request.session['is_saved']
     return render(request, 'drevo/admin_interview_work_page/question_admin_work.html', context)
