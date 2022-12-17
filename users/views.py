@@ -145,9 +145,11 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
         context['profile_form'] = ProfileModelForm(
             instance=Profile.objects.get(user=self.object)
         )
-        if QuizResult.objects.filter(user=self.object).exists():
-            context['quiz_result'] = {}
-            all_results = QuizResult.objects.filter(user=self.object)
+        context['quiz_result'] = {}
+        all_results = QuizResult.objects.filter(user=self.object)
+        if not all_results:
+            return
+        else:
             all_quizzes_name = all_results.values_list("quiz__name", flat=True).distinct()
             for quizzes in all_quizzes_name:
                 questions_and_answers = {}
