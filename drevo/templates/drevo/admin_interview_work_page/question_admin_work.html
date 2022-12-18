@@ -19,11 +19,12 @@
     <br>
     <div class="row">
         <div class="col">
-            <h3>Интервью: {{ interview_name }}</h3>
-            <h3>Вопрос: {{ question_name }}</h3>
+            <h3>Интервью: {{ interview.name }}</h3>
+            <h3>Вопрос: {{ question.name }}</h3>
         </div>
         <div class="col">
             <h3>Период: {{ period }}</h3>
+            <a href="{% url 'admin_notify_experts' inter_pk=interview.pk quest_pk=question.pk %}" class="btn btn-warning">Оповестить экспертов о результатах интервью</a>
         </div>
     </div>
 
@@ -132,6 +133,7 @@
             <div class="modal-body text-center">
                 <h5 class="modal-title" id="authModalLabel">
                     Сохранение успешно завершено!
+                    <a href="{% url 'admin_notify_experts' inter_pk=interview.pk quest_pk=question.pk %}" class="btn btn-warning">Оповестить экспертов о результатах интервью?</a>
 <!--                    <span class="badge">-->
 <!--                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>-->
 <!--                    </span>-->

@@ -1,22 +1,18 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import AccessMixin
 from django.db.models import Q
 from django.forms import modelformset_factory
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, DetailView, UpdateView
+from django.views.generic import ListView, DetailView, UpdateView, RedirectView
 from ...models import Relation, Tz, Author, Tr
 from ...models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from ...models.knowledge import Znanie
 from ...forms.admin_interview_work_form import InterviewAnswerExpertProposalForms
-from .interview_result_senders import (send_duplicate_answer_proposal,
-                                       send_accept_proposal,
-                                       send_not_accept_proposal,
-                                       send_duplicate_proposal,
-                                       send_new_answers)
+from .interview_result_senders import InterviewResultSender
 from ...forms.knowledge_form import ZnanieForm
+
 
 def chek_is_stuff(user) -> None:
     if not user.is_staff:
@@ -105,13 +101,13 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     chek_is_stuff(request.user)
     context = dict()
     interview = Znanie.objects.values('pk', 'name').get(pk=inter_pk)
-    context['interview_name'] = interview.get('name')
+    context['interview'] = interview
     period = Relation.objects.select_related('tr', 'rz').filter(
         Q(bz__pk=interview.get('pk')) & Q(tr__name='Период интервью')
     ).first().rz.name
 
-    question = Znanie.objects.values('name').get(pk=quest_pk)
-    context['question_name'] = question.get('name')
+    question = Znanie.objects.values('pk', 'name').get(pk=quest_pk)
+    context['question'] = question
     context['period'] = f"с {period}".replace('-', 'по')
     context['cur_filter'] = request.GET.get('filter')
 
@@ -191,7 +187,6 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     obj.new_answer = new_knowledge
                     if obj.is_agreed:
                         obj.answer = new_knowledge
-                    send_accept_proposal(proposal_obj=obj)
                     obj.admin_reviewer = request.user
                     obj.save()
                     redirect_url = reverse(
@@ -210,26 +205,6 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                 obj.admin_reviewer = request.user
                 obj.save()
 
-                send_if_status = {
-                    'REJECT': send_not_accept_proposal,
-                    'ANSDPL': send_duplicate_answer_proposal,
-                    'RESDPL': send_duplicate_proposal
-                }
-
-                if obj.status in send_if_status.keys():
-                    send_func = send_if_status.get(obj.status)
-                    send_func(proposal_obj=obj)
-
-            def start_mass_mail_sending():
-                if 'save_input' not in request.POST:
-                    return
-                proposals = InterviewAnswerExpertProposal.objects.select_related('expert', 'new_answer').filter(
-                    question__pk=quest_pk, interview__pk=inter_pk)
-                if proposals.filter(status='APPRVE').exists():
-                    send_new_answers(interview.get('name'), question.get('name'), proposals)
-
-            # Если по вопросу имеется новый ответ/ответы, то происходит рассылка участникам интервью по данному вопросу
-            start_mass_mail_sending()
             if 'save_input' in request.POST:
                 request.session['is_saved'] = True
             redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
@@ -279,3 +254,34 @@ class AdminEditingKnowledgeView(UpdateView):
                 form.fields[field].widget.attrs['class'] = 'form-control'
         context['form'] = form
         return context
+
+
+class NotifyExpertsView(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        inter_pk, quest_pk = self.kwargs.get('inter_pk'), self.kwargs.get('quest_pk')
+        return reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})
+
+    def get(self, request, *args, **kwargs):
+        inter_pk = self.kwargs.get('inter_pk')
+        quest_pk = self.kwargs.get('quest_pk')
+        proposals = InterviewAnswerExpertProposal.objects.select_related('expert', 'new_answer').filter(
+            Q(question__pk=quest_pk) & Q(interview__pk=inter_pk) & ~Q(status=None) & Q(is_notified=False)
+        )
+        if proposals.exists():
+            interview_name = proposals.first().interview.name
+            question_name = proposals.first().question.name
+
+            sender = InterviewResultSender(
+                proposals=proposals,
+                interview_name=interview_name,
+                question_name=question_name,
+                interview_pk=inter_pk,
+                question_pk=quest_pk,
+            )
+            if sender.start_mailing():
+                notified_proposals = list()
+                for obj in proposals:
+                    obj.is_notified = True
+                    notified_proposals.append(obj)
+                InterviewAnswerExpertProposal.objects.bulk_update(notified_proposals, ['is_notified'])
+        return super(NotifyExpertsView, self).get(request, *args, **kwargs)

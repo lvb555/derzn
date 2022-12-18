@@ -1,0 +1,64 @@
+{% load knowledge_url_by_proposal %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div>
+        <h1>Уважаемый {{ expert.first_name }} {{ expert.profile.patronymic }}!</h1>
+    </div>
+    <div>
+        <p>
+            Хотим сообщить вам результаты интервью  <strong>'{{ interview_name }}'</strong> по вопросу  <strong>'{{ question_name }}'</strong>:
+        </p>
+
+        <div>
+            {% if proposals_data.accepted %}
+            <p>Были приняты следующие предложения на основе которых созданы новые знания:</p>
+            <ul>
+                {% for proposal in proposals_data.accepted %}
+                <li>
+                    "{{ proposal.new_answer_text }}" - <a href="{{ proposal|get_knowledge_url }}">{{ proposal.new_answer.name }}</a>
+                    {% if proposal.is_agreed %} (выбрано в качестве ответа) {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if proposals_data.not_accepted %}
+            <p>Предложения которые не были приняты:</p>
+            <ul>
+                {% for proposal in proposals_data.not_accepted %}
+                <li>
+                    "{{ proposal.new_answer_text }}" {% if proposal.admin_comment %} - причина отказа: {{ proposal.admin_comment }} {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if proposals_data.duplicates %}
+            <p>Предложения, которые дублируют существующий ответ или предложение:</p>
+            <ul>
+                {% for proposal in proposals_data.duplicates %}
+                <li>
+                    "{{ proposal.new_answer_text }}" - является дубликатом предложения: <a href="{{ proposal|get_knowledge_url }}">{{ proposal.new_answer.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <p>
+            В случае своего несогласия Вы можете еще раз посетить страницу интервью  по этому вопросу: <a href="{{ interview_url }}">{{ interview_name }}</a>.
+        </p>
+    </div>
+</body>
+<footer>
+    <div>
+        <h3>Администрация портала «Дерево знаний»</h3>
+    </div>
+</footer>
+</html>

@@ -41,6 +41,7 @@ from .views.admin_interview_work.views import (
     InterviewQuestionsView,
     question_admin_work_view,
     AdminEditingKnowledgeView,
+    NotifyExpertsView,
 )
 from .views.subscription_by_tag_view import sub_by_tag
 
@@ -102,6 +103,11 @@ urlpatterns = [
         "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/knowledge_edit/<int:znanie_pk>/",
         AdminEditingKnowledgeView.as_view(),
         name='admin_knowledge_edit'
+    ),
+    path(
+        "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/notify_experts/",
+        NotifyExpertsView.as_view(),
+        name='admin_notify_experts'
     ),
 
     path("friends/", friends_view, name="friends"),
