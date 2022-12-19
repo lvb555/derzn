@@ -7,71 +7,485 @@
 {% block content %}
 
 {% block cssfiles %}
-<link rel="stylesheet" href="{% static '/drevo/css/search.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
 {% endblock %}
 
 {% if not user.is_authenticated %}
-        <div class="col">
-            <div class="row">
-                <div class="card alert-warning my-4">
-                    <div class="card-body">
-                      <span class="card-text">
-                        <a href="{% url 'users:login' %}?next={{ request.path }}"
-                           style="text-decoration: none">Войдите</a>
-                        или
-                        <a href="{% url 'users:register' %}?next={{ request.path }}" style="text-decoration: none">зарегистрируйтесь</a>,
-                        чтобы поставить оценку.
-                      </span>
-                    </div>
+
+    <div class="col">
+        <div class="row">
+            <h1>Друзья</h1>
+            <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+                <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'users:myprofile' %}">Профиль</a></li>
+                <li class="breadcrumb-item opened"><a>Мои друзья</a></li>
+                </ol>
+            </nav>
+            <div class="card my-4 unlogin">
+                <div class="card-body">
+                    <h5>Добро пожаловать!</h5>
+                    <span class="card-text">
+                    <a href="{% url 'users:login' %}?next={{ request.path }}"
+                        style="text-decoration: none">Войдите</a>
+                    или
+                    <a href="{% url 'users:register' %}?next={{ request.path }}" style="text-decoration: none">зарегистрируйтесь</a>,
+                    чтобы поставить оценку.
+                    </span>
                 </div>
             </div>
         </div>
-{% else %}
-    <div>
-        <div class="col-md-10 col-sm-12">
-            <h2>Друзья {% if invite_count %} <a class="btn btn-primary btn-sm" href="friends_invite/">{{ invite_count }}</a> {% endif %}</h2>
-        </div>
-
-        <div class="friends_input col-md-2 col-sm-12">
-            <a class="btn btn-primary btn-sm" href="{% url 'knowledge_feed' %}">Лента знаний</a>
-            <a class="btn btn-primary btn-sm" href="{% url 'friends_added' %}">Добавить друга</a>
-        </div>
-
-        <table class="table">
-            <tr>
-                <th>Аватар</th>
-                <th>Имя</th>
-                <th>Фамилия</th>
-            </tr>
-            <tbody>
-            {% for one in friends %}
-            <tr>
-                <td>
-                    {% if one.profile.avatar %}
-                        <img class="rounded-circle" src="{{ one.profile.avatar.url }}" height="50px" width="50px">
-                    {% else %}
-                        <img class="rounded-circle" src="{% static 'src/default_avatar.jpg' %}" height="50px" width="50px">
-                    {% endif %}
-                </td>
-                <td>
-                    {{ one.first_name }}
-                </td>
-                <td>
-                    {{ one.last_name }}
-                </td>
-                <td>
-                    <form method="GET" action="">
-                        <button class="btn btn-primary btn-sm" name="remove" value="{{ one.id }}" >
-                            Удалить из друзей
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-            {% endfor %}
-        </table>
     </div>
-{% endif %}
 
+{% else %}
+<div class="container header_info">
+    <h1>Друзья</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'users:myprofile' %}">Профиль</a></li>
+          <li class="breadcrumb-item opened"><a>Мои друзья</a></li>
+        </ol>
+    </nav>
+</div>
+<section class="gradient-custom-2 mb-3">
+    <div class="container py-3 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col col-lg-12 col-xl-12">
+          <div class="card">
+            <div class="rounded-top text-white d-flex flex-row" style="height:200px;">
+              <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}"
+                    alt="Users photo" class="img-fluid img-thumbnail mt-4 mb-2"
+                    style="width: 150px; z-index: 1">
+                {% else %}
+                    <img src="{% static 'src/default_avatar.jpg' %}"
+                    alt="Users photo" class="img-fluid img-thumbnail mt-4 mb-2"
+                    style="width: 150px; z-index: 1">
+                {% endif %}
+              </div>
+            </div>
+            <div class="p-4" style="background: #FFFFFF; border-radius: 0px 0px 10px 10px;">
+                <p class="user_first_last mt-2">{{user.first_name}} {{user.last_name}}</p>
+              <div class="d-flex justify-content-between">
+                <p class="user_small_info mt-1">{{user.profile.get_gender_display}} (пол), {{user.profile.get_user_age}} (возраст)</p>
+            
+            
+                <a class="btn edit_btn shadow-none"
+                    style="z-index: 1;"
+                    href="{% url 'users:myprofile' %}">
+                    Редактировать профиль
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+<div class="container">
+
+    <div class="d-flex flex-row">
+        <nav class="navbar px-3 mb-3" style="background: #DFDFE3; border-radius: 10px; width: 100%;">
+            <div id="nav-dropdown" class="dropdown table-hover">
+
+                <div class="btn-group">
+                    <a class="btn shadow-none group-title" type="button" data-bs-auto-close="true" aria-expanded="false">
+                      Компетенции
+                    </a>
+                </div>
+
+                <div class="btn-group">
+                    <a style="background: #FFFFFF; border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                      Друзья <span style="color: #1B56B5"><strong>{% if new %} ({{new}}) {% endif %}</strong></span>
+                        <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                    </a>
+
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+
+                        <li>
+                            <a href="{% url 'friends_added' %}" class="dropdown-item">Приглашение в друзья<span style="color: #1B56B5"><strong>{% if invite_count %} ({{invite_count}}) {% endif %}</strong></span></a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'knowledge_feed' %}" class="dropdown-item">Лента знаний<span style="color: #1B56B5"><strong>{% if new_knowledge_feed %} ({{new_knowledge_feed}}) {% endif %}</strong></span></a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="dropdown-item">Сообщения</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="btn-group">
+                    <div class="dropdown">
+                        <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                            Активность <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+
+                            <li>
+                                <a href="{% url 'my_interview' %}" class="dropdown-item">Мои интервью</a>
+                            </li>
+
+                            <li>
+                                <a href="#" class="dropdown-item">Мои предложения</a>
+                            </li>
+
+                            <li>
+                                <a href="#" class="dropdown-item">Мои опросы</a>
+                            </li>
+
+                            <li>
+                                <div class="btn-group">
+                                    <a class="dropdown-item" href="{% url 'znanie_expert_process' %}">Мой вклад, как эксперта</a>
+                                    <a onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden"></span>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="#">Мои знания</a>
+                                        </li>
+    
+                                        <li>
+                                            <a class="dropdown-item" href="#">Мои связи</a>
+                                        </li>
+    
+                                        <li>
+                                            <a class="dropdown-item" href="#">Моя экспертиза</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="btn-group text-center">
+                                    <a class="dropdown-item" href="#">Мой вклад, как пользователя</a>
+                                    <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="#">Мои знания</a>
+                                        </li>
+    
+                                        <li>
+                                            <a class="dropdown-item" href="#">Мои предзнания</a>
+                                        </li>
+    
+                                        <li>
+                                            <a class="dropdown-item" href="#">Мои связи</a>
+                                        </li>
+    
+                                        <li>
+                                            <a class="dropdown-item" href="#">Мои предсвязи</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                      Изучение знаний <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                    </a>
+
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+
+                        <li>
+                            <a href="{% url 'drevo' %}" class="dropdown-item">Дерево знаний</a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'favourites' %}" class="dropdown-item">Избранные знания</a>
+                        </li>
+
+                        <li>
+                            <div class="btn-group">
+                                <a class="dropdown-item" href="{% url 'all_quizzes' %}">Тестирование</a>
+                                <a onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="#">Мои результаты тестов</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                </div>
+
+                <div class="btn-group">
+                    <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                      Подписки <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                    </a>
+                    
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+
+                        <li>
+                            <a href="" class="dropdown-item">По категориям</a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'subscribe_to_author' %}" class="dropdown-item">По авторам</a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'subscription_by_tag' %}" class="dropdown-item">По тегам</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div class="d-flex justify-content-between mt-3">
+        <div class="col-md-10 col-sm-12">
+            <h2 class="my_friends">Мои друзья {% if friends %} <span>({{friends.count}})</span> {% endif %}</h2>
+        </div>
+        <a class="btn btn_add_friend shadow-none" href="{% url 'friends_added' %}">Добавить друга</a>
+    </div>
+
+    <div class="d-flex flex-row mt-3">
+        <select id="select_data" class="me-4 select_box shadow-none">
+            <option value="1" selected>Весь список</option>
+            <option value="2">Мои друзья</option>
+            <option value="3">Входящие заявки</option>
+        </select>
+    
+        <form class="d-flex" role="search">
+            <i id="search_icon" class="cart-icon material-icons" style="color: #BFBFBF">search</i><input id="search_bar" class="form-control shadow-none" type="search" placeholder="Поиск">
+        </form>
+    </div>
+
+    <div class="row d-flex justify-content-between">
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+
+            {% for invite in invites %}
+                <div class="col invites">              
+                    <div class="person_card">
+                        <div class="card-body text-center">
+                            <div class="mb-4">
+                                {% if invite.sender.profile.avatar %}
+
+                                    <button class="position-relative" style="border: none; background: none">
+                                        <a href="{% url 'users:usersprofile' invite.sender.id %}">
+                                            <img src="{{ invite.sender.profile.avatar.url }}"
+                                                alt="Users photo" class="img-fluid rounded-circle mt-4 mb-2 position-relative"
+                                                style="width: 100px;">
+                                            <div class="position-absolute translate-middle badge rounded-pill">
+                                                New
+                                            </div>
+                                        </a>
+                                    </button>
+
+                                {% else %}
+
+                                    <button class="position-relative" style="border: none; background: none">
+                                        <a href="{% url 'users:usersprofile' invite.sender.id %}">
+                                            <img src="{% static 'src/default_avatar.jpg' %}"
+                                                alt="Users photo" class="img-fluid rounded-circle mt-4 mb-2 position-relative"
+                                                style="width: 100px;">
+                                            <div class="position-absolute translate-middle badge rounded-pill">
+                                                New
+                                            </div>
+                                        </a>
+                                    </button>
+                                    
+                                {% endif %}
+                                <h4 class="mb-2 person_info">{{invite.sender.first_name}} {{invite.sender.last_name}}</h4>
+                            </div>
+
+                            <form method="get">
+                                <div class="d-flex justify-content-between mb-2">                          
+                                    <button class="btn btn_accept me-2 shadow-none" name="accept" value="{{ invite.sender.id }}">Принять</button>
+    
+                                    <button class="btn btn_reject shadow-none" name="not_accept" value="{{ invite.sender.id }}">Отклонить</button>
+                                </div>
+                            </form>
+                            
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% for friend in friends %}
+                <div class="col friends">        
+                    <div class="person_card">
+                        <div class="card-body text-center">
+                            <div class="mb-4">
+                                {% if friend.profile.avatar %}
+                                    <a href="{% url 'users:usersprofile' friend.id %}">
+                                        <img src="{{ friend.profile.avatar.url }}"
+                                            alt="Users photo" class="img-fluid rounded-circle mt-4 mb-2"
+                                            style="width: 100px; z-index: 1">
+                                    </a>
+
+                                {% else %}
+                                    <a href="{% url 'users:usersprofile' friend.id %}">
+                                        <img src="{% static 'src/default_avatar.jpg' %}"
+                                            alt="Users photo" class="img-fluid rounded-circle mt-4 mb-2"
+                                            style="width: 100px; z-index: 1">
+                                    </a>
+
+                                {% endif %}
+
+                                <h4 class="mb-2 person_info">{{friend.first_name}} {{friend.last_name}}</h4>
+                            </div>
+                            <form method="get">
+                                <div class="mb-2">                  
+                                    <button class="btn btn_reject_lg shadow-none" name="remove" value="{{ friend.id }}">Убрать из друзей</button>                              
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function logAndStop(event) {
+        event.stopPropagation();
+    }
+</script>
+
+<script>
+    var combobox = document.getElementById('select_data');
+    var search_bar = document.getElementById('search_bar');
+
+    combobox.addEventListener('change', function() {
+        var selectedValue = Number(combobox.options[combobox.selectedIndex].value);
+
+        var invites = document.getElementsByClassName('invites');
+        var friends = document.getElementsByClassName('friends');
+
+        if(selectedValue == 1) {
+            Array.from(invites).forEach(element => {
+                element.style.display = '';
+            })
+
+            Array.from(friends).forEach(element => {
+                element.style.display = '';
+            })
+
+            search_bar.value = "";
+        }
+
+        else if(selectedValue == 2) {
+            Array.from(invites).forEach(element => {
+                element.style.display = 'none';
+            })
+
+            Array.from(friends).forEach(element => {
+                element.style.display = '';
+            })
+
+            search_bar.value = "";
+        }
+
+        else if(selectedValue == 3) {
+            Array.from(friends).forEach(element => {
+                element.style.display = 'none';
+            })
+
+            Array.from(invites).forEach(element => {
+                element.style.display = '';
+            })
+
+            search_bar.value = "";
+        }
+        this.style.outline = "solid 1px #F1F2F7";
+    })
+</script>
+
+<script>
+    var invites = document.getElementsByClassName('invites');
+    var friends = document.getElementsByClassName('friends');
+
+    var combobox = document.getElementById('select_data');
+
+    var search_bar = document.getElementById('search_bar'); 
+    
+    search_bar.addEventListener('input', function() {
+
+        var comboboxSelectedValue = Number(combobox.options[combobox.selectedIndex].value);
+
+
+        if(search_bar.value != "") {
+            Array.from(invites).forEach(element => {
+                element.style.display = 'none';
+            })
+        
+            Array.from(friends).forEach(element => {
+                element.style.display = 'none';
+            })
+
+            if(comboboxSelectedValue == 1) {
+                Array.from(invites).forEach(element => {
+                    if(element.querySelector('h4').innerHTML.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        element.style.display = '';
+                    }
+                })
+
+                Array.from(friends).forEach(element => {
+                    if(element.querySelector('h4').innerHTML.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        element.style.display = '';
+                    }
+                })
+            }
+
+            else if(comboboxSelectedValue == 2) {
+                Array.from(friends).forEach(element => {
+                    if(element.querySelector('h4').innerHTML.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        element.style.display = '';
+                    }
+                }) 
+            }
+
+            else if(comboboxSelectedValue == 3) {
+                Array.from(invites).forEach(element => {
+                    if(element.querySelector('h4').innerHTML.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        element.style.display = '';
+                    }
+                })
+            }
+        }
+
+        else {
+            if(comboboxSelectedValue == 1) {
+                Array.from(invites).forEach(element => {
+                    element.style.display = '';
+                })
+            
+                Array.from(friends).forEach(element => {
+                    element.style.display = '';
+                })
+            }
+
+            else if(comboboxSelectedValue == 2) {
+                Array.from(friends).forEach(element => {
+                    element.style.display = '';
+                })
+            }
+
+            else if(comboboxSelectedValue == 3) {
+                Array.from(invites).forEach(element => {
+                    element.style.display = '';
+                })
+            }
+        }
+    })
+</script>
+
+{% endif %}
 
 {% endblock %}

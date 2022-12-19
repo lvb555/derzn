@@ -1,0 +1,159 @@
+{% extends 'drevo/base.html' %}
+
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
+        <div class="row">
+            <div class="col-auto">
+                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
+                    {{ knowledge.name }}
+                </i>
+            </div>
+        </div>
+    </a>
+    <h2 class="my-2">{{ title }}</h2>
+
+    {% if not user.is_authenticated %}
+        <div class="col">
+            <div class="row">
+                <div class="card alert-warning my-4">
+                    <div class="card-body">
+                      <span class="card-text">
+                        <a href="{% url 'users:login' %}?next={{ request.path }}"
+                           style="text-decoration: none">Войдите</a>
+                        или
+                        <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                        чтобы поставить оценку.
+                      </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+             {% if proof_relations.exists %}
+             <div class='row justify-content-center'>
+                <div class="col-8">
+                    <h4 class="text-center my-4">Распределение оценок знания </h4>
+                    <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
+                        
+                        <thead align="center">
+                            <tr >
+                                <th valign="middle">Оценка знания</th> <th valign="middle">Число оценок</th> <th >Процент к оценившим</th>
+                            </tr>
+                        </thead>
+                        <tbody align="center"> 
+                            {% for grade_scale, value in all_grades_statistic.items %}
+                        
+                            <tr style = "border-top: 3px solid black">
+                                <td valign="middle">{{ grade_scale }}</td>
+                                <td>{{ value.0 }}</td>
+                                <td>{{ value.1 }}%</td>
+                            </tr>
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class='row justify-content-center'>
+                <div class="col-8">
+                    <h4 class="text-center my-4">Распределение оценок по полу <br> (Только у кого указан пол)</h4>
+                    <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
+                        
+                        <thead align="center">
+                            <tr >
+                                <th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="2">Из них</th>
+                            </tr>
+                            <tr>
+                                <th>Мужчин</th><th>Женщин</th>
+                            </tr>
+                        </thead>
+                        <tbody align="center"> 
+                            {% for grade, value in gender_grades.items %}
+                            {% comment %}
+                            value  это список, порядок данных следующий:
+                            [amount_grade, percent_grade,
+                            amount_man_grade, percent_man_grade,
+                            mount_female_grade, percent_female_grade]
+                            {% endcomment %}
+                        
+                            <tr style = "border-top: 3px solid black">
+                                <td rowspan="2" valign="middle">{{ grade }}</td>
+                                <td>{{ value.0 }}</td>
+                                <td>{{ value.2 }}</td>
+                                <td>{{ value.4 }}</td>
+                            </tr>
+                            <tr>
+                                <td>{{ value.1 }}%</td> <td>{{ value.3 }}%</td> <td>{{ value.5 }}%</td>
+                            </tr>
+                            {% endfor %}
+                            
+                            
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class='row justify-content-center'>
+                <div class="col-8">
+                    <h4 class="text-center my-4">Распределение оценок по возрасту <br> (Только у кого указана дата рождения)</h4>
+                    
+                    <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
+                        
+                        <thead align="center">
+                            <tr >
+                                <th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="{{title_age_segment|length}}">Из них</th>
+                            </tr>
+                            <tr>
+                                {% for segment in title_age_segment %}
+                                <th>{{ segment }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody align="center"> 
+                            {% for grade, values in age_grades.items %}                                
+                                <tr style = "border-top: 3px solid black">
+                                    <td rowspan="2" valign="middle">{{ grade }}</td>
+                                    {% for amount_and_percent in values %}
+                                    <td> {{ amount_and_percent.0 }} </td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    {% for amount_and_percent in values %}
+                                    <td> {{ amount_and_percent.1}}% </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                            
+                            <tr style = "border-top: 3px solid black">
+                                <td rowspan="2" valign="middle">Всего: </td>
+                                {% for values in total_amount_age_grade.values %}
+                                <td> {{values}} </td>
+
+                                {% endfor %}
+                                
+                            </tr>
+                            <tr>
+                                {% for values in total_amount_age_grade.values %}
+                                <td> 100%</td>
+                                {% endfor %}
+                            </tr>
+                           
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        
+    {% endif %}
+  
+
+{% endblock %}
+
+
+
+

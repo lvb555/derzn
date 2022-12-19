@@ -1,5 +1,6 @@
 from .author_detail_view import AuthorDetailView
 from drevo.views.quiz_list_view import QuizListView
+from .quiz_result_processing_view import QuizResultAdd
 from .authors_list_view import AuthorsListView
 from .browsing_history import BrowsingHistoryListView
 from .comment_page_view import CommentPageView
@@ -19,7 +20,6 @@ from .admin_interview_work.views import (
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
 from .friends_added_view import friends_added_view
-from .friends_invite_view import friends_invite_view
 from .friends_view import friends_view
 from .glossary_list_view import GlossaryListView
 from .knowledge_grade_view import KnowledgeFormView
@@ -32,6 +32,7 @@ from .znanie_by_label_view import ZnanieByLabelView
 from .znanie_detail_view import ZnanieDetailView
 from .znanie_rating_view import ZnanieRatingView
 from .znanie_send_view import send_znanie
+from .knowledge_grade_statistic_view import KnowledgeStatisticFormView
 
 __all__ = [
     "AuthorDetailView",
@@ -62,4 +63,6 @@ __all__ = [
     "QuestionExpertWorkPage",
     "send_znanie",
     'QuizListView',
+    'QuizResultAdd',
+    'KnowledgeStatisticFormView'
 ]

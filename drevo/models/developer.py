@@ -7,20 +7,25 @@ class Developer(models.Model):
     title = 'Список разработчиков'
     name = models.CharField(
         max_length=128,
-        verbose_name='Имя'
+        verbose_name='Имя',
     )
     surname = models.CharField(
         max_length=128,
         verbose_name='Фамилия'
     )
-    contribution = models.IntegerField(verbose_name='Вклад в проект')
+    contribution = models.IntegerField(
+        verbose_name='Вклад в проект',
+        default=0,
+    )
     comment = models.CharField(
         max_length=512,
-        verbose_name='Комментарий'
+        verbose_name='Комментарий',
+        default='',
     )
     admin = models.CharField(
         max_length=512,
-        verbose_name='Админ'
+        verbose_name='Админ',
+        default='',
     )
 
     class Meta:

@@ -2,10 +2,13 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from drevo.models.feed_messages import FeedMessage
 from django.core.exceptions import BadRequest
+from drevo.models.friends_invite import FriendsInviteTerm
 from drevo.models.knowledge import Znanie
 
 from drevo.models.label_feed_message import LabelFeedMessage
 from users.models import User
+
+import math
 
 
 def knowledge_feed_view(request):
@@ -19,15 +22,51 @@ def knowledge_feed_view(request):
     context = {'messages': [], 'unread': 0, 'labels': [], 'friends': [], 'friends_count': 0}
 
     try:
-        messages = FeedMessage.objects.filter(recipient = request.user).order_by('-id').prefetch_related("sender__profile")
+        messages_in_page = 4
+
+        try:
+            current_page = int(request.GET.get('page'))
+
+            if current_page == 0: 
+                current_page = 1
+        except: 
+            current_page = 1
+
+
+        messages = FeedMessage.objects.filter(recipient = request.user).order_by('-id').prefetch_related("sender__profile")[(current_page-1)*messages_in_page : current_page * messages_in_page]
         context['messages'] = messages
 
+        context['current_page'] = current_page
+        context['previous_page'] = current_page - 1
+        context['next_page'] = current_page + 1
+
+        all_messages = FeedMessage.objects.filter(recipient = request.user).count()
+        context['max_page'] = math.ceil(all_messages / messages_in_page)
+
+        if current_page == 1:
+            context['part_message'] = f'1 - {current_page * messages_in_page} из {all_messages}'
+        elif context['next_page'] > context['max_page']:
+            context['part_message'] = f'{(current_page - 1) * messages_in_page + 1}  - {all_messages} из {all_messages}'
+        else:
+            context['part_message'] = f'{(current_page - 1) * messages_in_page + 1}  - {current_page * messages_in_page} из {all_messages}'
+
         unread = 0
-        for message in messages:
+        for message in FeedMessage.objects.filter(recipient = request.user):
             if message.was_read == False:
                 unread += 1
 
         context['unread'] = unread
+
+        invites = FriendsInviteTerm.objects.filter(recipient = request.user.id)
+        invite_count = len(invites)
+
+        context['invites'] = invites
+        context['invite_count'] = invite_count if invite_count else 0
+
+        context['user'] = request.user
+        context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient = request.user, was_read = False).count()
+
+        context['new'] = int(context['new_knowledge_feed']) + int(context['invite_count']) 
         
     # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
     except TypeError:
@@ -44,14 +83,13 @@ def knowledge_feed_view(request):
         
         all_friends = my_friends.union(i_in_friends, all=False)
 
-        # user_friendships = FriendsTerm.objects.filter(user_id=request.user).prefetch_related('friend__profile')
         context['friends'] = all_friends
         context['friends_count'] = len(all_friends)
     
     # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
-    except TypeError:
+    except:
         pass
-
+    
 
     if request.method == 'POST':
         task = request.POST.get('task')

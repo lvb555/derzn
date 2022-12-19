@@ -41,9 +41,9 @@ class FeedMessage(models.Model):
 
             elif diff >= 30 and diff <= 365:
                 months = diff // 30
-                return f'больше {months} мес. назад'
+                return f'{months} мес. назад'
             else:
                 years = diff // 365
-                return f'больше {years} г. назад'
+                return f'{years} г. назад'
         except ValueError:
             return 'сегодня'
