@@ -89,7 +89,7 @@
                     </td>
                     <td>
                         <select
-                                name="expert-{{ elm.pk }}-answer" class="form-control {% if elm.status == 'APPRVE' %}text-danger{% endif %}" style="width: 250px;"
+                                name="expert-{{ elm.pk }}-answer" class="form-control {% if elm.status == 'APPRVE' and elm.new_answer.date >= interview_start_date %}text-danger{% endif %}" style="width: 250px;"
                                 onfocus="this.size=5;" onblur="this.size=1;" onchange="this.size=1; this.blur();"
                                 title="{% if elm.status == 'APPRVE' %}{{ elm.new_answer.name|normalize_answer_name }}{% else %}{{ elm.answer.name|normalize_answer_name }}{% endif %}"
                                 id="expert-{{ elm.pk }}-answer"
