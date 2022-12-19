@@ -158,6 +158,7 @@ class Profile(models.Model):
             return True
         return False
 
+
     def get_user_age(self):
 
         try:
@@ -168,6 +169,7 @@ class Profile(models.Model):
             return delta.years
         except:
             return 'дата рождения не указана'
+
     class Meta:
         verbose_name = "Профиль"
         verbose_name_plural = "Профили"
