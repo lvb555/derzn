@@ -12,7 +12,7 @@ from ...models.knowledge import Znanie
 from ...forms.admin_interview_work_form import InterviewAnswerExpertProposalForms
 from .interview_result_senders import InterviewResultSender
 from ...forms.knowledge_form import ZnanieForm
-from datetime import datetime, date
+from datetime import date
 
 
 def chek_is_stuff(user) -> None:
@@ -111,8 +111,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     context['question'] = question
     context['period'] = f"с {period}".replace('-', 'по')
 
-    start_interview = period.replace('-', '').split(' ')[0].split('.')
-    start_day, start_month, start_year = start_interview
+    start_day, start_month, start_year = period.replace('-', '').split(' ')[0].split('.')
     start_date = date(int(f'20{start_year}'), int(start_month), int(start_day))
     context['interview_start_date'] = start_date
 
@@ -208,6 +207,29 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     # интервью, то статус "Дублирует ответ", иначе "Дублирует предложение"
                     obj.status = 'ANSDPL' if answer.date <= start_date else 'RESDPL'
                     obj.duplicate_answer = answer
+
+                if ((form.old_status != status) and status == 'REJECT') and obj.is_agreed:
+                    # Если эксперт выбрал свой ответ и он был отклонён,
+                    # то устанавливаем связь его ответа со знанием 'Другое'
+
+                    # Создаём знание "Другое" если его нет
+                    other_obj, _ = Znanie.objects.get_or_create(
+                        name='Другое',
+                        tz=Tz.objects.get(name='Другое'),
+                        user=request.user,
+                        is_published=True
+                    )
+                    # Устанавливаем связь знания "Другое" с вопросом
+                    if not Relation.objects.filter(Q(bz=obj.question) & Q(rz=other_obj) & Q(user=obj.expert)).exists():
+                        author, _ = Author.objects.get_or_create(name=obj.expert.get_full_name)
+                        Relation.objects.update_or_create(
+                            bz=obj.question,
+                            rz=other_obj,
+                            tr=Tr.objects.get(name='Ответ [ы]'),
+                            author=author,
+                            user=obj.expert,
+                            is_published=True
+                        )
 
                 obj.admin_reviewer = request.user
                 obj.save()
