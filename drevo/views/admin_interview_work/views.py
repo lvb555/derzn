@@ -12,6 +12,7 @@ from ...models.knowledge import Znanie
 from ...forms.admin_interview_work_form import InterviewAnswerExpertProposalForms
 from .interview_result_senders import InterviewResultSender
 from ...forms.knowledge_form import ZnanieForm
+from datetime import datetime, date
 
 
 def chek_is_stuff(user) -> None:
@@ -109,6 +110,11 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     question = Znanie.objects.values('pk', 'name').get(pk=quest_pk)
     context['question'] = question
     context['period'] = f"с {period}".replace('-', 'по')
+
+    start_interview = period.replace('-', '').split(' ')[0].split('.')
+    start_day, start_month, start_year = start_interview
+    start_date = date(int(f'20{start_year}'), int(start_month), int(start_day))
+
     context['cur_filter'] = request.GET.get('filter')
 
     answers = Relation.objects.select_related('rz', 'tr').filter(
@@ -198,8 +204,8 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                 # Если админ указал только ответ из списка существующих/новых ответов, то статус устанавливается сам,
                 if not status and answer:
                     # Если дата создания выбранного ответа меньше даты создания
-                    # предложения эксперта, то статус "Дублирует ответ", иначе "Дублирует предложение"
-                    obj.status = 'ANSDPL' if answer.date < form.instance.updated.date() else 'RESDPL'
+                    # интервью, то статус "Дублирует ответ", иначе "Дублирует предложение"
+                    obj.status = 'ANSDPL' if answer.date <= start_date else 'RESDPL'
                     obj.duplicate_answer = answer
 
                 obj.admin_reviewer = request.user
