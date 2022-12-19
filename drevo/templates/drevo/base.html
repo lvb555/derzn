@@ -68,7 +68,7 @@
                                     <li><a class="dropdown-item" href="{% url 'znanie_create' %}"
                                            id="znanie_create">
                                         {% if user.is_expert %}
-                                        Создание Знания
+                                        Создание Знания/ПредЗнания
                                         {% else %}
                                         Создание ПредЗнания
                                         {% endif %}
@@ -76,7 +76,7 @@
                                     <li><a class="dropdown-item" href="{% url 'znanie_user_process' %}"
                                            id="znanie_list">
                                         {% if user.is_expert %}
-                                        Изменение Знания
+                                        Изменение Знания/ПредЗнания
                                         {% else %}
                                         Изменение ПредЗнания
                                         {% endif %}

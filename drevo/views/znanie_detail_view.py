@@ -113,9 +113,10 @@ class ZnanieDetailView(DetailView):
         # возвращает кнопку прохождения тестирования, если знание- базовое для теста
 
         context['button'] = []
-        for relation, children in context['children_by_tr'].items():
-            if relation.pk == 24:
-                context['button'].append(children)
+        if context['children_by_tr']:
+            for relation, children in context['children_by_tr'].items():
+                if relation.pk == 24:
+                    context['button'].append(children)
 
         # создает контекст, в котором "внуки" знания, если это знание - тест
         if self.object.tz in Tz.objects.filter(name='Тест'):

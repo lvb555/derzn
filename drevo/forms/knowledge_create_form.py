@@ -3,7 +3,7 @@ from django import forms
 from django.forms import inlineformset_factory
 from mptt.forms import TreeNodeChoiceField
 
-from drevo.models import Znanie, Category, ZnImage, Label
+from drevo.models import Znanie, Category, ZnImage, Label, Tz
 from drevo.models.utils import get_model_or_stub
 
 
@@ -25,11 +25,12 @@ class ZnanieCreateForm(forms.ModelForm):
                               required=False
                               )
 
-    category = TreeNodeChoiceField(queryset=get_model_or_stub(Category).tree_objects.all(),
+    category = TreeNodeChoiceField(queryset=get_model_or_stub(Category).published.all(),
                                    empty_label="(нет категории)",
                                    label='Категория',
-                                   required=False)
+                                   required=True)
     labels = forms.ModelMultipleChoiceField(queryset=Label.objects.all(), label='Метки', required=False)
+    tz = forms.ModelChoiceField(queryset=Tz.objects.all().order_by('name'), label='Вид знания')
 
     class Meta:
         model = Znanie
