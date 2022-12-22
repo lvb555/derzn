@@ -24,7 +24,6 @@
         </div>
         <div class="col">
             <h3>Период: {{ period }}</h3>
-            <a href="{% url 'admin_notify_experts' inter_pk=interview.pk quest_pk=question.pk %}" class="btn btn-warning">Оповестить экспертов о результатах интервью</a>
         </div>
     </div>
 
@@ -112,7 +111,8 @@
                 </tbody>
             </table>
             <div class="text-end me-5">
-                <input type="submit" class="btn btn-warning w-25" name='save_input' value="Сохранить" {% if not props_without_status %} disabled="true" {% endif %}>
+                <input type="submit" class="btn btn-warning w-25" name='save_input' value="Сохранить - Уведомить">
+<!--                <input type="submit" class="btn btn-warning w-25" name='save_input' value="Сохранить - Уведомить" {% if not props_without_status %} disabled="true" {% endif %}>-->
             </div>
         </form>
     </div>
@@ -130,14 +130,15 @@
 <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content text-dark" style="background-color:#5ad65a;">
-            <div class="modal-title text-center" id="authModalLabel">
-                <h5 class="mt-3">Сохранение успешно завершено!</h5>
+            <div class="modal-body text-center" id="authModalLabel">
+                {% if is_notified and is_saved %}
+                <h5>Сохранение/Уведомление успешно завершено!</h5>
+                {% else %}
+                <h5>Сохранение успешно завершено!</h5>
+                {% endif %}
                 <!--                    <span class="badge">-->
                 <!--                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>-->
                 <!--                    </span>-->
-            </div>
-            <div class="modal-body text-center">
-                <a href="{% url 'admin_notify_experts' inter_pk=interview.pk quest_pk=question.pk %}" class="btn btn-warning">Оповестить экспертов о результатах интервью?</a>
             </div>
         </div>
     </div>

@@ -1,0 +1,19 @@
+<!--Необработанные предложения-->
+{% if proposals %}
+{% if proposals|length > 1 %}
+<h4>Нерассмотренные предложения.</h4>
+{% else %}
+<h4>Нерассмотренное предложение.</h4>
+{% endif %}
+<ul>
+    {% for proposal in proposals %}
+    <li>
+        Предложение "{{ proposal.new_answer_text }}"
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<p>
+    В случае своего несогласия Вы можете еще раз посетить страницу интервью по этому вопросу: <a href="{{ interview_url }}">{{ interview_name }}</a>.
+</p>

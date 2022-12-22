@@ -1,4 +1,4 @@
-{% load knowledge_url_by_proposal %}
+{% load admin_interview_work_tags %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,55 +10,88 @@
     <div>
         <h1>Уважаемый {{ expert.first_name }} {{ expert.profile.patronymic }}!</h1>
     </div>
+
+    {% if first_part_is_created %}
+    <!--Первая часть сообщения (личные результаты)-->
     <div>
+        <!--Вступление-->
+        {% if many_questions %}
         <p>
-            Хотим сообщить вам результаты интервью  <strong>'{{ interview_name }}'</strong> по вопросу  <strong>'{{ question_name }}'</strong>:
+            В рамках проводимого интервью <strong>"{{ interview.name }}"</strong>
+            Вы предложили новые ответы на вопросы.  Вот результаты их рассмотрения.
         </p>
-
+        {% else %}
+        <p>
+            В рамках проводимого интервью <strong>"{{ interview.name }}"</strong>
+            на вопрос <strong>"{{ question_name }}"</strong> Вы предложили
+            {% for quest, proposals in proposals_data.items %}
+                {% if proposal_count > 1  %}
+                новые ответы на вопрос. Вот результаты их рассмотрения.
+                {% else %}
+                новый ответ на вопрос. Этот ответ был рассмотрен и вот результат.
+                {% endif %}
+            {% endfor %}
+        </p>
+        {% endif %}
+        <br>
         <div>
-            {% if proposals_data.accepted %}
-            <p>Были приняты следующие предложения на основе которых созданы новые знания:</p>
-            <ul>
-                {% for proposal in proposals_data.accepted %}
-                <li>
-                    "{{ proposal.new_answer_text }}" - <a href="{{ proposal|get_knowledge_url }}">{{ proposal.new_answer.name }}</a>
-                    {% if proposal.is_agreed %} (выбрано в качестве ответа) {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-
-            {% if proposals_data.not_accepted %}
-            <p>Предложения которые не были приняты:</p>
-            <ul>
-                {% for proposal in proposals_data.not_accepted %}
-                <li>
-                    "{{ proposal.new_answer_text }}" {% if proposal.admin_comment %} - причина отказа: {{ proposal.admin_comment }} {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-
-            {% if proposals_data.duplicates %}
-            <p>Предложения, которые дублируют существующий ответ или предложение:</p>
-            <ul>
-                {% for proposal in proposals_data.duplicates %}
-                <li>
-                    "{{ proposal.new_answer_text }}" - является дубликатом предложения: <a href="{{ proposal|get_knowledge_url }}">{{ proposal.new_answer.name }}</a>
-                </li>
-                {% endfor %}
-            </ul>
-            {% endif %}
+            {% for question, proposals in proposals_data.items %}
+            <h3> Вопрос {{ forloop.counter }}. {{ question }}</h3>
+            <div>
+                {% get_interview_results_accepted proposals=proposals.accepted proposals_un_notified=proposals_un_notified %}
+            </div>
+            <div>
+                {% get_interview_results_duplicates proposals=proposals.duplicates proposals_un_notified=proposals_un_notified %}
+            </div>
+            <div>
+                {% get_interview_results_not_accepted proposals=proposals.not_accepted proposals_un_notified=proposals_un_notified %}
+            </div>
+            <div>
+                {% get_interview_results_unprocessed interview=interview question=question proposals=proposals.unprocessed %}
+            </div>
+            <hr>
+            {% endfor %}
         </div>
-
-        <p>
-            В случае своего несогласия Вы можете еще раз посетить страницу интервью  по этому вопросу: <a href="{{ interview_url }}">{{ interview_name }}</a>.
-        </p>
     </div>
+    {% endif %}
+
+    {% if second_part_is_created %}
+    <!--Вторая часть сообщения (общие результаты по новым ответам)-->
+    <div>
+        <h2>Новые ответы</h2>
+        <p>
+            В рамках проводимого интервью <strong>'{{ interview.name }}'</strong>
+            {% if new_answers|length > 1 %}
+            были созданы новые ответы:
+            {% else %}
+            был создан новый ответ:
+            {% endif %}
+        </p>
+        {% for question, answers in answers_data.items %}
+        <ul>
+            {% if answers %}
+            <h3>Ответы на вопрос {{ question }}:</h3>
+            {% for answer in answers %}
+            <li>
+                <h4 class="{% if answer.answer_name in new_answers %}new{% endif %}">{{answer.answer_name}} | Автор: {{ answer.author_name }}</h4>
+            </li>
+            {% endfor %}
+            {% endif %}
+        </ul>
+        <br>
+        {% endfor %}
+    </div>
+    {% endif %}
+
 </body>
 <footer>
     <div>
         <h3>Администрация портала «Дерево знаний»</h3>
     </div>
 </footer>
+
+<style>
+  .new {color: red;}
+</style>
+
 </html>

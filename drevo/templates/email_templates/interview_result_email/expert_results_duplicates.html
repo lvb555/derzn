@@ -1,0 +1,25 @@
+{% load admin_interview_work_tags %}
+
+<!--Предложения, которые дублируют ответ или предложение-->
+{% if proposals %}
+{% if proposals|length > 1 %}
+<h4>Дублирующие предложения</h4>
+{% else %}
+<h4>Дублирующее предложение</h4>
+{% endif %}
+<ul>
+    {% for proposal in proposals %}
+    <li class="{% if proposal in proposals_un_notified %}new{% endif %}">
+        {% if proposal.status == 'ANSDPL' %}
+        Предложение "{{ proposal.new_answer_text }}" дублирует ответ
+        <a href="{{ proposal|get_knowledge_url }}">{{ proposal.duplicate_answer.name }}</a>.
+        Этот ответ появился уже в процессе интервью.
+        {% else %}
+        Предложение "{{ proposal.new_answer_text }}" дублирует ответ
+        <a href="{{ proposal|get_knowledge_url }}">{{ proposal.duplicate_answer.name }}</a>.
+        Этот ответ был еще до начала интервью.
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}

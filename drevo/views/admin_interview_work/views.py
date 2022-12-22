@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -6,7 +7,7 @@ from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, UpdateView, RedirectView
-from ...models import Relation, Tz, Author, Tr
+from ...models import Relation, Tz, Author, Tr, CategoryExpert
 from ...models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from ...models.knowledge import Znanie
 from ...forms.admin_interview_work_form import InterviewAnswerExpertProposalForms
@@ -153,6 +154,11 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                 if form.old_status is not None:
                     continue
 
+                # На случай если эксперт был уведомлён о предложении, когда она было не обработано, необходимо вернуть
+                # is_notified в False, так как теперь оно обработано и необходимо оповестить об этом эксперта
+                if obj.is_notified:
+                    obj.is_notified = False
+
                 # Если админ изменил статус на "Принят",
                 # то создаётся новое знание и связь на основе введённых админом данных
                 if (form.old_status != status) and status == 'APPRVE':
@@ -236,10 +242,11 @@ def question_admin_work_view(request, inter_pk, quest_pk):
 
             if 'save_input' in request.POST:
                 request.session['is_saved'] = True
-            redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
-            if context.get('cur_filter'):
-                get_params = f"?filter={context.get('cur_filter')}"
-                return redirect(f'{redirect_url}{get_params}')
+            # redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
+            redirect_url = f"{reverse('admin_notify_experts', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
+            # if context.get('cur_filter'):
+            #     get_params = f"?filter={context.get('cur_filter')}"
+            #     return redirect(f'{redirect_url}{get_params}')
             return redirect(redirect_url)
     else:
         formset = InterviewAnswerExpertFormSet(queryset=queryset)
@@ -249,14 +256,20 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     context['questions'] = list(zip(queryset, formset))
     context['formset'] = formset
     context['backup_url'] = reverse_lazy('interview_quests', kwargs={'pk': inter_pk})
-    context['props_without_status'] = queryset.filter(status__isnull=True).exists()
+
     if 'is_saved' in request.session.keys():
         context['is_saved'] = request.session['is_saved']
         del request.session['is_saved']
+    if 'is_notified' in request.session.keys():
+        context['is_notified'] = request.session['is_notified']
+        del request.session['is_notified']
     return render(request, 'drevo/admin_interview_work_page/question_admin_work.html', context)
 
 
 class AdminEditingKnowledgeView(UpdateView):
+    """
+        Представление для старницы редактирования знания, созданного на основе предложения эксперта
+    """
     model = Znanie
     template_name = 'drevo/admin_interview_work_page/editing_knowledge.html'
     form_class = ZnanieForm
@@ -286,31 +299,42 @@ class AdminEditingKnowledgeView(UpdateView):
 
 
 class NotifyExpertsView(RedirectView):
+    """
+        Представление для начала рассылки о результатах интервью
+    """
     def get_redirect_url(self, *args, **kwargs):
         inter_pk, quest_pk = self.kwargs.get('inter_pk'), self.kwargs.get('quest_pk')
         return reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})
 
     def get(self, request, *args, **kwargs):
-        inter_pk = self.kwargs.get('inter_pk')
-        quest_pk = self.kwargs.get('quest_pk')
-        proposals = InterviewAnswerExpertProposal.objects.select_related('expert', 'new_answer').filter(
-            Q(question__pk=quest_pk) & Q(interview__pk=inter_pk) & ~Q(status=None) & Q(is_notified=False)
-        )
+        inter_pk, quest_pk = self.kwargs.get('inter_pk'), self.kwargs.get('quest_pk')
+        interview_obj = Znanie.objects.select_related('category').get(pk=inter_pk)
+
+        # Получаем все обработанные и необработанные предложения,
+        # которые были у данного интервью и c неотправленными уведомлениями
+        proposals = InterviewAnswerExpertProposal.objects.select_related('expert', 'new_answer', 'question').filter(
+            Q(interview__pk=inter_pk) & Q(is_notified=False)
+        ).order_by('question__name', '-updated')
+
         if proposals.exists():
-            interview_name = proposals.first().interview.name
-            question_name = proposals.first().question.name
+            # Получаем категорию(компетенцию интервью) и всех экспертов данной компетенции
+            inter_competence = interview_obj.category
+            experts = [
+                cat_exp.expert
+                for cat_exp in
+                CategoryExpert.objects.select_related('expert').filter(categories__pk=inter_competence.pk)
+            ]
 
             sender = InterviewResultSender(
+                experts=experts,
                 proposals=proposals,
-                interview_name=interview_name,
-                question_name=question_name,
-                interview_pk=inter_pk,
-                question_pk=quest_pk,
+                interview=interview_obj
             )
             if sender.start_mailing():
                 notified_proposals = list()
                 for obj in proposals:
                     obj.is_notified = True
                     notified_proposals.append(obj)
-                InterviewAnswerExpertProposal.objects.bulk_update(notified_proposals, ['is_notified'])
+                # InterviewAnswerExpertProposal.objects.bulk_update(notified_proposals, ['is_notified'])
+                request.session['is_notified'] = True
         return super(NotifyExpertsView, self).get(request, *args, **kwargs)
