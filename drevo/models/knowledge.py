@@ -116,8 +116,8 @@ class Znanie(models.Model):
         verbose_name='Пересылать',
         default=True
     )
-    has_link = models.BooleanField(
-        verbose_name='Есть ссылка',
+    show_link = models.BooleanField(
+        verbose_name='Отображать как ссылку?',
         default=True,
     )
 
