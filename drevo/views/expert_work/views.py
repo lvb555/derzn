@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
-from django.db.models import Q
 
 from drevo import models as orm
 from drevo.views.expert_work.data_loaders import load_interview
@@ -31,9 +30,9 @@ class QuestionExpertWorkPage(TemplateView):
 
         max_agreed = (
             orm.Relation.objects.filter(
-                Q(bz_id=question_pk)
-                & Q(tr_id=orm.Tr.objects.get(name="Число ответов").id)
-                & Q(user_id=self.request.user.id)
+                bz_id=question_pk,
+                tr_id=orm.Tr.objects.get(name="Число ответов").id,
+                user_id=self.request.user.id
             )
             .order_by()
             .last()

@@ -1,5 +1,4 @@
 import typing as t
-from django.db.models import Q
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -227,9 +226,9 @@ class InterviewAnswerExpertProposal(models.Model):
         usr_id = Znanie.objects.get(id=prop.question_id).user_id
         max_agreed = (
             Relation.objects.filter(
-                Q(bz_id=prop.question_id)
-                & Q(tr_id=Tr.objects.get(name="Число ответов").id)
-                & Q(user_id=usr_id)
+                bz_id=prop.question_id,
+                tr_id=Tr.objects.get(name="Число ответов").id,
+                user_id=usr_id
             )
             .order_by()
             .last()
@@ -239,10 +238,10 @@ class InterviewAnswerExpertProposal(models.Model):
             return True
         max_agreed = int(max_agreed.name)
         current_agreed = InterviewAnswerExpertProposal.objects.filter(
-            Q(expert_id=usr_id)
-            & Q(question=prop.question_id)
-            & Q(interview=prop.interview_id)
-            & Q(is_agreed=True)
+            expert_id=usr_id,
+            question=prop.question_id,
+            interview=prop.interview_id,
+            is_agreed=True
         ).count()
 
         if max_agreed <= current_agreed:
