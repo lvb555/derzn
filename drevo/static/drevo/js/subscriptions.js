@@ -26,8 +26,7 @@ allTag()
 noSub()
 
 function noSub() {
-    console.log()
-    if (document.getElementById('flexSwitchCheckDefault').checked === false && checkBoxes_checked.length === 0) {
+    if (document.getElementById('flexSwitchCheckDefault').checked === false && itemForm.querySelectorAll('.checkbox_1:checked').length === 0) {
         document.getElementById('noSubsText').style.display = '';
     } else {
         document.getElementById('noSubsText').style.display = 'none';
@@ -38,7 +37,7 @@ function noSub() {
 
 function allTag() {
     var radio = document.getElementById('flexSwitchCheckDefault')
-    noSub()
+
 
     if(radio.checked) {
         checkbox_selectAll.disabled = false;
@@ -53,8 +52,9 @@ function allTag() {
                 item.style.display = 'none';
             }
         })
-
     }
+
+    noSub()
 }
 
 
@@ -151,6 +151,10 @@ async function makeRequest(url, method, body) {
 // Функция выполняется при нажатии кнопки "Сохранить".
 async function send_data() {
     await makeRequest('/drevo/subscription_by_tag/', 'POST', JSON.stringify(change_flag))
+}
+
+async function send_data_to_author() {
+    await makeRequest('/drevo/subscribe_to_author/', 'POST', JSON.stringify(change_flag))
 }
 
 

@@ -1,0 +1,18 @@
+---
+- name: main installation
+  hosts: prod
+  tasks:
+    - import_tasks: ./tasks/main.yaml
+  vars:
+    site_root: '/var/www/u1353596/data/www/derzn.ru'
+    project_root: '{{ site_root }}/dz'
+    virtualenv_dir: '{{ site_root }}/venv'
+    git_ref_to_install: 'maintenance/deploy-prod'
+    files_dir: 'files/prod'
+    envs_file: '{{ files_dir }}/envs'
+    settings_file: '{{ files_dir }}/settings.py'
+    passenger_file: '{{ files_dir }}/passenger_wsgi.py' # TODO: copy to root of the site
+
+  # virtualenv installation
+  environment:
+    PATH: '{{ ansible_env.PATH }}:/var/www/u1353596/data/.local/bin/'

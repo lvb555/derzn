@@ -14,13 +14,13 @@ from .forms.relation_form import RelationAdminForm
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation_grade import RelationGrade
 from drevo.models.relation_grade_scale import RelationGradeScale
-from drevo.models.friends import FriendsTerm
 from drevo.models.friends_invite import FriendsInviteTerm
 from drevo.models.label_feed_message import LabelFeedMessage
 from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
-from .models.interview_results_schedule import InterviewResultsSendingSchedule
+from drevo.models.developer import Developer
+from drevo.models.quiz_results import QuizResult
 
-
+from .forms.developer_form import DeveloperForm
 from .forms import (
     ZnanieForm,
     AuthorForm,
@@ -41,7 +41,10 @@ from .models import (
     GlossaryTerm,
     ZnRating,
     Comment,
-)
+    KnowledgeStatuses,
+    AgeUsersScale,
+    InterviewResultsSendingSchedule
+    )
 from .services import send_notify_interview
 
 
@@ -351,6 +354,20 @@ class CommentAdmin(admin.ModelAdmin):
 
 admin.site.register(Comment, CommentAdmin)
 
+class QuizResultAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        "quiz",
+        "question",
+        "answer",
+        "user",
+        "date_time",
+    )
+
+    verbose_name = 'Результаты теста'
+    verbose_name_plural = 'Результаты тестов'
+
+
+admin.site.register(QuizResult, QuizResultAdmin)
 
 class KnowledgeGradeScaleAdmin(admin.ModelAdmin):
     list_display = (
@@ -383,6 +400,7 @@ class KnowledgeGradeAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = ("grade", "created_at", "knowledge")
+    autocomplete_fields = ("knowledge",)
 
 
 admin.site.register(KnowledgeGrade, KnowledgeGradeAdmin)
@@ -469,6 +487,15 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
     def answer_link(self, obj):
         return self.link_to_knowledge_change(obj.answer)
 
+class DeveloperAdmin(admin.ModelAdmin):
+    list_display = ("name", "surname", "contribution", "comment", "admin")
+    fields = ("name", "surname", "contribution", "comment", "admin")
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs["form"] = DeveloperForm
+        return super().get_form(request, obj, **kwargs)
+
+admin.site.register(Developer, DeveloperAdmin)
 
 @admin.register(InterviewResultsSendingSchedule)
 class InterviewResultsSendingScheduleAdmin(admin.ModelAdmin):
@@ -483,3 +510,7 @@ admin.site.register(FriendsTerm)
 admin.site.register(FriendsInviteTerm)
 admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
+admin.site.register(AgeUsersScale)
+@admin.register(KnowledgeStatuses)
+class KnowledgeStatusesAdmin(admin.ModelAdmin):
+    list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)

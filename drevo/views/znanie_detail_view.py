@@ -1,12 +1,13 @@
 from django.views.generic import DetailView
 from datetime import datetime
+from drevo.models.label_feed_message import LabelFeedMessage
 
-from users.models import Favourite
-from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory
+from users.models import Favourite, User
+from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory, Tz
 from loguru import logger
 from ..relations_tree import (get_category_for_knowledge, get_ancestors_for_knowledge,
                               get_siblings_for_knowledge,
-                              get_children_by_relation_type_for_knowledge)
+                              get_children_by_relation_type_for_knowledge, get_children_for_knowledge)
 import humanize
 
 
@@ -20,7 +21,12 @@ class ZnanieDetailView(DetailView):
     """
     model = Znanie
     context_object_name = 'znanie'
-    template_name = 'drevo/znanie_detail.html'
+
+    def get_template_names(self):
+        if self.object.tz in Tz.objects.filter(name='Тест'):
+            return ['drevo/quiz_detail.html']
+        else:
+            return ['drevo/znanie_detail.html']
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
@@ -37,7 +43,7 @@ class ZnanieDetailView(DetailView):
         # получаем список всех видов связей
         ts = Tr.objects.all()
 
-        context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True)]
+        context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True).prefetch_related('rz')]
                            for item in ts if qs.filter(tr=item, rz__is_published=True).count() > 0]
 
         # сохранение ip пользователя
@@ -103,5 +109,52 @@ class ZnanieDetailView(DetailView):
         context['comment_max_length'] = Comment.CONTENT_MAX_LENGTH
 
         context['table'] = knowledge.get_table_object()
+
+        # возвращает кнопку прохождения тестирования, если знание- базовое для теста
+
+        context['button'] = []
+        for relation, children in context['children_by_tr'].items():
+            if relation.name == 'Тест':
+                context['button'].append(children)
+
+        # создает контекст, в котором "внуки" знания, если это знание - тест
+        if self.object.tz in Tz.objects.filter(name='Тест'):
+
+            context['all_answers_and_questions'] = {}
+            context['right_answer'] = {}
+            for relation_name, relations in context['rels']:
+
+                for item in relations:
+
+                    context['all_answers_and_questions'][str(item.rz)] = get_children_for_knowledge(
+                        item.rz).order_by('-pk')
+                    grandson = get_children_by_relation_type_for_knowledge(
+                        item.rz)
+                    if grandson:
+                        for question, answer in grandson.items():
+                            if question.name == 'Ответ верный':
+                                context['right_answer'][str(item.rz)+' '+str(item.rz.pk)] = answer
+                    else:
+                        context['right_answer'][str(item.rz) + ' ' + str(item.rz.pk)] = 'На этот вопрос еще нет ответа'
+            context['all_answers_and_questions'] = dict(sorted(context['all_answers_and_questions'].items(),
+                                                               key=lambda a: a, reverse=True))
+
+
+        labels = LabelFeedMessage.objects.all()
+        context['labels'] = labels
+
+        # создание списка для отображения в блоке отправления
+        try:
+            user = User.objects.get(id = self.request.user.id)
+            my_friends = user.user_friends.all().prefetch_related('profile') # те, кто в друзьях у меня
+            i_in_friends = user.users_friends.all().prefetch_related('profile') # те, у кого я в друзьях
+            
+            all_friends = my_friends.union(i_in_friends, all=False)
+            context['friends'] = all_friends
+            context['friends_count'] = len(all_friends)
+        
+        # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
+        except TypeError:
+            pass
 
         return context

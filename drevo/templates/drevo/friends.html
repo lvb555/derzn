@@ -10,46 +10,68 @@
 <link rel="stylesheet" href="{% static '/drevo/css/search.css' %}">
 {% endblock %}
 
-<div>
-    <div class="col-md-10 col-sm-12">
-        <h2>Друзья {% if invite_count %} <a class="btn btn-primary btn-sm" href="friends_invite/">{{ invite_count }}</a> {% endif %}</h2>
-    </div>
+{% if not user.is_authenticated %}
+        <div class="col">
+            <div class="row">
+                <div class="card alert-warning my-4">
+                    <div class="card-body">
+                      <span class="card-text">
+                        <a href="{% url 'users:login' %}?next={{ request.path }}"
+                           style="text-decoration: none">Войдите</a>
+                        или
+                        <a href="{% url 'users:register' %}?next={{ request.path }}" style="text-decoration: none">зарегистрируйтесь</a>,
+                        чтобы поставить оценку.
+                      </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% else %}
+    <div>
+        <div class="col-md-10 col-sm-12">
+            <h2>Друзья {% if invite_count %} <a class="btn btn-primary btn-sm" href="friends_invite/">{{ invite_count }}</a> {% endif %}</h2>
+        </div>
 
-    <div class="friends_input col-md-2 col-sm-12">
-        <a class="btn btn-primary btn-sm" href="{% url 'knowledge_feed' %}">Лента знаний</a>
-        <a class="btn btn-primary btn-sm" href="{% url 'friends_added' %}">Добавить друга</a>
-    </div>
+        <div class="friends_input col-md-2 col-sm-12">
+            <a class="btn btn-primary btn-sm" href="{% url 'knowledge_feed' %}">Лента знаний</a>
+            <a class="btn btn-primary btn-sm" href="{% url 'friends_added' %}">Добавить друга</a>
+        </div>
 
-    <table class="table">
-        <tr>
-            <th>Аватар</th>
-            <th>Имя</th>
-            <th>Фамилия</th>
-        </tr>
-        <tbody>
-        {% for one in friends %}
-        <tr>
-            <td>
-                <img src="{{ one.avatar.url }}" height="50px" width="50px">
-            </td>
-            <td>
-                {{ one.first_name }}
-            </td>
-            <td>
-                {{ one.last_name }}
-            </td>
-            <td>
-                <form method="GET" action="">
-                    <button class="btn btn-primary btn-sm" name="remove" value="{{ one.user_id }}" >
-                        Удалить из друзей
-                    </button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-        {% endfor %}
-    </table>
-</div>
+        <table class="table">
+            <tr>
+                <th>Аватар</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+            </tr>
+            <tbody>
+            {% for one in friends %}
+            <tr>
+                <td>
+                    {% if one.profile.avatar %}
+                        <img class="rounded-circle" src="{{ one.profile.avatar.url }}" height="50px" width="50px">
+                    {% else %}
+                        <img class="rounded-circle" src="{% static 'src/default_avatar.jpg' %}" height="50px" width="50px">
+                    {% endif %}
+                </td>
+                <td>
+                    {{ one.first_name }}
+                </td>
+                <td>
+                    {{ one.last_name }}
+                </td>
+                <td>
+                    <form method="GET" action="">
+                        <button class="btn btn-primary btn-sm" name="remove" value="{{ one.id }}" >
+                            Удалить из друзей
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+{% endif %}
 
 
 {% endblock %}
