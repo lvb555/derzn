@@ -39,7 +39,13 @@ def get_interview_results_not_accepted(proposals, proposals_un_notified):
 
 @register.inclusion_tag('email_templates/interview_result_email/expert_results_unprocessed.html')
 def get_interview_results_unprocessed(interview, question, proposals):
-    question_pk = Znanie.objects.filter(name=question).first().pk
-    interview_url_kwargs = {'interview_pk': interview.pk, 'question_pk': question_pk}
+    question_obj = Znanie.objects.filter(name=question).first()
+    interview_url_kwargs = {'interview_pk': interview.pk, 'question_pk': question_obj.pk}
     interview_url = f"{settings.BASE_URL}{reverse('question_expert_work', kwargs=interview_url_kwargs)}"
-    return dict(proposals=proposals, interview_url=interview_url, interview_name=interview.name)
+    context = dict(
+        proposals=proposals,
+        interview_url=interview_url,
+        interview_name=interview.name,
+        question_name=question_obj.name
+    )
+    return context

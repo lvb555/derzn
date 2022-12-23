@@ -78,7 +78,7 @@ class InterviewQuestionsView(DetailView):
         tz_obj = Tz.objects.get(name='Вопрос')
         questions = Relation.objects.select_related('rz').filter(
             Q(bz=self.object) & Q(rz__tz=tz_obj)
-        ).order_by('rz__name', 'rz__order').values('rz', 'rz__name')
+        ).order_by('-rz__order', 'rz__name').values('rz', 'rz__name')
 
         data = []
 

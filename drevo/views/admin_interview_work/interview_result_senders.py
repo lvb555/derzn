@@ -79,7 +79,7 @@ class InterviewResultSender:
                 continue
             if proposal.status == 'APPRVE':
                 proposals_data[question]['accepted'].append(proposal)
-            if proposal.status == 'ANSDPL':
+            if proposal.status == 'ANSDPL' or proposal.status == 'RESDPL':
                 proposals_data[question]['duplicates'].append(proposal)
             else:
                 proposals_data[question]['not_accepted'].append(proposal)
@@ -108,7 +108,7 @@ class InterviewResultSender:
         # Получаем список всех вопросов интервью
         interview_questions = Relation.objects.select_related('rz').filter(
             Q(bz=self.interview) & Q(rz__tz=Tz.objects.get(name='Вопрос'))
-        ).values_list('rz__name', flat=True)
+        ).order_by('-rz__order').values_list('rz__name', flat=True)
 
         answers_data = {question: None for question in interview_questions}  # {question: [answers...]}
 
@@ -117,6 +117,6 @@ class InterviewResultSender:
             # Получаем все ответы по вопросу интервью
             answers_data[question] = Relation.objects.select_related('bz', 'rz').prefetch_related('rz__author').filter(
                 Q(bz__name=question) & Q(tr=Tr.objects.get(name='Ответ [ы]'))
-            ).values(answer_name=F('rz__name'), author_name=F('rz__author__name'))
+            ).order_by('-rz__order').values(answer_name=F('rz__name'), author_name=F('rz__author__name'))
 
         return True, dict(new_answers=new_answers, answers_data=answers_data)

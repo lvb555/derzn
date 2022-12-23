@@ -68,16 +68,18 @@
             {% endif %}
         </p>
         {% for question, answers in answers_data.items %}
+        {% if answers %}
+        <h3>Вопрос {{ forloop.counter }}. "{{ question }}"</h3>
         <ul>
-            {% if answers %}
-            <h3>Ответы на вопрос {{ question }}:</h3>
             {% for answer in answers %}
             <li>
-                <h4 class="{% if answer.answer_name in new_answers %}new{% endif %}">{{answer.answer_name}} | Автор: {{ answer.author_name }}</h4>
+                <h4 class="{% if answer.answer_name in new_answers %}new{% endif %}">
+                    {{answer.answer_name}} | Автор: {{ answer.author_name }}
+                </h4>
             </li>
             {% endfor %}
-            {% endif %}
         </ul>
+        {% endif %}
         <br>
         {% endfor %}
     </div>
