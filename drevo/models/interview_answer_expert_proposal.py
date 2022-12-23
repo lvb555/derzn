@@ -6,6 +6,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from drevo.models.knowledge import Znanie
+from drevo.models.relation import Relation
+from drevo.models.relation_type import Tr
 
 User = get_user_model()
 
@@ -212,6 +214,40 @@ class InterviewAnswerExpertProposal(models.Model):
             )
         else:
             return InterviewAnswerExpertProposal.objects.get(pk=proposal_pk)
+
+    def check_max_agreed(prop):
+        """
+        Контроль максимально разрешенных чекбоксов (с ответом согласен) эксперта
+        с ответами и предложениями.
+        Возвращает true, если разрешено менять поле is_agree ответов и предложений
+        с false на true. Если число ответов и предложений с is_agree=true
+        больше max_agreed  - возвращает false.
+        """
+        usr_id = Znanie.objects.get(id=prop.question_id).user_id
+        max_agreed = (
+            Relation.objects.filter(
+                bz_id=prop.question_id,
+                tr_id=Tr.objects.get(name="Число ответов").id,
+                user_id=usr_id,
+            )
+            .order_by()
+            .last()
+        )
+        max_agreed = Znanie.objects.get(id=max_agreed.rz_id)
+        if not max_agreed:
+            return True
+        max_agreed = int(max_agreed.name)
+        current_agreed = InterviewAnswerExpertProposal.objects.filter(
+            expert_id=usr_id,
+            question=prop.question_id,
+            interview=prop.interview_id,
+            is_agreed=True,
+        ).count()
+
+        if max_agreed <= current_agreed:
+            return False
+
+        return True
 
     def get_arguments(self) -> t.List[str]:
         return self.comment.get("arguments", [])
