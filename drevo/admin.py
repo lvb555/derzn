@@ -18,6 +18,7 @@ from drevo.models.friends import FriendsTerm
 from drevo.models.friends_invite import FriendsInviteTerm
 from drevo.models.label_feed_message import LabelFeedMessage
 from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
+from .models.interview_results_schedule import InterviewResultsSendingSchedule
 
 
 from .forms import (
@@ -467,6 +468,11 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
 
     def answer_link(self, obj):
         return self.link_to_knowledge_change(obj.answer)
+
+
+@admin.register(InterviewResultsSendingSchedule)
+class InterviewResultsSendingScheduleAdmin(admin.ModelAdmin):
+    list_display = ['id', 'interview', 'next_sending', 'last_sending']
 
 
 admin.site.register(FriendsTerm)
