@@ -47,10 +47,6 @@ class InterviewResultSender:
         """
             Метод для создания первой части сообщения
         """
-        # Отбираем предложения для  эксперта
-        # {'question_name': {'accepted': [...], 'duplicates': [...], 'not_accepted': [...], 'unprocessed': [...]}}
-        proposals_data = dict()
-
         # Получаем все предложения эксперта по данному интервью
         proposals_all = InterviewAnswerExpertProposal.objects.select_related('expert', 'new_answer', 'question').filter(
             Q(interview__pk=self.interview.pk) & Q(expert=expert)
@@ -62,12 +58,19 @@ class InterviewResultSender:
         if not proposals_un_notified.filter(~Q(status=None)).exists():
             return False, dict()
 
+        # Получаем все вопросы интервью
+        interview_questions = Relation.objects.select_related('rz').filter(
+            Q(bz=self.interview) & Q(rz__tz=Tz.objects.get(name='Вопрос'))
+        ).order_by('-rz__order').values_list('rz__name', flat=True)
+
+        proposals_data = {question: None for question in interview_questions}
+
         first_part_data = dict()
 
         # Разделяем предложения по вопросам и статусам
         for proposal in proposals_all:
             question = proposal.question.name
-            if question not in proposals_data.keys():
+            if proposals_data.get(question) is None:
                 proposals_data[question] = {
                     'accepted': list(),
                     'duplicates': list(),

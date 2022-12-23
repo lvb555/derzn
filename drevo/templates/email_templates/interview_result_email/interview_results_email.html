@@ -36,6 +36,7 @@
         <br>
         <div>
             {% for question, proposals in proposals_data.items %}
+            {% if proposals %}
             <h3> Вопрос {{ forloop.counter }}. {{ question }}</h3>
             <div>
                 {% get_interview_results_accepted proposals=proposals.accepted proposals_un_notified=proposals_un_notified %}
@@ -50,6 +51,7 @@
                 {% get_interview_results_unprocessed interview=interview question=question proposals=proposals.unprocessed %}
             </div>
             <hr>
+            {% endif %}
             {% endfor %}
         </div>
     </div>
