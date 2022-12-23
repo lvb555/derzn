@@ -8,6 +8,7 @@ from .comment_send_view import CommentSendView
 from .drevo_list_view import DrevoListView
 from .drevo_view import DrevoView
 from .expert_work.proposal_delete_view import ProposalDeleteView
+from .knowledge_view import KnowledgeView
 from .expert_work.views import (
     QuestionExpertWorkPage,
     propose_answer,
@@ -43,6 +44,7 @@ __all__ = [
     "CommentSendView",
     "DrevoListView",
     "DrevoView",
+    "KnowledgeView",
     "GlossaryListView",
     "LabelsListView",
     "ZnanieByLabelView",
