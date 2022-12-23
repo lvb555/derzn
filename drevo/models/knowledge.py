@@ -116,6 +116,10 @@ class Znanie(models.Model):
         verbose_name='Пересылать',
         default=True
     )
+    show_link = models.BooleanField(
+        verbose_name='Отображать как ссылку?',
+        default=True,
+    )
 
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
