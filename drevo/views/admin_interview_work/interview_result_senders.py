@@ -118,8 +118,13 @@ class InterviewResultSender:
         # Разделяем ответы по вопросам
         for question in interview_questions:
             # Получаем все ответы по вопросу интервью
-            answers_data[question] = Relation.objects.select_related('bz', 'rz').prefetch_related('rz__author').filter(
+            answers_data[question] = Relation.objects.\
+                select_related('bz', 'rz').prefetch_related('rz__author, rz__answer_proposals').filter(
                 Q(bz__name=question) & Q(tr=Tr.objects.get(name='Ответ [ы]'))
-            ).order_by('-rz__order').values(answer_name=F('rz__name'), author_name=F('rz__author__name'))
+            ).order_by('-rz__order').values(
+                answer_name=F('rz__name'),
+                author_name=F('rz__author__name'),
+                author_is_agreed=F('rz__answer_proposals__is_agreed')
+            )
 
         return True, dict(new_answers=new_answers, answers_data=answers_data)

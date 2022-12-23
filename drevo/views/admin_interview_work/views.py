@@ -342,7 +342,7 @@ class NotifyExpertsView(RedirectView):
                 for obj in proposals:
                     obj.is_notified = True
                     notified_proposals.append(obj)
-                # InterviewAnswerExpertProposal.objects.bulk_update(notified_proposals, ['is_notified'])
+                InterviewAnswerExpertProposal.objects.bulk_update(notified_proposals, ['is_notified'])
                 request.session['is_notified'] = True
                 schedule = InterviewResultsSendingSchedule.objects.get(interview__pk=inter_pk)
                 schedule.save()

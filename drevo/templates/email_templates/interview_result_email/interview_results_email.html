@@ -60,7 +60,7 @@
     {% if second_part_is_created %}
     <!--Вторая часть сообщения (общие результаты по новым ответам)-->
     <div>
-        <h2>Новые ответы</h2>
+        <h2>Ответы на вопросы интервью</h2>
         <p>
             В рамках проводимого интервью <strong>'{{ interview.name }}'</strong>
             {% if new_answers|length > 1 %}
@@ -76,7 +76,7 @@
             {% for answer in answers %}
             <li>
                 <h4 class="{% if answer.answer_name in new_answers %}new{% endif %}">
-                    {{answer.answer_name}} | Автор: {{ answer.author_name }}
+                    {{answer.answer_name}} | Автор: {{ answer.author_name }} {% if answer.author_is_agreed %} | Выбран экспертом {% endif %}
                 </h4>
             </li>
             {% endfor %}

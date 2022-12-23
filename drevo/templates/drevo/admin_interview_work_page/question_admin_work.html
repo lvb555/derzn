@@ -109,7 +109,7 @@
                 </tbody>
             </table>
             <div class="text-end me-5">
-                Дата последней рассылки: {{ last_sending|date:"d.m.Y h:m" }}
+                Дата последней рассылки: {{ last_sending|date:"d.m.Y H:i" }}
             </div>
             <div class="text-end me-5">
                 <input type="submit" class="btn btn-warning w-25" name='save_input' title="Дата последней рассылки: {{ last_sending|date:'d.m.Y h:m' }}" value="Сохранить - Уведомить">
