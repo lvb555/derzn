@@ -506,7 +506,6 @@ class InterviewResultsSendingScheduleAdmin(admin.ModelAdmin):
         return False
 
 
-admin.site.register(FriendsTerm)
 admin.site.register(FriendsInviteTerm)
 admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
