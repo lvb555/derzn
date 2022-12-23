@@ -6,10 +6,12 @@ from django.forms import modelformset_factory
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy, reverse
+from django.utils.timezone import now
 from django.views.generic import ListView, DetailView, UpdateView, RedirectView
 from ...models import Relation, Tz, Author, Tr, CategoryExpert
 from ...models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from ...models.knowledge import Znanie
+from ...models.interview_results_schedule import InterviewResultsSendingSchedule
 from ...forms.admin_interview_work_form import InterviewAnswerExpertProposalForms
 from .interview_result_senders import InterviewResultSender
 from ...forms.knowledge_form import ZnanieForm
@@ -102,10 +104,10 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     """
     chek_is_stuff(request.user)
     context = dict()
-    interview = Znanie.objects.values('pk', 'name').get(pk=inter_pk)
+    interview = Znanie.objects.get(pk=inter_pk)
     context['interview'] = interview
     period = Relation.objects.select_related('tr', 'rz').filter(
-        Q(bz__pk=interview.get('pk')) & Q(tr__name='Период интервью')
+        Q(bz__pk=interview.pk) & Q(tr__name='Период интервью')
     ).first().rz.name
 
     question = Znanie.objects.values('pk', 'name').get(pk=quest_pk)
@@ -115,6 +117,9 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     start_day, start_month, start_year = period.replace('-', '').split(' ')[0].split('.')
     start_date = date(int(f'20{start_year}'), int(start_month), int(start_day))
     context['interview_start_date'] = start_date
+
+    interview_schedule, _ = InterviewResultsSendingSchedule.objects.get_or_create(interview=interview)
+    context['last_sending'] = interview_schedule.last_sending
 
     context['cur_filter'] = request.GET.get('filter')
 
@@ -242,11 +247,13 @@ def question_admin_work_view(request, inter_pk, quest_pk):
 
             if 'save_input' in request.POST:
                 request.session['is_saved'] = True
-            # redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
-            redirect_url = f"{reverse('admin_notify_experts', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
-            # if context.get('cur_filter'):
-            #     get_params = f"?filter={context.get('cur_filter')}"
-            #     return redirect(f'{redirect_url}{get_params}')
+            if now() >= interview_schedule.next_sending:
+                redirect_url = f"{reverse('admin_notify_experts', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
+                return redirect(redirect_url)
+            redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
+            if context.get('cur_filter'):
+                get_params = f"?filter={context.get('cur_filter')}"
+                return redirect(f'{redirect_url}{get_params}')
             return redirect(redirect_url)
     else:
         formset = InterviewAnswerExpertFormSet(queryset=queryset)
@@ -337,4 +344,6 @@ class NotifyExpertsView(RedirectView):
                     notified_proposals.append(obj)
                 # InterviewAnswerExpertProposal.objects.bulk_update(notified_proposals, ['is_notified'])
                 request.session['is_notified'] = True
+                schedule = InterviewResultsSendingSchedule.objects.get(interview__pk=inter_pk)
+                schedule.save()
         return super(NotifyExpertsView, self).get(request, *args, **kwargs)

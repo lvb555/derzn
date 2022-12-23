@@ -473,6 +473,10 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
 @admin.register(InterviewResultsSendingSchedule)
 class InterviewResultsSendingScheduleAdmin(admin.ModelAdmin):
     list_display = ['id', 'interview', 'next_sending', 'last_sending']
+    readonly_fields = ['interview']
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 admin.site.register(FriendsTerm)

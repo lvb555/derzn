@@ -1,6 +1,8 @@
 import datetime
 
 from django.db import models
+from django.utils.timezone import now
+
 from .knowledge import Znanie
 
 
@@ -16,6 +18,7 @@ class InterviewResultsSendingSchedule(models.Model):
         to=Znanie,
         on_delete=models.CASCADE,
         related_name='sending_schedule',
+        unique=True,
         help_text='Выберите знание, вид которого "Интервью"'
     )
     next_sending = models.DateTimeField(
@@ -36,8 +39,7 @@ class InterviewResultsSendingSchedule(models.Model):
         # Проверка на то, что знание это интервью
         if (not self.pk) and (self.interview.tz.name != 'Интервью'):
             raise ValueError('В поле interview должно храниться знание, вид которого "Интервью"')
-        if self.pk:
-            self.next_sending = self.last_sending.date + datetime.timedelta(days=self.NOT_MORE_OFTEN)
+        self.next_sending = now() + datetime.timedelta(days=self.NOT_MORE_OFTEN)
         return super(InterviewResultsSendingSchedule, self).save(*args, **kwargs)
 
     def __str__(self):

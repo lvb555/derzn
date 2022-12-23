@@ -56,7 +56,6 @@
             </div>
             <table class="table table-bordered">
                 <thead style="position: sticky; top: 65px;" class="bg-secondary text-white">
-                <th scope="col" rowspan="2" class="text-center">№</th>
                 <th scope="col" colspan="2" class="text-center"> Информация эксперта</th>
                 <th scope="col" colspan="3" class="text-center"> Информация руководителя</th>
                 <tr>
@@ -81,7 +80,6 @@
                 <tbody>
                 {% for elm, form in questions %}
                 <tr>
-                    <th scope="row">{{ elm.pk }}</th>
                     <td>{{ elm.expert.get_full_name }}</td>
                     <td>
                         <textarea name="" id="" cols="30" rows="10" style="height:150px; overflow-y: scroll; width: 250px; height: 125px;" readonly>{{ elm.new_answer_text }}</textarea>
@@ -111,7 +109,10 @@
                 </tbody>
             </table>
             <div class="text-end me-5">
-                <input type="submit" class="btn btn-warning w-25" name='save_input' value="Сохранить - Уведомить">
+                Дата последней рассылки: {{ last_sending|date:"d.m.Y h:m" }}
+            </div>
+            <div class="text-end me-5">
+                <input type="submit" class="btn btn-warning w-25" name='save_input' title="Дата последней рассылки: {{ last_sending|date:'d.m.Y h:m' }}" value="Сохранить - Уведомить">
 <!--                <input type="submit" class="btn btn-warning w-25" name='save_input' value="Сохранить - Уведомить" {% if not props_without_status %} disabled="true" {% endif %}>-->
             </div>
         </form>
