@@ -7,6 +7,7 @@ from .comment_page_view import CommentPageView
 from .comment_send_view import CommentSendView
 from .drevo_list_view import DrevoListView
 from .drevo_view import DrevoView
+from .expert_work.proposal_delete_view import ProposalDeleteView
 from .expert_work.views import (
     QuestionExpertWorkPage,
     propose_answer,
@@ -63,7 +64,8 @@ __all__ = [
     "update_answer_proposal",
     "QuestionExpertWorkPage",
     "send_znanie",
-    'QuizListView',
+    "QuizListView",
+    "ProposalDeleteView",
+    "KnowledgeStatisticFormView",
     'QuizResultAdd',
-    'KnowledgeStatisticFormView'
 ]
