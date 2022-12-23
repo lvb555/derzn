@@ -114,7 +114,7 @@ class ZnanieDetailView(DetailView):
 
         context['button'] = []
         for relation, children in context['children_by_tr'].items():
-            if relation.pk == 24:
+            if relation.name == 'Тест':
                 context['button'].append(children)
 
         # создает контекст, в котором "внуки" знания, если это знание - тест
@@ -130,10 +130,12 @@ class ZnanieDetailView(DetailView):
                         item.rz).order_by('-pk')
                     grandson = get_children_by_relation_type_for_knowledge(
                         item.rz)
-
-                    for question, answer in grandson.items():
-                        if question.pk == 26:
-                            context['right_answer'][str(item.rz)] = answer
+                    if grandson:
+                        for question, answer in grandson.items():
+                            if question.name == 'Ответ верный':
+                                context['right_answer'][str(item.rz)+' '+str(item.rz.pk)] = answer
+                    else:
+                        context['right_answer'][str(item.rz) + ' ' + str(item.rz.pk)] = 'На этот вопрос еще нет ответа'
             context['all_answers_and_questions'] = dict(sorted(context['all_answers_and_questions'].items(),
                                                                key=lambda a: a, reverse=True))
 

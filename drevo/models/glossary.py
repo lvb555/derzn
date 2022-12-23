@@ -13,7 +13,7 @@ class GlossaryTerm(models.Model):
         blank=True
     )
     name = models.CharField(
-        max_length=256,
+        max_length=255,
         verbose_name='Термин',
         unique=True
     )
