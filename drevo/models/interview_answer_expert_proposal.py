@@ -228,7 +228,7 @@ class InterviewAnswerExpertProposal(models.Model):
             Relation.objects.filter(
                 bz_id=prop.question_id,
                 tr_id=Tr.objects.get(name="Число ответов").id,
-                user_id=usr_id
+                user_id=usr_id,
             )
             .order_by()
             .last()
@@ -241,7 +241,7 @@ class InterviewAnswerExpertProposal(models.Model):
             expert_id=usr_id,
             question=prop.question_id,
             interview=prop.interview_id,
-            is_agreed=True
+            is_agreed=True,
         ).count()
 
         if max_agreed <= current_agreed:

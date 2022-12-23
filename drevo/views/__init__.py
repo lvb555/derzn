@@ -65,5 +65,5 @@ __all__ = [
     "send_znanie",
     "QuizListView",
     "ProposalDeleteView",
-    'KnowledgeStatisticFormView'
+    "KnowledgeStatisticFormView",
 ]
