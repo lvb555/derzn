@@ -33,7 +33,7 @@
                     </th>
                     {% for col in row %}
                         <td class="table-border">
-                            {% if col.has_link %}
+                            {% if col.show_link %}
                                 <a href="{{ col.get_absolute_url }}">{{ col.name }}</a>
                             {% else %}
                                 {{ col.name }}
@@ -70,7 +70,7 @@
                             {% for value in values_row %}
                                 <td class="table-border">
                                     {% if value %}
-                                        {% if value.has_link %}
+                                        {% if value.show_link %}
                                             <a href="{{ value.get_absolute_url }}">{{ value.name }}</a>
                                         {% else %}
                                             {{ value.name }}
@@ -108,7 +108,7 @@
                     </th>
                     {% for col in row %}
                         <td class="table-border">
-                            {% if col.has_link %}
+                            {% if col.show_link %}
                                 <a href="{{ col.get_absolute_url }}">{{ col.name }}</a>
                             {% else %}
                                 {{ col.name }}
@@ -148,7 +148,7 @@
                             {% for value in values_row %}
                                 <td class="table-border">
                                     {% if value %}
-                                        {% if value.has_link %}
+                                        {% if value.show_link %}
                                             <a href="{{ value.get_absolute_url }}">{{ value.name }}</a>
                                         {% else %}
                                             {{ value.name }}
