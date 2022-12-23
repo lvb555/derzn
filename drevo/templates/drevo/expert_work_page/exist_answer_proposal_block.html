@@ -1,21 +1,17 @@
 <div class="answer row gy-2" id="answer_block">
-    <div class="answer__title col">
-        {% if answer.id and answer.id != 0 %}
-        <a href="{% url 'zdetail' answer.id %}" target="_blank">{{answer.text}}</a>
-        {% else %}
-        <span>{{answer.text}}</span>
-        {% endif %}
+    <div class="row">
+        <div class="col-12">
+            <div class="answer__title col">
+                {% if answer.id and answer.id != 0 %}
+                <a href="{% url 'zdetail' answer.id %}" target="_blank">{{answer.text}}</a>
+                {% else %}
+                <span>{{answer.text}}</span>
+                {% endif %}
 
-    </div>
-    <form id="proposal_form_{{proposal.id}}"
-          hx-boost="true"
-          hx-trigger="change delay:500ms"
-          hx-target="this"
-          class="answer__proposal col"
-          action="{% url 'update_answer_proposal' interview.id question.id answer.id %}"
-          method="POST">
-        <div class="opinion">
-            {% include "./proposal_form_body.html" %}
+            </div>
         </div>
-    </form>
+    </div>
+            <div class="row">
+                {% include "./answer_form_body.html" %}
+            </div>
 </div>

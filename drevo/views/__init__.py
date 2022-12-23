@@ -1,11 +1,13 @@
 from .author_detail_view import AuthorDetailView
 from drevo.views.quiz_list_view import QuizListView
+from .quiz_result_processing_view import QuizResultAdd
 from .authors_list_view import AuthorsListView
 from .browsing_history import BrowsingHistoryListView
 from .comment_page_view import CommentPageView
 from .comment_send_view import CommentSendView
 from .drevo_list_view import DrevoListView
 from .drevo_view import DrevoView
+from .expert_work.proposal_delete_view import ProposalDeleteView
 from .knowledge_view import KnowledgeView
 from .expert_work.views import (
     QuestionExpertWorkPage,
@@ -64,6 +66,8 @@ __all__ = [
     "update_answer_proposal",
     "QuestionExpertWorkPage",
     "send_znanie",
-    'QuizListView',
-    'KnowledgeStatisticFormView'
+    "QuizListView",
+    "ProposalDeleteView",
+    "KnowledgeStatisticFormView",
+    'QuizResultAdd',
 ]
