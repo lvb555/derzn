@@ -6,6 +6,10 @@
         min-width: 300px;
         max-width: 400px;
     }
+    table a {
+        color: black;
+        text-decoration: none;
+    }
 </style>
 <div class="table-responsive">
     <table class="table align-middle my-2" style="border-collapse: collapse;">
@@ -29,9 +33,11 @@
                     </th>
                     {% for col in row %}
                         <td class="table-border">
-                            <a href="{{ col.get_absolute_url }}">
+                            {% if col.show_link %}
+                                <a href="{{ col.get_absolute_url }}">{{ col.name }}</a>
+                            {% else %}
                                 {{ col.name }}
-                            </a>
+                            {% endif %}
                         </td>
                     {% endfor %}
                 </tr>
@@ -64,9 +70,11 @@
                             {% for value in values_row %}
                                 <td class="table-border">
                                     {% if value %}
-                                        <a href="{{ value.get_absolute_url }}">
+                                        {% if value.show_link %}
+                                            <a href="{{ value.get_absolute_url }}">{{ value.name }}</a>
+                                        {% else %}
                                             {{ value.name }}
-                                        </a>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             {% endfor %}
@@ -100,9 +108,11 @@
                     </th>
                     {% for col in row %}
                         <td class="table-border">
-                            <a href="{{ col.get_absolute_url }}">
+                            {% if col.show_link %}
+                                <a href="{{ col.get_absolute_url }}">{{ col.name }}</a>
+                            {% else %}
                                 {{ col.name }}
-                            </a>
+                            {% endif %}
                         </td>
                     {% endfor %}
                 </tr>
@@ -138,9 +148,11 @@
                             {% for value in values_row %}
                                 <td class="table-border">
                                     {% if value %}
-                                        <a href="{{ value.get_absolute_url }}">
+                                        {% if value.show_link %}
+                                            <a href="{{ value.get_absolute_url }}">{{ value.name }}</a>
+                                        {% else %}
                                             {{ value.name }}
-                                        </a>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             {% endfor %}
