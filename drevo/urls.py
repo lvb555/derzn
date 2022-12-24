@@ -27,7 +27,6 @@ from .views import (
     QuestionExpertWorkPage,
     friends_view,
     friends_added_view,
-    friends_invite_view,
     KnowledgeFormView,
     QuizListView,
     QuizResultAdd,

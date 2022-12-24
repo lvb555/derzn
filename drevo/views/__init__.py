@@ -22,7 +22,6 @@ from .admin_interview_work.views import (
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
 from .friends_added_view import friends_added_view
-from .friends_invite_view import friends_invite_view
 from .friends_view import friends_view
 from .glossary_list_view import GlossaryListView
 from .knowledge_grade_view import KnowledgeFormView
