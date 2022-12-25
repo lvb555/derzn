@@ -87,7 +87,7 @@ class ZnanieDetailView(DetailView):
         context['categories'] = categories
         context['chain'] = get_ancestors_for_knowledge(knowledge)
         context['siblings'] = get_siblings_for_knowledge(knowledge)
-        # context['children'] = get_children_for_knowledge(knowledge)
+        context['children'] = get_children_for_knowledge(knowledge)
         context['children_by_tr'] = get_children_by_relation_type_for_knowledge(
             knowledge)
         context['visits'] = Visits.objects.filter(
@@ -122,22 +122,18 @@ class ZnanieDetailView(DetailView):
 
             context['all_answers_and_questions'] = {}
             context['right_answer'] = {}
-            for relation_name, relations in context['rels']:
 
-                for item in relations:
-
-                    context['all_answers_and_questions'][str(item.rz)] = get_children_for_knowledge(
-                        item.rz).order_by('-pk')
-                    grandson = get_children_by_relation_type_for_knowledge(
-                        item.rz)
-                    if grandson:
-                        for question, answer in grandson.items():
-                            if question.name == 'Ответ верный':
-                                context['right_answer'][str(item.rz)+' '+str(item.rz.pk)] = answer
-                    else:
-                        context['right_answer'][str(item.rz) + ' ' + str(item.rz.pk)] = 'На этот вопрос еще нет ответа'
-            context['all_answers_and_questions'] = dict(sorted(context['all_answers_and_questions'].items(),
-                                                               key=lambda a: a, reverse=True))
+            for item in context['children'].order_by('-order'):
+                context['all_answers_and_questions'][str(item)] = get_children_for_knowledge(
+                    item).order_by('-order')
+                grandson = get_children_by_relation_type_for_knowledge(
+                    item)
+                if grandson:
+                    for question, answer in grandson.items():
+                        if question.name == 'Ответ верный':
+                            context['right_answer'][str(item)+' '+str(item.pk)] = answer
+                else:
+                    context['right_answer'][str(item) + ' ' + str(item.pk)] = 'На этот вопрос еще нет ответа'
 
 
         labels = LabelFeedMessage.objects.all()
