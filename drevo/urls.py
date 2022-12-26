@@ -127,7 +127,7 @@ urlpatterns = [
     ),
     path("friends/", friends_view, name="friends"),
     path("friends/friends_added/", friends_added_view, name="friends_added"),
-    path("friends/friends_invite/", friends_invite_view, name="friends_invite"),
+    # path("friends/friends_invite/", friends_invite_view, name="friends_invite"),
     path(
         "knowledge-feed/",
         knowledge_feed_view.knowledge_feed_view,
