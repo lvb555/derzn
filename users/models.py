@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.dispatch import receiver
@@ -5,6 +6,8 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
+from dateutil.parser import parse as du_parse
+from dateutil.relativedelta import relativedelta
 
 from hashlib import sha1
 from random import random
@@ -154,6 +157,18 @@ class Profile(models.Model):
         ):
             return True
         return False
+
+
+    def get_user_age(self):
+
+        try:
+            birth = du_parse(str(self.birthday_at), dayfirst = True)
+            today_date = du_parse(str(datetime.today()), dayfirst = True)
+            delta = relativedelta(today_date, birth)
+
+            return delta.years
+        except:
+            return 'дата рождения не указана'
 
     class Meta:
         verbose_name = "Профиль"
