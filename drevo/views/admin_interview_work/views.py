@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -118,7 +120,12 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     start_date = date(int(f'20{start_year}'), int(start_month), int(start_day))
     context['interview_start_date'] = start_date
 
-    interview_schedule, _ = InterviewResultsSendingSchedule.objects.get_or_create(interview=interview)
+    if not InterviewResultsSendingSchedule.objects.filter(interview=interview).exists():
+        interview_schedule = InterviewResultsSendingSchedule(interview=interview)
+        interview_schedule.is_interview()
+        interview_schedule.save()
+    else:
+        interview_schedule = InterviewResultsSendingSchedule.objects.get(interview=interview)
     context['last_sending'] = interview_schedule.last_sending
 
     context['cur_filter'] = request.GET.get('filter')
@@ -345,5 +352,7 @@ class NotifyExpertsView(RedirectView):
                 InterviewAnswerExpertProposal.objects.bulk_update(notified_proposals, ['is_notified'])
                 request.session['is_notified'] = True
                 schedule = InterviewResultsSendingSchedule.objects.get(interview__pk=inter_pk)
+                # Увеличиваем время следующей рассылки на NOT_MORE_OFTEN дней
+                schedule.next_sending = now() + datetime.timedelta(days=settings.NOT_MORE_OFTEN)
                 schedule.save()
         return super(NotifyExpertsView, self).get(request, *args, **kwargs)

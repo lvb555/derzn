@@ -32,14 +32,10 @@ class InterviewResultsSendingSchedule(models.Model):
         verbose_name_plural = 'Рассылки результатов интервью'
         ordering = ['-next_sending']
 
-    def save(self, *args, **kwargs):
+    def is_interview(self):
         # Проверка на то, что знание это интервью
-        if (not self.pk) and (self.interview.tz.name != 'Интервью'):
+        if self.interview.tz.name != 'Интервью':
             raise ValueError('В поле interview должно храниться знание, вид которого "Интервью"')
-        # Если запись уже была создана, то увеличиваем время следующей рассылки на NOT_MORE_OFTEN дней
-        if self.pk:
-            self.next_sending = now() + datetime.timedelta(days=settings.NOT_MORE_OFTEN)
-        return super(InterviewResultsSendingSchedule, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'Sending for: {self.interview}'
