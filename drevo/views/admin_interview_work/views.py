@@ -297,6 +297,13 @@ class AdminEditingKnowledgeView(UpdateView):
         chek_is_stuff(request.user)
         return super(AdminEditingKnowledgeView, self).dispatch(request, *args, **kwargs)
 
+    def get_form(self, form_class=None):
+        form = super(AdminEditingKnowledgeView, self).get_form()
+        for field in form.fields.keys():
+            if field not in ['is_published', 'is_send', 'show_link']:
+                form.fields[field].widget.attrs['class'] = 'form-control'
+        return form
+
     def get_context_data(self, **kwargs):
         context = super(AdminEditingKnowledgeView, self).get_context_data(**kwargs)
         interview = Znanie.objects.get(pk=self.kwargs.get('inter_pk'))
@@ -304,11 +311,6 @@ class AdminEditingKnowledgeView(UpdateView):
         context['knowledge_name'] = self.object.name
         context['interview_name'] = interview.name
         context['question_name'] = question.name
-        form = self.form_class(instance=self.object)
-        for field in form.fields:
-            if field not in ['is_published', 'is_send']:
-                form.fields[field].widget.attrs['class'] = 'form-control'
-        context['form'] = form
         return context
 
 
