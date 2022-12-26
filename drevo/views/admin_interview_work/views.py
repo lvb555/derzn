@@ -231,7 +231,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                         is_published=True
                     )
                     # Устанавливаем связь знания "Другое" с вопросом
-                    if not Relation.objects.filter(Q(bz=obj.question) & Q(rz=other_obj) & Q(user=obj.expert)).exists():
+                    if not Relation.objects.filter(bz=obj.question, rz=other_obj, user=obj.expert).exists():
                         author, _ = Author.objects.get_or_create(name=obj.expert.get_full_name)
                         Relation.objects.update_or_create(
                             bz=obj.question,

@@ -49,7 +49,7 @@ class InterviewResultSender:
         """
         # Получаем все предложения эксперта по данному интервью
         proposals_all = InterviewAnswerExpertProposal.objects.select_related('expert', 'new_answer', 'question').filter(
-            Q(interview__pk=self.interview.pk) & Q(expert=expert)
+            interview__pk=self.interview.pk, expert=expert
         ).order_by('question__name', '-updated')
         # Получаем предложения эксперта о которых он не был уведомлён
         proposals_un_notified = self.proposals.filter(expert=expert)
@@ -59,8 +59,8 @@ class InterviewResultSender:
             return False, dict()
 
         # Получаем все вопросы интервью
-        interview_questions = Relation.objects.select_related('rz').filter(
-            Q(bz=self.interview) & Q(rz__tz=Tz.objects.get(name='Вопрос'))
+        interview_questions = Relation.objects.select_related('rz', 'rz__tz').filter(
+            bz=self.interview, rz__tz__name='Вопрос'
         ).order_by('-rz__order').values_list('rz__name', flat=True)
 
         proposals_data = {question: None for question in interview_questions}
@@ -82,7 +82,7 @@ class InterviewResultSender:
                 continue
             if proposal.status == 'APPRVE':
                 proposals_data[question]['accepted'].append(proposal)
-            if proposal.status == 'ANSDPL' or proposal.status == 'RESDPL':
+            elif proposal.status == 'ANSDPL' or proposal.status == 'RESDPL':
                 proposals_data[question]['duplicates'].append(proposal)
             else:
                 proposals_data[question]['not_accepted'].append(proposal)
@@ -109,8 +109,8 @@ class InterviewResultSender:
             return False, dict()
 
         # Получаем список всех вопросов интервью
-        interview_questions = Relation.objects.select_related('rz').filter(
-            Q(bz=self.interview) & Q(rz__tz=Tz.objects.get(name='Вопрос'))
+        interview_questions = Relation.objects.select_related('rz', 'rz__tz').filter(
+            bz=self.interview, rz__tz__name='Вопрос'
         ).order_by('-rz__order').values_list('rz__name', flat=True)
 
         answers_data = {question: None for question in interview_questions}  # {question: [answers...]}
@@ -119,8 +119,8 @@ class InterviewResultSender:
         for question in interview_questions:
             # Получаем все ответы по вопросу интервью
             answers_data[question] = Relation.objects.\
-                select_related('bz', 'rz').prefetch_related('rz__author, rz__answer_proposals').filter(
-                Q(bz__name=question) & Q(tr=Tr.objects.get(name='Ответ [ы]'))
+                select_related('bz', 'rz', 'tr').prefetch_related('rz__author, rz__answer_proposals').filter(
+                bz__name=question, tr__name='Ответ [ы]'
             ).order_by('-rz__order').values(
                 answer_name=F('rz__name'),
                 author_name=F('rz__author__name'),
