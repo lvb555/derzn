@@ -58,7 +58,7 @@
 
 /* Стили страниц техпроцесса работы со знаниями */
 
-.content {
+.content_tp {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
