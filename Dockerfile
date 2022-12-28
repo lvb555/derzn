@@ -35,4 +35,4 @@ RUN ./manage.py makemigrations
 # I'm not sure why this does not import any data into the database file
 # but I'll leave it here in case someone would figure it out.
 RUN ./manage.py migrate
-RUN ./manage.py loaddata dump.json
+# RUN ./manage.py loaddata dump.json
