@@ -6,11 +6,23 @@ on:
 jobs:
   test_deploy:
     runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: asdaaskdw9u2r4lfkjd32
+      DEBUG: True
+      ALLOWED_HOSTS: '*'
+      DB_URL: sqlite:///db.sqlite3
+      BASE_URL: /
+      EMAIL_HOST: localhost
+      EMAIL_PORT: 5822
+      EMAIL_HOST_USER: admin
+      EMAIL_HOST_PASSWORD: somepass
+      EMAIL_USE_TLS: false
+      EMAIL_USE_SSL: false
     strategy:
       matrix:
         python-version: ["3.10"]
     steps:
-      - uses: lvb555/derzn/@develop
+      - uses: actions/checkout@master
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
