@@ -20,3 +20,4 @@ from .knowledge_statuses import KnowledgeStatuses
 from .developer import Developer
 from .quiz_results import QuizResult
 from .age_users_scale import AgeUsersScale
+from .interview_results_schedule import InterviewResultsSendingSchedule

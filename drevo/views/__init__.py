@@ -18,6 +18,8 @@ from .admin_interview_work.views import (
     AllInterviewView,
     InterviewQuestionsView,
     question_admin_work_view,
+    AdminEditingKnowledgeView,
+    NotifyExpertsView,
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView

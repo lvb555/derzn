@@ -42,7 +42,8 @@ from .models import (
     ZnRating,
     Comment,
     KnowledgeStatuses,
-    AgeUsersScale
+    AgeUsersScale,
+    InterviewResultsSendingSchedule
     )
 from .services import send_notify_interview
 
@@ -462,6 +463,7 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
         "new_answer_text",
         "admin_reviewer",
         "status",
+        "is_notified"
     )
     list_display_links = ("id",)
 
@@ -495,6 +497,15 @@ class DeveloperAdmin(admin.ModelAdmin):
 
 admin.site.register(Developer, DeveloperAdmin)
 
+@admin.register(InterviewResultsSendingSchedule)
+class InterviewResultsSendingScheduleAdmin(admin.ModelAdmin):
+    list_display = ['id', 'interview', 'next_sending', 'last_sending']
+    readonly_fields = ['interview']
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
 admin.site.register(FriendsInviteTerm)
 admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
@@ -502,4 +513,3 @@ admin.site.register(AgeUsersScale)
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
     list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)
-    

@@ -165,6 +165,13 @@ class InterviewAnswerExpertProposal(models.Model):
         max_length=6,
     )
 
+    # реквизит "Уведомлён" - имеет значение True если админ установил статус предложению и отправил результаты
+    # интервью эксперту
+    is_notified = models.BooleanField(
+        verbose_name='Уведомлён',
+        default=False
+    )
+
     @staticmethod
     def create_new_proposal(
         expert_user: User,

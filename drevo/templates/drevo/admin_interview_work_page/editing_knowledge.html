@@ -1,0 +1,48 @@
+{% extends 'drevo/base.html' %}
+
+{% load normalize_answer_name %}
+
+
+{% block title %} Редактирование нового знания {% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <div class="row">
+<!--        <div class="col-3">-->
+<!--            <a href="{{ backup_url }}" class="btn btn-warning mt-2">Назад</a>-->
+<!--        </div>-->
+        <div class="col">
+            <h1 class="text-center">Редактирование знания созданного на основе предложения эксперта</h1>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col">
+            <h3>Интервью: {{ interview_name }}</h3>
+            <h3>Вопрос: {{ question_name }}</h3>
+            <h3>Знание: {{ knowledge_name }}</h3>
+        </div>
+    </div>
+    <br>
+    <div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group container w-75">
+                {{ form.as_p }}
+            </div>
+            <div class="text-end me-5">
+                <input type="submit" class="btn btn-warning w-25" name='save_input' value="Сохранить">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block jsfiles %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
