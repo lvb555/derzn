@@ -18,7 +18,7 @@ from .admin_interview_work.views import (
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
-from .filling_tables import filling_tables, get_rows_and_columns, znanie_attributes
+from .filling_tables import filling_tables, get_rows_and_columns, znanie_attributes, show_new_znanie
 from .friends_added_view import friends_added_view
 from .friends_invite_view import friends_invite_view
 from .friends_view import friends_view
@@ -62,6 +62,9 @@ __all__ = [
     "propose_answer",
     "update_answer_proposal",
     "QuestionExpertWorkPage",
+    "get_rows_and_columns",
     "send_znanie",
+    "show_new_znanie",
+    "znanie_attributes",
     'QuizListView',
 ]
