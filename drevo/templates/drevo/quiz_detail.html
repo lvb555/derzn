@@ -202,11 +202,43 @@ function show_result_for_question(){
                 +missing_answer+" ответов</span>";
             }
             document.getElementById('warning').style.display = "block";
+            addNewNotification(answersinblock,countans)
         }
     }else if(lst2.length < step){
+        let questionblock = document.querySelector('#a[style*="display: block"]')
+        let countans = +(questionblock.querySelector('.vopr').textContent);
+        let answersinblock = questionblock.querySelectorAll('input[type="checkbox"]');
         document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Вы не дали ни одного ответа</span>";
         document.getElementById('warning').style.display = "block";
+        addNewNotification(answersinblock,countans)
     }
+}
+
+function addNewNotification(answersinblock,countans){
+        let enabledSettings = []
+
+        answersinblock.forEach(function(checkbox) {
+          checkbox.addEventListener('change', function() {
+            enabledSettings =
+              Array.from(answersinblock)
+              .filter(i => i.checked)
+
+            let missing_answer = countans - enabledSettings.length
+                        missing_answer = missing_answer.toString()
+            if(missing_answer.endsWith('2') || missing_answer.endsWith('3') || missing_answer.endsWith('4')){
+                document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
+                +missing_answer+" ответа</span>";
+            } else if(missing_answer.endsWith('1')){
+                document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
+                +missing_answer+" ответ</span>";
+            } else if(missing_answer = '0'){
+            document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Теперь ответов достаточно!</span>";
+            }else {
+                document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
+                +missing_answer+" ответов</span>";
+            }
+          })
+        });
 }
 
 function next_block(){
