@@ -116,7 +116,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     context['question'] = question
     context['period'] = f"с {period}".replace('-', 'по')
 
-    start_day, start_month, start_year = period.replace('-', '').split(' ')[0].split('.')
+    start_day, start_month, start_year = period.replace('-', ' ').split(' ')[0].split('.')
     start_date = date(int(f'20{start_year}'), int(start_month), int(start_day))
     context['interview_start_date'] = start_date
 

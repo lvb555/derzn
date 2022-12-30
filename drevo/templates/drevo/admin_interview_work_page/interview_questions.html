@@ -15,7 +15,15 @@
     </div>
     <br>
     <div>
-        <h2 class="text-center"><strong>Вопросы интервью</strong></h2>
+        <div class="row">
+        <div class="col-4">
+            <a href="{% url 'all_interview' %}" class="btn btn-warning">Назад</a>
+        </div>
+        <div class="col">
+            <h2><strong>Вопросы интервью</strong></h2>
+        </div>
+    </div>
+
         <br>
         {% for pk, name, danger_cnt, status in questions %}
         <li class="text-{{status}} fs-4">
