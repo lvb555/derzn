@@ -31,6 +31,7 @@ from .views import (
     QuizListView,
     QuizResultAdd,
     KnowledgeStatisticFormView,
+    QuizDetailView,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.expert_work.proposal_delete_view import ProposalDeleteView
@@ -46,6 +47,7 @@ from .views.admin_interview_work.views import (
     AdminEditingKnowledgeView,
     NotifyExpertsView,
 )
+from .views.quiz_result import show_quiz_result
 from .views.subscribe_to_author_view import sub_by_author
 from .views.subscription_by_tag_view import sub_by_tag
 from drevo.views.developer_view import developer_view
@@ -74,7 +76,9 @@ urlpatterns = [
     path("znanie/<int:pk>/grade/", KnowledgeFormView.as_view(), name="grade"),
     path('znanie/<int:pk>/grade/statistic', KnowledgeStatisticFormView.as_view(), name='grade_statistic'),
     path("all_quizzes/", QuizListView.as_view(), name="all_quizzes"),
-    path("znanie/<int:pk>/quiz_result/", QuizResultAdd.as_view()),
+    path("quiz/<int:pk>", QuizDetailView.as_view(), name="quiz"),
+    path("quiz/<int:pk>/quiz_result/", QuizResultAdd.as_view()),
+    path("quiz_results/", show_quiz_result, name="show_quiz_result"),
     path("label/<int:pk>", ZnanieByLabelView.as_view(), name="zlabel"),
     path("author/<int:pk>", AuthorDetailView.as_view(), name="author"),
     path("authors/", AuthorsListView.as_view(), name="authors"),

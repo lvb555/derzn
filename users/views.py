@@ -145,23 +145,6 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
         context['profile_form'] = ProfileModelForm(
             instance=Profile.objects.get(user=self.object)
         )
-        context['quiz_result'] = {}
-        all_results = QuizResult.objects.all().select_related("user")
-        if not all_results:
-            return context
-        all_quizzes_name = all_results.values_list("quiz__name", flat=True).distinct()
-        for quizzes in all_quizzes_name:
-            questions_and_answers = {}
-            all_questions_name = all_results.filter(quiz__name=quizzes).values_list("question__name", flat=True)\
-                .distinct().order_by('question__pk')
-            for questions in all_questions_name:
-                questions_and_answers[questions] = all_results.filter(question__name=questions, quiz__name=quizzes)\
-                    .values_list("answer__name", "answer__related__tr__name").order_by('answer__pk')
-            date = str(all_results.filter(quiz__name=quizzes).values_list("date_time__day", "date_time__month",
-                                                                          "date_time__year").first()).rstrip(')').\
-                lstrip('(').replace(' ', '')
-            for_link = all_results.filter(quiz__name=quizzes).values_list("quiz__pk", flat=True).first()
-            context['quiz_result'][quizzes+' '+date.replace(',', '.')+' '+str(for_link)] = questions_and_answers
         return context
 
     def get_object(self, queryset=None):

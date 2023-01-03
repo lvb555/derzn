@@ -17,12 +17,13 @@
 <div style="margin-left: auto;margin-right: auto; text-align:center; display: flex;flex-direction: row;
 justify-content: flex-start;">
     <div style="float: left;" id="Choice">
+        <input type=button value="Назад" style="margin-bottom:10%;" onClick="javascript:history.go(-1);">
         <p>Результат:</p>
         <input type="radio" id="Choice1"
-               name="choice" value="all" checked>
+               name="choice" value="all" checked onclick="ChangeResult(this.value)">
         <label for="Choice1">Все ответы</label><br>
         <input type="radio" id="Choice2"
-               name="choice" value="not_all">
+               name="choice" value="not_all" onclick="ChangeResult(this.value)">
         <label for="Choice2">Oтветы пользователя</label>
     </div>
     <p style="display: none" id="countqs" >{{ all_answers_and_questions|length}}</p>
@@ -60,13 +61,16 @@ justify-content: flex-start;">
             </div>
             <div id="secondblock" style="display: none;">
                 <p style="font-size: 24px">Результат</p>
-                {% for answer in answers %}
-                {% if answer in right_answer %}
-                    <p id='resultsecondblock' style="color: green;margin-bottom: 16px;">{{answer}}</p>
-                {% else %}
-                    <p id="resultsecondblock" style="color: red;margin-bottom: 16px;">{{answer}}</p>
-                {% endif %}
-                {% endfor %}
+                <div id="all_answers_showing">
+                    {% for answer in answers %}
+                    {% if answer in right_answer %}
+                        <p id='resultsecondblock' style="color: green;margin-bottom: 16px;">{{answer}}</p>
+                    {% else %}
+                        <p id="resultsecondblock" style="color: red;margin-bottom: 16px;">{{answer}}</p>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <div id="not_all_answers_showing" style="display:none;"></div>
                 <br><p style="margin: 0px; padding-left: 45%;">Легенда:</p>
                 <p style="color: green;margin: 0px;padding-left: 55%;">Верный ответ</p>
                 <p style="color: red;margin: 0px;padding-left: 55%;">Неверный ответ</p>
@@ -124,7 +128,6 @@ justify-content: flex-start;">
     </div>
 </div>
 <div id="warning" style="text-align:center;margin-right: 7%;"></div>
-
 {% endif %}
 
 {% endblock %}
@@ -159,29 +162,31 @@ function show_result_for_question(){
         let answersinblock = questionblock.querySelectorAll('input[type="checkbox"]');
         let resultinblock = questionblock.querySelectorAll('#resultsecondblock');
         let question_pk = questionblock.querySelector('.vopr1').textContent.split(' ');
+        let different_resultinblock = questionblock.querySelector('#not_all_answers_showing');
         all_checked_answers = [];
         sum_for_next_block = 0;
           for (let i=0; i<answersinblock.length; i++) {
              if(answersinblock[i].checked == true){
                  sum_for_next_block += 1;
-                 all_checked_answers.push(answersinblock[i].id)
              }
           }
-        dict_to_send[question_pk[question_pk.length-1]] = all_checked_answers
         if(sum_for_next_block == countans){
              for (let i=0; i<answersinblock.length; i++) {
                  if(answersinblock[i].checked == true){
-                     resultinblock[i].innerHTML = "<span style='text-decoration: underline'>"+resultinblock[i].textContent+"</span>";
-                 }else{
-                    if(document.getElementById('Choice2').checked == true){
-                        resultinblock[i].innerHTML = '';
-                    }
+                    all_checked_answers.push(answersinblock[i].id)
+                    different_resultinblock.innerHTML +="<p style='color:"+resultinblock[i].style.color+"'><span style='text-decoration: underline'>"+resultinblock[i].textContent+"</span></p>";
+                    resultinblock[i].innerHTML = "<span style='text-decoration: underline'>"+resultinblock[i].textContent+"</span>";
                  }
              }
+            dict_to_send[question_pk[question_pk.length-1]] = all_checked_answers
             document.getElementById('show_result_for_question').style.display = "none";
             document.getElementById('next_question').style.display = "block";
             let blockwithcolours = document.getElementsByClassName('cont')[d]
             blockwithcolours.querySelector('#firstblock').style.display = "none";
+            if(document.getElementById('Choice2').checked == true){
+                blockwithcolours.querySelector('#not_all_answers_showing').style.display = "block";
+                blockwithcolours.querySelector('#all_answers_showing').style.display = "none";
+            }
             blockwithcolours.querySelector('#secondblock').style.display = "block";
             document.getElementById('warning').style.display = "none";
             if(step == b){
@@ -216,13 +221,11 @@ function show_result_for_question(){
 
 function addNewNotification(answersinblock,countans){
         let enabledSettings = []
-
         answersinblock.forEach(function(checkbox) {
           checkbox.addEventListener('change', function() {
             enabledSettings =
               Array.from(answersinblock)
               .filter(i => i.checked)
-
             let missing_answer = countans - enabledSettings.length
                         missing_answer = missing_answer.toString()
             if(missing_answer.endsWith('2') || missing_answer.endsWith('3') || missing_answer.endsWith('4')){
@@ -239,6 +242,17 @@ function addNewNotification(answersinblock,countans){
             }
           })
         });
+}
+
+function ChangeResult(value){
+    let questionblock = document.querySelector('#a[style*="display: block"]')
+    if(value=='all'){
+        questionblock.querySelector('#not_all_answers_showing').style.display = "none";
+        questionblock.querySelector('#all_answers_showing').style.display = "block";
+    }else{
+        questionblock.querySelector('#not_all_answers_showing').style.display = "block";
+        questionblock.querySelector('#all_answers_showing').style.display = "none";
+    }
 }
 
 function next_block(){

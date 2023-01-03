@@ -1,5 +1,6 @@
 from .author_detail_view import AuthorDetailView
 from drevo.views.quiz_list_view import QuizListView
+from .quiz_detail_view import QuizDetailView
 from .quiz_result_processing_view import QuizResultAdd
 from .authors_list_view import AuthorsListView
 from .browsing_history import BrowsingHistoryListView
@@ -71,4 +72,6 @@ __all__ = [
     "ProposalDeleteView",
     "KnowledgeStatisticFormView",
     'QuizResultAdd',
+    'QuizDetailView',
 ]
+
