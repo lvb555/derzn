@@ -499,10 +499,13 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
         """Превращаем поле в ссылку в админке"""
         if obj is None:
             return "-"
+        title = obj.name
+        if len(title) > 50:
+            title = f'{title[:50]}...'
         return format_html(
             "<a href='{url}'>{title}</a>",
             url=reverse("admin:drevo_znanie_change", args=(obj.id,)),
-            title=obj.name,
+            title=title,
         )
 
     def interview_link(self, obj):
