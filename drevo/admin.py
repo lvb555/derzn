@@ -450,6 +450,32 @@ class InterviewInline(admin.TabularInline):
     model = Znanie
 
 
+class InterviewFilter(admin.SimpleListFilter):
+    title = 'Интервью'
+    parameter_name = 'interview'
+
+    def lookups(self, request, model_admin):
+        return [(inter.id, inter.name) for inter in Znanie.objects.select_related('tz').filter(tz__name='Интервью')]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(interview__id=self.value())
+        return queryset
+
+
+class QuestionFilter(admin.SimpleListFilter):
+    title = 'Вопрос'
+    parameter_name = 'question'
+
+    def lookups(self, request, model_admin):
+        return [(quest.id, quest.name) for quest in Znanie.objects.select_related('tz').filter(tz__name='Вопрос')]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(question__id=self.value())
+        return queryset
+
+
 @admin.register(InterviewAnswerExpertProposal)
 class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
     exclude = ("updated",)
@@ -466,6 +492,7 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
         "is_notified"
     )
     list_display_links = ("id",)
+    list_filter = (InterviewFilter, QuestionFilter)
 
     @staticmethod
     def link_to_knowledge_change(obj):
