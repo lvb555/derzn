@@ -126,6 +126,9 @@ def question_admin_work_view(request, inter_pk, quest_pk):
         interview_schedule.save()
     else:
         interview_schedule = InterviewResultsSendingSchedule.objects.get(interview=interview)
+
+    if now() >= interview_schedule.next_sending:
+        context['mailing_available'] = True
     context['last_sending'] = interview_schedule.last_sending
 
     context['cur_filter'] = request.GET.get('filter')
