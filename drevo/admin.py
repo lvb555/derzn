@@ -43,7 +43,10 @@ from .models import (
     Comment,
     KnowledgeStatuses,
     AgeUsersScale,
-    InterviewResultsSendingSchedule
+    InterviewResultsSendingSchedule,
+    SettingsOptions,
+    UserParameters,
+    ParameterCategories
     )
 from .services import send_notify_interview
 
@@ -543,3 +546,24 @@ admin.site.register(AgeUsersScale)
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
     list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)
+
+
+@admin.register(SettingsOptions)
+class SettingsOptionsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'category', 'default_param', 'admin']
+    search_fields = ['name']
+    list_display_links = ['id']
+    list_filter = ['category', 'admin']
+
+
+@admin.register(UserParameters)
+class UserParametersAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'param', 'param_value']
+    list_display_links = ['id']
+
+
+@admin.register(ParameterCategories)
+class ParameterCategoriesAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+    search_fields = ['name']
+    list_display_links = ['id']
