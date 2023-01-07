@@ -1,0 +1,45 @@
+{% extends 'drevo/base.html' %}
+
+{% block title %} Настройки параметров {% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="border-bottom border-dark">
+        <div class="text-start">
+            <h1 class="display-6 border-bottom border-dark">Настройки параметров</h1>
+            <div class=" dropdown w-25 mb-2">
+                <a class="nav-link text-white text-center rounded mt-2" href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false" style="background-color:#23755E;">
+                    Категории
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink2">
+                    <li><a class="dropdown-item" href="{{ request.path }}">Все</a></li>
+                    {% for category in categories %}
+                    {% if cur_filter == category %}
+                    <li><a class="dropdown-item active" href="?filter={{ category }}">{{ category }}</a></li>
+                    {% else %}
+                    <li><a class="dropdown-item" href="?filter={{ category }}">{{ category }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div>
+        <form method="post">
+            {% csrf_token %}
+            <ul>
+            {% for user_param in settings %}
+                <li class="mb-3">
+                    <label for="id_param_{{ user_param.pk }}"><h4>{{ user_param }}</h4></label>
+                    <input type="number" min="0" name="param_{{ user_param.pk }}" value="{{ user_param.param_value }}" class="form-control py-2 w-25" id="id_param_{{ user_param.pk }}">
+                </li>
+            {% endfor %}
+            </ul>
+            <div class="mt-5 text-start ms-4">
+                <input type="submit" class="btn btn-warning w-25" value="Сохранить">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
