@@ -11,7 +11,9 @@ class SettingsOptions(models.Model):
         verbose_name='Категория',
         to=ParameterCategories,
         on_delete=models.CASCADE,
-        related_name='params'
+        related_name='params',
+        blank=True,
+        null=True
     )
     default_param = models.CharField(
         verbose_name='Значение по умолчанию',

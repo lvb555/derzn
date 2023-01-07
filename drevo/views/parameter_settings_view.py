@@ -31,7 +31,9 @@ def parameter_settings(request):
     user_settings = UserParameters.objects.select_related('param').prefetch_related('param__category').filter(
         user=request.user
     )
-    context['categories'] = set(user_setting.param.category.name for user_setting in user_settings)
+    context['categories'] = set(
+        user_setting.param.category.name for user_setting in user_settings if user_setting.param.category
+    )
     filter_value = request.GET.get('filter')
     if filter_value:
         context['settings'] = user_settings.filter(param__category__name=filter_value)
