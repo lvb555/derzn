@@ -11,7 +11,8 @@ from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
 from users.models import User, Profile
-from drevo.models import SettingsOptions, UserParameters
+from drevo.models.settings_options import SettingsOptions
+from drevo.models.user_parameters import UserParameters
 
 
 class LoginFormView(FormView):

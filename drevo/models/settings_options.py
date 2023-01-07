@@ -1,5 +1,7 @@
 from django.db import models
 from .parameter_categories import ParameterCategories
+from users.models import User
+from django.apps import apps
 
 
 class SettingsOptions(models.Model):
@@ -28,6 +30,18 @@ class SettingsOptions(models.Model):
         verbose_name = 'Параметр настроек'
         verbose_name_plural = 'Параметры настроек'
         ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.admin:
+            super(SettingsOptions, self).save(*args, **kwargs)
+            users = User.objects.all()
+            user_params_model = apps.get_model(app_label='drevo', model_name='UserParameters')
+            updated_users_settings = [
+                user_params_model(user=user, param=self, param_value=self.default_param) for user in users
+            ]
+            user_params_model.objects.bulk_create(updated_users_settings)
+            return
+        super(SettingsOptions, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
