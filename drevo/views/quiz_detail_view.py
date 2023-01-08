@@ -31,28 +31,23 @@ class QuizDetailView(DetailView):
             ip = x_forwarded_for.split(',')[0]
         else:
             ip = self.request.META.get('REMOTE_ADDR')
-        if not IP.objects.filter(ip=ip):
-            IP.objects.create(ip=ip)
-        if knowledge not in IP.objects.get(ip=ip).visits.all() and self.request.user.is_anonymous:
-            IP.objects.get(ip=ip).visits.add(knowledge)
+        IP.objects.get_or_create(ip=ip)
+        ip_obj = IP.objects.get(ip=ip)
+        if knowledge not in ip_obj.visits.all() and self.request.user.is_anonymous:
+            ip_obj.visits.add(knowledge)
 
-        IP.objects.get(ip=ip).save()
 
         # добавление просмотра
         if self.request.user.is_authenticated:
-            if not Visits.objects.filter(znanie=knowledge, user=self.request.user).count():
-                Visits.objects.create(
-                    znanie=knowledge, user=self.request.user).save()
+            Visits.objects.get_or_create(znanie=knowledge, user=self.request.user)
+
 
         # добавление историю просмотра
         if self.request.user.is_authenticated:
-            if not BrowsingHistory.objects.filter(znanie=knowledge, user=self.request.user).count():
-                BrowsingHistory.objects.create(
-                    znanie=knowledge, user=self.request.user, date=datetime.now()).save()
-            else:
-                browsing_history_obj = BrowsingHistory.objects.get(znanie=knowledge, user=self.request.user)
-                browsing_history_obj.date = datetime.now()
-                browsing_history_obj.save()
+            browsing_history_obj, created = BrowsingHistory.objects.get_or_create(znanie=knowledge, user=self.request.user)
+            browsing_history_obj.date = datetime.now()
+            browsing_history_obj.save()
+
 
         context['children'] = get_children_for_knowledge(knowledge)
         context['visits'] = Visits.objects.filter(
