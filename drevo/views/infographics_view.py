@@ -35,10 +35,6 @@ class InfographicsView(TemplateView):
                 rz__tz__can_be_rated=True,
             )
 
-            if relations.first() is not None and \
-                    not relations.first().tr.is_argument:
-                context["none"] = True
-                return context
             context['proof_relations'] = proof_relations
 
             common_grade_value, proof_base_value = knowledge.get_common_grades(
@@ -139,27 +135,28 @@ class InfographicsView(TemplateView):
                     father_relation.tr.argument_type:
                 lvl_against += 1
 
-            knowledge = relation.rz
-            childrens_knowledge = Relation.objects.filter(bz=knowledge)
-            bg_color, font_color = self.get_colors_from_knowledge(
-                relation, lvl_against, father_relation)
-            tree.append({
-                "name": knowledge.name,
-                "bg_color": bg_color,
-                "font_color": font_color,
-                "lvl_up": lvl_up,
-                "for_or_against": "К" if relation.tr.argument_type else "А",
-                "has_childrens": bool(childrens_knowledge),
-                "id": self.index_element_tree,
-            })
-            self.index_element_tree += 1
+            if relation.tr.is_argument:
+                knowledge = relation.rz
+                childrens_knowledge = Relation.objects.filter(bz=knowledge)
+                bg_color, font_color = self.get_colors_from_knowledge(
+                    relation, lvl_against, father_relation)
+                tree.append({
+                    "name": knowledge.name,
+                    "bg_color": bg_color,
+                    "font_color": font_color,
+                    "lvl_up": lvl_up,
+                    "for_or_against":"К" if relation.tr.argument_type else "А",
+                    "has_childrens": bool(childrens_knowledge),
+                    "id": self.index_element_tree,
+                })
+                self.index_element_tree += 1
 
-            if lvl_up:
-                lvl_up = False
+                if lvl_up:
+                    lvl_up = False
 
-            if childrens_knowledge:
-                tree += self.get_elements_tree(childrens_knowledge,
-                                               True, lvl_against,
-                                               relation)
-                tree.append({"lvl_down": True})
+                if childrens_knowledge:
+                    tree += self.get_elements_tree(childrens_knowledge,
+                                                   True, lvl_against,
+                                                   relation)
+                    tree.append({"lvl_down": True})
         return tree
