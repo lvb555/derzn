@@ -360,8 +360,8 @@ class NotifyExpertsView(RedirectView):
                 # Увеличиваем время следующей рассылки на NOT_MORE_OFTEN часов
                 not_more_often, _ = SettingsOptions.objects.get_or_create(
                     name='Не чаще (часов)',
-                    default_param='1',
-                    admin=True
+                    admin=True,
+                    defaults={'default_param': '1'},
                 )
                 schedule.next_sending = now() + datetime.timedelta(hours=int(not_more_often.default_param))
                 schedule.save()
