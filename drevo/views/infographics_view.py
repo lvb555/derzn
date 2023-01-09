@@ -21,7 +21,8 @@ class InfographicsView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         if self.request.user.is_authenticated:
-            knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
+            knowledge = Znanie.objects.prefetch_related('base').get(
+                id=self.kwargs.get('pk'))
             context["base_grade"] = KnowledgeGrade.objects.filter(
                 knowledge=knowledge,
                 user=self.request.user,
