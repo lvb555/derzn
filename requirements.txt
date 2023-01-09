@@ -5,6 +5,7 @@ dj-loguru==0.2.2
 Django==3.2.4
 django-admin-sortable2==1.0.2
 django-ckeditor==6.1.0
+django-colorfield==0.8.0
 django-js-asset==1.2.2
 django-mptt==0.12.0
 environs==9.3.5

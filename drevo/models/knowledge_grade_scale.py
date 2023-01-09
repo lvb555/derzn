@@ -1,3 +1,4 @@
+from colorfield.fields import ColorField
 from django.db import models
 
 
@@ -16,6 +17,23 @@ class KnowledgeGradeScale(models.Model):
     is_high_in_range = models.BooleanField(
         default=False,
         verbose_name='Диапазон включает верхнее значение',
+    )
+
+    argument_color_background = ColorField(
+        default="#00CC00",
+        verbose_name='Цвет фона довода "За"'
+    )
+    argument_color_font = ColorField(
+        default="#000000",
+        verbose_name='Цвет шрифта довода "За"'
+    )
+    contraargument_color_background = ColorField(
+        default="#FD0B33",
+        verbose_name='Цвет фона довода "Против"'
+    )
+    contraargument_color_font = ColorField(
+        default="#000000",
+        verbose_name='Цвет шрифта довода "Против"'
     )
 
     class Meta:

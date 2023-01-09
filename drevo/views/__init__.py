@@ -37,6 +37,7 @@ from .znanie_detail_view import ZnanieDetailView
 from .znanie_rating_view import ZnanieRatingView
 from .znanie_send_view import send_znanie
 from .knowledge_grade_statistic_view import KnowledgeStatisticFormView
+from .infographics_view import InfographicsView
 from .parameter_settings_view import parameter_settings
 
 __all__ = [
@@ -72,5 +73,6 @@ __all__ = [
     "ProposalDeleteView",
     "KnowledgeStatisticFormView",
     'QuizResultAdd',
+    "InfographicsView",
     'parameter_settings',
 ]

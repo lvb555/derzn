@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 'drevo.apps.DrevoConfig',
     'django.contrib.humanize',
+    'colorfield',
     'mptt',
     'ckeditor',
     'loguru',
