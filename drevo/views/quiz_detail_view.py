@@ -31,28 +31,25 @@ class QuizDetailView(DetailView):
             ip = x_forwarded_for.split(',')[0]
         else:
             ip = self.request.META.get('REMOTE_ADDR')
-        IP.objects.get_or_create(ip=ip)
-        ip_obj = IP.objects.get(ip=ip)
+        ip_obj, created = IP.objects.get_or_create(ip=ip)
         if knowledge not in ip_obj.visits.all() and self.request.user.is_anonymous:
             ip_obj.visits.add(knowledge)
 
 
         # добавление просмотра
         if self.request.user.is_authenticated:
-            Visits.objects.get_or_create(znanie=knowledge, user=self.request.user)
+            Visits.objects.create(znanie=knowledge, user=self.request.user)
 
 
         # добавление историю просмотра
         if self.request.user.is_authenticated:
             browsing_history_obj, created = BrowsingHistory.objects.get_or_create(znanie=knowledge, user=self.request.user)
-            browsing_history_obj.date = datetime.now()
-            browsing_history_obj.save()
+            if not created:
+                browsing_history_obj.date = datetime.now()
+                browsing_history_obj.save()
 
 
         context['children'] = get_children_for_knowledge(knowledge)
-        context['visits'] = Visits.objects.filter(
-            znanie=knowledge).count() + knowledge.ip_set.all().count()
-
         context['all_answers_and_questions'] = {}
         context['right_answer'] = {}
 
