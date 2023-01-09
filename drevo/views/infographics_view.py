@@ -22,7 +22,6 @@ class InfographicsView(TemplateView):
 
         if self.request.user.is_authenticated:
             knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
-            relations = Relation.objects.filter(bz=knowledge)
             context["base_grade"] = KnowledgeGrade.objects.filter(
                 knowledge=knowledge,
                 user=self.request.user,
@@ -50,7 +49,7 @@ class InfographicsView(TemplateView):
                     common_grade_value)
 
             self.index_element_tree = 0
-            context['elements_tree'] = self.get_elements_tree(relations)
+            context['elements_tree'] = self.get_elements_tree(proof_relations)
         return context
 
     def get_colors_from_knowledge(self, relation: Relation, lvl_against: int,
@@ -67,28 +66,32 @@ class InfographicsView(TemplateView):
         '''
         bg_color = "#FFFFFF"
         font_color = "#000000"
-        grade = KnowledgeGrade.objects.filter(
-            knowledge=relation.rz,
-            user=self.request.user,
-        ).first()
-        if grade is not None:
+        try:
+            grade = KnowledgeGrade.objects.get(
+                knowledge=relation.rz,
+                user=self.request.user,
+            )
             father_argument_type = False
             if father_relation is not None:
                 father_argument_type = father_relation.tr.argument_type
 
-            if (not father_argument_type and relation.tr.argument_type) or \
-               (father_argument_type and \
-               ((not relation.tr.argument_type and lvl_against % 2 == 0) or \
-               (not relation.tr.argument_type and lvl_against % 2 != 0))):
+            if any((all((not father_argument_type,relation.tr.argument_type)),
+                    all((father_argument_type, 
+               any((all((not relation.tr.argument_type, lvl_against % 2 == 0)),
+                    all((not relation.tr.argument_type, lvl_against % 2 != 0))
+               )))))):
                 bg_color = grade.grade.contraargument_color_background
                 font_color = grade.grade.contraargument_color_font
-            elif (not father_argument_type \
-                    and not relation.tr.argument_type) or \
-                  (father_argument_type and \
-                  ((relation.tr.argument_type and lvl_against % 2 == 0) or \
-                  (relation.tr.argument_type and lvl_against % 2 != 0))):
+            elif any((all((not father_argument_type,
+                           not relation.tr.argument_type)),
+                    all((father_argument_type, 
+               any((all((relation.tr.argument_type, lvl_against % 2 == 0)),
+                    all((relation.tr.argument_type, lvl_against % 2 != 0))
+               )))))):
                 bg_color = grade.grade.argument_color_background
                 font_color = grade.grade.argument_color_font
+        except KnowledgeGrade.DoesNotExist:
+            pass
         return bg_color, font_color
 
     def get_elements_tree(self, relations: list[Relation], lvl_up: bool=False,
