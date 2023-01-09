@@ -18,6 +18,7 @@ jobs:
       EMAIL_HOST_PASSWORD: somepass
       EMAIL_USE_TLS: false
       EMAIL_USE_SSL: false
+      RELATIVE_PYTHONPATH: venv/bin/python3.10
     strategy:
       matrix:
         python-version: ["3.10"]

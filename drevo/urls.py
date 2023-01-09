@@ -32,6 +32,7 @@ from .views import (
     QuizResultAdd,
     KnowledgeStatisticFormView,
     InfographicsView,
+    parameter_settings,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.expert_work.proposal_delete_view import ProposalDeleteView
@@ -182,6 +183,7 @@ urlpatterns = [
         name="znanie_director_process",
     ),
     path("klz/", KlzKnowledgeProcess.as_view(), name="klz"),
+    path('profile/settings/', parameter_settings, name='parameter_settings')
 ]
 
 if settings.DEBUG:

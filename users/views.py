@@ -11,6 +11,8 @@ from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
 from users.models import User, Profile
+from drevo.models.settings_options import SettingsOptions
+from drevo.models.user_parameters import UserParameters
 
 
 class LoginFormView(FormView):
@@ -91,6 +93,13 @@ class RegistrationFormView(CreateView):
     def form_valid(self, form):
         if form.is_valid():
             user = form.save()
+            # Создаём записи таблицы "Параметры пользователя" на основе таблицы "Параметры настроек"
+            settings_options = SettingsOptions.objects.filter(admin=False)
+            user_settings = [
+                UserParameters(user=user, param=param, param_value=param.default_param) for param in settings_options
+            ]
+            UserParameters.objects.bulk_create(user_settings)
+
             profile = user.profile
 
             profile.deactivate_user()
