@@ -5,6 +5,7 @@ from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.knowledge_grade import KnowledgeGrade
 from drevo.models.relation import Relation
 
+
 class InfographicsView(TemplateView):
     template_name = 'drevo/infographics.html'
 
@@ -15,9 +16,9 @@ class InfographicsView(TemplateView):
         raise Http404
 
     def get_context_data(self, **kwargs):
-        '''
+        """
         Функция для получения контекста
-        '''
+        """
         context = super().get_context_data(**kwargs)
 
         if self.request.user.is_authenticated:
@@ -54,8 +55,8 @@ class InfographicsView(TemplateView):
         return context
 
     def get_colors_from_knowledge(self, relation: Relation, lvl_against: int,
-                            father_relation: Relation|None) -> tuple[str, str]:
-        '''
+                                  father_relation: Relation | None) -> tuple[str, str]:
+        """
         Получение цвета знания
 
         - relation - связь от родительского знания к знанию, для которого
@@ -64,7 +65,7 @@ class InfographicsView(TemplateView):
                         довод против и знание, для которого определяем цвет,
                         то будет уровень равнятся 2
         - father_relation - родительская связь
-        '''
+        """
         bg_color = "#FFFFFF"
         font_color = "#000000"
         try:
@@ -76,29 +77,29 @@ class InfographicsView(TemplateView):
             if father_relation is not None:
                 father_argument_type = father_relation.tr.argument_type
 
-            if any((all((not father_argument_type,relation.tr.argument_type)),
-                    all((father_argument_type, 
-               any((all((not relation.tr.argument_type, lvl_against % 2 == 0)),
-                    all((not relation.tr.argument_type, lvl_against % 2 != 0))
-               )))))):
+            if any((all((not father_argument_type, relation.tr.argument_type)),
+                    all((father_argument_type,
+                         any((all((not relation.tr.argument_type, lvl_against % 2 == 0)),
+                              all((not relation.tr.argument_type, lvl_against % 2 != 0))
+                              )))))):
                 bg_color = grade.grade.contraargument_color_background
                 font_color = grade.grade.contraargument_color_font
             elif any((all((not father_argument_type,
                            not relation.tr.argument_type)),
-                    all((father_argument_type, 
-               any((all((relation.tr.argument_type, lvl_against % 2 == 0)),
-                    all((relation.tr.argument_type, lvl_against % 2 != 0))
-               )))))):
+                      all((father_argument_type,
+                           any((all((relation.tr.argument_type, lvl_against % 2 == 0)),
+                                all((relation.tr.argument_type, lvl_against % 2 != 0))
+                                )))))):
                 bg_color = grade.grade.argument_color_background
                 font_color = grade.grade.argument_color_font
         except KnowledgeGrade.DoesNotExist:
             pass
         return bg_color, font_color
 
-    def get_elements_tree(self, relations: list[Relation], lvl_up: bool=False,
-                          lvl_against: int=-1,
-                          father_relation: Relation|None = None) -> list[dict]:
-        '''
+    def get_elements_tree(self, relations: list[Relation], lvl_up: bool = False,
+                          lvl_against: int = -1,
+                          father_relation: Relation | None = None) -> list[dict]:
+        """
         Получение элементов дерева
 
         - relations - связи, с помощью которых должны получить элементы дерева
@@ -127,13 +128,12 @@ class InfographicsView(TemplateView):
             },
             ...
           ]
-        '''
+        """
         tree = []
         for relation in relations:
             if not relation.tr.argument_type:
                 lvl_against = -1
-            elif relation.tr.argument_type and (father_relation is None \
-                                    or not father_relation.tr.argument_type):
+            elif relation.tr.argument_type and (father_relation is None or not father_relation.tr.argument_type):
                 lvl_against = 1
             elif relation.tr.argument_type and \
                     father_relation.tr.argument_type:
@@ -149,7 +149,7 @@ class InfographicsView(TemplateView):
                     "bg_color": bg_color,
                     "font_color": font_color,
                     "lvl_up": lvl_up,
-                    "for_or_against":"К" if relation.tr.argument_type else "А",
+                    "for_or_against": "К" if relation.tr.argument_type else "А",
                     "has_childrens": bool(childrens_knowledge),
                     "id": self.index_element_tree,
                 })
