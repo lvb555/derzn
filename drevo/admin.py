@@ -43,7 +43,10 @@ from .models import (
     Comment,
     KnowledgeStatuses,
     AgeUsersScale,
-    InterviewResultsSendingSchedule
+    InterviewResultsSendingSchedule,
+    SettingsOptions,
+    UserParameters,
+    ParameterCategories
     )
 from .services import send_notify_interview
 
@@ -450,6 +453,32 @@ class InterviewInline(admin.TabularInline):
     model = Znanie
 
 
+class InterviewFilter(admin.SimpleListFilter):
+    title = 'Интервью'
+    parameter_name = 'interview'
+
+    def lookups(self, request, model_admin):
+        return [(inter.id, inter.name) for inter in Znanie.objects.select_related('tz').filter(tz__name='Интервью')]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(interview__id=self.value())
+        return queryset
+
+
+class QuestionFilter(admin.SimpleListFilter):
+    title = 'Вопрос'
+    parameter_name = 'question'
+
+    def lookups(self, request, model_admin):
+        return [(quest.id, quest.name) for quest in Znanie.objects.select_related('tz').filter(tz__name='Вопрос')]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(question__id=self.value())
+        return queryset
+
+
 @admin.register(InterviewAnswerExpertProposal)
 class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
     exclude = ("updated",)
@@ -466,16 +495,20 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
         "is_notified"
     )
     list_display_links = ("id",)
+    list_filter = (InterviewFilter, QuestionFilter)
 
     @staticmethod
     def link_to_knowledge_change(obj):
         """Превращаем поле в ссылку в админке"""
         if obj is None:
             return "-"
+        title = obj.name
+        if len(title) > 50:
+            title = f'{title[:50]}...'
         return format_html(
             "<a href='{url}'>{title}</a>",
             url=reverse("admin:drevo_znanie_change", args=(obj.id,)),
-            title=obj.name,
+            title=title,
         )
 
     def interview_link(self, obj):
@@ -513,3 +546,24 @@ admin.site.register(AgeUsersScale)
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
     list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)
+
+
+@admin.register(SettingsOptions)
+class SettingsOptionsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'category', 'default_param', 'admin']
+    search_fields = ['name']
+    list_display_links = ['id']
+    list_filter = ['category', 'admin']
+
+
+@admin.register(UserParameters)
+class UserParametersAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'param', 'param_value']
+    list_display_links = ['id']
+
+
+@admin.register(ParameterCategories)
+class ParameterCategoriesAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+    search_fields = ['name']
+    list_display_links = ['id']
