@@ -10,7 +10,6 @@ from ..relations_tree import (get_category_for_knowledge, get_ancestors_for_know
                               get_children_by_relation_type_for_knowledge, get_children_for_knowledge)
 import humanize
 
-
 logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
 
@@ -65,7 +64,7 @@ class ZnanieDetailView(DetailView):
             if not Visits.objects.filter(znanie=knowledge, user=self.request.user).count():
                 Visits.objects.create(
                     znanie=knowledge, user=self.request.user).save()
-        
+
         # добавление историю просмотра
         if self.request.user.is_authenticated:
             if not BrowsingHistory.objects.filter(znanie=knowledge, user=self.request.user).count():
@@ -138,20 +137,19 @@ class ZnanieDetailView(DetailView):
             context['all_answers_and_questions'] = dict(sorted(context['all_answers_and_questions'].items(),
                                                                key=lambda a: a, reverse=True))
 
-
         labels = LabelFeedMessage.objects.all()
         context['labels'] = labels
 
         # создание списка для отображения в блоке отправления
         try:
-            user = User.objects.get(id = self.request.user.id)
-            my_friends = user.user_friends.all().prefetch_related('profile') # те, кто в друзьях у меня
-            i_in_friends = user.users_friends.all().prefetch_related('profile') # те, у кого я в друзьях
-            
+            user = User.objects.get(id=self.request.user.id)
+            my_friends = user.user_friends.all().prefetch_related('profile')  # те, кто в друзьях у меня
+            i_in_friends = user.users_friends.all().prefetch_related('profile')  # те, у кого я в друзьях
+
             all_friends = my_friends.union(i_in_friends, all=False)
             context['friends'] = all_friends
             context['friends_count'] = len(all_friends)
-        
+
         # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
         except TypeError:
             pass
