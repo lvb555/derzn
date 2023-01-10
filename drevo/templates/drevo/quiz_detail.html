@@ -42,7 +42,7 @@ justify-content: flex-start;">
         <div class="checkboxgroup" id="{{question}}1" >
             <h5 id="{{question}}" class='vopr' style="display: none">{{right_answer|length}}</h5>
             <h5 class='vopr1' style="display: none">{{question_with_right_answer}}</h5>
-            <p>Вопрос: {{question}}</p>
+            <p id="number_of_question">{{question}}</p>
             <p>Количество ответов: {{right_answer|length}}</p>
             <div id="firstblock">
                 {% for answer in answers %}
@@ -139,13 +139,16 @@ justify-content: flex-start;">
 
 let b = document.getElementsByClassName('cont').length;
 let res = document.getElementsByClassName('Allanswers');
+let allQuestionNumber = document.querySelectorAll('#number_of_question')
 let countanswers = 0;
 
 dict_to_send = new Object();
 
 function showFirst() {
     document.getElementsByClassName('cont')[0].style.display = "block";
-
+    for(let v=1; v< allQuestionNumber.length+1; v++){
+        allQuestionNumber[v-1].innerHTML = 'Вопрос '+v+': '+allQuestionNumber[v-1].textContent
+    }
     for(let f=0; f< res.length; f++){
         countanswers += +(res[f].textContent);
     }

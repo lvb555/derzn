@@ -33,7 +33,7 @@
                     {%for question_name, answers in questions_and_answers.items %}
                     <li style="font-weight: 400;" id="question_info">
                         <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-                        <a id="question_sumup" style="font-size: 18px;">Вопрос: {{question_name}}</a>
+                        <a id="question_sumup" style="font-size: 18px;">{{question_name}}</a>
                         <ul class="children" hidden>
                             {%for answer_name in answers %}
                             <li style="font-weight: 400;">
@@ -90,6 +90,7 @@ function showFirst() {
                 }
                 question_grade = (~~((question_result/answers.length)*100));
                 for_question_mark = all_questions[r].querySelector('#question_sumup')
+                for_question_mark.innerHTML = 'Вопрос '+(r+1)+': '+for_question_mark.textContent;
                 if(question_grade > 90){
                     for_question_mark.innerHTML += ' Отлично '+question_result+'/'+answers.length;
                 }else if(90 >= question_grade && question_grade > 60){
