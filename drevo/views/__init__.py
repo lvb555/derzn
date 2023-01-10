@@ -1,5 +1,6 @@
 from .author_detail_view import AuthorDetailView
 from drevo.views.quiz_list_view import QuizListView
+from .quiz_detail_view import QuizDetailView
 from .quiz_result_processing_view import QuizResultAdd
 from .authors_list_view import AuthorsListView
 from .browsing_history import BrowsingHistoryListView
@@ -38,6 +39,8 @@ from .znanie_rating_view import ZnanieRatingView
 from .znanie_send_view import send_znanie
 from .knowledge_grade_statistic_view import KnowledgeStatisticFormView
 from .group_knowledge_grade_view import GroupKnowledgeView
+from .infographics_view import InfographicsView
+from .parameter_settings_view import parameter_settings
 
 __all__ = [
     "AuthorDetailView",
@@ -73,4 +76,8 @@ __all__ = [
     "KnowledgeStatisticFormView",
     'QuizResultAdd',
     "GroupKnowledgeView",
+    'QuizDetailView',
+    "InfographicsView",
+    'parameter_settings',
 ]
+

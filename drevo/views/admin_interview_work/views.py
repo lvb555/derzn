@@ -1,6 +1,5 @@
 import datetime
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -14,6 +13,7 @@ from ...models import Relation, Tz, Author, Tr, CategoryExpert
 from ...models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from ...models.knowledge import Znanie
 from ...models.interview_results_schedule import InterviewResultsSendingSchedule
+from ...models.settings_options import SettingsOptions
 from ...forms.admin_interview_work_form import InterviewAnswerExpertProposalForms
 from .interview_result_senders import InterviewResultSender
 from ...forms.knowledge_form import ZnanieForm
@@ -116,7 +116,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     context['question'] = question
     context['period'] = f"с {period}".replace('-', 'по')
 
-    start_day, start_month, start_year = period.replace('-', '').split(' ')[0].split('.')
+    start_day, start_month, start_year = period.replace('-', ' ').split(' ')[0].split('.')
     start_date = date(int(f'20{start_year}'), int(start_month), int(start_day))
     context['interview_start_date'] = start_date
 
@@ -126,6 +126,9 @@ def question_admin_work_view(request, inter_pk, quest_pk):
         interview_schedule.save()
     else:
         interview_schedule = InterviewResultsSendingSchedule.objects.get(interview=interview)
+
+    if now() >= interview_schedule.next_sending:
+        context['mailing_available'] = True
     context['last_sending'] = interview_schedule.last_sending
 
     context['cur_filter'] = request.GET.get('filter')
@@ -354,7 +357,12 @@ class NotifyExpertsView(RedirectView):
                 InterviewAnswerExpertProposal.objects.bulk_update(notified_proposals, ['is_notified'])
                 request.session['is_notified'] = True
                 schedule = InterviewResultsSendingSchedule.objects.get(interview__pk=inter_pk)
-                # Увеличиваем время следующей рассылки на NOT_MORE_OFTEN дней
-                schedule.next_sending = now() + datetime.timedelta(days=settings.NOT_MORE_OFTEN)
+                # Увеличиваем время следующей рассылки на NOT_MORE_OFTEN часов
+                not_more_often, _ = SettingsOptions.objects.get_or_create(
+                    name='Не чаще (часов)',
+                    admin=True,
+                    defaults={'default_param': '1'},
+                )
+                schedule.next_sending = now() + datetime.timedelta(hours=int(not_more_often.default_param))
                 schedule.save()
         return super(NotifyExpertsView, self).get(request, *args, **kwargs)

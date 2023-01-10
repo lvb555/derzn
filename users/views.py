@@ -11,6 +11,8 @@ from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
 from users.models import User, Profile
+from drevo.models.settings_options import SettingsOptions
+from drevo.models.user_parameters import UserParameters
 
 
 class LoginFormView(FormView):
@@ -91,6 +93,13 @@ class RegistrationFormView(CreateView):
     def form_valid(self, form):
         if form.is_valid():
             user = form.save()
+            # Создаём записи таблицы "Параметры пользователя" на основе таблицы "Параметры настроек"
+            settings_options = SettingsOptions.objects.filter(admin=False)
+            user_settings = [
+                UserParameters(user=user, param=param, param_value=param.default_param) for param in settings_options
+            ]
+            UserParameters.objects.bulk_create(user_settings)
+
             profile = user.profile
 
             profile.deactivate_user()
@@ -145,23 +154,6 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
         context['profile_form'] = ProfileModelForm(
             instance=Profile.objects.get(user=self.object)
         )
-        context['quiz_result'] = {}
-        all_results = QuizResult.objects.all().select_related("user")
-        if not all_results:
-            return context
-        all_quizzes_name = all_results.values_list("quiz__name", flat=True).distinct()
-        for quizzes in all_quizzes_name:
-            questions_and_answers = {}
-            all_questions_name = all_results.filter(quiz__name=quizzes).values_list("question__name", flat=True)\
-                .distinct().order_by('question__pk')
-            for questions in all_questions_name:
-                questions_and_answers[questions] = all_results.filter(question__name=questions, quiz__name=quizzes)\
-                    .values_list("answer__name", "answer__related__tr__name").order_by('answer__pk')
-            date = str(all_results.filter(quiz__name=quizzes).values_list("date_time__day", "date_time__month",
-                                                                          "date_time__year").first()).rstrip(')').\
-                lstrip('(').replace(' ', '')
-            for_link = all_results.filter(quiz__name=quizzes).values_list("quiz__pk", flat=True).first()
-            context['quiz_result'][quizzes+' '+date.replace(',', '.')+' '+str(for_link)] = questions_and_answers
         return context
 
     def get_object(self, queryset=None):
