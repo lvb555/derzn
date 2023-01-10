@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from .search_engine import SearchEngineMixin
 from django.forms import formset_factory
+from ..models.user_parameters import UserParameters
 
 
 class MainSearchKnowledge:
@@ -222,8 +223,15 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
                 edge_kind_parameter=edge_kind_parameter,
                 tag_parameters=tag_parameters
             )
-
-            paginator = Paginator(knowledges, 10)
+            user_params = UserParameters.objects.select_related('param').filter(user=self.request.user)
+            knowledge_content_length = user_params.filter(
+                param__name='Длина поля "Содержание" (слов)'
+            ).first().param_value
+            context['knowledge_content_length'] = int(knowledge_content_length)
+            per_page_value = user_params.filter(
+                param__name='Число записей на странице'
+            ).first().param_value
+            paginator = Paginator(knowledges, int(per_page_value))
 
             cur_page_number = self.request.GET.get('page')
 
