@@ -51,5 +51,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send query for deploy
-        run: "curl --silent --show-error --fail -X POST https://deployapi.derzn.ru -H 'Authorization: ebbfe7b5-7900-4173-9359-f3ff4ec1b41b' -H 'Content-Type: application/json' -d '{\"data\": \"deploy\"}'"
+        run: "curl --silent --show-error --fail -X POST -k https://deployapi.derzn.ru -H 'Authorization: ebbfe7b5-7900-4173-9359-f3ff4ec1b41b' -H 'Content-Type: application/json' -d '{\"data\": \"deploy\"}'"
 
