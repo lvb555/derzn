@@ -42,7 +42,7 @@ justify-content: flex-start;">
         <div class="checkboxgroup" id="{{question}}1" >
             <h5 id="{{question}}" class='vopr' style="display: none">{{right_answer|length}}</h5>
             <h5 class='vopr1' style="display: none">{{question_with_right_answer}}</h5>
-            <p>Вопрос: {{question}}</p>
+            <p id="number_of_question">{{question}}</p>
             <p>Количество ответов: {{right_answer|length}}</p>
             <div id="firstblock">
                 {% for answer in answers %}
@@ -84,35 +84,38 @@ justify-content: flex-start;">
     {% endfor %}
 </div>
 <div  id="rezultat" style="display: none;text-align:center;">
-    <p style="font-size: 24px" >Тест: {{ znanie.name }}</p>
-    <table id="reztable" border="1" align="center" width="60%" >
-			<thead>
-				<tr>
-					<th rowspan="2" >Вопрос</th>
-					<th rowspan="2" >Оценка</th>
-                    <th>Число верных ответов</th>
-				</tr>
-                <tr>
-                    <th>Дано/Всего</th>
-                </tr>
-			</thead>
-        <tbody>
-    {%for question in all_answers_and_questions.keys %}
-    {% for question_with_right_answer, right_answer in right_answer.items %}
-    {% if question in question_with_right_answer %}
-				<tr id="{{question}}2" style="color: red;">
-					<td id="question">{{question}}</td>
-                    <td id="grade">Неудовлетворительно</td>
-                    <td id="answer"><p style="margin: 0; display: inline;">0/</p>
-                        <p class="Allanswers" style="margin: 0; display: inline;" align="right">{{right_answer|length}}</p> </td>
-				</tr>
-    {% endif %}
-    {% endfor %}
-    {% endfor %}
-        </tbody>
-        </table>
-    <p id="result1"></p>
-    <p id="result2">Оценка теста: <span style="font-weight:bold">неудовлетворительно</span></p>
+    <div style="float: left;"><input type=button value="Назад" style="margin-bottom:10%;" onClick="javascript:history.go(-1);"></div>
+    <div>
+        <p style="font-size: 24px" >Тест: {{ znanie.name }}</p>
+        <table id="reztable" border="1" align="center" width="60%" >
+                <thead>
+                    <tr>
+                        <th rowspan="2" >Вопрос</th>
+                        <th rowspan="2" >Оценка</th>
+                        <th>Число верных ответов</th>
+                    </tr>
+                    <tr>
+                        <th>Дано/Всего</th>
+                    </tr>
+                </thead>
+            <tbody>
+        {%for question in all_answers_and_questions.keys %}
+        {% for question_with_right_answer, right_answer in right_answer.items %}
+        {% if question in question_with_right_answer %}
+                    <tr id="{{question}}2" style="color: red;">
+                        <td id="question">{{question}}</td>
+                        <td id="grade">Неудовлетворительно</td>
+                        <td id="answer"><p style="margin: 0; display: inline;">0/</p>
+                            <p class="Allanswers" style="margin: 0; display: inline;" align="right">{{right_answer|length}}</p> </td>
+                    </tr>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+            </tbody>
+            </table>
+        <p id="result1"></p>
+        <p id="result2">Оценка теста: <span style="font-weight:bold">неудовлетворительно</span></p>
+    </div>
 </div>
 
 <div style="display: flex;justify-content: center; padding-right: 125px;">
@@ -136,13 +139,16 @@ justify-content: flex-start;">
 
 let b = document.getElementsByClassName('cont').length;
 let res = document.getElementsByClassName('Allanswers');
+let allQuestionNumber = document.querySelectorAll('#number_of_question')
 let countanswers = 0;
 
 dict_to_send = new Object();
 
 function showFirst() {
     document.getElementsByClassName('cont')[0].style.display = "block";
-
+    for(let v=1; v< allQuestionNumber.length+1; v++){
+        allQuestionNumber[v-1].innerHTML = 'Вопрос '+v+': '+allQuestionNumber[v-1].textContent
+    }
     for(let f=0; f< res.length; f++){
         countanswers += +(res[f].textContent);
     }

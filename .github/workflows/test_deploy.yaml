@@ -46,4 +46,10 @@ jobs:
           python manage.py migrate
 
 #          python manage.py test
+  deploy:
+    needs: [test_deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send query for deploy
+        run: "curl --silent --show-error --fail -X POST -k https://deployapi.derzn.ru -H 'Authorization: ${{ secrets.DEPLOYMENT_TOKEN }}' -H 'Content-Type: application/json' -d '{\"data\": \"deploy\"}'"
 
