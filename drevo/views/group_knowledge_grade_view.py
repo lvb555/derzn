@@ -251,9 +251,11 @@ class GroupKnowledgeView(TemplateView):
                 user=user
             ).first()
             if knowledge_grade:
-                grade_values["knowledge_grade"].append(
-                    knowledge_grade.grade.get_base_grade()
-                )
+                knowledge_grade_value = knowledge_grade.grade.get_base_grade()
+                if knowledge_grade_value:
+                    grade_values["knowledge_grade"].append(
+                        knowledge_grade_value
+                    )
 
             # добавление значения оценки связи в список
             relation_grade = RelationGrade.objects.filter(
@@ -261,8 +263,11 @@ class GroupKnowledgeView(TemplateView):
                 user=user
             ).first()
             if relation_grade:
-                grade_values["relation_grade"].append(
-                    relation_grade.grade.get_base_grade())
+                relation_grade_value = relation_grade.grade.get_base_grade()
+                if relation_grade_value:
+                    grade_values["relation_grade"].append(
+                        relation_grade_value
+                    )
         return grade_values
 
     def get_average_grades(self, relation: Relation) -> dict:
