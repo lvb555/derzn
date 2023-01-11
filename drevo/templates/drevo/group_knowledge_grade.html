@@ -98,6 +98,10 @@
                 </form>
             </div>
         {% endif %}
+        <div class="my-4 d-flex flex-row align-items-center">
+            <span><strong>Количетво пользователей в группе: </strong></span>
+            <span class="ms-2">{{ count_users }}</span>
+        </div>
 
         <form action="{{ request.get_full_path }}" method="post" id="gradeForm">
             {% csrf_token %}

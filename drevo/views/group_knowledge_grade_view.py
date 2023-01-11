@@ -61,6 +61,8 @@ class GroupKnowledgeView(TemplateView):
 
             context['proof_base_grade'] = proof_base_grade
             context['common_grade'] = common_grade
+
+            context['count_users'] = len(self.users)
         return context
 
     @staticmethod
@@ -180,7 +182,11 @@ class GroupKnowledgeView(TemplateView):
         if gender:
             # получение всех профилей определенного пола
             profiles = Profile.objects.prefetch_related('user').filter(
-                gender=gender
+                gender=gender,
+                user__id__in=set(map(
+                    lambda x: x.user.id,
+                    KnowledgeGrade.objects.prefetch_related("user").filter(
+                        knowledge__id=self.knowledge_id)))
             )
         if age_from_to["max_age"] > 0:
             if profiles is None:
