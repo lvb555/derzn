@@ -18,12 +18,16 @@
     </div>
     <div class="row justify-content-between">
         <div class="col-auto ">
-            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}/grade">
+            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
                 <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
                         Оценка знания 
                 </i>           
             </a>
         </div>
+        <div class="col-2 ">
+            <!--<a style="margin-bottom:10px;" href="" class="btn btn-secondary">Статистика оценок</a> -->
+            <a href="{% url 'grade_group_infographics' knowledge.id %}?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}" class="btn btn-secondary">Инфографика</a>
+        </div> 
     </div>
     <h2 class="my-2">Групповая оценка знания</h2>
 

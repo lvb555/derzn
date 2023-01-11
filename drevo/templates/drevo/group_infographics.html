@@ -23,9 +23,9 @@
     </div>
     <div class="row justify-content-between">
         <div class="col-auto ">
-            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
+            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
                 <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
-                        Оценка знания 
+                        Групповая оценка знания 
                 </i>           
             </a>
         </div>
@@ -69,29 +69,57 @@
                     </fieldset>
                 </span>
                 </div>
-            </form>
+                <div class="d-flex flex-row align-items-cent<input type='text' onkeypress='validate(event)' />er my-2">
+                        <span><strong>Пол:</strong></span>
+                        <span class="ms-2">
+                            <select name="gender">
+                                <option value=""
+                                {% if request.GET.gender == '' %} selected {% endif %}>
+                                    Все
+                                </option>
+                                <option value="M"
+                                {% if request.GET.gender == 'M' %} selected {% endif %}>
+                                    Мужской
+                                </option>
+                                <option value="F"
+                                {% if request.GET.gender == 'F' %} selected {% endif %}>
+                                    Женский
+                                </option>
+                            </select>
+                        </span>
+                    </div>
+                    <div class="d-flex flex-row align-items-center my-2">
+                        <span><strong>Возраст:</strong></span>
+                        <span class="ms-2">
+                            <span>от </span>
+                            <input type='text' onkeypress='validate(event)' name="min_age" style="width:50px;" 
+                                   value={% if not request.GET.min_age %}'0'{% else %} "{{ request.GET.min_age }}" {% endif %}/>
+                            <span> до </span>
+                            <input type='text' onkeypress='validate(event)' name="max_age" style="width:50px;" 
+                                   value={% if not request.GET.max_age %}'0'{% else %} "{{ request.GET.max_age }}" {% endif %}/>
+                        </span>
+                    </div>
+                    <button class="btn btn-secondary" type="submit">Рассчитать</button>
+                </form>
+            </div>
+        {% endif %}
+        <div class="my-4 d-flex flex-row align-items-center">
+            <span><strong>Количетво пользователей в группе: </strong></span>
+            <span class="ms-2">{{ count_users }}</span>
         </div>
-    {% endif %}
-
-
     <table class="table-sm table-borderless"
            style="border-collapse: collapse; word-break: break-word;">
         <tbody>
             <tr>
                 <th>Оценка знания:</th>
                 {% if base_grade %}
-                <td style="background-color: {{ base_grade.grade.argument_color_background }};
-                           color: {{ base_grade.grade.argument_color_font }};">
-                        {{ base_grade.grade.name }}
+                <td style="background-color: {{ base_grade.argument_color_background }};
+                           color: {{ base_grade.argument_color_font }};">
+                    {{ base_grade.name }}
                 </td>
                 {% endif %}
                 <td id="currentGrade" style="width: 48px">
-                    {% if base_grade %}
-                        {% if base_grade.grade.get_base_grade == 2.0 %}
-                        {% else %}
-                            {{ base_grade.grade.get_base_grade|floatformat:-2 }}
-                        {% endif %}
-                    {% endif %}
+                    {{ base_grade_value|floatformat:-2 }}
                 </td>
             </tr>
             
@@ -230,25 +258,35 @@
 
 {% block jsfiles %}
 <script>
-    function init() {
-        const gradeForm = document.getElementById('gradeForm');
-        const selectCollection = document.getElementsByTagName('select');
+        function init() {
+            const selectCollection = document.getElementsByTagName('select');
+            const modeForm = document.getElementById('modeForm');
 
-        for (const selectCollectionElement of selectCollection) {
-            selectCollectionElement.addEventListener('input', function () {
-                gradeForm.submit();
-            });
-        }
+            for (const selectCollectionElement of selectCollection) {
+                selectCollectionElement.addEventListener('input', function () {
+                    modeForm.submit();
+                });
+            }
 
-        const radioButtons = document.querySelectorAll('input[name=variant]');
-        const modeForm = document.getElementById('modeForm');
-        for (const button of radioButtons) {
-            button.addEventListener('input', function () {
-                modeForm.submit();
-            });
+            const radioButtons = document.querySelectorAll('input[name=variant]');
+            for (const button of radioButtons) {
+                button.addEventListener('input', function () {
+                    modeForm.submit();
+                });
+            }
         }
-    }
-    init();
+        init();
+
+        function validate(evt) {
+            var theEvent = evt || window.event;
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+            var regex = /[0-9]|\./;
+            if( !regex.test(key) ) {
+                theEvent.returnValue = false;
+                if(theEvent.preventDefault) theEvent.preventDefault();
+            }
+        }
 </script>
 
 <script>

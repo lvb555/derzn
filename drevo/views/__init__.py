@@ -40,6 +40,7 @@ from .znanie_send_view import send_znanie
 from .knowledge_grade_statistic_view import KnowledgeStatisticFormView
 from .group_knowledge_grade_view import GroupKnowledgeView
 from .infographics_view import InfographicsView
+from .group_infographics_view import GroupInfographicsView
 from .parameter_settings_view import parameter_settings
 
 __all__ = [
@@ -78,6 +79,7 @@ __all__ = [
     "GroupKnowledgeView",
     'QuizDetailView',
     "InfographicsView",
+    "GroupInfographicsView",
     'parameter_settings',
 ]
 
