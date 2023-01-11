@@ -109,35 +109,36 @@ class GroupKnowledgeView(TemplateView):
         )
         return grade
 
-    def get_average_base_grade(self, knowledge: Znanie) -> list[Grade]:
+    def get_average_base_grade(self, knowledge: Znanie) -> tuple[Grade, Grade, Grade]:
         """
         Получение среднего значения, по всей группе пользователей, оценки
         знания (base_grade), оценки доказательной базы (proof_base_grade),
         общей оценки знания (common_grade)
 
         - knowledge - знание, для которого мы находим среднее значение оценок
-        - возвращается list из следующих оценок:
-        [
+        - возвращается кортеж из следующих оценок:
             base_grade (средняя оценка знания),
             proof_base_grade (средняя оценка доказательной базы),
             common_grade (средняя общая оценка знания)
-        ]
         """
         users = self.users
         copy_request = copy.copy(self.request)
 
-        grades = [
-            Grade(), # base_grade
-            Grade(), # proof_base_grade
-            Grade()  # common_grade
-        ]
-        counts_grade = [0.01, 0.01, 0.01]
+        grades = {
+            "base_grade": Grade(),
+            "proof_base_grade": Grade(),
+            "common_grade": Grade()
+        }
+        counts_grade = {
+            "base_grade": 0.01,
+            "proof_base_grade": 0.01,
+            "common_grade": 0.01
+        }
 
         # цикл в котором для каждого пользователя вычисляются и сохраняются
         # оценки знания, доказательной базы, общей оценки знания
         for user in users:
             copy_request.user = user
-
             base_knowledge_grade = KnowledgeGrade.objects.filter(
                 knowledge=knowledge,
                 user=user,
@@ -145,24 +146,24 @@ class GroupKnowledgeView(TemplateView):
             if base_knowledge_grade:
                 base_grade_value = base_knowledge_grade.grade.get_base_grade()
                 if base_grade_value:
-                    counts_grade[0] += 1
-                    grades[0].value += base_grade_value
+                    counts_grade["base_grade"] += 1
+                    grades["base_grade"].value += base_grade_value
 
             common_grade_value, proof_base_value = knowledge.get_common_grades(
                 request=copy_request)
             if proof_base_value:
-                counts_grade[1] += 1
-                grades[1].value += proof_base_value
+                counts_grade["proof_base_grade"] += 1
+                grades["proof_base_grade"].value += proof_base_value
             if common_grade_value:
-                counts_grade[2] += 1
-                grades[2].value += common_grade_value
+                counts_grade["common_grade"] += 1
+                grades["common_grade"].value += common_grade_value
 
         # цикл в котором для каждой оценки вычисляется среднее значение и
         # сохраняется
-        for i, grade in enumerate(grades):
-            grade.value = grade.value / counts_grade[i]
-            grade.name = self.get_name_knowledge_grade_scale(grade.value)
-        return grades
+        for label in grades:
+            grades[label].value = grades[label].value / counts_grade[label]
+            grades[label].name = self.get_name_knowledge_grade_scale(grades[label].value)
+        return grades["base_grade"], grades["proof_base_grade"], grades["common_grade"]
 
     def get_group_users(self) -> None:
         """
@@ -170,10 +171,10 @@ class GroupKnowledgeView(TemplateView):
         Группы пользователей сохраняются в self.users
         """
         gender = self.request.GET.get("gender", None)
-        age_from_to = [
-            int(self.request.GET.get("min_age", 0)),
-            int(self.request.GET.get("max_age", 0)),
-        ]
+        age_from_to = {
+            "min_age": int(self.request.GET.get("min_age", 0)),
+            "max_age": int(self.request.GET.get("max_age", 0)),
+        }
 
         profiles = None
         if gender:
@@ -181,7 +182,7 @@ class GroupKnowledgeView(TemplateView):
             profiles = Profile.objects.prefetch_related('user').filter(
                 gender=gender
             )
-        if age_from_to[1] > 0:
+        if age_from_to["max_age"] > 0:
             if profiles is None:
                 # получение всех профилей, которые оценивали знание
                 profiles = Profile.objects.filter(user__id__in=set(map(
@@ -190,8 +191,8 @@ class GroupKnowledgeView(TemplateView):
                         knowledge__id=self.knowledge_id))))
             # получение всех профилей, удовлятворяющих интервалу возраста
             now = datetime.date.today()
-            min_age, max_age = datetime.timedelta(days=365*age_from_to[0]),\
-                               datetime.timedelta(days=365*age_from_to[1])
+            min_age, max_age = datetime.timedelta(days=365*age_from_to["min_age"]),\
+                               datetime.timedelta(days=365*age_from_to["max_age"])
             profiles = profiles.exclude(birthday_at=None)\
                                  .annotate(age=(now - F("birthday_at")))\
                                  .filter(age__gte=min_age, age__lt=max_age)
