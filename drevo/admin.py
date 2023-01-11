@@ -388,7 +388,10 @@ admin.site.register(KnowledgeGradeScale, KnowledgeGradeScaleAdmin)
 class RelationGradeScaleAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        "value",
+        "low_value",
+        "is_low_in_range",
+        "high_value",
+        "is_high_in_range",
     )
 
 

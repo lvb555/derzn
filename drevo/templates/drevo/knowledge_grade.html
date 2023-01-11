@@ -16,7 +16,8 @@
             </a>
         </div>
         <div class="col-2 ">
-            <a href="{% url 'grade_statistic' knowledge.id %}" class="btn btn-secondary">Статистика оценок</a>
+            <a style="margin-bottom:10px;" href="{% url 'grade_statistic' knowledge.id %}" class="btn btn-secondary">Статистика оценок</a>
+            <a href="{% url 'group_knowledge' knowledge.id %}" class="btn btn-secondary">Групповая оценка знания</a>
             <a style="margin-top:10px;" href="{% url 'grade_infographics' knowledge.id %}" class="btn btn-secondary">Инфографика</a>
         </div> 
     </div>
