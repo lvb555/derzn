@@ -4,7 +4,11 @@
 {% load custom_humanize %}
 
 {% block title %}
-Инфографика
+{% if request.GET.variant == '1' %}
+    Инфографика. Групповая оценка знания
+{% else %}
+    Инфографика. Групповая общая оценка знания
+{% endif %}
 {% endblock %}
 
 {% block cssfiles %}
@@ -31,7 +35,13 @@
         </div>
     </div>
     {% if not none %}
-    <h2 class="my-2">Инфографика</h2>
+    <h2 class="my-2">
+        {% if request.GET.variant == '1' %}
+            Инфографика. Групповая оценка знания
+        {% else %}
+            Инфографика. Групповая общая оценка знания
+        {% endif %}
+    </h2>
     {% if not user.is_authenticated %}
         <div class="col">
             <div class="row">
