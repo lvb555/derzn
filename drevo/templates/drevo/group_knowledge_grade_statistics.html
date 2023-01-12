@@ -1,0 +1,148 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+{% load grades %}
+{% load custom_humanize %}
+
+{% block title %}
+Статистика оценок
+{% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-between">
+        <div class="col-auto ">
+            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
+                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
+                        {{ knowledge.name }}
+                </i>           
+            </a>
+        </div>
+    </div>
+    <div class="row justify-content-between">
+        <div class="col-auto ">
+            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}/grade/group?variant={{ request.GET.variant }}">
+                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
+                        Групповая оценка знания 
+                </i>           
+            </a>
+        </div>
+    </div>
+    <h2 class="my-2">Статистика оценок</h2>
+    {% if not user.is_authenticated %}
+        <div class="col">
+            <div class="row">
+                <div class="card alert-warning my-4">
+                    <div class="card-body">
+                      <span class="card-text">
+                        <a href="{% url 'users:login' %}?next={{ request.path }}"
+                           style="text-decoration: none">Войдите</a>
+                        или
+                        <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                        чтобы посмотреть инфографику.
+                      </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="my-4">
+            <form action="{{ request.get_full_path }}" method="get" id="modeForm">
+                    <div class="d-flex flex-row align-items-center">
+                        <span><strong>Вариант расчета:</strong></span>
+                        <span class="ms-2">
+                        <fieldset id="variant" class="input-group">
+                            <span style="white-space: nowrap">
+                                <input class="ms-2" type="radio" id="var1" name="variant" value="1"
+                                        {% if request.GET.variant == '1' %} checked {% endif %}>
+                                <label for="var1">Оценка знания</label>
+                            </span>
+                            <span style="white-space: nowrap">
+                                <input class="ms-2" type="radio" id="var2" name="variant" value="2"
+                                        {% if request.GET.variant != '1' %} checked {% endif %}>
+                                <label for="var2">Общая оценка знания</label>
+                            </span>
+                        </fieldset>
+                    </span>
+                    </div>
+            </form>
+        </div>
+        <div class='row justify-content-center'>
+            <div class="col-8">
+                <h4 class="text-center my-4">Различия оценок по полу<br>(Только у кого указан пол)</h4>
+                <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
+        
+                    <thead align="center">
+                        <th valign="middle">Группа</th>
+                        <th valign="middle">Групповая оценка</th>
+                    </thead>
+                    <tbody align="center">
+                        <tr style = "border-top: 3px solid black">
+                            <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}">
+                                Все (число пользователей - {{ count_users }})
+                            </a></td>
+                            <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
+                        </tr>
+                        <tr style = "border-top: 3px solid black">
+                            <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=M">
+                                Мужчины (число пользователей - {{ count_male_users }})
+                            </a></td>
+                            <td>{{ male_users.name }} {{ male_users.value|floatformat:-2 }}</td>
+                        </tr>
+                        <tr style = "border-top: 3px solid black">
+                            <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=F">
+                                Женщины (число пользователей - {{ count_female_users }})
+                            </a></td>
+                            <td>{{ female_users.name }} {{ female_users.value|floatformat:-2 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class='row justify-content-center'>
+            <div class="col-8">
+                <h4 class="text-center my-4">Различия оценок по возрастным категориям<br>(Только у кого указана дата рождения)</h4>
+                <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
+                        
+                    <thead align="center">
+                        <th valign="middle">Группа</th>
+                        <th valign="middle">Групповая оценка</th>
+                    </thead>
+                    <tbody align="center">
+                        <tr style = "border-top: 3px solid black">
+                            <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}">
+                                Все (число пользователей - {{ count_users }})
+                            </a></td>
+                            <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
+                        </tr>
+                        {% for age_scale_grade in age_scales_grades %}
+                        <tr style = "border-top: 3px solid black">
+                            <td valign="middle">
+                                <a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=&min_age={{ age_scale_grade.min_age }}&max_age={{ age_scale_grade.max_age }}">
+                                    {{ age_scale_grade.interval }}
+                                </a>
+                            </td>
+                            <td>{{ age_scale_grade.name }} {{ age_scale_grade.value|floatformat:-2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+    <script>
+        function init() {
+            const radioButtons = document.querySelectorAll('input[name=variant]');
+            const modeForm = document.getElementById('modeForm');
+            for (const button of radioButtons) {
+                button.addEventListener('input', function () {
+                    modeForm.submit();
+                });
+            }
+        }
+        init();
+    </script>
+{% endblock %}
+

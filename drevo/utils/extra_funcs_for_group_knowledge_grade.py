@@ -125,10 +125,11 @@ def get_group_users(request, knowledge_id: int):
     - возвращается группа пользователей
     """
     gender = request.GET.get("gender", None)
-    age_from_to = {
-        "min_age": int(request.GET.get("min_age", 0)),
-        "max_age": int(request.GET.get("max_age", 0)),
-    }
+    age_from_to = {"min_age": 0, "max_age": 0}
+    if request.GET.get("min_age", "0").isdigit() and \
+            request.GET.get("max_age", "0").isdigit():
+        age_from_to["min_age"] = int(request.GET.get("min_age", 0))
+        age_from_to["max_age"] = int(request.GET.get("max_age", 0))
 
     profiles = None
     if gender:
@@ -262,7 +263,7 @@ def get_average_grades(request, users, relation: Relation) -> dict:
     }
     return grades
 
-def get_average_grade(users, relation: Relation) -> KnowledgeGradeScale:
+def get_average_grade(users, knowledge: Znanie) -> Grade:
     """
     Вычисление среднего значения оценки знания
 
@@ -273,7 +274,7 @@ def get_average_grade(users, relation: Relation) -> KnowledgeGradeScale:
     grade_values = []
     for user in users:
         base_knowledge_grade = KnowledgeGrade.objects.filter(
-            knowledge=relation.rz,
+            knowledge=knowledge,
             user=user,
         ).first()
         if base_knowledge_grade:
@@ -283,7 +284,37 @@ def get_average_grade(users, relation: Relation) -> KnowledgeGradeScale:
     average_grade = mean(grade_values) \
                     if len(grade_values) >= 1 \
                     else 0
-    return KnowledgeGradeScale.get_grade_object(average_grade)
+    return get_grade_from_knowledge_value(average_grade)
+
+def get_average_proof_base_and_common_grades(users, request, knowledge: Znanie) -> tuple[Grade, Grade]:
+    """
+    Вычисление среднего значения оценки доказательной базы и общей оценки
+    знания
+
+    - users - группа пользователей
+    - knowledge - знание
+    - возвращается среднее значение оценки доказательной связи и общей оценки
+      знания
+    """
+    copy_request = copy.copy(request)
+    proof_base_grades = []
+    common_grades = []
+    for user in users:
+        copy_request.user = user
+        common_grade_value, proof_base_value = knowledge.get_common_grades(
+            request=copy_request)
+        if proof_base_value:
+            proof_base_grades.append(proof_base_value)
+        if common_grade_value:
+            common_grades.append(common_grade_value)
+    average_proof_base_grade = mean(proof_base_grades) \
+                               if len(proof_base_grades) >= 1 \
+                               else 0
+    average_common_grade = mean(common_grades) \
+                           if len(common_grades) >= 1 \
+                           else 0
+    return get_grade_from_knowledge_value(average_proof_base_grade), \
+           get_grade_from_knowledge_value(average_common_grade)
 
 def get_group_relations(request, users, relations: list[Relation]) -> list[dict]:
     """

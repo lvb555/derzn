@@ -25,7 +25,7 @@
             </a>
         </div>
         <div class="col-2 ">
-            <!--<a style="margin-bottom:10px;" href="" class="btn btn-secondary">Статистика оценок</a> -->
+            <a style="margin-bottom:10px;" href="{% url 'grade_group_statistics' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Статистика оценок</a>
             <a href="{% url 'grade_group_infographics' knowledge.id %}?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}" class="btn btn-secondary">Инфографика</a>
         </div> 
     </div>

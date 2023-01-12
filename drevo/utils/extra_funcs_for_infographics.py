@@ -1,6 +1,7 @@
-from .extra_funcs_for_group_knowledge_grade import get_group_users, get_average_grade
+from .extra_funcs_for_group_knowledge_grade import get_average_grade
 from drevo.models.relation import Relation
 from drevo.models.knowledge_grade import KnowledgeGrade
+from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 
 
 def get_colors_from_knowledge(request, relation: Relation, lvl_against: int,
@@ -28,7 +29,8 @@ def get_colors_from_knowledge(request, relation: Relation, lvl_against: int,
                 user=request.user,
             ).grade
         else:
-            grade = get_average_grade(users, relation)
+            grade = KnowledgeGradeScale.get_grade_object(
+                    get_average_grade(users, relation.rz).value)
         father_argument_type = False
         if father_relation is not None:
             father_argument_type = father_relation.tr.argument_type
