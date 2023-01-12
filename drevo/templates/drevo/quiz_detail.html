@@ -20,10 +20,10 @@ justify-content: flex-start;">
         <input type=button value="Назад" style="margin-bottom:10%;" onClick="javascript:history.go(-1);">
         <p>Результат:</p>
         <input type="radio" id="Choice1"
-               name="choice" value="all" checked onclick="ChangeResult(this.value)">
+               name="choice" value="all" onclick="ChangeResult(this.value)">
         <label for="Choice1">Все ответы</label><br>
         <input type="radio" id="Choice2"
-               name="choice" value="not_all" onclick="ChangeResult(this.value)">
+               name="choice" value="not_all" checked onclick="ChangeResult(this.value)">
         <label for="Choice2">Oтветы пользователя</label>
     </div>
     <p style="display: none" id="countqs" >{{ all_answers_and_questions|length}}</p>
@@ -233,14 +233,14 @@ function addNewNotification(answersinblock,countans){
               Array.from(answersinblock)
               .filter(i => i.checked)
             let missing_answer = countans - enabledSettings.length
-                        missing_answer = missing_answer.toString()
+            missing_answer = missing_answer.toString()
             if(missing_answer.endsWith('2') || missing_answer.endsWith('3') || missing_answer.endsWith('4')){
                 document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
                 +missing_answer+" ответа</span>";
             } else if(missing_answer.endsWith('1')){
                 document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
                 +missing_answer+" ответ</span>";
-            } else if(missing_answer = '0'){
+            } else if(missing_answer == '0'){
             document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Теперь ответов достаточно!</span>";
             }else {
                 document.getElementById('warning').innerHTML = "<span style='font-weight:bold'>Необходимо отметить ещё "
