@@ -41,6 +41,23 @@
         {% else %}
             Групповая общая оценка знания
         {% endif %}
+        {% if request.GET.gender == 'M' %}
+            <br>
+            Пол: мужской
+        {% elif request.GET.gender == 'F' %}
+            <br>
+            Пол: женский
+        {% endif %}
+        {% if request.GET.min_age != '0' and request.GET.max_age != '0' %}
+            <br>
+            Возраст: от {{ request.GET.min_age }} до {{ request.GET.max_age }}
+        {% elif request.GET.min_age != '0' %}
+            <br>
+            Возраст: от {{ request.GET.min_age }}
+        {% elif request.GET.max_age != '0' %}
+            <br>
+            Возраст: до {{ request.GET.max_age }}
+        {% endif %}
     </h2>
 
     {% if not user.is_authenticated %}

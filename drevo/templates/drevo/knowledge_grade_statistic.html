@@ -78,7 +78,12 @@
                                 <th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="2">Из них</th>
                             </tr>
                             <tr>
-                                <th>Мужчин</th><th>Женщин</th>
+                                <th><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?gender=M">
+                                    Мужчин
+                                </a></th>
+                                <th><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?gender=F">
+                                    Женщин
+                                </a></th>
                             </tr>
                         </thead>
                         <tbody align="center"> 
@@ -119,7 +124,9 @@
                             </tr>
                             <tr>
                                 {% for segment in title_age_segment %}
-                                <th>{{ segment }}</th>
+                                <th><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?min_age={{ segment.min_age }}&max_age={{ segment.max_age }}">
+                                    {{ segment }}
+                                </a></th>
                                 {% endfor %}
                             </tr>
                         </thead>

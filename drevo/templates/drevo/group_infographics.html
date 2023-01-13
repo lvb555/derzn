@@ -41,6 +41,23 @@
         {% else %}
             Инфографика. Групповая общая оценка знания
         {% endif %}
+        {% if request.GET.gender == 'M' %}
+            <br>
+            Пол: мужской
+        {% elif request.GET.gender == 'F' %}
+            <br>
+            Пол: женский
+        {% endif %}
+        {% if request.GET.min_age != '0' and request.GET.max_age != '0' %}
+            <br>
+            Возраст: от {{ request.GET.min_age }} до {{ request.GET.max_age }}
+        {% elif request.GET.min_age != '0' %}
+            <br>
+            Возраст: от {{ request.GET.min_age }}
+        {% elif request.GET.max_age != '0' %}
+            <br>
+            Возраст: до {{ request.GET.max_age }}
+        {% endif %}
     </h2>
     {% if not user.is_authenticated %}
         <div class="col">
@@ -80,43 +97,44 @@
                 </span>
                 </div>
                 <div class="d-flex flex-row align-items-cent<input type='text' onkeypress='validate(event)' />er my-2">
-                        <span><strong>Пол:</strong></span>
-                        <span class="ms-2">
-                            <select name="gender">
-                                <option value=""
-                                {% if request.GET.gender == '' %} selected {% endif %}>
-                                    Все
-                                </option>
-                                <option value="M"
-                                {% if request.GET.gender == 'M' %} selected {% endif %}>
-                                    Мужской
-                                </option>
-                                <option value="F"
-                                {% if request.GET.gender == 'F' %} selected {% endif %}>
-                                    Женский
-                                </option>
-                            </select>
-                        </span>
-                    </div>
-                    <div class="d-flex flex-row align-items-center my-2">
-                        <span><strong>Возраст:</strong></span>
-                        <span class="ms-2">
-                            <span>от </span>
-                            <input type='text' onkeypress='validate(event)' name="min_age" style="width:50px;" 
-                                   value={% if not request.GET.min_age %}'0'{% else %} "{{ request.GET.min_age }}" {% endif %}/>
-                            <span> до </span>
-                            <input type='text' onkeypress='validate(event)' name="max_age" style="width:50px;" 
-                                   value={% if not request.GET.max_age %}'0'{% else %} "{{ request.GET.max_age }}" {% endif %}/>
-                        </span>
-                    </div>
-                    <button class="btn btn-secondary" type="submit">Рассчитать</button>
-                </form>
-            </div>
-        {% endif %}
-        <div class="my-4 d-flex flex-row align-items-center">
-            <span><strong>Число пользователей в группе: </strong></span>
-            <span class="ms-2">{{ count_users }}</span>
+                    <span><strong>Пол:</strong></span>
+                    <span class="ms-2">
+                        <select name="gender">
+                            <option value=""
+                            {% if request.GET.gender == '' %} selected {% endif %}>
+                                Все
+                            </option>
+                            <option value="M"
+                            {% if request.GET.gender == 'M' %} selected {% endif %}>
+                                Мужской
+                            </option>
+                            <option value="F"
+                            {% if request.GET.gender == 'F' %} selected {% endif %}>
+                                Женский
+                            </option>
+                        </select>
+                    </span>
+                </div>
+                <div class="d-flex flex-row align-items-center my-2">
+                    <span><strong>Возраст:</strong></span>
+                    <span class="ms-2">
+                        <span>от </span>
+                        <input type='text' onkeypress='validate(event)' name="min_age" style="width:50px;" 
+                               value={% if not request.GET.min_age %}'0'{% else %} "{{ request.GET.min_age }}" {% endif %}/>
+                        <span> до </span>
+                        <input type='text' onkeypress='validate(event)' name="max_age" style="width:50px;" 
+                               value={% if not request.GET.max_age %}'0'{% else %} "{{ request.GET.max_age }}" {% endif %}/>
+                    </span>
+                </div>
+                <button class="btn btn-secondary" type="submit">Рассчитать</button>
+            </form>
         </div>
+    {% endif %}
+    <div class="my-4 d-flex flex-row align-items-center">
+        <span><strong>Число пользователей в группе: </strong></span>
+        <span class="ms-2">{{ count_users }}</span>
+    </div>
+    {% if count_users %}
     <table class="table-sm table-borderless"
            style="border-collapse: collapse; word-break: break-word;">
         <tbody>
@@ -153,8 +171,6 @@
             {% endif %}
         </tbody>
     </table>
-    {% endif %}
-
     {% if proof_relations.exists %}
         <h4 class="text-center my-4">Доказательная база</h4>
         <button type="button" class="btn btn-secondary btn-sm" style="margin-left:30px;" onclick="showAll();">развернуть дерево</button>
@@ -262,6 +278,8 @@
         </table>
         </div>
     </div>
+    {% endif %}
+    {% endif %}
     {% endif %}
     {% endif %}
 {% endblock %}
