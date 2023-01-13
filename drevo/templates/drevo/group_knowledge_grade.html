@@ -3,7 +3,11 @@
 {% load custom_humanize %}
 
 {% block title %}
+{% if request.GET.variant == '1' %}
     Групповая оценка знания
+{% else %}
+    Групповая общая оценка знания
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -18,14 +22,24 @@
     </div>
     <div class="row justify-content-between">
         <div class="col-auto ">
-            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}/grade">
+            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
                 <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
                         Оценка знания 
                 </i>           
             </a>
         </div>
+        <div class="col-2 ">
+            <a style="margin-bottom:10px;" href="{% url 'grade_group_statistics' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Статистика оценок</a>
+            <a href="{% url 'grade_group_infographics' knowledge.id %}?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}" class="btn btn-secondary">Инфографика</a>
+        </div> 
     </div>
-    <h2 class="my-2">Групповая оценка знания</h2>
+    <h2 class="my-2">
+        {% if request.GET.variant == '1' %}
+            Групповая оценка знания
+        {% else %}
+            Групповая общая оценка знания
+        {% endif %}
+    </h2>
 
     {% if not user.is_authenticated %}
         <div class="col">
@@ -98,6 +112,10 @@
                 </form>
             </div>
         {% endif %}
+        <div class="my-4 d-flex flex-row align-items-center">
+            <span><strong>Количетво пользователей в группе: </strong></span>
+            <span class="ms-2">{{ count_users }}</span>
+        </div>
 
         <form action="{{ request.get_full_path }}" method="post" id="gradeForm">
             {% csrf_token %}
