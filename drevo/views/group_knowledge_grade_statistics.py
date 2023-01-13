@@ -60,6 +60,7 @@ class GroupKnowledgeStatisticsView(TemplateView):
                 "interval": str(age_users_scale),
                 "min_age": age_users_scale.min_age,
                 "max_age": age_users_scale.max_age,
+                "count_users": len(age_users),
                 "name": grade.name,
                 "value": grade.value
             })
