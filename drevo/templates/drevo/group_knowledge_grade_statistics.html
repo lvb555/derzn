@@ -86,26 +86,42 @@
         
                     <thead align="center">
                         <th valign="middle">Группа</th>
+                        <th valign="middle">Число пользователей в группе</th>
                         <th valign="middle">Групповая оценка</th>
                     </thead>
                     <tbody align="center">
                         <tr style = "border-top: 3px solid black">
                             <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}">
-                                Все (число пользователей - {{ count_users }})
+                                Все
                             </a></td>
-                            <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
+                            <td>{{ count_users }}</td>
+                            {% if count_users == 0 %}
+                                <td>Нет оценки</td>
+                            {% else %}
+                                <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
+                            {% endif %}
                         </tr>
                         <tr style = "border-top: 3px solid black">
                             <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=M">
-                                Мужчины (число пользователей - {{ count_male_users }})
+                                Мужчины
                             </a></td>
-                            <td>{{ male_users.name }} {{ male_users.value|floatformat:-2 }}</td>
+                            <td>{{ count_male_users }}</td>
+                            {% if count_male_users == 0 %}
+                                <td>Нет оценки</td>
+                            {% else %}
+                                <td>{{ male_users.name }} {{ male_users.value|floatformat:-2 }}</td>
+                            {% endif %}
                         </tr>
                         <tr style = "border-top: 3px solid black">
                             <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=F">
-                                Женщины (число пользователей - {{ count_female_users }})
+                                Женщины
                             </a></td>
-                            <td>{{ female_users.name }} {{ female_users.value|floatformat:-2 }}</td>
+                            <td>{{ count_female_users }}</td>
+                            {% if count_female_users == 0 %}
+                                <td>Нет оценки</td>
+                            {% else %}
+                                <td>{{ female_users.name }} {{ female_users.value|floatformat:-2 }}</td>
+                            {% endif %}
                         </tr>
                     </tbody>
                 </table>
@@ -118,13 +134,15 @@
                         
                     <thead align="center">
                         <th valign="middle">Группа</th>
+                        <th valign="middle">Число пользователей в группе</th>
                         <th valign="middle">Групповая оценка</th>
                     </thead>
                     <tbody align="center">
                         <tr style = "border-top: 3px solid black">
                             <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}">
-                                Все (число пользователей - {{ count_users }})
+                                Все
                             </a></td>
+                            <td>{{ count_users }}</td>
                             <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
                         </tr>
                         {% for age_scale_grade in age_scales_grades %}
@@ -134,7 +152,12 @@
                                     {{ age_scale_grade.interval }}
                                 </a>
                             </td>
-                            <td>{{ age_scale_grade.name }} {{ age_scale_grade.value|floatformat:-2 }}</td>
+                            <td>{{ age_scale_grade.count_users }}</td>
+                            {% if age_scale_grade.count_users == 0 %}
+                                <td>Нет оценки</td>
+                            {% else %}
+                                <td>{{ age_scale_grade.name }} {{ age_scale_grade.value|floatformat:-2 }}</td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>

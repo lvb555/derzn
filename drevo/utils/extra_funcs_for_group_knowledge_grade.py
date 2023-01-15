@@ -82,9 +82,9 @@ def get_average_base_grade(users, request , knowledge: Znanie) -> tuple[Grade, G
         "common_grade": Grade()
     }
     counts_grade = {
-        "base_grade": 0.01,
-        "proof_base_grade": 0.01,
-        "common_grade": 0.01
+        "base_grade": 0,
+        "proof_base_grade": 0,
+        "common_grade": 0
     }
 
     # цикл в котором для каждого пользователя вычисляются и сохраняются
@@ -113,8 +113,12 @@ def get_average_base_grade(users, request , knowledge: Znanie) -> tuple[Grade, G
     # цикл в котором для каждой оценки вычисляется среднее значение и
     # сохраняется
     for label in grades:
-        grades[label].value = grades[label].value / counts_grade[label]
-        grades[label].name = get_name_knowledge_grade_scale(grades[label].value)
+        if counts_grade[label] == 0:
+            grades[label].value = 0
+            grades[label].name = "Нет оценки"
+        else:
+            grades[label].value = grades[label].value / counts_grade[label]
+            grades[label].name = get_name_knowledge_grade_scale(grades[label].value)
     return grades["base_grade"], grades["proof_base_grade"], grades["common_grade"]
 
 def get_group_users(request, knowledge_id: int):
