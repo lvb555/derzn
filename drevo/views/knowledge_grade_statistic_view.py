@@ -69,6 +69,8 @@ class KnowledgeStatisticFormView(TemplateView):
             amount_all_grades_female, 100]
 
         context['gender_grades'] = gender_grades
+        context['count_male_users'] = amount_all_grades_man
+        context['count_female_users'] = amount_all_grades_female
 
 
         # Блок 2.
@@ -84,7 +86,7 @@ class KnowledgeStatisticFormView(TemplateView):
         all_age_segments = AgeUsersScale.objects.all()
 
         age_grades = {}
-        title_age_segment = []
+        title_age_segment = {}
         total_amount_age_grade = collections.defaultdict(lambda: 0)
         total_amount_age_grade["Всего"] = amount_all_grades
 
@@ -95,9 +97,6 @@ class KnowledgeStatisticFormView(TemplateView):
             age_grades[GradeScale] = [[amount_grade, percent_grade]]
 
             for age_segment in all_age_segments:
-
-                if age_segment not in title_age_segment:
-                    title_age_segment.append(age_segment)
 
                 if age_segment.min_age is None:
                     min_age = datetime.timedelta(days=0)
@@ -111,8 +110,12 @@ class KnowledgeStatisticFormView(TemplateView):
                 amount_users_in_segment = Users_with_age.filter(age__gte=min_age, age__lt=max_age, grade=GradeScale.id).count()
                 percent_users_in_segment = get_percent(amount_users_in_segment, amount_grade)
                 age_grades[GradeScale].append([amount_users_in_segment, percent_users_in_segment])
+                if str(age_segment) not in title_age_segment:
+                    title_age_segment[str(age_segment)] = {
+                        "count_users": amount_users_in_segment,
+                        "segment": age_segment
+                    }
 
-                
                 total_amount_age_grade[age_segment] += amount_users_in_segment
                 
         # установить None нужно, чтобы передать в шаблон джанго для корректной работы

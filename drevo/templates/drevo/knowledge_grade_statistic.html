@@ -78,12 +78,24 @@
                                 <th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="2">Из них</th>
                             </tr>
                             <tr>
-                                <th><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?gender=M">
-                                    Мужчин
-                                </a></th>
-                                <th><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?gender=F">
-                                    Женщин
-                                </a></th>
+                                <th>
+                                    {% if count_male_users %}
+                                    <a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?gender=M">
+                                        Мужчин
+                                    </a>
+                                    {% else %}
+                                        Мужчин
+                                    {% endif %}
+                                </th>
+                                <th>
+                                    {% if count_female_users %}
+                                    <a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?gender=F">
+                                        Женщин
+                                    </a>
+                                    {% else %}
+                                        Женщин
+                                    {% endif %}
+                                </th>
                             </tr>
                         </thead>
                         <tbody align="center"> 
@@ -123,10 +135,16 @@
                                 <th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="{{title_age_segment|length}}">Из них</th>
                             </tr>
                             <tr>
-                                {% for segment in title_age_segment %}
-                                <th><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?min_age={{ segment.min_age }}&max_age={{ segment.max_age }}">
+                                {% for segment, value in title_age_segment.items %}
+                                <th>
+                                    {% if value.count_users %}
+                                    <a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?min_age={{ value.segment.min_age }}&max_age={{ value.segment.max_age }}">
                                     {{ segment }}
-                                </a></th>
+                                    </a>
+                                    {% else %}
+                                    {{ segment }}
+                                    {% endif %}
+                                </th>
                                 {% endfor %}
                             </tr>
                         </thead>

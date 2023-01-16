@@ -320,6 +320,26 @@ def get_average_proof_base_and_common_grades(users, request, knowledge: Znanie) 
     return get_grade_from_knowledge_value(average_proof_base_grade), \
            get_grade_from_knowledge_value(average_common_grade)
 
+def get_average_proof(users, request, relation: Relation) -> Grade:
+    """
+    Вычисление среднего значения оценки довода среди группы пользователей
+
+    - users - группа пользователей
+    - relation - связь
+    """
+    copy_request = copy.copy(request)
+    proof_grades = []
+    for user in users:
+        copy_request.user = user
+        proof_grades.append(relation.get_proof_grade(
+            copy_request,
+            copy_request.GET.get("variant", 2)
+        ))
+    average_proof_grade_value = mean(proof_grades) \
+                                if len(proof_grades) >= 1 \
+                                else 0
+    return get_grade_from_knowledge_value(average_proof_grade_value)
+
 def get_group_relations(request, users, relations: list[Relation]) -> list[dict]:
     """
     Получение для всех связей - средних значений оценок связи и других
