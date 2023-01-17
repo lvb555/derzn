@@ -1,0 +1,64 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+{% block title %}Публичные люди{% endblock %}
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
+{% endblock %}
+{% block content %}
+
+<h1>Публичные люди</h1>
+<div class="d-flex flex-row mt-3">
+    <form class="d-flex" role="search">
+        <i id="search_icon" class="cart-icon material-icons" style="color: #BFBFBF">search</i><input id="search_bar" class="form-control shadow-none" type="search" placeholder="Поиск">
+    </form>
+</div><br>
+<div >
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        {% for human in public_people %}
+            <div class="col public_people">
+                <div class="person_card">
+                    <div class="card-body text-center">
+                        <div class="mb-4">
+                            {% if human.profile.avatar %}
+                                <a href="{% url 'users:usersprofile' human.id %}">
+                                    <img src="{{ human.profile.avatar.url }}"
+                                    alt="Users photo" class="img-fluid rounded-circle mt-4 mb-2"
+                                    style="width: 100px; z-index: 1">
+                                </a>
+                            {% else %}
+                                <a href="{% url 'users:usersprofile' human.id %}">
+                                    <img src="{% static 'src/default_avatar.jpg' %}"
+                                    alt="Users photo" class="img-fluid rounded-circle mt-4 mb-2"
+                                    style="width: 100px; z-index: 1">
+                                </a>
+                            {% endif %}
+                            <h4 class="mb-2 person_info">{{human.first_name}} {{human.last_name}}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block jsfiles %}
+<script>
+    var search_bar = document.getElementById('search_bar');
+    var public_people = document.getElementsByClassName('public_people');
+    search_bar.addEventListener('input', function() {
+            if(search_bar.value != "") {
+                Array.from(public_people).forEach(element => {
+                    element.style.display = 'none';
+                })
+                Array.from(public_people).forEach(element => {
+                    human_surname = element.querySelector('h4').innerHTML.toLowerCase().split(' ')
+                    if(human_surname[1].includes(search_bar.value.toLowerCase().trim())) {
+                        element.style.display = '';
+                    }
+                })
+                }
+            })
+</script>
+{% endblock jsfiles %}

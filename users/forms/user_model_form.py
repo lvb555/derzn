@@ -21,10 +21,14 @@ class UserModelForm(forms.ModelForm):
         label='Фамилия',
         required=False,
     )
+    is_public = forms.BooleanField(
+        widget=forms.CheckboxInput(),
+        required=False,
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name')
+        fields = ('username', 'email', 'first_name', 'last_name', 'is_public')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
