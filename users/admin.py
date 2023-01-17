@@ -32,7 +32,8 @@ class UserAdmin(BaseUserAdmin):
             {
                 'fields': ('first_name',
                            'last_name',
-                           'email')
+                           'email',
+                           'is_public')
             }
         ),
         (

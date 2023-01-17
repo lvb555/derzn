@@ -26,6 +26,7 @@ class User(AbstractUser):
     is_redactor = models.BooleanField(default=False, verbose_name='Редактор')
     is_director = models.BooleanField(default=False, verbose_name='Руководитель')
     in_klz = models.BooleanField(default=False, verbose_name='Член КЛЗ')
+    is_public = models.BooleanField(default=False, verbose_name='Публичный человек')
 
     date_joined = last_login = None
     user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True)
