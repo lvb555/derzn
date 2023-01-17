@@ -91,34 +91,34 @@
                     </thead>
                     <tbody align="center">
                         <tr style = "border-top: 3px solid black">
-                            <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}">
+                            <td valign="middle">{% if count_users %}<a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}">{% endif %}
                                 Все
-                            </a></td>
+                            {% if count_users %}</a>{% endif %}</td>
                             <td>{{ count_users }}</td>
                             {% if count_users == 0 %}
-                                <td>Нет оценки</td>
+                                <td>–</td>
                             {% else %}
                                 <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
                             {% endif %}
                         </tr>
                         <tr style = "border-top: 3px solid black">
-                            <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=M">
+                            <td valign="middle">{% if count_male_users %}<a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=M">{% endif %}
                                 Мужчины
-                            </a></td>
+                            {% if count_male_users %}</a>{% endif %}</td>
                             <td>{{ count_male_users }}</td>
                             {% if count_male_users == 0 %}
-                                <td>Нет оценки</td>
+                                <td>–</td>
                             {% else %}
                                 <td>{{ male_users.name }} {{ male_users.value|floatformat:-2 }}</td>
                             {% endif %}
                         </tr>
                         <tr style = "border-top: 3px solid black">
-                            <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=F">
+                            <td valign="middle">{% if count_female_users %}<a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=F">{% endif %}
                                 Женщины
-                            </a></td>
+                            {% if count_female_users %}</a>{% endif %}</td>
                             <td>{{ count_female_users }}</td>
                             {% if count_female_users == 0 %}
-                                <td>Нет оценки</td>
+                                <td>–</td>
                             {% else %}
                                 <td>{{ female_users.name }} {{ female_users.value|floatformat:-2 }}</td>
                             {% endif %}
@@ -139,22 +139,30 @@
                     </thead>
                     <tbody align="center">
                         <tr style = "border-top: 3px solid black">
-                            <td valign="middle"><a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}">
+                            <td valign="middle">{% if count_users %}<a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}">{% endif %}
                                 Все
-                            </a></td>
+                            {% if count_users %}</a>{% endif %}</td>
                             <td>{{ count_users }}</td>
-                            <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
+                             {% if count_users == 0 %}
+                                <td>–</td>
+                            {% else %}
+                                <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
+                            {% endif %}
                         </tr>
                         {% for age_scale_grade in age_scales_grades %}
                         <tr style = "border-top: 3px solid black">
                             <td valign="middle">
+                                {% if age_scale_grade.count_users %}
                                 <a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=&min_age={{ age_scale_grade.min_age }}&max_age={{ age_scale_grade.max_age }}">
                                     {{ age_scale_grade.interval }}
                                 </a>
+                                {% else %}
+                                {{ age_scale_grade.interval }}
+                                {% endif %}
                             </td>
                             <td>{{ age_scale_grade.count_users }}</td>
                             {% if age_scale_grade.count_users == 0 %}
-                                <td>Нет оценки</td>
+                                <td>–</td>
                             {% else %}
                                 <td>{{ age_scale_grade.name }} {{ age_scale_grade.value|floatformat:-2 }}</td>
                             {% endif %}

@@ -41,24 +41,23 @@
         {% else %}
             Групповая общая оценка знания
         {% endif %}
+    </h2>
+    <h3>
         {% if request.GET.gender == 'M' %}
-            <br>
             Пол: мужской
+            <br>
         {% elif request.GET.gender == 'F' %}
-            <br>
             Пол: женский
+            <br>
         {% endif %}
-        {% if request.GET.min_age != '0' and request.GET.max_age != '0' %}
-            <br>
+        {% if request.GET.min_age and request.GET.max_age and request.GET.min_age != '0' and request.GET.max_age != '0' %}
             Возраст: от {{ request.GET.min_age }} до {{ request.GET.max_age }}
-        {% elif request.GET.min_age != '0' %}
-            <br>
+        {% elif request.GET.min_age and request.GET.min_age != '0' %}
             Возраст: от {{ request.GET.min_age }}
-        {% elif request.GET.max_age != '0' %}
-            <br>
+        {% elif request.GET.max_age and request.GET.max_age != '0' %}
             Возраст: до {{ request.GET.max_age }}
         {% endif %}
-    </h2>
+    </h3>
 
     {% if not user.is_authenticated %}
         <div class="col">
@@ -159,8 +158,10 @@
                 {% if proof_relations %}
                     <tr>
                         <th>Оценка доказательной базы:</th>
+                        {% if proof_base_grade.value %}
                         <td>{{ proof_base_grade.name }}</td>
                         <td>{{ proof_base_grade.value|floatformat:-2 }}</td>
+                        {% endif %}
                     </tr>
                     <tr>
                         <th>Общая оценка знания:</th>
@@ -188,7 +189,7 @@
                             Вид связи
                         </th>
                         <th colspan="2" class="table-border text-center">
-                            Оценка довода
+                            Оценка вклада довода
                         </th>
                         <th colspan="2" class="table-border text-center">
                             Общая оценка знания
@@ -213,14 +214,16 @@
                                     {{ relation.type_name|endings_filter }}
                                 </td>
                                 <td class="table-border">
-                                    {% if relation.proof_grade.name %}
+                                    {% if relation.proof_grade.value %}
                                         {{ relation.proof_grade.name }}
                                     {% else %}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                     {% endif %}
                                 </td>
                                 <td class="table-border text-center">
-                                    {{ relation.proof_grade.value|floatformat:-2 }}
+                                    {% if relation.proof_grade.value %}
+                                        {{ relation.proof_grade.value|floatformat:-2 }}
+                                    {% endif %}
                                 </td>
                                 <td class="table-border">
                                     {% if not relation.common_grade.name %}

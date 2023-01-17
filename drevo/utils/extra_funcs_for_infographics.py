@@ -1,14 +1,14 @@
-from .extra_funcs_for_group_knowledge_grade import get_average_grade
+from .extra_funcs_for_group_knowledge_grade import get_average_proof
 from drevo.models.relation import Relation
 from drevo.models.knowledge_grade import KnowledgeGrade
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 
 
-def get_colors_from_knowledge(request, relation: Relation, lvl_against: int,
+def get_colors_and_value_from_knowledge(request, relation: Relation, lvl_against: int,
                               father_relation: Relation | None, is_group_knowledge: bool,
-                              users) -> tuple[str, str]:
+                              users) -> tuple[str, str, float]:
     """
-    Получение цвета знания
+    Получение цвета и значение оценки довода знания
 
     - relation - связь от родительского знания к знанию, для которого
                  определяется цвет
@@ -22,15 +22,16 @@ def get_colors_from_knowledge(request, relation: Relation, lvl_against: int,
     """
     bg_color = "#FFFFFF"
     font_color = "#000000"
+    value = 0.0
     try:
         if not is_group_knowledge:
-            grade = KnowledgeGrade.objects.get(
-                knowledge=relation.rz,
-                user=request.user,
-            ).grade
+            value = relation.get_proof_grade(
+                request,
+                request.GET.get("variant", 2)
+            )
         else:
-            grade = KnowledgeGradeScale.get_grade_object(
-                    get_average_grade(users, relation.rz).value)
+            value = get_average_proof(users, request, relation).value
+        grade = KnowledgeGradeScale.get_grade_object(value)
         father_argument_type = False
         if father_relation is not None:
             father_argument_type = father_relation.tr.argument_type
@@ -52,7 +53,7 @@ def get_colors_from_knowledge(request, relation: Relation, lvl_against: int,
             font_color = grade.argument_color_font
     except KnowledgeGrade.DoesNotExist:
         pass
-    return bg_color, font_color
+    return bg_color, font_color, value
 
 def get_elements_tree(index_element_tree: int, request, relations: list[Relation],
                       lvl_up: bool = False, lvl_against: int = -1,
@@ -75,6 +76,8 @@ def get_elements_tree(index_element_tree: int, request, relations: list[Relation
       [
         {
           "name": имя знания,
+          "url": ссылка до страницы знания,
+          "proof_value": значение оценки довода,
           "bg_color": цвет фона,
           "font_color": цвет шрифта,
           "for_or_against": буква обозначающая какой это довод - за или
@@ -103,11 +106,13 @@ def get_elements_tree(index_element_tree: int, request, relations: list[Relation
         if relation.tr.is_argument:
             knowledge = relation.rz
             childrens_knowledge = Relation.objects.filter(bz=knowledge)
-            bg_color, font_color = get_colors_from_knowledge(
+            bg_color, font_color, value = get_colors_and_value_from_knowledge(
                 request, relation, lvl_against, father_relation, is_group_knowledge,
                 users)
             tree.append({
                 "name": knowledge.name,
+                "url": knowledge.get_absolute_url(),
+                "proof_value": value,
                 "bg_color": bg_color,
                 "font_color": font_color,
                 "lvl_up": lvl_up,

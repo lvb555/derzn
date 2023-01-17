@@ -108,11 +108,13 @@
             {% if proof_relations.exists %}
                 <tr>
                     <th>Оценка доказательной базы:</th>
+                    {% if proof_base_value %}
                     <td style="background-color: {{ proof_base_grade.argument_color_background }};
                            color: {{ proof_base_grade.argument_color_font }};">
                         {{ proof_base_grade.name }}
                     </td>
                     <td>{{ proof_base_value|floatformat:-2 }}</td>
+                    {% endif %}
                 </tr>
                 <tr>
                     <th>Общая оценка знания:</th>
@@ -146,10 +148,23 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
-                             <span style="background-color: {{ element_tree.bg_color }}; 
-                                   color: {{ element_tree.font_color }}">
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            {% if element_tree.proof_value %}
+                            <span style="background-color: {{ element_tree.bg_color }}; 
+                                  color: {{ element_tree.font_color }};
+                                  border: 1px solid black">
+                            {% else %}
+                            <span style="border: 1px solid black; color: black;">
+                            {% endif %}
                                 {{ element_tree.name }}
                             </span>
+                            </a>
+
+                            {% if element_tree.proof_value %}
+                            <span style="background-color: #FFFF00">
+                                {{ element_tree.proof_value|floatformat:-2 }}
+                            </span>
+                            {% endif %}
                         {% if not element_tree.has_childrens %}
                             </li>
                         {% endif %}
@@ -168,10 +183,23 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }}; 
-                                   color: {{ element_tree.font_color }}">
+                                  color: {{ element_tree.font_color }};
+                                  border: 1px solid black">
+                            {% else %}
+                            <span style="border: 1px solid black; color:black;">
+                            {% endif %}
                                 {{ element_tree.name }}
                             </span>
+                            </a>
+                            
+                            {% if element_tree.proof_value %}
+                             <span style="background-color: #FFFF00">
+                                 {{ element_tree.proof_value|floatformat:-2 }}
+                             </span>
+                            {% endif %}
                         </li>
                     {% endif %}
                 {% else %}
@@ -185,10 +213,24 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }}; 
-                                   color: {{ element_tree.font_color }}">
+                                  color: {{ element_tree.font_color }};
+                                  border: 1px solid black">
+                            {% else %}
+                            <span style="border: 1px solid black; color: black;">
+                            {% endif %}
                                 {{ element_tree.name }}
                             </span>
+                            </a>
+
+                            {% if element_tree.proof_value %}
+                            <span style="background-color: #FFFF00">
+                                {{ element_tree.proof_value|floatformat:-2 }}
+                            </span>
+                            {% endif %}
+
                          {% if not element_tree.has_childrens %}
                             </li>
                         {% endif %}                       
@@ -233,6 +275,20 @@
             </tbody>
         </table>
         </div>
+    </div>
+    <div class="row justify-content-center">
+        <table class="table table-sm text-center" style="border-collapse:collapse; width: 200px;">
+            <style>
+                .table-border {
+                    border: 2px black solid;
+                }
+            </style>
+            <tbody>
+                <td class="text-center table-border">
+                    Нет оценки
+                </td>
+            </tbody>
+        </table>
     </div>
     {% endif %}
     {% endif %}
