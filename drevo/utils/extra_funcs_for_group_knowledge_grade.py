@@ -331,10 +331,12 @@ def get_average_proof(users, request, relation: Relation) -> Grade:
     proof_grades = []
     for user in users:
         copy_request.user = user
-        proof_grades.append(relation.get_proof_grade(
+        proof_grade_value = relation.get_proof_grade(
             copy_request,
             copy_request.GET.get("variant", 2)
-        ))
+        )
+        if proof_grade_value:
+            proof_grades.append(proof_grade_value)
     average_proof_grade_value = mean(proof_grades) \
                                 if len(proof_grades) >= 1 \
                                 else 0
