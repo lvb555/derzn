@@ -36,6 +36,14 @@ class Tz(models.Model):
         default=True,
         verbose_name='Пересылать'
     )
+    is_author_required = models.BooleanField(
+        default=False,
+        verbose_name='Автор обязателен для заполнения'
+    )
+    is_href_required = models.BooleanField(
+        default=False,
+        verbose_name='Источник обязателен для заполнения'
+    )
     objects = models.Manager()
 
     def __str__(self):
