@@ -38,11 +38,11 @@ class Tz(models.Model):
     )
     is_author_required = models.BooleanField(
         default=False,
-        verbose_name='Автор обязателен для заполнения?'
+        verbose_name='Автор обязателен для заполнения'
     )
     is_href_required = models.BooleanField(
         default=False,
-        verbose_name='Источник обязателен для заполнения?'
+        verbose_name='Источник обязателен для заполнения'
     )
     objects = models.Manager()
 
