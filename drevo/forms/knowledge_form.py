@@ -9,7 +9,37 @@ from mptt.forms import TreeNodeChoiceField
 from ..models.utils import get_model_or_stub
 
 
-class ZnanieForm(forms.ModelForm):
+class MyValidators():
+    """Валидаторы полей author и href"""
+    
+    def clean_author(self):
+        kind = self.cleaned_data['tz']
+        author = self.cleaned_data['author']
+        
+        try:
+            current_tz = Tz.objects.filter(id=kind.id).first()
+            if current_tz and current_tz.is_author_required and not author:
+                raise ValidationError('Для данного вида знаний поле автор является обязательным!')
+        except ObjectDoesNotExist:
+            print('Необходимо указать вид знания')     
+
+        return author
+    
+    def clean_href(self):
+        kind = self.cleaned_data['tz']
+        href = self.cleaned_data['href']
+                
+        try:
+            current_tz = Tz.objects.filter(id=kind.id).first()
+            if current_tz and current_tz.is_href_required and not href:
+                raise ValidationError('Для данного вида знаний поле источник является обязательным!')
+        except ObjectDoesNotExist:
+            print('Необходимо указать вид знания')
+
+        return href
+
+
+class ZnanieForm(forms.ModelForm, MyValidators):
     """
     Форма для вывода сущности Знания.
     """
@@ -36,27 +66,3 @@ class ZnanieForm(forms.ModelForm):
         model = Znanie
         fields = '__all__'
 
-    def clean_author(self):
-        kind = self.cleaned_data['tz']
-        author = self.cleaned_data['author']
-        try:
-            current_tz = Tz.objects.filter(id=kind.id).first()
-            if current_tz and current_tz.is_author_required and not author:
-                raise ValidationError('Для данного вида знаний поле автор является обязательным!')
-        except ObjectDoesNotExist:
-            print('Необходимо указать вид знания')     
-
-        return author
-    
-    def clean_href(self):
-        kind = self.cleaned_data['tz']
-        href = self.cleaned_data['href']
-                
-        try:
-            current_tz = Tz.objects.filter(id=kind.id).first()
-            if current_tz and current_tz.is_href_required and not href:
-                raise ValidationError('Для данного вида знаний поле источник является обязательным!')
-        except ObjectDoesNotExist:
-            print('Необходимо указать вид знания')
-
-        return href
