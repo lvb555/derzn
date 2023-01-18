@@ -245,7 +245,7 @@ class Znanie(models.Model):
         if variant and variant.isdigit():
             variant = int(variant)
         else:
-            variant = 2
+            variant = 1
 
         proof_base_value = self.get_proof_base_grade(request, variant)
         if proof_base_value is not None:

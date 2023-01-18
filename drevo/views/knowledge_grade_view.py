@@ -3,6 +3,7 @@ from drevo.models import Relation
 from drevo.models.knowledge_grade import KnowledgeGrade
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.knowledge import Znanie
+from drevo.models.relation import Relation
 from drevo.models.relation_grade import RelationGrade
 from drevo.models.relation_grade_scale import RelationGradeScale
 from django.shortcuts import HttpResponseRedirect, Http404, get_object_or_404
@@ -40,7 +41,11 @@ class KnowledgeFormView(TemplateView):
             proof_relations = knowledge.base.filter(
                 tr__is_argument=True,
                 rz__tz__can_be_rated=True,
-            )
+            ).order_by('tr__name')
+
+            father_knowledge = Relation.objects.filter(rz=knowledge).first()
+            if father_knowledge is not None:
+                context['father_knowledge'] = father_knowledge
 
             context['proof_relations'] = proof_relations
             context['knowledge_scale'] = KnowledgeGradeScale.objects.all()

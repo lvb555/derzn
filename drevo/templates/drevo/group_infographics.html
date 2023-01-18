@@ -4,7 +4,7 @@
 {% load custom_humanize %}
 
 {% block title %}
-{% if request.GET.variant == '1' %}
+{% if request.GET.variant != '2' %}
     Инфографика. Групповая оценка знания
 {% else %}
     Инфографика. Групповая общая оценка знания
@@ -36,7 +36,7 @@
     </div>
     {% if not none %}
     <h2 class="my-2">
-        {% if request.GET.variant == '1' %}
+        {% if request.GET.variant != '2' %}
             Инфографика. Групповая оценка знания
         {% else %}
             Инфографика. Групповая общая оценка знания
@@ -84,12 +84,12 @@
                     <fieldset id="variant" class="input-group">
                         <span style="white-space: nowrap">
                             <input class="ms-2" type="radio" id="var1" name="variant" value="1"
-                                    {% if request.GET.variant == '1' %} checked {% endif %}>
+                                    {% if request.GET.variant != '2' %} checked {% endif %}>
                             <label for="var1">Оценка знания</label>
                         </span>
                         <span style="white-space: nowrap">
                             <input class="ms-2" type="radio" id="var2" name="variant" value="2"
-                                    {% if request.GET.variant != '1' %} checked {% endif %}>
+                                    {% if request.GET.variant == '2' %} checked {% endif %}>
                             <label for="var2">Общая оценка знания</label>
                         </span>
                     </fieldset>

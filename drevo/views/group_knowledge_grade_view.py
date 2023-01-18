@@ -40,7 +40,7 @@ class GroupKnowledgeView(TemplateView):
             proof_relations = knowledge.base.filter(
                 tr__is_argument=True,
                 rz__tz__can_be_rated=True,
-            )
+            ).order_by('tr__name')
 
             context['proof_relations'] = get_group_relations(
                     self.request, self.users, proof_relations)
