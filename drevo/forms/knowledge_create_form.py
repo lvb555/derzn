@@ -6,10 +6,10 @@ from mptt.forms import TreeNodeChoiceField
 from drevo.models import Znanie, Category, ZnImage, Label
 from drevo.models.utils import get_model_or_stub
 
-from .knowledge_form import MyValidators
+from .knowledge_form import ZnanieValidators
 
 
-class ZnanieCreateForm(forms.ModelForm, MyValidators):
+class ZnanieCreateForm(forms.ModelForm, ZnanieValidators):
     """
     Форма создания сущности Знание
     """

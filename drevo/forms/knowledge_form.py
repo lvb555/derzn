@@ -9,13 +9,13 @@ from mptt.forms import TreeNodeChoiceField
 from ..models.utils import get_model_or_stub
 
 
-class MyValidators():
+class ZnanieValidators():
     """Валидаторы полей author и href"""
     
     def clean_author(self):
         kind = self.cleaned_data['tz']
         author = self.cleaned_data['author']
-        
+
         try:
             current_tz = Tz.objects.filter(id=kind.id).first()
             if current_tz and current_tz.is_author_required and not author:
@@ -39,7 +39,7 @@ class MyValidators():
         return href
 
 
-class ZnanieForm(forms.ModelForm, MyValidators):
+class ZnanieForm(forms.ModelForm, ZnanieValidators):
     """
     Форма для вывода сущности Знания.
     """
