@@ -17,7 +17,7 @@ class ZnanieValidators():
         author = self.cleaned_data['author']
         current_tz = Tz.objects.filter(id=kind.id).first()
         if current_tz and current_tz.is_author_required and not author:
-            raise ValidationError('Для данного вида знаний поле автор является обязательным!')    
+            raise ValidationError('Для записей данного вида знаний поле "Автор" является обязательным!')    
 
         return author
     
@@ -26,7 +26,7 @@ class ZnanieValidators():
         href = self.cleaned_data['href']
         current_tz = Tz.objects.filter(id=kind.id).first()
         if current_tz and current_tz.is_href_required and not href:
-            raise ValidationError('Для данного вида знаний поле источник является обязательным!')
+            raise ValidationError('Для записей данного вида знаний поле "Источник" является обязательным!')
 
         return href
 
