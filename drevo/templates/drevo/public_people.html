@@ -1,9 +1,13 @@
 {% extends 'drevo/base.html' %}
+
 {% load static %}
+
 {% block title %}Публичные люди{% endblock %}
+
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
 {% endblock %}
+
 {% block content %}
 
 <h1>Публичные люди</h1>
@@ -20,13 +24,13 @@
                     <div class="card-body text-center">
                         <div class="mb-4">
                             {% if human.profile.avatar %}
-                                <a href="{% url 'users:usersprofile' human.id %}">
+                                <a href="{% url 'public_human' human.id %}">
                                     <img src="{{ human.profile.avatar.url }}"
                                     alt="Users photo" class="img-fluid rounded-circle mt-4 mb-2"
                                     style="width: 100px; z-index: 1">
                                 </a>
                             {% else %}
-                                <a href="{% url 'users:usersprofile' human.id %}">
+                                <a href="{% url 'public_human' human.id %}">
                                     <img src="{% static 'src/default_avatar.jpg' %}"
                                     alt="Users photo" class="img-fluid rounded-circle mt-4 mb-2"
                                     style="width: 100px; z-index: 1">
