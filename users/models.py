@@ -27,6 +27,8 @@ class User(AbstractUser):
     is_director = models.BooleanField(default=False, verbose_name='Руководитель')
     in_klz = models.BooleanField(default=False, verbose_name='Член КЛЗ')
     is_public = models.BooleanField(default=False, verbose_name='Публичный человек')
+    sections = models.ManyToManyField('MenuSections', verbose_name='Секции, разрешенные к показу', blank=True)
+    job = models.CharField(max_length=150, verbose_name='Работа', blank=True)
 
     date_joined = last_login = None
     user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True)
@@ -179,3 +181,16 @@ class Profile(models.Model):
 class Favourite(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     favourites = models.ManyToManyField("drevo.Znanie", blank=True)
+
+
+class MenuSections(models.Model):
+    name = models.CharField(max_length=128,
+                            unique=True,
+                            verbose_name='Название')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Секция меню в шапке пользователя'
+        verbose_name_plural = 'Секции меню в шапке пользователя'
