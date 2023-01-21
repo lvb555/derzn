@@ -66,6 +66,12 @@
                     </div>
                 </div>
                 <div class="form-row">
+                        <div class="col mb-3">
+                            <label class="mb-1" for="{{ form.job.id_for_label }}">Профессия:</label>
+                            {{ form.job }}
+                        </div>
+                </div>
+                <div class="form-row">
                     <div class="col mb-3">
                         <label class="mb-1" for="{{ profile_form.birthday_at.id_for_label }}">Дата рождения:</label>
                         <input type="date"
@@ -95,12 +101,6 @@
                 <div style="display: none" id="sections">
                 {% endif %}
                     <div style="display: none" id="previous">{{sections}}</div>
-                    <div class="form-row">
-                        <div class="col mb-3">
-                            <label class="mb-1" for="{{ form.job.id_for_label }}">Профессия:</label>
-                            {{ form.job }}
-                        </div>
-                    </div>
                     <p>Разделы, которые будут показаны</p>
                     <div style="padding-bottom: 16px;">
                         <input type = 'checkbox' class = 'section' name = 'Компетенции' value="True" checked>
@@ -110,11 +110,11 @@
                         <input type = 'checkbox' class = 'section_title' id="friends" onclick="SelectAll(this.id)">
                         Друзья
                         <div style="margin-left: 24px;">
-                            <input type = 'checkbox' class = 'section' name = 'Приглашение в друзья' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'Приглашение в друзья' value="True" checked onclick="IsAllChecked(this.name)">
                             Приглашение в друзья
-                            <input type = 'checkbox' class = 'section' name = 'Лента знаний' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'Лента знаний' value="True" checked onclick="IsAllChecked(this.name)">
                             Лента знаний
-                            <input type = 'checkbox' class = 'section' name = 'Сообщения' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'Сообщения' value="True" checked onclick="IsAllChecked(this.name)">
                             Сообщения
                         </div>
                     </div>
@@ -122,21 +122,21 @@
                         <input type = 'checkbox' class = 'section_title' id="activity" onclick="SelectAll(this.id)">
                         Активность
                         <div style="margin-left: 24px;">
-                            <input type = 'checkbox' class = 'section' name = 'Мои интервью' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'Мои интервью' value="True" checked onclick="IsAllChecked(this.name)">
                             Мои интервью
-                            <input type = 'checkbox' class = 'section' name = 'Мои предложения' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'Мои предложения' value="True" checked onclick="IsAllChecked(this.name)">
                             Мои предложения
-                            <input type = 'checkbox' class = 'section' name = 'Мои опросы' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'Мои опросы' value="True" checked onclick="IsAllChecked(this.name)">
                             Мои опросы
                             <div style="padding-bottom: 16px; padding-top: 16px;" class="expert_contribution">
                                 <input type = 'checkbox' class = 'section_title' id="expert_contribution" onclick="SelectAll(this.id)">
                                 Мой вклад, как эксперта
                                 <div style="margin-left: 24px;">
-                                    <input type = 'checkbox' class = 'section' name = 'Мои знания' value="True" checked>
+                                    <input type = 'checkbox' class = 'section' name = 'Мои знания' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои знания
-                                    <input type = 'checkbox' class = 'section' name = 'Мои связи' value="True" checked>
+                                    <input type = 'checkbox' class = 'section' name = 'Мои связи' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои связи
-                                    <input type = 'checkbox' class = 'section' name = 'Моя экспертиза' value="True" checked>
+                                    <input type = 'checkbox' class = 'section' name = 'Моя экспертиза' value="True" checked onclick="IsAllChecked(this.name)">
                                     Моя экспертиза
                                 </div>
                             </div>
@@ -144,13 +144,13 @@
                                 <input type = 'checkbox' class = 'section_title' id="user_contribution" onclick="SelectAll(this.id)">
                                 Мой вклад, как пользователя
                                 <div style="margin-left: 24px;">
-                                    <input type = 'checkbox' class = 'section' name = 'Мои знания (пользовательский вклад)' value="True" checked>
+                                    <input type = 'checkbox' class = 'section' name = 'Мои знания (пользовательский вклад)' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои знания
-                                    <input type = 'checkbox' class = 'section' name = 'Мои предзнания' value="True" checked>
+                                    <input type = 'checkbox' class = 'section' name = 'Мои предзнания' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои предзнания
-                                    <input type = 'checkbox' class = 'section' name = 'Мои связи (пользовательский вклад)' value="True" checked>
+                                    <input type = 'checkbox' class = 'section' name = 'Мои связи (пользовательский вклад)' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои связи
-                                    <input type = 'checkbox' class = 'section' name = 'Мои предсвязи' value="True" checked>
+                                    <input type = 'checkbox' class = 'section' name = 'Мои предсвязи' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои предсвязи
                                 </div>
                             </div>
@@ -160,11 +160,11 @@
                         <input type = 'checkbox' class = 'section_title' id="learning" onclick="SelectAll(this.id)">
                         Изучение знаний
                         <div style="margin-left: 24px;">
-                            <input type = 'checkbox' class = 'section' name = 'Дерево знаний' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'Дерево знаний' value="True" checked onclick="IsAllChecked(this.name)">
                             Дерево знаний
-                            <input type = 'checkbox' class = 'section' name = 'Избранные знания' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'Избранные знания' value="True" checked onclick="IsAllChecked(this.name)">
                             Избранные знания
-                            <input type = 'checkbox' class = 'section' name = 'Результаты тестов' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'Результаты тестов' value="True" checked onclick="IsAllChecked(this.name)">
                             Результаты тестов
                         </div>
                     </div>
@@ -172,11 +172,11 @@
                         <input type = 'checkbox' class = 'section_title' id="subscriptions" onclick="SelectAll(this.id)">
                         Подписки
                         <div style="margin-left: 24px;">
-                            <input type = 'checkbox' class = 'section' name = 'По категориям' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'По категориям' value="True" checked onclick="IsAllChecked(this.name)">
                             По категориям
-                            <input type = 'checkbox' class = 'section' name = 'По авторам' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'По авторам' value="True" checked onclick="IsAllChecked(this.name)">
                             По авторам
-                            <input type = 'checkbox' class = 'section' name = 'По тегам' value="True" checked>
+                            <input type = 'checkbox' class = 'section' name = 'По тегам' value="True" checked onclick="IsAllChecked(this.name)">
                             По тегам
                         </div>
                     </div>
@@ -244,6 +244,16 @@ function ShowFirst(){
 }
 
 ShowFirst()
+
+function IsAllChecked(name){
+    element = document.querySelector("input[name='"+name+"']")
+    parent = element.parentElement
+    if(parent.querySelectorAll('.section').length == parent.querySelectorAll('.section:checked').length){
+        parent.parentElement.querySelector('.section_title').checked = true;
+    }else if(parent.querySelectorAll('.section:checked').length == 0){
+        parent.parentElement.querySelector('.section_title').checked = false;
+    }
+}
 
 function SelectAll(id){
     a = document.querySelector('.'+id);

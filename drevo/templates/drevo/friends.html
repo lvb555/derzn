@@ -69,9 +69,8 @@
             <div class="p-4" style="background: #FFFFFF; border-radius: 0px 0px 10px 10px;">
                 <p class="user_first_last mt-2">{{user.first_name}} {{user.last_name}}</p>
               <div class="d-flex justify-content-between">
-                <p class="user_small_info mt-1">{{user.profile.get_gender_display}} (пол), {{user.profile.get_user_age}} (возраст)</p>
-            
-            
+                <p class="user_small_info mt-1">{{user.profile.get_gender_display}} (пол), {{user.profile.get_user_age}} (возраст)
+                {% if user.job %} {{user.job}} (профессия){% endif %}</p>
                 <a class="btn edit_btn shadow-none"
                     style="z-index: 1;"
                     href="{% url 'users:myprofile' %}">
