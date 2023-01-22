@@ -130,6 +130,7 @@ function changeFlag(item) {
 
 // Функция для отправки POST запроса с измененными данными на сервер.
 async function makeRequest(url, method, body) {
+    console.log(url)
     let headers = {
         'X-Requested-With': 'XMLHttpRequest',
         'Content-Type': 'application/json'
@@ -140,7 +141,7 @@ async function makeRequest(url, method, body) {
         headers['X-CSRFToken'] = csrf
     }
 
-    await fetch(url, {
+    await fetch('/drevo/subscription_by_tag/1', {
         method: method,
         headers: headers,
         body: body
@@ -149,8 +150,8 @@ async function makeRequest(url, method, body) {
 }
 
 // Функция выполняется при нажатии кнопки "Сохранить".
-async function send_data() {
-    await makeRequest('/drevo/subscription_by_tag/', 'POST', JSON.stringify(change_flag))
+async function send_data(int) {
+    await makeRequest('/drevo/subscription_by_tag/"+int+"', 'POST', JSON.stringify(change_flag))
 }
 
 async function send_data_to_author() {
