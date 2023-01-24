@@ -204,8 +204,9 @@
                         </li>
 
                         <li>
-                            <a href="{% url 'show_quiz_result' %}" class="dropdown-item">Результаты тестов</a>
+                            <a href="{% url 'show_quiz_result' user.id %}" class="dropdown-item">Результаты тестов</a>
                         </li>
+                    </ul>
                 </div>
 
                 <div class="btn-group">
@@ -220,11 +221,11 @@
                         </li>
 
                         <li>
-                            <a href="{% url 'subscribe_to_author' %}" class="dropdown-item">По авторам</a>
+                            <a href="{% url 'subscribe_to_author' user.id %}" class="dropdown-item">По авторам</a>
                         </li>
 
                         <li>
-                            <a href="{% url 'subscription_by_tag' %}" class="dropdown-item">По тегам</a>
+                            <a href="{% url 'subscription_by_tag' user.id %}" class="dropdown-item">По тегам</a>
                         </li>
                     </ul>
                 </div>

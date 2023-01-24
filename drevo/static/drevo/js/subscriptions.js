@@ -141,7 +141,7 @@ async function makeRequest(url, method, body) {
         headers['X-CSRFToken'] = csrf
     }
 
-    await fetch('/drevo/subscription_by_tag/1', {
+    await fetch(url, {
         method: method,
         headers: headers,
         body: body
@@ -151,11 +151,11 @@ async function makeRequest(url, method, body) {
 
 // Функция выполняется при нажатии кнопки "Сохранить".
 async function send_data(int) {
-    await makeRequest('/drevo/subscription_by_tag/"+int+"', 'POST', JSON.stringify(change_flag))
+    await makeRequest('/drevo/subscription_by_tag/'+int+'', 'POST', JSON.stringify(change_flag))
 }
 
-async function send_data_to_author() {
-    await makeRequest('/drevo/subscribe_to_author/', 'POST', JSON.stringify(change_flag))
+async function send_data_to_author(int) {
+    await makeRequest('/drevo/subscribe_to_author/'+int+'', 'POST', JSON.stringify(change_flag))
 }
 
 
