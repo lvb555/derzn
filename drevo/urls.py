@@ -52,7 +52,7 @@ from .views.admin_interview_work.views import (
     AdminEditingKnowledgeView,
     NotifyExpertsView,
 )
-from .views.public_people import public_people_view
+from .views.public_people import public_people_view, public_human
 from .views.quiz_result import show_quiz_result
 from .views.subscribe_to_author_view import sub_by_author
 from .views.subscription_by_tag_view import sub_by_tag
@@ -90,6 +90,7 @@ urlpatterns = [
     path("quiz/<int:pk>/quiz_result/", QuizResultAdd.as_view()),
     path("quiz_results/", show_quiz_result, name="show_quiz_result"),
     path("public_people", public_people_view, name="public_people"),
+    path("public_people/<int:id>", public_human, name="public_human"),
     path("label/<int:pk>", ZnanieByLabelView.as_view(), name="zlabel"),
     path("author/<int:pk>", AuthorDetailView.as_view(), name="author"),
     path("authors/", AuthorsListView.as_view(), name="authors"),

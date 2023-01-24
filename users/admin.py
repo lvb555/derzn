@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from users.models import User, Profile
+from users.models import User, Profile, MenuSections
 
 
 class ProfileInlined(admin.StackedInline):
@@ -19,7 +19,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('username', 'email', 'password1', 'password2'),
         }),
     )
-
+    autocomplete_fields = ["sections", ]
     fieldsets = (
         (
             None,
@@ -33,7 +33,9 @@ class UserAdmin(BaseUserAdmin):
                 'fields': ('first_name',
                            'last_name',
                            'email',
-                           'is_public')
+                           'is_public',
+                           'sections',
+                           'job')
             }
         ),
         (
@@ -67,3 +69,8 @@ class ProfileAdmin(admin.ModelAdmin):
     def user_email(self, obj):
         return obj.user.email
     user_email.short_description = "Email"
+
+@admin.register(MenuSections)
+class MenuSectionsAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ["name"]

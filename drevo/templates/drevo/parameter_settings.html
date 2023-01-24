@@ -9,7 +9,7 @@
             <h1 class="display-6 border-bottom border-dark">Настройки параметров</h1>
             <div class=" dropdown w-25 mb-2">
                 <a class="nav-link text-white text-center rounded mt-2" href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false" style="background-color:#23755E;">
-                    Категории
+                    Категории | {% if cur_filter %}{{ cur_filter }}{% else %}Все{% endif %}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink2">
                     <li><a class="dropdown-item" href="{{ request.path }}">Все</a></li>
