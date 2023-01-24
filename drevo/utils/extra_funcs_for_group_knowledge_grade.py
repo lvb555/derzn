@@ -370,8 +370,7 @@ def get_group_relations(request, users, relations: list[Relation]) -> list[dict]
         if relation.tr.is_argument:
             grades = get_average_grades(request, users, relation)
             group_relations.append({
-                "knowledge_url": relation.rz.get_absolute_url(),
-                "knowledge_name": relation.rz.name,
+                "knowledge": relation.rz,
                 "type_name": relation.tr.name,
                 "proof_grade": grades["proof_grade"],
                 "common_grade": grades["common_grade"],

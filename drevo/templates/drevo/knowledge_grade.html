@@ -27,7 +27,7 @@
     {% if father_knowledge %}
     <div class="row justify-content-between">
         <div class="col-auto ">
-            <a class="text-decoration-none" href="{{ father_knowledge.bz.get_absolute_url }}/grade">
+            <a class="text-decoration-none" href="{{ father_knowledge.bz.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
                 <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
                         Назад
                 </i>           
@@ -160,7 +160,7 @@
                                 <td class="table-border" >
                                     <div class="knowledge-title" style="max-width: 550px;">
                                         {% if relation.rz|has_children %}
-                                            <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}/grade">
+                                            <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
                                                 {{ relation.rz.name }}
                                             </a>
                                         {% else %}

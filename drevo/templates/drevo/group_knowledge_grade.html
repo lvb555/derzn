@@ -1,5 +1,6 @@
 {% extends 'drevo/base.html' %}
 {% load grades %}
+{% load knowledge_has_children %}
 {% load custom_humanize %}
 
 {% block title %}
@@ -205,9 +206,15 @@
                                 <input type="hidden" name="relation_row" value="{{ relation.id }}">
                                 <td class="table-border" >
                                     <div class="knowledge-title" style="max-width: 550px;">
-                                        <a class="text-decoration-none" href="{{ relation.knowledge_url }}">
-                                            {{ relation.knowledge_name }}
-                                        </a>
+                                        {% if relation.knowledge|has_children %}
+                                        <a class="text-decoration-none" href="{{ relation.knowledge.get_absolute_url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
+                                                {{ relation.knowledge.name }}
+                                            </a>
+                                        {% else %}
+                                            <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}">
+                                                {{ relation.knowledge.name }}
+                                            </a>
+                                        {% endif %} 
                                     </div>
                                 </td>
                                 <td class="table-border">
