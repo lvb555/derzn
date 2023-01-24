@@ -130,7 +130,7 @@ function changeFlag(item) {
 
 // Функция для отправки POST запроса с измененными данными на сервер.
 async function makeRequest(url, method, body) {
-    console.log(url)
+    
     let headers = {
         'X-Requested-With': 'XMLHttpRequest',
         'Content-Type': 'application/json'
