@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 
 from drevo.models.feed_messages import FeedMessage
-
+from drevo.models.message import Message
 from ..models import FriendsInviteTerm
 from users.models import User
 
@@ -27,14 +27,14 @@ def friends_view(request):
     if request.GET.get('remove'):
         _remove_friend(request.user.id, request.GET.get('remove'))
 
-    # Загрузим список заявок на дружбу
-    invites = FriendsInviteTerm.objects.filter(recipient = request.user.id)
-    invite_count = len(invites)
-
-    context['invites'] = invites
-    context['invite_count'] = invite_count if invite_count else 0
-
     try:
+        # Загрузим список заявок на дружбу
+        invites = FriendsInviteTerm.objects.filter(recipient = request.user.id)
+        invite_count = len(invites)
+
+        context['invites'] = invites
+        context['invite_count'] = invite_count if invite_count else 0
+
         user = User.objects.get(id = request.user.id)
 
         my_friends = user.user_friends.all() # те, кто в друзьях у меня
@@ -46,7 +46,9 @@ def friends_view(request):
         context['user'] = user
         context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient = user, was_read = False).count()
 
-        context['new'] = int(context['new_knowledge_feed']) + int(context['invite_count']) 
+        context['new_messages'] = Message.objects.filter(recipient = user, was_read = False).count()
+
+        context['new'] = int(context['new_knowledge_feed']) + int(context['invite_count'] + int(context['new_messages'])) 
             
     # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
     except:

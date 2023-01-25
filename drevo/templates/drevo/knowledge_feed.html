@@ -113,7 +113,7 @@
                             </li>
     
                             <li>
-                                <a href="#" class="dropdown-item">Сообщения</a>
+                                <a href="{% url 'messages_feed' %}" class="dropdown-item">Сообщения<span style="color: #1B56B5"><strong>{% if new_messages %} ({{new_messages}}) {% endif %}</strong></span></a>
                             </li>
                         </ul>
                     </div>

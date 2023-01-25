@@ -44,6 +44,7 @@ from .group_infographics_view import GroupInfographicsView
 from .group_knowledge_grade_statistics import GroupKnowledgeStatisticsView
 from .parameter_settings_view import parameter_settings
 
+
 __all__ = [
     "AuthorDetailView",
     "AuthorsListView",

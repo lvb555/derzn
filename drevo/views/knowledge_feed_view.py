@@ -6,6 +6,7 @@ from drevo.models.friends_invite import FriendsInviteTerm
 from drevo.models.knowledge import Znanie
 
 from drevo.models.label_feed_message import LabelFeedMessage
+from drevo.models.message import Message
 from users.models import User
 
 import math
@@ -66,7 +67,9 @@ def knowledge_feed_view(request):
         context['user'] = request.user
         context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient = request.user, was_read = False).count()
 
-        context['new'] = int(context['new_knowledge_feed']) + int(context['invite_count']) 
+        context['new_messages'] = Message.objects.filter(recipient = request.user, was_read = False).count()
+
+        context['new'] = int(context['new_knowledge_feed']) + int(context['invite_count'] + int(context['new_messages']))
         
     # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
     except TypeError:

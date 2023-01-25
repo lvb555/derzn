@@ -1,6 +1,9 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 
+from drevo.models.feed_messages import FeedMessage
+
+from ..models import Message
 from ..models import FriendsInviteTerm
 from users.models import Profile, User
 
@@ -97,7 +100,34 @@ def friends_added_view(request):
             context['profiles'].append(data)
         except:
             pass
+    
+    try:
+        # Загрузим список заявок на дружбу
+        invites = FriendsInviteTerm.objects.filter(recipient = request.user.id)
+        invite_count = len(invites)
 
+        context['invites'] = invites
+        context['invite_count'] = invite_count if invite_count else 0
+
+        user = User.objects.get(id = request.user.id)
+
+        my_friends = user.user_friends.all() # те, кто в друзьях у меня
+        i_in_friends = user.users_friends.all() # те, у кого я в друзьях
+        
+        all_friends = my_friends.union(i_in_friends, all=False)
+        context['friends'] = all_friends
+
+        context['user'] = user
+        context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient = user, was_read = False).count()
+
+        context['new_messages'] = Message.objects.filter(recipient = user, was_read = False).count()
+
+        context['new'] = int(context['new_knowledge_feed']) + int(context['invite_count'] + int(context['new_messages'])) 
+            
+    # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
+    except:
+        pass
+    
     template_name = 'drevo/friends_added.html'
     return render(request, template_name, context)
 
@@ -185,7 +215,8 @@ def _not_accept_invite(user_id: int, friend_id: str) -> None:
     """
     # Удалим из таблицы заявок
     try:
-        invite_table = FriendsInviteTerm.objects.filter(recipient_id=user_id, sender_id=int(friend_id))
+        invite_table = FriendsInviteTerm.objects.filter(recipient_id = user_id, sender_id = int(friend_id))
         invite_table.delete()
+
     except:
         return JsonResponse({"error": "Заявка была отменена"})

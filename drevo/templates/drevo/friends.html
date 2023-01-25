@@ -113,7 +113,7 @@
                         </li>
 
                         <li>
-                            <a href="#" class="dropdown-item">Сообщения</a>
+                            <a href="{% url 'messages_feed' %}" class="dropdown-item">Сообщения<span style="color: #1B56B5"><strong>{% if new_messages %} ({{new_messages}}) {% endif %}</strong></span></a>
                         </li>
                     </ul>
                 </div>
@@ -323,11 +323,12 @@
 
                                 {% endif %}
 
-                                <h4 class="mb-2 person_info">{{friend.first_name}} {{friend.last_name}}</h4>
+                                <a style="text-decoration: none;" href="{% url 'users:usersprofile' friend.id %}"><h4 class="mb-2 person_info">{{friend.first_name}} {{friend.last_name}}</h4></a>
                             </div>
                             <form method="get">
-                                <div class="mb-2">                  
-                                    <button class="btn btn_reject_lg shadow-none" name="remove" value="{{ friend.id }}">Убрать из друзей</button>                              
+                                <div class="d-flex justify-content-between mb-2">                  
+                                    <button class="btn btn_reject me-2 shadow-none" name="remove" value="{{ friend.id }}">Удалить</button>
+                                    <a href="{% url 'send_message' friend.id %}" class="btn btn_accept shadow-none">Написать</a>                              
                                 </div>
                             </form>
 
