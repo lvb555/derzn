@@ -182,7 +182,7 @@
                         {% endif %}
                         {% if 'Результаты тестов' in sections %}
                         <li>
-                            <a href="{% url 'show_quiz_result' %}" class="dropdown-item">Результаты тестов</a>
+                            <a href="{% url 'show_quiz_result' pub_user.id %}" class="dropdown-item">Результаты тестов</a>
                         </li>
                         {% endif %}
                     </ul>
@@ -202,12 +202,12 @@
                         {% endif %}
                         {% if 'По авторам' in sections %}
                         <li>
-                            <a href="{% url 'subscribe_to_author' %}" class="dropdown-item">По авторам</a>
+                            <a href="{% url 'subscribe_to_author' pub_user.id %}" class="dropdown-item">По авторам</a>
                         </li>
                         {% endif %}
                         {% if 'По тегам' in sections %}
                         <li>
-                            <a href="{% url 'subscription_by_tag' %}" class="dropdown-item">По тегам</a>
+                            <a href="{% url 'subscription_by_tag' pub_user.id %}" class="dropdown-item">По тегам</a>
                         </li>
                         {% endif %}
                     </ul>
