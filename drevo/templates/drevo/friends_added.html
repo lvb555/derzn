@@ -51,6 +51,190 @@
                 <a class="btn btn_add_friend shadow-none" href="{% url 'friends' %}">Вернуться в друзья</a>
             </div>
         </div>
+    </div>
+    <section class="gradient-custom-2 mb-3">
+        <div class="container py-3 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col col-lg-12 col-xl-12">
+              <div class="card">
+                <div class="rounded-top text-white d-flex flex-row" style="height:200px;">
+                  <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
+                    {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}"
+                        alt="Users photo" class="img-fluid img-thumbnail mt-4 mb-2"
+                        style="width: 150px; z-index: 1">
+                    {% else %}
+                        <img src="{% static 'src/default_avatar.jpg' %}"
+                        alt="Users photo" class="img-fluid img-thumbnail mt-4 mb-2"
+                        style="width: 150px; z-index: 1">
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="p-4" style="background: #FFFFFF; border-radius: 0px 0px 10px 10px;">
+                    <p class="user_first_last mt-2">{{user.first_name}} {{user.last_name}}</p>
+                  <div class="d-flex justify-content-between">
+                    <p class="user_small_info mt-1">{{user.profile.get_gender_display}} (пол), {{user.profile.get_user_age}} (возраст)
+                    {% if user.job %} {{user.job}} (профессия){% endif %}</p>
+                    <a class="btn edit_btn shadow-none"
+                        style="z-index: 1;"
+                        href="{% url 'users:myprofile' %}">
+                        Редактировать профиль
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </section>
+    <div class="container">
+        <div class="d-flex flex-row">
+            <nav class="navbar px-3 mb-3" style="background: #DFDFE3; border-radius: 10px; width: 100%;">
+                <div id="nav-dropdown" class="dropdown table-hover">
+    
+                    <div class="btn-group">
+                        <a class="btn shadow-none group-title" type="button" data-bs-auto-close="true" aria-expanded="false">
+                          Компетенции
+                        </a>
+                    </div>
+    
+                    <div class="btn-group">
+                        <a style="background: #FFFFFF; border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                          Друзья <span style="color: #1B56B5"><strong>{% if new %} ({{new}}) {% endif %}</strong></span>
+                            <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                        </a>
+    
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    
+                            <li>
+                                <a href="{% url 'friends_added' %}" class="dropdown-item">Приглашение в друзья<span style="color: #1B56B5"><strong>{% if invite_count %} ({{invite_count}}) {% endif %}</strong></span></a>
+                            </li>
+    
+                            <li>
+                                <a href="{% url 'knowledge_feed' %}" class="dropdown-item">Лента знаний<span style="color: #1B56B5"><strong>{% if new_knowledge_feed %} ({{new_knowledge_feed}}) {% endif %}</strong></span></a>
+                            </li>
+    
+                            <li>
+                                <a href="#" class="dropdown-item">Сообщения</a>
+                            </li>
+                        </ul>
+                    </div>
+    
+                    <div class="btn-group">
+                        <div class="dropdown">
+                            <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                                Активность <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    
+                                <li>
+                                    <a href="{% url 'my_interview' %}" class="dropdown-item">Мои интервью</a>
+                                </li>
+    
+                                <li>
+                                    <a href="#" class="dropdown-item">Мои предложения</a>
+                                </li>
+    
+                                <li>
+                                    <a href="#" class="dropdown-item">Мои опросы</a>
+                                </li>
+    
+                                <li>
+                                    <div class="btn-group">
+                                        <a class="dropdown-item" href="{% url 'znanie_expert_process' %}">Мой вклад, как эксперта</a>
+                                        <a onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="visually-hidden"></span>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item" href="#">Мои знания</a>
+                                            </li>
+        
+                                            <li>
+                                                <a class="dropdown-item" href="#">Мои связи</a>
+                                            </li>
+        
+                                            <li>
+                                                <a class="dropdown-item" href="#">Моя экспертиза</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+    
+                                <li>
+                                    <div class="btn-group text-center">
+                                        <a class="dropdown-item" href="#">Мой вклад, как пользователя</a>
+                                        <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="visually-hidden"></span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item" href="#">Мои знания</a>
+                                            </li>
+        
+                                            <li>
+                                                <a class="dropdown-item" href="#">Мои предзнания</a>
+                                            </li>
+        
+                                            <li>
+                                                <a class="dropdown-item" href="#">Мои связи</a>
+                                            </li>
+        
+                                            <li>
+                                                <a class="dropdown-item" href="#">Мои предсвязи</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+    
+                    <div class="btn-group">
+                        <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                          Изучение знаний <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                        </a>
+    
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    
+                            <li>
+                                <a href="{% url 'drevo' %}" class="dropdown-item">Дерево знаний</a>
+                            </li>
+    
+                            <li>
+                                <a href="{% url 'favourites' %}" class="dropdown-item">Избранные знания</a>
+                            </li>
+    
+                            <li>
+                                <a href="{% url 'show_quiz_result' %}" class="dropdown-item">Результаты тестов</a>
+                            </li>
+                    </div>
+    
+                    <div class="btn-group">
+                        <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                          Подписки <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                        </a>
+                        
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    
+                            <li>
+                                <a href="" class="dropdown-item">По категориям</a>
+                            </li>
+    
+                            <li>
+                                <a href="{% url 'subscribe_to_author' %}" class="dropdown-item">По авторам</a>
+                            </li>
+    
+                            <li>
+                                <a href="{% url 'subscription_by_tag' %}" class="dropdown-item">По тегам</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <div class="container">
         <div class="container" style="background: #FFFFFF; border-radius: 8px;">
             <div class="d-flex justify-content-between mt-3 mb-3 container">
     
