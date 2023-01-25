@@ -8,9 +8,9 @@ from users.models import User, MenuSections
 def show_quiz_result(request,id):
     if request.method == 'GET':
         quiz_results = {}
-        if User.objects.filter(id=id).first() is not None:
-            context = {}
-            user = User.objects.get(id=id)
+        user = User.objects.filter(id=id).first()
+        context = {}
+        if user is not None:
             if user == request.user:
                 context['sections'] = [i.name for i in MenuSections.objects.all()]
                 context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or

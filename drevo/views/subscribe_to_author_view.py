@@ -10,10 +10,10 @@ from users.models import MenuSections, User
 
 def sub_by_author(request,id):
     if request.method == 'GET':
-        if User.objects.filter(id=id).first() is not None:
-            context = {}
+        user = User.objects.filter(id=id).first()
+        context = {}
+        if user is not None:
             context['authors'] = Author.objects.all()
-            user = User.objects.get(id=id)
             if user == request.user:
                 context['sections'] = [i.name for i in MenuSections.objects.all()]
                 context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
