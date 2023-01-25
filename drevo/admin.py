@@ -19,6 +19,7 @@ from drevo.models.label_feed_message import LabelFeedMessage
 from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
 from drevo.models.developer import Developer
 from drevo.models.quiz_results import QuizResult
+from drevo.models.message import Message
 
 from .forms.developer_form import DeveloperForm
 from .forms import (
@@ -545,6 +546,7 @@ class InterviewResultsSendingScheduleAdmin(admin.ModelAdmin):
 admin.site.register(FriendsInviteTerm)
 admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
+admin.site.register(Message)
 admin.site.register(AgeUsersScale)
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):

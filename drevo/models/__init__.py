@@ -24,3 +24,4 @@ from .interview_results_schedule import InterviewResultsSendingSchedule
 from .parameter_categories import ParameterCategories
 from .settings_options import SettingsOptions
 from .user_parameters import UserParameters
+from .message import Message
