@@ -10,22 +10,14 @@
 {% endblock %}
 
 {% block content %}
-
-<a href="{% url 'users:myprofile' %}" class="link-dark" id="back">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left"
-         viewBox="0 0 16 16">
-        <path fill-rule="evenodd"
-              d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-    </svg>
-    Вернуться в профиль
-</a>
 <div class="container header_info">
-    <h1>Подписки на теги</h1>
+    <h1>По тегам</h1>
     <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
-          <li class="breadcrumb-item"><a >Профиль</a></li>
-          <li class="breadcrumb-item opened"><a>Подписки на теги</a></li>
+          <li class="breadcrumb-item"><a>Профиль</a></li>
+          <li class="breadcrumb-item"><a>Подписки</a></li>
+          <li class="breadcrumb-item opened"><a>По тегам</a></li>
         </ol>
     </nav>
 </div>
@@ -235,21 +227,19 @@
             </div>
         </nav>
     </div>
-</div>
+
 <h4 align="center" class="h4">Подписка по тегам</h4>
 <br>
 <br>
 
 <div class="row">
-    {% if link == 'users:myprofile' %}
     <div class="col-2">
-        <div class="form-check">
+        <div class="form-check" {% if link != 'users:myprofile' %} style="display: none;" {% endif %}>
             <input type="checkbox" value="Select All" name="selectAll" onclick="selectAll()"
                    class="form-check-input selectAll" id="flexCheckDisabled">
             <label class="form-check-label" for="flexCheckDisabled">Выделить все</label>
         </div>
     </div>
-    {% endif %}
     <div class="form-check form-switch col-6">
         <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" onclick="allTag(this)">
         <label class="form-check-label" for="flexSwitchCheckDefault">Показать все теги</label>
@@ -295,7 +285,7 @@
     {% csrf_token %}
 {% endif %}
 </form>
-
+</div>
 
 <br>
 <br>
