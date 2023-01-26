@@ -327,7 +327,11 @@
                             </div>
 
                                 <div class="d-flex flex-row mt-4">
-                                    <button class="btn btn_reject me-2 shadow-none" name="remove" value="{{ friend.id }}">Удалить</button>                          
+
+                                    <form method="GET">
+                                        <button class="btn btn_reject me-2 shadow-none" name="remove" value="{{ friend.id }}">Удалить</button>
+                                    </form>  
+
                                     <button class="btn btn_accept open-popup shadow-none">Написать</button>
                                     <div class="popup__bg">
                                         <form class="popup" method="post" id="message_form" novalidate" onsubmit="return false;">

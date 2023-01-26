@@ -180,11 +180,19 @@ def _remove_friend(user_id: int, friend_id: str) -> None:
         user = User.objects.get(id = user_id)
         friend = User.objects.get(id = int(friend_id))
 
+        was_deleted = False
+
         if user.user_friends.filter(id = friend.id).exists():
+            was_deleted = True
             user.user_friends.remove(friend)
 
         if friend.user_friends.filter(id = user.id).exists():
+            was_deleted = True
             friend.user_friends.remove(user)
+
+        if was_deleted:
+            msg_text = "Вы удалены из списка моих друзей (сообщение создано автоматически)"
+            message = Message.objects.create(sender = user, recipient = friend, text = msg_text, was_read = False)
         
     except ObjectDoesNotExist:
         return JsonResponse({"error": "Такого пользователя в друзьях нет"})
@@ -215,8 +223,13 @@ def _not_accept_invite(user_id: int, friend_id: str) -> None:
     """
     # Удалим из таблицы заявок
     try:
-        invite_table = FriendsInviteTerm.objects.filter(recipient_id = user_id, sender_id = int(friend_id))
+        invite_table = FriendsInviteTerm.objects.get(recipient_id=user_id, sender_id=int(friend_id))
         invite_table.delete()
 
+        user = User.objects.get(id = user_id)
+        user_not_accepted = User.objects.get(id = int(friend_id))
+
+        msg_text = "Ваше предложение дружбы отклонено (сообщение создано автоматически)"
+        message = Message.objects.create(sender = user, recipient = user_not_accepted, text = msg_text, was_read = False)
     except:
         return JsonResponse({"error": "Заявка была отменена"})
