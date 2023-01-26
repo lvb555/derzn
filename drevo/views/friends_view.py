@@ -42,6 +42,7 @@ def friends_view(request):
         
         all_friends = my_friends.union(i_in_friends, all=False)
         context['friends'] = all_friends
+        context.update({'friends_count': len(all_friends)})
 
         context['user'] = user
         context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient = user, was_read = False).count()

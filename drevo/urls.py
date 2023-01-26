@@ -169,7 +169,7 @@ urlpatterns = [
         knowledge_feed_view.delete_message,
         name="delete_feed_message",
     ),
-    path("send-message/<int:id>", send_message_view.send_message, name = "send_message"),
+    path("send-message/", send_message_view.send_message, name = "send_message"),
     path("messages-feed/", messages_feed_view.messages_feed, name = "messages_feed"),
     path(
         "messages-feed/delete/<int:message_id>/",

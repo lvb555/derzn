@@ -325,13 +325,56 @@
 
                                 <a style="text-decoration: none;" href="{% url 'users:usersprofile' friend.id %}"><h4 class="mb-2 person_info">{{friend.first_name}} {{friend.last_name}}</h4></a>
                             </div>
-                            <form method="get">
-                                <div class="d-flex justify-content-between mb-2">                  
-                                    <button class="btn btn_reject me-2 shadow-none" name="remove" value="{{ friend.id }}">Удалить</button>
-                                    <a href="{% url 'send_message' friend.id %}" class="btn btn_accept shadow-none">Написать</a>                              
-                                </div>
-                            </form>
 
+                                <div class="d-flex flex-row mt-4">
+                                    <button class="btn btn_reject me-2 shadow-none" name="remove" value="{{ friend.id }}">Удалить</button>                          
+                                    <button class="btn btn_accept open-popup shadow-none">Написать</button>
+                                    <div class="popup__bg">
+                                        <form class="popup" method="post" id="message_form" novalidate" onsubmit="return false;">
+                                            {% csrf_token %}
+                                            <svg class="close-popup" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="#BFBFBF" d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/></svg>
+                                            <h6 class="text-center send_mess">Отправка сообщения другу</h6>
+            
+                                            <div class="mt-3 col-auto message-text">
+                                                <label>Текст сообщения <span class="text-danger">*</span></label>
+                                                <textarea name="text" cols="40" rows="10" class="form-control shadow-none" maxlength="511" required id="id_text"></textarea>
+                                            </div>
+                                            {% if form.errors.text %}
+                                                <ul>
+                                                    {{form.errors.text}}
+                                                </ul>
+                                            {% endif %}
+            
+                                            <div id="send_to">
+                                                {% if friends_count > 0 %}
+                                                    <label>Получатели <span class="text-danger">*</span></label>
+                                                    <div class="d-flex">
+                                                        <input type="checkbox" class="form-check-input shadow-none all_friends">Все друзья
+                                                    </div>
+                                                    <label>или</label>
+        
+                                                    {% for friend in friends %}
+                                                        <div class="d-flex mt-2">
+                                                            <input type="checkbox" value="{{friend.id}}" class="me-1 form-check-input shadow-none checkbox">
+                                                            {% if friend.profile.avatar %}
+                                                                <img src="{{ friend.profile.avatar.url }}" class="rounded-circle" height="30px" width="30px">
+                                                            {% else %}
+                                                                <img src="{% static 'src/default_avatar.jpg' %}" class="rounded-circle"  height="30px" width="30px">
+                                                            {% endif %}
+                                                            <p class="ms-1">{{friend.first_name}} {{friend.last_name}}</p>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <h6 class="text-start text-danger">У Вас пока нет друзей, чтобы отправить им сообщение</h6>
+                                                {% endif %}
+                                            </div>
+                                            <div class="d-flex justify-content-center">
+                                                <a class="btn btn_accept shadow-none me-2 reject">Отменить</a>
+                                                <input type="submit" value="Отправить" name="_save" class="btn shadow-none btn_add_friend send_message_btn" style="width: 150px;">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -345,6 +388,168 @@
     function logAndStop(event) {
         event.stopPropagation();
     }
+</script>
+
+<script>
+    // обработка открытия и закрытия модального окна
+    
+    var popupBgs = document.querySelectorAll('.popup__bg');
+    var popupBg = document.querySelector('.popup__bg');
+    var popups = document.querySelectorAll('.popup');
+    var openPopupButtons = document.querySelectorAll('.open-popup');
+    var closePopupButtons = document.querySelectorAll('.close-popup');
+    var rejectPopupButtons = document.querySelectorAll('.reject')
+
+    Array.from(openPopupButtons).forEach((button) => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            var index = 0;
+            var len = openPopupButtons.length;
+            for (var i = 0; i < len; i++) {
+                if (button == openPopupButtons[i]) {
+                    index = i;
+                    break;
+                }
+            }
+
+            popupBgs[index].classList.add('active');
+            popups[index].classList.add('active');
+            document.body.classList.add("stop-scrolling");
+        })
+    });
+
+    Array.from(closePopupButtons).forEach((button) => {
+        button.addEventListener('click', (e) => {
+
+            var index = 0;
+            var len = closePopupButtons.length;
+            for (var i = 0; i < len; i++) {
+                if (button == closePopupButtons[i]) {
+                    index = i;
+                    break;
+                }
+            }
+
+            popupBgs[index].classList.remove('active');
+            popups[index].classList.remove('active');
+            document.body.classList.remove("stop-scrolling");
+        })
+    });
+
+    Array.from(rejectPopupButtons).forEach((button) => {
+        button.addEventListener('click', (e) => {
+
+            var index = 0;
+            var len = rejectPopupButtons.length;
+            for (var i = 0; i < len; i++) {
+                if (button == rejectPopupButtons[i]) {
+                    index = i;
+                    break;
+                }
+            }
+
+            popupBgs[index].classList.remove('active');
+            popups[index].classList.remove('active');
+            document.body.classList.remove("stop-scrolling");
+        })
+    });
+
+</script>
+
+<script>
+    var all_checkboxes = document.getElementsByClassName('checkbox'); // все чекбоксы отдельных друзей
+    var friends_ids_array = []; // массив для передачи выбранных друзей в django view
+    var checkboxes_all_friends = document.getElementsByClassName('all_friends'); // чекбоксы "Все друзья"
+    var send_message_btns = document.getElementsByClassName('send_message_btn'); // кнопка отправки сообщения
+
+    // добавление id каждого чекбокса и друга в массив
+    Array.from(all_checkboxes).forEach(element => {
+        element.onchange = function() {
+
+            if(! element.checked) {
+                Array.from(checkboxes_all_friends).forEach(element => {
+                    element.checked = false;
+                })
+            }
+            // если уже есть id в массиве - удалить
+            if(friends_ids_array.includes(Number(element.value))) {
+                var index = friends_ids_array.indexOf(Number(element.value));
+                friends_ids_array.splice(index, 1);
+            }
+
+            // если id нет в массиве - добавить
+            else {
+                friends_ids_array.push(Number(element.value));
+            }
+        }
+    });
+
+// нажатие на чек-бокс "Все друзья"
+Array.from(checkboxes_all_friends).forEach(element => {
+    element.onchange = function() {
+        // очистка массива id
+        friends_ids_array = [];
+
+        // если чекбокс прожат
+        if(element.checked) {
+            
+            // добавление всех id всех чекбоксов в массив
+            for (var i = 0; i < all_checkboxes.length; i++) {
+                if(!friends_ids_array.includes(Number(all_checkboxes[i].value))) {
+                    friends_ids_array.push(Number(all_checkboxes[i].value));
+                }
+            }
+
+            // включение всех чекбоксов 
+            for (var i = 0; i < all_checkboxes.length; i++) {
+                all_checkboxes[i].checked = true;
+            }
+        }
+
+        // если чекбокс не прожат
+        else {
+            // выключение всех чекбоксов
+            for (var i = 0; i < all_checkboxes.length; i++) {
+                all_checkboxes[i].checked = false;
+            }
+        }
+    }
+})
+
+Array.from(send_message_btns).forEach(element => {
+    element.addEventListener('click', function() {
+
+    // получение элементов формы, которые идут сразу после нажатой кнопки
+    var text = element.parentElement.parentElement.querySelector("textarea").value;      
+
+    if(!(text == '') & friends_ids_array.length > 0) {
+        // ajax-запрос в базу данных, передаю текст сообщения, ярлык и список пользователей-получателей сообщения
+        $.ajax({ 
+            url:  `{% url 'send_message' %}`, 
+            type: 'POST', 
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}', "text": text, "send_to_ids[]": friends_ids_array, "task": "send_message"},
+            error: function(data){
+                alert(data.responseJSON.error); // текст ошибки
+
+            }}).done(function(data) {
+                var popup = document.getElementsByClassName("popup__bg active");
+                var popupBg = document.querySelector('.popup__bg');
+                Array.from(popup).forEach(p => {
+                    p.classList.remove('active')});
+                popupBg.classList.remove('active');
+
+                friends_ids_array = [];
+                document.body.classList.remove("stop-scrolling");
+            });
+        }
+    })
+
+    Array.from(all_checkboxes).forEach(element => {
+        element.checked = false;
+    });
+})
+
 </script>
 
 <script>
