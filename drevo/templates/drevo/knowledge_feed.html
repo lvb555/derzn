@@ -69,9 +69,8 @@
                 <div class="p-4" style="background: #FFFFFF; border-radius: 0px 0px 10px 10px;">
                     <p class="user_first_last mt-2">{{user.first_name}} {{user.last_name}}</p>
                 <div class="d-flex justify-content-between">
-                    <p class="user_small_info mt-1">{{user.profile.get_gender_display}} (пол), {{user.profile.get_user_age}} (возраст)</p>
-                
-                
+                    <p class="user_small_info mt-1">{{user.profile.get_gender_display}} (пол), {{user.profile.get_user_age}} (возраст)
+                    {% if user.job %} {{user.job}} (профессия){% endif %}</p>
                     <a class="btn edit_btn shadow-none"
                         style="z-index: 1;"
                         href="{% url 'users:myprofile' %}">
@@ -315,7 +314,7 @@
                                 {% else %}
                                     <img src="{% static 'src/default_avatar.jpg' %}" style="border-radius: 8px;" height="30px" width="30px">
                                 {% endif %}
-                                <p class="message_sender ms-1">{{message.sender.first_name}} {{message.sender.last_name}}</p>
+                                <a style="text-decoration: none;" href="{% url 'users:usersprofile' message.sender.id %}"><p class="message_sender ms-1">{{message.sender.first_name}} {{message.sender.last_name}}</p></a>
                                 <p class="message_time_ago">{{message.get_time}}</p>
                             </div>
 
@@ -406,7 +405,7 @@
                                 </form>
                             </div>
 
-                            <a href="{% url 'delete_message' message.id %}" class="btn btn_reject shadow-none">Удалить</a>
+                            <a href="{% url 'delete_feed_message' message.id %}" class="btn btn_reject shadow-none">Удалить</a>
                         </div>
                     </div>
 
