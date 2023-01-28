@@ -29,6 +29,10 @@ def filling_tables(request):
             selected_row_pk = request.POST.get('row')
             selected_column_pk = request.POST.get('column')
 
+            # Проверка, все ли необходимые поля заполнены
+            if not selected_table_pk or not selected_znanie_pk or not selected_row_pk or not selected_column_pk:
+                return HttpResponse("Необходимо заполнить все поля для создания связей!")
+
             def create_relation(tr__name, rz__id, bz__id):
                 relation = Relation()
                 try:
@@ -38,7 +42,15 @@ def filling_tables(request):
                     relation.bz = Znanie.objects.get(pk=bz__id)
                     relation.tr = Tr.objects.get(name=tr__name)
                     relation.rz = Znanie.objects.get(pk=rz__id)
-                    relation.author = Author.objects.get(name='Тест')
+                    author = Author.objects.filter(name=f"{request.user.first_name} {request.user.last_name}")
+                    # Проверка, существует ли автор с именем и фамилией данного пользователя
+                    try:
+                        relation.author = author[0]
+                    except IndexError:
+                        author = Author()
+                        author.name = f"{request.user.first_name} {request.user.last_name}"
+                        author.save()
+                        relation.author = author
                     relation.is_published = True
                     relation.user_id = request.user.id
                     relation.save()
@@ -145,7 +157,11 @@ def znanie_attributes(request):
         return JsonResponse([knowledge_kind.name, author_name], safe=False)
     return JsonResponse([knowledge_kind.name, author_name, content], safe=False)
 
+
 def show_new_znanie(request):
+    """
+    Показывает только что созданное знание, обращается после нажатия на кнопку "Сохранить" к базе данных
+    и вытаскивает атрибуты последней записи
+    """
     new_znanie = Znanie.objects.all().order_by('-id')[0]
     return JsonResponse([new_znanie.id, new_znanie.name], safe=False)
-

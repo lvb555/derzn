@@ -17,6 +17,8 @@ class User(AbstractUser):
         unique=True,
         verbose_name="Адрес эл. почты",
     )
+    first_name = models.CharField(max_length=150, verbose_name='Имя')
+    last_name = models.CharField(max_length=150, verbose_name='Фамилия')
 
     is_expert = models.BooleanField(default=False, verbose_name='Эксперт')
     is_redactor = models.BooleanField(default=False, verbose_name='Редактор')

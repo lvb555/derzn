@@ -1,231 +1,280 @@
-{% extends 'drevo/base.html' %}
+{% include 'drevo/base.html' %}
 
 {% load static %}
 
 {% block cssfiles %}
     <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
-{#    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
 {% endblock %}
 
-<head><title>{% block title %}Ввод табличных знаний{% endblock %}</title></head>
+{% block jsfiles %}
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-ru_RU.js"></script>
+{% endblock %}
+<head>
+    <title>{% block title %}Ввод табличных знаний{% endblock %}</title>
+</head>
+
+<div id="page">
 {% block content %}
-    <form method="POST">
+<form method="POST"> {% csrf_token %}
 
-        {% csrf_token %}
-
-        <h1>Ввод/изменение ячеек таблицы</h1>
-        <span>Таблица:</span>
-        <select  name="table" data-live-search="true" class="selectpicker" id="id_table" style="width: 180px">
-            <option value="" disabled selected hidden>Выбрать таблицу</option>
-            {% for pk, element in table_dict.items %}
-               <option value="{{ pk }}" id="{{ pk }}"> {{ element }} </option>
-            {% endfor %}
+    <div style="display: flex; flex-direction: column;">
+        <h1>Наполнение таблиц</h1>
+        <label for="id_table">Таблица:</label>
+        <select name="table" data-live-search="true" class="selectpicker" id="id_table" style="width: 180px">
+            <option value="" disabled selected hidden>Выбрать таблицу</option> {% for pk, element in table_dict.items %}
+            <option value="{{ pk }}" id="{{ pk }}"> {{ element }} </option> {% endfor %}
         </select>
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
         <h2>Координаты ячейки</h2>
-        <span>Строка:</span>
-        <select name="row" id="id_row" placeholder="Выбрать строку V" style="width: 180px">
-            <option value="">Выбрать строку V</option>
+        <label for="id_row">Строка:</label>
+        <select class="form-select" name="row" id="id_row" style="width: 180px">
+            <option>Выбрать строку V</option>
         </select>
-        <span>Столбец:</span>
-        <select name="column" id="id_column" style="width: 180px">
-            <option value="">Выбрать столбец V</option>
+        <label for="id_column">Столбец:</label>
+        <select class="form-select" name="column" id="id_column" style="width: 180px">
+            <option>Выбрать столбец V</option>
         </select>
-        <br>
-        <div>
-            <span>Знание:</span>
-           <select data-live-search="true" class="selectpicker" name="znanie" id="id_znanie" style="width: 180px">
-               <option value="" disabled selected hidden>Выбрать знание V</option>
-                {% for zn in znanie %}
-                    <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option>
-                {% endfor %}
-            </select>
-            <a id="add-znanie" onclick=winOpen()>
-                <img src="{% static 'drevo/img/knowledge_search/plus.svg' %}" height="20px">
-            </a>
-        </div>
-        </br>
+        <label for="id_znanie">Знание:</label>
+    </div>
+
+    <select data-live-search="true" class="selectpicker" name="znanie" id="id_znanie" style="width: 180px">
+        <option disabled selected hidden>Выбрать знание V</option> {% for zn in znanie %}
+        <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option> {% endfor %}
+    </select>
+    <span>
+    <input type="button" value="+" class="quiet" id="add-znanie" style="vertical-align: middle; font-size: 30px" onclick="window.open('/admin/drevo/znanie/add/', '_blank')"></input>
+    </span>
+    </br>
+
+    <div id="div-param" style="display: none; flex-direction: column; margin-bottom: 5px;">
         <h2 class="">Параметры ячейки</h2>
-        <span>Вид знания:</span>
-        <div id="id_view" >
-            <input readonly style="width: 180px" type="text">
+        <label for="id_view">Вид знания:</label>
+        <input id="id_view" readonly style="width: 180px" type="text">
+        <label for="id_author">Автор:</label>
+        <input id="id_author" name="author" id="id_author" readonly style="width: 180px" type="text">
+        <div id="div-content" style="display: none; flex-direction: column;">
+        <h2>Содержание знания:</h2>
+        <label for="text_id">Вид знания:</label>
+        <textarea id="text_id" class="text-show" name="name" readonly type="text"></textarea>
         </div>
-        <div>
-            <span>Автор:</span>
-            <div id="id_author">
-                <input name="author" id="id_author" readonly style="width: 180px" type="text">
-            </div>
+        <div style="margin-top: 10px">
+        <input style="align-self: flex-start;" type="submit" value="Сохранить" name="_save">
+        <input style="align-self: flex-start;" id="btn_show" type="button" value="Показать">
         </div>
-        <div id="znanie_content"><span name="">Содержание знания:</span></div>
-        <div id="text_id">
-            <input class="text-show" value="" name="name" readonly style="width: 180px" type="text">
-        </div>
-        </br>
-        <input type="submit" value="Сохранить" name="_save">
-    </form>
-    <button id="btn_show"> Показать</button>
-    <div id="div1"></div>
+    </div>
+    
+</form>
+</div>
 
-    <script>
-        let table_choice = document.getElementById("id_table")
-        let row_choice = document.getElementById("id_row")
-        let column_choice = document.getElementById("id_column")
-
-        let znanie_choice = document.getElementById("id_znanie")
-        let view_choice = document.getElementById("id_view")
-        let author_choice = document.getElementById("id_author")
-        let author_add = document.getElementById("author_add")
-        let content_znanie = document.getElementById("znanie_content")
-        let btn_show = document.getElementById("btn_show")
-        text_show = document.getElementById("text_id")
-
-        $(document).ready(function() {
-            $('.js-example-basic-single').select2();
-        });
-        const csrftoken = getCookie('csrftoken');
-        var tab;
-        function winOpen() {
-            tab = window.open('/admin/drevo/znanie/add/', 'tab', 'Toolbar=1,Location=0,Directories=0,Status=0,Menubar=0,Scrollbars=0,Resizable=0,Width=550,Height=400')
-            function newZnanie() {
-                const data = {};
-                let url = "{% url 'show_new_znanie' %}"
-
-                fetch(url, {
-                   method: 'POST',
-                   headers: {
-                       'Content-Type': 'application/json',
-                       'X-CSRFToken': csrftoken
-                   },
-                    body: JSON.stringify(data),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    znanie_choice.innerHTML = `<option value="${data[0]}" selescted>${data[1]}</option>`
-                    getZnanieId(data[0])
-                })
-                .catch((error) => {
-                console.log('Error:', error);
-                });
-            }
-        }
-
-        function getCookie(name) {
-           let cookieValue = null;
-           if (document.cookie && document.cookie !== '') {
-               const cookies = document.cookie.split(';');
-               for (let i = 0; i < cookies.length; i++) {
-                   const cookie = cookies[i].trim();
-                   if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                       cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                       break;
-                   }
-               }
-           }
-           return cookieValue;
-        }
-
-        btn_show.addEventListener("click", function () {
-            var id = znanie_choice.value
-            if (id) {
-                window.location.href = "{% url 'zdetail' pk='1' %}".replace(/1/, id.toString());
-            }
-        });
-        znanie_choice.addEventListener("change", getZnanieId)
-        table_choice.addEventListener("change", getTableId);
-
-        function getZnanieId(e) {
-            if (typeof (e) != "number") {
-                var znanie_id = e.target.value;
-            }
-            else {
-                var znanie_id = e
-            }
-           const data = { id: znanie_id};
-            let url = "{% url 'znanie_attributes' %}"
-
-            fetch(url, {
-               method: 'POST',
-               headers: {
-                   'Content-Type': 'application/json',
-                   'X-CSRFToken': csrftoken
-               },
-                body: JSON.stringify(data),
-            })
-            .then(response => response.json())
-            .then(data => {
-                view_choice.innerHTML = `<input value = "${data[0]}" readonly>`
-                author_choice.innerHTML = `<input value = "${data[1]}" readonly>`
-                if (data[2]) {
-                    content_znanie.innerHTML = `<span name="">Содержание знания:</span>`
-                    text_show.innerHTML = `<input id="id_text" class="text-show" value = "${data[2]}" readonly>`
-                }
-                else {
-                    content_znanie.innerHTML = ``
-                    text_show.innerHTML =``
-                }
-            })
-            .catch((error) => {
-            console.log('Error:', error);
-            });
-        }
-
-        function getTableId(e) {
-           let table_id = e.target.value
-           const data = { id: table_id};
-           let url = "{% url 'get_rows_and_columns' %}"
-
-            fetch(url, {
-               method: 'POST',
-               headers: {
-                   'Content-Type': 'application/json',
-                   'X-CSRFToken': csrftoken
-               },
-                body: JSON.stringify(data),
-            })
-            .then(response => response.json())
-            .then(data => {
-                let rows = data[0]
-                let r_keys = Object.keys(rows)
-                if (r_keys.length === 0) {
-                    row_choice.innerHTML = `<option value="" selected="true" disabled>Строки отсутствуют</option>`
-                }
-                else {
-                    row_choice.innerHTML = `<option value="${rows[0]['rz_id']}" selescted>${rows[0]['rz__name']}</option>`
-                    for(let i = 1; i<r_keys.length; i++){
-                      row_choice.innerHTML += `<option value = "${rows[i]['rz_id']}" selescted>${rows[i]['rz__name']}</option>`
-                    }
-                }
-
-                let columns = data[1]
-                let c_keys = Object.keys(columns)
-                if (c_keys.length === 0) {
-                    column_choice.innerHTML = `<option value="" selected="true" disabled >Столбцы отсутствуют</option>`
-                }
-                else {
-                    column_choice.innerHTML = `<option value="${columns[0]['rz_id']}" selescted>${columns[0]['rz__name']}</option>`
-                    for(let i = 1; i<c_keys.length; i++){
-                      column_choice.innerHTML += `<option value="${columns[i]['rz_id']}" selescted>${columns[i]['rz__name']}</option>`
-                    }
-                }
-             })
-            .catch((error) => {
-            console.log('Error:', error);
-            });
-         }
-
-    </script>
+<div id="div1"></div>
+    
     <style>
+        body {
+            margin: 0;
+            --bs-font-sans-serif: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+            font-family: var(--bs-font-sans-serif);;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #212529;
+            background-color: #fff;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+        label {
+            margin: 0;
+        }
+        .btn-show{
+            display: flex;
+            justify-content: right;
+            border-width: 2px;
+        }
+        .quiet {
+            border: 0;
+            vertical-align: middle;
+            background: 0;
+        }
         .text-show{
-            width: 450px;
+            width: 300px;
             height: 150px;
+            resize: none;
+        }
+        .caret{
+            display: none;
         }
     </style>
+<script>
 
+
+    var element = $('#page').detach();
+    $('body').children().children('div.row').append(element);
+
+    let id_table = $("#id_table")
+    let id_row = $("#id_row")
+    let id_column = $("#id_column")
+
+    let id_znanie = $("#id_znanie")
+    let id_view = $("#id_view")
+    let id_author = $("#id_author")
+    let znanie_content = $("#znanie_content")
+    let btn_show = $("#btn_show")
+    text_show = $("#text_id")
+
+    const csrftoken = getCookie('csrftoken');
+
+    newZnanie().then(d => {
+        lastPage = d
+    })
+
+    function newZnanie() {
+        const data = {};
+        let url = "{% url 'show_new_znanie' %}"
+        return fetch(url, {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json',
+               'X-CSRFToken': csrftoken
+           },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            return data;
+        })
+        .catch((error) => {
+        console.log('Error:', error);
+        });
+    }
+
+
+    function getCookie(name) {
+       let cookieValue = null;
+       if (document.cookie && document.cookie !== '') {
+           const cookies = document.cookie.split(';');
+           for (let i = 0; i < cookies.length; i++) {
+               const cookie = cookies[i].trim();
+               if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                   cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                   break;
+               }
+           }
+       }
+       return cookieValue;
+    }
+    
+    id_znanie.on('show.bs.select', function (e) {
+        newZnanie().then(data => {
+            if (data[0] != lastPage[0]) {
+                lastPage = data
+                $('#id_znanie').append(`<option id="${data[0]}"> ${data[1]} </option>`)
+                $('#id_znanie').selectpicker('refresh')
+            }
+        })
+    });
+
+    id_znanie.on('changed.bs.select', function (e, clickedIndex) {
+        getZnanieId(id_znanie.children()[clickedIndex].id)
+        $('#div-param').css('display', 'flex')
+    });
+
+    id_table.change(getTableId);
+
+    btn_show.on('click', function(){
+        Array.from(id_znanie.children()).forEach(element => {
+            if (element.text == id_znanie.val()) {
+                window.open(`/drevo/znanie/${element.id}`)
+            }
+        });
+        
+    })
+    function getTableId(e) {
+       let table_id = e.target.value
+       const data = { id: table_id};
+       let url = "{% url 'get_rows_and_columns' %}"
+
+        fetch(url, {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json',
+               'X-CSRFToken': csrftoken
+           },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            let rows = data[0]
+            if (rows.length === 0) {
+                id_row.children().text("Строки отсутствуют")
+            }
+            else {
+                id_row.empty()
+                for (let i = 0; i < rows.length; i++) {
+                    id_row.append(`<option value = "${rows[i]['rz_id']}">${rows[i]['rz__name']}</option>`)
+                }
+
+            }
+
+            let columns = data[1]
+            if (columns.length === 0) {
+                id_column.children().text("Столбцы отсутствуют")
+            }
+            else {
+                id_column.empty()
+                for (let i = 0; i < rows.length; i++) {
+                    id_column.append(`<option value="${columns[i]['rz_id']}">${columns[i]['rz__name']}</option>`)
+                }
+            }
+         })
+        .catch((error) => {
+        console.log('Error:', error);
+        });
+     }
+
+    function getZnanieId(e) {
+        const data = { id: e};
+        let url = "{% url 'znanie_attributes' %}"
+
+        fetch(url, {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json',
+               'X-CSRFToken': csrftoken
+           },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            
+            id_view.val(data[0]);
+            id_view.attr("readonly");
+
+            id_author.val(data[1])
+
+            if (data[2]) {
+                $('#div-content').css('display', 'flex')
+
+                text_show.val(data[2])
+            }
+            else {
+                $('#div-content').hide()
+                text_show.empty()
+            }
+        })
+        .catch((error) => {
+        console.log('Error:', error);
+        });
+    }
+    
+</script>
 {% endblock %}
+</div>

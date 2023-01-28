@@ -11,16 +11,16 @@ class UserModelForm(forms.ModelForm):
         widget=forms.EmailInput(attrs={'readonly': True}),
         label='Адрес эл. почты'
     )
-    first_name = forms.CharField(
-        widget=forms.TextInput(),
-        label='Имя',
-        required=False,
-    )
-    last_name = forms.CharField(
-        widget=forms.TextInput(),
-        label='Фамилия',
-        required=False,
-    )
+    # first_name = forms.CharField(
+    #     widget=forms.TextInput(),
+    #     label='Имя',
+    #     required=False,
+    # )
+    # last_name = forms.CharField(
+    #     widget=forms.TextInput(),
+    #     label='Фамилия',
+    #     required=False,
+    # )
 
     class Meta:
         model = User
