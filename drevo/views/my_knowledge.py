@@ -92,7 +92,6 @@ def my_expertise(request, id):
             context['categories'], context['knowledges'] = \
                 get_knowledges_by_categories(knowledges_of_expert)
             context['znanie_tree'] = context['categories'].get_ancestors(include_self=True)
-            context['h'] = knowledges_of_expert
             context['var'] = variables
             context['title'] = 'Моя экспертиза'
             context['under_title'] = 'Мой вклад, как эксперта'
