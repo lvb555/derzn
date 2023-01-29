@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 
 from drevo.models.feed_messages import FeedMessage
@@ -16,8 +16,6 @@ def friends_added_view(request):
     Контрол страницы "Добавить в друзья"
     """
     context = {'profiles': []}
-    first_name_predicate = request.GET.get('first')
-    last_name_predicate = request.GET.get('last')
 
     # Добавление в друзья
     if request.GET.get('add'):
@@ -38,7 +36,8 @@ def friends_added_view(request):
     if request.GET.get('remove'):
         _remove_friend(request.user.id, request.GET.get('remove'))
         
-    profiles_in_page = 10
+    profiles_in_page = 3
+    current_page = 0
 
     try:
         current_page = int(request.GET.get('page'))
@@ -49,58 +48,13 @@ def friends_added_view(request):
         current_page = 1
 
     exclude_ids = [request.user.id]
-    profiles = Profile.objects.exclude(id__in=exclude_ids)[(current_page-1)*profiles_in_page : current_page * profiles_in_page]
-
-    context['current_page'] = current_page
-    context['previous_page'] = current_page - 1
-    context['next_page'] = current_page + 1
-
-    all_profiles = Profile.objects.exclude(id__in=exclude_ids).count()
-    context['max_page'] = math.ceil(all_profiles / profiles_in_page)
-
-    if current_page == 1:
-        context['part_message'] = f'1 - {current_page * profiles_in_page} из {all_profiles}'
-    elif context['next_page'] > context['max_page']:
-        context['part_message'] = f'{(current_page - 1) * profiles_in_page + 1}  - {all_profiles} из {all_profiles}'
-    else:
-        context['part_message'] = f'{(current_page - 1) * profiles_in_page + 1}  - {current_page * profiles_in_page} из {all_profiles}'
+    profiles = Profile.objects.exclude(id__in = exclude_ids)
 
     for profile in profiles:
-        data = {}
-        if first_name_predicate and not last_name_predicate:
-            user = User.objects.filter(id=profile.user_id, first_name__contains=first_name_predicate).first()
-        elif not first_name_predicate and last_name_predicate:
-            user = User.objects.filter(id=profile.user_id, last_name__contains=last_name_predicate).first()
-        elif first_name_predicate and last_name_predicate:
-            user = User.objects.filter(id=profile.user_id, first_name__contains=first_name_predicate,
-                                       last_name__contains=last_name_predicate).first()
-        else:
-            user = User.objects.filter(id=profile.user_id).first()
-        if not user:
-            continue
-        if not user.first_name or not user.last_name:
-            continue
+        user = profile.user
+        if user.first_name == "" or user.last_name == "":
+            exclude_ids.append(profile.id)
 
-        data['first_name'] = user.first_name
-        data['last_name'] = user.last_name
-        data['avatar'] = profile.avatar or ''
-        data['user_id'] = profile.user_id
-        data['relation_to_request_user'] = 'no_relation'
-
-        try:
-            if FriendsInviteTerm.objects.filter(sender=request.user.id, recipient = profile.user_id).exists():
-                data['relation_to_request_user'] = 'subscriber'
-            
-            elif User.objects.get(id = request.user.id).user_friends.filter(id = int(user.id)).exists() or user.user_friends.filter(id = request.user.id).exists():
-                data['relation_to_request_user'] = 'friend'
-
-            elif FriendsInviteTerm.objects.filter(sender=user, recipient = request.user).exists():
-                data['relation_to_request_user'] = 'was_invited'
-
-            context['profiles'].append(data)
-        except:
-            pass
-    
     try:
         # Загрузим список заявок на дружбу
         invites = FriendsInviteTerm.objects.filter(recipient = request.user.id)
@@ -127,6 +81,48 @@ def friends_added_view(request):
     # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
     except:
         pass
+
+    all_profiles = Profile.objects.exclude(id__in=exclude_ids).order_by('user__last_name').order_by('user__first_name')
+    
+    profiles = all_profiles[(current_page-1)*profiles_in_page : current_page * profiles_in_page]
+
+    for profile in profiles:
+        data = {}
+
+        user = profile.user
+        data['first_name'] = user.first_name
+        data['last_name'] = user.last_name
+        data['avatar'] = profile.avatar or ''
+        data['user_id'] = profile.user_id
+        data['relation_to_request_user'] = 'no_relation'
+
+        try:
+            if FriendsInviteTerm.objects.filter(sender=request.user.id, recipient = profile.user_id).exists():
+                data['relation_to_request_user'] = 'subscriber'
+            
+            elif User.objects.get(id = request.user.id).user_friends.filter(id = int(user.id)).exists() or user.user_friends.filter(id = request.user.id).exists():
+                data['relation_to_request_user'] = 'friend'
+
+            elif FriendsInviteTerm.objects.filter(sender=user, recipient = request.user).exists():
+                data['relation_to_request_user'] = 'was_invited'
+
+            context['profiles'].append(data)
+        except:
+            pass
+
+    context['current_page'] = current_page
+    context['previous_page'] = current_page - 1
+    context['next_page'] = current_page + 1
+
+    all_profiles_count = all_profiles.count()
+    context['max_page'] = math.ceil(all_profiles_count / profiles_in_page)
+
+    if current_page == 1:
+        context['part_message'] = f'1 - {current_page * len(context["profiles"])} из {all_profiles_count}'
+    elif context['next_page'] > context['max_page']:
+        context['part_message'] = f'{(current_page - 1) * profiles_in_page + 1}  - {all_profiles_count} из {all_profiles_count}'
+    else:
+        context['part_message'] = f'{(current_page - 1) * profiles_in_page + 1}  - {current_page * profiles_in_page} из {all_profiles_count}'
     
     template_name = 'drevo/friends_added.html'
     return render(request, template_name, context)
@@ -160,6 +156,7 @@ def _add_friend(user_id: int, friend_id: str) -> None:
                         pass
             else:
                 pass
+
 
 def _cancel_invite(user_id: int, friend_id: str) -> None:
     """

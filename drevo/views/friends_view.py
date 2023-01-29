@@ -40,7 +40,8 @@ def friends_view(request):
         my_friends = user.user_friends.all() # те, кто в друзьях у меня
         i_in_friends = user.users_friends.all() # те, у кого я в друзьях
         
-        all_friends = my_friends.union(i_in_friends, all=False)
+        all_friends = my_friends.union(i_in_friends, all=False).order_by('last_name').order_by('first_name')
+        # all_friends_sorted = sorted(all_friends)
         context['friends'] = all_friends
         context.update({'friends_count': len(all_friends)})
 
