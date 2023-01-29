@@ -89,27 +89,26 @@
                     </div>
                 </div>
                 {% if user.is_public %}
-                    <input type = 'checkbox' name = 'is_public' value="True" onclick="ShowSections(this.value)"
-                           style="margin-bottom: 16px;" checked>
+                    <input type = 'checkbox' name = 'is_public' value="True" onclick="ShowSections(this.value)" checked>
                     Публичный человек
                 <div class="form-row">
-                <div style="display: block" id="sections">
+                <div style="display: block;margin-top: 16px;" id="sections">
                 {% else %}
                     <input type = 'checkbox' name = 'is_public' value="True" onclick="ShowSections(this.value)">
                     Публичный человек
                 <div class="form-row">
-                <div style="display: none" id="sections">
+                <div style="display: none;margin-top: 16px;" id="sections">
                 {% endif %}
                     <div style="display: none" id="previous">{{sections}}</div>
-                    <p>Разделы, которые будут показаны</p>
-                    <div style="padding-bottom: 16px;">
+                    <h5>Разделы, которые будут показаны</h5>
+                    <div style="padding-bottom: 16px;font-size: 18px;">
                         <input type = 'checkbox' class = 'section' name = 'Компетенции' value="True" checked>
                         Компетенции
                     </div>
-                    <div style="padding-bottom: 16px;" class="friends">
+                    <div style="padding-bottom: 16px;font-size: 18px;" class="friends">
                         <input type = 'checkbox' class = 'section_title' id="friends" onclick="SelectAll(this.id)">
                         Друзья
-                        <div style="margin-left: 24px;">
+                        <div style="margin-left: 24px;font-size: 16px;">
                             <input type = 'checkbox' class = 'section' name = 'Приглашение в друзья' value="True" checked onclick="IsAllChecked(this.name)">
                             Приглашение в друзья
                             <input type = 'checkbox' class = 'section' name = 'Лента знаний' value="True" checked onclick="IsAllChecked(this.name)">
@@ -118,20 +117,20 @@
                             Сообщения
                         </div>
                     </div>
-                    <div style="padding-bottom: 16px;" class="activity">
+                    <div style="padding-bottom: 16px;font-size: 18px;" class="activity">
                         <input type = 'checkbox' class = 'section_title' id="activity" onclick="SelectAll(this.id)">
                         Активность
-                        <div style="margin-left: 24px;">
+                        <div style="margin-left: 24px;font-size: 16px;">
                             <input type = 'checkbox' class = 'section' name = 'Мои интервью' value="True" checked onclick="IsAllChecked(this.name)">
                             Мои интервью
                             <input type = 'checkbox' class = 'section' name = 'Мои предложения' value="True" checked onclick="IsAllChecked(this.name)">
                             Мои предложения
                             <input type = 'checkbox' class = 'section' name = 'Мои опросы' value="True" checked onclick="IsAllChecked(this.name)">
                             Мои опросы
-                            <div style="padding-bottom: 16px; padding-top: 16px;" class="expert_contribution">
+                            <div style="padding-bottom: 16px; padding-top: 16px;font-size: 16px;" class="expert_contribution">
                                 <input type = 'checkbox' class = 'section_title' id="expert_contribution" onclick="SelectAll(this.id)">
                                 Мой вклад, как эксперта
-                                <div style="margin-left: 24px;">
+                                <div style="margin-left: 24px;font-size: 14px;">
                                     <input type = 'checkbox' class = 'section' name = 'Мои знания' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои знания
                                     <input type = 'checkbox' class = 'section' name = 'Мои связи' value="True" checked onclick="IsAllChecked(this.name)">
@@ -140,10 +139,10 @@
                                     Моя экспертиза
                                 </div>
                             </div>
-                            <div class="user_contribution">
+                            <div class="user_contribution" style="font-size: 16px;">
                                 <input type = 'checkbox' class = 'section_title' id="user_contribution" onclick="SelectAll(this.id)">
                                 Мой вклад, как пользователя
-                                <div style="margin-left: 24px;">
+                                <div style="margin-left: 24px;font-size: 14px;">
                                     <input type = 'checkbox' class = 'section' name = 'Мои знания (пользовательский вклад)' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои знания
                                     <input type = 'checkbox' class = 'section' name = 'Мои предзнания' value="True" checked onclick="IsAllChecked(this.name)">
@@ -156,10 +155,10 @@
                             </div>
                         </div>
                     </div>
-                    <div style="padding-bottom: 16px;" class="learning">
+                    <div style="padding-bottom: 16px;font-size: 18px;" class="learning">
                         <input type = 'checkbox' class = 'section_title' id="learning" onclick="SelectAll(this.id)">
                         Изучение знаний
-                        <div style="margin-left: 24px;">
+                        <div style="margin-left: 24px;font-size: 16px;">
                             <input type = 'checkbox' class = 'section' name = 'Дерево знаний' value="True" checked onclick="IsAllChecked(this.name)">
                             Дерево знаний
                             <input type = 'checkbox' class = 'section' name = 'Избранные знания' value="True" checked onclick="IsAllChecked(this.name)">
@@ -168,10 +167,10 @@
                             Результаты тестов
                         </div>
                     </div>
-                    <div style="padding-bottom: 16px;" class="subscriptions">
+                    <div style="padding-bottom: 16px;font-size: 18px;" class="subscriptions">
                         <input type = 'checkbox' class = 'section_title' id="subscriptions" onclick="SelectAll(this.id)">
                         Подписки
-                        <div style="margin-left: 24px;">
+                        <div style="margin-left: 24px;font-size: 16px;">
                             <input type = 'checkbox' class = 'section' name = 'По категориям' value="True" checked onclick="IsAllChecked(this.name)">
                             По категориям
                             <input type = 'checkbox' class = 'section' name = 'По авторам' value="True" checked onclick="IsAllChecked(this.name)">
@@ -188,12 +187,12 @@
             </form>
             <p class="mt-2 p-2">
                 <div class="mr-2">
-                    <a class="btn btn-primary btn-lg" href="{% url 'subscribe_to_author' %}">Подписка по авторам</a>
+                    <a class="btn btn-primary btn-lg" href="{% url 'subscribe_to_author' user.id %}">Подписка по авторам</a>
                 </div>
             </p>
             <p class="mt-2 p-2">
             <div class="mr-2">
-                <a class="btn btn-primary btn-lg" href="{% url 'subscription_by_tag' %}">Подписка по тегам</a>
+                <a class="btn btn-primary btn-lg" href="{% url 'subscription_by_tag' user.id %}">Подписка по тегам</a>
             </div>
             </p>
             <p class="mt-2 p-2">
@@ -214,7 +213,7 @@
             </div>
             {% endif %}
             <div class="mr-2">
-                <a class="btn btn-primary btn-lg" href="{% url 'show_quiz_result' %}">Результаты тестирования</a>
+                <a class="btn btn-primary btn-lg" href="{% url 'show_quiz_result' user.id %}">Результаты тестирования</a>
             </div>
         </div>
     </div>

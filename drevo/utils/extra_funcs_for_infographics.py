@@ -110,7 +110,10 @@ def get_elements_tree(index_element_tree: int, request, relations: list[Relation
 
         if relation.tr.is_argument:
             knowledge = relation.rz
-            childrens_knowledge = Relation.objects.filter(bz=knowledge)
+            childrens_knowledge = knowledge.base.filter(
+                tr__is_argument=True,
+                rz__tz__can_be_rated=True,
+            ).order_by('tr__name')
             bg_color, font_color, value = get_colors_and_value_from_knowledge(
                 request, relation, lvl_against, father_relation, is_group_knowledge,
                 users)
