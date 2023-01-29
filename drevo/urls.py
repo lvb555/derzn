@@ -50,6 +50,8 @@ from .views.admin_interview_work.views import (
     AdminEditingKnowledgeView,
     NotifyExpertsView,
 )
+from .views.my_favourites import my_favourites
+from .views.my_knowledge import my_knowledge, my_preknowledge
 from .views.public_people import public_people_view, public_human
 from .views.quiz_result import show_quiz_result
 from .views.subscribe_to_author_view import sub_by_author
@@ -101,6 +103,9 @@ urlpatterns = [
     path("subscribe_to_author/<int:id>", sub_by_author, name="subscribe_to_author"),
     path("subscription_by_tag/<int:id>", sub_by_tag, name="subscription_by_tag"),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
+    path("my_favourites/<int:id>", my_favourites, name="my_favourites"),
+    path("my_knowledge/<int:id>", my_knowledge, name="my_knowledge"),
+    path("my_preknowledge/<int:id>", my_preknowledge, name="my_preknowledge"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
     path(

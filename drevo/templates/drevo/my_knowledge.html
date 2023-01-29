@@ -1,0 +1,132 @@
+{% extends 'drevo/base.html' %}
+
+{% load static %}
+{% load mptt_tags %}
+{% load filter %}
+
+{% block title %}Мои знания{% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container header_info">
+    <h1>{{title}}</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item"><a {% if link == 'users:myprofile' %} href="{% url link %}" {% else %}
+              href="{% url link id %}" {% endif %}>Профиль</a></li>
+          <li class="breadcrumb-item"><a>Активность</a></li>
+          <li class="breadcrumb-item"><a>{{under_title}}</a></li>
+          <li class="breadcrumb-item opened"><a>{{title}}</a></li>
+        </ol>
+    </nav>
+</div>
+
+{% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections %}
+
+<h1>{{title}}</h1>
+    <div class="content_tp">
+        <div class="tree">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть древо</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть древо</button>
+            <br><br>
+            <ul class="root ps-0" id="tree_root">
+                {% recursetree znanie_tree %}
+                    <li {% if not node.get_level %} style="font-weight: 600;" {% else %}
+                                                    style="font-weight: 400;" {% endif %}
+                                                    id="li_{{ node.id }}">
+                        {% if not node.has_published_children and knowledges|dict_value:node.name|length_is:"0" %}
+                            <i class="bi-file-plus-fill lonely"></i>
+                        {% elif not node.has_published_children and knowledges|dict_value:node.name is None %}
+                            <i class="bi-file-plus-fill lonely"></i>
+                        {% else %}
+                            <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                        {% endif %}
+                        <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
+                        <ul hidden>
+                            {% if not knowledges|dict_value:node.name|dict_value:"base"|length_is:"0" %}
+                            {% for zn in knowledges|dict_value:node.name|dict_value:"base" %}
+                                <li style="font-weight: 400;">
+                                        <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
+                                        <a href="{{ zn.get_absolute_url }}">{{ zn }}</a>
+                                    </li>
+                            {% endfor %}
+                            {% endif %}
+                            {% if not knowledges|dict_value:node.name|dict_value:"additional"|length_is:"0" %}
+                            {% for zn in knowledges|dict_value:node.name|dict_value:"additional" %}
+                            <li style="font-weight: 400;">
+                                        <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
+                                        <a href="{{ zn.get_absolute_url }}">{{ zn }}</a>
+                                    </li>
+                            {% endfor %}
+                            {% endif %}
+                        </ul>
+
+                        {% if not node.is_leaf_node %}
+                            <ul class="children" hidden>
+                                {{ children }}
+                            </ul>
+                        {% endif %}
+
+                    </li>
+                {% endrecursetree %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jsfiles %}
+<script>
+    function toggleHiddenElement(element) {
+        let li_id = element.parentNode.id;
+        let selector_string = "li#" + li_id + " > ul";
+        let ulToHidden = document.querySelectorAll(selector_string);
+        ulToHidden.forEach(function (item) {
+            item.hidden = !item.hidden;
+        })
+
+        if (element.classList.contains("bi-file-minus-fill")) {
+            element.classList.remove("bi-file-minus-fill")
+            element.classList.add("bi-file-plus-fill");
+        } else {
+            element.classList.remove("bi-file-plus-fill")
+            element.classList.add("bi-file-minus-fill");
+        }
+    }
+
+    function showAll() {
+        let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+
+        ulToHidden.forEach(function (x) {
+                x.hidden = false;
+            }
+        )
+
+        let treeRoot = document.getElementById("tree_root");
+        let listIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
+        for (let icon of listIconsToChange) {
+            icon.classList.remove("bi-file-plus-fill")
+            icon.classList.add("bi-file-minus-fill");
+        }
+    }
+
+    function hiddenAll() {
+        let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+        ulToHidden.forEach(function (item) {
+            item.hidden = true;
+        })
+
+        let treeRoot = document.getElementById("tree_root");
+        let listIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
+        for (let icon of listIconsToChange) {
+            icon.classList.remove("bi-file-minus-fill")
+            icon.classList.add("bi-file-plus-fill");
+        }
+    }
+</script>
+{% endblock %}

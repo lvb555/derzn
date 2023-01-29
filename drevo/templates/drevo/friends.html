@@ -76,6 +76,9 @@
                     href="{% url 'users:myprofile' %}">
                     Редактировать профиль
                 </a>
+                <div class="mr-2">
+                    <a class="btn btn-primary btn-lg" href="{% url 'parameter_settings' %}"><i class="bi bi-gear"></i></a>
+                </div>
               </div>
             </div>
           </div>
@@ -200,7 +203,7 @@
                         </li>
 
                         <li>
-                            <a href="{% url 'favourites' %}" class="dropdown-item">Избранные знания</a>
+                            <a href="{% url 'my_favourites' user.id %}" class="dropdown-item">Избранные знания</a>
                         </li>
 
                         <li>
