@@ -53,7 +53,7 @@ def get_colors_and_value_from_knowledge(request, relation: Relation, lvl_against
                             )))))):
             bg_color = grade.argument_color_background
             font_color = grade.argument_color_font
-    except KnowledgeGrade.DoesNotExist:
+    except:
         pass
     return bg_color, font_color, value
 
