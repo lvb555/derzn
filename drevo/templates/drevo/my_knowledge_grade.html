@@ -171,7 +171,7 @@
         {% else %}
            <li id="li_00{{ zn.id }}">
                 <i class="bi-file-plus-fill lonely" onclick="toggleHiddenElement(this);"></i>
-                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}">
+                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}/grade">
                 {% with zn|common_grades:request as grades_iter %}
                 {% if grades_iter.0|grade %}
                 {% with grades_iter.0|grade as grade %}
