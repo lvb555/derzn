@@ -125,7 +125,7 @@
                                         {% endif %}
                                         {% if 'Моя экспертиза' in sections %}
                                         <li>
-                                            <a class="dropdown-item" href="#">Моя экспертиза</a>
+                                            <a class="dropdown-item" href="{% url 'my_expertise' pub_user.id %}">Моя экспертиза</a>
                                         </li>
                                         {% endif %}
                                     </ul>

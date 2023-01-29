@@ -68,3 +68,32 @@ def my_preknowledge(request, id):
             context['title'] = 'Мои знания'
             context['under_title'] = 'Мой вклад, как пользователя'
             return render(request, 'drevo/my_knowledge.html', context)
+
+
+def my_expertise(request, id):
+    if request.method == 'GET':
+        user = User.objects.filter(id=id).first()
+        context = {}
+        if user is not None:
+            if user == request.user:
+                context['sections'] = [i.name for i in MenuSections.objects.all()]
+                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
+                                       i.name.startswith('Моя')]
+                context['link'] = 'users:myprofile'
+            else:
+                context['sections'] = [i.name for i in user.sections.all()]
+                context['activity'] = [i.name for i in user.sections.all() if
+                                       i.name.startswith('Мои') or i.name.startswith('Моя')]
+                context['link'] = 'public_human'
+                context['id'] = id
+            context['pub_user'] = user
+            knowledges_of_expert = Znanie.published.filter(
+                expert__id=id)
+            context['categories'], context['knowledges'] = \
+                get_knowledges_by_categories(knowledges_of_expert)
+            context['znanie_tree'] = context['categories'].get_ancestors(include_self=True)
+            context['h'] = knowledges_of_expert
+            context['var'] = variables
+            context['title'] = 'Моя экспертиза'
+            context['under_title'] = 'Мой вклад, как эксперта'
+            return render(request, 'drevo/my_knowledge.html', context)

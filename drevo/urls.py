@@ -51,7 +51,7 @@ from .views.admin_interview_work.views import (
     NotifyExpertsView,
 )
 from .views.my_favourites import my_favourites
-from .views.my_knowledge import my_knowledge, my_preknowledge
+from .views.my_knowledge import my_knowledge, my_preknowledge, my_expertise
 from .views.public_people import public_people_view, public_human
 from .views.quiz_result import show_quiz_result
 from .views.subscribe_to_author_view import sub_by_author
@@ -106,6 +106,7 @@ urlpatterns = [
     path("my_favourites/<int:id>/", my_favourites, name="my_favourites"),
     path("my_knowledge/<int:id>/", my_knowledge, name="my_knowledge"),
     path("my_preknowledge/<int:id>/", my_preknowledge, name="my_preknowledge"),
+    path("my_expertise/<int:id>/", my_expertise, name="my_expertise"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
     path(

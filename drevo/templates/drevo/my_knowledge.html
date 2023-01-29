@@ -4,7 +4,7 @@
 {% load mptt_tags %}
 {% load filter %}
 
-{% block title %}Мои знания{% endblock %}
+{% block title %}{{title}}{% endblock %}
 
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
@@ -53,7 +53,7 @@
                                 <li style="font-weight: 400;">
                                         <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
                                         <a href="{{ zn.get_absolute_url }}">{{ zn }}</a>
-                                    </li>
+                                </li>
                             {% endfor %}
                             {% endif %}
                             {% if not knowledges|dict_value:node.name|dict_value:"additional"|length_is:"0" %}
@@ -61,7 +61,7 @@
                             <li style="font-weight: 400;">
                                         <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
                                         <a href="{{ zn.get_absolute_url }}">{{ zn }}</a>
-                                    </li>
+                            </li>
                             {% endfor %}
                             {% endif %}
                         </ul>
@@ -74,6 +74,28 @@
 
                     </li>
                 {% endrecursetree %}
+                {% if under_title != 'Мой вклад, как эксперта' or title == 'Моя экспертиза' %}
+                {% if not knowledges|dict_value:'None'|length_is:"0" %}
+                    <li style="font-weight: 600;" id="li_add">
+                        <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                        <a style="color: #0d6efd;">Знания, не имеющие категории</a>
+                        <ul hidden style="font-weight: 400;color: #0d6efd;;">
+                                {% for knowledge in knowledges|dict_value:'None'|dict_value:"base" %}
+                                <li style="font-weight: 400;">
+                                        <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
+                                        <a href="{% url 'zdetail' knowledge.pk %}">{{ knowledge }}</a>
+                                </li>
+                                {% endfor %}
+                                {% for knowledge in knowledges|dict_value:'None'|dict_value:"additional" %}
+                                <li style="font-weight: 400;">
+                                        <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
+                                        <a href="{% url 'zdetail' knowledge.pk %}">{{ knowledge }}</a>
+                                </li>
+                                {% endfor %}
+                        </ul>
+                    </li>
+                {% endif %}
+                {% endif %}
             </ul>
         </div>
     </div>
