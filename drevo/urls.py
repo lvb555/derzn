@@ -35,6 +35,7 @@ from .views import (
     QuizDetailView,
     InfographicsView,
     GroupInfographicsView,
+    my_knowledge_grade,
     GroupKnowledgeStatisticsView,
     parameter_settings,
 )
@@ -85,6 +86,7 @@ urlpatterns = [
     path('znanie/<int:pk>/grade/group/infographics', GroupInfographicsView.as_view(), name="grade_group_infographics"),
     path('znanie/<int:pk>/grade/group/statistics', GroupKnowledgeStatisticsView.as_view(), name="grade_group_statistics"),
     path("znanie/<int:pk>/grade/infographics", InfographicsView.as_view(), name="grade_infographics"),
+    path("my_knowledge_grade/", my_knowledge_grade, name="my_knowledge_grade"),
     path("all_quizzes/", QuizListView.as_view(), name="all_quizzes"),
     path("quiz/<int:pk>", QuizDetailView.as_view(), name="quiz"),
     path("quiz/<int:pk>/quiz_result/", QuizResultAdd.as_view()),

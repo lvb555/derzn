@@ -3,6 +3,8 @@ from drevo.models.relation import Relation
 from drevo.models.knowledge_grade import KnowledgeGrade
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 
+ind_element_tree = 0
+
 
 def get_colors_and_value_from_knowledge(request, relation: Relation, lvl_against: int,
                               father_relation: Relation | None, is_group_knowledge: bool,
@@ -94,6 +96,9 @@ def get_elements_tree(index_element_tree: int, request, relations: list[Relation
         ...
       ]
     """
+    global ind_element_tree
+    ind_element_tree = index_element_tree
+
     tree = []
     for relation in relations:
         if not relation.tr.argument_type:
@@ -118,7 +123,7 @@ def get_elements_tree(index_element_tree: int, request, relations: list[Relation
                 "lvl_up": lvl_up,
                 "for_or_against": "К" if relation.tr.argument_type else "А",
                 "has_childrens": bool(childrens_knowledge),
-                "id": index_element_tree,
+                "id": ind_element_tree,
             })
             index_element_tree += 1
 
