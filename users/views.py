@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404, JsonResponse
 from django.views.generic.edit import ProcessFormView
 import json
+from drevo.models.expert_category import CategoryExpert
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
@@ -195,6 +196,12 @@ class UserProfileTemplateView(LoginRequiredMixin, TemplateView):
 
             if _object:
                 context['object'] = _object
+
+        try:
+            users_categories = CategoryExpert.objects.get(expert = _id)
+            context['users_categories'] = users_categories
+        except:
+            context['users_categories'] = False
 
         context['title'] = f'Профиль пользователя {_object.username}'
         return context
