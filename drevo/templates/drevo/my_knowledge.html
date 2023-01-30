@@ -75,6 +75,7 @@
                     </li>
                 {% endrecursetree %}
                 {% if under_title != 'Мой вклад, как эксперта' or title == 'Моя экспертиза' %}
+                {% if knowledges|dict_value:'None' %}
                 {% if not knowledges|dict_value:'None'|length_is:"0" %}
                     <li style="font-weight: 600;" id="li_add">
                         <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
@@ -94,6 +95,7 @@
                                 {% endfor %}
                         </ul>
                     </li>
+                {% endif %}
                 {% endif %}
                 {% endif %}
             </ul>
