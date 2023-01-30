@@ -78,7 +78,7 @@ def search_node_categories(categories_expert):
     list_category_id = []
     for category_expert in categories_expert:
         list_level = Category.objects.filter(tree_id=category_expert.tree_id)
-        for category_child in list_level[category_expert.level :]:
+        for category_child in list_level[category_expert.level:]:
             if category_expert.level > category_child.level:
                 continue
             elif category_expert.level >= category_child.level:
