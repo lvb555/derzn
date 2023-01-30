@@ -53,6 +53,8 @@ from .views.admin_interview_work.views import (
     AdminEditingKnowledgeView,
     NotifyExpertsView,
 )
+from .views.my_favourites import my_favourites
+from .views.my_knowledge import my_knowledge, my_preknowledge, my_expertise
 from .views.public_people import public_people_view, public_human
 from .views.quiz_result import show_quiz_result
 from .views.subscribe_to_author_view import sub_by_author
@@ -90,9 +92,9 @@ urlpatterns = [
     path("all_quizzes/", QuizListView.as_view(), name="all_quizzes"),
     path("quiz/<int:pk>", QuizDetailView.as_view(), name="quiz"),
     path("quiz/<int:pk>/quiz_result/", QuizResultAdd.as_view()),
-    path("quiz_results/<int:id>", show_quiz_result, name="show_quiz_result"),
+    path("quiz_results/<int:id>/", show_quiz_result, name="show_quiz_result"),
     path("public_people", public_people_view, name="public_people"),
-    path("public_people/<int:id>", public_human, name="public_human"),
+    path("public_people/<int:id>/", public_human, name="public_human"),
     path("label/<int:pk>", ZnanieByLabelView.as_view(), name="zlabel"),
     path("author/<int:pk>", AuthorDetailView.as_view(), name="author"),
     path("authors/", AuthorsListView.as_view(), name="authors"),
@@ -104,9 +106,13 @@ urlpatterns = [
     path("search/author", AuthorSearchView.as_view(), name="search_author"),
     path("search/tag", TagSearchView.as_view(), name="search_tag"),
     path("history/", BrowsingHistoryListView.as_view(), name="history"),
-    path("subscribe_to_author/<int:id>", sub_by_author, name="subscribe_to_author"),
-    path("subscription_by_tag/<int:id>", sub_by_tag, name="subscription_by_tag"),
+    path("subscribe_to_author/<int:id>/", sub_by_author, name="subscribe_to_author"),
+    path("subscription_by_tag/<int:id>/", sub_by_tag, name="subscription_by_tag"),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
+    path("my_favourites/<int:id>/", my_favourites, name="my_favourites"),
+    path("my_knowledge/<int:id>/", my_knowledge, name="my_knowledge"),
+    path("my_preknowledge/<int:id>/", my_preknowledge, name="my_preknowledge"),
+    path("my_expertise/<int:id>/", my_expertise, name="my_expertise"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
     path(

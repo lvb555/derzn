@@ -102,6 +102,10 @@
                                         <div class="dropdown-item">
                                             <a href="{% url 'favourites' %}" id="favourites_link">Подписки</a>
                                         </div>
+                                        <div class="dropdown-item" style="display:flex; justify-content: space-between;">
+                                            <a href="{% url 'users:myprofile' %}">Редактировать профиль</a>
+                                            <a href="{% url 'parameter_settings' %}"><i class="bi bi-gear"></i></a>
+                                        </div>
                                         <div class="dropdown-item exit-button">
                                             <a class="btn btn-outline-light" aria-current="page" href="{% url 'users:logout' %}">
                                                 <img

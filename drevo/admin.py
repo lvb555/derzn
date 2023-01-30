@@ -191,6 +191,7 @@ class AuthorAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "atype",
+        "user_author",
     )
     ordering = ("name",)
     search_fields = ["name"]

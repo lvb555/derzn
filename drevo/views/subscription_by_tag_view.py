@@ -22,7 +22,8 @@ def sub_by_tag(request, id):
             else:
                 context['sections'] = [i.name for i in user.sections.all()]
                 context['activity'] = [i.name for i in user.sections.all() if i.name.startswith('Мои') or i.name.startswith('Моя')]
-                context['link'] = "'public_human' pub_user.id"
+                context['link'] = 'public_human'
+                context['id'] = id
             context['pub_user'] = user
             return render(request, 'drevo/tag_subscription.html', context)
 
