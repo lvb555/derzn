@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.dispatch import receiver
@@ -5,6 +6,8 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
+from dateutil.parser import parse as du_parse
+from dateutil.relativedelta import relativedelta
 
 from hashlib import sha1
 from random import random
@@ -23,6 +26,9 @@ class User(AbstractUser):
     is_redactor = models.BooleanField(default=False, verbose_name='Редактор')
     is_director = models.BooleanField(default=False, verbose_name='Руководитель')
     in_klz = models.BooleanField(default=False, verbose_name='Член КЛЗ')
+    is_public = models.BooleanField(default=False, verbose_name='Публичный человек')
+    sections = models.ManyToManyField('MenuSections', verbose_name='Секции, разрешенные к показу', blank=True)
+    job = models.CharField(max_length=150, verbose_name='Работа', blank=True)
 
     date_joined = last_login = None
     user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True)
@@ -155,6 +161,18 @@ class Profile(models.Model):
             return True
         return False
 
+
+    def get_user_age(self):
+
+        try:
+            birth = du_parse(str(self.birthday_at), dayfirst = True)
+            today_date = du_parse(str(datetime.today()), dayfirst = True)
+            delta = relativedelta(today_date, birth)
+
+            return delta.years
+        except:
+            return 'дата рождения не указана'
+
     class Meta:
         verbose_name = "Профиль"
         verbose_name_plural = "Профили"
@@ -163,3 +181,16 @@ class Profile(models.Model):
 class Favourite(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     favourites = models.ManyToManyField("drevo.Znanie", blank=True)
+
+
+class MenuSections(models.Model):
+    name = models.CharField(max_length=128,
+                            unique=True,
+                            verbose_name='Название')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Секция меню в шапке пользователя'
+        verbose_name_plural = 'Секции меню в шапке пользователя'

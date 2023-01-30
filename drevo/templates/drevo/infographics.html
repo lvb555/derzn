@@ -1,0 +1,375 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+{% load grades %}
+{% load custom_humanize %}
+
+{% block title %}
+{% if request.GET.variant != '2' %}
+    Инфографика. Оценка знания
+{% else %}
+    Инфографика. Общая оценка знания
+{% endif %}
+{% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-between">
+        <div class="col-auto ">
+            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
+                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
+                        {{ knowledge.name }}
+                </i>           
+            </a>
+        </div>
+    </div>
+    <div class="row justify-content-between">
+        <div class="col-auto ">
+            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
+                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
+                        Оценка знания 
+                </i>           
+            </a>
+        </div>
+    </div>
+    {% if not none %}
+    <h2 class="my-2">
+        {% if request.GET.variant != '2' %}
+            Инфографика. Оценка знания
+        {% else %}
+            Инфографика. Общая оценка знания
+        {% endif %}
+    </h2>
+    {% if not user.is_authenticated %}
+        <div class="col">
+            <div class="row">
+                <div class="card alert-warning my-4">
+                    <div class="card-body">
+                      <span class="card-text">
+                        <a href="{% url 'users:login' %}?next={{ request.path }}"
+                           style="text-decoration: none">Войдите</a>
+                        или
+                        <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                        чтобы посмотреть инфографику.
+                      </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+    {% if proof_relations.exists %}
+        <div class="my-4">
+            <form action="{{ request.get_full_path }}" method="get" id="modeForm">
+                <div class="d-flex flex-row align-items-center">
+                    <span><strong>Вариант расчета:</strong></span>
+                    <span class="ms-2">
+                    <fieldset id="variant" class="input-group">
+                        <span style="white-space: nowrap">
+                            <input class="ms-2" type="radio" id="var1" name="variant" value="1"
+                                    {% if request.GET.variant != '2' %} checked {% endif %}>
+                            <label for="var1">Оценка знания</label>
+                        </span>
+                        <span style="white-space: nowrap">
+                            <input class="ms-2" type="radio" id="var2" name="variant" value="2"
+                                    {% if request.GET.variant == '2' %} checked {% endif %}>
+                            <label for="var2">Общая оценка знания</label>
+                        </span>
+                    </fieldset>
+                </span>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+
+    <table class="table-sm table-borderless"
+           style="border-collapse: collapse; word-break: break-word;">
+        <tbody>
+            <tr>
+                <th>Оценка знания:</th>
+                {% if base_grade %}
+                <td style="background-color: {{ base_grade.grade.argument_color_background }};
+                           color: {{ base_grade.grade.argument_color_font }};">
+                        {{ base_grade.grade.name }}
+                </td>
+                {% endif %}
+                <td id="currentGrade" style="width: 48px">
+                    {% if base_grade %}
+                        {% if base_grade.grade.get_base_grade == 2.0 %}
+                        {% else %}
+                            {{ base_grade.grade.get_base_grade|floatformat:-2 }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            
+            {% if proof_relations.exists %}
+                <tr>
+                    <th>Оценка доказательной базы:</th>
+                    {% if proof_base_value %}
+                    <td style="background-color: {{ proof_base_grade.argument_color_background }};
+                           color: {{ proof_base_grade.argument_color_font }};">
+                        {{ proof_base_grade.name }}
+                    </td>
+                    <td>{{ proof_base_value|floatformat:-2 }}</td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <th>Общая оценка знания:</th>
+                    <td style="background-color: {{ common_grade.argument_color_background }};
+                           color: {{ common_grade.argument_color_font }};">
+                        {{ common_grade.name }}
+                    </td>
+                    <td>{{ common_grade_value|floatformat:-2 }}</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if proof_relations.exists %}
+        <h4 class="text-center my-4">Доказательная база</h4>
+        <button type="button" class="btn btn-secondary btn-sm" style="margin-left:30px;" onclick="showAll();">развернуть дерево</button>
+&nbsp;<button type="button" class="btn btn-secondary btn-sm my-2" onclick="hiddenAll();">cвернуть дерево</button>
+        <ul id="tree_root">
+        {% for element_tree in elements_tree %}
+            {% if element_tree.lvl_up %}
+                <ul hidden>
+                    {% if element_tree.name %}
+                       <li id="li_{{ element_tree.id }}">
+                            {% if not element_tree.has_childrens %}
+                                <i class="bi-file-plus-fill lonely"></i>
+                            {% else %}
+                                <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                            {% endif %}
+
+                            <span style="background-color: #FFFF00">
+                                {{ element_tree.for_or_against }}
+                            </span>
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            {% if element_tree.proof_value %}
+                            <span style="background-color: {{ element_tree.bg_color }}; 
+                                  color: {{ element_tree.font_color }};
+                                  border: 1px solid black">
+                            {% else %}
+                            <span style="border: 1px solid black; color: black;">
+                            {% endif %}
+                                {{ element_tree.name }}
+                            </span>
+                            </a>
+
+                            {% if element_tree.proof_value %}
+                            <span style="background-color: #FFFF00">
+                                {{ element_tree.proof_value|floatformat:-2 }}
+                            </span>
+                            {% endif %}
+                        {% if not element_tree.has_childrens %}
+                            </li>
+                        {% endif %}
+                    {% endif %}
+            {% else %}
+                {% if element_tree.lvl_down %}
+                    </ul>
+                    </li>
+                    {% if element_tree.name %}
+                        <li id="li_{{ element_tree.id }}">
+                            {% if not element_tree.has_childrens %}
+                                <i class="bi-file-plus-fill lonely"></i>
+                            {% else %}
+                                <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                            {% endif %}
+                            <span style="background-color: #FFFF00">
+                                {{ element_tree.for_or_against }}
+                            </span>
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            {% if element_tree.proof_value %}
+                            <span style="background-color: {{ element_tree.bg_color }}; 
+                                  color: {{ element_tree.font_color }};
+                                  border: 1px solid black">
+                            {% else %}
+                            <span style="border: 1px solid black; color:black;">
+                            {% endif %}
+                                {{ element_tree.name }}
+                            </span>
+                            </a>
+                            
+                            {% if element_tree.proof_value %}
+                             <span style="background-color: #FFFF00">
+                                 {{ element_tree.proof_value|floatformat:-2 }}
+                             </span>
+                            {% endif %}
+                        </li>
+                    {% endif %}
+                {% else %}
+                    {% if element_tree.name %}
+                        <li id="li_{{ element_tree.id }}">
+                            {% if not element_tree.has_childrens %}
+                                <i class="bi-file-plus-fill lonely"></i>
+                            {% else %}
+                                <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                            {% endif %}
+                            <span style="background-color: #FFFF00">
+                                {{ element_tree.for_or_against }}
+                            </span>
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            {% if element_tree.proof_value %}
+                            <span style="background-color: {{ element_tree.bg_color }}; 
+                                  color: {{ element_tree.font_color }};
+                                  border: 1px solid black">
+                            {% else %}
+                            <span style="border: 1px solid black; color: black;">
+                            {% endif %}
+                                {{ element_tree.name }}
+                            </span>
+                            </a>
+
+                            {% if element_tree.proof_value %}
+                            <span style="background-color: #FFFF00">
+                                {{ element_tree.proof_value|floatformat:-2 }}
+                            </span>
+                            {% endif %}
+
+                         {% if not element_tree.has_childrens %}
+                            </li>
+                        {% endif %}                       
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if grade_scales %}
+    <div class="row justify-content-center">
+        <h4 class="text-center my-4">Легенда</h4>
+        <div class="col-6">
+        <table class="table table-sm text-center" style="border-collapse: collapse;">
+            <style>
+                .table-border {
+                    border: 2px black solid;
+                }
+            </style>
+            <tbody>
+                <th class="text-center">
+                    Довод "За"
+                </th>
+                <th style="border:none;"></th>
+                <th class="text-center">
+                    Довод "Против"
+                </th>
+                {% for grade_scale in grade_scales %}
+                    <tr>
+                        <td class="table-border" style="background-color: {{ grade_scale.argument_color_background }};
+                                   color: {{ grade_scale.argument_color_font }};">
+                            {{ grade_scale.name }}
+                        </td>
+                        <td style="border: none;"></td>
+                        <td class="table-border" style="background-color: {{ grade_scale.contraargument_color_background }};
+                                   color: {{ grade_scale.contraargument_color_font }};">
+                            {{ grade_scale.name }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <table class="table table-sm text-center" style="border-collapse:collapse; width: 200px;">
+            <style>
+                .table-border {
+                    border: 2px black solid;
+                }
+            </style>
+            <tbody>
+                <td class="text-center table-border">
+                    Нет оценки
+                </td>
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block jsfiles %}
+<script>
+    function init() {
+        const gradeForm = document.getElementById('gradeForm');
+        const selectCollection = document.getElementsByTagName('select');
+
+        for (const selectCollectionElement of selectCollection) {
+            selectCollectionElement.addEventListener('input', function () {
+                gradeForm.submit();
+            });
+        }
+
+        const radioButtons = document.querySelectorAll('input[name=variant]');
+        const modeForm = document.getElementById('modeForm');
+        for (const button of radioButtons) {
+            button.addEventListener('input', function () {
+                modeForm.submit();
+            });
+        }
+    }
+    init();
+</script>
+
+<script>
+
+  function toggleHiddenElement(element) {
+    let li_id = element.parentNode.id;
+    let selector_string = "li#" + li_id + " > ul";
+    let ulToHidden = document.querySelectorAll(selector_string);
+    ulToHidden.forEach(function (item) {
+      item.hidden = !item.hidden;
+    })
+
+    if (element.classList.contains("bi-file-minus-fill")) {
+      element.classList.remove("bi-file-minus-fill")
+      element.classList.add("bi-file-plus-fill");
+    }
+    else {
+      element.classList.remove("bi-file-plus-fill")
+      element.classList.add("bi-file-minus-fill");
+    }
+  }
+
+  function showAll() {
+    let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+
+    ulToHidden.forEach(function (x) {
+      x.hidden = false;
+    }
+    )
+
+    let treeRoot = document.getElementById("tree_root");
+    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
+    for (let icon of listIconsToChange) {
+      icon.classList.remove("bi-file-plus-fill")
+      icon.classList.add("bi-file-minus-fill");
+    }
+
+  }
+
+  function hiddenAll() {
+    let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+    ulToHidden.forEach(function (item) {
+      item.hidden = true;
+    })
+
+    let treeRoot = document.getElementById("tree_root");
+    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
+    for (let icon of listIconsToChange) {
+      icon.classList.remove("bi-file-minus-fill")
+      icon.classList.add("bi-file-plus-fill");
+    }
+
+  }
+
+
+</script>
+
+{% endblock %}

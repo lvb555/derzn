@@ -1,0 +1,99 @@
+    <form
+          hx-boost="true"
+          hx-trigger="change delay:500ms"
+          hx-target=".answer-proposal"
+          hx-select=".answer-proposal"
+          class="answer__proposal col"
+          action="{% url 'update_answer_proposal' interview.id question.id answer.id %}"
+          method="POST">
+   <div class="answer-opinion">
+    <div class="row mt-2">
+        <div class="col-6">
+            <div class="form-check">
+                <input type="checkbox" id="opinion_is_agreed"
+                       name="is_agreed"
+                       {% if proposal.is_agreed %} checked {% endif %}
+                       class="form-check-input">
+                <label for="opinion_is_agreed" class="form-check-label">
+                    С ответом согласен
+                </label>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="form-check">
+                <input type="checkbox" name="is_incorrect_answer" id="opinion_is_incorrect_answer"
+                       {% if proposal.is_incorrect_answer %} checked {% endif %}
+                       class="form-check-input">
+                <label for="opinion_is_incorrect_answer" class="form-check-label">
+                    Некорректный ответ
+                </label>
+            </div>
+            {% csrf_token %}
+            {{form.errors}}
+        </div>
+   </div>
+</form>
+    <div class="answer-proposal"></div>
+{% comment %}
+Данный блок был исключен из обработки т.к. дальнейшая обработка аргументов пока не возможна -->
+<!--
+<div id="arguments-block">
+    <ul class="nav nav-tabs" id="arguments_nav-tabs" role="tablist">
+        <li class="nav-item args" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#args-{{answer.id}}" type="button"
+                    role="tab" aria-controls="home" aria-selected="true">
+                Аргументы
+            </button>
+        </li>
+        <li class="nav-item args counter-args" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#kargs-{{answer.id}}" type="button"
+                    role="tab" aria-controls="home" aria-selected="true">
+                Контраргументы
+            </button>
+        </li>
+    </ul>
+    <div class="tab-content" id="arguments_items">
+        <div class="tab-pane active show" role="tabpanel" id="args-{{answer.id}}">
+            <ul class="list-group">
+                {% for arg in answer.proposal.args %}
+                <li class="args list-group-item">
+                    {{arg}}
+                </li>
+                {% endfor %}
+                <li class="list-group-item p-0">
+                    <div class="input-group d-flex">
+                        <input type="text" name="new-argument" id="new_argument" class="args form-control w-75"
+                               placeholder="Новый аргумент">
+                        <button type="button" class="form-control btn btn-outline-primary flex-shrink-1">
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="tab-pane" role="tabpanel" id="kargs-{{answer.id}}">
+            <ul class="list-group">
+                {% for arg in answer.proposal.counter_args %}
+                <li class="args counter__args list-group-item">
+                    {{arg}}
+                </li>
+                {% endfor %}
+                <li class="list-group-item p-0">
+                    <div class="input-group d-flex">
+                        <input type="text" name="new-argument" id="new_counter_argument"
+                               class="args form-control w-75"
+                               placeholder="Новый контраргумент">
+                        <button type="button" class="form-control btn btn-outline-primary flex-shrink-1">
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<pre style="width: 500px; white-space: pre-wrap;">
+    {{proposal}}
+</pre>
+-->
+{% endcomment %}

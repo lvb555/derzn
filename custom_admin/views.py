@@ -1,5 +1,4 @@
 import io
-import sys
 from pathlib import Path
 from subprocess import run
 from tempfile import TemporaryDirectory
@@ -13,7 +12,7 @@ from drevo.templatetags.has_group import has_group
 
 @user_passes_test(lambda u: u.is_superuser or has_group(u, 'Readers'))
 def get_dump(request):
-    python_exe = sys.executable
+    python_exe = settings.PYTHONPATH
     manage_py = Path(settings.BASE_DIR) / 'manage.py'
     with TemporaryDirectory() as tempdirname:
         dump_filepath = f'{tempdirname}/dump.json'

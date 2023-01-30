@@ -7,7 +7,7 @@
             </h5>
         </a>
         <div>
-            {{ knowledge.content | safe | truncatewords_html:30}}
+            {{ knowledge.content | safe | truncatewords_html:knowledge_content_length }}
         </div>
     </div>
     <div class="col-12 col-lg-3">

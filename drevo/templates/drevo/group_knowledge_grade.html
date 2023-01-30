@@ -1,0 +1,305 @@
+{% extends 'drevo/base.html' %}
+{% load grades %}
+{% load knowledge_has_children %}
+{% load custom_humanize %}
+
+{% block title %}
+{% if request.GET.variant != '2' %}
+    Групповая оценка знания
+{% else %}
+    Групповая общая оценка знания
+{% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-between">
+        <div class="col-auto ">
+            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
+                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
+                        {{ knowledge.name }}
+                </i>           
+            </a>
+        </div>
+    </div>
+    <div class="row justify-content-between">
+        <div class="col-auto ">
+            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
+                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
+                        Оценка знания 
+                </i>           
+            </a>
+        </div>
+        {% if count_users %}
+        <div class="col-2 ">
+            <a style="margin-bottom:10px;" href="{% url 'grade_group_statistics' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Статистика оценок</a>
+            <a href="{% url 'grade_group_infographics' knowledge.id %}?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}" class="btn btn-secondary">Инфографика</a>
+        </div>
+        {% endif %}
+    </div>
+    <h2 class="my-2">
+        {% if request.GET.variant != '2' %}
+            Групповая оценка знания
+        {% else %}
+            Групповая общая оценка знания
+        {% endif %}
+    </h2>
+    <h3>
+        {% if request.GET.gender == 'M' %}
+            Пол: мужской
+            <br>
+        {% elif request.GET.gender == 'F' %}
+            Пол: женский
+            <br>
+        {% endif %}
+        {% if request.GET.min_age and request.GET.max_age and request.GET.min_age != '0' and request.GET.max_age != '0' %}
+            Возраст: от {{ request.GET.min_age }} до {{ request.GET.max_age }}
+        {% elif request.GET.min_age and request.GET.min_age != '0' %}
+            Возраст: от {{ request.GET.min_age }}
+        {% elif request.GET.max_age and request.GET.max_age != '0' %}
+            Возраст: до {{ request.GET.max_age }}
+        {% endif %}
+    </h3>
+
+    {% if not user.is_authenticated %}
+        <div class="col">
+            <div class="row">
+                <div class="card alert-warning my-4">
+                    <div class="card-body">
+                      <span class="card-text">
+                        <a href="{% url 'users:login' %}?next={{ request.path }}"
+                           style="text-decoration: none">Войдите</a>
+                        или
+                        <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                        чтобы поставить оценку.
+                      </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        {% if proof_relations %}
+            <div class="my-4">
+                <form action="{{ request.get_full_path }}" method="get" id="modeForm">
+                    <div class="d-flex flex-row align-items-center">
+                        <span><strong>Вариант расчета:</strong></span>
+                        <span class="ms-2">
+                        <fieldset id="variant" class="input-group">
+                            <span style="white-space: nowrap">
+                                <input class="ms-2" type="radio" id="var1" name="variant" value="1"
+                                        {% if request.GET.variant != '2' %} checked {% endif %}>
+                                <label for="var1">Оценка знания</label>
+                            </span>
+                            <span style="white-space: nowrap">
+                                <input class="ms-2" type="radio" id="var2" name="variant" value="2"
+                                        {% if request.GET.variant == '2' %} checked {% endif %}>
+                                <label for="var2">Общая оценка знания</label>
+                            </span>
+                        </fieldset>
+                    </span>
+                    </div>
+                    <div class="d-flex flex-row align-items-cent<input type='text' onkeypress='validate(event)' />er my-2">
+                        <span><strong>Пол:</strong></span>
+                        <span class="ms-2">
+                            <select name="gender">
+                                <option value=""
+                                {% if request.GET.gender == '' %} selected {% endif %}>
+                                    Все
+                                </option>
+                                <option value="M"
+                                {% if request.GET.gender == 'M' %} selected {% endif %}>
+                                    Мужской
+                                </option>
+                                <option value="F"
+                                {% if request.GET.gender == 'F' %} selected {% endif %}>
+                                    Женский
+                                </option>
+                            </select>
+                        </span>
+                    </div>
+                    <div class="d-flex flex-row align-items-center my-2">
+                        <span><strong>Возраст:</strong></span>
+                        <span class="ms-2">
+                            <span>от </span>
+                            <input type='text' onkeypress='validate(event)' name="min_age" style="width:50px;" 
+                                   value={% if not request.GET.min_age %}'0'{% else %} "{{ request.GET.min_age }}" {% endif %}/>
+                            <span> до </span>
+                            <input type='text' onkeypress='validate(event)' name="max_age" style="width:50px;" 
+                                   value={% if not request.GET.max_age %}'0'{% else %} "{{ request.GET.max_age }}" {% endif %}/>
+                        </span>
+                    </div>
+                    <button class="btn btn-secondary" type="submit">Рассчитать</button>
+                </form>
+            </div>
+        {% endif %}
+        <div class="my-4 d-flex flex-row align-items-center">
+            <span><strong>Число пользователей в группе: </strong></span>
+            <span class="ms-2">{{ count_users }}</span>
+        </div>
+
+        {% if count_users %}
+        <div id="gradeForm">
+            {% csrf_token %}
+            <input type="hidden" name="variant" readonly value="{{ request.GET.variant }}">
+            <table class="table-sm table-borderless"
+                   style="border-collapse: collapse; word-break: break-word;">
+                <tbody>
+                <tr>
+                    <th>Оценка знания:</th>
+                    {% if base_grade.name %}
+                    <td>
+                        {{ base_grade.name }}
+                    </td>
+                    {% endif %}
+                    <td id="currentGrade" style="width: 48px">
+                        {% if base_grade %}
+                            {{ base_grade.value|floatformat:-2 }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if proof_relations %}
+                    <tr>
+                        <th>Оценка доказательной базы:</th>
+                        {% if proof_base_grade.value %}
+                        <td>{{ proof_base_grade.name }}</td>
+                        <td>{{ proof_base_grade.value|floatformat:-2 }}</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <th>Общая оценка знания:</th>
+                        <td>{{ common_grade.name }}</td>
+                        <td>{{ common_grade.value|floatformat:-2 }}</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+
+            {% if proof_relations %}
+                <h4 class="text-center my-4">Доказательная база знания</h4>
+<!--                <div class="table-responsive" style="resize: horizontal;">-->
+                    <table class="table align-middle my-2" style="border-collapse: collapse; display: inline-block;">
+                        <style>
+                        .table-border {
+                            border: 2px black solid;
+                        }
+                        </style>
+                        <tbody class="table-border">
+                        <th class="table-border text-center">
+                            Знание
+                        </th>
+                        <th class="table-border text-center">
+                            Вид связи
+                        </th>
+                        <th colspan="2" class="table-border text-center">
+                            Оценка вклада довода
+                        </th>
+                        <th colspan="2" class="table-border text-center">
+                            Общая оценка знания
+                        </th>
+                        <th colspan="2" class="table-border text-center">
+                            Оценка знания
+                        </th>
+                        <th colspan="2" class="table-border text-center">
+                            Оценка связи
+                        </th>
+                        {% for relation in proof_relations %}
+                            <tr>
+                                <input type="hidden" name="relation_row" value="{{ relation.id }}">
+                                <td class="table-border" >
+                                    <div class="knowledge-title" style="max-width: 550px;">
+                                        {% if relation.knowledge|has_children %}
+                                        <a class="text-decoration-none" href="{{ relation.knowledge.get_absolute_url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
+                                                {{ relation.knowledge.name }}
+                                            </a>
+                                        {% else %}
+                                            <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}">
+                                                {{ relation.knowledge.name }}
+                                            </a>
+                                        {% endif %} 
+                                    </div>
+                                </td>
+                                <td class="table-border">
+                                    {{ relation.type_name|endings_filter }}
+                                </td>
+                                <td class="table-border">
+                                    {% if relation.proof_grade.value %}
+                                        {{ relation.proof_grade.name }}
+                                    {% else %}
+                                        <span class="item-missing" style="color: red">Нет оценки</span>
+                                    {% endif %}
+                                </td>
+                                <td class="table-border text-center">
+                                    {% if relation.proof_grade.value %}
+                                        {{ relation.proof_grade.value|floatformat:-2 }}
+                                    {% endif %}
+                                </td>
+                                <td class="table-border">
+                                    {% if not relation.common_grade.name %}
+                                        <span class="item-missing" style="color: red">Нет оценки</span>
+                                    {% else %}
+                                        {{ relation.common_grade.name }}
+                                    {% endif %}
+                                </td>
+                                <td class="table-border text-center">
+                                    {{ relation.common_grade.value|floatformat:-2 }}
+                                </td>
+                                <td class="table-border">
+                                    {% if not relation.knowledge_grade.name %}
+                                        <span class="item-missing" style="color: red">Нет оценки</span>
+                                    {% else %}
+                                        {{ relation.knowledge_grade.name }}
+                                    {% endif %}
+                                </td>
+                                <td class="table-border text-center">
+                                    {{ relation.knowledge_grade.value|floatformat:-2 }}
+                                </td>
+                                <td class="table-border">
+                                    {% if not relation.grade.name %}
+                                        <span class="item-missing" style="color: red">Нет оценки</span>
+                                    {% else %}
+                                        {{ relation.grade.name }}
+                                    {% endif %}
+                                </td>
+                                <td class="table-border text-center">
+                                    {{ relation.grade.value|floatformat:-2 }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+<!--                </div>-->
+            {% endif %}
+        </div>
+        {% endif %}
+    {% endif %}
+    <script>
+        function init() {
+            const selectCollection = document.getElementsByTagName('select');
+            const modeForm = document.getElementById('modeForm');
+
+            for (const selectCollectionElement of selectCollection) {
+                selectCollectionElement.addEventListener('input', function () {
+                    modeForm.submit();
+                });
+            }
+
+            const radioButtons = document.querySelectorAll('input[name=variant]');
+            for (const button of radioButtons) {
+                button.addEventListener('input', function () {
+                    modeForm.submit();
+                });
+            }
+        }
+        init();
+
+        function validate(evt) {
+            var theEvent = evt || window.event;
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+            var regex = /[0-9]|\./;
+            if( !regex.test(key) ) {
+                theEvent.returnValue = false;
+                if(theEvent.preventDefault) theEvent.preventDefault();
+            }
+        }
+    </script>
+{% endblock %}

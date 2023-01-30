@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -5,16 +7,17 @@ from django.forms import modelformset_factory
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, DetailView
-from ...models import Relation, Tz, Author, Tr
+from django.utils.timezone import now
+from django.views.generic import ListView, DetailView, UpdateView, RedirectView
+from ...models import Relation, Tz, Author, Tr, CategoryExpert
 from ...models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from ...models.knowledge import Znanie
+from ...models.interview_results_schedule import InterviewResultsSendingSchedule
+from ...models.settings_options import SettingsOptions
 from ...forms.admin_interview_work_form import InterviewAnswerExpertProposalForms
-from .interview_result_senders import (send_duplicate_answer_proposal,
-                                       send_accept_proposal,
-                                       send_not_accept_proposal,
-                                       send_duplicate_proposal,
-                                       send_new_answers)
+from .interview_result_senders import InterviewResultSender
+from ...forms.knowledge_form import ZnanieForm
+from datetime import date
 
 
 def chek_is_stuff(user) -> None:
@@ -77,7 +80,7 @@ class InterviewQuestionsView(DetailView):
         tz_obj = Tz.objects.get(name='Вопрос')
         questions = Relation.objects.select_related('rz').filter(
             Q(bz=self.object) & Q(rz__tz=tz_obj)
-        ).order_by('rz__name', 'rz__order').values('rz', 'rz__name')
+        ).order_by('-rz__order', 'rz__name').values('rz', 'rz__name')
 
         data = []
 
@@ -103,15 +106,31 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     """
     chek_is_stuff(request.user)
     context = dict()
-    interview = Znanie.objects.values('pk', 'name').get(pk=inter_pk)
-    context['interview_name'] = interview.get('name')
+    interview = Znanie.objects.get(pk=inter_pk)
+    context['interview'] = interview
     period = Relation.objects.select_related('tr', 'rz').filter(
-        Q(bz__pk=interview.get('pk')) & Q(tr__name='Период интервью')
+        Q(bz__pk=interview.pk) & Q(tr__name='Период интервью')
     ).first().rz.name
 
-    question = Znanie.objects.values('name').get(pk=quest_pk)
-    context['question_name'] = question.get('name')
+    question = Znanie.objects.values('pk', 'name').get(pk=quest_pk)
+    context['question'] = question
     context['period'] = f"с {period}".replace('-', 'по')
+
+    start_day, start_month, start_year = period.replace('-', ' ').split(' ')[0].split('.')
+    start_date = date(int(f'20{start_year}'), int(start_month), int(start_day))
+    context['interview_start_date'] = start_date
+
+    if not InterviewResultsSendingSchedule.objects.filter(interview=interview).exists():
+        interview_schedule = InterviewResultsSendingSchedule(interview=interview)
+        interview_schedule.is_interview()
+        interview_schedule.save()
+    else:
+        interview_schedule = InterviewResultsSendingSchedule.objects.get(interview=interview)
+
+    if now() >= interview_schedule.next_sending:
+        context['mailing_available'] = True
+    context['last_sending'] = interview_schedule.last_sending
+
     context['cur_filter'] = request.GET.get('filter')
 
     answers = Relation.objects.select_related('rz', 'tr').filter(
@@ -149,6 +168,11 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                 # Проверка на наличие изменений в записи
                 if form.old_status is not None:
                     continue
+
+                # На случай если эксперт был уведомлён о предложении, когда она было не обработано, необходимо вернуть
+                # is_notified в False, так как теперь оно обработано и необходимо оповестить об этом эксперта
+                if obj.is_notified:
+                    obj.is_notified = False
 
                 # Если админ изменил статус на "Принят",
                 # то создаётся новое знание и связь на основе введённых админом данных
@@ -190,39 +214,52 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     obj.new_answer = new_knowledge
                     if obj.is_agreed:
                         obj.answer = new_knowledge
-                    send_accept_proposal(proposal_obj=obj)
+                    obj.admin_reviewer = request.user
+                    obj.save()
+                    redirect_url = reverse(
+                        'admin_knowledge_edit',
+                        kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk, 'znanie_pk': new_knowledge.pk}
+                    )
+                    return redirect(redirect_url)
 
                 # Если админ указал только ответ из списка существующих/новых ответов, то статус устанавливается сам,
                 if not status and answer:
                     # Если дата создания выбранного ответа меньше даты создания
-                    # предложения эксперта, то статус "Дублирует ответ", иначе "Дублирует предложение"
-                    obj.status = 'ANSDPL' if answer.date < form.instance.updated.date() else 'RESDPL'
+                    # интервью, то статус "Дублирует ответ", иначе "Дублирует предложение"
+                    obj.status = 'ANSDPL' if answer.date <= start_date else 'RESDPL'
                     obj.duplicate_answer = answer
+
+                if ((form.old_status != status) and status == 'REJECT') and obj.is_agreed:
+                    # Если эксперт выбрал свой ответ и он был отклонён,
+                    # то устанавливаем связь его ответа со знанием 'Другое'
+
+                    # Создаём знание "Другое" если его нет
+                    other_obj, _ = Znanie.objects.get_or_create(
+                        name='Другое',
+                        tz=Tz.objects.get(name='Другое'),
+                        user=request.user,
+                        is_published=True
+                    )
+                    # Устанавливаем связь знания "Другое" с вопросом
+                    if not Relation.objects.filter(bz=obj.question, rz=other_obj, user=obj.expert).exists():
+                        author, _ = Author.objects.get_or_create(name=obj.expert.get_full_name)
+                        Relation.objects.update_or_create(
+                            bz=obj.question,
+                            rz=other_obj,
+                            tr=Tr.objects.get(name='Ответ [ы]'),
+                            author=author,
+                            user=obj.expert,
+                            is_published=True
+                        )
 
                 obj.admin_reviewer = request.user
                 obj.save()
 
-                send_if_status = {
-                    'REJECT': send_not_accept_proposal,
-                    'ANSDPL': send_duplicate_answer_proposal,
-                    'RESDPL': send_duplicate_proposal
-                }
-
-                if obj.status in send_if_status.keys():
-                    send_func = send_if_status.get(obj.status)
-                    send_func(proposal_obj=obj)
-
-            def start_mass_mail_sending():
-                if 'save_input' not in request.POST:
-                    return
-                proposals = InterviewAnswerExpertProposal.objects.select_related('expert', 'new_answer').filter(
-                    question__pk=quest_pk, interview__pk=inter_pk)
-                if proposals.filter(status='APPRVE').exists():
-                    send_new_answers(interview.get('name'), question.get('name'), proposals)
-
-            # Если по вопросу имеется новый ответ/ответы, то происходит рассылка участникам интервью по данному вопросу
-            start_mass_mail_sending()
-
+            if 'save_input' in request.POST:
+                request.session['is_saved'] = True
+            if now() >= interview_schedule.next_sending:
+                redirect_url = f"{reverse('admin_notify_experts', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
+                return redirect(redirect_url)
             redirect_url = f"{reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})}"
             if context.get('cur_filter'):
                 get_params = f"?filter={context.get('cur_filter')}"
@@ -236,5 +273,96 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     context['questions'] = list(zip(queryset, formset))
     context['formset'] = formset
     context['backup_url'] = reverse_lazy('interview_quests', kwargs={'pk': inter_pk})
-    context['props_without_status'] = queryset.filter(status__isnull=True).exists()
+
+    if 'is_saved' in request.session.keys():
+        context['is_saved'] = request.session['is_saved']
+        del request.session['is_saved']
+    if 'is_notified' in request.session.keys():
+        context['is_notified'] = request.session['is_notified']
+        del request.session['is_notified']
     return render(request, 'drevo/admin_interview_work_page/question_admin_work.html', context)
+
+
+class AdminEditingKnowledgeView(UpdateView):
+    """
+        Представление для старницы редактирования знания, созданного на основе предложения эксперта
+    """
+    model = Znanie
+    template_name = 'drevo/admin_interview_work_page/editing_knowledge.html'
+    form_class = ZnanieForm
+    pk_url_kwarg = 'znanie_pk'
+
+    def get_success_url(self):
+        inter_pk, quest_pk = self.kwargs.get('inter_pk'), self.kwargs.get('quest_pk')
+        return reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})
+
+    def dispatch(self, request, *args, **kwargs):
+        chek_is_stuff(request.user)
+        return super(AdminEditingKnowledgeView, self).dispatch(request, *args, **kwargs)
+
+    def get_form(self, form_class=None):
+        form = super(AdminEditingKnowledgeView, self).get_form()
+        for field in form.fields.keys():
+            if field not in ['is_published', 'is_send', 'show_link']:
+                form.fields[field].widget.attrs['class'] = 'form-control'
+        return form
+
+    def get_context_data(self, **kwargs):
+        context = super(AdminEditingKnowledgeView, self).get_context_data(**kwargs)
+        interview = Znanie.objects.get(pk=self.kwargs.get('inter_pk'))
+        question = Znanie.objects.get(pk=self.kwargs.get('quest_pk'))
+        context['knowledge_name'] = self.object.name
+        context['interview_name'] = interview.name
+        context['question_name'] = question.name
+        return context
+
+
+class NotifyExpertsView(RedirectView):
+    """
+        Представление для начала рассылки о результатах интервью
+    """
+    def get_redirect_url(self, *args, **kwargs):
+        inter_pk, quest_pk = self.kwargs.get('inter_pk'), self.kwargs.get('quest_pk')
+        return reverse('question_admin_work', kwargs={'inter_pk': inter_pk, 'quest_pk': quest_pk})
+
+    def get(self, request, *args, **kwargs):
+        inter_pk, quest_pk = self.kwargs.get('inter_pk'), self.kwargs.get('quest_pk')
+        interview_obj = Znanie.objects.select_related('category').get(pk=inter_pk)
+
+        # Получаем все обработанные и необработанные предложения,
+        # которые были у данного интервью и c неотправленными уведомлениями
+        proposals = InterviewAnswerExpertProposal.objects.select_related('expert', 'new_answer', 'question').filter(
+            Q(interview__pk=inter_pk) & Q(is_notified=False)
+        ).order_by('question__name', '-updated')
+
+        if proposals.exists():
+            # Получаем категорию(компетенцию интервью) и всех экспертов данной компетенции
+            inter_competence = interview_obj.category
+            experts = [
+                cat_exp.expert
+                for cat_exp in
+                CategoryExpert.objects.select_related('expert').filter(categories__pk=inter_competence.pk)
+            ]
+
+            sender = InterviewResultSender(
+                experts=experts,
+                proposals=proposals,
+                interview=interview_obj
+            )
+            if sender.start_mailing():
+                notified_proposals = list()
+                for obj in proposals:
+                    obj.is_notified = True
+                    notified_proposals.append(obj)
+                InterviewAnswerExpertProposal.objects.bulk_update(notified_proposals, ['is_notified'])
+                request.session['is_notified'] = True
+                schedule = InterviewResultsSendingSchedule.objects.get(interview__pk=inter_pk)
+                # Увеличиваем время следующей рассылки на NOT_MORE_OFTEN часов
+                not_more_often, _ = SettingsOptions.objects.get_or_create(
+                    name='Не чаще (часов)',
+                    admin=True,
+                    defaults={'default_param': '1'},
+                )
+                schedule.next_sending = now() + datetime.timedelta(hours=int(not_more_often.default_param))
+                schedule.save()
+        return super(NotifyExpertsView, self).get(request, *args, **kwargs)

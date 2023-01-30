@@ -1,3 +1,5 @@
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import DetailView
 from datetime import datetime
 from drevo.models.label_feed_message import LabelFeedMessage
@@ -20,12 +22,16 @@ class ZnanieDetailView(DetailView):
     """
     model = Znanie
     context_object_name = 'znanie'
+    template_name = 'drevo/znanie_detail.html'
 
-    def get_template_names(self):
+    def get(self, *args, **kwargs):
+        """
+        Если знание является тестом - перенаправляет по другой ссылке
+        """
+        self.object = self.get_object()
         if self.object.tz in Tz.objects.filter(name='Тест'):
-            return ['drevo/quiz_detail.html']
-        else:
-            return ['drevo/znanie_detail.html']
+            return redirect('quiz', pk=self.object.pk)
+        return super(ZnanieDetailView, self).get(*args, **kwargs)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
@@ -86,7 +92,7 @@ class ZnanieDetailView(DetailView):
         context['categories'] = categories
         context['chain'] = get_ancestors_for_knowledge(knowledge)
         context['siblings'] = get_siblings_for_knowledge(knowledge)
-        # context['children'] = get_children_for_knowledge(knowledge)
+        context['children'] = get_children_for_knowledge(knowledge)
         context['children_by_tr'] = get_children_by_relation_type_for_knowledge(
             knowledge)
         context['visits'] = Visits.objects.filter(
@@ -114,28 +120,8 @@ class ZnanieDetailView(DetailView):
         context['button'] = []
         if context['children_by_tr']:
             for relation, children in context['children_by_tr'].items():
-                if relation.pk == 24:
+                if relation.name == 'Тест':
                     context['button'].append(children)
-
-        # создает контекст, в котором "внуки" знания, если это знание - тест
-        if self.object.tz in Tz.objects.filter(name='Тест'):
-
-            context['all_answers_and_questions'] = {}
-            context['right_answer'] = {}
-            for relation_name, relations in context['rels']:
-
-                for item in relations:
-
-                    context['all_answers_and_questions'][str(item.rz)] = get_children_for_knowledge(
-                        item.rz).order_by('-pk')
-                    grandson = get_children_by_relation_type_for_knowledge(
-                        item.rz)
-
-                    for question, answer in grandson.items():
-                        if question.pk == 26:
-                            context['right_answer'][str(item.rz)] = answer
-            context['all_answers_and_questions'] = dict(sorted(context['all_answers_and_questions'].items(),
-                                                               key=lambda a: a, reverse=True))
 
         labels = LabelFeedMessage.objects.all()
         context['labels'] = labels
@@ -152,6 +138,8 @@ class ZnanieDetailView(DetailView):
 
         # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
         except TypeError:
+            pass
+        except User.DoesNotExist:
             pass
 
         return context
