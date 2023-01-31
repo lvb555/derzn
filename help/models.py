@@ -1,4 +1,6 @@
 from django.db import models
+from django.urls import reverse
+from mptt.managers import TreeManager
 from mptt.models import TreeForeignKey, MPTTModel
 
 
@@ -53,12 +55,29 @@ class Help(MPTTModel):
         verbose_name='Группа'
     )
 
+    objects = models.Manager()
+    tree_objects = TreeManager()
+
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = 'Раздел помощь'
         verbose_name_plural = 'Разделы помощи'
+
+    def get_absolute_url(self):
+        return reverse('help', kwargs={"pk": self.pk})
+
+    def has_published_children(self) -> bool():
+        """
+        Возвращает True, если среди потомков объекта имеются опубликованные,
+        False в противном случае.
+        """
+        children = self.get_children()
+        for child in children:
+            if child.is_published:
+                return True
+        return False
 
     class MPTTMeta:
         order_insertion_by = ['name']
