@@ -48,7 +48,7 @@ def friends_added_view(request):
         current_page = 1
 
     exclude_ids = [request.user.id]
-    profiles = Profile.objects.exclude(id__in = exclude_ids)
+    profiles = Profile.objects.exclude(id__in=exclude_ids)
 
     for profile in profiles:
         user = profile.user
