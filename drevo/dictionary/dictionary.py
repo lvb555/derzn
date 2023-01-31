@@ -1,4 +1,5 @@
 import pickle
+import pickle as Cpickle
 
 class Dictionary:
     def __init__(self, read_only=False, **params):
