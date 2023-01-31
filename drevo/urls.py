@@ -53,6 +53,7 @@ from .views.admin_interview_work.views import (
     AdminEditingKnowledgeView,
     NotifyExpertsView,
 )
+from .views.interview_and_proposal import my_interview, my_proposal
 from .views.my_favourites import my_favourites
 from .views.my_knowledge import my_knowledge, my_preknowledge, my_expertise
 from .views.public_people import public_people_view, public_human
@@ -113,6 +114,8 @@ urlpatterns = [
     path("my_knowledge/<int:id>/", my_knowledge, name="my_knowledge"),
     path("my_preknowledge/<int:id>/", my_preknowledge, name="my_preknowledge"),
     path("my_expertise/<int:id>/", my_expertise, name="my_expertise"),
+    path("my__interview/<int:id>/", my_interview, name="my_interview_profile"),
+    path("my_proposal/<int:id>/", my_proposal, name="my_proposal"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
     path(

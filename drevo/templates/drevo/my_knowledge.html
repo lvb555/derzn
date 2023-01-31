@@ -17,7 +17,7 @@
     <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
-          <li class="breadcrumb-item"><a {% if link == 'users:myprofile' %} href="{% url link %}" {% else %}
+          <li class="breadcrumb-item"><a {% if link == 'users:myprofile' %} href="{% url 'users:my_profile' %}" {% else %}
               href="{% url link id %}" {% endif %}>Профиль</a></li>
           <li class="breadcrumb-item"><a>Активность</a></li>
           <li class="breadcrumb-item"><a>{{under_title}}</a></li>

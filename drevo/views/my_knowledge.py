@@ -93,6 +93,6 @@ def my_expertise(request, id):
                 get_knowledges_by_categories(knowledges_of_expert)
             context['znanie_tree'] = context['categories'].get_ancestors(include_self=True)
             context['var'] = variables
-            context['title'] = 'Моя экспертиза'
+            context['title'] = 'Мои экспертизы'
             context['under_title'] = 'Мой вклад, как эксперта'
             return render(request, 'drevo/my_knowledge.html', context)

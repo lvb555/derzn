@@ -103,8 +103,11 @@
                                             <a href="{% url 'favourites' %}" id="favourites_link">Подписки</a>
                                         </div>
                                         <div class="dropdown-item" style="display:flex; justify-content: space-between;">
-                                            <a href="{% url 'users:myprofile' %}">Редактировать профиль</a>
+                                            <a href="{% url 'users:myprofile' %}">Личные данные</a>
                                             <a href="{% url 'parameter_settings' %}"><i class="bi bi-gear"></i></a>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="{% url 'users:my_profile' %}">Профиль</a>
                                         </div>
                                         <div class="dropdown-item exit-button">
                                             <a class="btn btn-outline-light" aria-current="page" href="{% url 'users:logout' %}">

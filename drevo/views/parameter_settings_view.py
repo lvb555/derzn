@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+
+from users.models import User
 from ..models import UserParameters
 
 
@@ -34,6 +36,8 @@ def parameter_settings(request):
     context['categories'] = set(
         user_setting.param.category.name for user_setting in user_settings if user_setting.param.category
     )
+    user = User.objects.get(id=request.user.id)
+    context['user'] = user
     filter_value = request.GET.get('filter')
     if filter_value:
         context['settings'] = user_settings.filter(param__category__name=filter_value)
