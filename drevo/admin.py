@@ -1,6 +1,7 @@
 from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin
 from django.db.models import Q
+from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
@@ -47,7 +48,7 @@ from .models import (
     SettingsOptions,
     UserParameters,
     ParameterCategories
-    )
+)
 from .services import send_notify_interview
 
 
@@ -358,6 +359,7 @@ class CommentAdmin(admin.ModelAdmin):
 
 admin.site.register(Comment, CommentAdmin)
 
+
 class QuizResultAdmin(admin.ModelAdmin):
     readonly_fields = (
         "quiz",
@@ -372,6 +374,7 @@ class QuizResultAdmin(admin.ModelAdmin):
 
 
 admin.site.register(QuizResult, QuizResultAdmin)
+
 
 class KnowledgeGradeScaleAdmin(admin.ModelAdmin):
     list_display = (
@@ -524,6 +527,7 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
     def answer_link(self, obj):
         return self.link_to_knowledge_change(obj.answer)
 
+
 class DeveloperAdmin(admin.ModelAdmin):
     list_display = ("name", "surname", "contribution", "comment", "admin")
     fields = ("name", "surname", "contribution", "comment", "admin")
@@ -532,7 +536,9 @@ class DeveloperAdmin(admin.ModelAdmin):
         kwargs["form"] = DeveloperForm
         return super().get_form(request, obj, **kwargs)
 
+
 admin.site.register(Developer, DeveloperAdmin)
+
 
 @admin.register(InterviewResultsSendingSchedule)
 class InterviewResultsSendingScheduleAdmin(admin.ModelAdmin):
@@ -547,9 +553,13 @@ admin.site.register(FriendsInviteTerm)
 admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
 admin.site.register(AgeUsersScale)
+
+
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
     list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)
+    autocomplete_fields = ['knowledge']
+    search_fields = ['knowledge__name']
 
 
 @admin.register(SettingsOptions)
