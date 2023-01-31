@@ -175,6 +175,121 @@
             </nav>
         </div>
     </div>
+    <div class="container-fluid header-bottom" style="background-color: #FFFFFF; height: 104px;">
+        <div class="container" style="display: grid; align-content: center; height: 100%;">
+            <div class="container-fluid row p-0">
+                <div class="col-auto me-auto">
+                    <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+                        <li class="nav-item row">
+                            <div class="logo me-2 col-auto">
+                                <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
+                                    <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height='46px' alt="logo-tree">
+                                </a>
+                            </div>
+                            <div class="col p-0">
+                                <div class="header-bottom-title">
+                                    Дерево знаний
+                                </div>
+                                <div class="header-bottom-subtitle">
+                                    Научно-образовательный проект
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col row mb-2 mb-lg-0 ms-auto" style="justify-content: end;">
+                    <div class="nav-item mx-2 col-auto">
+                        <a class="nav-link auto_active_link" href="{% url 'knowledge' %}" id="tree_link">Дерево знаний</a>
+                    </div>
+                    <div class="nav-item mx-2 col-auto">
+                        <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
+                           id="authors_link">Авторы знаний</a>
+                    </div>
+                    <div class="nav-item mx-2 col-auto">
+                        <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
+                    </div>
+<!--                    <div class="nav-item mx-2 col-auto">-->
+<!--                        <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Подготовка знаний</a>-->
+<!--                    </div>-->
+                    <div class="nav-item mx-2 col-auto dropdown">
+                        <a class="dropdown-toggle nav-link" href="#" role="button" id="dropdownMenuLink"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            Подготовка знаний</a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <li><a class="dropdown-item" href="{% url 'znanie_create' %}"
+                                   id="znanie_create">
+                                {% if user.is_expert %}
+                                Создание Знания
+                                {% else %}
+                                Создание ПредЗнания
+                                {% endif %}
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'znanie_user_process' %}"
+                                   id="znanie_list">
+                                {% if user.is_expert %}
+                                Изменение Знания
+                                {% else %}
+                                Изменение ПредЗнания
+                                {% endif %}
+                            </a></li>
+                            {% if user.is_expert %}
+                            <li><a class="dropdown-item"
+                                   href="{% url 'znanie_expert_process' %}"
+                                   id="znanie_process_exp">Экспертиза ПредЗнания</a>
+                            </li>
+                            {% endif %}
+                            {% if user.is_redactor %}
+                            <li><a class="dropdown-item"
+                                   href="{% url 'znanie_redactor_process' %}"
+                                   id="znanie_process_red">Редактирование ПредЗнания и Знания</a>
+                            </li>
+                            {% endif %}
+                            {% if user.is_director %}
+                            <li><a class="dropdown-item"
+                                   href="{% url 'znanie_director_process' %}"
+                                   id="znanie_process_dir">Публикация ПредЗнания и Знания</a>
+                            </li>
+                            {% endif %}
+                            {% if user.in_klz %}
+                            <li><a class="dropdown-item" href="{% url 'klz' %}"
+                                   id="znanie_process">Клуб любителей знания (КЛЗ)</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% if user.is_active and user.is_staff %}
+                    <div class="nav-item col-auto">
+                        <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель управления</a>
+                    </div>
+                    {% endif%}
+                    <div class="nav-item mx-2 col-auto px-2 dropdown">
+                            <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
+                            <div class="dropdown-menu p-3">
+                                <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a>
+                                <a class="dropdown-item" href="{% url 'all_quizzes' %}" id="all_quizzes_link">Тесты</a>
+                                <a class="dropdown-item" href="{% url 'public_people' %}" id="public_people">Публичные люди</a>
+                                {% if user.is_authenticated %}
+                                    <a class="dropdown-item" href="{% url 'history' %}" id="history_link">История просмотров</a>
+                                    <a class="dropdown-item" href="{% url 'favourites' %}"
+                                       id="favourites_link">Избранное</a>
+                                    <a class="dropdown-item" href="{% url 'friends' %}" id="friends_link">Друзья</a>
+                                    {% if user.expert.all %}
+                                        <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
+                                        <a class="dropdown-item" href="{% url 'filling_tables' %}" id="filling_tables">Наполнение таблиц</a>
+                                    {% endif %}
+                                    {% if user.is_staff %}
+                                        <a class="dropdown-item" href="{% url 'all_interview' %}">Предложения экспертов</a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Navigation bar end -->
 
 <div class="container-fluid px-0">

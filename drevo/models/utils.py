@@ -18,5 +18,4 @@ def get_model_or_stub(model):
         model.objects.exists()
         return model
     except (OperationalError, ProgrammingError):
-    except (OperationalError, ProgrammingError):
         return Stub()

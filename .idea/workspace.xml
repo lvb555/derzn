@@ -2,37 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b8b56e24-a53d-445a-99f4-2340a53fe448" name="Changes" comment="Задача 334">
-      <change afterPath="$PROJECT_DIR$/drevo/static/drevo/js/extended_search.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/drevo/views/author_search_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/forms/knowledge_form.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/forms/knowledge_form.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/forms/knowledge_search_form.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/forms/knowledge_search_form.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/forms/select_with_input.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/forms/select_with_input.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/author.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/author.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/author_type.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/author_type.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/category.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/category.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/comment.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/comment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/glossary.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/glossary.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/ip.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/ip.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/knowledge.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/knowledge.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/knowledge_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/knowledge_image.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/knowledge_kind.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/knowledge_kind.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/knowledge_rating.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/knowledge_rating.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/label.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/label.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/relation.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/relation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/relation_type.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/relation_type.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/models/visits.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/visits.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/templates/drevo/knowledge.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/templates/drevo/knowledge_search.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/templates/drevo/search.html" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/templates/drevo/search.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/templates/drevo/search_card_author.html" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/templates/drevo/search_card_author.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/templates/drevo/search_card_knowledge.html" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/templates/drevo/search_card_knowledge.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/drevo/models/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/drevo/templates/drevo/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/templates/drevo/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/drevo/templates/drevo/filling_tables.html" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/templates/drevo/filling_tables.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/drevo/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/views/KnowledgeSearchView.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/views/KnowledgeSearchView.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/views/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/views/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/views/search_engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/views/search_engine.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/drevo/views/filling_tables.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/views/filling_tables.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,6 +41,9 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2I08U7rvjHHuY2PVOJ4lQgt4Bpp" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -198,6 +177,7 @@
       <workItem from="1674809572292" duration="3394000" />
       <workItem from="1674889306043" duration="4696000" />
       <workItem from="1674906053745" duration="706000" />
+      <workItem from="1675171986754" duration="1574000" />
     </task>
     <task id="LOCAL-00001" summary="Задача 334">
       <created>1674902907879</created>
