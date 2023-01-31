@@ -1,24 +1,24 @@
 {% extends 'drevo/base.html' %}
 {% load mptt_tags %}
-{% block title %}{{ context.header }}{% endblock %}
+{% block title %}{{ context.name }}{% endblock %}
 
 {% block content %}
-<h1 class="h1-drevo my-3">{{ context.header }}</h1>
+<!--<h1 class="h1-drevo my-3">{{ context.header }}</h1>-->
 
-<ul class="root ps-0" id="tree_root" style="float:right;">
-  <h3 class="h1-drevo my-3" style="float:right;"> Меню Помощи</h3>
-  {% recursetree nodes %}
-    <li style="font-weight: 400;"><i class="bi-file-text-fill" style="color: #99CCFF;"></i>
-		  <a href="{{ node.get_absolute_url }}">{{node.name}}</a>
-	  {% if not node.is_leaf_node %}
-      <ul class="children">{{ children }}</ul>
-		{% endif %}
-	    </li>
-	{% endrecursetree %}
-</ul>
-<div class="row">
-  <div class="col">
-    {{ context.content | safe }}
-  </div>
-</div>
+<!--<ul class="root ps-0" id="tree_root" style="float:right;">-->
+<!--  <h3 class="h1-drevo my-3" style="float:right;"> Меню Помощи</h3>-->
+<!--  {% recursetree nodes %}-->
+<!--    <li style="font-weight: 400;"><i class="bi-file-text-fill" style="color: #99CCFF;"></i>-->
+<!--		  <a href="{{ node.get_absolute_url }}">{{node.name}}</a>-->
+<!--	  {% if not node.is_leaf_node %}-->
+<!--      <ul class="children">{{ children }}</ul>-->
+<!--		{% endif %}-->
+<!--	    </li>-->
+<!--	{% endrecursetree %}-->
+<!--</ul>-->
+<!--<div class="row">-->
+<!--  <div class="col">-->
+<!--    {{ context.content | safe }}-->
+<!--  </div>-->
+<!--</div>-->
 {% endblock %}

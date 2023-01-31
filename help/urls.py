@@ -1,9 +1,7 @@
 from django.urls import path
-# from .views import CategoryListView
-
-from . import views
+from .views import help_view
 
 urlpatterns = [
-    path("", views.help, name="help"),
-    path("<str:category>", views.help, name="help"),
+    path('', help_view, name="help_page"),
+    path('<path:tag>', help_view, name="help_page"),
 ]
