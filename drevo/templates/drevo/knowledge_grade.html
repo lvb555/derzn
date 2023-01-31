@@ -1,5 +1,6 @@
 {% extends 'drevo/base.html' %}
 {% load grades %}
+{% load knowledge_has_children %}
 {% load custom_humanize %}
 
 {% block title %}
@@ -7,15 +8,38 @@
 {% endblock %}
 
 {% block content %}
-    <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
-        <div class="row">
-            <div class="col-auto">
+    <div class="row justify-content-between">
+        <div class="col-auto ">
+            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
                 <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
-                    {{ knowledge.name }}
-                </i>
-            </div>
+                        {{ knowledge.name }}
+                </i>           
+            </a>
         </div>
-    </a>
+        {% if not father_knowledge %}
+        <div class="col-2 ">
+            <a style="margin-bottom:10px;" href="{% url 'grade_statistic' knowledge.id %}" class="btn btn-secondary">Статистика оценок</a>
+            <a href="{% url 'group_knowledge' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Групповая оценка знания</a>
+            <a style="margin-top:10px;" href="{% url 'grade_infographics' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Инфографика</a>
+        </div>
+        {% endif %}
+    </div>
+    {% if father_knowledge %}
+    <div class="row justify-content-between">
+        <div class="col-auto ">
+            <a class="text-decoration-none" href="{{ father_knowledge.bz.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
+                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
+                        Назад
+                </i>           
+            </a>
+        </div>
+        <div class="col-2 ">
+            <a style="margin-bottom:10px;" href="{% url 'grade_statistic' knowledge.id %}" class="btn btn-secondary">Статистика оценок</a>
+            <a href="{% url 'group_knowledge' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Групповая оценка знания</a>
+            <a style="margin-top:10px;" href="{% url 'grade_infographics' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Инфографика</a>
+        </div> 
+    </div>
+    {% endif %}
     <h2 class="my-2">{{ title }}</h2>
 
     {% if not user.is_authenticated %}
@@ -44,12 +68,12 @@
                         <fieldset id="variant" class="input-group">
                             <span style="white-space: nowrap">
                                 <input class="ms-2" type="radio" id="var1" name="variant" value="1"
-                                        {% if request.GET.variant == '1' %} checked {% endif %}>
+                                        {% if request.GET.variant != '2' %} checked {% endif %}>
                                 <label for="var1">Оценка знания</label>
                             </span>
                             <span style="white-space: nowrap">
                                 <input class="ms-2" type="radio" id="var2" name="variant" value="2"
-                                        {% if request.GET.variant != '1' %} checked {% endif %}>
+                                        {% if request.GET.variant == '2' %} checked {% endif %}>
                                 <label for="var2">Общая оценка знания</label>
                             </span>
                         </fieldset>
@@ -119,7 +143,7 @@
                             Вид связи
                         </th>
                         <th colspan="2" class="table-border text-center">
-                            Оценка довода
+                            Оценка вклада довода
                         </th>
                         <th colspan="2" class="table-border text-center">
                             Общая оценка знания
@@ -135,9 +159,15 @@
                                 <input type="hidden" name="relation_row" value="{{ relation.id }}">
                                 <td class="table-border" >
                                     <div class="knowledge-title" style="max-width: 550px;">
-                                        <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}">
-                                            {{ relation.rz.name }}
-                                        </a>
+                                        {% if relation.rz|has_children %}
+                                            <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
+                                                {{ relation.rz.name }}
+                                            </a>
+                                        {% else %}
+                                            <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}">
+                                                {{ relation.rz.name }}
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 </td>
                                 <td class="table-border">

@@ -1,0 +1,37 @@
+---
+- name: install provided dump
+  hosts: test
+  tasks:
+    - name: flush all other tables
+      community.general.django_manage:
+        command: flush
+        virtualenv: '{{ virtualenv_dir }}'
+        project_path: '{{ project_root }}'
+      tags: [flush]
+
+    - name: flush contenttypes
+      community.general.django_manage:
+        command: "shell -c 'import os; print(os.environ.get(\"DB_URL\")); from django.contrib.contenttypes.models import ContentType; ContentType.objects.all().delete()'"
+        virtualenv: '{{ virtualenv_dir }}'
+        project_path: '{{ project_root }}'
+      tags: [flush]
+
+    - name: transfer dump
+      ansible.builtin.copy:
+        src: '{{ local_dump_file }}'
+        dest: '{{ dump_file }}'
+
+    - name: loaddump
+      community.general.django_manage:
+        command: loaddata
+        project_path: '{{ project_root }}'
+        fixtures: '{{ dump_file }}'
+        virtualenv: '{{ virtualenv_dir }}'
+  vars:
+    site_root: '/var/www/u1353596/data/www/derzn.ru'
+    project_root: '{{ site_root }}/dz'
+    virtualenv_dir: '{{ site_root }}/venv'
+    dump_file: '{{ site_root }}/prod.dump.json'
+
+  environment:
+    PATH: '{{ ansible_env.PATH }}:/var/www/u1353596/data/.local/bin/'

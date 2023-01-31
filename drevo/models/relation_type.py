@@ -15,7 +15,7 @@ class Tr(models.Model):
     )
 
     title = 'Вид связи'
-    name = models.CharField(max_length=256,
+    name = models.CharField(max_length=255,
                             verbose_name='Название',
                             unique=True
                             )

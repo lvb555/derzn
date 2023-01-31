@@ -11,20 +11,29 @@ class UserModelForm(forms.ModelForm):
         widget=forms.EmailInput(attrs={'readonly': True}),
         label='Адрес эл. почты'
     )
-    # first_name = forms.CharField(
-    #     widget=forms.TextInput(),
-    #     label='Имя',
-    #     required=False,
-    # )
-    # last_name = forms.CharField(
-    #     widget=forms.TextInput(),
-    #     label='Фамилия',
-    #     required=False,
-    # )
+    first_name = forms.CharField(
+        widget=forms.TextInput(),
+        label='Имя',
+        required=False,
+    )
+    last_name = forms.CharField(
+        widget=forms.TextInput(),
+        label='Фамилия',
+        required=False,
+    )
+    is_public = forms.BooleanField(
+        widget=forms.CheckboxInput(),
+        required=False,
+    )
+    job = forms.CharField(
+        widget=forms.TextInput(),
+        label='Профессия',
+        required=False,
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name')
+        fields = ('username', 'email', 'first_name', 'last_name', 'is_public', 'job')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

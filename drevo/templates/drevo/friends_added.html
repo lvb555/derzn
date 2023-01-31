@@ -1,65 +1,468 @@
 {% extends 'drevo/base.html' %}
 
+{% load static %}
+
 {% block title %}Добавить друга{% endblock %}
 
 {% block content %}
 
-<h2>Добавить друга</h2>
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
+{% endblock %}
 
-<div class="col-md-7">
-    <div class="friends_input me-1 mb-1 mt-3">
-        <a class="btn btn-primary btn-sm" href="{% url 'friends' %}">Назад</a>
+{% if not user.is_authenticated %}
+
+<div class="col">
+    <div class="row">
+        <h1>Пользователи</h1>      
+        <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+                <li class="breadcrumb-item opened"><a>Пользователи</a></li>
+            </ol>
+        </nav>
+        <div class="card my-4 unlogin">
+            <div class="card-body">
+                <h5>Добро пожаловать!</h5>
+                <span class="card-text">
+                <a href="{% url 'users:login' %}?next={{ request.path }}"
+                    style="text-decoration: none">Войдите</a>
+                или
+                <a href="{% url 'users:register' %}?next={{ request.path }}" style="text-decoration: none">зарегистрируйтесь</a>,
+                чтобы поставить оценку.
+                </span>
+            </div>
+        </div>
     </div>
-    <form method="GET" action="" id="searchform">
-        <input class="searchfield" name="first" type="text" value="{{ request.GET.first }}"
-               placeholder="Введите имя"/>
-        <input class="searchfield" name="last" type="text" value="{{ request.GET.last }}"
-               placeholder="Введите фамилию"/>
-        <button class="btn btn-primary btn-sm mt-1">Найти</button>
-    </form>
 </div>
 
-<table class="table">
-    <tr>
-        <th>Аватар</th>
-        <th>Имя</th>
-        <th>Фамилия</th>
-    </tr>
-    <tbody>
-    {% for one in profiles %}
-        {% if not one.user_id == request.user.id %}
-            <tr>
-                <td>
-                    <img src="{{ one.avatar.url }}" height="50px" width="50px">
-                </td>
-                <td>
-                    {{ one.first_name }}
-                </td>
-                <td>
-                    {{ one.last_name }}
-                </td>
-                <td>
-                    <form method="GET" action="">
-                        {% if one.relation_to_request_user == 'no_relation' %}
-                            <button class="btn btn-primary btn-sm" name="add" value="{{ one.user_id }}" >
-                                Добавить в друзья
-                            </button>
-                        {% elif one.relation_to_request_user == 'subscriber' %}
-                            <button class="btn btn-sm fw-bold" disabled name="add" style="background: #FF8A04;">
-                                Приглашение отправлено
-                            </button>
-                        {% elif one.relation_to_request_user == 'friend' %}
-                            <button class="btn btn-success btn-sm" disabled name="add">
-                                Друг
-                            </button>
+{% else %}
+
+    <div class="container header_info">
+        <h1>Пользователи</h1>
+        <div class="d-flex justify-content-between mt-1">
+            <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+                  <li class="breadcrumb-item opened"><a>Пользователи</a></li>
+                </ol>
+            </nav>
+            <div>
+                <a class="btn btn_add_friend shadow-none" href="{% url 'friends' %}">Вернуться в друзья</a>
+            </div>
+        </div>
+        <div class="container" style="background: #FFFFFF; border-radius: 8px;">
+            <div class="d-flex justify-content-between mt-3 mb-3 container">
+    
+                <form class="d-flex mt-4" role="search">
+                    <i id="search_icon" class="cart-icon material-icons" style="color: #BFBFBF">search</i><input id="search_bar_dark_bg" class="form-control shadow-none" type="search" placeholder="Поиск">
+                </form>
+    
+                <select id="select_box" class="mt-4 select_box_dark_bg shadow-none ms-2">
+                    <option value="1" selected>Весь список</option>
+                    <option value="2">Без статуса</option>
+                    <option value="3">В друзьях</option>
+                    <option value="4">Приглашение отправлено</option>
+                    <option value="5">Заявка на добавление</option>
+                </select>
+            </div>
+            <div class="table-responsive">
+                <table id="users_table" class="table table-hover table-sortable">
+                    <col style="width: 10%">
+                    <col style="width: 10%">
+                    <col style="width: 13%">
+                    <col style="width: 30%">
+                    <col style="width: 10%">
+                    <thead>
+                        <tr>
+                            <th>Аватар</th>
+                            <th>Имя
+                                <i class="cart-icon material-icons sorting" style="color: #BFBFBF; cursor: pointer;">expand_less</i>
+                                <i class="cart-icon material-icons sorting" style="color: #BFBFBF; cursor: pointer;">expand_more</i>
+                            </th>
+                            <th>Фамилия
+                                <i class="cart-icon material-icons sorting" style="color: #BFBFBF; cursor: pointer;">expand_less</i>
+                                <i class="cart-icon material-icons sorting" style="color: #BFBFBF; cursor: pointer;">expand_more</i>
+                            </th>
+                            <th style="text-align: left;">Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myTable">
+                    {% for one in profiles %}
+                        {% if not one.user_id == request.user.id %}
+                            <tr class="users">
+                                <td>
+                                    {% if one.avatar %}
+                                        <a href="{% url 'users:usersprofile' one.user_id %}">
+                                            <img src="{{ one.avatar.url }}" style="border-radius: 8px;" height="50px" width="50px" alt="Users photo">
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'users:usersprofile' one.user_id %}">
+                                            <img src="{% static 'src/default_avatar.jpg' %}" style="border-radius: 8px;" height="50px" width="50px" alt="Users photo">
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ one.first_name }}
+                                </td>
+                                <td>
+                                    {{ one.last_name }}
+                                </td>
+                                <td>
+                                    {% if one.relation_to_request_user == 'no_relation' %}
+                                        <button value="no_relation" style="display: none">
+                                            
+                                        </button>
+                                    {% elif one.relation_to_request_user == 'subscriber' %}
+                                        <button class="btn shadow-none invite_sent status" value="subscriber">
+                                            Приглашение отправлено
+                                        </button>
+                                    {% elif one.relation_to_request_user == 'friend' %}
+                                        <button class="btn shadow-none in_friends status" value="friend">
+                                            В друзьях
+                                        </button>
+                                    {% elif one.relation_to_request_user == 'was_invited' %}
+                                        <button class="btn shadow-none invite_to_add status" value="was_invited">
+                                            Заявка на добавление
+                                        </button>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="GET" action="">
+        
+                                        {% if one.relation_to_request_user == 'no_relation' %}
+                                            <button class="btn edit_btn shadow-none" style="width: 175px;" name="add" value="{{ one.user_id }}" >
+                                                Добавить в друзья
+                                            </button>
+        
+                                        {% elif one.relation_to_request_user == 'subscriber' %}
+                                            <button class="btn btn_reject shadow-none" name="cancel" value="{{ one.user_id }}">
+                                                Отозвать   
+                                            </button>
+        
+                                        {% elif one.relation_to_request_user == 'friend' %}
+                                            <button class="btn btn_reject_lg shadow-none" value="{{one.user_id}}" style="width: 175px;" name="remove">
+                                                Удалить из друзей
+                                            </button>
+        
+                                        {% elif one.relation_to_request_user == 'was_invited' %}
+                                            <div class="d-flex flex-row">
+                                                <button class="btn btn_accept shadow-none" value="{{one.user_id}}" name="add">
+                                                    Добавить
+                                                </button>
+                                                
+                                                <button class="btn btn_reject ms-3 shadow-none" value="{{one.user_id}}" name="not_accept">
+                                                    Отклонить
+                                                </button>
+                                            </div>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                            </tr>
                         {% endif %}
-                    </form>
-                </td>
-            </tr>
-        {% endif %}
-    {% endfor %}
-    </tbody>
-</table>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-between container">
+                <div class="container">
+                    <p id="part">{{part_message}}</p>
+                </div>
+                
+                <nav>
+                    <ul class="pagination justify-content-end">
+                      <li>
+                        <a id="prev_btn" href="{% url 'friends_added' %}?page={{previous_page}}" class="page-link shadow-none">
+                            <i class="cart-icon material-icons" style="color: #6C757D">chevron_left</i>
+                        </a>
+                      </li>
+                      <li><a id="current_page" class="shadow-none selected" style="text-decoration: none;">{{current_page}}</a></li>
+                      <li>
+                        <a id="next_btn" href="{% url 'friends_added' %}?page={{next_page}}" class="page-link shadow-none">
+                            <i class="cart-icon material-icons" style="color: #6C757D">chevron_right</i>
+                        </a>
+                      </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+ <script>
+    window.onload = function() {
+
+        var prev_btn = document.getElementById('prev_btn');
+        if(`{{previous_page}}` === "0") {
+            prev_btn.children[0].style.color = '#BFBFBF';
+            prev_btn.style.pointerEvents = "none"
+        }
+
+        var next_btn = document.getElementById('next_btn');
+        if(`{{next_page}}` > `{{max_page}}`) {
+            next_btn.children[0].style.color = '#BFBFBF';
+            next_btn.style.pointerEvents = "none"
+        }
+    }
+</script>
+
+<script>
+    var users = document.getElementsByClassName('users');
+    var select_box = document.getElementById('select_box');
+    var search_bar = document.getElementById('search_bar_dark_bg');
+
+    select_box.addEventListener('change', function() {
+        Array.from(users).forEach(element => {
+            element.style.display = 'none';
+        })
+        var selectedValue = Number(select_box.options[select_box.selectedIndex].value);
+
+
+        if(selectedValue == 2) {
+            Array.from(users).forEach(element => {
+                if(element.querySelectorAll('td')[3].querySelector('button').value == 'no_relation') {
+                    element.style.display = '';
+                }
+            })
+
+            search_bar.value = "";
+        }
+
+        else if(selectedValue == 3) {
+            Array.from(users).forEach(element => {
+                if(element.querySelectorAll('td')[3].querySelector('button').value == 'friend') {
+                    element.style.display = '';
+                }
+            })
+
+            search_bar.value = "";
+        }
+
+        else if(selectedValue == 4) {
+            Array.from(users).forEach(element => {
+                if(element.querySelectorAll('td')[3].querySelector('button').value == 'subscriber') {
+                    element.style.display = '';
+                }
+            })
+
+            search_bar.value = "";
+        }
+
+        else if(selectedValue == 5) {
+            Array.from(users).forEach(element => {
+                if(element.querySelectorAll('td')[3].querySelector('button').value == 'was_invited') {
+                    element.style.display = '';
+                }
+            })
+
+            search_bar.value = "";
+        }
+
+        else {
+            Array.from(users).forEach(element => {
+                element.style.display = '';
+            })
+
+            search_bar.value = "";
+        }
+        this.style.outline = "solid 1px #FFFFFF";
+    })
+</script>
+
+<script>
+    var users = document.getElementsByClassName('users');
+    var select_box = document.getElementById('select_box');
+    var search_bar = document.getElementById('search_bar_dark_bg');
+
+    var no_relation = [];
+    Array.from(users).forEach(element => {
+        if(element.querySelectorAll('td')[3].querySelector('button').value == 'no_relation') {
+            no_relation.push(element)
+        }
+    })
+
+    var friends = [];
+    Array.from(users).forEach(element => {
+        if(element.querySelectorAll('td')[3].querySelector('button').value == 'friend') {
+            friends.push(element)
+        }
+    })
+
+    var subscribers = [];
+    Array.from(users).forEach(element => {
+        if(element.querySelectorAll('td')[3].querySelector('button').value == 'subscriber') {
+            subscribers.push(element)
+        }
+    })
+
+    var was_invited = [];
+    Array.from(users).forEach(element => {
+        if(element.querySelectorAll('td')[3].querySelector('button').value == 'was_invited') {
+            was_invited.push(element)
+        }
+    })
+
+    search_bar.addEventListener('input', function() {
+        var comboboxSelectedValue = Number(select_box.options[select_box.selectedIndex].value);
+
+        if(search_bar.value != "") {
+            Array.from(users).forEach(element => {
+                element.style.display = 'none';
+            })
+
+            if(comboboxSelectedValue == 1) {
+                Array.from(users).forEach(element => {
+
+                    var user_full_name = element.querySelectorAll('td')[1].innerText.trim() + " "
+                        + element.querySelectorAll('td')[2].innerText.trim();
+                    console.log(user_full_name);
+
+                    if(user_full_name.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        element.style.display = '';
+                    }
+                })
+            }
+
+            else if(comboboxSelectedValue == 2) {
+                Array.from(no_relation).forEach(element => {
+
+                    var user_full_name = element.querySelectorAll('td')[1].innerText.trim() + " "
+                        + element.querySelectorAll('td')[2].innerText.trim();
+                    console.log(user_full_name);
+
+                    if(user_full_name.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        element.style.display = '';
+                    }
+                })
+            }
+
+            else if(comboboxSelectedValue == 3) {
+                Array.from(friends).forEach(element => {
+
+                    var user_full_name = element.querySelectorAll('td')[1].innerText.trim() + " "
+                        + element.querySelectorAll('td')[2].innerText.trim();
+                    console.log(user_full_name);
+
+                    if(user_full_name.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        element.style.display = '';
+                    }
+                })
+            }
+
+            else if(comboboxSelectedValue == 4) {
+                Array.from(subscribers).forEach(element => {
+
+                    var user_full_name = element.querySelectorAll('td')[1].innerText.trim() + " "
+                        + element.querySelectorAll('td')[2].innerText.trim();
+                    console.log(user_full_name);
+
+                    if(user_full_name.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        element.style.display = '';
+                    }
+                })
+            }
+
+            else if(comboboxSelectedValue == 5) {
+                Array.from(was_invited).forEach(element => {
+
+                    var user_full_name = element.querySelectorAll('td')[1].innerText.trim() + " "
+                        + element.querySelectorAll('td')[2].innerText.trim();
+                    console.log(user_full_name);
+
+                    if(user_full_name.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        element.style.display = '';
+                    }
+                })
+            }
+        }
+
+        else {
+            if(comboboxSelectedValue == 1) {
+                Array.from(users).forEach(element => {
+                    element.style.display = '';
+                })
+            }
+
+            else if(comboboxSelectedValue == 2) {
+                Array.from(no_relation).forEach(element => {
+                    element.style.display = '';
+                })
+            }
+
+            else if(comboboxSelectedValue == 3) {
+                Array.from(friends).forEach(element => {
+                    element.style.display = '';
+                })
+            }
+
+            else if(comboboxSelectedValue == 4) {
+                Array.from(subscribers).forEach(element => {
+                    element.style.display = '';
+                })
+            }
+
+            else if(comboboxSelectedValue == 5) {
+                Array.from(was_invited).forEach(element => {
+                    element.style.display = '';
+                })
+            }
+        }
+    })
+</script>
+
+<script>
+    function sortTableByColumn(table, column, asc = true) {
+    const dirModifier = asc ? 1 : -1;
+    const tBody = table.tBodies[0];
+    const rows = Array.from(tBody.querySelectorAll("tr"));
+
+    const sortedRows = rows.sort((a, b) => {
+        const aColText = a.querySelector(`td:nth-child(${ column + 1 })`).textContent.trim();
+        const bColText = b.querySelector(`td:nth-child(${ column + 1 })`).textContent.trim();
+
+        return aColText > bColText ? (1 * dirModifier) : (-1 * dirModifier);
+    });
+
+    while (tBody.firstChild) {
+        tBody.removeChild(tBody.firstChild);
+    }
+
+    tBody.append(...sortedRows);
+
+    table.querySelectorAll("th").forEach(th => th.classList.remove("th-sort-asc", "th-sort-desc"));
+    table.querySelector(`th:nth-child(${ column + 1})`).classList.toggle("th-sort-asc", asc);
+    table.querySelector(`th:nth-child(${ column + 1})`).classList.toggle("th-sort-desc", !asc);
+    }
+
+
+    var all_ths = document.querySelectorAll('th');
+
+    var arrows = document.getElementsByClassName('sorting');
+    Array.from(arrows).forEach(arrow => {
+        arrow.addEventListener('click', () => {
+            var table_element = arrow.parentElement.parentElement.parentElement.parentElement;
+            var header_index = Array.from(all_ths).indexOf(arrow.parentElement); 
+            var arrow_index = Array.prototype.indexOf.call(arrow.parentElement.children, arrow);
+            
+
+            if(arrow_index == 0) {
+                sortTableByColumn(table_element, header_index, 1);
+            }
+            else if(arrow_index == 1) {
+                sortTableByColumn(table_element, header_index, 0);
+            }
+
+            Array.from(arrows).forEach(arrow => {
+                arrow.style.color = '#BFBFBF';
+            })
+
+            arrow.style.color = 'black'
+        })
+    })
+</script>
+
+
+{% endif %}
 
 
 {% endblock %}

@@ -5,13 +5,29 @@ from django.shortcuts import render, redirect
 import json
 
 from drevo.models import Author
+from users.models import MenuSections, User
 
 
-@login_required
-def sub_by_author(request):
+def sub_by_author(request,id):
     if request.method == 'GET':
-        authors = Author.objects.all()
-        return render(request, 'drevo/author_subscription.html', {'authors': authors})
+        user = User.objects.filter(id=id).first()
+        context = {}
+        if user is not None:
+            context['authors'] = Author.objects.all()
+            if user == request.user:
+                context['sections'] = [i.name for i in MenuSections.objects.all()]
+                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
+                                       i.name.startswith('Моя')]
+                context['link'] = 'users:myprofile'
+            else:
+                context['sections'] = [i.name for i in user.sections.all()]
+                context['activity'] = [i.name for i in user.sections.all() if
+                                       i.name.startswith('Мои') or i.name.startswith('Моя')]
+                context['link'] = 'public_human'
+                context['id'] = id
+            context['pub_user'] = user
+            return render(request, 'drevo/author_subscription.html', context)
+
 
     if request.method == 'POST':
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -26,4 +42,4 @@ def sub_by_author(request):
                 elif not subscribed_to_authors[author.name]:
                     author.subscribers.remove(request.user)
 
-        return redirect('subscribe_to_author')
+        return redirect('subscribe_to_author',id=id)

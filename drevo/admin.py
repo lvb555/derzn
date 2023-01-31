@@ -14,11 +14,11 @@ from .forms.relation_form import RelationAdminForm
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation_grade import RelationGrade
 from drevo.models.relation_grade_scale import RelationGradeScale
-from drevo.models.friends import FriendsTerm
 from drevo.models.friends_invite import FriendsInviteTerm
 from drevo.models.label_feed_message import LabelFeedMessage
 from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
 from drevo.models.developer import Developer
+from drevo.models.quiz_results import QuizResult
 
 from .forms.developer_form import DeveloperForm
 from .forms import (
@@ -40,8 +40,14 @@ from .models import (
     AuthorType,
     GlossaryTerm,
     ZnRating,
-    Comment, KnowledgeStatuses,
-)
+    Comment,
+    KnowledgeStatuses,
+    AgeUsersScale,
+    InterviewResultsSendingSchedule,
+    SettingsOptions,
+    UserParameters,
+    ParameterCategories
+    )
 from .services import send_notify_interview
 
 
@@ -185,6 +191,7 @@ class AuthorAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "atype",
+        "user_author",
     )
     ordering = ("name",)
     search_fields = ["name"]
@@ -351,6 +358,20 @@ class CommentAdmin(admin.ModelAdmin):
 
 admin.site.register(Comment, CommentAdmin)
 
+class QuizResultAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        "quiz",
+        "question",
+        "answer",
+        "user",
+        "date_time",
+    )
+
+    verbose_name = 'Результаты теста'
+    verbose_name_plural = 'Результаты тестов'
+
+
+admin.site.register(QuizResult, QuizResultAdmin)
 
 class KnowledgeGradeScaleAdmin(admin.ModelAdmin):
     list_display = (
@@ -368,7 +389,10 @@ admin.site.register(KnowledgeGradeScale, KnowledgeGradeScaleAdmin)
 class RelationGradeScaleAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        "value",
+        "low_value",
+        "is_low_in_range",
+        "high_value",
+        "is_high_in_range",
     )
 
 
@@ -383,6 +407,7 @@ class KnowledgeGradeAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = ("grade", "created_at", "knowledge")
+    autocomplete_fields = ("knowledge",)
 
 
 admin.site.register(KnowledgeGrade, KnowledgeGradeAdmin)
@@ -432,6 +457,32 @@ class InterviewInline(admin.TabularInline):
     model = Znanie
 
 
+class InterviewFilter(admin.SimpleListFilter):
+    title = 'Интервью'
+    parameter_name = 'interview'
+
+    def lookups(self, request, model_admin):
+        return [(inter.id, inter.name) for inter in Znanie.objects.select_related('tz').filter(tz__name='Интервью')]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(interview__id=self.value())
+        return queryset
+
+
+class QuestionFilter(admin.SimpleListFilter):
+    title = 'Вопрос'
+    parameter_name = 'question'
+
+    def lookups(self, request, model_admin):
+        return [(quest.id, quest.name) for quest in Znanie.objects.select_related('tz').filter(tz__name='Вопрос')]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(question__id=self.value())
+        return queryset
+
+
 @admin.register(InterviewAnswerExpertProposal)
 class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
     exclude = ("updated",)
@@ -445,18 +496,23 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
         "new_answer_text",
         "admin_reviewer",
         "status",
+        "is_notified"
     )
     list_display_links = ("id",)
+    list_filter = (InterviewFilter, QuestionFilter)
 
     @staticmethod
     def link_to_knowledge_change(obj):
         """Превращаем поле в ссылку в админке"""
         if obj is None:
             return "-"
+        title = obj.name
+        if len(title) > 50:
+            title = f'{title[:50]}...'
         return format_html(
             "<a href='{url}'>{title}</a>",
             url=reverse("admin:drevo_znanie_change", args=(obj.id,)),
-            title=obj.name,
+            title=title,
         )
 
     def interview_link(self, obj):
@@ -478,12 +534,40 @@ class DeveloperAdmin(admin.ModelAdmin):
 
 admin.site.register(Developer, DeveloperAdmin)
 
-admin.site.register(FriendsTerm)
+@admin.register(InterviewResultsSendingSchedule)
+class InterviewResultsSendingScheduleAdmin(admin.ModelAdmin):
+    list_display = ['id', 'interview', 'next_sending', 'last_sending']
+    readonly_fields = ['interview']
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
 admin.site.register(FriendsInviteTerm)
 admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
-
-
+admin.site.register(AgeUsersScale)
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
     list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)
+
+
+@admin.register(SettingsOptions)
+class SettingsOptionsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'category', 'default_param', 'admin']
+    search_fields = ['name']
+    list_display_links = ['id']
+    list_filter = ['category', 'admin']
+
+
+@admin.register(UserParameters)
+class UserParametersAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'param', 'param_value']
+    list_display_links = ['id']
+
+
+@admin.register(ParameterCategories)
+class ParameterCategoriesAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+    search_fields = ['name']
+    list_display_links = ['id']

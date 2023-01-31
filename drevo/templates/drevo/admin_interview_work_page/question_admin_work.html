@@ -19,8 +19,8 @@
     <br>
     <div class="row">
         <div class="col">
-            <h3>Интервью: {{ interview_name }}</h3>
-            <h3>Вопрос: {{ question_name }}</h3>
+            <h3>Интервью: {{ interview.name }}</h3>
+            <h3>Вопрос: {{ question.name }}</h3>
         </div>
         <div class="col">
             <h3>Период: {{ period }}</h3>
@@ -55,16 +55,15 @@
                 </div>
             </div>
             <table class="table table-bordered">
-                <thead style="position: sticky; top: 65px;" class="bg-secondary text-white">
-                <th scope="col" rowspan="2" class="text-center">№</th>
+                <thead style="position: sticky; top: 185px;" class="bg-secondary text-white">
                 <th scope="col" colspan="2" class="text-center"> Информация эксперта</th>
-                <th scope="col" colspan="3" class="text-center"> Информация администратора</th>
+                <th scope="col" colspan="3" class="text-center"> Информация руководителя</th>
                 <tr>
                     <th scope="col" class="text-center">ФИО эксперта</th>
                     <th scope="col" class="text-center">Предложение эксперта</th>
                     <th scope="col" class="text-center">Существующий/<font class="text-danger">новый</font> ответ</th>
                     <th scope="col" class="text-center">
-                        Комментарий администратора
+                        Комментарий руководителя
                         {% if messages %}
                         <ul class="messages">
                             {% for message in messages %}
@@ -81,14 +80,13 @@
                 <tbody>
                 {% for elm, form in questions %}
                 <tr>
-                    <th scope="row">{{ elm.pk }}</th>
                     <td>{{ elm.expert.get_full_name }}</td>
                     <td>
                         <textarea name="" id="" cols="30" rows="10" style="height:150px; overflow-y: scroll; width: 250px; height: 125px;" readonly>{{ elm.new_answer_text }}</textarea>
                     </td>
                     <td>
                         <select
-                                name="expert-{{ elm.pk }}-answer" class="form-control {% if elm.status == 'APPRVE' %}text-danger{% endif %}" style="width: 250px;"
+                                name="expert-{{ elm.pk }}-answer" class="form-control {% if elm.status == 'APPRVE' and elm.new_answer.date >= interview_start_date %}text-danger{% endif %}" style="width: 250px;"
                                 onfocus="this.size=5;" onblur="this.size=1;" onchange="this.size=1; this.blur();"
                                 title="{% if elm.status == 'APPRVE' %}{{ elm.new_answer.name|normalize_answer_name }}{% else %}{{ elm.answer.name|normalize_answer_name }}{% endif %}"
                                 id="expert-{{ elm.pk }}-answer"
@@ -111,7 +109,16 @@
                 </tbody>
             </table>
             <div class="text-end me-5">
-                <input type="submit" class="btn btn-warning w-25" name='save_input' value="Сохранить" {% if not props_without_status %} disabled="true" {% endif %}>
+                <button type="submit" class="btn btn-warning w-25" name='save_input' title="Дата последней рассылки: {{ last_sending|date:'d.m.Y H:i' }}">
+                    Сохранить - Уведомить
+                    <span class="badge bg-{% if mailing_available %}success{% else %}danger{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-exclamation" viewBox="0 0 16 16">
+                            <path d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2H2Zm3.708 6.208L1 11.105V5.383l4.708 2.825ZM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2Z"/>
+                            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1.5a.5.5 0 0 1-1 0V11a.5.5 0 0 1 1 0Zm0 3a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"/>
+                        </svg>
+                    </span>
+                </button>
+<!--                <input type="submit" class="btn btn-warning w-25" name='save_input' title="Дата последней рассылки: {{ last_sending|date:'d.m.Y h:m' }}" value="Сохранить - Уведомить">-->
             </div>
         </form>
     </div>
@@ -124,6 +131,24 @@
    tr {border:2px solid black;}
 </style>
 
+
+<!-- Модальное окно -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-dark" style="background-color:#5ad65a;">
+            <div class="modal-body text-center" id="authModalLabel">
+                {% if is_notified and is_saved %}
+                <h5>Сохранение/Уведомление успешно завершено!</h5>
+                {% else %}
+                <h5>Сохранение успешно завершено!</h5>
+                {% endif %}
+                <!--                    <span class="badge">-->
+                <!--                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>-->
+                <!--                    </span>-->
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 
@@ -142,5 +167,12 @@
             form.submit()
         }
     }))
+</script>
+<script type="text/javascript">
+if ("{{ is_saved }}") {
+  $(window).on('load', function() {
+        $('#authModal').modal('show');
+    });
+}
 </script>
 {% endblock %}

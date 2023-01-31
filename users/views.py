@@ -1,15 +1,18 @@
-from urllib import request
-from django.shortcuts import HttpResponseRedirect, get_object_or_404
+from django.shortcuts import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.contrib import auth, messages
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404
-
+from django.shortcuts import get_object_or_404
+from django.http import Http404, JsonResponse
+from django.views.generic.edit import ProcessFormView
+import json
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
-from users.models import User, Profile
+from users.models import User, Profile, MenuSections
+from drevo.models.settings_options import SettingsOptions
+from drevo.models.user_parameters import UserParameters
 
 
 class LoginFormView(FormView):
@@ -90,6 +93,13 @@ class RegistrationFormView(CreateView):
     def form_valid(self, form):
         if form.is_valid():
             user = form.save()
+            # Создаём записи таблицы "Параметры пользователя" на основе таблицы "Параметры настроек"
+            settings_options = SettingsOptions.objects.filter(admin=False)
+            user_settings = [
+                UserParameters(user=user, param=param, param_value=param.default_param) for param in settings_options
+            ]
+            UserParameters.objects.bulk_create(user_settings)
+
             profile = user.profile
 
             profile.deactivate_user()
@@ -144,6 +154,7 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
         context['profile_form'] = ProfileModelForm(
             instance=Profile.objects.get(user=self.object)
         )
+        context['sections'] = [i.name for i in self.object.sections.all()]
         return context
 
     def get_object(self, queryset=None):
@@ -310,3 +321,19 @@ class UserSetPasswordFormView(FormView):
             raise Http404
 
         return super().get(request, *args, **kwargs)
+
+
+class MenuSectionsAdd(ProcessFormView):
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            user = request.user
+
+            sections = json.loads(request.GET.get('sections'))
+            user.sections.clear()
+            for section in sections:
+                obj = get_object_or_404(MenuSections, name=section)
+                user.sections.add(obj)
+
+            return JsonResponse({}, status=200)
+
+        raise Http404

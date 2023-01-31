@@ -10,6 +10,7 @@ env = Env()
 env.read_env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+PYTHONPATH = BASE_DIR.parent/env.str("RELATIVE_PYTHONPATH")
 
 SECRET_KEY = env.str('SECRET_KEY')
 
@@ -32,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 'drevo.apps.DrevoConfig',
     'django.contrib.humanize',
+    'colorfield',
     'mptt',
     'ckeditor',
     'loguru',
@@ -144,6 +146,7 @@ EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS')
 EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL')
 
+
 AUTH_USER_MODEL = 'users.User'
 
 LOGGING = {
@@ -167,3 +170,7 @@ LOGGING = {
         }
     }
 }
+
+# Интервал через который можно совершать рассылку
+# о результатах интервью (в днях)
+NOT_MORE_OFTEN = 1

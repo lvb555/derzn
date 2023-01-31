@@ -1,0 +1,16 @@
+{% extends 'drevo/base.html' %}
+
+{% load static %}
+
+{% block title %}Публичный человек{% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections %}
+</div>
+
+{% endblock %}

@@ -20,18 +20,14 @@
     <title>{% block title %}Дeрево{% endblock %}</title>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" style="background-color: #F1F2F7;">
 
 <!-- Navigation bar start -->
-    <div class="container-fluid sticky-top" style="background-color: var(--main-bg-color-dark);">
-        <div class="container">
-            <nav class="navbar navbar-expand-md mb-2 navbar-dark">
+<div class="sticky-top">
+    <div class="container-fluid header" style="background-color: var(--main-bg-color-dark); height: 78px;">
+        <div class="container" style="display: grid; align-content: center; height: 100%;">
+            <nav class="navbar navbar-expand-md navbar-dark">
                 <div class="container-fluid">
-                    <div class="logo me-2">
-                        <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
-                            <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height='46px' alt="logo-tree">
-                        </a>
-                    </div>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
@@ -40,11 +36,11 @@
                         <div class="navbar-nav me-auto">
                             <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
                                 <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" href="{% url 'drevo' %}" id="tree_link">Дерево знаний</a>
+                                    <a class="nav-link auto_active_link" aria-current="page" href="/"
+                                       id="about_link">О проекте</a>
                                 </li>
                                 <li class="nav-item mx-2">
-                                    <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
-                                       id="authors_link">Авторы</a>
+                                    <a class="nav-link auto_active_link" aria-current="page" href="{% url 'developer_page' %}" id="developer">Команда</a>
                                 </li>
                                 <li class="nav-item mx-2">
                                     <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
@@ -149,21 +145,73 @@
                         </div>
 
                         <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link auto_active_link d-flex" aria-current="page" href="{% url 'search_knowledge' %}"
+                                   id="search_knowledges_link">
+                                    <img class="ms-2"
+                                         src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}"
+                                         alt="" style="width:20px">
+                                </a>
+                            </li>
                             {% if user.is_authenticated %}
                             <li class="nav-item me-1 mb-1 mb-lg-0">
-                                <a class="nav-link auto_active_link" aria-current="page" href="{% url 'users:myprofile' %}"
-                                   id="user_link">
-                                    <span>{{ user.username }} <i class="bi bi-person-circle"></i></span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-outline-light" aria-current="page" href="{% url 'users:logout' %}">
-                                    <span>Выйти </span>
-                                </a>
+                                <div class="nav-item mx-2 col dropdown">
+                                    <a href="#" class="dropdown-toggle nav-link header-menu" data-bs-toggle="dropdown" role="button">
+                                        <img width="30" height="30"
+                                             src="{% if user.profile.avatar %} {{ user.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}"
+                                             class="header-avatar">
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <div class="row dropdown-item row dropdown-menu-profile">
+                                            <div class="logo p-0 me-2 col-auto">
+                                                <a class="auto_active_link" href="{% url 'drevo' %}">
+                                                    <img width="35" height="35"
+                                                     src="{% if user.profile.avatar %} {{ user.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}"
+                                                     class="header-avatar">
+                                                </a>
+                                            </div>
+                                            <div class="col p-0">
+                                                <div class="header-menu-username">
+                                                    {{ user.username }}
+                                                </div>
+                                                <div class="header-menu-email">
+                                                    {{ user.email }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="#" id="all_quizzes_link">Компетенции</a>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="{% url 'friends' %}" id="friends_link">Друзья</a>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="#" id="all_quizzes_link">Изучение знаний</a>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="{% url 'history' %}" id="history_link">Активность</a>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="{% url 'favourites' %}" id="favourites_link">Подписки</a>
+                                        </div>
+                                        <div class="dropdown-item" style="display:flex; justify-content: space-between;">
+                                            <a href="{% url 'users:myprofile' %}">Редактировать профиль</a>
+                                            <a href="{% url 'parameter_settings' %}"><i class="bi bi-gear"></i></a>
+                                        </div>
+                                        <div class="dropdown-item exit-button">
+                                            <a class="btn btn-outline-light" aria-current="page" href="{% url 'users:logout' %}">
+                                                <img
+                                                 src="{% static 'drevo/img/knowledge_search/exit.svg' %}"
+                                                 alt="" style="width:10px">
+                                                <span>Выйти</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                             </li>
                             {% else %}
-                            <li class="nav-item">
-                                <a class="btn btn btn-outline-light" aria-current="page"
+                            <li class="nav-item" style="align-self: center;">
+                                <a class="btn btn btn-light btn-header" aria-current="page"
                                    href="{% url 'users:login' %}?next={{ request.path }}">
                                     <span>Войти </span>
                                 </a>
@@ -277,6 +325,7 @@
                                     {% if user.expert.all %}
                                         <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
                                         <a class="dropdown-item" href="{% url 'filling_tables' %}" id="filling_tables">Наполнение таблиц</a>
+
                                     {% endif %}
                                     {% if user.is_staff %}
                                         <a class="dropdown-item" href="{% url 'all_interview' %}">Предложения экспертов</a>
@@ -306,14 +355,13 @@
 </div>
 
 <!-- Footer - start -->
-<div class="container-fluid mt-auto">
+<div class="container container-fluid mt-auto">
     <footer class="static-bottom d-flex flex-wrap justify-content-between align-items-center py-3 mt-5 border-top">
-      <p class="col-md-4 mb-0 text-muted">&copy; 2020, Дерево знаний.</p>
-      <a href="#" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
-        <img src="{% static 'drevo\img\main_page\logo_tree_green.png' %}" height="32px" alt="logo-tree">
-      </a>
+        <div class="d-flex">
+            <p class="mb-0 text-muted">© 2020–2022 Все права защищены</p>
+            <p class="mb-0 ms-3" style="color: #212529;">Научно-образовательный проект «Дерево знаний»</p>
+        </div>
       <ul class="nav col-md-4 justify-content-end">
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Главная</a></li>
         <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">О проекте</a></li>
         <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Контакты</a></li>
       </ul>

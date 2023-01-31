@@ -1,0 +1,101 @@
+{% load admin_interview_work_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div>
+        <h1>Уважаемый {{ expert.first_name }} {{ expert.profile.patronymic }}!</h1>
+    </div>
+
+    {% if first_part_is_created %}
+    <!--Первая часть сообщения (личные результаты)-->
+    <div>
+        <!--Вступление-->
+        {% if many_questions %}
+        <p>
+            В рамках проводимого интервью <strong>"{{ interview.name }}"</strong>
+            Вы предложили новые ответы на вопросы.  Вот результаты их рассмотрения.
+        </p>
+        {% else %}
+        <p>
+            В рамках проводимого интервью <strong>"{{ interview.name }}"</strong>
+            на вопрос <strong>"{{ question_name }}"</strong> Вы предложили
+            {% for quest, proposals in proposals_data.items %}
+                {% if proposal_count > 1  %}
+                новые ответы на вопрос. Вот результаты их рассмотрения.
+                {% else %}
+                новый ответ на вопрос. Этот ответ был рассмотрен и вот результат.
+                {% endif %}
+            {% endfor %}
+        </p>
+        {% endif %}
+        <br>
+        <div>
+            {% for question, proposals in proposals_data.items %}
+            {% if proposals %}
+            <h3> Вопрос {{ forloop.counter }}. {{ question }}</h3>
+            <div>
+                {% get_interview_results_accepted proposals=proposals.accepted proposals_un_notified=proposals_un_notified %}
+            </div>
+            <div>
+                {% get_interview_results_duplicates proposals=proposals.duplicates proposals_un_notified=proposals_un_notified %}
+            </div>
+            <div>
+                {% get_interview_results_not_accepted proposals=proposals.not_accepted proposals_un_notified=proposals_un_notified %}
+            </div>
+            <div>
+                {% get_interview_results_unprocessed interview=interview question=question proposals=proposals.unprocessed %}
+            </div>
+            <hr>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if second_part_is_created %}
+    <!--Вторая часть сообщения (общие результаты по новым ответам)-->
+    <div>
+        <h2>Ответы на вопросы интервью</h2>
+        <p>
+            В рамках проводимого интервью <strong>'{{ interview.name }}'</strong>
+            {% if new_answers|length > 1 %}
+            были созданы новые ответы:
+            {% else %}
+            был создан новый ответ:
+            {% endif %}
+        </p>
+        {% for question, answers in answers_data.items %}
+        {% if answers %}
+        <h3>Вопрос {{ forloop.counter }}. "{{ question }}"</h3>
+        <ul>
+            {% for answer in answers %}
+            <li>
+                <h4 class="{% if answer.answer_name in new_answers %}new{% endif %}">
+                    {{answer.answer_name}} | Автор: {{ answer.author_name }} {% if answer.author_is_agreed %} | Выбран экспертом {% endif %}
+                </h4>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <br>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</body>
+<footer>
+    <div>
+        <h3>Администрация портала «Дерево знаний»</h3>
+    </div>
+</footer>
+
+<style>
+  .new {color: red;}
+</style>
+
+</html>

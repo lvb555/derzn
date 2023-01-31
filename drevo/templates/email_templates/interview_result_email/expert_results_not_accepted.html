@@ -1,0 +1,20 @@
+<!--Не принятые предложения-->
+{% if proposals %}
+{% if proposals|length > 1 %}
+<h4>Непринятые предложения, как несоответствующие сути вопроса.</h4>
+{% else %}
+<h4>Непринятое предложение, как несоответствующее сути вопроса.</h4>
+{% endif %}
+<ul>
+    {% for proposal in proposals %}
+    <li class="{% if proposal in proposals_un_notified %}new{% endif %}">
+        Предложение "{{ proposal.new_answer_text }}"
+        {% if proposal.admin_comment %}
+        Причина: {{ proposal.admin_comment }}
+        {% else %}
+        .
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}

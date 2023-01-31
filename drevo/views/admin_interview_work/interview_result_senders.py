@@ -1,117 +1,130 @@
-from django.conf import settings
 from django.db.models import F, Q
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy
-from ...models import Relation, Tr
+from ...models import Relation, Tr, InterviewAnswerExpertProposal, Tz
 from ...sender import send_email
 
 
-def get_base_message_context(proposal_obj) -> dict:
-    interview_url_kwargs = {'interview_pk': proposal_obj.interview.pk, 'question_pk': proposal_obj.question.pk}
-    interview_url = f"{settings.BASE_URL}{reverse_lazy('question_expert_work', kwargs=interview_url_kwargs)}"
-    context = dict(
-        expert=proposal_obj.expert,
-        interview_name=proposal_obj.interview.name,
-        question_name=proposal_obj.question.name,
-        expert_proposal=proposal_obj.new_answer_text,
-        is_agreed=proposal_obj.is_agreed,
-        interview_url=interview_url
-    )
-    return context
+class InterviewResultSender:
+    def __init__(self, experts, proposals, interview):
+        self.experts = experts
+        self.proposals = proposals
+        self.interview = interview
 
+    def start_mailing(self) -> bool:
+        try:
+            self._send_results()
+            return True
+        except Exception as error:
+            print(f'Error while mailing experts: {error}')
+            return False
 
-def send_accept_proposal(proposal_obj) -> None:
-    """
-        Функция для рассылки уведомлений экспертам чьи предложения были одобрены
-    """
-    context = get_base_message_context(proposal_obj)
+    def _send_results(self):
+        """
+            Метод для рассылки результатов интервью экспертам
+        """
+        context = dict(interview=self.interview)
+        second_part_is_created, second_part_data = self._create_message_second_part()
+        context.update(second_part_data)
 
-    new_answer = proposal_obj.new_answer
-    email_address = context.get('expert').email
-    if context.get('is_agreed'):
-        message_subject = 'Изменение Вашего ответа'
-    else:
-        message_subject = 'Ваше предложение принято!'
-    new_answer_url = f"{settings.BASE_URL}{reverse_lazy('zdetail', kwargs={'pk': new_answer.pk})}"
-    context.update({'new_answer': new_answer, 'new_answer_url': new_answer_url})
-    message_html = render_to_string('email_templates/interview_result_email/interview_accept_email.html', context)
-    send_email(email_address, message_subject, message_html, message_html)
+        for expert in self.experts:
+            context['expert'] = expert
+            first_part_is_created, first_part_data = self._create_message_first_part(expert=expert)
+            context.update(first_part_data)
 
+            if first_part_is_created or second_part_is_created:
+                context['first_part_is_created'] = first_part_is_created
+                context['second_part_is_created'] = second_part_is_created
 
-def send_not_accept_proposal(proposal_obj) -> None:
-    """
-        Функция для рассылки уведомлений экспертам чьи предложения не были одобрены
-    """
-    context = get_base_message_context(proposal_obj)
+                email_address = expert.email
+                message_subject = 'Результаты интервью!'
+                message_html = render_to_string(
+                    'email_templates/interview_result_email/interview_results_email.html',
+                    context
+                )
+                send_email(email_address, message_subject, message_html, message_html)
 
-    email_address = context.get('expert').email
-    message_subject = 'Ваше предложение не принято!'
-    context.update({'admin_comment': proposal_obj.admin_comment})
-    message_html = render_to_string('email_templates/interview_result_email/interview_not_accept_email.html', context)
-    send_email(email_address, message_subject, message_html, message_html)
+    def _create_message_first_part(self, expert):
+        """
+            Метод для создания первой части сообщения
+        """
+        # Получаем все предложения эксперта по данному интервью
+        proposals_all = InterviewAnswerExpertProposal.objects.select_related('expert', 'new_answer', 'question').filter(
+            interview__pk=self.interview.pk, expert=expert
+        ).order_by('question__name', '-updated')
+        # Получаем предложения эксперта о которых он не был уведомлён
+        proposals_un_notified = self.proposals.filter(expert=expert)
 
+        # Проверка на наличие предложений со статусом
+        if not proposals_un_notified.filter(~Q(status=None)).exists():
+            return False, dict()
 
-def send_duplicate_answer_proposal(proposal_obj) -> None:
-    """
-        Функция для рассылки уведомлений экспертам чьи предложения дублируют ответ
-    """
-    context = get_base_message_context(proposal_obj)
+        # Получаем все вопросы интервью
+        interview_questions = Relation.objects.select_related('rz', 'rz__tz').filter(
+            bz=self.interview, rz__tz__name='Вопрос'
+        ).order_by('-rz__order').values_list('rz__name', flat=True)
 
-    existing_answer = proposal_obj.duplicate_answer
-    email_address = context.get('expert').email
-    if context.get('is_agreed'):
-        message_subject = 'Изменение Вашего ответа'
-    else:
-        message_subject = 'Ваше предложение не принято!'
-    existing_answer_url = f"{settings.BASE_URL}{reverse_lazy('zdetail', kwargs={'pk': existing_answer.pk})}"
-    context.update({'existing_answer': existing_answer, 'existing_answer_url': existing_answer_url})
-    message_html = render_to_string('email_templates/interview_result_email/interview_duplicate_answer_email.html',
-                                    context)
-    send_email(email_address, message_subject, message_html, message_html)
+        proposals_data = {question: None for question in interview_questions}
 
+        first_part_data = dict()
 
-def send_duplicate_proposal(proposal_obj) -> None:
-    """
-        Функция для рассылки уведомлений экспертам чьи предложения дублируют предложение
-    """
-    context = get_base_message_context(proposal_obj)
-    existing_answer = proposal_obj.duplicate_answer
-    email_address = context.get('expert').email
-    if context.get('is_agreed'):
-        message_subject = 'Изменение Вашего ответа'
-    else:
-        message_subject = 'Ваше предложение не принято!'
-    existing_answer_url = f"{settings.BASE_URL}{reverse_lazy('zdetail', kwargs={'pk': existing_answer.pk})}"
-    context.update({'existing_answer': existing_answer, 'existing_answer_url': existing_answer_url})
-    message_html = render_to_string('email_templates/interview_result_email/interview_duplicate_proposal_email.html',
-                                    context)
-    send_email(email_address, message_subject, message_html, message_html)
+        # Разделяем предложения по вопросам и статусам
+        for proposal in proposals_all:
+            question = proposal.question.name
+            if proposals_data.get(question) is None:
+                proposals_data[question] = {
+                    'accepted': list(),
+                    'duplicates': list(),
+                    'not_accepted': list(),
+                    'unprocessed': list()
+                }
+            if not proposal.status:
+                proposals_data[question]['unprocessed'].append(proposal)
+                continue
+            if proposal.status == 'APPRVE':
+                proposals_data[question]['accepted'].append(proposal)
+            elif proposal.status == 'ANSDPL' or proposal.status == 'RESDPL':
+                proposals_data[question]['duplicates'].append(proposal)
+            else:
+                proposals_data[question]['not_accepted'].append(proposal)
 
+        many_questions = True
+        if len(proposals_data.keys()) == 1:
+            many_questions = False
+            question_name = list(proposals_data.keys())[0]
+            first_part_data['question_name'] = question_name
+            first_part_data['proposal_count'] = len(proposals_all)
 
-def send_new_answers(interview_name, question_name, proposals) -> None:
-    """
-        Функция для рассылки уведомлений экспертам о появлении новых ответов на интервью
-    """
-    experts = proposals.values(
-        first_name=F('expert__first_name'), last_name=F('expert__last_name'), email=F('expert__email')
-    ).order_by().distinct()
-    new_answers = proposals.filter(status='APPRVE').values_list('new_answer__name', flat=True)
-    tr_obj = Tr.objects.get(name='Ответ [ы]')
-    answers = Relation.objects.select_related('bz', 'rz').filter(
-        Q(bz__name=question_name) & Q(tr=tr_obj)
-    ).values_list('rz__name', flat=True)
+        first_part_data['many_questions'] = many_questions
+        first_part_data['proposals_data'] = proposals_data
+        first_part_data['proposals_un_notified'] = proposals_un_notified
+        return True, first_part_data
 
-    context = dict(
-        interview_name=interview_name,
-        question_name=question_name,
-        answers=answers,
-        new_answers=new_answers
-    )
+    def _create_message_second_part(self):
+        """
+            Метод для создания второй части сообщения
+        """
+        # Получаем новые ответы
+        new_answers = self.proposals.filter(status='APPRVE').values_list('new_answer__name', flat=True)
+        if not new_answers:
+            return False, dict()
 
-    for expert in experts:
-        email_address = expert.get('email')
-        message_subject = 'Новые ответы!'
-        context['expert'] = expert
-        message_html = render_to_string('email_templates/interview_result_email/interview_new_answer_email.html',
-                                        context)
-        send_email(email_address, message_subject, message_html, message_html)
+        # Получаем список всех вопросов интервью
+        interview_questions = Relation.objects.select_related('rz', 'rz__tz').filter(
+            bz=self.interview, rz__tz__name='Вопрос'
+        ).order_by('-rz__order').values_list('rz__name', flat=True)
+
+        answers_data = {question: None for question in interview_questions}  # {question: [answers...]}
+
+        # Разделяем ответы по вопросам
+        for question in interview_questions:
+            # Получаем все ответы по вопросу интервью
+            answers_data[question] = Relation.objects.\
+                select_related('bz', 'rz', 'tr').prefetch_related('rz__author, rz__answer_proposals').filter(
+                bz__name=question, tr__name='Ответ [ы]'
+            ).order_by('-rz__order').values(
+                answer_name=F('rz__name'),
+                author_name=F('rz__author__name'),
+                author_is_agreed=F('rz__answer_proposals__is_agreed')
+            )
+
+        return True, dict(new_answers=new_answers, answers_data=answers_data)
