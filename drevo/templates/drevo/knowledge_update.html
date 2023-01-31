@@ -17,7 +17,7 @@
         {% for frm in image_form %}
             {{ frm.as_p }}
         {% endfor %}
-        <input type="submit" class="btn btn-primary" value="{% if user.is_expert %}Сохранить Знание{% else %}Сохранить ПредЗнание{% endif %}">
+        <input type="submit" class="btn btn-primary" value="Сохранить и продолжить">
     </form>
     <div class="knowledge_actions">
         {% if actions %}
@@ -25,6 +25,7 @@
                 <a class="btn btn-primary know_action_btn" href="{% url 'znanie_change_status' pk action.1 %}">{{ action.0 }}</a>
             {% endfor %}
         {% endif %}
+        <a class="btn btn-primary know_action_btn" href="{% url 'znanie_user_process'%}">Закрыть</a>
     </div>
 
 
