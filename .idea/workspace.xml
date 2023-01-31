@@ -2,13 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b8b56e24-a53d-445a-99f4-2340a53fe448" name="Changes" comment="Задача 334">
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/drevo/models/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/models/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/drevo/templates/drevo/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/templates/drevo/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/templates/drevo/filling_tables.html" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/templates/drevo/filling_tables.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/drevo/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/drevo/views/filling_tables.py" beforeDir="false" afterPath="$PROJECT_DIR$/drevo/views/filling_tables.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -177,7 +174,7 @@
       <workItem from="1674809572292" duration="3394000" />
       <workItem from="1674889306043" duration="4696000" />
       <workItem from="1674906053745" duration="706000" />
-      <workItem from="1675171986754" duration="1574000" />
+      <workItem from="1675171986754" duration="2118000" />
     </task>
     <task id="LOCAL-00001" summary="Задача 334">
       <created>1674902907879</created>
