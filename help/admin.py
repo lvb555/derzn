@@ -31,7 +31,8 @@ class HelpAdmin(DraggableMPTTAdmin):
     list_display = (
         'tree_actions',
         'indented_title_ispublished',
-        'get_safe_content',
+        'get_help_tags',
+        'is_group'
     )
     list_display_links = ("indented_title_ispublished",)
     empty_value_display = '-пусто-'
@@ -46,10 +47,10 @@ class HelpAdmin(DraggableMPTTAdmin):
         )
     indented_title_ispublished.short_description = "Категория помощи"
 
-    def get_safe_content(self, instance):
-        return mark_safe(instance.content)
+    def get_help_tags(self, instance):
+        return '/'.join(instance.url_tag.all().values_list('name', flat=True))
 
-    get_safe_content.short_description = 'Содержание'
+    get_help_tags.short_description = 'Теги'
 
     class Media:
         css = {"all": ("drevo/css/style.css",)}
