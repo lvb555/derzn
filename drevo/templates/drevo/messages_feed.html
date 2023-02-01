@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}Лента знаний{% endblock %}
+{% block title %}Лента сообщений{% endblock %}
 
 {% block content %}
 
@@ -13,13 +13,13 @@
 {% if not user.is_authenticated %}
 <div class="col">
     <div class="row">
-        <h1>Лента знаний</h1>
+        <h1>Лента сообщений</h1>
         <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
                 <li class="breadcrumb-item"><a href="{% url 'users:myprofile' %}">Профиль</a></li>
                 <li class="breadcrumb-item"><a href="{% url 'friends' %}">Друзья</a></li>
-                <li class="breadcrumb-item opened"><a>Лента знаний</a></li>
+                <li class="breadcrumb-item opened"><a>Лента сообщений</a></li>
             </ol>
         </nav>
         <div class="card my-4 unlogin">
@@ -38,13 +38,13 @@
 </div>
 {% else %}
     <div class="container header_info">
-        <h1>Лента знаний</h1>
+        <h1>Лента сообщений</h1>
         <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
                 <li class="breadcrumb-item"><a href="{% url 'users:myprofile' %}">Профиль</a></li>
                 <li class="breadcrumb-item"><a href="{% url 'friends' %}">Друзья</a></li>
-                <li class="breadcrumb-item opened"><a>Лента знаний</a></li>
+                <li class="breadcrumb-item opened"><a>Лента сообщений</a></li>
             </ol>
         </nav>
     </div>
@@ -71,6 +71,7 @@
                 <div class="d-flex justify-content-between">
                     <p class="user_small_info mt-1">{{user.profile.get_gender_display}} (пол), {{user.profile.get_user_age}} (возраст)
                     {% if user.job %} {{user.job}} (профессия){% endif %}</p>
+                
                     <a class="btn edit_btn shadow-none"
                         style="z-index: 1;"
                         href="{% url 'users:myprofile' %}">
@@ -243,15 +244,15 @@
 
         <div>
             <button class="btn shadow-none position-relative">
-                <h3 class="feed_block">Лента знаний</h3>
+                <h3 class="feed_block">Лента сообщений</h3>
                 <span id="countUnread" class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
-                    {{ unread }}
+                    {{ unread_count }}
                 </span>
             </button>
             
             <div class="d-flex flex-row mt-3">
                 <select id="select_data" class="me-4 select_box shadow-none">
-                    <option value="1" selected>Все знания</option>
+                    <option value="1" selected>Все сообщения</option>
                     <option value="2">Прочитанное</option>
                     <option value="3">Непрочитанное</option>
                 </select>
@@ -268,38 +269,16 @@
 
                     <div class="card-header" style="border: none; background: none">
                         <div class="d-flex">
-                            <a style="text-decoration: none;" href="{% url 'zdetail' message.znanie.id %}" class="d-flex flex-row flex-grow-1">
-                                {% if message.znanie.tz.name == 'Тезис' %}
-                                    <img src="{% static 'drevo/img/knowledge_icons/thesis.png' %}" height="26px" width="20px">
-                                {% elif message.znanie.tz.name == 'Группа' %}
-                                    <img src="{% static 'drevo/img/knowledge_icons/group.png' %}" height="26px" width="20px">
-                                {% elif message.znanie.tz.name == 'Вопрос' %}
-                                    <img src="{% static 'drevo/img/knowledge_icons/question.png' %}" height="26px" width="20px">
-                                {% elif message.znanie.tz.name == 'Классификация' %}
-                                    <img src="{% static 'drevo/img/knowledge_icons/classification.png' %}" height="26px" width="20px">
-                                {% elif message.znanie.tz.name == 'Цитата' %}
-                                    <img src="{% static 'drevo/img/knowledge_icons/quote.png' %}" height="26px" width="20px">
-                                {% elif message.znanie.tz.name == 'Таблица' %}
-                                    <img src="{% static 'drevo/img/knowledge_icons/table.png' %}" height="26px" width="20px">
-                                {% elif message.znanie.tz.name == 'Факт' %}
-                                    <img src="{% static 'drevo/img/knowledge_icons/fact.png' %}" height="26px" width="20px">
-                                {% else %}
-                                    <img src="{% static 'drevo/img/knowledge_icons/other.png' %}" height="26px" width="20px">
-                                {% endif %}
-                                <h3 class="znanie_name ms-1">{{message.znanie.name}}</h3>
-                            </a>
                             <form method="GET" action="" class="form-switch">
                                 {% csrf_token %}
                                 {% if message.was_read %}
-                                    <input aria-checked="true" type="checkbox" class="form-check-input shadow-none message-checkbox" value="{{message.id}}" checked> Прочитать
+                                    <input aria-checked="true" type="checkbox" class="form-check-input shadow-none message-checkbox" value="{{message.id}}" checked> Прочитано
                                 {% else %}
                                     <input aria-checked="false" type="checkbox" class="form-check-input shadow-none message-checkbox" value="{{message.id}}"> Прочитать
                                 {% endif %}
                             </form>
                         </div>
                         <div class="d-flex flex-row" style="border: none;">
-                            <p class="sub_header">Вид знания: <span>{{message.znanie.tz}}</span></p>
-                            <p class="sub_header ms-2">Автор: <span><a href="{% url 'author' message.znanie.author.id %}" style="text-decoration: none;" class="author">{{message.znanie.author}}</a></span></p>
                             <p class="sub_header ms-2">Дата: <span>{{message.date_time | date }}</span></p>
                         </div>
                     </div>
@@ -318,101 +297,21 @@
                                 <p class="message_time_ago">{{message.get_time}}</p>
                             </div>
 
-                            <a class="btn message_label"># {{message.label}}</a>
                         </div>
 
                         <div class="message_text mt-3 mb-2">
-                            <p>{{message.text}}</p>
+                            <p class="message-text">{{message.text}}</p>
                         </div>
 
-                        <div class="d-flex flex-row mt-4">                          
-                            <button class="btn btn_accept open-popup me-2 shadow-none">Переслать</button>
-                            <div class="popup__bg">
-                                <form class="popup" method="post" id="feedmessage_form" novalidate" onsubmit="return false;">
-                                    {% csrf_token %}
-                                    <svg class="close-popup" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="#BFBFBF" d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/></svg>
-                                    <h6 class="text-center send_mess">Отправка знания друзьям</h6>
-    
-                                    <div class="mt-1 d-flex flex-row flex-grow-1">
-                                        {% if message.znanie.tz.name == 'Тезис' %}
-                                            <img src="{% static 'drevo/img/knowledge_icons/thesis.png' %}" height="26px" width="20px">
-                                        {% elif message.znanie.tz.name == 'Группа' %}
-                                            <img src="{% static 'drevo/img/knowledge_icons/group.png' %}" height="26px" width="20px">
-                                        {% elif message.znanie.tz.name == 'Вопрос' %}
-                                            <img src="{% static 'drevo/img/knowledge_icons/question.png' %}" height="26px" width="20px">
-                                        {% elif message.znanie.tz.name == 'Классификация' %}
-                                            <img src="{% static 'drevo/img/knowledge_icons/classification.png' %}" height="26px" width="20px">
-                                        {% elif message.znanie.tz.name == 'Цитата' %}
-                                            <img src="{% static 'drevo/img/knowledge_icons/quote.png' %}" height="26px" width="20px">
-                                        {% elif message.znanie.tz.name == 'Таблица' %}
-                                            <img src="{% static 'drevo/img/knowledge_icons/table.png' %}" height="26px" width="20px">
-                                        {% elif message.znanie.tz.name == 'Факт' %}
-                                            <img src="{% static 'drevo/img/knowledge_icons/fact.png' %}" height="26px" width="20px">
-                                        {% else %}
-                                            <img src="{% static 'drevo/img/knowledge_icons/other.png' %}" height="26px" width="20px">
-                                        {% endif %}
-                                        <p name="znanie" class="ms-1 znanie_popup" required id="id_znanie">{{message.znanie.name}}</p>
-                                    </div>
-    
-                                    <div class="mt-3">
-                                        <label>Выберите ярлык <span class="text-danger">*</span></label>
-                                        <select class="form-select shadow-none" name="label" required id="id_label">
-                                            <option value="" selected>------</option>
-                                            {% for label in labels %}
-                                                <option value="{{label.id}}">{{label.name}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-    
-                                    <div class="mt-3 col-auto message-text">
-                                        <label>Текст письма <span class="text-danger">*</span></label>
-                                        <textarea name="text" cols="40" rows="10" class="form-control shadow-none" maxlength="511" required id="id_text"></textarea>
-                                    </div>
-                                    {% if form.errors.text %}
-                                        <ul>
-                                            {{form.errors.text}}
-                                        </ul>
-                                    {% endif %}
-    
-                                    <div id="send_to">
-                                        {% if friends_count > 0 %}
-                                            <label>Получатели <span class="text-danger">*</span></label>
-                                            <div class="d-flex">
-                                                <input type="checkbox" class="form-check-input shadow-none all_friends">Все друзья
-                                            </div>
-                                            <label>или</label>
-
-                                            {% for friend in friends %}
-                                                <div class="d-flex mt-2">
-                                                    <input type="checkbox" value="{{friend.id}}" class="me-1 form-check-input shadow-none checkbox">
-                                                    {% if friend.profile.avatar %}
-                                                        <img src="{{ friend.profile.avatar.url }}" class="rounded-circle" height="30px" width="30px">
-                                                    {% else %}
-                                                        <img src="{% static 'src/default_avatar.jpg' %}" class="rounded-circle"  height="30px" width="30px">
-                                                    {% endif %}
-                                                    <p class="ms-1">{{friend.first_name}} {{friend.last_name}}</p>
-                                                </div>
-                                            {% endfor %}
-                                        {% else %}
-                                            <h6 class="text-start text-danger">У Вас пока нет друзей, чтобы отправить им сообщение</h6>
-                                        {% endif %}
-                                    </div>
-                                    <div class="d-flex justify-content-center">
-                                        <a class="btn btn_accept shadow-none me-2 reject">Отменить</a>
-                                        <input type="submit" value="Отправить знание" name="_save" class="btn shadow-none btn_add_friend send_message_btn" style="width: 150px;">
-                                    </div>
-
-                                </form>
-                            </div>
-
-                            <a href="{% url 'delete_feed_message' message.id %}" class="btn btn_reject shadow-none">Удалить</a>
+                        <div class="d-flex flex-row mt-4">
+                            <a href="{% url 'delete_message' message.id %}" class="btn btn_reject shadow-none">Удалить</a>
                         </div>
                     </div>
 
                     <hr style="margin-left: 5%; margin-right: 5%; border: 1px dashed #DFDFE3;">
                 </div>
             {% endfor %}
-            <div class="d-flex justify-content-between container mt-3">
+            <!-- <div class="d-flex justify-content-between container mt-3">
                 <div class="container">
                     <p id="part">{{part_message}}</p>
                 </div>
@@ -432,7 +331,7 @@
                       </li>
                     </ul>
                 </nav>
-            </div>
+            </div> -->
         </div>
         
     </div>
@@ -461,7 +360,7 @@
 
                 if(comboboxSelectedItem == 1) {
                     Array.from(all_feed_messages).forEach(element => {
-                        if(element.querySelector('.znanie_name').innerHTML.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        if(element.querySelector('.message-text').innerHTML.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
                             element.style.display = '';
                         }
                     })
@@ -469,7 +368,7 @@
 
                 else if(comboboxSelectedItem == 2) {
                     Array.from(read_messages_feed).forEach(element => {
-                        if(element.querySelector('.znanie_name').innerHTML.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        if(element.querySelector('.message-text').innerHTML.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
                             element.style.display = '';
                         }
                     })
@@ -477,7 +376,7 @@
 
                 else if(comboboxSelectedItem == 3) {
                     Array.from(unread_messages_feed).forEach(element => {
-                        if(element.querySelector('.znanie_name').innerHTML.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
+                        if(element.querySelector('.message-text').innerHTML.toLowerCase().includes(search_bar.value.toLowerCase().trim())) {
                             element.style.display = '';
                         }
                     })
@@ -508,7 +407,7 @@
         })
     </script>
 
-    <script>
+    <!-- <script>
         // обработка открытия и закрытия модального окна
         
         var popupBgs = document.querySelectorAll('.popup__bg');
@@ -573,7 +472,7 @@
             })
         });
 
-    </script>
+    </script> -->
     
     <script>
         // проверка, надо ли показывать "Счетчик непрочитанных сообщений" 
@@ -629,7 +528,7 @@
             element.onchange = function(event) {
                 event.preventDefault();
                 $.ajax({ 
-                url:  `{% url 'knowledge_feed' %}`, 
+                url:  `{% url 'messages_feed' %}`, 
                 type: 'POST', 
                 data: {csrfmiddlewaretoken: '{{ csrf_token }}', "message_id": element.value, "task": "read_message"},
                 error: function(data){

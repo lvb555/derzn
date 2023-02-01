@@ -38,6 +38,8 @@ from .views import (
     my_knowledge_grade,
     GroupKnowledgeStatisticsView,
     parameter_settings,
+    send_message_view,
+    messages_feed_view,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.expert_work.proposal_delete_view import ProposalDeleteView
@@ -173,6 +175,13 @@ urlpatterns = [
     path(
         "knowledge-feed/delete/<int:message_id>/",
         knowledge_feed_view.delete_message,
+        name="delete_feed_message",
+    ),
+    path("send-message/", send_message_view.send_message, name = "send_message"),
+    path("messages-feed/", messages_feed_view.messages_feed, name = "messages_feed"),
+    path(
+        "messages-feed/delete/<int:message_id>/",
+        send_message_view.delete_message,
         name="delete_message",
     ),
     path("developer/", developer_view, name="developer_page"),
