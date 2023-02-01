@@ -23,7 +23,7 @@
               <div class="d-flex justify-content-between">
                 <p class="user_small_info mt-1">{{pub_user.profile.get_gender_display}} (пол), {{pub_user.profile.get_user_age}} (возраст)
                 {% if pub_user.job %} {{pub_user.job}} (профессия){% endif %}</p>
-                {% if link == 'users:myprofile' %}
+                {% if link == 'users/my_profile' %}
                 <a class="btn edit_btn shadow-none"
                     style="z-index: 1; margin-left: 35%"
                     href="{% url 'users:myprofile' %}">
@@ -92,12 +92,12 @@
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             {% if 'Мои интервью' in sections %}
                             <li>
-                                <a href="{% url 'my_interview' %}" class="dropdown-item">Мои интервью</a>
+                                <a href="{% url 'my_interview_profile' pub_user.id %}" class="dropdown-item">Мои интервью</a>
                             </li>
                             {% endif %}
                             {% if 'Мои предложения' in sections %}
                             <li>
-                                <a href="#" class="dropdown-item">Мои предложения</a>
+                                <a href="{% url 'my_proposal' pub_user.id %}" class="dropdown-item">Мои предложения</a>
                             </li>
                             {% endif %}
                             {% if 'Мои опросы' in sections %}
@@ -123,9 +123,9 @@
                                             <a class="dropdown-item" href="#">Мои связи</a>
                                         </li>
                                         {% endif %}
-                                        {% if 'Моя экспертиза' in sections %}
+                                        {% if 'Мои экспертизы' in sections %}
                                         <li>
-                                            <a class="dropdown-item" href="{% url 'my_expertise' pub_user.id %}">Моя экспертиза</a>
+                                            <a class="dropdown-item" href="{% url 'my_expertise' pub_user.id %}">Мои экспертизы</a>
                                         </li>
                                         {% endif %}
                                     </ul>
@@ -183,6 +183,11 @@
                         {% if 'Избранные знания' in sections %}
                         <li>
                             <a href="{% url 'my_favourites' pub_user.id %}" class="dropdown-item">Избранные знания</a>
+                        </li>
+                        {% endif %}
+                        {% if 'Мои оценки знаний' in sections %}
+                        <li>
+                            <a href="{% url 'my_knowledge_grade' %}" class="dropdown-item">Мои оценки знаний</a>
                         </li>
                         {% endif %}
                         {% if 'Результаты тестов' in sections %}

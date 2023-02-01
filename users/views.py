@@ -1,4 +1,4 @@
-from django.shortcuts import HttpResponseRedirect
+from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse_lazy, reverse
 from django.contrib import auth, messages
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView
@@ -344,3 +344,12 @@ class MenuSectionsAdd(ProcessFormView):
             return JsonResponse({}, status=200)
 
         raise Http404
+
+
+def my_profile(request):
+    if request.method == 'GET':
+        success_url = reverse_lazy('users:my_profile')
+        context = {}
+        user = User.objects.get(id=request.user.id)
+        context['user'] = user
+        return render(request, 'users/profile_header.html', context)
