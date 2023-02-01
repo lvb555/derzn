@@ -1,6 +1,9 @@
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 
+from drevo.models.feed_messages import FeedMessage
+
+from ..models import Message
 from ..models import FriendsInviteTerm
 from users.models import Profile, User
 
@@ -13,8 +16,6 @@ def friends_added_view(request):
     Контрол страницы "Добавить в друзья"
     """
     context = {'profiles': []}
-    first_name_predicate = request.GET.get('first')
-    last_name_predicate = request.GET.get('last')
 
     # Добавление в друзья
     if request.GET.get('add'):
@@ -35,7 +36,8 @@ def friends_added_view(request):
     if request.GET.get('remove'):
         _remove_friend(request.user.id, request.GET.get('remove'))
         
-    profiles_in_page = 10
+    profiles_in_page = 3
+    current_page = 0
 
     try:
         current_page = int(request.GET.get('page'))
@@ -46,38 +48,48 @@ def friends_added_view(request):
         current_page = 1
 
     exclude_ids = [request.user.id]
-    profiles = Profile.objects.exclude(id__in=exclude_ids)[(current_page-1)*profiles_in_page : current_page * profiles_in_page]
+    profiles = Profile.objects.exclude(id__in=exclude_ids)
 
-    context['current_page'] = current_page
-    context['previous_page'] = current_page - 1
-    context['next_page'] = current_page + 1
+    for profile in profiles:
+        user = profile.user
+        if user.first_name == "" or user.last_name == "":
+            exclude_ids.append(profile.id)
 
-    all_profiles = Profile.objects.exclude(id__in=exclude_ids).count()
-    context['max_page'] = math.ceil(all_profiles / profiles_in_page)
+    try:
+        # Загрузим список заявок на дружбу
+        invites = FriendsInviteTerm.objects.filter(recipient = request.user.id)
+        invite_count = len(invites)
 
-    if current_page == 1:
-        context['part_message'] = f'1 - {current_page * profiles_in_page} из {all_profiles}'
-    elif context['next_page'] > context['max_page']:
-        context['part_message'] = f'{(current_page - 1) * profiles_in_page + 1}  - {all_profiles} из {all_profiles}'
-    else:
-        context['part_message'] = f'{(current_page - 1) * profiles_in_page + 1}  - {current_page * profiles_in_page} из {all_profiles}'
+        context['invites'] = invites
+        context['invite_count'] = invite_count if invite_count else 0
+
+        user = User.objects.get(id = request.user.id)
+
+        my_friends = user.user_friends.all() # те, кто в друзьях у меня
+        i_in_friends = user.users_friends.all() # те, у кого я в друзьях
+        
+        all_friends = my_friends.union(i_in_friends, all=False)
+        context['friends'] = all_friends
+
+        context['user'] = user
+        context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient = user, was_read = False).count()
+
+        context['new_messages'] = Message.objects.filter(recipient = user, was_read = False).count()
+
+        context['new'] = int(context['new_knowledge_feed']) + int(context['invite_count'] + int(context['new_messages'])) 
+            
+    # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
+    except:
+        pass
+
+    all_profiles = Profile.objects.exclude(id__in=exclude_ids).order_by('user__last_name').order_by('user__first_name')
+    
+    profiles = all_profiles[(current_page-1)*profiles_in_page : current_page * profiles_in_page]
 
     for profile in profiles:
         data = {}
-        if first_name_predicate and not last_name_predicate:
-            user = User.objects.filter(id=profile.user_id, first_name__contains=first_name_predicate).first()
-        elif not first_name_predicate and last_name_predicate:
-            user = User.objects.filter(id=profile.user_id, last_name__contains=last_name_predicate).first()
-        elif first_name_predicate and last_name_predicate:
-            user = User.objects.filter(id=profile.user_id, first_name__contains=first_name_predicate,
-                                       last_name__contains=last_name_predicate).first()
-        else:
-            user = User.objects.filter(id=profile.user_id).first()
-        if not user:
-            continue
-        if not user.first_name or not user.last_name:
-            continue
 
+        user = profile.user
         data['first_name'] = user.first_name
         data['last_name'] = user.last_name
         data['avatar'] = profile.avatar or ''
@@ -98,6 +110,20 @@ def friends_added_view(request):
         except:
             pass
 
+    context['current_page'] = current_page
+    context['previous_page'] = current_page - 1
+    context['next_page'] = current_page + 1
+
+    all_profiles_count = all_profiles.count()
+    context['max_page'] = math.ceil(all_profiles_count / profiles_in_page)
+
+    if current_page == 1:
+        context['part_message'] = f'1 - {current_page * len(context["profiles"])} из {all_profiles_count}'
+    elif context['next_page'] > context['max_page']:
+        context['part_message'] = f'{(current_page - 1) * profiles_in_page + 1}  - {all_profiles_count} из {all_profiles_count}'
+    else:
+        context['part_message'] = f'{(current_page - 1) * profiles_in_page + 1}  - {current_page * profiles_in_page} из {all_profiles_count}'
+    
     template_name = 'drevo/friends_added.html'
     return render(request, template_name, context)
 
@@ -131,6 +157,7 @@ def _add_friend(user_id: int, friend_id: str) -> None:
             else:
                 pass
 
+
 def _cancel_invite(user_id: int, friend_id: str) -> None:
     """
     Отменить отправленную заявку в друзья
@@ -150,11 +177,19 @@ def _remove_friend(user_id: int, friend_id: str) -> None:
         user = User.objects.get(id = user_id)
         friend = User.objects.get(id = int(friend_id))
 
+        was_deleted = False
+
         if user.user_friends.filter(id = friend.id).exists():
+            was_deleted = True
             user.user_friends.remove(friend)
 
         if friend.user_friends.filter(id = user.id).exists():
+            was_deleted = True
             friend.user_friends.remove(user)
+
+        if was_deleted:
+            msg_text = "Вы удалены из списка моих друзей (сообщение создано автоматически)"
+            message = Message.objects.create(sender = user, recipient = friend, text = msg_text, was_read = False)
         
     except ObjectDoesNotExist:
         return JsonResponse({"error": "Такого пользователя в друзьях нет"})
@@ -185,7 +220,13 @@ def _not_accept_invite(user_id: int, friend_id: str) -> None:
     """
     # Удалим из таблицы заявок
     try:
-        invite_table = FriendsInviteTerm.objects.filter(recipient_id=user_id, sender_id=int(friend_id))
+        invite_table = FriendsInviteTerm.objects.get(recipient_id=user_id, sender_id=int(friend_id))
         invite_table.delete()
+
+        user = User.objects.get(id = user_id)
+        user_not_accepted = User.objects.get(id = int(friend_id))
+
+        msg_text = "Ваше предложение дружбы отклонено (сообщение создано автоматически)"
+        message = Message.objects.create(sender = user, recipient = user_not_accepted, text = msg_text, was_read = False)
     except:
         return JsonResponse({"error": "Заявка была отменена"})

@@ -31,7 +31,7 @@ class User(AbstractUser):
     job = models.CharField(max_length=150, verbose_name='Работа', blank=True)
 
     date_joined = last_login = None
-    user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True)
+    user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True, editable = False)
 
     def __str__(self):
         return self.username
