@@ -29,8 +29,7 @@ class Help(MPTTModel):
     )
     content = models.TextField(
         verbose_name="Содержание",
-        blank=True,
-        null=True,
+        blank=True
     )
     parent = TreeForeignKey(
         verbose_name='Родитель',
