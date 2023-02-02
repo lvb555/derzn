@@ -24,6 +24,7 @@ from .admin_interview_work.views import (
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
+from .filling_tables import filling_tables, get_rows_and_columns, znanie_attributes, show_new_znanie
 from .friends_added_view import friends_added_view
 from .friends_view import friends_view
 from .glossary_list_view import GlossaryListView
@@ -44,6 +45,7 @@ from .my_knowledge_grade_view import my_knowledge_grade
 from .group_infographics_view import GroupInfographicsView
 from .group_knowledge_grade_statistics import GroupKnowledgeStatisticsView
 from .parameter_settings_view import parameter_settings
+
 
 __all__ = [
     "AuthorDetailView",
@@ -66,6 +68,7 @@ __all__ = [
     "BrowsingHistoryListView",
     "FavouritesView",
     "FavouriteProcessView",
+    "filling_tables",
     "friends_view",
     "friends_added_view",
     "friends_invite_view",

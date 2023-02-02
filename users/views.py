@@ -1,4 +1,4 @@
-from django.shortcuts import HttpResponseRedirect
+from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse_lazy, reverse
 from django.contrib import auth, messages
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView
@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404, JsonResponse
 from django.views.generic.edit import ProcessFormView
 import json
+from drevo.models.expert_category import CategoryExpert
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
@@ -196,6 +197,12 @@ class UserProfileTemplateView(LoginRequiredMixin, TemplateView):
             if _object:
                 context['object'] = _object
 
+        try:
+            users_categories = CategoryExpert.objects.get(expert = _id)
+            context['users_categories'] = users_categories
+        except:
+            context['users_categories'] = False
+
         context['title'] = f'Профиль пользователя {_object.username}'
         return context
 
@@ -337,3 +344,12 @@ class MenuSectionsAdd(ProcessFormView):
             return JsonResponse({}, status=200)
 
         raise Http404
+
+
+def my_profile(request):
+    if request.method == 'GET':
+        success_url = reverse_lazy('users:my_profile')
+        context = {}
+        user = User.objects.get(id=request.user.id)
+        context['user'] = user
+        return render(request, 'users/profile_header.html', context)

@@ -20,6 +20,29 @@
 <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть дерево</button>
 &nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть дерево</button>
 
+        <div class="my-4">
+            <form action="{{ request.get_full_path }}" method="get" id="modeForm">
+                <div class="d-flex flex-row align-items-center">
+                    <span><strong>Вариант расчета:</strong></span>
+                    <span class="ms-2">
+                    <fieldset id="variant" class="input-group">
+                        <span style="white-space: nowrap">
+                            <input class="ms-2" type="radio" id="var1" name="variant" value="1"
+                                    {% if request.GET.variant != '2' %} checked {% endif %}>
+                            <label for="var1">Оценка знания</label>
+                        </span>
+                        <span style="white-space: nowrap">
+                            <input class="ms-2" type="radio" id="var2" name="variant" value="2"
+                                    {% if request.GET.variant == '2' %} checked {% endif %}>
+                            <label for="var2">Общая оценка знания</label>
+                        </span>
+                    </fieldset>
+                </span>
+                </div>
+            </form>
+        </div>
+
+
 <br><br>
 
 <ul class="root ps-0" id="tree_root">
@@ -40,7 +63,7 @@
         {% if zn|has_children %}
            <li id="li_00{{ zn.id }}">
                 <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}/grade">
+                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
                 {% with zn|common_grades:request as grades_iter %}
                 {% if grades_iter.0|grade %}
                 {% with grades_iter.0|grade as grade %}
@@ -262,6 +285,28 @@
   }
 
 
+</script>
+
+<script>
+    function init() {
+        const gradeForm = document.getElementById('gradeForm');
+        const selectCollection = document.getElementsByTagName('select');
+
+        for (const selectCollectionElement of selectCollection) {
+            selectCollectionElement.addEventListener('input', function () {
+                gradeForm.submit();
+            });
+        }
+
+        const radioButtons = document.querySelectorAll('input[name=variant]');
+        const modeForm = document.getElementById('modeForm');
+        for (const button of radioButtons) {
+            button.addEventListener('input', function () {
+                modeForm.submit();
+            });
+        }
+    }
+    init();
 </script>
 
 {% endblock %}
