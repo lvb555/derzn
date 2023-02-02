@@ -36,7 +36,7 @@ def friends_added_view(request):
     if request.GET.get('remove'):
         _remove_friend(request.user.id, request.GET.get('remove'))
         
-    profiles_in_page = 3
+    profiles_in_page = 10
     current_page = 0
 
     try:

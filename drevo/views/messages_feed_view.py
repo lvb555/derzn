@@ -13,17 +13,16 @@ from users.models import User
 def messages_feed(request):
     context = {}
 
-    messages = Message.objects.filter(recipient = request.user).order_by('-id')
-    unread_count = 0
-
-    for message in messages:
-        if not message.was_read:
-            unread_count += 1
-
-    context.update({"messages": messages, "unread_count": unread_count})
-
-
     try:
+        messages = Message.objects.filter(recipient = request.user).order_by('-id')
+        unread_count = 0
+
+        for message in messages:
+            if not message.was_read:
+                unread_count += 1
+
+        context.update({"messages": messages, "unread_count": unread_count})
+
         # Загрузим список заявок на дружбу
         invites = FriendsInviteTerm.objects.filter(recipient = request.user.id)
         invite_count = len(invites)
@@ -42,9 +41,7 @@ def messages_feed(request):
         context['user'] = user
         context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient = user, was_read = False).count()
 
-        context['new_messages'] = Message.objects.filter(recipient = user, was_read = False).count()
-
-        context['new'] = int(context['new_knowledge_feed']) + int(context['invite_count'] + int(context['new_messages'])) 
+        context['new'] = int(context['new_knowledge_feed']) + int(context['invite_count'] + int(context['unread_count'])) 
             
     # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
     except:
