@@ -320,6 +320,7 @@
                                        id="favourites_link">Избранное</a>
                                     <a class="dropdown-item" href="{% url 'friends' %}" id="friends_link">Друзья</a>
                                     {% if user.expert.all %}
+                                        <a class="dropdown-item" href="{% url 'filling_tables' %}" id="filling_tables">Наполнение таблиц</a>
                                         <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
                                     {% endif %}
                                     {% if user.is_staff %}
