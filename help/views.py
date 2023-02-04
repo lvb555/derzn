@@ -13,14 +13,14 @@ def help_view(request, pk=None):
     # Если на страницу "Помощь" перешли с другой страницы,
     # то на основе тегов взятых из url ищем раздел помощи по данной странице.
     if (referer := request.META.get('HTTP_REFERER')) and (not pk):
-        ref_data = [elm for elm in referer.split('/')[3:] if elm and elm.isalpha()]
-        if 'drevo' not in ref_data:
-            return render(request, "help/help.html", context)
+        ref_url = referer.split('/')[3:] if '?' not in referer else referer[:referer.index('?')].split('/')[3:]
+        ref_data = [elm for elm in ref_url if elm and elm.isalpha()]
         queryset = Help.objects.prefetch_related('url_tag').filter(url_tag__name__in=ref_data).distinct()
         ref_data.sort()
         for help_obj in queryset:
             if list(help_obj.url_tag.all().values_list('name', flat=True)) == ref_data:
                 context['cur_help'] = help_obj
+                context['active_nodes'] = help_obj.get_ancestors()
                 break
     # Если был передан идентификатор раздела помощи то отображаем данные о нём.
     # На дереве открытыми ветвями будут только те, которые идут до текущего раздела.
