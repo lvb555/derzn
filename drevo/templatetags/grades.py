@@ -1,4 +1,5 @@
 from django import template
+from drevo.utils import get_average_proof_base_and_common_grades, get_group_users
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation import Relation
 
@@ -43,6 +44,10 @@ def grade_name(value):
 def common_grades(knowledge, request):
     return knowledge.get_common_grades(request)
 
+@register.filter
+def group_common_grades(knowledge, request):
+    users = get_group_users(request, knowledge.id)
+    return get_average_proof_base_and_common_grades(users, request, knowledge)
 
 @register.filter
 def proof_weight(relation: Relation, request):
