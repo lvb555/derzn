@@ -94,7 +94,7 @@
         {% if zn|has_children %}
            <li id="li_00{{ zn.id }}">
                 <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
+                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
                 {% with zn|group_common_grades:request as grades_iter %}
                 {% if grades_iter.1.value %}
                 {% with grades_iter.1.value|grade as grade %}
@@ -131,7 +131,7 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
-                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
@@ -166,7 +166,7 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
-                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
@@ -196,7 +196,7 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
-                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
@@ -227,7 +227,7 @@
         {% else %}
            <li id="li_00{{ zn.id }}">
                 <i class="bi-file-plus-fill lonely" onclick="toggleHiddenElement(this);"></i>
-                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}/grade">
+                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
                 {% with zn|group_common_grades:request as grades_iter %}
                 {% if grades_iter.1.value %}
                 {% with grades_iter.1.value|grade as grade %}
