@@ -3,7 +3,6 @@ from drevo.views.quiz_list_view import QuizListView
 from .quiz_detail_view import QuizDetailView
 from .quiz_result_processing_view import QuizResultAdd
 from .authors_list_view import AuthorsListView
-from .browsing_history import BrowsingHistoryListView
 from .comment_page_view import CommentPageView
 from .comment_send_view import CommentSendView
 from .drevo_list_view import DrevoListView
@@ -24,6 +23,7 @@ from .admin_interview_work.views import (
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
+from .filling_tables import filling_tables, get_rows_and_columns, znanie_attributes, show_new_znanie
 from .friends_added_view import friends_added_view
 from .friends_view import friends_view
 from .glossary_list_view import GlossaryListView
@@ -46,6 +46,7 @@ from .group_infographics_view import GroupInfographicsView
 from .group_knowledge_grade_statistics import GroupKnowledgeStatisticsView
 from .parameter_settings_view import parameter_settings
 
+
 __all__ = [
     "AuthorDetailView",
     "AuthorsListView",
@@ -64,9 +65,9 @@ __all__ = [
     "AuthorSearchView",
     "TagSearchView",
     "KnowledgeFormView",
-    "BrowsingHistoryListView",
     "FavouritesView",
     "FavouriteProcessView",
+    "filling_tables",
     "friends_view",
     "friends_added_view",
     "friends_invite_view",

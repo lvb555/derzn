@@ -33,9 +33,14 @@ def get_knowledge_dict(knowledge, user=None):
         else:
             zn_in_this_category = knowledge.filter(
                 category=category)
+            if not zn_in_this_category:
+                continue
             _knowledge_dict[category.name] = zn_in_this_category
-
-    return _categories, _knowledge_dict
+    result_categories = []
+    for category in _categories:
+        if category.name in _knowledge_dict.keys():
+            result_categories.append(category)
+    return result_categories, _knowledge_dict
 
 
 def set_auto_status(instance: Znanie, user, level):
@@ -89,7 +94,7 @@ class KnowledgeCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         # Формируем наименование страницы в зависимости от того является пользователь экспертом или нет
         if self.request.user.is_expert:
-            context['title'] = 'Создание Знания'
+            context['title'] = 'Создание Знания/ПредЗнания'
         else:
             context['title'] = 'Создание ПредЗнания'
 
@@ -133,12 +138,12 @@ class KnowledgeCreateView(LoginRequiredMixin, CreateView):
                 status = 'WORK'
             else:
                 status = 'WORK_PRE'
-            KnowledgeStatuses.objects.create(
+            knowledge = KnowledgeStatuses.objects.create(
                 knowledge=knowledge,
                 status=status,
                 user=self.request.user
             )
-            return HttpResponseRedirect(reverse('znanie_user_process'))
+            return HttpResponseRedirect(reverse('znanie_update', kwargs={'pk': knowledge.pk}))
         return self.form_invalid(form, image_form)
 
     def form_invalid(self, form, image_form):
@@ -170,11 +175,10 @@ class UserKnowledgeProcessView(LoginRequiredMixin, TemplateView):
                                      ) & Q(knowledge_status__is_active=True))
                                    )
 
-        print(zn)
         context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn)
         context['var'] = variables
         if self.request.user.is_expert:
-            context['title'] = 'Изменение Знания'
+            context['title'] = 'Изменение Знания/ПредЗнания'
         else:
             context['title'] = 'Изменение ПредЗнания'
 
@@ -325,7 +329,7 @@ class KnowledgeUpdateView(LoginRequiredMixin, UpdateView):
         if tp_level == 'expert':
             context['title'] = 'Экспертиза ПредЗнания'
         elif self.request.user.is_expert:
-            context['title'] = 'Изменение Знания'
+            context['title'] = 'Изменение Знания/Предзнания'
         else:
             context['title'] = 'Изменение ПредЗнания'
 
@@ -381,7 +385,7 @@ class KnowledgeUpdateView(LoginRequiredMixin, UpdateView):
             # Перед сохранением формы с изображениями подставляем текущий объект знания
             image_form.instance = knowledge
             image_form.save()
-            return HttpResponseRedirect(reverse('drevo'))
+            return HttpResponseRedirect(reverse('znanie_update', kwargs={'pk': knowledge.pk}))
         return self.form_invalid(form, image_form)
 
     def form_invalid(self, form, image_form):

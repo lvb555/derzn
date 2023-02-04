@@ -12,9 +12,24 @@
 
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
 {% endblock %}
 
 {% block content %}
+<div class="container header_info">
+    <h1>Мои оценки знаний</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item"><a {% if link == 'users:myprofile' %} href="{% url 'users:my_profile' %}" {% else %} href="{% url link id %}" {% endif %}>Профиль</a></li>
+          <li class="breadcrumb-item"><a>Изучение знаний</a></li>
+          <li class="breadcrumb-item opened"><a>Мои оценки знаний</a></li>
+        </ol>
+    </nav>
+</div>
+
+{% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections %}
+
 <h1 class="h1-drevo my-3">Мои оценки знаний</h1>
 
 <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть дерево</button>
@@ -44,7 +59,6 @@
 
 
 <br><br>
-
 <ul class="root ps-0" id="tree_root">
   {% recursetree ztypes %}
   <li {% if not node.get_level %} style="font-weight: 600;" {% else %} style="font-weight: 400;" {% endif %}
@@ -63,8 +77,8 @@
         {% if zn|has_children %}
            <li id="li_00{{ zn.id }}">
                 <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
-                {% with zn|common_grades:request as grades_iter %}
+                <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                {% with zn|common_grades:false_request as grades_iter %}
                 {% if grades_iter.0|grade %}
                 {% with grades_iter.0|grade as grade %}
                 <span style="background-color: {{ grade.argument_color_background }};
@@ -82,7 +96,7 @@
                     {{ grades_iter.0|floatformat:-2 }}
                 </span>
                 {% endwith %}
-                {% with zn|elements_tree:request as elements_tree %}
+                {% with zn|elements_tree:false_request as elements_tree %}
         <ul hidden>
         {% for element_tree in elements_tree %}
             {% if element_tree.lvl_up %}
@@ -98,7 +112,7 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
-                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
@@ -133,7 +147,7 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
-                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
@@ -163,7 +177,7 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
-                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
+                            <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
@@ -194,8 +208,8 @@
         {% else %}
            <li id="li_00{{ zn.id }}">
                 <i class="bi-file-plus-fill lonely" onclick="toggleHiddenElement(this);"></i>
-                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}/grade">
-                {% with zn|common_grades:request as grades_iter %}
+                <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ zn.get_absolute_url }}/grade" {% endif %}>
+                {% with zn|common_grades:false_request as grades_iter %}
                 {% if grades_iter.0|grade %}
                 {% with grades_iter.0|grade as grade %}
                 <span style="background-color: {{ grade.argument_color_background }};
@@ -227,7 +241,7 @@
   </li>
   {% endrecursetree %}
 </ul>
-
+</div>
 {% endblock %}
 
 {% block jsfiles %}

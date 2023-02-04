@@ -1,6 +1,4 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-
+from django.shortcuts import render
 from drevo.models import QuizResult
 from users.models import User, MenuSections
 
@@ -20,7 +18,8 @@ def show_quiz_result(request,id):
                 context['sections'] = [i.name for i in user.sections.all()]
                 context['activity'] = [i.name for i in user.sections.all() if
                                        i.name.startswith('Мои') or i.name.startswith('Моя')]
-                context['link'] = "'public_human' pub_user.id"
+                context['link'] = 'public_human'
+                context['id'] = id
             context['pub_user'] = user
             all_results = QuizResult.objects.filter(user=user)
             all_quizzes_name = all_results.values_list("quiz__name", flat=True).distinct()

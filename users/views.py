@@ -1,4 +1,4 @@
-from django.shortcuts import HttpResponseRedirect
+from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse_lazy, reverse
 from django.contrib import auth, messages
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView
@@ -7,10 +7,13 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404, JsonResponse
 from django.views.generic.edit import ProcessFormView
 import json
+
+from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory
+from drevo.models.expert_category import CategoryExpert
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
-from users.models import User, Profile, MenuSections
+from users.models import User, Profile, MenuSections, Favourite
 from drevo.models.settings_options import SettingsOptions
 from drevo.models.user_parameters import UserParameters
 
@@ -155,6 +158,7 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
             instance=Profile.objects.get(user=self.object)
         )
         context['sections'] = [i.name for i in self.object.sections.all()]
+        context['access'] = access_sections(self.object)
         return context
 
     def get_object(self, queryset=None):
@@ -195,6 +199,12 @@ class UserProfileTemplateView(LoginRequiredMixin, TemplateView):
 
             if _object:
                 context['object'] = _object
+
+        try:
+            users_categories = CategoryExpert.objects.get(expert = _id)
+            context['users_categories'] = users_categories
+        except:
+            context['users_categories'] = False
 
         context['title'] = f'Профиль пользователя {_object.username}'
         return context
@@ -337,3 +347,40 @@ class MenuSectionsAdd(ProcessFormView):
             return JsonResponse({}, status=200)
 
         raise Http404
+
+
+def my_profile(request):
+    if request.method == 'GET':
+        success_url = reverse_lazy('users:my_profile')
+        context = {}
+        user = User.objects.get(id=request.user.id)
+        context['user'] = user
+        context['sections'] = access_sections(user)
+        return render(request, 'users/profile_header.html', context)
+
+def access_sections(user):
+    sections = []
+    interview = InterviewAnswerExpertProposal.objects.filter(expert=user)
+    if interview is not None:
+        sections.append('interview')
+        if interview.exclude(new_answer_text='').exists():
+            sections.append('proposal')
+        if interview.filter(new_answer_text='').exists():
+            sections.append('answer')
+    knowledges = KnowledgeStatuses.objects.filter(user=user)
+    if knowledges is not None:
+        if knowledges.filter(status='PUB_PRE').exists():
+            sections.append('predznanie')
+        if knowledges.filter(status='PUB').exists():
+            sections.append('znanie')
+        if knowledges.filter(status='KLZ').exists() or knowledges.filter(status='PRE_KLZ').exists():
+            sections.append('klz')
+    if Znanie.published.filter(expert=user).exists():
+        sections.append('expert')
+    if Favourite.objects.filter(user=user).exists():
+        sections.append('favourite')
+    if BrowsingHistory.objects.filter(user=user).exists():
+        sections.append('history')
+    if QuizResult.objects.filter(user=user).exists():
+        sections.append('quiz')
+    return sections

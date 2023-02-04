@@ -12,6 +12,7 @@ class ProfileInlined(admin.StackedInline):
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     inlines = (ProfileInlined, )
+    readonly_fields=('user_friends',)
 
     add_fieldsets = (
         (None, {

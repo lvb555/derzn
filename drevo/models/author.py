@@ -1,4 +1,5 @@
 from django.db import models
+from users.models import User
 
 
 class Author(models.Model):
@@ -8,6 +9,13 @@ class Author(models.Model):
     title = 'Автор'
     name = models.CharField(max_length=128,
                             verbose_name='Имя')
+    user_author = models.ForeignKey(User,
+                               on_delete=models.PROTECT,
+                               verbose_name='Пользователь',
+                               related_name='users',
+                               blank=True,
+                               null=True
+                               )
     subscribers = models.ManyToManyField('users.User', blank=True)
     info = models.TextField(max_length=2048,
                             blank=True,
@@ -28,6 +36,7 @@ class Author(models.Model):
     updated_at = models.DateTimeField(auto_now=True,
                                       verbose_name='Дата и время редактирования',
                                       )
+
     objects = models.Manager()
 
     def __str__(self):

@@ -51,10 +51,8 @@ def search_node_categories(categories_expert):
 def get_tree(obj, user):
     """
     получаем context
-
     rt_dict:
     {'интервью': ['кол-во вопросов', 'все вопросы отвечены?', ['период', 'сегодня день в периоде?']]}
-
     zn_dict:
     {категория: QuerySet[список интервью]}
     """

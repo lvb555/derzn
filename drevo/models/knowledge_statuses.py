@@ -48,3 +48,4 @@ class KnowledgeStatuses(models.Model):
     class Meta:
         verbose_name = 'Статус знания'
         verbose_name_plural = 'Статусы знания'
+        ordering = ['status']

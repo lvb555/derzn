@@ -21,12 +21,15 @@ from .views import (
     AuthorSearchView,
     TagSearchView,
     NewKnowledgeListView,
-    BrowsingHistoryListView,
     FavouritesView,
     FavouriteProcessView,
     QuestionExpertWorkPage,
     friends_view,
     friends_added_view,
+    get_rows_and_columns,
+    filling_tables,
+    znanie_attributes,
+    show_new_znanie,
     KnowledgeFormView,
     QuizListView,
     QuizResultAdd,
@@ -39,8 +42,11 @@ from .views import (
     knowledges_grades,
     GroupKnowledgeStatisticsView,
     parameter_settings,
+    send_message_view,
+    messages_feed_view,
 )
 from .views import send_znanie, knowledge_feed_view
+from .views.browsing_history import browsing_history
 from .views.expert_work.proposal_delete_view import ProposalDeleteView
 from .views.expert_work.views import (
     propose_answer,
@@ -54,6 +60,9 @@ from .views.admin_interview_work.views import (
     AdminEditingKnowledgeView,
     NotifyExpertsView,
 )
+from .views.interview_and_proposal import my_interview, my_proposal
+from .views.my_favourites import my_favourites
+from .views.my_knowledge import my_knowledge, my_preknowledge, my_expertise
 from .views.public_people import public_people_view, public_human
 from .views.quiz_result import show_quiz_result
 from .views.subscribe_to_author_view import sub_by_author
@@ -87,14 +96,18 @@ urlpatterns = [
     path('znanie/<int:pk>/grade/group/infographics', GroupInfographicsView.as_view(), name="grade_group_infographics"),
     path('znanie/<int:pk>/grade/group/statistics', GroupKnowledgeStatisticsView.as_view(), name="grade_group_statistics"),
     path("znanie/<int:pk>/grade/infographics", InfographicsView.as_view(), name="grade_infographics"),
-    path("my_knowledge_grade/", my_knowledge_grade, name="my_knowledge_grade"),
     path("knowledges_grades/", knowledges_grades, name="knowledges_grades"),
+    path("my_knowledge_grade/<int:id>/", my_knowledge_grade, name="my_knowledge_grade"),
+    path("row/", get_rows_and_columns, name="get_rows_and_columns"),
+    path("column/", znanie_attributes, name="znanie_attributes"),
+    path("filling_tables/", filling_tables, name="filling_tables"),
+    path("show_new_znanie/", show_new_znanie, name="show_new_znanie"),
     path("all_quizzes/", QuizListView.as_view(), name="all_quizzes"),
     path("quiz/<int:pk>", QuizDetailView.as_view(), name="quiz"),
     path("quiz/<int:pk>/quiz_result/", QuizResultAdd.as_view()),
-    path("quiz_results/<int:id>", show_quiz_result, name="show_quiz_result"),
+    path("quiz_results/<int:id>/", show_quiz_result, name="show_quiz_result"),
     path("public_people", public_people_view, name="public_people"),
-    path("public_people/<int:id>", public_human, name="public_human"),
+    path("public_people/<int:id>/", public_human, name="public_human"),
     path("label/<int:pk>", ZnanieByLabelView.as_view(), name="zlabel"),
     path("author/<int:pk>", AuthorDetailView.as_view(), name="author"),
     path("authors/", AuthorsListView.as_view(), name="authors"),
@@ -105,10 +118,16 @@ urlpatterns = [
     path("new_knowledge/", NewKnowledgeListView.as_view(), name="new_knowledge"),
     path("search/author", AuthorSearchView.as_view(), name="search_author"),
     path("search/tag", TagSearchView.as_view(), name="search_tag"),
-    path("history/", BrowsingHistoryListView.as_view(), name="history"),
-    path("subscribe_to_author/<int:id>", sub_by_author, name="subscribe_to_author"),
-    path("subscription_by_tag/<int:id>", sub_by_tag, name="subscription_by_tag"),
+    path("history/<int:id>/", browsing_history, name="history"),
+    path("subscribe_to_author/<int:id>/", sub_by_author, name="subscribe_to_author"),
+    path("subscription_by_tag/<int:id>/", sub_by_tag, name="subscription_by_tag"),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
+    path("my_favourites/<int:id>/", my_favourites, name="my_favourites"),
+    path("my_knowledge/<int:id>/", my_knowledge, name="my_knowledge"),
+    path("my_preknowledge/<int:id>/", my_preknowledge, name="my_preknowledge"),
+    path("my_expertise/<int:id>/", my_expertise, name="my_expertise"),
+    path("my__interview/<int:id>/", my_interview, name="my_interview_profile"),
+    path("my_proposal/<int:id>/", my_proposal, name="my_proposal"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
     path(
@@ -169,6 +188,13 @@ urlpatterns = [
     path(
         "knowledge-feed/delete/<int:message_id>/",
         knowledge_feed_view.delete_message,
+        name="delete_feed_message",
+    ),
+    path("send-message/", send_message_view.send_message, name = "send_message"),
+    path("messages-feed/", messages_feed_view.messages_feed, name = "messages_feed"),
+    path(
+        "messages-feed/delete/<int:message_id>/",
+        send_message_view.delete_message,
         name="delete_message",
     ),
     path("developer/", developer_view, name="developer_page"),
