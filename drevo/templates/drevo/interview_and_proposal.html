@@ -17,6 +17,7 @@
           <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
           <li class="breadcrumb-item"><a {% if link == 'users:myprofile' %} href="{% url 'users:my_profile' %}" {% else %} href="{% url link id %}" {% endif %}>Профиль</a></li>
           <li class="breadcrumb-item"><a>Активность</a></li>
+          <li class="breadcrumb-item"><a>Мои интервью</a></li>
           <li class="breadcrumb-item opened"><a>{{title}}</a></li>
         </ol>
     </nav>
