@@ -359,6 +359,7 @@ def my_profile(request):
         return render(request, 'users/profile_header.html', context)
 
 def access_sections(user):
+    #Проверяем какие опции меню будут отображаться
     sections = []
     interview = InterviewAnswerExpertProposal.objects.filter(expert=user)
     if interview is not None:
@@ -373,8 +374,6 @@ def access_sections(user):
             sections.append('predznanie')
         if knowledges.filter(status='PUB').exists():
             sections.append('znanie')
-        if knowledges.filter(status='KLZ').exists() or knowledges.filter(status='PRE_KLZ').exists():
-            sections.append('klz')
     if Znanie.published.filter(expert=user).exists():
         sections.append('expert')
     if Favourite.objects.filter(user=user).exists():

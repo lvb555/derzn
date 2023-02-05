@@ -61,6 +61,7 @@ from .views.admin_interview_work.views import (
     NotifyExpertsView,
 )
 from .views.interview_and_proposal import my_interview, my_proposal
+from .views.klz_all_knowledges import klz_all
 from .views.my_favourites import my_favourites
 from .views.my_knowledge import my_knowledge, my_preknowledge, my_expertise
 from .views.public_people import public_people_view, public_human
@@ -108,6 +109,7 @@ urlpatterns = [
     path("quiz_results/<int:id>/", show_quiz_result, name="show_quiz_result"),
     path("public_people", public_people_view, name="public_people"),
     path("public_people/<int:id>/", public_human, name="public_human"),
+    path("klz_/", klz_all, name="clz"),
     path("label/<int:pk>", ZnanieByLabelView.as_view(), name="zlabel"),
     path("author/<int:pk>", AuthorDetailView.as_view(), name="author"),
     path("authors/", AuthorsListView.as_view(), name="authors"),
