@@ -45,6 +45,28 @@
     <div class="d-flex flex-row">
         <nav class="navbar px-3 mb-3" style="background: #DFDFE3; border-radius: 10px; width: 100%;">
             <div id="nav-dropdown" class="dropdown table-hover">
+            {% if link == 'users:myprofile' %}
+                <div class="btn-group">
+                    <a class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                      Друзья <span style="color: #1B56B5"><strong>{% if new %} ({{new}}) {% endif %}</strong></span>
+                        <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a href="{% url 'friends' %}" class="dropdown-item">Мои друзья</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'friends_added' %}" class="dropdown-item">Приглашение в друзья<span style="color: #1B56B5"><strong>{% if invite_count %} ({{invite_count}}) {% endif %}</strong></span></a>
+                        </li>
+                        <li>
+                            <a href="{% url 'knowledge_feed' %}" class="dropdown-item">Лента знаний<span style="color: #1B56B5"><strong>{% if new_knowledge_feed %} ({{new_knowledge_feed}}) {% endif %}</strong></span></a>
+                        </li>
+                        <li>
+                            <a href="#" class="dropdown-item">Сообщения</a>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
             {% if activity %}
                 <div class="btn-group">
                     <div class="dropdown">
@@ -144,10 +166,12 @@
                             <a href="{% url 'show_quiz_result' pub_user.id %}" class="dropdown-item">Результаты тестов</a>
                         </li>
                         {% endif %}
-                        {% if 'КЛЗ' in sections %}
+                        {% if link == 'users:myprofile' %}
+                        {% if pub_user.in_klz %}
                         <li>
-                            <a class="dropdown-item">КЛЗ</a>
+                            <a href="{% url 'clz' %}" class="dropdown-item">КЛЗ</a>
                         </li>
+                        {% endif %}
                         {% endif %}
                     </ul>
                 </div>

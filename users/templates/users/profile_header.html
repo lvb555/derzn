@@ -180,9 +180,9 @@
                             <a href="{% url 'show_quiz_result' user.id %}" class="dropdown-item">Результаты тестов</a>
                         </li>
                         {% endif %}
-                        {% if 'klz' in sections %}
+                        {% if user.in_klz %}
                         <li>
-                            <a class="dropdown-item">КЛЗ</a>
+                            <a href="{% url 'clz' %}" class="dropdown-item">КЛЗ</a>
                         </li>
                         {% endif %}
                     </ul>
