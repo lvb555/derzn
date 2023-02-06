@@ -16,7 +16,7 @@
                 </i>           
             </a>
         </div>
-        {% if not father_knowledge %}
+        {% if not father_knowledge and user.is_authenticated %}
         <div class="col-2 ">
             <a style="margin-bottom:10px;" href="{% url 'grade_statistic' knowledge.id %}" class="btn btn-secondary">Статистика оценок</a>
             <a href="{% url 'group_knowledge' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Групповая оценка знания</a>
@@ -143,7 +143,7 @@
                             Вид связи
                         </th>
                         <th colspan="2" class="table-border text-center">
-                            Оценка вклада довода
+                            Оценка довода
                         </th>
                         <th colspan="2" class="table-border text-center">
                             Общая оценка знания
@@ -173,31 +173,31 @@
                                 <td class="table-border">
                                     {{ relation.tr.name|endings_filter }}
                                 </td>
-                                {% with relation|proof_weight:request as pw %}
-                                    <td class="table-border">
+                                {% with relation|proof_grade:request as pw %}
+                                    <td class="table-border" style="border-right: none;">
                                         {% if pw == null %}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                         {% else %}
                                             {{ pw|grade_name }}
                                         {% endif %}
                                     </td>
-                                    <td class="table-border text-center">
+                                    <td class="table-border text-center" style="border-left: none;">
                                         {{ pw|floatformat:-2 }}
                                     </td>
                                 {% endwith %}
                                 {% with relation.rz|common_grades:request as grades_iter %}
-                                    <td class="table-border">
+                                    <td class="table-border" style="border-right: none;">
                                         {% if grades_iter.0 == null%}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                         {% else %}
                                             {{ grades_iter.0|grade_name }}
                                         {% endif %}
                                     </td>
-                                    <td class="table-border text-center">
+                                    <td class="table-border text-center" style="border-left: none;">
                                         {{ grades_iter.0|floatformat:-2 }}
                                     </td>
                                 {% endwith %}
-                                <td class="table-border">
+                                <td class="table-border" style="border-right: none;">
                                     <select name="knowledge_grade" id="id_relation_grade{{ relation.id }}">
                                         {% for grade in knowledge_scale %}
                                             <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
@@ -208,10 +208,10 @@
                                         {% endfor %}
                                     </select>
                                 </td>
-                                <td class="table-border text-center">
+                                <td class="table-border text-center" style="border-left: none;">
                                     {{ relation.rz|object_grade_num:user|floatformat:-2 }}
                                 </td>
-                                <td class="table-border">
+                                <td class="table-border" style="border-right: none;">
                                     <select name="relation_grade" id="id_relation_grade{{ relation.id }}">
                                         {% for grade in relation_scale %}
                                             <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
@@ -222,7 +222,7 @@
                                         {% endfor %}
                                     </select>
                                 </td>
-                                <td class="table-border text-center">
+                                <td class="table-border text-center" style="border-left: none;">
                                     {{ relation|object_grade_num:user|floatformat:-2 }}
                                 </td>
                             </tr>
