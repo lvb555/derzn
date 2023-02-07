@@ -591,5 +591,6 @@ class SubAnswersAdmin(admin.ModelAdmin):
     list_display = ('pk', 'expert', 'question', 'answer')
     list_display_links = ('pk', 'expert')
     search_fields = ('question', 'answer', 'expert')
+    autocomplete_fields = ('question', 'answer')
     save_as = True
     save_on_top = True
