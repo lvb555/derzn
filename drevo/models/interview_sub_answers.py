@@ -16,13 +16,13 @@ class SubAnswers(models.Model):
         verbose_name='Вопрос',
         to='drevo.Znanie',
         on_delete=models.CASCADE,
-        related_name='sub_answers'
+        related_name='quest_sub_answers'
     )
     answer = models.ForeignKey(
         verbose_name='Ответ',
         to='drevo.Znanie',
         on_delete=models.CASCADE,
-        related_name='sub_answers'
+        related_name='answ_sub_answers'
     )
     sub_answer = models.TextField(
         verbose_name='Подответ'

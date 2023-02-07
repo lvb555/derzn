@@ -48,7 +48,8 @@ from .models import (
     InterviewResultsSendingSchedule,
     SettingsOptions,
     UserParameters,
-    ParameterCategories
+    ParameterCategories,
+    SubAnswers
 )
 from .services import send_notify_interview
 
@@ -583,3 +584,12 @@ class ParameterCategoriesAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
     search_fields = ['name']
     list_display_links = ['id']
+
+
+@admin.register(SubAnswers)
+class SubAnswersAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'expert', 'question', 'answer')
+    list_display_links = ('pk', 'expert')
+    search_fields = ('question', 'answer', 'expert')
+    save_as = True
+    save_on_top = True
