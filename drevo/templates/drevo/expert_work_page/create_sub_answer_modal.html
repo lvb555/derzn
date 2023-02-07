@@ -1,0 +1,16 @@
+<button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#create_sub_answer{{ answer.id }}">+ Подответ</button>
+<div class="modal fade" id="create_sub_answer{{ answer.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-success text-dark">
+            <div class="modal-body">
+                <form action="{% url 'add_subanswer' question.id answer.id %}" method="post" id="create_sub_answer_form{{ answer.id }}">
+                    <textarea name="subanswer" required class="form-control" placeholder="Введите содержание подответа..."></textarea>
+                    {% csrf_token %}
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <input form="create_sub_answer_form{{ answer.id }}" type="submit" class="btn btn-outline-light text-center w-100" value="Добавить Подответ">
+            </div>
+        </div>
+    </div>
+</div>

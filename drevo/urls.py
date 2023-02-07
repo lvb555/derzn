@@ -51,6 +51,7 @@ from .views.expert_work.views import (
     propose_answer,
     update_answer_proposal,
     update_proposed_answer,
+    sub_answer_create_view
 )
 from .views.admin_interview_work.views import (
     AllInterviewView,
@@ -152,6 +153,11 @@ urlpatterns = [
         "interview/<int:interview_pk>/questions/<int:question_pk>/<int:pk>",
         ProposalDeleteView.as_view(),
         name="delete",
+    ),
+    path(
+        'interview/questions/<int:quest_pk>/answer/<int:answer_pk>/add_subanswer',
+        sub_answer_create_view,
+        name='add_subanswer'
     ),
     path("admin/interview/", AllInterviewView.as_view(), name="all_interview"),
     path(

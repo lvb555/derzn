@@ -14,6 +14,7 @@ from .expert_work.views import (
     QuestionExpertWorkPage,
     propose_answer,
     update_answer_proposal,
+    sub_answer_create_view
 )
 from .admin_interview_work.views import (
     AllInterviewView,
@@ -88,4 +89,5 @@ __all__ = [
     "GroupInfographicsView",
     "GroupKnowledgeStatisticsView",
     'parameter_settings',
+    'sub_answer_create_view',
 ]

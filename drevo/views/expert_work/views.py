@@ -1,9 +1,9 @@
 from django import forms
 from django.http import HttpRequest
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.views.decorators.http import require_http_methods
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 
 from drevo import models as orm
 from drevo.views.expert_work.data_loaders import load_interview
@@ -32,7 +32,7 @@ class QuestionExpertWorkPage(TemplateView):
             orm.Relation.objects.filter(
                 bz_id=question_pk,
                 tr_id=orm.Tr.objects.get(name="Число ответов").id,
-                user_id=self.request.user.id
+                #user_id=self.request.user.id
             )
             .order_by()
             .last()
@@ -206,3 +206,15 @@ def update_proposed_answer(req: HttpRequest, proposal_pk: int):
     return TemplateResponse(
         req, "drevo/expert_work_page/proposed_answer_block.html", context=context
     )
+
+
+@require_http_methods(['POST'])
+def sub_answer_create_view(request: HttpRequest, quest_pk: int, answer_pk: int):
+    """
+    Добавление подответа к ответу на вопрос интервью
+    """
+    sub_answer = request.POST.get('subanswer')
+    question = orm.Znanie.objects.get(pk=quest_pk)
+    answer = orm.Znanie.objects.get(pk=answer_pk)
+    orm.SubAnswers.objects.create(expert=request.user, question=question, answer=answer, sub_answer=sub_answer)
+    return redirect(request.META.get('HTTP_REFERER'))
