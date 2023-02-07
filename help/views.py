@@ -14,7 +14,7 @@ def help_view(request, pk=None):
     # то на основе тегов взятых из url ищем раздел помощи по данной странице.
     if (referer := request.META.get('HTTP_REFERER')) and (not pk):
         ref_url = referer.split('/')[3:] if '?' not in referer else referer[:referer.index('?')].split('/')[3:]
-        ref_data = [elm for elm in ref_url if elm and elm.isalpha()]
+        ref_data = [elm for elm in ref_url if elm and not elm.isdigit()]
         queryset = Help.objects.prefetch_related('url_tag').filter(url_tag__name__in=ref_data).distinct()
         ref_data.sort()
         for help_obj in queryset:
