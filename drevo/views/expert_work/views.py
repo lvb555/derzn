@@ -37,8 +37,8 @@ class QuestionExpertWorkPage(TemplateView):
             .order_by()
             .last()
         )
-        max_agreed = orm.Znanie.objects.get(id=max_agreed.rz_id)
-        context["max_agreed"] = max_agreed.name
+        max_agreed = get_object_or_404(orm.Znanie, id=max_agreed.rz_id).name
+        context["max_agreed"] = int(max_agreed)
 
         # забираем все ответы по вопросу
         question_raw = get_object_or_404(orm.Znanie, pk=question_pk)
