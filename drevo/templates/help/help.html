@@ -26,11 +26,11 @@
         </p>
         {% endif %}
     </div>
-    <div class="col-5">
-        <h1 class="h1-drevo">Содержание раздела "Помощь"</h1>
+    <div class="col-4">
+        <h1 class="h1-drevo">Содержание</h1>
 
-        <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть содержание</button>
-        &nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть содержание</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">Развернуть</button>
+        &nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">Свернуть</button>
 
         <br><br>
 
@@ -42,15 +42,19 @@
                 {% if not node.has_published_children %}
                 <i class="bi-file-plus-fill lonely"></i>
                 {% else %}
-                <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                <i
+                        class="family {% if node in active_nodes and cur_help %} bi-file-minus-fill {% else %}
+                        {% if node not in active_nodes %}bi-file-plus-fill{% else %} bi-file-minus-fill {% endif %} {% endif %}" onclick="toggleHiddenElement(this);">
+
+                </i>
                 {% endif %}
 
-                <a href="{{ node.get_absolute_url }}" class="{% if node == cur_help%}text-success{% endif %} {% if node.is_group %}disabled{% endif %}">
+                <a href="{{ node.get_absolute_url }}" class="{% if node == cur_help %}text-success{% endif %} {% if node.is_group %}disabled{% endif %}">
                     {{ node.name }}
                 </a>
 
                 {% if not node.is_leaf_node %}
-                <ul class="children" {% if node not in active_nodes and cur_help %}hidden{% endif %}>
+                <ul class="children" {% if node not in active_nodes and cur_help %} hidden {% endif %}>
                     {{ children }}
                 </ul>
                 {% endif %}
