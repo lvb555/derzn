@@ -25,6 +25,8 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 INSTALLED_APPS = [
     'custom_admin.apps.CustomAdminConfig',
+    'dal',
+    'dal_select2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
     'users',
     'drevo',
     'help',
+    'smart_selects',
 ]
 
 MIDDLEWARE = [
@@ -174,3 +177,5 @@ LOGGING = {
 # Интервал через который можно совершать рассылку
 # о результатах интервью (в днях)
 NOT_MORE_OFTEN = 1
+
+JQUERY_URL = True

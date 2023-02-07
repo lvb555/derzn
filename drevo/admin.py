@@ -10,6 +10,7 @@ from mptt.admin import DraggableMPTTAdmin
 from drevo.models import InterviewAnswerExpertProposal
 from drevo.models.expert_category import CategoryExpert
 from drevo.models.knowledge_grade import KnowledgeGrade
+from drevo.models.interconnections_of_relations import InteractionsOfRelations
 from .forms.relation_form import RelationAdminForm
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation_grade import RelationGrade
@@ -46,7 +47,8 @@ from .models import (
     InterviewResultsSendingSchedule,
     SettingsOptions,
     UserParameters,
-    ParameterCategories
+    ParameterCategories,
+    interconnections_of_relations,
     )
 from .services import send_notify_interview
 
@@ -259,6 +261,11 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
 admin.site.register(Tz, TzAdmin)
 
 
+@admin.register(InteractionsOfRelations)
+class InteractionfOfRelationsAdmin(admin.ModelAdmin):
+    list_display = ('base_knowledge_type', 'relation_type', 'related_knowledge_type')
+
+
 class RelationAdmin(admin.ModelAdmin):
     list_display = ("id", "bz", "tr", "rz", "author", "date", "user")
     save_as = True
@@ -271,6 +278,7 @@ class RelationAdmin(admin.ModelAdmin):
         "is_published",
     )
     ordering = ("-date",)
+    
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         kwargs["form"] = RelationAdminForm
@@ -547,6 +555,8 @@ admin.site.register(FriendsInviteTerm)
 admin.site.register(LabelFeedMessage)
 admin.site.register(FeedMessage)
 admin.site.register(AgeUsersScale)
+
+
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
     list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)

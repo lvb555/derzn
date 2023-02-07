@@ -1,0 +1,30 @@
+{% extends 'drevo/base.html' %}
+{%load %}
+
+{% block content %}
+    <form method="POST" action="{% url 'test_ajax'%}">
+        {% csrf_token %}
+        {{form}}
+        <button type=sumbit>Test AJAX<button>
+    </form>
+{% endblock %}
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+{%block js%}
+
+$('id_bz').keyup(function(){
+    $.ajax (
+        {
+            data: $(this.serialize()),
+            type: "GET",
+            url: "{% url 'test_response' %}",
+            success: (response) => {
+                console.log(response);
+            },
+                error: (error) => {
+                    console.log(error);
+                }
+            }
+        )
+})
+
+{%endblock%}

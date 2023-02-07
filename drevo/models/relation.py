@@ -3,6 +3,7 @@ from users.models import User
 from drevo.models.relation_grade_scale import RelationGradeScale
 
 
+
 class Relation(models.Model):
     """
     Класс для связи Знание-Знание
