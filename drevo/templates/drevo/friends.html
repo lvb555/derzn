@@ -208,7 +208,7 @@
                         </li>
 
                         <li>
-                            <a href="{% url 'my_knowledge_grade' %}" class="dropdown-item">Мои оценки знаний</a>
+                            <a href="{% url 'my_knowledge_grade' request.user.id %}" class="dropdown-item">Мои оценки знаний</a>
                         </li>
 
                         <li>
