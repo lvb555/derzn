@@ -1,0 +1,73 @@
+<div class="text-center mt-3 border-bottom border-dark">
+    <h2>Ответы на вопрос</h2>
+</div>
+
+<div class="mt-3">
+    {% for answer in answers %}
+    <div class="row gy-4 mt-2" id="answers">
+        <div class="col">
+            <div class="answer__title col">
+                {% if answer.id and answer.id != 0 %}
+                <a href="{% url 'zdetail' answer.id %}" target="_blank">{{answer.text}}</a>
+                {% else %}
+                <span>{{answer.text}}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col border-start border-dark">
+            <div class="row">
+                <div class="col">
+                    <div class="form-check">
+                        <input type="checkbox" id="opinion_is_agreed"
+                               name="is_agreed"
+                               {% if answer.proposal.is_agreed %} checked {% endif %}
+                               class="form-check-input"
+                               {% if answer.proposal.is_incorrect_answer or cur_agreed_count >= max_agreed %}
+                                disabled
+                                {% endif %}
+                        >
+                        <label for="opinion_is_agreed" class="form-check-label">
+                            С ответом согласен
+                        </label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-check">
+                        <input type="checkbox" id="incorrect_answer{{ answer.id }}" name="incorrect_answer{{ answer.id }}"
+                               class="form-check-input"
+                               {% if not answer.proposal.is_incorrect_answer %}
+                               data-bs-toggle="collapse"
+                               data-bs-target="#answer{{ answer.id }}"
+                               {% endif %}
+                               {% if answer.proposal.is_agreed or cur_agreed_count >= max_agreed %}
+                               disabled
+                               {% endif %}
+                        >
+                        <label for="incorrect_answer{{ answer.id }}" class="form-check-label">
+                            Некорректный ответ
+                        </label>
+                    </div>
+                </div>
+                <div class="col">
+                    {% include './create_sub_answer_modal.html' %}
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="collapse {% if answer.proposal.is_incorrect_answer %} show {% endif %} text-dark" id="answer{{ answer.id }}">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group p-3">
+                            <textarea name="subanswer" required class="form-control" placeholder="Введите пояснение, почему считаете ответ некорректным..."></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center mt-3">
+        <p class="fs-4">Ответов по данному вопросу ещё нет.</p>
+    </div>
+    {% endfor %}
+</div>
