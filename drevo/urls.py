@@ -52,7 +52,9 @@ from .views.expert_work.views import (
     update_answer_proposal,
     update_proposed_answer,
     sub_answer_create_view,
-    ExpertProposalDeleteView
+    ExpertProposalDeleteView,
+    set_answer_as_incorrect,
+    set_answer_is_agreed,
 )
 from .views.admin_interview_work.views import (
     AllInterviewView,
@@ -159,6 +161,16 @@ urlpatterns = [
         'interview/questions/<int:quest_pk>/answer/<int:answer_pk>/add_subanswer',
         sub_answer_create_view,
         name='add_subanswer'
+    ),
+    path(
+        'interview/answer/<int:proposal_pk>/answer_as_incorrect',
+        set_answer_as_incorrect,
+        name='set_answer_as_incorrect'
+    ),
+    path(
+        'interview/answer/<int:proposal_pk>/answer_is_agreed',
+        set_answer_is_agreed,
+        name='set_answer_is_agreed'
     ),
     path("admin/interview/", AllInterviewView.as_view(), name="all_interview"),
     path(

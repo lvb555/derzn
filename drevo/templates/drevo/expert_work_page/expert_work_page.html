@@ -72,4 +72,13 @@
         integrity="sha384-EzBXYPt0/T6gxNp0nuPtLkmRpmDBbjg6WmCUZRLXBBwYYmwAUxzlSGej0ARHX0Bo"
         crossorigin="anonymous">
 </script>
+
+<script>
+        function set_answer_as_incorrect(e, form_id) {
+            console.log(form_id);
+            if ( (window.event ? event.keyCode : e.which) == 13) {
+                form_id.submit();
+            }
+        }
+</script>
 {% endblock %}

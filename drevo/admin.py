@@ -499,9 +499,9 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
         "question_link",
         "answer_link",
         "new_answer_text",
+        "incorrect_answer_explanation",
         "admin_reviewer",
         "status",
-        "is_incorrect_answer",
         "is_notified"
     )
     list_display_links = ("id",)

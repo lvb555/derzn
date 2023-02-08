@@ -224,3 +224,31 @@ class ExpertProposalDeleteView(RedirectView):
         if queryset.exists():
             queryset.first().delete()
         return super(ExpertProposalDeleteView, self).get(request, *args, **kwargs)
+
+
+@require_http_methods(['POST', 'GET'])
+def set_answer_as_incorrect(request: HttpRequest, proposal_pk: int):
+    """
+        Определение предложения (ответа) как некорректное
+    """
+    proposal = get_object_or_404(orm.InterviewAnswerExpertProposal, pk=proposal_pk)
+    if request.method == 'GET':
+        proposal.incorrect_answer_explanation = ''
+        proposal.is_incorrect_answer = False
+    else:
+        explanation = request.POST.get('explanation').strip()
+        proposal.incorrect_answer_explanation = explanation
+        proposal.is_incorrect_answer = True
+    proposal.save()
+    return redirect(request.META.get('HTTP_REFERER'))
+
+
+@require_http_methods(['GET'])
+def set_answer_is_agreed(request: HttpRequest, proposal_pk: int):
+    """
+        Согласиться с предложением
+    """
+    proposal = get_object_or_404(orm.InterviewAnswerExpertProposal, pk=proposal_pk)
+    proposal.is_agreed = True if request.GET.get('is_agreed') else False
+    proposal.save()
+    return redirect(request.META.get('HTTP_REFERER'))
