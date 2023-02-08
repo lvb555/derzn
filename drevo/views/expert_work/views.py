@@ -19,7 +19,7 @@ class QuestionExpertWorkPage(TemplateView):
     - со всеми новыми ответами, которые создал эксперт
     """
 
-    template_name = "drevo/expert_work_page/question_expertises.html"
+    template_name = "drevo/expert_work_page/expert_work_page.html"
 
     def get_context_data(self, interview_pk: int, question_pk, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -61,19 +61,18 @@ class QuestionExpertWorkPage(TemplateView):
             expert_id=self.request.user.pk,
         ).order_by("id")
 
-        # и если оно имеет привязку к ответу - присоединяем к нему.
-        # В остальных случаях - это список новых предложенных ответов от эксперта
-        proposed_answers = []
-        for p in proposals:
+        # разделяем предложения на две группы,
+        # те которе уже прошли проверку администратором 'reviewed' и которые в ожидании 'pending'
+        expert_proposals = {'reviewed': list(), 'pending': list()}
+        for prop in proposals:
             # предложение к существующему вопросу
-            if p.answer is not None:
-                exist_prop = answers[p.answer.pk]
-                exist_prop["proposal"] = p
+            if prop.status:
+                expert_proposals['reviewed'].append(prop)
             else:
-                proposed_answers.append(p)
+                expert_proposals['pending'].append(prop)
 
         context["answers"] = answers.values()
-        context["proposed_answers"] = proposed_answers
+        context["expert_proposals"] = expert_proposals
         context["question"] = dict(id=question_pk, title=question_raw.name)
         return context
 
