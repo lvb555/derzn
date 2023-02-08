@@ -45,16 +45,22 @@ class QuestionExpertWorkPage(TemplateView):
         question_raw = get_object_or_404(orm.Znanie, pk=question_pk)
         answers_links = question_raw.base.filter(
             tr_id=orm.Tr.objects.get(name="Ответ [ы]").id
-        ).select_related("rz").prefetch_related('rz__answ_sub_answers')
+        ).select_related("rz").prefetch_related('rz__answ_sub_answers', 'rz__answer_proposals')
 
         answers = {}
+        cur_agreed_count = 0
         for answer_link in answers_links:
             answer = answer_link.rz
+            proposal = answer.answer_proposals.all().first()
+            if proposal and proposal.is_agreed:
+                cur_agreed_count += 1
             answers[answer.pk] = dict(
                 id=answer.pk,
                 text=answer.name,
-                sub_answers=answer.answ_sub_answers.all().values_list('sub_answer', flat=True)
+                sub_answers=answer.answ_sub_answers.all().values_list('sub_answer', flat=True),
+                proposal=proposal
             )
+        context['cur_agreed_count'] = cur_agreed_count
 
         # собираем предложения
         proposals = orm.InterviewAnswerExpertProposal.objects.filter(

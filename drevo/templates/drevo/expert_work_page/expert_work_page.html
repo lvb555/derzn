@@ -34,8 +34,8 @@
             <p class="proposal-bold-text fs-5">Допустимое число ответов:</p>
         </div>
         <div class="col">
-            <p id="max-agreed-count" class="{% if max_agreed %} text-success {% else %} text-danger {% endif %}">
-                0/{{ max_agreed }}
+            <p id="max-agreed-count" class="{% if cur_agreed_count >= max_agreed %} text-danger {% else %} text-success {% endif %}">
+                {{ cur_agreed_count }}/{{ max_agreed }}
             </p>
         </div>
     </div>
