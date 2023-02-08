@@ -199,24 +199,18 @@
                             </li>
     
                             <li>
-                                <a href="{% url 'favourites' %}" class="dropdown-item">Избранные знания</a>
+                                <a href="{% url 'my_favourites' user.id %}" class="dropdown-item">Избранные знания</a>
                             </li>
     
                             <li>
-                                <div class="btn-group">
-                                    <a class="dropdown-item" href="{% url 'all_quizzes' %}">Тестирование</a>
-                                    <a onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <span class="visually-hidden"></span>
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="dropdown-item" href="{% url 'show_quiz_result' %}">Мои результаты тестов</a>
-                                        </li>
-                                    </ul>
-                                </div>
+                                <a href="{% url 'my_knowledge_grade' request.user.id %}" class="dropdown-item">Мои оценки знаний</a>
                             </li>
-                    </div>
     
+                            <li>
+                                <a href="{% url 'show_quiz_result' user.id %}" class="dropdown-item">Результаты тестов</a>
+                            </li>
+                        </ul>
+                    </div>
                     <div class="btn-group">
                         <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                           Подписки <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
@@ -229,11 +223,11 @@
                             </li>
     
                             <li>
-                                <a href="{% url 'subscribe_to_author' %}" class="dropdown-item">По авторам</a>
+                                <a href="{% url 'subscribe_to_author' user.id %}" class="dropdown-item">По авторам</a>
                             </li>
     
                             <li>
-                                <a href="{% url 'subscription_by_tag' %}" class="dropdown-item">По тегам</a>
+                                <a href="{% url 'subscription_by_tag' user.id %}" class="dropdown-item">По тегам</a>
                             </li>
                         </ul>
                     </div>
