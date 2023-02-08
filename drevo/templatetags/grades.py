@@ -60,6 +60,16 @@ def proof_weight(relation: Relation, request):
     return relation.get_proof_weight(request, variant)
 
 @register.filter
+def proof_grade(relation: Relation, request):
+    variant = request.GET.get('variant')
+    if variant and variant.isdigit():
+        variant = int(variant)
+    else:
+        variant = 1
+
+    return relation.get_proof_grade(request, variant)
+
+@register.filter
 def grade(value):
     obj = KnowledgeGradeScale.get_grade_object(value)
     return obj

@@ -190,7 +190,7 @@
                             Вид связи
                         </th>
                         <th colspan="2" class="table-border text-center">
-                            Оценка вклада довода
+                            Оценка довода
                         </th>
                         <th colspan="2" class="table-border text-center">
                             Общая оценка знания
@@ -220,46 +220,46 @@
                                 <td class="table-border">
                                     {{ relation.type_name|endings_filter }}
                                 </td>
-                                <td class="table-border">
+                                <td class="table-border" style="border-right: none;">
                                     {% if relation.proof_grade.value %}
                                         {{ relation.proof_grade.name }}
                                     {% else %}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                     {% endif %}
                                 </td>
-                                <td class="table-border text-center">
+                                <td class="table-border text-center" style="border-left: none;">
                                     {% if relation.proof_grade.value %}
                                         {{ relation.proof_grade.value|floatformat:-2 }}
                                     {% endif %}
                                 </td>
-                                <td class="table-border">
+                                <td class="table-border" style="border-right: none;">
                                     {% if not relation.common_grade.name %}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                     {% else %}
                                         {{ relation.common_grade.name }}
                                     {% endif %}
                                 </td>
-                                <td class="table-border text-center">
+                                <td class="table-border text-center" style="border-left: none;">
                                     {{ relation.common_grade.value|floatformat:-2 }}
                                 </td>
-                                <td class="table-border">
+                                <td class="table-border" style="border-right: none;">
                                     {% if not relation.knowledge_grade.name %}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                     {% else %}
                                         {{ relation.knowledge_grade.name }}
                                     {% endif %}
                                 </td>
-                                <td class="table-border text-center">
+                                <td class="table-border text-center" style="border-left: none;">
                                     {{ relation.knowledge_grade.value|floatformat:-2 }}
                                 </td>
-                                <td class="table-border">
+                                <td class="table-border" style="border-right: none;">
                                     {% if not relation.grade.name %}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                     {% else %}
                                         {{ relation.grade.name }}
                                     {% endif %}
                                 </td>
-                                <td class="table-border text-center">
+                                <td class="table-border text-center" style="border-left: none;">
                                     {{ relation.grade.value|floatformat:-2 }}
                                 </td>
                             </tr>
