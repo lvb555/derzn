@@ -210,10 +210,25 @@ def update_proposed_answer(req: HttpRequest, proposal_pk: int):
 @require_http_methods(['POST'])
 def sub_answer_create_view(request: HttpRequest, quest_pk: int, answer_pk: int):
     """
-    Добавление подответа к ответу на вопрос интервью
+        Добавление подответа к ответу на вопрос интервью
     """
     sub_answer = request.POST.get('subanswer')
     question = orm.Znanie.objects.get(pk=quest_pk)
     answer = orm.Znanie.objects.get(pk=answer_pk)
     orm.SubAnswers.objects.create(expert=request.user, question=question, answer=answer, sub_answer=sub_answer)
     return redirect(request.META.get('HTTP_REFERER'))
+
+
+class ExpertProposalDeleteView(RedirectView):
+    """
+        Удаление предложения эксперта по вопросу интервью
+    """
+    def get_redirect_url(self, *args, **kwargs):
+        return self.request.META.get('HTTP_REFERER')
+
+    def get(self, request, *args, **kwargs):
+        proposal_pk = request.GET.get('proposal_pk')
+        queryset = orm.InterviewAnswerExpertProposal.objects.filter(pk=proposal_pk, expert=request.user)
+        if queryset.exists():
+            queryset.first().delete()
+        return super(ExpertProposalDeleteView, self).get(request, *args, **kwargs)

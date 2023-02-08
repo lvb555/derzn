@@ -46,12 +46,13 @@ from .views import (
     messages_feed_view,
 )
 from .views import send_znanie, knowledge_feed_view
-from .views.expert_work.proposal_delete_view import ProposalDeleteView
+
 from .views.expert_work.views import (
     propose_answer,
     update_answer_proposal,
     update_proposed_answer,
-    sub_answer_create_view
+    sub_answer_create_view,
+    ExpertProposalDeleteView
 )
 from .views.admin_interview_work.views import (
     AllInterviewView,
@@ -150,9 +151,9 @@ urlpatterns = [
         name="update_proposed_answer",
     ),
     path(
-        "interview/<int:interview_pk>/questions/<int:question_pk>/<int:pk>",
-        ProposalDeleteView.as_view(),
-        name="delete",
+        "interview/delete_proposal",
+        ExpertProposalDeleteView.as_view(),
+        name="delete_proposal",
     ),
     path(
         'interview/questions/<int:quest_pk>/answer/<int:answer_pk>/add_subanswer',
