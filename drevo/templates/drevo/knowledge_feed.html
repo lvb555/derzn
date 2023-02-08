@@ -108,7 +108,7 @@
                             </li>
     
                             <li>
-                                <a href="{% url 'knowledge_feed' %}" class="dropdown-item">Лента знаний<span style="color: #1B56B5"><strong>{% if new_knowledge_feed %} ({{new_knowledge_feed}}) {% endif %}</strong></span></a>
+                                <a href="{% url 'knowledge_feed' %}" class="dropdown-item">Лента знаний<span style="color: #1B56B5"><strong>{% if unread %} ({{unread}}) {% endif %}</strong></span></a>
                             </li>
     
                             <li>
