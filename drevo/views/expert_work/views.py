@@ -2,8 +2,9 @@ from django import forms
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
-from django.views.generic import TemplateView, RedirectView
+from django.views.generic import TemplateView, RedirectView, UpdateView
 
 from drevo import models as orm
 from drevo.views.expert_work.data_loaders import load_interview
@@ -44,7 +45,7 @@ class QuestionExpertWorkPage(TemplateView):
         question_raw = get_object_or_404(orm.Znanie, pk=question_pk)
         answers_links = question_raw.base.filter(
             tr_id=orm.Tr.objects.get(name="Ответ [ы]").id
-        ).select_related("rz")
+        ).select_related("rz").prefetch_related('rz__answ_sub_answers')
 
         answers = {}
         for answer_link in answers_links:
@@ -52,6 +53,7 @@ class QuestionExpertWorkPage(TemplateView):
             answers[answer.pk] = dict(
                 id=answer.pk,
                 text=answer.name,
+                sub_answers=answer.answ_sub_answers.all().values_list('sub_answer', flat=True)
             )
 
         # собираем предложения
@@ -70,7 +72,7 @@ class QuestionExpertWorkPage(TemplateView):
                 expert_proposals['reviewed'].append(prop)
             else:
                 expert_proposals['pending'].append(prop)
-
+        context['backup_url'] = reverse('interview', kwargs={'pk': interview_pk})
         context["answers"] = answers.values()
         context["expert_proposals"] = expert_proposals
         context["question"] = dict(id=question_pk, title=question_raw.name)
