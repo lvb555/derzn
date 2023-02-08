@@ -55,6 +55,7 @@ from .views.expert_work.views import (
     ExpertProposalDeleteView,
     set_answer_as_incorrect,
     set_answer_is_agreed,
+    proposal_update_view,
 )
 from .views.admin_interview_work.views import (
     AllInterviewView,
@@ -171,6 +172,11 @@ urlpatterns = [
         'interview/answer/<int:proposal_pk>/answer_is_agreed',
         set_answer_is_agreed,
         name='set_answer_is_agreed'
+    ),
+    path(
+        'interview/proposal/<int:proposal_pk>/update',
+        proposal_update_view,
+        name='proposal_update'
     ),
     path("admin/interview/", AllInterviewView.as_view(), name="all_interview"),
     path(

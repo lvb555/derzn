@@ -252,3 +252,14 @@ def set_answer_is_agreed(request: HttpRequest, proposal_pk: int):
     proposal.is_agreed = True if request.GET.get('is_agreed') else False
     proposal.save()
     return redirect(request.META.get('HTTP_REFERER'))
+
+
+@require_http_methods(['POST'])
+def proposal_update_view(request: HttpRequest, proposal_pk: int):
+    """
+        Обновление текста ответа предложения
+    """
+    proposal = get_object_or_404(orm.InterviewAnswerExpertProposal, pk=proposal_pk)
+    proposal.new_answer_text = request.POST.get('new_proposal_text')
+    proposal.save()
+    return redirect(request.META.get('HTTP_REFERER'))

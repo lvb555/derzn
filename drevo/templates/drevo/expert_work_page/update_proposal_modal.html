@@ -1,0 +1,19 @@
+<button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#update_proposal{{ proposal.pk }}">Изменить</button>
+<div class="modal fade" id="update_proposal{{ proposal.pk }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-light text-dark">
+            <div class="modal-title text-center border-bottom">
+                <p class="fs-4 mt-2">Редактирование предложения ответа</p>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'proposal_update' proposal.pk %}" method="post" id="update_proposal{{ proposal.pk }}_form">
+                    {% csrf_token %}
+                    <textarea name="new_proposal_text" id="new_proposal_text" class="form-control w-100" required>{{ proposal.new_answer_text }}</textarea>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <input form="update_proposal{{ proposal.pk }}_form" type="submit" class="btn btn-outline-success text-center w-100" value="Сохранить изменения">
+            </div>
+        </div>
+    </div>
+</div>

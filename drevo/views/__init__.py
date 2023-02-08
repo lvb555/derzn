@@ -17,6 +17,7 @@ from .expert_work.views import (
     ExpertProposalDeleteView,
     set_answer_as_incorrect,
     set_answer_is_agreed,
+    proposal_update_view,
 )
 from .admin_interview_work.views import (
     AllInterviewView,
@@ -93,4 +94,6 @@ __all__ = [
     'sub_answer_create_view',
     'ExpertProposalDeleteView',
     'set_answer_as_incorrect',
+    'set_answer_is_agreed',
+    'proposal_update_view',
 ]
