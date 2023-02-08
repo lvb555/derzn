@@ -6,4 +6,7 @@ register = Library()
 
 @register.filter()
 def get_norm_status_value(raw_value: str) -> str:
-    return {key: value for key, value in InterviewAnswerExpertProposal.STATUSES}.get(raw_value)
+    return {
+        key: f'{value}о' if value in ('Принят', 'Не принят') else value
+        for key, value in InterviewAnswerExpertProposal.STATUSES
+    }.get(raw_value)

@@ -91,32 +91,16 @@ def propose_answer(req: HttpRequest, interview_pk: int, question_pk: int, **kwar
     """
     Эксперт предлагает новый ответ в качестве предложения
     """
-    form = NewAnswerFromExpertForm(req.POST)
-    context = dict(interview=dict(id=interview_pk), question=dict(id=question_pk))
-
-    if form.is_valid():
-        status = 201
-        prop = orm.InterviewAnswerExpertProposal()
-        prop.expert_user = req.user
-        prop.interview_id = interview_pk
-        prop.question_id = question_pk
-        can_agreed = orm.InterviewAnswerExpertProposal.check_max_agreed(prop)
-        if not can_agreed:
-            form.cleaned_data["is_agreed"] = False
-
-        context["proposal"] = orm.InterviewAnswerExpertProposal.create_new_proposal(
-            expert_user=req.user,
-            interview_id=interview_pk,
-            question_id=question_pk,
-            **form.cleaned_data,
-        )
-    else:
-        status = 400
-
-    context["form"] = form
-    return TemplateResponse(
-        req, "drevo/expert_work_page/proposed_answer_block.html", context, status=status
+    proposal_text = req.POST.get('text')
+    proposal_is_agreed = req.POST.get('is_agreed')
+    orm.InterviewAnswerExpertProposal.create_new_proposal(
+        expert_user=req.user,
+        interview_id=interview_pk,
+        question_id=question_pk,
+        text=proposal_text,
+        is_agreed=True if proposal_is_agreed else False,
     )
+    return redirect(req.META.get('HTTP_REFERER'))
 
 
 class AnswerProposalForm(forms.Form):
