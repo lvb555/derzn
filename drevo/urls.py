@@ -185,7 +185,7 @@ urlpatterns = [
         name="interview_quests",
     ),
     path(
-        "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/",
+        "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/proposals/",
         question_admin_work_view,
         name="question_admin_work",
     ),
