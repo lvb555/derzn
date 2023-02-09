@@ -75,6 +75,9 @@
         color: gray
     }
 </style>
+
+{% include './success_action_message_modal.html' %}
+
 {% endblock %}
 
 {% block jsfiles %}
@@ -82,10 +85,18 @@
         integrity="sha384-EzBXYPt0/T6gxNp0nuPtLkmRpmDBbjg6WmCUZRLXBBwYYmwAUxzlSGej0ARHX0Bo"
         crossorigin="anonymous">
 </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script type="text/javascript">
+if ("{{ is_saved }}") {
+  $(window).on('load', function() {
+        $('#success_message_modal').modal('show');
+    });
+}
+</script>
 
 <script>
         function set_answer_as_incorrect(e, form_id) {
-            console.log(form_id);
             if ( (window.event ? event.keyCode : e.which) == 13) {
                 form_id.submit();
             }

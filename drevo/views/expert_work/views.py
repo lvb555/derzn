@@ -102,6 +102,13 @@ class QuestionExpertWorkPage(TemplateView):
         context["answers"] = answers.values()
         context["expert_proposals"] = expert_proposals
         context["question"] = dict(id=question_pk, title=question_raw.name)
+
+        message_text = self.request.session.get('success_message_text')
+        if message_text:
+            print(message_text)
+            context['is_saved'] = True
+            context['message_text'] = message_text
+            del self.request.session['success_message_text']
         return context
 
 
@@ -119,6 +126,8 @@ def propose_answer(req: HttpRequest, interview_pk: int, question_pk: int):
         text=proposal_text,
         is_agreed=True if proposal_is_agreed else False,
     )
+    message_text = 'Ваше предложение ответа на вопрос было успешно добавлено и ожидает рассмотрения администраниции.'
+    req.session['success_message_text'] = message_text
     return redirect(req.META.get('HTTP_REFERER'))
 
 
@@ -131,6 +140,8 @@ def sub_answer_create_view(request: HttpRequest, quest_pk: int, answer_pk: int):
     question = orm.Znanie.objects.get(pk=quest_pk)
     answer = orm.Znanie.objects.get(pk=answer_pk)
     orm.SubAnswers.objects.create(expert=request.user, question=question, answer=answer, sub_answer=sub_answer)
+    message_text = f'Ваш подответ к ответу "{answer.name}" был успешно создан.'
+    request.session['success_message_text'] = message_text
     return redirect(request.META.get('HTTP_REFERER'))
 
 
@@ -146,6 +157,8 @@ class ExpertProposalDeleteView(RedirectView):
         queryset = orm.InterviewAnswerExpertProposal.objects.filter(pk=proposal_pk, expert=request.user)
         if queryset.exists():
             queryset.first().delete()
+            message_text = 'Ваше предложение ответа по данному вопросу было успешно удалено.'
+            request.session['success_message_text'] = message_text
         return super(ExpertProposalDeleteView, self).get(request, *args, **kwargs)
 
 
@@ -158,10 +171,13 @@ def set_answer_as_incorrect(request: HttpRequest, proposal_pk: int):
     if request.method == 'GET':
         proposal.incorrect_answer_explanation = ''
         proposal.is_incorrect_answer = False
+        message_text = 'Подтверждение, что вы не считаете данный ответ некорректным было сохранено.'
     else:
         explanation = request.POST.get('explanation').strip()
         proposal.incorrect_answer_explanation = explanation
         proposal.is_incorrect_answer = True
+        message_text = 'Подтверждение, что вы считаете данный ответ некорректным было сохранено.'
+    request.session['success_message_text'] = message_text
     proposal.save()
     return redirect(request.META.get('HTTP_REFERER'))
 
@@ -174,6 +190,8 @@ def set_answer_is_agreed(request: HttpRequest, proposal_pk: int):
     proposal = get_object_or_404(orm.InterviewAnswerExpertProposal, pk=proposal_pk)
     proposal.is_agreed = True if request.GET.get('is_agreed') else False
     proposal.save()
+    message_text = 'Изменения были сохранены.'
+    request.session['success_message_text'] = message_text
     return redirect(request.META.get('HTTP_REFERER'))
 
 
@@ -185,4 +203,6 @@ def proposal_update_view(request: HttpRequest, proposal_pk: int):
     proposal = get_object_or_404(orm.InterviewAnswerExpertProposal, pk=proposal_pk)
     proposal.new_answer_text = request.POST.get('new_proposal_text')
     proposal.save()
+    message_text = f'Изменения были сохранены.'
+    request.session['success_message_text'] = message_text
     return redirect(request.META.get('HTTP_REFERER'))
