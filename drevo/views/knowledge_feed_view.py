@@ -65,11 +65,11 @@ def knowledge_feed_view(request):
         context['invite_count'] = invite_count if invite_count else 0
 
         context['user'] = request.user
-        context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient = request.user, was_read = False).count()
+        # context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient = request.user, was_read = False).count()
 
         context['new_messages'] = Message.objects.filter(recipient = request.user, was_read = False).count()
 
-        context['new'] = int(context['new_knowledge_feed']) + int(context['invite_count'] + int(context['new_messages']))
+        context['new'] = int(context['unread']) + int(context['invite_count'] + int(context['new_messages']))
         
     # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
     except TypeError:

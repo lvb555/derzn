@@ -7,11 +7,13 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404, JsonResponse
 from django.views.generic.edit import ProcessFormView
 import json
+
+from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory
 from drevo.models.expert_category import CategoryExpert
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
-from users.models import User, Profile, MenuSections
+from users.models import User, Profile, MenuSections, Favourite
 from drevo.models.settings_options import SettingsOptions
 from drevo.models.user_parameters import UserParameters
 
@@ -156,6 +158,7 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
             instance=Profile.objects.get(user=self.object)
         )
         context['sections'] = [i.name for i in self.object.sections.all()]
+        context['access'] = access_sections(self.object)
         return context
 
     def get_object(self, queryset=None):
@@ -352,4 +355,31 @@ def my_profile(request):
         context = {}
         user = User.objects.get(id=request.user.id)
         context['user'] = user
+        context['sections'] = access_sections(user)
         return render(request, 'users/profile_header.html', context)
+
+def access_sections(user):
+    #Проверяем какие опции меню будут отображаться
+    sections = []
+    interview = InterviewAnswerExpertProposal.objects.filter(expert=user)
+    if interview is not None:
+        sections.append('interview')
+        if interview.exclude(new_answer_text='').exists():
+            sections.append('proposal')
+        if interview.filter(new_answer_text='').exists():
+            sections.append('answer')
+    knowledges = KnowledgeStatuses.objects.filter(user=user)
+    if knowledges is not None:
+        if knowledges.filter(status='PUB_PRE').exists():
+            sections.append('predznanie')
+        if knowledges.filter(status='PUB').exists():
+            sections.append('znanie')
+    if Znanie.published.filter(expert=user).exists():
+        sections.append('expert')
+    if Favourite.objects.filter(user=user).exists():
+        sections.append('favourite')
+    if BrowsingHistory.objects.filter(user=user).exists():
+        sections.append('history')
+    if QuizResult.objects.filter(user=user).exists():
+        sections.append('quiz')
+    return sections

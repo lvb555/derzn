@@ -7,58 +7,75 @@
 {% load static %}
 
 {% block title %}
-    Мои оценки знаний
+    Дерево оценок знаний
 {% endblock %}
 
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
-<link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container header_info">
-    <h1>Мои оценки знаний</h1>
-    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
-          <li class="breadcrumb-item"><a {% if link == 'users:myprofile' %} href="{% url 'users:my_profile' %}" {% else %} href="{% url link id %}" {% endif %}>Профиль</a></li>
-          <li class="breadcrumb-item"><a>Изучение знаний</a></li>
-          <li class="breadcrumb-item opened"><a>Мои оценки знаний</a></li>
-        </ol>
-    </nav>
-</div>
-
-{% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections %}
-
-<h1 class="h1-drevo my-3">Мои оценки знаний</h1>
+<h1 class="h1-drevo my-3">Дерево оценок знаний</h1>
 
 <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть дерево</button>
 &nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть дерево</button>
 
-        <div class="my-4">
-            <form action="{{ request.get_full_path }}" method="get" id="modeForm">
-                <div class="d-flex flex-row align-items-center">
-                    <span><strong>Вариант расчета:</strong></span>
-                    <span class="ms-2">
-                    <fieldset id="variant" class="input-group">
-                        <span style="white-space: nowrap">
-                            <input class="ms-2" type="radio" id="var1" name="variant" value="1"
-                                    {% if request.GET.variant != '2' %} checked {% endif %}>
-                            <label for="var1">Оценка знания</label>
-                        </span>
-                        <span style="white-space: nowrap">
-                            <input class="ms-2" type="radio" id="var2" name="variant" value="2"
-                                    {% if request.GET.variant == '2' %} checked {% endif %}>
-                            <label for="var2">Общая оценка знания</label>
-                        </span>
-                    </fieldset>
+<div class="my-4">
+    <form action="{{ request.get_full_path }}" method="get" id="modeForm">
+        <div class="d-flex flex-row align-items-center">
+            <span><strong>Вариант расчета:</strong></span>
+            <span class="ms-2">
+            <fieldset id="variant" class="input-group">
+                <span style="white-space: nowrap">
+                    <input class="ms-2" type="radio" id="var1" name="variant" value="1"
+                            {% if request.GET.variant != '2' %} checked {% endif %}>
+                    <label for="var1">Оценка знания</label>
                 </span>
-                </div>
-            </form>
+                <span style="white-space: nowrap">
+                    <input class="ms-2" type="radio" id="var2" name="variant" value="2"
+                            {% if request.GET.variant == '2' %} checked {% endif %}>
+                    <label for="var2">Общая оценка знания</label>
+                </span>
+            </fieldset>
+        </span>
         </div>
+        <div class="d-flex flex-row align-items-cent<input type='text' onkeypress='validate(event)' />er my-2">
+            <span><strong>Пол:</strong></span>
+            <span class="ms-2">
+                <select name="gender">
+                    <option value=""
+                    {% if request.GET.gender == '' %} selected {% endif %}>
+                        Все
+                    </option>
+                    <option value="M"
+                    {% if request.GET.gender == 'M' %} selected {% endif %}>
+                        Мужской
+                    </option>
+                    <option value="F"
+                    {% if request.GET.gender == 'F' %} selected {% endif %}>
+                        Женский
+                    </option>
+                </select>
+            </span>
+        </div>
+        <div class="d-flex flex-row align-items-center my-2">
+            <span><strong>Возраст:</strong></span>
+            <span class="ms-2">
+                <span>от </span>
+                <input type='text' onkeypress='validate(event)' name="min_age" style="width:50px;"
+                       value={% if not request.GET.min_age %}'0'{% else %} "{{ request.GET.min_age }}" {% endif %}/>
+                <span> до </span>
+                <input type='text' onkeypress='validate(event)' name="max_age" style="width:50px;"
+                       value={% if not request.GET.max_age %}'0'{% else %} "{{ request.GET.max_age }}" {% endif %}/>
+            </span>
+        </div>
+        <button class="btn btn-secondary" type="submit">Рассчитать</button>
+    </form>
+</div>
 
 
 <br><br>
+
 <ul class="root ps-0" id="tree_root">
   {% recursetree ztypes %}
   <li {% if not node.get_level %} style="font-weight: 600;" {% else %} style="font-weight: 400;" {% endif %}
@@ -77,10 +94,10 @@
         {% if zn|has_children %}
            <li id="li_00{{ zn.id }}">
                 <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-                <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
-                {% with zn|common_grades:false_request as grades_iter %}
-                {% if grades_iter.0|grade %}
-                {% with grades_iter.0|grade as grade %}
+                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
+                {% with zn|group_common_grades:request as grades_iter %}
+                {% if grades_iter.1.value %}
+                {% with grades_iter.1.value|grade as grade %}
                 <span style="background-color: {{ grade.argument_color_background }};
                              color: {{ grade.argument_color_font }};
                              border: 1px solid black">
@@ -92,11 +109,13 @@
                 </span>
                 </a>
 
+                {% if grades_iter.1.value %}
                 <span style="background-color: #FFFF00">
-                    {{ grades_iter.0|floatformat:-2 }}
+                    {{ grades_iter.1.value|floatformat:-2 }}
                 </span>
+                {% endif %}
                 {% endwith %}
-                {% with zn|elements_tree:false_request as elements_tree %}
+                {% with zn|elements_tree_group_knowledge:request as elements_tree %}
         <ul hidden>
         {% for element_tree in elements_tree %}
             {% if element_tree.lvl_up %}
@@ -112,7 +131,7 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
-                            <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
@@ -147,7 +166,7 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
-                            <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
@@ -177,7 +196,7 @@
                             <span style="background-color: #FFFF00">
                                 {{ element_tree.for_or_against }}
                             </span>
-                            <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                            <a class="text-decoration-none" href="{{ element_tree.url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
@@ -208,10 +227,10 @@
         {% else %}
            <li id="li_00{{ zn.id }}">
                 <i class="bi-file-plus-fill lonely" onclick="toggleHiddenElement(this);"></i>
-                <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
-                {% with zn|common_grades:false_request as grades_iter %}
-                {% if grades_iter.0|grade %}
-                {% with grades_iter.0|grade as grade %}
+                <a class="text-decoration-none" href="{{ zn.get_absolute_url }}/grade/group?variant={{ request.GET.variant }}&gender={{ request.GET.gender }}&min_age={{ request.GET.min_age }}&max_age={{ request.GET.max_age }}">
+                {% with zn|group_common_grades:request as grades_iter %}
+                {% if grades_iter.1.value %}
+                {% with grades_iter.1.value|grade as grade %}
                 <span style="background-color: {{ grade.argument_color_background }};
                              color: {{ grade.argument_color_font }};
                              border: 1px solid black">
@@ -223,9 +242,11 @@
                 </span>
                 </a>
 
+                {% if grades_iter.1.value %}
                 <span style="background-color: #FFFF00">
-                    {{ grades_iter.0|floatformat:-2 }}
+                    {{ grades_iter.1.value|floatformat:-2 }}
                 </span>
+                {% endif %}
                 {% endwith %}
             </li>
         {% endif %}
@@ -241,7 +262,7 @@
   </li>
   {% endrecursetree %}
 </ul>
-</div>
+
 {% endblock %}
 
 {% block jsfiles %}
@@ -303,24 +324,34 @@
 
 <script>
     function init() {
-        const gradeForm = document.getElementById('gradeForm');
-        const selectCollection = document.getElementsByTagName('select');
+         const selectCollection = document.getElementsByTagName('select');
+         const modeForm = document.getElementById('modeForm');
 
-        for (const selectCollectionElement of selectCollection) {
-            selectCollectionElement.addEventListener('input', function () {
-                gradeForm.submit();
-            });
-        }
+         for (const selectCollectionElement of selectCollection) {
+             selectCollectionElement.addEventListener('input', function () {
+                 modeForm.submit();
+             });
+         }
 
-        const radioButtons = document.querySelectorAll('input[name=variant]');
-        const modeForm = document.getElementById('modeForm');
-        for (const button of radioButtons) {
-            button.addEventListener('input', function () {
-                modeForm.submit();
-            });
-        }
-    }
-    init();
+         const radioButtons = document.querySelectorAll('input[name=variant]');
+         for (const button of radioButtons) {
+             button.addEventListener('input', function () {
+                 modeForm.submit();
+             });
+         }
+     }
+     init();
+
+     function validate(evt) {
+         var theEvent = evt || window.event;
+         var key = theEvent.keyCode || theEvent.which;
+         key = String.fromCharCode(key);
+         var regex = /[0-9]|\./;
+         if( !regex.test(key) ) {
+             theEvent.returnValue = false;
+             if(theEvent.preventDefault) theEvent.preventDefault();
+         }
+     }
 </script>
 
 {% endblock %}

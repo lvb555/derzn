@@ -3,7 +3,6 @@ from drevo.views.quiz_list_view import QuizListView
 from .quiz_detail_view import QuizDetailView
 from .quiz_result_processing_view import QuizResultAdd
 from .authors_list_view import AuthorsListView
-from .browsing_history import BrowsingHistoryListView
 from .comment_page_view import CommentPageView
 from .comment_send_view import CommentSendView
 from .drevo_list_view import DrevoListView
@@ -45,6 +44,7 @@ from .knowledge_grade_statistic_view import KnowledgeStatisticFormView
 from .group_knowledge_grade_view import GroupKnowledgeView
 from .infographics_view import InfographicsView
 from .my_knowledge_grade_view import my_knowledge_grade
+from .knowledges_grades_view import knowledges_grades
 from .group_infographics_view import GroupInfographicsView
 from .group_knowledge_grade_statistics import GroupKnowledgeStatisticsView
 from .parameter_settings_view import parameter_settings
@@ -68,7 +68,6 @@ __all__ = [
     "AuthorSearchView",
     "TagSearchView",
     "KnowledgeFormView",
-    "BrowsingHistoryListView",
     "FavouritesView",
     "FavouriteProcessView",
     "filling_tables",
@@ -86,6 +85,7 @@ __all__ = [
     'QuizDetailView',
     "InfographicsView",
     "my_knowledge_grade",
+    "knowledges_grades",
     "GroupInfographicsView",
     "GroupKnowledgeStatisticsView",
     'parameter_settings',

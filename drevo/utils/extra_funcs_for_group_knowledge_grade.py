@@ -196,9 +196,9 @@ def get_grade_values(request, users, relation: Relation) -> dict:
         copy_request.user = user
 
         # добавление значения оценки довода в список
-        proof_grade = relation.get_proof_weight(
+        proof_grade = relation.get_proof_grade(
             copy_request,
-            copy_request.GET.get("variant", 2)
+            copy_request.GET.get("variant", 1)
         )
         if proof_grade:
             grade_values["proof_grade"].append(proof_grade)

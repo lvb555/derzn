@@ -9,6 +9,15 @@
 {% endblock %}
 
 {% block content %}
+<div class="container header_info">
+    <h1>Профиль</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item opened"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+        </ol>
+    </nav>
+</div>
 <section class="gradient-custom-2 mb-3">
     <div class="container py-3 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
@@ -49,17 +58,9 @@
 </section>
 
 <div class="container">
-
     <div class="d-flex flex-row">
         <nav class="navbar px-3 mb-3" style="background: #DFDFE3; border-radius: 10px; width: 100%;">
             <div id="nav-dropdown" class="dropdown table-hover">
-
-                <div class="btn-group">
-                    <a class="btn shadow-none group-title" type="button" data-bs-auto-close="true" aria-expanded="false">
-                      Компетенции
-                    </a>
-                </div>
-
                 <div class="btn-group">
                     <a class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                       Друзья <span style="color: #1B56B5"><strong>{% if new %} ({{new}}) {% endif %}</strong></span>
@@ -84,26 +85,36 @@
                         </li>
                     </ul>
                 </div>
-
+                {% if 'znanie' in sections or 'expert' in sections or 'predznanie' in sections %}
                 <div class="btn-group">
                     <div class="dropdown">
                         <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                             Активность <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-
+                            {% if 'interview' in sections %}
                             <li>
-                                <a href="{% url 'my_interview_profile' user.id %}" class="dropdown-item">Мои интервью</a>
+                                <div class="btn-group">
+                                    <a class="dropdown-item" href="{% url 'znanie_expert_process' %}">Мои интервью</a>
+                                    <a onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden"></span>
+                                    </a>
+                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        {% if 'answer' in sections %}
+                                        <li>
+                                            <a href="{% url 'my_interview_profile' user.id %}" class="dropdown-item">Мои ответы</a>
+                                        </li>
+                                        {% endif %}
+                                        {% if 'proposal' in sections %}
+                                        <li>
+                                            <a href="{% url 'my_proposal' user.id %}" class="dropdown-item">Мои предложения</a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
                             </li>
-
-                            <li>
-                                <a href="{% url 'my_proposal' user.id %}" class="dropdown-item">Мои предложения</a>
-                            </li>
-
-                            <li>
-                                <a href="#" class="dropdown-item">Мои опросы</a>
-                            </li>
-
+                            {% endif %}
+                            {% if 'znanie' in sections or 'expert' in sections %}
                             <li>
                                 <div class="btn-group">
                                     <a class="dropdown-item" href="{% url 'znanie_expert_process' %}">Мой вклад, как эксперта</a>
@@ -111,21 +122,21 @@
                                         <span class="visually-hidden"></span>
                                     </a>
                                     <ul class="dropdown-menu">
+                                        {% if 'znanie' in sections %}
                                         <li>
                                             <a class="dropdown-item" href="{% url 'my_knowledge' user.id %}">Мои знания</a>
                                         </li>
-
-                                        <li>
-                                            <a class="dropdown-item" href="#">Мои связи</a>
-                                        </li>
-
+                                        {% endif %}
+                                        {% if 'expert' in sections %}
                                         <li>
                                             <a class="dropdown-item" href="{% url 'my_expertise' user.id %}">Мои экспертизы</a>
                                         </li>
+                                        {% endif %}
                                     </ul>
                                 </div>
                             </li>
-
+                            {% endif %}
+                            {% if 'predznanie' in sections %}
                             <li>
                                 <div class="btn-group text-center">
                                     <a class="dropdown-item" href="#">Мой вклад, как пользователя</a>
@@ -136,50 +147,47 @@
                                         <li>
                                             <a class="dropdown-item" href="{% url 'my_preknowledge' user.id %}">Мои знания</a>
                                         </li>
-
-                                        <li>
-                                            <a class="dropdown-item" href="#">Мои предзнания</a>
-                                        </li>
-
-                                        <li>
-                                            <a class="dropdown-item" href="#">Мои связи</a>
-                                        </li>
-
-                                        <li>
-                                            <a class="dropdown-item" href="#">Мои предсвязи</a>
-                                        </li>
                                     </ul>
                                 </div>
                             </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
-
+                {% endif %}
+                {% if 'favourite' in sections or 'history' in sections or 'quiz' in sections or 'klz' in sections %}
                 <div class="btn-group">
                     <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                       Изучение знаний <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
                     </a>
 
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-
-                        <li>
-                            <a href="{% url 'drevo' %}" class="dropdown-item">Дерево знаний</a>
-                        </li>
-
+                        {% if 'favourite' in sections %}
                         <li>
                             <a href="{% url 'my_favourites' user.id %}" class="dropdown-item">Избранные знания</a>
                         </li>
-
+                        {% endif %}
+                        {% if 'history' in sections %}
                         <li>
-                            <a href="{% url 'my_knowledge_grade' %}" class="dropdown-item">Мои оценки знаний</a>
+                            <a href="{% url 'history' user.id %}" class="dropdown-item">История просмотров</a>
                         </li>
-
+                        {% endif %}
+                        <li>
+                            <a href="{% url 'my_knowledge_grade' user.id %}" class="dropdown-item">Мои оценки знаний</a>
+                        </li>
+                        {% if 'quiz' in sections %}
                         <li>
                             <a href="{% url 'show_quiz_result' user.id %}" class="dropdown-item">Результаты тестов</a>
                         </li>
+                        {% endif %}
+                        {% if user.in_klz %}
+                        <li>
+                            <a href="{% url 'clz' %}" class="dropdown-item">КЛЗ</a>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
-
+                {% endif %}
                 <div class="btn-group">
                     <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                       Подписки <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
@@ -200,8 +208,24 @@
                         </li>
                     </ul>
                 </div>
+                <div class="btn-group">
+                    <a class="btn shadow-none group-title" type="button" data-bs-auto-close="true" aria-expanded="false">
+                      Особые права
+                    </a>
+                </div>
+                <div class="btn-group">
+                    <a class="btn shadow-none group-title" type="button" data-bs-auto-close="true" aria-expanded="false">
+                      Подготовка знаний
+                    </a>
+                </div>
             </div>
         </nav>
     </div>
 </div>
+
+<script>
+function logAndStop(event) {
+    event.stopPropagation();
+}
+</script>
 {% endblock %}
