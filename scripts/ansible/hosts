@@ -1,0 +1,5 @@
+[prod]
+31.31.196.186 ansible_user=u1353596
+
+[test]
+31.31.196.186 ansible_user=u1353596

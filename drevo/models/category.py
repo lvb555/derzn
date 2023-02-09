@@ -10,23 +10,28 @@ class Category(MPTTModel):
     Иерархическая структура.
     """
     title = 'Категория'
-    name = models.CharField(max_length=128,
-                            unique=True,
-                            verbose_name='Название')
-    parent = TreeForeignKey('self',
-                            on_delete=models.CASCADE,
-                            null=True,
-                            blank=True,
-                            related_name='children'
-                            )
-    content = models.TextField(max_length=1024,
-                               blank=True,
-                               null=True,
-                               verbose_name='Содержание'
-                               )
-    is_published = models.BooleanField(default=False,
-                                       verbose_name='Опубликовано?'
-                                       )
+    name = models.CharField(
+        max_length=128,
+        unique=True,
+        verbose_name='Название'
+    )
+    parent = TreeForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='children'
+    )
+    content = models.TextField(
+        max_length=1024,
+        blank=True,
+        null=True,
+        verbose_name='Содержание'
+    )
+    is_published = models.BooleanField(
+        default=False,
+        verbose_name='Опубликовано?'
+    )
     # менеджеры объектов
     objects = models.Manager()
     tree_objects = TreeManager()
@@ -54,6 +59,18 @@ class Category(MPTTModel):
         Возвращает QuerySet с экспертами в данной категории
         """
         return self.category_list.select_related()
+
+    def get_expert_ancestors_category(self):
+        """Возвращает список экспертов по данной категории и предками данной категории"""
+        categories = self.get_ancestors(ascending=False, include_self=True)
+        expert_list = []
+        for category in categories:
+            experts = category.get_experts()
+            if not experts:
+                continue
+            for expert in experts:
+                expert_list.append(expert.expert)
+        return expert_list
 
     class Meta:
         verbose_name = 'Категория'

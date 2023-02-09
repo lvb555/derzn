@@ -1,9 +1,35 @@
+from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin
 from django.db.models import Q
+from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from mptt.admin import DraggableMPTTAdmin
 
+from drevo.models import InterviewAnswerExpertProposal
 from drevo.models.expert_category import CategoryExpert
+from drevo.models.knowledge_grade import KnowledgeGrade
 from .forms.relation_form import RelationAdminForm
+from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
+from drevo.models.relation_grade import RelationGrade
+from drevo.models.relation_grade_scale import RelationGradeScale
+from drevo.models.friends_invite import FriendsInviteTerm
+from drevo.models.label_feed_message import LabelFeedMessage
+from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
+from drevo.models.developer import Developer
+from drevo.models.quiz_results import QuizResult
+from drevo.models.message import Message
+
+from .forms.developer_form import DeveloperForm
+from .forms import (
+    ZnanieForm,
+    AuthorForm,
+    GlossaryTermForm,
+    CategoryForm,
+    CtegoryExpertForm,
+)
 from .models import (
     Znanie,
     Tz,
@@ -17,24 +43,12 @@ from .models import (
     GlossaryTerm,
     ZnRating,
     Comment,
-)
-from mptt.admin import DraggableMPTTAdmin
-
-from django.utils.safestring import mark_safe
-from django.utils.html import format_html
-from adminsortable2.admin import SortableAdminMixin
-from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
-from drevo.models.relation_grade_scale import RelationGradeScale
-from drevo.models.knowledge_grade import KnowledgeGrade
-from drevo.models.relation_grade import RelationGrade
-from drevo.models import InterviewAnswerExpertProposal
-
-from .forms import (
-    ZnanieForm,
-    AuthorForm,
-    GlossaryTermForm,
-    CategoryForm,
-    CtegoryExpertForm,
+    KnowledgeStatuses,
+    AgeUsersScale,
+    InterviewResultsSendingSchedule,
+    SettingsOptions,
+    UserParameters,
+    ParameterCategories
 )
 from .services import send_notify_interview
 
@@ -110,6 +124,7 @@ class ZnanieAdmin(admin.ModelAdmin):
         "author",
         "updated_at",
         "user",
+        "is_send",
     )
     list_display_links = ("id", "name")
     ordering = ("order",)
@@ -178,6 +193,7 @@ class AuthorAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "atype",
+        "user_author",
     )
     ordering = ("name",)
     search_fields = ["name"]
@@ -216,6 +232,7 @@ class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
     )
     ordering = [
         "order",
+        "name",
     ]
 
 
@@ -229,6 +246,7 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
         "is_systemic",
         "is_group",
         "can_be_rated",
+        "is_send",
     )
     sortable_by = (
         "name",
@@ -236,6 +254,7 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
     )
     ordering = [
         "order",
+        "name",
     ]
 
 
@@ -256,18 +275,20 @@ class RelationAdmin(admin.ModelAdmin):
     ordering = ("-date",)
 
     def get_form(self, request, obj=None, change=False, **kwargs):
-        kwargs['form'] = RelationAdminForm
+        kwargs["form"] = RelationAdminForm
         return super().get_form(request, obj, change, **kwargs)
 
     def save_model(self, request, obj, form, change):
         obj.user = request.user
-        send_flag = form.cleaned_data.get('send_flag')
-        name = form.cleaned_data.get('bz')
+        send_flag = form.cleaned_data.get("send_flag")
+        name = form.cleaned_data.get("bz")
         super().save_model(request, obj, form, change)
 
         if send_flag:
             interview = get_object_or_404(Znanie, name=name)
-            period = Relation.objects.filter(Q(bz=interview) & Q(tr__name='Период интервью')).first()
+            period = Relation.objects.filter(
+                Q(bz=interview) & Q(tr__name="Период интервью")
+            ).first()
             if period:
                 period_relation = period.rz.name
                 # Передаем параметры в функцию send_notify_interview, которая формирует текст сообщения
@@ -282,8 +303,9 @@ admin.site.register(Relation, RelationAdmin)
 
 
 class GlossaryTermAdmin(admin.ModelAdmin):
-    list_display = ("name", "description")
-    ordering = ("name",)
+    list_display = ("order", "name", "description")
+    ordering = ("order", "name",)
+    list_display_links = ('name',)
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs["form"] = GlossaryTermForm
@@ -339,6 +361,22 @@ class CommentAdmin(admin.ModelAdmin):
 admin.site.register(Comment, CommentAdmin)
 
 
+class QuizResultAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        "quiz",
+        "question",
+        "answer",
+        "user",
+        "date_time",
+    )
+
+    verbose_name = 'Результаты теста'
+    verbose_name_plural = 'Результаты тестов'
+
+
+admin.site.register(QuizResult, QuizResultAdmin)
+
+
 class KnowledgeGradeScaleAdmin(admin.ModelAdmin):
     list_display = (
         "name",
@@ -355,7 +393,10 @@ admin.site.register(KnowledgeGradeScale, KnowledgeGradeScaleAdmin)
 class RelationGradeScaleAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        "value",
+        "low_value",
+        "is_low_in_range",
+        "high_value",
+        "is_high_in_range",
     )
 
 
@@ -370,6 +411,7 @@ class KnowledgeGradeAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = ("grade", "created_at", "knowledge")
+    autocomplete_fields = ("knowledge",)
 
 
 admin.site.register(KnowledgeGrade, KnowledgeGradeAdmin)
@@ -415,9 +457,129 @@ class CategoryExpertAdmin(admin.ModelAdmin):
 admin.site.register(CategoryExpert, CategoryExpertAdmin)
 
 
-@admin.register(InterviewAnswerExpertProposal)
-class InterviewExpertResultAdmin(admin.ModelAdmin):
-    exclude = ("updated",)
+class InterviewInline(admin.TabularInline):
+    model = Znanie
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+class InterviewFilter(admin.SimpleListFilter):
+    title = 'Интервью'
+    parameter_name = 'interview'
+
+    def lookups(self, request, model_admin):
+        return [(inter.id, inter.name) for inter in Znanie.objects.select_related('tz').filter(tz__name='Интервью')]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(interview__id=self.value())
+        return queryset
+
+
+class QuestionFilter(admin.SimpleListFilter):
+    title = 'Вопрос'
+    parameter_name = 'question'
+
+    def lookups(self, request, model_admin):
+        return [(quest.id, quest.name) for quest in Znanie.objects.select_related('tz').filter(tz__name='Вопрос')]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(question__id=self.value())
+        return queryset
+
+
+@admin.register(InterviewAnswerExpertProposal)
+class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
+    exclude = ("updated",)
+    autocomplete_fields = ("interview", "answer", "question")
+    # тут мы ссылаемся на методы *_link, чтобы соответствующие Знания были показаны ссылками в списке всех Proposal
+    list_display = (
+        "id",
+        "interview_link",
+        "question_link",
+        "answer_link",
+        "new_answer_text",
+        "admin_reviewer",
+        "status",
+        "is_notified"
+    )
+    list_display_links = ("id",)
+    list_filter = (InterviewFilter, QuestionFilter)
+
+    @staticmethod
+    def link_to_knowledge_change(obj):
+        """Превращаем поле в ссылку в админке"""
+        if obj is None:
+            return "-"
+        title = obj.name
+        if len(title) > 50:
+            title = f'{title[:50]}...'
+        return format_html(
+            "<a href='{url}'>{title}</a>",
+            url=reverse("admin:drevo_znanie_change", args=(obj.id,)),
+            title=title,
+        )
+
+    def interview_link(self, obj):
+        return self.link_to_knowledge_change(obj.interview)
+
+    def question_link(self, obj):
+        return self.link_to_knowledge_change(obj.question)
+
+    def answer_link(self, obj):
+        return self.link_to_knowledge_change(obj.answer)
+
+
+class DeveloperAdmin(admin.ModelAdmin):
+    list_display = ("name", "surname", "contribution", "comment", "admin")
+    fields = ("name", "surname", "contribution", "comment", "admin")
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs["form"] = DeveloperForm
+        return super().get_form(request, obj, **kwargs)
+
+
+admin.site.register(Developer, DeveloperAdmin)
+
+
+@admin.register(InterviewResultsSendingSchedule)
+class InterviewResultsSendingScheduleAdmin(admin.ModelAdmin):
+    list_display = ['id', 'interview', 'next_sending', 'last_sending']
+    readonly_fields = ['interview']
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+admin.site.register(FriendsInviteTerm)
+admin.site.register(LabelFeedMessage)
+admin.site.register(FeedMessage)
+admin.site.register(Message)
+admin.site.register(AgeUsersScale)
+
+
+@admin.register(KnowledgeStatuses)
+class KnowledgeStatusesAdmin(admin.ModelAdmin):
+    list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)
+    autocomplete_fields = ['knowledge']
+    search_fields = ['knowledge__name']
+
+
+@admin.register(SettingsOptions)
+class SettingsOptionsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'category', 'default_param', 'admin']
+    search_fields = ['name']
+    list_display_links = ['id']
+    list_filter = ['category', 'admin']
+
+
+@admin.register(UserParameters)
+class UserParametersAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'param', 'param_value']
+    list_display_links = ['id']
+
+
+@admin.register(ParameterCategories)
+class ParameterCategoriesAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+    search_fields = ['name']
+    list_display_links = ['id']

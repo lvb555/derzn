@@ -1,14 +1,16 @@
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import DetailView
 from datetime import datetime
+from drevo.models.label_feed_message import LabelFeedMessage
 
-from users.models import Favourite
-from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory
+from users.models import Favourite, User
+from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory, Tz
 from loguru import logger
 from ..relations_tree import (get_category_for_knowledge, get_ancestors_for_knowledge,
                               get_siblings_for_knowledge,
-                              get_children_by_relation_type_for_knowledge)
+                              get_children_by_relation_type_for_knowledge, get_children_for_knowledge)
 import humanize
-
 
 logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
@@ -21,6 +23,15 @@ class ZnanieDetailView(DetailView):
     model = Znanie
     context_object_name = 'znanie'
     template_name = 'drevo/znanie_detail.html'
+
+    def get(self, *args, **kwargs):
+        """
+        Если знание является тестом - перенаправляет по другой ссылке
+        """
+        self.object = self.get_object()
+        if self.object.tz in Tz.objects.filter(name='Тест'):
+            return redirect('quiz', pk=self.object.pk)
+        return super(ZnanieDetailView, self).get(*args, **kwargs)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
@@ -37,7 +48,7 @@ class ZnanieDetailView(DetailView):
         # получаем список всех видов связей
         ts = Tr.objects.all()
 
-        context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True)]
+        context['rels'] = [[item.name, qs.filter(tr=item, rz__is_published=True).prefetch_related('rz')]
                            for item in ts if qs.filter(tr=item, rz__is_published=True).count() > 0]
 
         # сохранение ip пользователя
@@ -59,7 +70,7 @@ class ZnanieDetailView(DetailView):
             if not Visits.objects.filter(znanie=knowledge, user=self.request.user).count():
                 Visits.objects.create(
                     znanie=knowledge, user=self.request.user).save()
-        
+
         # добавление историю просмотра
         if self.request.user.is_authenticated:
             if not BrowsingHistory.objects.filter(znanie=knowledge, user=self.request.user).count():
@@ -81,7 +92,7 @@ class ZnanieDetailView(DetailView):
         context['categories'] = categories
         context['chain'] = get_ancestors_for_knowledge(knowledge)
         context['siblings'] = get_siblings_for_knowledge(knowledge)
-        # context['children'] = get_children_for_knowledge(knowledge)
+        context['children'] = get_children_for_knowledge(knowledge)
         context['children_by_tr'] = get_children_by_relation_type_for_knowledge(
             knowledge)
         context['visits'] = Visits.objects.filter(
@@ -103,5 +114,32 @@ class ZnanieDetailView(DetailView):
         context['comment_max_length'] = Comment.CONTENT_MAX_LENGTH
 
         context['table'] = knowledge.get_table_object()
+
+        # возвращает кнопку прохождения тестирования, если знание- базовое для теста
+
+        context['button'] = []
+        if context['children_by_tr']:
+            for relation, children in context['children_by_tr'].items():
+                if relation.name == 'Тест':
+                    context['button'].append(children)
+
+        labels = LabelFeedMessage.objects.all()
+        context['labels'] = labels
+
+        # создание списка для отображения в блоке отправления
+        try:
+            user = User.objects.get(id=self.request.user.id)
+            my_friends = user.user_friends.all().prefetch_related('profile')  # те, кто в друзьях у меня
+            i_in_friends = user.users_friends.all().prefetch_related('profile')  # те, у кого я в друзьях
+
+            all_friends = my_friends.union(i_in_friends, all=False)
+            context['friends'] = all_friends
+            context['friends_count'] = len(all_friends)
+
+        # ошибка в случае открытия страницы пользователем без аккаунта - обработка ситуации в html-странице 
+        except TypeError:
+            pass
+        except User.DoesNotExist:
+            pass
 
         return context

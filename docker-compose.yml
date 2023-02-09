@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  derzn-python-service:
+    build:
+      context: ./
+    command: python manage.py runserver 0.0.0.0:8000
+    container_name:  derzn-python
+    ports:
+      - 8083:8000
+    volumes:
+      - ./:/app

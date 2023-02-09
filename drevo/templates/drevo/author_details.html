@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'drevo/base.html' %}
 {% load static %}
 {% load filter %}
 
@@ -9,7 +9,9 @@
 {% endblock %}
 
 {% block precontent %}
-<h2>Автор {{ author.name }}</h2>
+
+<div class="container mt-3">
+    <h2>Автор {{ author.name }}</h2>
 
 {% if author.info %}
 <div class="row">
@@ -24,6 +26,8 @@
     {% endif %}
 </div>
 {% endif %}
+</div>
+
 {% endblock %}
 
 {% block content %}

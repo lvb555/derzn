@@ -1,7 +1,7 @@
 from django.urls import path
 from users.views import LoginFormView, RegistrationFormView, \
     LogoutFormView, UserProfileTemplateView, UserProfileFormView, UserVerifyView, \
-    UserPasswordRecoveryFormView, UserSetPasswordFormView
+    UserPasswordRecoveryFormView, UserSetPasswordFormView, MenuSectionsAdd, my_profile
 
 app_name = 'users'
 
@@ -9,6 +9,8 @@ urlpatterns = [
     path('login/', LoginFormView.as_view(), name='login'),
     path('register/', RegistrationFormView.as_view(), name='register'),
     path('profile/', UserProfileFormView.as_view(), name='myprofile'),
+    path('my_profile/', my_profile, name='my_profile'),
+    path('user_menu/', MenuSectionsAdd.as_view()),
     path('<int:id>/', UserProfileTemplateView.as_view(), name='usersprofile'),
     path('logout/', LogoutFormView.as_view(), name='logout'),
     path('verify/<str:username>/<str:activation_key>/',

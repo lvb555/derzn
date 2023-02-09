@@ -1,0 +1,430 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="icon" type="image/x-icon" href="{% static 'drevo/img/favicon.svg' %}">
+    <!-- Project CSS -->
+    <link rel="stylesheet" type="text/css" href="/static/drevo/css/main_page.css">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    {% block cssfiles %}{% endblock %}
+
+    <title>{% block title %}Дeрево{% endblock %}</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100" style="background-color: #F1F2F7;">
+
+<!-- Navigation bar start -->
+<div class="sticky-top">
+    <div class="container-fluid header" style="background-color: var(--main-bg-color-dark); height: 78px;">
+        <div class="container" style="display: grid; align-content: center; height: 100%;">
+            <nav class="navbar navbar-expand-md navbar-dark">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <div class="navbar-nav me-auto">
+                            <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link auto_active_link" aria-current="page" href="/"
+                                       id="about_link">О проекте</a>
+                                </li>
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link auto_active_link" aria-current="page" href="{% url 'developer_page' %}" id="developer">Команда</a>
+                                </li>
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link auto_active_link" aria-current="page" href="{% url 'glossary' %}"
+                                       id="glossary_link">Глоссарий</a>
+                                </li>
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link auto_active_link" aria-current="page" href="{% url 'help' %}">Помощь</a>
+                                </li>
+<!--                                {% if user.is_authenticated %}-->
+<!--                            <li class="nav-item mx-2 dropdown">-->
+<!--                                <a class="dropdown-toggle nav-link" href="#" role="button" id="dropdownMenuLink"-->
+<!--                                   data-bs-toggle="dropdown" aria-expanded="false">-->
+<!--                                    Подготовка знаний</a>-->
+<!--                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">-->
+<!--                                    <li><a class="dropdown-item" href="{% url 'znanie_create' %}"-->
+<!--                                           id="znanie_create">-->
+<!--                                        {% if user.is_expert %}-->
+<!--                                        Создание Знания/ПредЗнания-->
+<!--                                        {% else %}-->
+<!--                                        Создание ПредЗнания-->
+<!--                                        {% endif %}-->
+<!--                                    </a></li>-->
+<!--                                    <li><a class="dropdown-item" href="{% url 'znanie_user_process' %}"-->
+<!--                                           id="znanie_list">-->
+<!--                                        {% if user.is_expert %}-->
+<!--                                        Изменение Знания/ПредЗнания-->
+<!--                                        {% else %}-->
+<!--                                        Изменение ПредЗнания-->
+<!--                                        {% endif %}-->
+<!--                                    </a></li>-->
+<!--                                    {% if user.is_expert %}-->
+<!--                                    <li><a class="dropdown-item"-->
+<!--                                           href="{% url 'znanie_expert_process' %}"-->
+<!--                                           id="znanie_process_exp">Экспертиза ПредЗнания</a>-->
+<!--                                    </li>-->
+<!--                                    {% endif %}-->
+<!--                                    {% if user.is_redactor %}-->
+<!--                                    <li><a class="dropdown-item"-->
+<!--                                           href="{% url 'znanie_redactor_process' %}"-->
+<!--                                           id="znanie_process_red">Редактирование ПредЗнания и Знания</a>-->
+<!--                                    </li>-->
+<!--                                    {% endif %}-->
+<!--                                    {% if user.is_director %}-->
+<!--                                    <li><a class="dropdown-item"-->
+<!--                                           href="{% url 'znanie_director_process' %}"-->
+<!--                                           id="znanie_process_dir">Публикация ПредЗнания и Знания</a>-->
+<!--                                    </li>-->
+<!--                                    {% endif %}-->
+<!--                                    {% if user.in_klz %}-->
+<!--                                    <li><a class="dropdown-item" href="{% url 'klz' %}"-->
+<!--                                           id="znanie_process">Клуб любителей знания (КЛЗ)</a>-->
+<!--                                    </li>-->
+<!--                                    {% endif %}-->
+<!--                                </ul>-->
+<!--                            </li>-->
+<!--                            {% endif %}-->
+<!--                                <li class="nav-item mx-2 dropdown">-->
+<!--                                    <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>-->
+<!--                                    <div class="dropdown-menu">-->
+<!--                                        <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a>-->
+<!--                                        <a class="dropdown-item" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>-->
+<!--                                        <a class="dropdown-item" href="{% url 'all_quizzes' %}" id="all_quizzes_link">Тесты</a>-->
+<!--                                        <a class="dropdown-item" href="{% url 'friends' %}" id="friends_link">Друзья</a>-->
+<!--                                        {% if user.is_authenticated %}-->
+<!--                                            <a class="dropdown-item" href="{% url 'favourites' %}"-->
+<!--                                               id="favourites_link">Избранное</a>-->
+<!--                                            {% if user.expert.all %}-->
+<!--                                                <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>-->
+<!--                                            {% endif %}-->
+<!--                                            {% if user.is_staff %}-->
+<!--                                                <a class="dropdown-item" href="{% url 'all_interview' %}">Предложения экспертов</a>-->
+<!--                                            {% endif %}-->
+<!--                                        {% endif %}-->
+<!--                                    </div>-->
+<!--                                </li>-->
+
+<!--                                {% if user.is_staff %}-->
+<!--                                <li class="nav-item mx-2">-->
+<!--                                    <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель управления</a>-->
+<!--                                </li>-->
+<!--                                {% endif %}-->
+<!--                                <li class="nav-item">-->
+<!--                                    <a class="nav-link auto_active_link d-flex" aria-current="page" href="{% url 'search_knowledge' %}"-->
+<!--                                       id="search_knowledges_link">-->
+<!--                                        <span>Поиск</span> <img class="ms-2"-->
+<!--                                                                src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}"-->
+<!--                                                                alt="" style="width:20px">-->
+<!--                                    </a>-->
+<!--                                </li>-->
+<!--                                <li class="nav-item mx-2">-->
+<!--                                    <a class="nav-link auto_active_link" aria-current="page" href="{% url 'help' %}">Помощь</a>-->
+<!--                                </li>-->
+<!--                            </ul>-->
+                            </ul>
+                        </div>
+
+                        <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link auto_active_link d-flex" aria-current="page" href="{% url 'search_knowledge' %}"
+                                   id="search_knowledges_link">
+                                    <img class="ms-2"
+                                         src="{% static 'drevo/img/knowledge_search/search-icon.svg' %}"
+                                         alt="" style="width:20px">
+                                </a>
+                            </li>
+                            {% if user.is_authenticated %}
+                            <li class="nav-item me-1 mb-1 mb-lg-0">
+                                <div class="nav-item mx-2 col dropdown">
+                                    <a href="#" class="dropdown-toggle nav-link header-menu" data-bs-toggle="dropdown" role="button">
+                                        <img width="30" height="30"
+                                             src="{% if user.profile.avatar %} {{ user.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}"
+                                             class="header-avatar">
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <div class="row dropdown-item row dropdown-menu-profile">
+                                            <div class="logo p-0 me-2 col-auto">
+                                                <a class="auto_active_link" href="{% url 'drevo' %}">
+                                                    <img width="35" height="35"
+                                                     src="{% if user.profile.avatar %} {{ user.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}"
+                                                     class="header-avatar">
+                                                </a>
+                                            </div>
+                                            <div class="col p-0">
+                                                <div class="header-menu-username">
+                                                    {{ user.username }}
+                                                </div>
+                                                <div class="header-menu-email">
+                                                    {{ user.email }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="#" id="all_quizzes_link">Компетенции</a>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="{% url 'friends' %}" id="friends_link">Друзья</a>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="#" id="all_quizzes_link">Изучение знаний</a>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="#" id="history_link">Активность</a>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="{% url 'favourites' %}" id="favourites_link">Подписки</a>
+                                        </div>
+                                        <div class="dropdown-item" style="display:flex; justify-content: space-between;">
+                                            <a href="{% url 'users:myprofile' %}">Личные данные</a>
+                                            <a href="{% url 'parameter_settings' %}"><i class="bi bi-gear"></i></a>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <a href="{% url 'users:my_profile' %}">Профиль</a>
+                                        </div>
+                                        <div class="dropdown-item exit-button">
+                                            <a class="btn btn-outline-light" aria-current="page" href="{% url 'users:logout' %}">
+                                                <img
+                                                 src="{% static 'drevo/img/knowledge_search/exit.svg' %}"
+                                                 alt="" style="width:10px">
+                                                <span>Выйти</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% else %}
+                            <li class="nav-item" style="align-self: center;">
+                                <a class="btn btn btn-light btn-header" aria-current="page"
+                                   href="{% url 'users:login' %}?next={{ request.path }}">
+                                    <span>Войти </span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <div class="container-fluid header-bottom" style="background-color: #FFFFFF; height: 104px;">
+        <div class="container" style="display: grid; align-content: center; height: 100%;">
+            <div class="container-fluid row p-0">
+                <div class="col-auto me-auto">
+                    <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+                        <li class="nav-item row">
+                            <div class="logo me-2 col-auto">
+                                <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
+                                    <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height='46px' alt="logo-tree">
+                                </a>
+                            </div>
+                            <div class="col p-0">
+                                <div class="header-bottom-title">
+                                    Дерево знаний
+                                </div>
+                                <div class="header-bottom-subtitle">
+                                    Научно-образовательный проект
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col row mb-2 mb-lg-0 ms-auto" style="justify-content: end;">
+                    <div class="nav-item mx-2 col-auto">
+                        <a class="nav-link auto_active_link" href="{% url 'knowledge' %}" id="tree_link">Дерево знаний</a>
+                    </div>
+                    <div class="nav-item mx-2 col-auto">
+                        <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
+                           id="authors_link">Авторы знаний</a>
+                    </div>
+                    <div class="nav-item mx-2 col-auto">
+                        <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Теги</a>
+                    </div>
+                    <div class="nav-item mx-2 col-auto">
+                        <a class="nav-link auto_active_link" href="{% url 'knowledges_grades' %}" id="tags_link">Оценки знаний</a>
+                    </div>
+<!--                    <div class="nav-item mx-2 col-auto">-->
+<!--                        <a class="nav-link auto_active_link" href="{% url 'labels' %}" id="tags_link">Подготовка знаний</a>-->
+<!--                    </div>-->
+                    <div class="nav-item mx-2 col-auto dropdown">
+                        <a class="dropdown-toggle nav-link" href="#" role="button" id="dropdownMenuLink"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            Подготовка знаний</a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <li><a class="dropdown-item" href="{% url 'znanie_create' %}"
+                                   id="znanie_create">
+                                {% if user.is_expert %}
+                                Создание Знания
+                                {% else %}
+                                Создание ПредЗнания
+                                {% endif %}
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'znanie_user_process' %}"
+                                   id="znanie_list">
+                                {% if user.is_expert %}
+                                Изменение Знания
+                                {% else %}
+                                Изменение ПредЗнания
+                                {% endif %}
+                            </a></li>
+                            {% if user.is_expert %}
+                            <li><a class="dropdown-item"
+                                   href="{% url 'znanie_expert_process' %}"
+                                   id="znanie_process_exp">Экспертиза ПредЗнания</a>
+                            </li>
+                            {% endif %}
+                            {% if user.is_redactor %}
+                            <li><a class="dropdown-item"
+                                   href="{% url 'znanie_redactor_process' %}"
+                                   id="znanie_process_red">Редактирование ПредЗнания и Знания</a>
+                            </li>
+                            {% endif %}
+                            {% if user.is_director %}
+                            <li><a class="dropdown-item"
+                                   href="{% url 'znanie_director_process' %}"
+                                   id="znanie_process_dir">Публикация ПредЗнания и Знания</a>
+                            </li>
+                            {% endif %}
+                            {% if user.in_klz %}
+                            <li><a class="dropdown-item" href="{% url 'klz' %}"
+                                   id="znanie_process">Клуб любителей знания (КЛЗ)</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% if user.is_active and user.is_staff %}
+                    <div class="nav-item col-auto">
+                        <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель управления</a>
+                    </div>
+                    {% endif%}
+                    <div class="nav-item mx-2 col-auto px-2 dropdown">
+                            <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Другое</a>
+                            <div class="dropdown-menu p-3">
+                                <a class="dropdown-item" href="{% url 'new_knowledge'%}" id="new_knowledge">Новые знания</a>
+                                <a class="dropdown-item" href="{% url 'all_quizzes' %}" id="all_quizzes_link">Тесты</a>
+                                <a class="dropdown-item" href="{% url 'public_people' %}" id="public_people">Публичные люди</a>
+                                {% if user.is_authenticated %}
+                                    <a class="dropdown-item" href="{% url 'favourites' %}"
+                                       id="favourites_link">Избранное</a>
+                                    <a class="dropdown-item" href="{% url 'friends' %}" id="friends_link">Друзья</a>
+                                    {% if user.expert.all %}
+                                        <a class="dropdown-item" href="{% url 'filling_tables' %}" id="filling_tables">Наполнение таблиц</a>
+                                        <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
+                                    {% endif %}
+                                    {% if user.is_staff %}
+                                        <a class="dropdown-item" href="{% url 'all_interview' %}">Предложения экспертов</a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation bar end -->
+
+<div class="container-fluid px-0">
+    {% block precontent %}
+    {% endblock %}
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col mt-3">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+
+<!-- Footer - start -->
+<div class="container container-fluid mt-auto">
+    <footer class="static-bottom d-flex flex-wrap justify-content-between align-items-center py-3 mt-5 border-top">
+        <div class="d-flex">
+            <p class="mb-0 text-muted">© 2020–2022 Все права защищены</p>
+            <p class="mb-0 ms-3" style="color: #212529;">Научно-образовательный проект «Дерево знаний»</p>
+        </div>
+      <ul class="nav col-md-4 justify-content-end">
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">О проекте</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Контакты</a></li>
+      </ul>
+    </footer>
+</div>
+<!-- Footer - end -->
+
+{% block jsfiles %}
+{% endblock jsfiles %}
+
+<script>
+    // Для визуализации активных кнопок меню
+    let menuLinks = document.querySelectorAll('.auto_active_link');
+    for (let link of menuLinks) {
+      link.classList.remove('active');
+    }
+    for (let link of menuLinks) {
+      let currentLink = localStorage.getItem('active_link');
+      if (link.id === currentLink) {
+        link.classList.add('active');
+      }
+    }
+
+    document.addEventListener('click', (event) => saveNextLink(event));
+
+    function saveNextLink(event) {
+      let link = event.target.closest('.auto_active_link');
+      if (link) {
+        localStorage.setItem('active_link', link.id);
+      }
+    }
+
+
+
+
+</script>
+
+<script>
+    let team = document.querySelector('#team');
+    let doubleMenu = document.querySelector('.double-menu');
+
+    function mouseOverSelectDouble() {
+        doubleMenu.className += " show";
+    }
+    function mouseOverSelect() {
+        doubleMenu.className += " show";
+    }
+    function mouseOutSelect() {
+        doubleMenu.className = 'nav-item mx-2 dropdown-menu double-menu';
+    }
+    doubleMenu.addEventListener("mouseenter", mouseOverSelect)
+    team.addEventListener("mouseenter", mouseOverSelect)
+    team.addEventListener("mouseleave", mouseOutSelect)
+  </script>
+
+<!-- Optional JavaScript; choose one of the two! -->
+
+<!-- Option 1: Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+
+<!-- Option 2: Separate Popper and Bootstrap JS -->
+<!--
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js" integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js" integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous"></script>
+  -->

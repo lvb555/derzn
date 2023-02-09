@@ -1,0 +1,225 @@
+{% load static %}
+
+<section class="gradient-custom-2 mb-3">
+    <div class="container py-3 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col col-lg-12 col-xl-12">
+          <div class="card">
+            <div class="rounded-top text-white d-flex flex-row" style="height:200px;">
+              <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
+                {% if pub_user.profile.avatar %}
+                    <img src="{{ pub_user.profile.avatar.url }}"
+                    alt="Users photo" class="img-fluid img-thumbnail mt-4 mb-2"
+                    style="width: 150px; z-index: 1">
+                {% else %}
+                    <img src="{% static 'src/default_avatar.jpg' %}"
+                    alt="Users photo" class="img-fluid img-thumbnail mt-4 mb-2"
+                    style="width: 150px; z-index: 1">
+                {% endif %}
+              </div>
+            </div>
+            <div class="p-4" style="background: #FFFFFF; border-radius: 0px 0px 10px 10px;">
+                <p class="user_first_last mt-2">{{pub_user.first_name}} {{pub_user.last_name}}</p>
+              <div class="d-flex justify-content-between">
+                <p class="user_small_info mt-1">{{pub_user.profile.get_gender_display}} (пол), {{pub_user.profile.get_user_age}} (возраст)
+                {% if pub_user.job %} {{pub_user.job}} (профессия){% endif %}</p>
+                {% if link == 'users:myprofile' %}
+                <a class="btn edit_btn shadow-none"
+                    style="z-index: 1; margin-left: 35%"
+                    href="{% url 'users:myprofile' %}">
+                    Редактировать профиль
+                </a>
+                <div class="mr-2">
+                    <a class="btn btn-primary btn-lg" href="{% url 'parameter_settings' %}"><i class="bi bi-gear"></i></a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+<div class="container">
+    <div class="d-flex flex-row">
+        <nav class="navbar px-3 mb-3" style="background: #DFDFE3; border-radius: 10px; width: 100%;">
+            <div id="nav-dropdown" class="dropdown table-hover">
+            {% if link == 'users:myprofile' %}
+                <div class="btn-group">
+                    <a class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                      Друзья <span style="color: #1B56B5"><strong>{% if new %} ({{new}}) {% endif %}</strong></span>
+                        <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a href="{% url 'friends' %}" class="dropdown-item">Мои друзья</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'friends_added' %}" class="dropdown-item">Приглашение в друзья<span style="color: #1B56B5"><strong>{% if invite_count %} ({{invite_count}}) {% endif %}</strong></span></a>
+                        </li>
+                        <li>
+                            <a href="{% url 'knowledge_feed' %}" class="dropdown-item">Лента знаний<span style="color: #1B56B5"><strong>{% if new_knowledge_feed %} ({{new_knowledge_feed}}) {% endif %}</strong></span></a>
+                        </li>
+                        <li>
+                            <a href="#" class="dropdown-item">Сообщения</a>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
+            {% if activity %}
+                <div class="btn-group">
+                    <div class="dropdown">
+                        <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                            Активность <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            {% if 'Мои интервью' in sections or 'Мои предложения' in sections %}
+                            <li>
+                                <div class="btn-group">
+                                    <a class="dropdown-item" href="#">Мои интервью</a>
+                                    <a onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden"></span>
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        {% if 'Мои интервью' in sections %}
+                                        <li>
+                                            <a href="{% url 'my_interview_profile' pub_user.id %}" class="dropdown-item">Мои ответы</a>
+                                        </li>
+                                        {% endif %}
+                                        {% if 'Мои предложения' in sections %}
+                                        <li>
+                                            <a href="{% url 'my_proposal' pub_user.id %}" class="dropdown-item">Мои предложения</a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </li>
+                            {% endif %}
+                            {% if 'Мои знания' in sections or 'Мои связи' in sections or 'Мои экспертизы' in sections %}
+                            <li>
+                                <div class="btn-group">
+                                    <a class="dropdown-item" href="{% url 'znanie_expert_process' %}">Мой вклад, как эксперта</a>
+                                    <a onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden"></span>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        {% if 'Мои знания' in sections %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'my_knowledge' pub_user.id %}">Мои знания</a>
+                                        </li>
+                                        {% endif %}
+                                        {% if 'Мои экспертизы' in sections %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'my_expertise' pub_user.id %}">Мои экспертизы</a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </li>
+                            {% endif %}
+                            {% if 'Мои знания (пользовательский вклад)' in sections or 'Мои связи (пользовательский вклад)' in sections or 'Мои предзнания' in sections or 'Мои предсвязи' in sections %}
+                            <li>
+                                <div class="btn-group text-center">
+                                    <a class="dropdown-item" href="#">Мой вклад, как пользователя</a>
+                                    <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        {% if 'Мои знания (пользовательский вклад)' in sections %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'my_preknowledge' pub_user.id %}">Мои знания</a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+            {% if 'Мои оценки знаний' in sections or 'Избранные знания' in sections or 'Результаты тестов' in sections or 'История просмотров' in sections %}
+                <div class="btn-group">
+                    <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                      Изучение знаний <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                    </a>
+
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% if 'Избранные знания' in sections %}
+                        <li>
+                            <a href="{% url 'my_favourites' pub_user.id %}" class="dropdown-item">Избранные знания</a>
+                        </li>
+                        {% endif %}
+                        {% if 'История просмотров' in sections %}
+                        <li>
+                            <a href="{% url 'history' pub_user.id %}" class="dropdown-item">История просмотров</a>
+                        </li>
+                        {% endif %}
+                        {% if 'Мои оценки знаний' in sections %}
+                        <li>
+                            <a href="{% url 'my_knowledge_grade' pub_user.id %}" class="dropdown-item">Мои оценки знаний</a>
+                        </li>
+                        {% endif %}
+                        {% if 'Результаты тестов' in sections %}
+                        <li>
+                            <a href="{% url 'show_quiz_result' pub_user.id %}" class="dropdown-item">Результаты тестов</a>
+                        </li>
+                        {% endif %}
+                        {% if link == 'users:myprofile' %}
+                        {% if pub_user.in_klz %}
+                        <li>
+                            <a href="{% url 'clz' %}" class="dropdown-item">КЛЗ</a>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+                {% if 'По категориям' in sections or 'По авторам' in sections or 'По тегам'  in sections %}
+                <div class="btn-group">
+                    <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                      Подписки <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                    </a>
+
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% if 'По категориям' in sections %}
+                        <li>
+                            <a href="" class="dropdown-item">По категориям</a>
+                        </li>
+                        {% endif %}
+                        {% if 'По авторам' in sections %}
+                        <li>
+                            <a href="{% url 'subscribe_to_author' pub_user.id %}" class="dropdown-item">По авторам</a>
+                        </li>
+                        {% endif %}
+                        {% if 'По тегам' in sections %}
+                        <li>
+                            <a href="{% url 'subscription_by_tag' pub_user.id %}" class="dropdown-item">По тегам</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+                {% if 'Компетенции' in sections %}
+                <div class="btn-group">
+                    <a class="btn shadow-none group-title" type="button" data-bs-auto-close="true" aria-expanded="false">
+                      Особые права
+                    </a>
+                </div>
+                {% endif %}
+                {% if link == 'users:myprofile' %}
+                <div class="btn-group">
+                    <a class="btn shadow-none group-title" type="button" data-bs-auto-close="true" aria-expanded="false">
+                      Подготовка знаний
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </nav>
+    </div>
+<script>
+function logAndStop(event) {
+    event.stopPropagation();
+}
+</script>

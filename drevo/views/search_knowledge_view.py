@@ -1,20 +1,52 @@
-import urllib
+import re
 from django.urls import reverse_lazy
-from ..forms import *
+from drevo.models import Category
+from drevo.forms import KnowledgeSearchForm
 from django.views.generic.edit import FormView
-from ..models import *
+from drevo.models import Znanie
 from django.core.paginator import Paginator
-from django.db.models import (Q,
-                              QuerySet,
-                              Count)
+from django.db.models import Q
 from .search_engine import SearchEngineMixin
 from django.forms import formset_factory
+from ..models.user_parameters import UserParameters
+
+
+class MainSearchKnowledge:
+    def __init__(self,
+                 main_search: str,
+                 main_search__name_on: bool = True,
+                 main_search__content_on: bool = True,
+                 main_search__source_com_on: bool = True):
+        self.fields = {}
+        self.fields['name'] = main_search__name_on and main_search
+        self.fields['content'] = main_search__content_on and main_search
+        self.fields['source_com'] = main_search__source_com_on and main_search
+
+    def need_search(self):
+        for value in self.fields.values():
+            if value:
+                return True
+
+    def get_query__contains(self, value, query: Q = None):
+        for field_name, value in self.fields.items():
+            if not value:
+                continue
+            query_dict = {f'{field_name}__contains': value}
+            if not query:
+                query = Q(**query_dict)
+            else:
+                query = query | Q(**query_dict)
+
+        return query
 
 
 class KnowledgeSearchView(FormView, SearchEngineMixin):
     template_name = "drevo/search_knowledge.html"
     form_class = KnowledgeSearchForm
     success_url = reverse_lazy("search_knowledge")
+
+    def clean_category(self, knowledge_category: str) -> str:
+        return knowledge_category.strip()
 
     def get_published_knowledges_with_filter(self,
                                              main_search_parameter=None,
@@ -23,7 +55,8 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
                                              author_parameter=None,
                                              edge_kind_parameter=None,
                                              tag_parameters=None):
-        knowledges = (Znanie.objects.filter(is_published=True)
+        knowledges = (Znanie.objects.filter(is_published=True,
+                                            tz__is_systemic=False)
                       .order_by('name')
                       .select_related('author', 'tz', 'category')
                       .prefetch_related('related__tr', 'labels'))
@@ -39,8 +72,11 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
 
         if knowledge_category_parameter:
             # Ищем знания по категории знания
-            query = self.get_query(fields_name='category__name',
-                                   parameter_value=knowledge_category_parameter)
+            category = Category.objects.get(id=knowledge_category_parameter)
+            descendants = category.get_descendants()
+            query = Q(category=category)
+            for descendant in descendants:
+                query = query | Q(category=descendant)
 
             extra_query = query if not extra_query else extra_query & query
 
@@ -74,7 +110,7 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
                 knowledges = knowledges.filter(query)
 
         exclude_query = None
-        if main_search_parameter:
+        if self.main_search_kwowledge.need_search():
             # Ищем знания по главному полю
             # Вначале необходимо получить наборы слов в виде общего списка
             # После чего беру набор и ищу через или
@@ -84,25 +120,9 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
             for combination in parameter_value_combinations:
                 query_previously = None
                 for value in combination:
-                    query = Q(name__contains=value)
-                    query = query | Q(content__contains=value)
-                    query = query | Q(source_com__contains=value)
-
-                    if value != value.upper():
-                        query = query | Q(name__contains=value.upper())
-                        query = query | Q(content__contains=value.upper())
-                        query = query | Q(source_com__contains=value.upper())
-
-                    if value != value.lower():
-                        query = query | Q(name__contains=value.lower())
-                        query = query | Q(content__contains=value.lower())
-                        query = query | Q(source_com__contains=value.lower())
-
-                    if value != value.capitalize():
-                        query = query | Q(name__contains=value.capitalize())
-                        query = query | Q(content__contains=value.capitalize())
-                        query = query | Q(
-                            source_com__contains=value.capitalize())
+                    value_list = [value, value.upper(), value.lower(), value.capitalize()]
+                    for val in value_list:
+                        query = self.main_search_kwowledge.get_query__contains(val)
 
                     if query_previously:
                         query = query & query_previously
@@ -143,9 +163,7 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
 
     @classmethod
     def get_tag_names(cls, request):
-        import re
-
-        RE_TAG = re.compile(r'tags-\d+-tag')
+        RE_TAG = re.compile(r'tags-\d-tag')
         tags = []
         for parameter_name, parameter_value in request.GET.items():
             if RE_TAG.findall(parameter_name) and parameter_value.strip():
@@ -155,10 +173,20 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Поиск знаний'
+        main_search__name_on = bool(self.request.GET.get('main_search__name'))
+        main_search__content_on = bool(self.request.GET.get('main_search__content'))
+        main_search__source_com_on = bool(self.request.GET.get('main_search__source_com'))
         main_search_parameter = self.request.GET.get('main_search')
+        self.main_search_kwowledge = MainSearchKnowledge(
+            main_search_parameter,
+            main_search__name_on,
+            main_search__content_on,
+            main_search__source_com_on
+        )
         knowledge_type_parameter = self.request.GET.get('knowledge_type')
         knowledge_category_parameter = self.request.GET.get(
             'knowledge_category')
+
         author_parameter = self.request.GET.get('author')
         edge_kind_parameter = self.request.GET.get('edge_kind')
 
@@ -168,12 +196,15 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
             self.request)
         # Для сохранения любого пользовательского ввода в форме
         # Валидация формы под капотам класса
-        context['form'] = KnowledgeSearchForm(self.request.GET)
+        if self.request.GET:
+            context['form'] = KnowledgeSearchForm(self.request.GET)
+        else:
+            context['form'] = KnowledgeSearchForm()
 
         if tag_parameters and not context['tag_formset'].is_valid():
             return context
 
-        if (main_search_parameter
+        if (self.main_search_kwowledge.need_search()
             or knowledge_type_parameter
             or knowledge_category_parameter
             or author_parameter
@@ -192,8 +223,15 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
                 edge_kind_parameter=edge_kind_parameter,
                 tag_parameters=tag_parameters
             )
-
-            paginator = Paginator(knowledges, 10)
+            user_params = UserParameters.objects.select_related('param').filter(user=self.request.user)
+            knowledge_content_length = user_params.filter(
+                param__name='Длина поля "Содержание" (слов)'
+            ).first().param_value
+            context['knowledge_content_length'] = int(knowledge_content_length)
+            per_page_value = user_params.filter(
+                param__name='Число записей на странице'
+            ).first().param_value
+            paginator = Paginator(knowledges, int(per_page_value))
 
             cur_page_number = self.request.GET.get('page')
 

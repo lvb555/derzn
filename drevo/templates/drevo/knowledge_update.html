@@ -1,0 +1,37 @@
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load filter %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <form class="form-horizontal" action="{% url 'znanie_update' pk %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        {{ image_form.management_form }}
+        {% for frm in image_form %}
+            {{ frm.as_p }}
+        {% endfor %}
+        <input type="submit" class="btn btn-primary" value="Сохранить и продолжить">
+    </form>
+    <div class="knowledge_actions">
+        {% if actions %}
+            {% for action in actions %}
+                <a class="btn btn-primary know_action_btn" href="{% url 'znanie_change_status' pk action.1 %}">{{ action.0 }}</a>
+            {% endfor %}
+        {% endif %}
+        <a class="btn btn-primary know_action_btn" href="{% url 'znanie_user_process'%}">Закрыть</a>
+    </div>
+
+
+{% endblock %}
+
+{% block jsfiles %}
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="{% static 'drevo/js/hide_field.js' %}"></script>
+{% endblock jsfiles %}

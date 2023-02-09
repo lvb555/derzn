@@ -1,5 +1,6 @@
-{% extends 'base.html' %}
+{% extends 'drevo/base.html' %}
 {% load grades %}
+{% load knowledge_has_children %}
 {% load custom_humanize %}
 
 {% block title %}
@@ -7,15 +8,38 @@
 {% endblock %}
 
 {% block content %}
-    <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
-        <div class="row">
-            <div class="col-auto">
+    <div class="row justify-content-between">
+        <div class="col-auto ">
+            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
                 <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
-                    {{ knowledge.name }}
-                </i>
-            </div>
+                        {{ knowledge.name }}
+                </i>           
+            </a>
         </div>
-    </a>
+        {% if not father_knowledge and user.is_authenticated %}
+        <div class="col-2 ">
+            <a style="margin-bottom:10px;" href="{% url 'grade_statistic' knowledge.id %}" class="btn btn-secondary">Статистика оценок</a>
+            <a href="{% url 'group_knowledge' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Групповая оценка знания</a>
+            <a style="margin-top:10px;" href="{% url 'grade_infographics' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Инфографика</a>
+        </div>
+        {% endif %}
+    </div>
+    {% if father_knowledge %}
+    <div class="row justify-content-between">
+        <div class="col-auto ">
+            <a class="text-decoration-none" href="{{ father_knowledge.bz.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
+                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
+                        Назад
+                </i>           
+            </a>
+        </div>
+        <div class="col-2 ">
+            <a style="margin-bottom:10px;" href="{% url 'grade_statistic' knowledge.id %}" class="btn btn-secondary">Статистика оценок</a>
+            <a href="{% url 'group_knowledge' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Групповая оценка знания</a>
+            <a style="margin-top:10px;" href="{% url 'grade_infographics' knowledge.id %}?variant={{ request.GET.variant }}" class="btn btn-secondary">Инфографика</a>
+        </div> 
+    </div>
+    {% endif %}
     <h2 class="my-2">{{ title }}</h2>
 
     {% if not user.is_authenticated %}
@@ -44,12 +68,12 @@
                         <fieldset id="variant" class="input-group">
                             <span style="white-space: nowrap">
                                 <input class="ms-2" type="radio" id="var1" name="variant" value="1"
-                                        {% if request.GET.variant == '1' %} checked {% endif %}>
+                                        {% if request.GET.variant != '2' %} checked {% endif %}>
                                 <label for="var1">Оценка знания</label>
                             </span>
                             <span style="white-space: nowrap">
                                 <input class="ms-2" type="radio" id="var2" name="variant" value="2"
-                                        {% if request.GET.variant != '1' %} checked {% endif %}>
+                                        {% if request.GET.variant == '2' %} checked {% endif %}>
                                 <label for="var2">Общая оценка знания</label>
                             </span>
                         </fieldset>
@@ -104,13 +128,13 @@
 
             {% if proof_relations.exists %}
                 <h4 class="text-center my-4">Доказательная база знания</h4>
-                <div class="table-responsive" style="resize: horizontal;">
-                    <style>
+<!--                <div class="table-responsive" style="resize: horizontal;">-->
+                    <table class="table align-middle my-2" style="border-collapse: collapse; display: inline-block;">
+                        <style>
                         .table-border {
                             border: 2px black solid;
                         }
-                    </style>
-                    <table class="table align-middle my-2" style="border-collapse: collapse; display: inline-block;">
+                        </style>
                         <tbody class="table-border">
                         <th class="table-border text-center">
                             Знание
@@ -133,41 +157,47 @@
                         {% for relation in proof_relations %}
                             <tr>
                                 <input type="hidden" name="relation_row" value="{{ relation.id }}">
-                                <td class="table-border">
-                                    <div class="knowledge-title" style="min-width: 550px;">
-                                        <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}">
-                                            {{ relation.rz.name }}
-                                        </a>
+                                <td class="table-border" >
+                                    <div class="knowledge-title" style="max-width: 550px;">
+                                        {% if relation.rz|has_children %}
+                                            <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
+                                                {{ relation.rz.name }}
+                                            </a>
+                                        {% else %}
+                                            <a class="text-decoration-none" href="{{ relation.rz.get_absolute_url }}">
+                                                {{ relation.rz.name }}
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 </td>
                                 <td class="table-border">
                                     {{ relation.tr.name|endings_filter }}
                                 </td>
-                                {% with relation|proof_weight:request as pw %}
-                                    <td class="table-border">
+                                {% with relation|proof_grade:request as pw %}
+                                    <td class="table-border" style="border-right: none;">
                                         {% if pw == null %}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                         {% else %}
                                             {{ pw|grade_name }}
                                         {% endif %}
                                     </td>
-                                    <td class="table-border text-center">
+                                    <td class="table-border text-center" style="border-left: none;">
                                         {{ pw|floatformat:-2 }}
                                     </td>
                                 {% endwith %}
                                 {% with relation.rz|common_grades:request as grades_iter %}
-                                    <td class="table-border">
+                                    <td class="table-border" style="border-right: none;">
                                         {% if grades_iter.0 == null%}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                         {% else %}
                                             {{ grades_iter.0|grade_name }}
                                         {% endif %}
                                     </td>
-                                    <td class="table-border text-center">
+                                    <td class="table-border text-center" style="border-left: none;">
                                         {{ grades_iter.0|floatformat:-2 }}
                                     </td>
                                 {% endwith %}
-                                <td class="table-border">
+                                <td class="table-border" style="border-right: none;">
                                     <select name="knowledge_grade" id="id_relation_grade{{ relation.id }}">
                                         {% for grade in knowledge_scale %}
                                             <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
@@ -178,10 +208,10 @@
                                         {% endfor %}
                                     </select>
                                 </td>
-                                <td class="table-border text-center">
+                                <td class="table-border text-center" style="border-left: none;">
                                     {{ relation.rz|object_grade_num:user|floatformat:-2 }}
                                 </td>
-                                <td class="table-border">
+                                <td class="table-border" style="border-right: none;">
                                     <select name="relation_grade" id="id_relation_grade{{ relation.id }}">
                                         {% for grade in relation_scale %}
                                             <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
@@ -192,14 +222,14 @@
                                         {% endfor %}
                                     </select>
                                 </td>
-                                <td class="table-border text-center">
+                                <td class="table-border text-center" style="border-left: none;">
                                     {{ relation|object_grade_num:user|floatformat:-2 }}
                                 </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
-                </div>
+<!--                </div>-->
             {% endif %}
         </form>
     {% endif %}

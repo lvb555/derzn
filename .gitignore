@@ -1,8 +1,9 @@
 .gitignore
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
+*.pyc
 *$py.class
 
 # C extensions
@@ -61,6 +62,7 @@ cover/
 *.log
 local_settings.py
 db.sqlite3
+dump.json
 db.sqlite3-journal
 
 # Flask stuff:
@@ -124,6 +126,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.envrc
 env/
 venv/
 ENV/
@@ -160,3 +163,7 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 /.idea/
+logs/
+static/*
+
+media/

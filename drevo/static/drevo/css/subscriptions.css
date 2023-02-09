@@ -1,0 +1,53 @@
+.checkall {
+    margin-left: 10px;
+}
+
+
+#back {
+    font-size: small;
+}
+
+#noSubsText {
+    margin-top: 5%;
+}
+
+.h4 {
+    margin-bottom: 15px;
+    margin-top: 15px;
+    color: #083E2F;
+}
+
+.button {
+    margin-right: 15px;
+}
+
+form[name='tags'] {
+    height: auto;
+    max-height: 286px;
+}
+
+#checkbox_form {
+    height: 286px;
+    overflow-y: auto;
+
+}
+
+#info-table {
+    margin-bottom: 0;
+}
+
+input[name='selectAll'] {
+    margin-bottom: 0;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}

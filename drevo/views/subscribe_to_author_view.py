@@ -1,48 +1,45 @@
-from django.http import HttpResponseRedirect
-from django.views.generic import ListView
-from drevo.forms import AuthorSubscriptionForm, AuthorSubscriptionDeleteForm
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+
+
+import json
+
 from drevo.models import Author
+from users.models import MenuSections, User
 
 
-class SubscribeToAuthor(ListView):
-    template_name = 'drevo/author_subscription.html'
-    model = Author
-    context_object_name = 'subscriptions'
-    new_sub_form = AuthorSubscriptionForm
+def sub_by_author(request,id):
+    if request.method == 'GET':
+        user = User.objects.filter(id=id).first()
+        context = {}
+        if user is not None:
+            context['authors'] = Author.objects.all()
+            if user == request.user:
+                context['sections'] = [i.name for i in MenuSections.objects.all()]
+                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
+                                       i.name.startswith('Моя')]
+                context['link'] = 'users:myprofile'
+            else:
+                context['sections'] = [i.name for i in user.sections.all()]
+                context['activity'] = [i.name for i in user.sections.all() if
+                                       i.name.startswith('Мои') or i.name.startswith('Моя')]
+                context['link'] = 'public_human'
+                context['id'] = id
+            context['pub_user'] = user
+            return render(request, 'drevo/author_subscription.html', context)
 
-    def get_context_data(self, **kwargs):
-        context = super(SubscribeToAuthor, self).get_context_data(**kwargs)
-        subsribed_to = self.request.user.author_set.all()
-        subsribed_to__names = [(author.name, author.name)
-                               for author in subsribed_to]
-        can_subscribe_to = Author.objects.exclude(
-            subscribers=self.request.user)
-        can_subscribe_to__names = [(author.name, author.name) for
-                                   author in can_subscribe_to]
-        context['new_sub_form'] = AuthorSubscriptionForm(
-            subscription_choices=can_subscribe_to__names)
-        context['remove_from_sub_form'] = \
-            AuthorSubscriptionDeleteForm(
-                unsubscribe_choices=subsribed_to__names)
-        return context
 
-    def post(self, request, *args, **kwargs):
-        if 'btn_sub' in request.POST:
-            subscribed_to_names = request.POST.getlist('subscription_choices')
+    if request.method == 'POST':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # Данные с фронта {'Война в Донбассе': True, 'Грамматика': False}
+            subscribed_to_authors = json.loads(request.body)
             authors_subscribed_to = Author.objects.filter(
-                name__in=subscribed_to_names)
+                name__in=subscribed_to_authors)
+
             for author in authors_subscribed_to:
-                author.subscribers.add(self.request.user)
-        elif 'btn_unsub' in request.POST:
-            unsubscribed_from_names = request.POST['unsubscribe_choices']
-            authors_subscribed_to = Author.objects.filter(
-                name__in=[unsubscribed_from_names])
-            for author in authors_subscribed_to:
-                author.subscribers.remove(self.request.user)
-        return HttpResponseRedirect(self.request.path_info)
+                if subscribed_to_authors[author.name]:
+                    author.subscribers.add(request.user)
+                elif not subscribed_to_authors[author.name]:
+                    author.subscribers.remove(request.user)
 
-
-
-    def get_queryset(self):
-        """List of subscriptions"""
-        return self.request.user.author_set.all()
+        return redirect('subscribe_to_author',id=id)

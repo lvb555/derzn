@@ -10,16 +10,13 @@ a {
 
 .lonely {
     color: #d4d4d4a9; 
+    font-size: 1.5em;
 }
 
 .family {
-    color: #FFCC66; 
+    color: var(--main-bg-teal); 
     cursor: pointer; 
-    font-size: 1em;
-    background-image: radial-gradient(circle, rgba(0,0,0,1) 100%, rgba(0,0,0,1) 100%);
-    background-size: 10px 10px;
-    background-repeat: no-repeat;
-    background-position: center;
+    font-size: 1.5em;
 }
 
 .zn_base {
@@ -28,4 +25,8 @@ a {
 
 .zn_add {
     color: red;
+}
+
+.know_action_btn {
+    margin-top: 30px;
 }

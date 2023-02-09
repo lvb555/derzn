@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'drevo/base.html' %}
 
 {% load static %}
 
@@ -27,30 +27,55 @@
 {#                               class="form-control py-2" required=""#}
 {#                               id="id_email">#}
 {#                    </p>#}
-                    <p>
-                        <label for="{{ object.first_name.id_for_label }}">Имя:</label>
-                        <input type="text" name="first_name" value="{{ object.first_name }}" readonly=""
-                               class="form-control py-2" id="id_first_name"></p>
-                    <p>
-                        <label for="{{ object.last_name.id_for_label }}">Фамилия:</label>
-                        <input type="text" name="last_name" value="{{ object.last_name }}" readonly=""
-                               class="form-control py-2" id="id_last_name">
-                    </p>
-                    <p>
-                        <label for="{{ object.patronymic.id_for_label }}">Отчество:</label>
-                        <input type="text" name="patronymic" value="{{ object.patronymic }}"
-                               readonly="" class="form-control py-2" id="id_patronymic">
-                    </p>
+                    {% if object.first_name %}
+                        <p>
+                            <label for="{{ object.first_name.id_for_label }}">Имя:</label>
+                            <input type="text" name="first_name" value="{{ object.first_name }}" readonly=""
+                                class="form-control py-2" id="id_first_name"></p>
+                        <p>
+                    {% endif %}
+
+                    {% if object.last_name %}
+                        <p>
+                            <label for="{{ object.last_name.id_for_label }}">Фамилия:</label>
+                            <input type="text" name="last_name" value="{{ object.last_name }}" readonly=""
+                                class="form-control py-2" id="id_last_name">
+                        </p>
+                    {% endif %}
+
+                    {% if object.patronymic %}
+                        <p>
+                            <label for="{{ object.patronymic.id_for_label }}">Отчество:</label>
+                            <input type="text" name="patronymic" value="{{ object.patronymic }}"
+                                readonly="" class="form-control py-2" id="id_patronymic">
+                        </p>
+                    {% endif %}
                     <p>
                         <label for="{{ object.profile.get_gender_display.id_for_label }}">Пол:</label>
                         <input type="text" name="gender" value="{{ object.profile.get_gender_display }}"
                                readonly="" class="form-control py-2" id="id_gender">
                     </p>
-                    <p>
-                        <label for="{{ object.profile.birthday_at.id_for_label }}">Дата рождения:</label>
-                        <input type="text" name="birthday_at" value="{{ object.profile.birthday_at|date:"d.m.Y" }}" readonly=""
-                               class="form-control py-2" id="id_birthday_at">
-                    </p>
+                    {% if object.profile.birthday_at %}
+                        <p>
+                            <label for="{{ object.profile.birthday_at.id_for_label }}">Дата рождения:</label>
+                            <input type="text" name="birthday_at" value="{{ object.profile.birthday_at|date:"d.m.Y" }}" readonly=""
+                                class="form-control py-2" id="id_birthday_at">
+                        </p>
+                    {% endif %}
+
+                    {% if users_categories %}
+                        <h2>
+                            Компетентность
+                        </h2>
+                        <p>
+                            <label>Список категорий</label>
+                            <ul>
+                                {% for category in users_categories.categories.all %}
+                                    <li><p>{{category.name}}</p></li>
+                                {% endfor %}
+                            </ul>
+                        </p>
+                    {% endif %}
                 </form>
             </div>
         </div>

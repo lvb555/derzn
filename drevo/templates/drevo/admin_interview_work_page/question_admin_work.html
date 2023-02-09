@@ -1,0 +1,178 @@
+{% extends 'drevo/base.html' %}
+
+{% load normalize_answer_name %}
+
+
+{% block title %} Работа администратора по вопросу {% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+            <a href="{{ backup_url }}" class="btn btn-warning mt-2">Назад</a>
+        </div>
+        <div class="col">
+            <h1>Анализ предложений по вопросу</h1>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col">
+            <h3>Интервью: {{ interview.name }}</h3>
+            <h3>Вопрос: {{ question.name }}</h3>
+        </div>
+        <div class="col">
+            <h3>Период: {{ period }}</h3>
+        </div>
+    </div>
+
+    <br>
+    <div>
+        <form method="post">
+            {{ formset.management_form }}
+            {% csrf_token %}
+            <div class="btn-group">
+                <div class="dropdown">
+                    <a class="nav-link text-dark bg-info rounded-top border-dark border-bottom-0" href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false">
+                        Фильтр
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink2">
+                        <li><a class="dropdown-item" href="{{ request.path }}">Все</a></li>
+                        {% if cur_filter == 'None' %}
+                        <li><a class="dropdown-item active" href="?filter=None">Нет статуса</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="?filter=None">Нет статуса</a></li>
+                        {% endif %}
+                        {% for value, label in status_list %}
+                        {% if cur_filter == value %}
+                        <li><a class="dropdown-item active" href="?filter={{ value }}">{{label}}</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="?filter={{ value }}">{{label}}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <table class="table table-bordered">
+                <thead style="position: sticky; top: 185px;" class="bg-secondary text-white">
+                <th scope="col" colspan="2" class="text-center"> Информация эксперта</th>
+                <th scope="col" colspan="3" class="text-center"> Информация руководителя</th>
+                <tr>
+                    <th scope="col" class="text-center">ФИО эксперта</th>
+                    <th scope="col" class="text-center">Предложение эксперта</th>
+                    <th scope="col" class="text-center">Существующий/<font class="text-danger">новый</font> ответ</th>
+                    <th scope="col" class="text-center">
+                        Комментарий руководителя
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                            {% if message.tags == 'error' %}
+                            <li class="text-danger">{{ message }}</li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </th>
+                    <th scope="col" class="text-center">Статус предложения</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for elm, form in questions %}
+                <tr>
+                    <td>{{ elm.expert.get_full_name }}</td>
+                    <td>
+                        <textarea name="" id="" cols="30" rows="10" style="height:150px; overflow-y: scroll; width: 250px; height: 125px;" readonly>{{ elm.new_answer_text }}</textarea>
+                    </td>
+                    <td>
+                        <select
+                                name="expert-{{ elm.pk }}-answer" class="form-control {% if elm.status == 'APPRVE' and elm.new_answer.date >= interview_start_date %}text-danger{% endif %}" style="width: 250px;"
+                                onfocus="this.size=5;" onblur="this.size=1;" onchange="this.size=1; this.blur();"
+                                title="{% if elm.status == 'APPRVE' %}{{ elm.new_answer.name|normalize_answer_name }}{% else %}{{ elm.answer.name|normalize_answer_name }}{% endif %}"
+                                id="expert-{{ elm.pk }}-answer"
+                                {% if elm.status %} disabled="true" {% endif %}
+                        >
+                            {% for value, label in answers_list %}
+                            <option value="{{ value }}" {%if value == elm.new_answer.pk or value == elm.duplicate_answer.pk %} selected="" {% endif %} title="{{ label|normalize_answer_name }}">
+                                {{ label|truncatechars:25 }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    {% for f in form %}
+                    <td>
+                        {{ f }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-end me-5">
+                <button type="submit" class="btn btn-warning w-25" name='save_input' title="Дата последней рассылки: {{ last_sending|date:'d.m.Y H:i' }}">
+                    Сохранить - Уведомить
+                    <span class="badge bg-{% if mailing_available %}success{% else %}danger{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-exclamation" viewBox="0 0 16 16">
+                            <path d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2H2Zm3.708 6.208L1 11.105V5.383l4.708 2.825ZM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2Z"/>
+                            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1.5a.5.5 0 0 1-1 0V11a.5.5 0 0 1 1 0Zm0 3a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"/>
+                        </svg>
+                    </span>
+                </button>
+<!--                <input type="submit" class="btn btn-warning w-25" name='save_input' title="Дата последней рассылки: {{ last_sending|date:'d.m.Y h:m' }}" value="Сохранить - Уведомить">-->
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<style>
+   th {border:2px solid black;}
+   td {border:2px solid black;}
+   tr {border:2px solid black;}
+</style>
+
+
+<!-- Модальное окно -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-dark" style="background-color:#5ad65a;">
+            <div class="modal-body text-center" id="authModalLabel">
+                {% if is_notified and is_saved %}
+                <h5>Сохранение/Уведомление успешно завершено!</h5>
+                {% else %}
+                <h5>Сохранение успешно завершено!</h5>
+                {% endif %}
+                <!--                    <span class="badge">-->
+                <!--                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>-->
+                <!--                    </span>-->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block jsfiles %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const form = document.querySelector('form')
+    const selects = document.querySelectorAll('select')
+
+    selects.forEach(select => select.addEventListener('change', (e) => {
+        const value = e.target.value
+        if (value == 'APPRVE'){
+            form.submit()
+        }
+    }))
+</script>
+<script type="text/javascript">
+if ("{{ is_saved }}") {
+  $(window).on('load', function() {
+        $('#authModal').modal('show');
+    });
+}
+</script>
+{% endblock %}

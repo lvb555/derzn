@@ -1,6 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'drevo/base.html' %}
 
 {% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -62,6 +66,12 @@
                     </div>
                 </div>
                 <div class="form-row">
+                        <div class="col mb-3">
+                            <label class="mb-1" for="{{ form.job.id_for_label }}">Профессия:</label>
+                            {{ form.job }}
+                        </div>
+                </div>
+                <div class="form-row">
                     <div class="col mb-3">
                         <label class="mb-1" for="{{ profile_form.birthday_at.id_for_label }}">Дата рождения:</label>
                         <input type="date"
@@ -78,16 +88,127 @@
                         {{ profile_form.image }}
                     </div>
                 </div>
+                {% if user.is_public %}
+                    <input type = 'checkbox' name = 'is_public' value="True" onclick="ShowSections(this.value)" checked>
+                    Публичный человек
                 <div class="form-row">
+                <div style="display: block;margin-top: 16px;" id="sections">
+                {% else %}
+                    <input type = 'checkbox' name = 'is_public' value="True" onclick="ShowSections(this.value)">
+                    Публичный человек
+                <div class="form-row">
+                <div style="display: none;margin-top: 16px;" id="sections">
+                {% endif %}
+                    <div style="display: none" id="previous">{{sections}}</div>
+                    <h5>Разделы, которые будут показаны</h5>
+                    {% if 'znanie' in access or 'expert' in access or 'predznanie' in access %}
+                    <div style="padding-bottom: 16px;font-size: 18px;" class="activity">
+                        <input type = 'checkbox' class = 'section_title' id="activity" onclick="SelectAll(this.id)">
+                        Активность
+                        <div style="margin-left: 24px;font-size: 16px;">
+                            {% if 'interview' in access %}
+                            <div style="padding-bottom: 16px;font-size: 16px;" class="interviews">
+                                <input type = 'checkbox' class = 'section_title' id="interviews" onclick="SelectAll(this.id)">
+                                Мои интервью
+                                <div style="margin-left: 24px;font-size: 14px;">
+                                    {% if 'answer' in access %}
+                                    <input type = 'checkbox' class = 'section' name = 'Мои интервью' value="True" checked onclick="IsAllChecked(this.name)">
+                                    Мои ответы
+                                    {% endif %}
+                                    {% if 'proposal' in access %}
+                                    <input type = 'checkbox' class = 'section' name = 'Мои предложения' value="True" checked onclick="IsAllChecked(this.name)">
+                                    Мои предложения
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if 'znanie' in access or 'expert' in access %}
+                            <div style="padding-bottom: 16px; padding-top: 16px;font-size: 16px;" class="expert_contribution">
+                                <input type = 'checkbox' class = 'section_title' id="expert_contribution" onclick="SelectAll(this.id)">
+                                Мой вклад, как эксперта
+                                <div style="margin-left: 24px;font-size: 14px;">
+                                    {% if 'znanie' in access %}
+                                    <input type = 'checkbox' class = 'section' name = 'Мои знания' value="True" checked onclick="IsAllChecked(this.name)">
+                                    Мои знания
+                                    {% endif %}
+                                    {% if 'expert' in access %}
+                                    <input type = 'checkbox' class = 'section' name = 'Мои экспертизы' value="True" checked onclick="IsAllChecked(this.name)">
+                                    Мои экспертизы
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if 'predznanie' in access %}
+                            <div class="user_contribution" style="font-size: 16px;">
+                                <input type = 'checkbox' class = 'section_title' id="user_contribution" onclick="SelectAll(this.id)">
+                                Мой вклад, как пользователя
+                                <div style="margin-left: 24px;font-size: 14px;">
+                                    <input type = 'checkbox' class = 'section' name = 'Мои знания (пользовательский вклад)' value="True" checked onclick="IsAllChecked(this.name)">
+                                    Мои знания
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if 'favourite' in access or 'history' in access or 'quiz' in access or 'klz' in access %}
+                    <div style="padding-bottom: 16px;font-size: 18px;" class="learning">
+                        <input type = 'checkbox' class = 'section_title' id="learning" onclick="SelectAll(this.id)">
+                        Изучение знаний
+                        <div style="margin-left: 24px;font-size: 16px;">
+                            {% if 'favourite' in access %}
+                            <input type = 'checkbox' class = 'section' name = 'Избранные знания' value="True" checked onclick="IsAllChecked(this.name)">
+                            Избранные знания
+                            {% endif %}
+                            {% if 'history' in access %}
+                            <input type = 'checkbox' class = 'section' name = 'История просмотров' value="True" checked onclick="IsAllChecked(this.name)">
+                            История просмотров
+                            {% endif %}
+                            <input type = 'checkbox' class = 'section' name = 'Мои оценки знаний' value="True" checked onclick="IsAllChecked(this.name)">
+                            Мои оценки знаний
+                            {% if 'quiz' in access %}
+                            <input type = 'checkbox' class = 'section' name = 'Результаты тестов' value="True" checked onclick="IsAllChecked(this.name)">
+                            Результаты тестов
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div style="padding-bottom: 16px;font-size: 18px;" class="subscriptions">
+                        <input type = 'checkbox' class = 'section_title' id="subscriptions" onclick="SelectAll(this.id)">
+                        Подписки
+                        <div style="margin-left: 24px;font-size: 16px;">
+                            <input type = 'checkbox' class = 'section' name = 'По категориям' value="True" checked onclick="IsAllChecked(this.name)">
+                            По категориям
+                            <input type = 'checkbox' class = 'section' name = 'По авторам' value="True" checked onclick="IsAllChecked(this.name)">
+                            По авторам
+                            <input type = 'checkbox' class = 'section' name = 'По тегам' value="True" checked onclick="IsAllChecked(this.name)">
+                            По тегам
+                        </div>
+                    </div>
+                    <div style="padding-bottom: 16px;font-size: 18px;">
+                        <input type = 'checkbox' class = 'section' name = 'Компетенции' value="True" checked>
+                        Особые права
+                    </div>
+                </div>
                     <div class="col-lg-12" style="margin-top: 32px;margin-bottom: 32px;">
-                        <input class="btn btn-primary" type="submit" value="Сохранить">
+                        <input class="btn btn-primary" type="submit" value="Сохранить" onclick="SendUserMenu()">
                     </div>
                 </div>
             </form>
             <p class="mt-2 p-2">
                 <div class="mr-2">
-                    <a class="btn btn-primary btn-lg" href="{% url 'subscribe_to_author' %}">Подписка</a>
+                    <a class="btn btn-primary btn-lg" href="{% url 'subscribe_to_author' user.id %}">Подписка по авторам</a>
                 </div>
+            </p>
+            <p class="mt-2 p-2">
+            <div class="mr-2">
+                <a class="btn btn-primary btn-lg" href="{% url 'subscription_by_tag' user.id %}">Подписка по тегам</a>
+            </div>
+            </p>
+            <p class="mt-2 p-2">
+            <div class="mr-2">
+                <a class="btn btn-primary btn-lg" href="{% url 'parameter_settings' %}"><i class="bi bi-gear"></i></a>
+            </div>
             </p>
             {% if user.expert.all %}
             <div class="form-row">
@@ -101,8 +222,83 @@
                 </div>
             </div>
             {% endif %}
+            <div class="mr-2">
+                <a class="btn btn-primary btn-lg" href="{% url 'show_quiz_result' user.id %}">Результаты тестирования</a>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block jsfiles %}
+<script>
+
+function ShowFirst(){
+    let section_title = document.querySelectorAll('.section_title')
+    let all_checkboxes = document.querySelectorAll('.section:checked');
+    let previous_checkboxes = document.querySelector('#previous');
+    for(let i = 0; i < all_checkboxes.length; i++){
+        if(!(previous_checkboxes.textContent.includes(all_checkboxes[i].name))){
+            all_checkboxes[i].checked = false;
+        }
+    }
+    for(let c = 0; c < section_title.length; c++){
+        let block = document.querySelector('.'+section_title[c].id);
+        let block_checkboxes_checked = block.querySelectorAll('.section:checked');
+        let block_checkboxes = block.querySelectorAll('.section');
+        if(block_checkboxes.length == block_checkboxes_checked.length){
+            document.querySelector('#'+section_title[c].id).checked = true;
+        }
+    }
+}
+
+ShowFirst()
+
+function IsAllChecked(name){
+    element = document.querySelector("input[name='"+name+"']")
+    parent = element.parentElement
+    if(parent.querySelectorAll('.section').length == parent.querySelectorAll('.section:checked').length){
+        parent.parentElement.querySelector('.section_title').checked = true;
+    }else if(parent.querySelectorAll('.section:checked').length == 0){
+        parent.parentElement.querySelector('.section_title').checked = false;
+    }
+}
+
+function SelectAll(id){
+    a = document.querySelector('.'+id);
+    b = a.querySelectorAll('input[type="checkbox"]');
+    if(document.querySelector('#'+id).checked == true){
+        for(let i = 0; i < b.length; i++){
+            b[i].checked = true;
+        }
+    }else{
+        for(let i = 0; i < b.length; i++){
+            b[i].checked = false;
+        }
+    }
+}
+
+function ShowSections(value){
+    if(document.querySelector('input[name="is_public"]').checked == true){
+        document.getElementById('sections').style.display = 'block';
+    }else{
+        document.getElementById('sections').style.display = 'none';
+    }
+}
+
+function SendUserMenu(){
+    let added_sections = [];
+    let all_checkboxes = document.querySelectorAll('.section:checked');
+
+    for(let i = 0; i < all_checkboxes.length; i++){
+        added_sections.push(all_checkboxes[i].name);
+    }
+    $.ajax({
+        data: { 'sections' : JSON.stringify(added_sections) },
+        url: '/users/user_menu/',
+        success: function (response) {
+        }
+    });
+}
+</script>
 {% endblock %}
