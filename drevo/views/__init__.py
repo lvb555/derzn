@@ -12,7 +12,6 @@ from .knowledge_view import KnowledgeView
 from .expert_work.views import (
     QuestionExpertWorkPage,
     propose_answer,
-    update_answer_proposal,
     sub_answer_create_view,
     ExpertProposalDeleteView,
     set_answer_as_incorrect,
@@ -78,7 +77,6 @@ __all__ = [
     "friends_invite_view",
     "FavouriteProcessView",
     "propose_answer",
-    "update_answer_proposal",
     "QuestionExpertWorkPage",
     "send_znanie",
     "QuizListView",

@@ -12,7 +12,17 @@
 
 {% block content %}
 <div class="container overflow-hidden">
-    <a href="{{ backup_url }}" class="btn btn-warning">Назад</a>
+    <div class="text-center border-bottom border-dark">
+        <div class="btn-group w-100 mb-2">
+            {% if prev_quest %}
+            <a href="{{ prev_quest }}" class="btn btn-outline-primary w-100">Предыдущий вопрос</a>
+            {% endif %}
+            <a href="{% url 'my_interview' %}" class="btn btn-outline-secondary w-100">Завершить работу с вопросами</a>
+            {% if next_quest %}
+            <a href="{{ next_quest }}" class="btn btn-outline-primary w-100">Следующий вопрос</a>
+            {% endif %}
+        </div>
+    </div>
     <div class="row mt-2">
         <div class="col proposal-bold-text">
            <h3>Интервью на тему:</h3>

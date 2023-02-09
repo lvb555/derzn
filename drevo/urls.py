@@ -49,8 +49,6 @@ from .views import send_znanie, knowledge_feed_view
 
 from .views.expert_work.views import (
     propose_answer,
-    update_answer_proposal,
-    update_proposed_answer,
     sub_answer_create_view,
     ExpertProposalDeleteView,
     set_answer_as_incorrect,
@@ -139,19 +137,9 @@ urlpatterns = [
         name="question_expert_work",
     ),
     path(
-        "interview/<int:interview_pk>/questions/<int:question_pk>/answers/<int:answer_pk>",
-        update_answer_proposal,
-        name="update_answer_proposal",
-    ),
-    path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/new_answers",
         propose_answer,
         name="propose_answer",
-    ),
-    path(
-        "interview/new_answers/<int:proposal_pk>",
-        update_proposed_answer,
-        name="update_proposed_answer",
     ),
     path(
         "interview/delete_proposal",
