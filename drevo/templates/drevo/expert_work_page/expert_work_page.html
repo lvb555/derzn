@@ -89,9 +89,9 @@
 
 <script type="text/javascript">
 if ("{{ is_saved }}") {
-  $(window).on('load', function() {
+  $(window).on('load',setTimeout(function() {
         $('#success_message_modal').modal('show');
-    });
+    }, 1000));
 }
 </script>
 

@@ -105,7 +105,6 @@ class QuestionExpertWorkPage(TemplateView):
 
         message_text = self.request.session.get('success_message_text')
         if message_text:
-            print(message_text)
             context['is_saved'] = True
             context['message_text'] = message_text
             del self.request.session['success_message_text']
@@ -128,7 +127,7 @@ def propose_answer(req: HttpRequest, interview_pk: int, question_pk: int):
     )
     message_text = 'Ваше предложение ответа на вопрос было успешно добавлено и ожидает рассмотрения администраниции.'
     req.session['success_message_text'] = message_text
-    return redirect(req.META.get('HTTP_REFERER'))
+    return redirect(f"{req.META.get('HTTP_REFERER')}#new_answer_text")
 
 
 @require_http_methods(['POST'])
@@ -142,7 +141,8 @@ def sub_answer_create_view(request: HttpRequest, quest_pk: int, answer_pk: int):
     orm.SubAnswers.objects.create(expert=request.user, question=question, answer=answer, sub_answer=sub_answer)
     message_text = f'Ваш подответ к ответу "{answer.name}" был успешно создан.'
     request.session['success_message_text'] = message_text
-    return redirect(request.META.get('HTTP_REFERER'))
+    scroll_to_elm = f'answer_{answer.id}'
+    return redirect(f"{request.META.get('HTTP_REFERER')}#{scroll_to_elm}")
 
 
 class ExpertProposalDeleteView(RedirectView):
@@ -150,7 +150,7 @@ class ExpertProposalDeleteView(RedirectView):
         Удаление предложения эксперта по вопросу интервью
     """
     def get_redirect_url(self, *args, **kwargs):
-        return self.request.META.get('HTTP_REFERER')
+        return f"{self.request.META.get('HTTP_REFERER')}#proposed_answers"
 
     def get(self, request, *args, **kwargs):
         proposal_pk = request.GET.get('proposal_pk')
@@ -179,7 +179,8 @@ def set_answer_as_incorrect(request: HttpRequest, proposal_pk: int):
         message_text = 'Подтверждение, что вы считаете данный ответ некорректным было сохранено.'
     request.session['success_message_text'] = message_text
     proposal.save()
-    return redirect(request.META.get('HTTP_REFERER'))
+    scroll_to_elm = f'answer_{proposal.answer_id}'
+    return redirect(f"{request.META.get('HTTP_REFERER')}#{scroll_to_elm}")
 
 
 @require_http_methods(['GET'])
@@ -192,7 +193,11 @@ def set_answer_is_agreed(request: HttpRequest, proposal_pk: int):
     proposal.save()
     message_text = 'Изменения были сохранены.'
     request.session['success_message_text'] = message_text
-    return redirect(request.META.get('HTTP_REFERER'))
+    if not proposal.answer_id:
+        scroll_to_elm = f'opinion_is_agreed_form{proposal_pk}'
+    else:
+        scroll_to_elm = f'opinion_is_agreed_form{proposal.answer_id}'
+    return redirect(f"{request.META.get('HTTP_REFERER')}#{scroll_to_elm}")
 
 
 @require_http_methods(['POST'])
@@ -205,4 +210,4 @@ def proposal_update_view(request: HttpRequest, proposal_pk: int):
     proposal.save()
     message_text = f'Изменения были сохранены.'
     request.session['success_message_text'] = message_text
-    return redirect(request.META.get('HTTP_REFERER'))
+    return redirect(f"{request.META.get('HTTP_REFERER')}#proposed_answers")

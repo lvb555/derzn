@@ -8,7 +8,7 @@
         <div class="col">
             <div class="answer__title col">
                 {% if answer.id and answer.id != 0 %}
-                <a href="{% url 'zdetail' answer.id %}" target="_blank">{{answer.text}}</a>
+                <a href="{% url 'zdetail' answer.id %}" target="_blank" id="answer_{{ answer.id }}">{{answer.text}}</a>
                 {% else %}
                 <span>{{answer.text}}</span>
                 {% endif %}
