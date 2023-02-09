@@ -41,7 +41,11 @@
                                name="is_agreed"
                                onchange="this.form.submit()"
                                {% if proposal.is_agreed %} checked {% endif %}
-                               class="form-check-input">
+                               class="form-check-input"
+                            {% if cur_agreed_count >= max_agreed %}
+                            disabled
+                            {% endif %}
+                        >
                         <label for="proposal{{ proposal.pk }}_i_agreed" class="form-check-label">
                             С ответом согласен
                         </label>
@@ -71,7 +75,11 @@
                     <div class="form-check mt-2">
                         <input type="checkbox" id="new_answer_is_agreed"
                                name="is_agreed"
-                               class="form-check-input">
+                               class="form-check-input"
+                            {% if cur_agreed_count >= max_agreed %}
+                            disabled
+                            {% endif %}
+                        >
                         <label for="new_answer_is_agreed" class="form-check-label">
                             Выбрать новое предложение как ответ
                         </label>
