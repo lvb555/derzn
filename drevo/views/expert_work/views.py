@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView, RedirectView
+from django.db import transaction, DatabaseError
 
 from drevo import models as orm
 from drevo.views.expert_work.data_loaders import load_interview
@@ -167,18 +168,27 @@ def set_answer_as_incorrect(request: HttpRequest, proposal_pk: int):
     """
         Определение предложения (ответа) как некорректное
     """
-    proposal = get_object_or_404(orm.InterviewAnswerExpertProposal, pk=proposal_pk)
-    if request.method == 'GET':
-        proposal.incorrect_answer_explanation = ''
-        proposal.is_incorrect_answer = False
-        message_text = 'Подтверждение, что вы не считаете данный ответ некорректным было сохранено.'
-    else:
-        explanation = request.POST.get('explanation').strip()
-        proposal.incorrect_answer_explanation = explanation
-        proposal.is_incorrect_answer = True
-        message_text = 'Подтверждение, что вы считаете данный ответ некорректным было сохранено.'
+    try:
+        with transaction.atomic():
+            proposal = get_object_or_404(
+                orm.InterviewAnswerExpertProposal.objects.select_for_update(nowait=True),
+                pk=proposal_pk
+            )
+            if request.method == 'GET':
+                proposal.incorrect_answer_explanation = ''
+                proposal.is_incorrect_answer = False
+                message_text = 'Подтверждение, что вы не считаете данный ответ некорректным было сохранено.'
+            else:
+                explanation = request.POST.get('explanation').strip()
+                proposal.incorrect_answer_explanation = explanation
+                proposal.is_incorrect_answer = True
+                message_text = 'Подтверждение, что вы считаете данный ответ некорректным было сохранено.'
+            proposal.save()
+    except DatabaseError:
+        message_text = 'Ваши изменения не были сохранены так как над данным вопросом уже работает другой эксперт.'
+        request.session['success_message_text'] = message_text
+        return redirect(request.META.get('HTTP_REFERER'))
     request.session['success_message_text'] = message_text
-    proposal.save()
     scroll_to_elm = f'answer_{proposal.answer_id}'
     return redirect(f"{request.META.get('HTTP_REFERER')}#{scroll_to_elm}")
 
@@ -188,9 +198,18 @@ def set_answer_is_agreed(request: HttpRequest, proposal_pk: int):
     """
         Согласиться с предложением
     """
-    proposal = get_object_or_404(orm.InterviewAnswerExpertProposal, pk=proposal_pk)
-    proposal.is_agreed = True if request.GET.get('is_agreed') else False
-    proposal.save()
+    try:
+        with transaction.atomic():
+            proposal = get_object_or_404(
+                orm.InterviewAnswerExpertProposal.objects.select_for_update(nowait=True),
+                pk=proposal_pk
+            )
+            proposal.is_agreed = True if request.GET.get('is_agreed') else False
+            proposal.save()
+    except DatabaseError:
+        message_text = 'Ваши изменения не были сохранены так как над данным вопросом уже работает другой эксперт.'
+        request.session['success_message_text'] = message_text
+        return redirect(request.META.get('HTTP_REFERER'))
     message_text = 'Изменения были сохранены.'
     request.session['success_message_text'] = message_text
     if not proposal.answer_id:
@@ -205,9 +224,10 @@ def proposal_update_view(request: HttpRequest, proposal_pk: int):
     """
         Обновление текста ответа предложения
     """
-    proposal = get_object_or_404(orm.InterviewAnswerExpertProposal, pk=proposal_pk)
-    proposal.new_answer_text = request.POST.get('new_proposal_text')
-    proposal.save()
+    with transaction.atomic():
+        proposal = get_object_or_404(orm.InterviewAnswerExpertProposal.objects.select_for_update(), pk=proposal_pk)
+        proposal.new_answer_text = request.POST.get('new_proposal_text')
+        proposal.save()
     message_text = f'Изменения были сохранены.'
     request.session['success_message_text'] = message_text
     return redirect(f"{request.META.get('HTTP_REFERER')}#proposed_answers")
