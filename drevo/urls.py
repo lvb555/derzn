@@ -21,7 +21,6 @@ from .views import (
     AuthorSearchView,
     TagSearchView,
     NewKnowledgeListView,
-    BrowsingHistoryListView,
     FavouritesView,
     FavouriteProcessView,
     QuestionExpertWorkPage,
