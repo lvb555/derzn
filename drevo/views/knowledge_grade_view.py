@@ -27,16 +27,15 @@ class KnowledgeFormView(TemplateView):
         context['title'] = 'Оценка знания'
 
         user = self.request.user
-        if user.is_authenticated:
-            knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
 
+        knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
+        context['knowledge'] = knowledge
+
+        if user.is_authenticated:
             context['selected_base_grade'] = KnowledgeGrade.objects.filter(
                 knowledge=knowledge,
                 user=user,
             ).first()
-
-            knowledge = Znanie.objects.get(id=self.kwargs.get('pk'))
-            context['knowledge'] = knowledge
 
             proof_relations = knowledge.base.filter(
                 tr__is_argument=True,

@@ -78,7 +78,7 @@ class Profile(models.Model):
 
     @receiver(post_save, sender=User)
     def create_profile(sender, instance, created, **kwargs):
-        migration_in_progress = sender._meta.object_name != "Migrate"
+        migration_in_progress = sender._meta.object_name == "Migrate"
         if not migration_in_progress and created:
             Profile.objects.create(user=instance).save()
 

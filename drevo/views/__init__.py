@@ -23,6 +23,7 @@ from .admin_interview_work.views import (
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
+from .filling_tables import filling_tables, get_rows_and_columns, znanie_attributes, show_new_znanie
 from .friends_added_view import friends_added_view
 from .friends_view import friends_view
 from .glossary_list_view import GlossaryListView
@@ -40,6 +41,7 @@ from .knowledge_grade_statistic_view import KnowledgeStatisticFormView
 from .group_knowledge_grade_view import GroupKnowledgeView
 from .infographics_view import InfographicsView
 from .my_knowledge_grade_view import my_knowledge_grade
+from .knowledges_grades_view import knowledges_grades
 from .group_infographics_view import GroupInfographicsView
 from .group_knowledge_grade_statistics import GroupKnowledgeStatisticsView
 from .parameter_settings_view import parameter_settings
@@ -65,6 +67,7 @@ __all__ = [
     "KnowledgeFormView",
     "FavouritesView",
     "FavouriteProcessView",
+    "filling_tables",
     "friends_view",
     "friends_added_view",
     "friends_invite_view",
@@ -81,6 +84,7 @@ __all__ = [
     'QuizDetailView',
     "InfographicsView",
     "my_knowledge_grade",
+    "knowledges_grades",
     "GroupInfographicsView",
     "GroupKnowledgeStatisticsView",
     'parameter_settings',
