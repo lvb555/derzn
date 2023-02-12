@@ -67,6 +67,7 @@ from .views.my_knowledge import my_knowledge, my_preknowledge, my_expertise
 from .views.public_people import public_people_view, public_human
 from .views.quiz_result import show_quiz_result
 from .views.subscribe_to_author_view import sub_by_author
+from .views.subscription_by_category_view import sub_by_category
 from .views.subscription_by_tag_view import sub_by_tag
 from drevo.views.developer_view import developer_view
 from .views.knowledge_tp_view import (
@@ -123,6 +124,7 @@ urlpatterns = [
     path("history/<int:id>/", browsing_history, name="history"),
     path("subscribe_to_author/<int:id>/", sub_by_author, name="subscribe_to_author"),
     path("subscription_by_tag/<int:id>/", sub_by_tag, name="subscription_by_tag"),
+    path("subscription_by_category/<int:id>/", sub_by_category, name="subscription_by_category"),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
     path("my_favourites/<int:id>/", my_favourites, name="my_favourites"),
     path("my_knowledge/<int:id>/", my_knowledge, name="my_knowledge"),

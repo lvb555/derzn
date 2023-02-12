@@ -1,0 +1,108 @@
+{% extends 'drevo/base.html' %}
+
+{% load static %}
+
+{% block title %}Подписки на категории{% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/subscriptions.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container header_info">
+    <h1>По тегам</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item"><a {% if link == 'users:myprofile' %} href="{% url 'users:my_profile' %}"
+              {% else %} href="{% url link id %}" {% endif %}>Профиль</a></li>
+          <li class="breadcrumb-item"><a>Подписки</a></li>
+          <li class="breadcrumb-item opened"><a>По категориям</a></li>
+        </ol>
+    </nav>
+</div>
+
+{% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections %}
+
+<h4 align="center" class="h4">Подписка по категориям</h4>
+<br>
+<br>
+
+<div class="row">
+    <div class="col-2">
+        <div class="form-check" {% if link != 'users:myprofile' %} style="display: none;" {% endif %}>
+            <input type="checkbox" value="Select All" name="selectAll" onclick="selectAll()"
+                   class="form-check-input selectAll" id="flexCheckDisabled">
+            <label class="form-check-label" for="flexCheckDisabled">Выделить все</label>
+        </div>
+    </div>
+    <div class="form-check form-switch col-6">
+        <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" onclick="allTag(this)">
+        <label class="form-check-label" for="flexSwitchCheckDefault">Показать все категории</label>
+    </div>
+    <div class="col-1" align="right">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
+             viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+        </svg>
+    </div>
+    <div class="col-3">
+        <input class="form-control" type="text" placeholder="Найти категорию" id="search-text" onkeyup="tableSearch()">
+    </div>
+</div>
+<br>
+
+
+<h4 id="noSubsText" align="center">Вы не подписаны ни на одну категорию. Нажмите на "Показать все категории" и подпишитесь!</h4>
+
+
+<form method="post" name="tags">
+    <div id="checkbox_form">
+        <table width="50%" id="info-table" class="table table-striped">
+            {% for category in categories %}
+            <tr>
+                <td width="8%">
+                    <input type="checkbox" value="{{category.name}}" class="checkbox_1"
+                           onchange="changeFlag(this)"
+                           {% if pub_user in category.subscribers.all %} checked {% endif %}>
+                </td>
+                <td>
+                    {{ category.name }}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% if link == 'users:myprofile' %}
+    <br>
+    <input type="submit" value="Сохранить" class="button btn btn-outline-dark" id="submit" onclick="send_data_to_category({{pub_user.id}})">
+    <button id="reset" name="reset" class="btn btn-outline-dark">Отменить</button>
+
+    {% csrf_token %}
+{% endif %}
+</form>
+</div>
+
+<br>
+<br>
+<br>
+
+
+<!--Всплывающее окно для сообщения об успешном сохранении изменений-->
+<!--<div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 200px;" data-delay="1000">-->
+<!--    <div id="toastNotice" class="toast" style="position: absolute; top: 0; right: 0;">-->
+<!--        <div class="toast-header">-->
+<!--            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">-->
+<!--                <span aria-hidden="true">&times;</span>-->
+<!--            </button>-->
+<!--        </div>-->
+<!--        <div class="toast-body">-->
+<!--            Данные успешно обновлены-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+
+<script type="application/javascript" src="{% static 'drevo/js/subscriptions.js' %}"></script>
+{% endblock %}
