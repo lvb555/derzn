@@ -23,7 +23,7 @@ def my_interview_view(request):
 
 def search_node_categories(categories_expert):
     """
-    На ввод QuerySet категорий из таблицы CategoryExpert,
+    На ввод QuerySet категорий из таблицы SpecialPermissions,
     вызывается  categories_expert = obj.categories.all(),
     где obj = request.user.expert.all()[0].
     На выходе получаем список всех категорий,

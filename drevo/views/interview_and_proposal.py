@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from loguru import logger
 from users.models import User, MenuSections
-from ..models import Znanie, CategoryExpert, InterviewAnswerExpertProposal
+from ..models import Znanie, SpecialPermissions, InterviewAnswerExpertProposal
 from ..relations_tree import get_knowledges_by_categories
 from drevo.common import variables
 

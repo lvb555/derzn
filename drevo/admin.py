@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from mptt.admin import DraggableMPTTAdmin
 
 from drevo.models import InterviewAnswerExpertProposal
-from drevo.models.expert_category import CategoryExpert
+from drevo.models.special_permissions import SpecialPermissions
 from drevo.models.knowledge_grade import KnowledgeGrade
 from .forms.relation_form import RelationAdminForm
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
@@ -431,9 +431,12 @@ class RelationGradeAdmin(admin.ModelAdmin):
 admin.site.register(RelationGrade, RelationGradeAdmin)
 
 
-class CategoryExpertAdmin(admin.ModelAdmin):
-    list_display = ("expert", "get_categories")
-    fields = ("expert", "categories")
+@admin.register(SpecialPermissions)
+class SpecialPermissionsAdmin(admin.ModelAdmin):
+    list_display = ("pk", "expert", "get_categories", "get_admin_competencies", "editor")
+    list_filter = ('editor',)
+    search_fields = ('expert',)
+    save_as = True
 
     def get_categories(self, obj):
         """
@@ -445,17 +448,22 @@ class CategoryExpertAdmin(admin.ModelAdmin):
         list_categories = list(set(list_categories))
         return ",\n".join(list_categories)
 
+    def get_admin_competencies(self, obj):
+        """
+        Собирает категории, которые входят в список компетенций руководителя у экспертов
+        """
+        return ', \n'.join(obj.admin_competencies.all().value_list('name', flat=True))
+
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         form.base_fields["categories"] = CtegoryExpertForm.base_fields["category"]
-        form.base_fields["categories"].label = "Компетенции"
+        form.base_fields["categories"].label = "Компетенции эксперта"
+        form.base_fields["admin_competencies"] = CtegoryExpertForm.base_fields['admin_competencies']
+        form.base_fields["admin_competencies"].label = 'Компетенции руководителя'
         return form
 
     class Media:
         css = {"all": ("drevo/css/style.css",)}
-
-
-admin.site.register(CategoryExpert, CategoryExpertAdmin)
 
 
 class InterviewInline(admin.TabularInline):

@@ -9,7 +9,7 @@ from django.views.generic.edit import ProcessFormView
 import json
 
 from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory
-from drevo.models.expert_category import CategoryExpert
+from drevo.models.special_permissions import SpecialPermissions
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
@@ -201,7 +201,7 @@ class UserProfileTemplateView(LoginRequiredMixin, TemplateView):
                 context['object'] = _object
 
         try:
-            users_categories = CategoryExpert.objects.get(expert = _id)
+            users_categories = SpecialPermissions.objects.get(expert = _id)
             context['users_categories'] = users_categories
         except:
             context['users_categories'] = False
