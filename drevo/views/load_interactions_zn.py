@@ -4,13 +4,15 @@ from ..models.relation_type import Tr
 from ..models.interconnections_of_relations import InteractionsOfRelations
 from ..models.relation_type import Tr
 
-from ..forms.relation_form import RelationAdminForm
-
 from django.shortcuts import render
 
 from django.http import JsonResponse
 
 from dal import autocomplete
+
+from django.core import serializers
+
+import json
 
  
 class KnowledgeAutocomplete(autocomplete.Select2QuerySetView):
@@ -21,7 +23,6 @@ class KnowledgeAutocomplete(autocomplete.Select2QuerySetView):
 
     def get_queryset(self):
         
-        #qs = Znanie.objects.all()
         qs = []
 
         rel_type = self.forwarded.get('tr', None)
@@ -39,15 +40,28 @@ class KnowledgeAutocomplete(autocomplete.Select2QuerySetView):
 
 
 def test_ajax_view(request):
-    form = RelationAdminForm
-    context = {'form': form}
-    return render(request, "drevo/test.html", context)
+
+    return render(request, "drevo/test.html", {})
 
 
 def test_response(request):
-    if request.method == "GET":
-        res = {"status": "okkkk"}
-    return JsonResponse(res)
+    bz = Znanie.objects.filter(name=request.GET["bz"]).get()
+    # print(bz)
+    allowed_tr = InteractionsOfRelations.objects.filter(base_knowledge_type=bz.tz).all()
+    print(allowed_tr)
+    allowed_tr_list = []
+    allowed_json = {}
+    for elem in allowed_tr:
+        print(elem)
+        # tr = Tr.objects.filter(name=elem['relation_type'])
+        # print(tr)
+    #     if tr not in allowed_tr_list:
+    #         allowed_tr_list.append(tr)
+    #     allowed_json[tr.name] = tr.id
+    # print(f"allowed types of relation{allowed_tr}")
+
+    print(allowed_tr_list)
+    return JsonResponse({}, safe=False)
 
 
 def zn_autocomplete(request):
@@ -62,6 +76,19 @@ def zn_autocomplete(request):
 
     return JsonResponse(qs)
 
+
+def tr_autocomplete(request):
+    
+    # zn = request.GET.get('bz', None)
+
+    # allowed_combinations = InteractionsOfRelations.objects.filter(relation_type=tr)
+
+    # qs = Znanie.objects.all()
+
+    # for obj in qs:
+    #     pass
+
+    return JsonResponse(qs)
 
 
 

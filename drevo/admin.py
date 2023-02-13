@@ -278,7 +278,6 @@ class RelationAdmin(admin.ModelAdmin):
         "is_published",
     )
     ordering = ("-date",)
-    
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         kwargs["form"] = RelationAdminForm
@@ -302,7 +301,7 @@ class RelationAdmin(admin.ModelAdmin):
 
     class Media:
         css = {"all": ("drevo/css/style.css",)}
-        js = ("drevo/js/notify_interview.js",)
+        js = ("drevo/js/notify_interview.js", "drevo/js/test.js")
 
 
 admin.site.register(Relation, RelationAdmin)

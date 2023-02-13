@@ -36,7 +36,6 @@ urlpatterns = [
                            )),
     path('users/', include('users.urls', namespace='users')),
     path('help/', include('help.urls')),
-    path(r'^chaining/', include('smart_selects.urls')),
 ]
 
 if settings.DEBUG:

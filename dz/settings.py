@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'users',
     'drevo',
     'help',
-    'smart_selects',
 ]
 
 MIDDLEWARE = [
@@ -177,5 +176,3 @@ LOGGING = {
 # Интервал через который можно совершать рассылку
 # о результатах интервью (в днях)
 NOT_MORE_OFTEN = 1
-
-JQUERY_URL = True
