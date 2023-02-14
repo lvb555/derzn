@@ -137,6 +137,15 @@ def question_admin_work_view(request, inter_pk, quest_pk):
         bz__pk=quest_pk, tr__name='Ответ [ы]'
     ).order_by('rz__name', 'rz__order')
 
+    def expert_to_author(expert) -> Author:
+        """
+            Функция для создания автора по эксперту
+        """
+        authors = Author.objects.filter(user_author=expert)
+        if authors.exists():
+            return authors.first()
+        return Author.objects.create(name=expert.get_full_name, user_author=expert)
+
     def get_queryset():
         filter_by = request.GET.get('filter')
         queryset_obj = InterviewAnswerExpertProposal.objects\
@@ -189,7 +198,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                         messages.error(request, f'Предложение  №{obj.pk}: Знание с такой темой уже существует.')
                         continue
                     tz = Tz.objects.filter(name='Тезис').first()
-                    author, is_created = Author.objects.get_or_create(name=obj.expert.get_full_name)
+                    author = expert_to_author(obj.expert)
                     new_knowledge = Znanie.objects.create(
                         name=knowledge_name,
                         content=knowledge_content,
@@ -242,12 +251,11 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     )
                     # Устанавливаем связь знания "Другое" с вопросом
                     if not Relation.objects.filter(bz=obj.question, rz=other_obj, user=obj.expert).exists():
-                        author, _ = Author.objects.get_or_create(name=obj.expert.get_full_name)
                         Relation.objects.update_or_create(
                             bz=obj.question,
                             rz=other_obj,
                             tr=Tr.objects.get(name='Ответ [ы]'),
-                            author=author,
+                            author=expert_to_author(obj.expert),
                             user=obj.expert,
                             is_published=True
                         )
