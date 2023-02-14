@@ -9,7 +9,7 @@ def sub_by_category(request, id):
         user = User.objects.filter(id=id).first()
         context = {}
         if user is not None:
-            context['categories'] = Category.objects.all()
+            context['categories'] = [i.name for i in Category.objects.filter(subscribers=user,is_published=True)]
             if user == request.user:
                 context['sections'] = [i.name for i in MenuSections.objects.all()]
                 context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
@@ -21,6 +21,13 @@ def sub_by_category(request, id):
                 context['link'] = 'public_human'
                 context['id'] = id
             context['pub_user'] = user
+            categories = Category.tree_objects.exclude(is_published=False)
+            block_list = Category.tree_objects.exclude(is_published=True)
+            block_child = []
+            for item in block_list:
+                block_child += [i.pk for i in item.get_descendants(include_self=False)]
+            categories = categories.exclude(pk__in=block_child)
+            context['ztypes'] = categories
             return render(request, 'drevo/category_subscription.html', context)
 
     if request.method == 'POST':

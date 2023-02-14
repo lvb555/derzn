@@ -158,8 +158,8 @@ async function send_data_to_author(int) {
     await makeRequest('/drevo/subscribe_to_author/'+int+'/', 'POST', JSON.stringify(change_flag))
 }
 
-async function send_data_to_category(int) {
-    await makeRequest('/drevo/subscription_by_category/'+int+'/', 'POST', JSON.stringify(change_flag))
+async function send_data_to_category(int, dict) {
+    await makeRequest('/drevo/subscription_by_category/'+int+'/', 'POST', JSON.stringify(dict))
 }
 
 
