@@ -8,7 +8,7 @@ class SpecialPermissions(models.Model):
         Класс с описанием компетенцций и особых прав экспертов
     """
     title = 'Вид "Эксперта"'
-    expert = models.ForeignKey(
+    expert = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         verbose_name='Эксперт',
