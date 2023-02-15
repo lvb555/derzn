@@ -1,0 +1,40 @@
+{% load mptt_tags %}
+{% load static %}
+{% load special_permissions_tags %}
+
+<button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">Развернуть</button>
+&nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">Свернуть</button>
+<ul class="root ps-0" id="tree_root">
+    {% recursetree admins_nodes %}
+    <li
+            id="li_{{ node.id }}">
+
+        {% if not node.has_published_children and node in admins_active_nodes or node.pk in admins_categories_with_candidates %}
+        <i class="bi-file-plus-fill lonely"></i>
+        {% else %}
+        {% if node in admins_active_nodes or node.pk in admins_categories_with_candidates %}
+        <i
+                class="family bi-file-minus-fill
+                        " onclick="toggleHiddenElement(this);">
+
+        </i>
+        {% endif %}
+        {% endif %}
+
+        {% if node in admins_active_nodes or node.pk in admins_categories_with_candidates %}
+        <a href="{% url 'experts_candidates_page' node.pk %}" class="{% if node in admins_active_nodes or node.pk in admins_categories_with_candidates %}text-success{% endif %}">
+            {{ node.name }}
+            {% if node.pk in admins_categories_with_candidates %} <span class="badge bg-danger text-light"> {{ admins_categories_with_candidates|get_category_count:node.pk }} </span> {% endif %}
+        </a>
+        {% endif %}
+
+        {% if not node.is_leaf_node %}
+        <ul class="children" {% if node not in admins_active_nodes %} hidden {% endif %}>
+            {{ children }}
+        </ul>
+        {% endif %}
+
+    </li>
+    {% endrecursetree %}
+</ul>
+

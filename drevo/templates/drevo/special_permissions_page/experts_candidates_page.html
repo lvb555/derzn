@@ -1,0 +1,33 @@
+{% extends 'drevo/base.html' %}
+
+{% block title %} Назначение прав эксперта {% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="text-center">
+        <h3>Добавление прав эксперта</h3>
+        <p class="fs-5">Категория: {{ category.name }}</p>
+        <h3>Список кандидатов в эксперты</h3>
+    </div>
+    <form method="post" action="{% url 'set_users_as_expert' category.pk %}" class="mt-3" id="expert_candidates_form">
+        {% csrf_token %}
+        {% for user_pk, name, knowledge_count in candidates %}
+        <li>
+            <label for="candidate_{{ user_pk }}"  style="word-wrap:break-word">
+                <input id="candidate_{{ user_pk }}" name="candidate_{{ user_pk }}" type="checkbox"/>
+                {% if name %}
+                {{ name }}
+                {% else %}
+                Пользователь {{ user_pk }}
+                {% endif %}
+                , Предзнаний опубликовано: {{ knowledge_count }}
+            </label>
+        </li>
+        {% endfor %}
+    </form>
+    <div class="mt-3">
+        <input type="submit" class="btn btn-outline-success" value="Сохранить" form="expert_candidates_form">
+    </div>
+
+</div>
+{% endblock %}

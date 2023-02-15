@@ -1,0 +1,127 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block title %} Добавление особых прав пользователям {% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% if experts %}
+    <div class="border-bottom border-dark">
+        <div class="text-center">
+           <h3>Назначение прав экспертов</h3>
+        </div>
+    </div>
+    <div class="container mt-3">
+        {% include 'drevo/special_permissions_page/tree_experts_block.html' %}
+    </div>
+    {% endif %}
+    {% if editors %}
+    <div class="border-bottom border-dark">
+        <div class="text-center">
+           <h3>Назначение прав редакторов</h3>
+        </div>
+    </div>
+    <div class="container mt-3">
+            {% include 'drevo/special_permissions_page/editors_list_block.html' %}
+    </div>
+    {% endif %}
+    {% if admins %}
+    <div class="border-bottom border-dark">
+        <div class="text-center">
+           <h3>Назначение прав руководителей</h3>
+        </div>
+    </div>
+    <div class="container mt-3">
+        {% include 'drevo/special_permissions_page/tree_admins_block.html' %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    a.disabled{
+    pointer-events: none;
+    cursor: default;
+    color: black;
+}
+</style>
+{% endblock %}
+
+
+{% block jsfiles %}
+
+
+<!--Admins tree scripts-->
+<script>
+
+  function toggleHiddenElement(element) {
+    let li_id = element.parentNode.id;
+    let selector_string = "li#" + li_id + " > ul";
+    let ulToHidden = document.querySelectorAll(selector_string);
+    ulToHidden.forEach(function (item) {
+      item.hidden = !item.hidden;
+    })
+
+    if (element.classList.contains("bi-file-minus-fill")) {
+      element.classList.remove("bi-file-minus-fill")
+      element.classList.add("bi-file-plus-fill");
+    }
+    else {
+      element.classList.remove("bi-file-plus-fill")
+      element.classList.add("bi-file-minus-fill");
+    }
+  }
+
+  function showAll() {
+    let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+
+    ulToHidden.forEach(function (x) {
+      x.hidden = false;
+    }
+    )
+
+    let treeRoot = document.getElementById("tree_root");
+    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
+    for (let icon of listIconsToChange) {
+      icon.classList.remove("bi-file-plus-fill")
+      icon.classList.add("bi-file-minus-fill");
+    }
+
+  }
+
+  function hiddenAll() {
+    let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+    ulToHidden.forEach(function (item) {
+      item.hidden = true;
+    })
+
+    let treeRoot = document.getElementById("tree_root");
+    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
+    for (let icon of listIconsToChange) {
+      icon.classList.remove("bi-file-minus-fill")
+      icon.classList.add("bi-file-plus-fill");
+    }
+
+  }
+
+
+  function toggleAddZnVisibility(element) {
+        let ulToToggle = document.querySelectorAll('.user_li');
+        if (element.checked == true) {
+            ulToToggle.forEach(function (x) {
+                x.hidden = true;
+            }
+            )
+        }
+        else {
+            ulToToggle.forEach(function (x) {
+                x.hidden = false;
+            }
+            )
+        }
+    }
+</script>
+{% endblock %}

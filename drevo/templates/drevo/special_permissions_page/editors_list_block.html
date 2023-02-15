@@ -1,0 +1,29 @@
+<form role="search" method="get">
+    <input class="form-control" type="search" name="editor_last_name" placeholder="Введите фамилию пользователя для поиска..." aria-label="Search" value="{{ editor_last_name }}">
+</form>
+<div class="form-check form-switch ms-2 mb-2">
+    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"
+           onchange="toggleAddZnVisibility(this);">
+    <label class="form-check-label" for="flexSwitchCheckDefault">Все/Редакторы</label>
+</div>
+{{data}}
+<form method="post" action="{% url 'set_users_as_editor' %}" style="overflow-y: scroll; overflow-x: hidden; height:400px;" class="mt-3" id="editor_permissions_form">
+    {% csrf_token %}
+    {% for editor in editors %}
+    <li class="{% if not editor.is_redactor %} user_li {% endif %}">
+        <label for="editor_{{ editor.pk }}"  style="word-wrap:break-word">
+            <input id="editor_{{ editor.pk }}" name="editor_{{ editor.pk }}" type="checkbox" {% if editor.is_redactor %} checked {% endif %}/>
+            {% if editor.get_full_name %}
+            {{ editor.get_full_name }}
+            {% else %}
+            Пользователь {{ editor.pk }}
+            {% endif %}
+        </label>
+    </li>
+    {% endfor %}
+</form>
+<div class="mt-3 mb-3">
+    <input type="submit" class="btn btn-outline-success" value="Сохранить" form="editor_permissions_form">
+</div>
+
+

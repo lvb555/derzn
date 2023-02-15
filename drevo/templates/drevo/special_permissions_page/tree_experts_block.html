@@ -1,0 +1,95 @@
+{% load mptt_tags %}
+{% load static %}
+{% load special_permissions_tags %}
+
+<button type="button" class="btn btn-secondary btn-sm" onclick="experts_showAll();">Развернуть</button>
+&nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="experts_hiddenAll();">Свернуть</button>
+<ul class="root ps-0" id="experts_tree_root">
+    {% recursetree nodes %}
+    <li
+            id="ex_li_{{ node.id }}">
+
+        {% if not node.has_published_children and node in active_nodes or node.pk in categories_with_candidates %}
+        <i class="bi-file-plus-fill lonely"></i>
+        {% else %}
+        {% if node in active_nodes or node.pk in categories_with_candidates %}
+        <i
+                class="family bi-file-minus-fill
+                        " onclick="toggleHiddenElementExpert(this);">
+
+        </i>
+        {% endif %}
+        {% endif %}
+
+        {% if node in active_nodes or node.pk in categories_with_candidates %}
+        <a href="{% url 'experts_candidates_page' node.pk %}" class="{% if node in active_nodes or node.pk in categories_with_candidates %}text-success{% endif %}">
+            {{ node.name }}
+            {% if node.pk in categories_with_candidates %} <span class="badge bg-danger text-light"> {{ categories_with_candidates|get_category_count:node.pk }} </span> {% endif %}
+        </a>
+        {% endif %}
+
+        {% if not node.is_leaf_node %}
+        <ul class="children" {% if node not in active_nodes %} hidden {% endif %}>
+            {{ children }}
+        </ul>
+        {% endif %}
+
+    </li>
+    {% endrecursetree %}
+</ul>
+
+<!--Experts tree scripts-->
+<script>
+  function toggleHiddenElementExpert(element) {
+    let expert_li_id = element.parentNode.id;
+    let selector_string = "li#" + expert_li_id + " > ul";
+
+    let ulToHidden = document.querySelectorAll(selector_string);
+    ulToHidden.forEach(function (item) {
+      item.hidden = !item.hidden;
+    })
+
+    if (element.classList.contains("bi-file-minus-fill")) {
+      element.classList.remove("bi-file-minus-fill")
+      element.classList.add("bi-file-plus-fill");
+    }
+    else {
+      element.classList.remove("bi-file-plus-fill")
+      element.classList.add("bi-file-minus-fill");
+    }
+  }
+
+  function experts_showAll() {
+    let ulToHidden = document.querySelectorAll('ul#experts_tree_root ul');
+
+    ulToHidden.forEach(function (x) {
+      x.hidden = false;
+    }
+    )
+
+    let treeRoot = document.getElementById("experts_tree_root");
+    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
+    for (let icon of listIconsToChange) {
+      icon.classList.remove("bi-file-plus-fill")
+      icon.classList.add("bi-file-minus-fill");
+    }
+
+  }
+
+  function experts_hiddenAll() {
+    let ulToHidden = document.querySelectorAll('ul#experts_tree_root ul');
+    ulToHidden.forEach(function (item) {
+      item.hidden = true;
+    })
+
+    let treeRoot = document.getElementById("experts_tree_root");
+    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
+    for (let icon of listIconsToChange) {
+      icon.classList.remove("bi-file-minus-fill")
+      icon.classList.add("bi-file-plus-fill");
+    }
+
+  }
+</script>
+
+
