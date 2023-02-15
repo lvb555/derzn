@@ -452,7 +452,7 @@ class SpecialPermissionsAdmin(admin.ModelAdmin):
         """
         Собирает категории, которые входят в список компетенций руководителя у экспертов
         """
-        return ', \n'.join(obj.admin_competencies.all().value_list('name', flat=True))
+        return ', \n'.join(obj.admin_competencies.values_list('name', flat=True))
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -461,6 +461,9 @@ class SpecialPermissionsAdmin(admin.ModelAdmin):
         form.base_fields["admin_competencies"] = CtegoryExpertForm.base_fields['admin_competencies']
         form.base_fields["admin_competencies"].label = 'Компетенции руководителя'
         return form
+
+    get_categories.short_description = 'Компетенции эксперта'
+    get_admin_competencies.short_description = 'Компетенции руководителя'
 
     class Media:
         css = {"all": ("drevo/css/style.css",)}

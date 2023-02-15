@@ -64,6 +64,12 @@ from .views.admin_interview_work.views import (
     AdminEditingKnowledgeView,
     NotifyExpertsView,
 )
+from .views.special_permissions_work.view import (
+    SpecialPermissionsView,
+    set_users_as_editor,
+    ExpertsCandidatesListView,
+    set_users_as_expert,
+)
 from .views.interview_and_proposal import my_interview, my_proposal
 from .views.klz_all_knowledges import klz_all
 from .views.my_favourites import my_favourites
@@ -191,6 +197,27 @@ urlpatterns = [
         "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/notify_experts/",
         NotifyExpertsView.as_view(),
         name='admin_notify_experts'
+    ),
+
+    path(
+        'special_permissions/',
+        SpecialPermissionsView.as_view(),
+        name='special_permissions_page'
+    ),
+    path(
+        'special_permissions/set_users_as_editor',
+        set_users_as_editor,
+        name='set_users_as_editor'
+    ),
+    path(
+        'special_permissions/to_experts/<int:category_pk>',
+        ExpertsCandidatesListView.as_view(),
+        name='experts_candidates_page'
+    ),
+    path(
+        'special_permissions/set_users_as_expert/<int:category_pk>',
+        set_users_as_expert,
+        name='set_users_as_expert'
     ),
 
     path("friends/", friends_view, name="friends"),
