@@ -1,6 +1,7 @@
 from drevo.utils import get_group_users, get_average_base_grade, get_group_relations
 from django.views.generic import TemplateView
 from drevo.models.knowledge import Znanie
+from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from django.shortcuts import Http404, get_object_or_404
 from django.views.decorators.csrf import csrf_protect
 from django.utils.decorators import method_decorator
@@ -47,6 +48,6 @@ class GroupKnowledgeView(TemplateView):
 
             context['proof_base_grade'] = proof_base_grade
             context['common_grade'] = common_grade
-
+            context['grade_scales'] = KnowledgeGradeScale.objects.all()
             context['count_users'] = len(self.users)
         return context 

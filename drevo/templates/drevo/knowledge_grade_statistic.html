@@ -1,4 +1,5 @@
 {% extends 'drevo/base.html' %}
+{% load infographics %}
 
 
 {% block title %}
@@ -58,7 +59,13 @@
                             {% for grade_scale, value in all_grades_statistic.items %}
                         
                             <tr style = "border-top: 3px solid black">
-                                <td valign="middle">{{ grade_scale }}</td>
+                                {% if grade_scale.name != "Нет оценки" and grade_scale != "Всего: " %}
+                                <td valign="middle" style="background: {{ grade_scale.get_base_grade|get_color_from_knowledge_grade_value:0 }}">
+                                {% else %}
+                                <td valign="middle">
+                                {% endif %}
+                                    {{ grade_scale }}
+                                </td>
                                 <td>{{ value.0 }}</td>
                                 <td>{{ value.1 }}%</td>
                             </tr>
@@ -108,7 +115,13 @@
                             {% endcomment %}
                         
                             <tr style = "border-top: 3px solid black">
-                                <td rowspan="2" valign="middle">{{ grade }}</td>
+                                {% if grade.name != "Нет оценки" and grade != "Всего:" %}
+                                <td rowspan="2" valign="middle" style="background: {{ grade.get_base_grade|get_color_from_knowledge_grade_value:0 }}">
+                                {% else %}
+                                <td rowspan="2" valign="middle">
+                                {% endif %}
+                                    {{ grade }}
+                                </td>
                                 <td>{{ value.0 }}</td>
                                 <td>{{ value.2 }}</td>
                                 <td>{{ value.4 }}</td>
@@ -151,7 +164,13 @@
                         <tbody align="center"> 
                             {% for grade, values in age_grades.items %}                                
                                 <tr style = "border-top: 3px solid black">
-                                    <td rowspan="2" valign="middle">{{ grade }}</td>
+                                    {% if grade.name != "Нет оценки" and grade != "Всего:" %}
+                                    <td rowspan="2" valign="middle" style="background: {{ grade.get_base_grade|get_color_from_knowledge_grade_value:0 }}">
+                                    {% else %}
+                                    <td rowspan="2" valign="middle">
+                                    {% endif %}
+                                        {{ grade }}
+                                    </td>
                                     {% for amount_and_percent in values %}
                                     <td> {{ amount_and_percent.0 }} </td>
                                     {% endfor %}
