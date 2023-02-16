@@ -117,7 +117,8 @@ class CandidatesMixin:
     def get_admin_candidates(self) -> dict:
         """
             Метод для получения кандидатов в руководители.
-            Результирующие  данные:
+            Результирующие  данные:\n
+            {<int:author_pk>: {name: <str:author_name>, categories: {<int:category_pk>: <int:category_count>...}}...}
         """
 
         min_count_to_transition = get_object_or_404(SettingsOptions, name='Минимальный порог перехода в руководители')
