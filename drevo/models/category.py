@@ -28,6 +28,10 @@ class Category(MPTTModel):
         null=True,
         verbose_name='Содержание'
     )
+    subscribers = models.ManyToManyField(
+        'users.User',
+        blank=True
+    )
     is_published = models.BooleanField(
         default=False,
         verbose_name='Опубликовано?'

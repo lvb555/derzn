@@ -52,6 +52,12 @@ def notify(sender, instance: Znanie, created, **kwargs):
         # Объеденяем множества. Так у нас не будут повторяться пользовотели, которым нужно отправить уведомление.
         user_to_notify = user_to_notify | set(knowledge_tags.subscribers.all())
 
+    # Проверяем, есть ли категория и добавляем пользователей, подписанных на нее или ее parent
+    if instance.category:
+        knowledge_categories = instance.category.get_ancestors(include_self=True)
+        for knowledge_category in knowledge_categories:
+            user_to_notify = user_to_notify | set(knowledge_category.subscribers.all())
+
     if not user_to_notify:
         return
     author_publication_url = settings.BASE_URL + instance.get_absolute_url()

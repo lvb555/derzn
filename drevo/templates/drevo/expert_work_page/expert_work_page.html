@@ -1,0 +1,105 @@
+{% extends 'drevo/base.html' %}
+
+{% block cssfiles %}
+<style type="text/css">
+    .center {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+<div class="container overflow-hidden">
+    <div class="text-center border-bottom border-dark">
+        <div class="btn-group w-100 mb-2">
+            {% if prev_quest %}
+            <a href="{{ prev_quest }}" class="btn btn-outline-primary w-100">Предыдущий вопрос</a>
+            {% endif %}
+            <a href="{% url 'my_interview' %}" class="btn btn-outline-secondary w-100">Завершить работу с вопросами</a>
+            {% if next_quest %}
+            <a href="{{ next_quest }}" class="btn btn-outline-primary w-100">Следующий вопрос</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col proposal-bold-text">
+           <h3>Интервью на тему:</h3>
+        </div>
+        <div class="col">
+            <a href="{% url 'interview' interview.id %}"> {{ interview.title }}</a>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col proposal-bold-text">
+            <h3>Вопрос:</h3>
+        </div>
+        <div class="col">
+            <a href="{% url 'zdetail' question.id %}">{{question.title}}</a>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col">
+            <p class="proposal-bold-text fs-5">Допустимое число ответов:</p>
+        </div>
+        <div class="col">
+            <p id="max-agreed-count" class="{% if cur_agreed_count >= max_agreed %} text-danger {% else %} text-success {% endif %}">
+                {{ cur_agreed_count }}/{{ max_agreed }}
+            </p>
+        </div>
+    </div>
+    <div>
+        {% include './answers_block.html' %}
+    </div>
+    <div>
+        {% include './proposals_block.html' %}
+    </div>
+</div>
+
+<style>
+    /* Outside link icon */
+    a[target="_blank"]::after {
+        content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+        margin: 0 3px 0 5px;
+    }
+    .proposal_answer {
+        color: gray;
+    }
+
+    .proposal-bold-text {
+        font-weight: bold;
+    }
+
+    .max-agreed-text {
+        color: gray
+    }
+</style>
+
+{% include './success_action_message_modal.html' %}
+
+{% endblock %}
+
+{% block jsfiles %}
+<script src="https://unpkg.com/htmx.org@1.7.0"
+        integrity="sha384-EzBXYPt0/T6gxNp0nuPtLkmRpmDBbjg6WmCUZRLXBBwYYmwAUxzlSGej0ARHX0Bo"
+        crossorigin="anonymous">
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script type="text/javascript">
+if ("{{ is_saved }}") {
+  $(window).on('load',setTimeout(function() {
+        $('#success_message_modal').modal('show');
+    }, 1000));
+}
+</script>
+
+<script>
+        function set_answer_as_incorrect(e, form_id) {
+            if ( (window.event ? event.keyCode : e.which) == 13) {
+                form_id.submit();
+            }
+        }
+</script>
+{% endblock %}

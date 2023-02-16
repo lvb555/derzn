@@ -84,7 +84,7 @@ class InterviewAnswerExpertProposal(models.Model):
 
     # реквизит "Некорректная связь" - логический. Некорректная связь – True;
     is_incorrect_answer = models.BooleanField(
-        default=False, verbose_name="некорректный ответ"
+        default=False, verbose_name="Некорректный ответ"
     )
 
     # реквизит "Статус ответа" - логический. Согласен – True; Не согласен -
@@ -113,6 +113,13 @@ class InterviewAnswerExpertProposal(models.Model):
         null=True,
         blank=True,  # чтобы виджеты в админке не требовали ввода
         verbose_name="новый ответ от эксперта",
+    )
+
+    # Реквизит "Пояснение некорректности ответа". Данный реквизит будет заполнен экспертом если
+    # is_incorrect_answer имеет значение True
+    incorrect_answer_explanation = models.TextField(
+        verbose_name='Пояснение некорректности ответа',
+        blank=True
     )
 
     # ================================= Admin fields ========================

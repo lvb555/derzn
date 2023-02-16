@@ -47,11 +47,15 @@ from .views import (
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
-from .views.expert_work.proposal_delete_view import ProposalDeleteView
+
+
 from .views.expert_work.views import (
     propose_answer,
-    update_answer_proposal,
-    update_proposed_answer,
+    sub_answer_create_view,
+    ExpertProposalDeleteView,
+    set_answer_as_incorrect,
+    set_answer_is_agreed,
+    proposal_update_view,
 )
 from .views.admin_interview_work.views import (
     AllInterviewView,
@@ -67,6 +71,7 @@ from .views.my_knowledge import my_knowledge, my_preknowledge, my_expertise
 from .views.public_people import public_people_view, public_human
 from .views.quiz_result import show_quiz_result
 from .views.subscribe_to_author_view import sub_by_author
+from .views.subscription_by_category_view import sub_by_category
 from .views.subscription_by_tag_view import sub_by_tag
 from drevo.views.developer_view import developer_view
 from .views.knowledge_tp_view import (
@@ -123,6 +128,7 @@ urlpatterns = [
     path("history/<int:id>/", browsing_history, name="history"),
     path("subscribe_to_author/<int:id>/", sub_by_author, name="subscribe_to_author"),
     path("subscription_by_tag/<int:id>/", sub_by_tag, name="subscription_by_tag"),
+    path("subscription_by_category/<int:id>/", sub_by_category, name="subscription_by_category"),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
     path("my_favourites/<int:id>/", my_favourites, name="my_favourites"),
     path("my_knowledge/<int:id>/", my_knowledge, name="my_knowledge"),
@@ -138,24 +144,34 @@ urlpatterns = [
         name="question_expert_work",
     ),
     path(
-        "interview/<int:interview_pk>/questions/<int:question_pk>/answers/<int:answer_pk>",
-        update_answer_proposal,
-        name="update_answer_proposal",
-    ),
-    path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/new_answers",
         propose_answer,
         name="propose_answer",
     ),
     path(
-        "interview/new_answers/<int:proposal_pk>",
-        update_proposed_answer,
-        name="update_proposed_answer",
+        "interview/delete_proposal",
+        ExpertProposalDeleteView.as_view(),
+        name="delete_proposal",
     ),
     path(
-        "interview/<int:interview_pk>/questions/<int:question_pk>/<int:pk>",
-        ProposalDeleteView.as_view(),
-        name="delete",
+        'interview/questions/<int:quest_pk>/answer/<int:answer_pk>/add_subanswer',
+        sub_answer_create_view,
+        name='add_subanswer'
+    ),
+    path(
+        'interview/answer/<int:proposal_pk>/answer_as_incorrect',
+        set_answer_as_incorrect,
+        name='set_answer_as_incorrect'
+    ),
+    path(
+        'interview/answer/<int:proposal_pk>/answer_is_agreed',
+        set_answer_is_agreed,
+        name='set_answer_is_agreed'
+    ),
+    path(
+        'interview/proposal/<int:proposal_pk>/update',
+        proposal_update_view,
+        name='proposal_update'
     ),
     path("admin/interview/", AllInterviewView.as_view(), name="all_interview"),
     path(
@@ -164,7 +180,7 @@ urlpatterns = [
         name="interview_quests",
     ),
     path(
-        "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/",
+        "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/proposals/",
         question_admin_work_view,
         name="question_admin_work",
     ),
