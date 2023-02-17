@@ -94,16 +94,6 @@ class InterviewAnswerExpertProposal(models.Model):
         verbose_name="Эксперт согласен с ответом?",
     )
 
-    # реквизит "Текст дополнения" – текстовый.
-    # список аргументов или контраргументов
-    # для получения полей используейте getters ниже (get_arguments, get_counter_arguments)
-    comment = models.JSONField(
-        default=comment_default_factory,
-        verbose_name="Аргументы и контраргументы (JSON)",
-        blank=True,
-        null=True,
-    )
-
     # реквизит "Дата/время сессии" – дата/время
     updated = models.DateTimeField(auto_now=True)
 

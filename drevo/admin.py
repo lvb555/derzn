@@ -612,9 +612,9 @@ class ParameterCategoriesAdmin(admin.ModelAdmin):
 
 @admin.register(SubAnswers)
 class SubAnswersAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'expert', 'question', 'answer', 'sub_answer')
+    list_display = ('pk', 'expert', 'interview', 'question', 'answer', 'sub_answer')
     list_display_links = ('pk', 'expert')
-    search_fields = ('question', 'answer', 'expert')
-    autocomplete_fields = ('question', 'answer')
+    search_fields = ('interview', 'question', 'answer', 'expert')
+    autocomplete_fields = ('interview', 'question', 'answer')
     save_as = True
     save_on_top = True

@@ -8,7 +8,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-light text-dark">
             <div class="modal-body">
-                <form action="{% url 'add_subanswer' question.id answer.id %}" method="post" id="create_sub_answer_form{{ answer.id }}">
+                <form action="{% url 'add_subanswer' interview.id question.id answer.id %}" method="post" id="create_sub_answer_form{{ answer.id }}">
                     <textarea name="subanswer" required class="form-control" placeholder="Введите содержание подответа..."></textarea>
                     {% csrf_token %}
                 </form>

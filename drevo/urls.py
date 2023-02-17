@@ -163,7 +163,7 @@ urlpatterns = [
         name="delete_proposal",
     ),
     path(
-        'interview/questions/<int:quest_pk>/answer/<int:answer_pk>/add_subanswer',
+        'interview/<int:inter_pk>/questions/<int:quest_pk>/answer/<int:answer_pk>/add_subanswer',
         sub_answer_create_view,
         name='add_subanswer'
     ),

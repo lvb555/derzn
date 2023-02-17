@@ -74,7 +74,9 @@ class QuestionExpertWorkPage(TemplateView):
             answers[answer.pk] = dict(
                 id=answer.pk,
                 text=answer.name,
-                sub_answers=answer.answ_sub_answers.all().values_list('sub_answer', flat=True),
+                sub_answers=answer.answ_sub_answers.filter(
+                    interview_id=interview_pk
+                ).values_list('sub_answer', flat=True),
                 proposal=proposal
             )
         context['cur_agreed_count'] = cur_agreed_count
@@ -132,14 +134,17 @@ def propose_answer(req: HttpRequest, interview_pk: int, question_pk: int):
 
 
 @require_http_methods(['POST'])
-def sub_answer_create_view(request: HttpRequest, quest_pk: int, answer_pk: int):
+def sub_answer_create_view(request: HttpRequest, inter_pk: int, quest_pk: int, answer_pk: int):
     """
         Добавление подответа к ответу на вопрос интервью
     """
     sub_answer = request.POST.get('subanswer')
     question = orm.Znanie.objects.get(pk=quest_pk)
     answer = orm.Znanie.objects.get(pk=answer_pk)
-    orm.SubAnswers.objects.create(expert=request.user, question=question, answer=answer, sub_answer=sub_answer)
+    interview = orm.Znanie.objects.get(pk=inter_pk)
+    orm.SubAnswers.objects.create(
+        expert=request.user, interview=interview, question=question, answer=answer, sub_answer=sub_answer
+    )
     message_text = f'Ваш подответ к ответу "{answer.name}" был успешно создан.'
     request.session['success_message_text'] = message_text
     scroll_to_elm = f'answer_{answer.id}'
