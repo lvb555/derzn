@@ -1,4 +1,4 @@
-from django.db.models import F, Count, QuerySet
+from django.db.models import QuerySet
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
 from django.shortcuts import redirect
@@ -39,8 +39,28 @@ class SpecialPermissionsView(TemplateView, CandidatesMixin):
         tree_data['nodes'] = Category.tree_objects.exclude(is_published=False).filter(pk__in=nodes_pk)
         return tree_data
 
+    def clear_page_session(self) -> None:
+        """
+            Метод для очистки данных сессии
+            (если переход на страницу был совершён с url не связанный со страницами особых прав) о:
+            1. Назначенных редакторах за текущую сессию
+            2. Категориях в которых были выданы права эксперта за текущую сессию
+            3. Категориях в которых были выданы права руководителя за текущую сессию
+        """
+        ref_url_elms = self.request.META.get('HTTP_REFERER')
+        if 'special_permissions' in ref_url_elms:
+            return
+        session_data = self.request.session
+        if 'experts_checked_category' in session_data.keys():
+            del self.request.session['experts_checked_category']
+        if 'admins_checked_category' in session_data.keys():
+            del self.request.session['admins_checked_category']
+        if 'last_set_editors' in session_data.keys():
+            del self.request.session['last_set_editors']
+
     def get_context_data(self, **kwargs):
         context = super(SpecialPermissionsView, self).get_context_data(**kwargs)
+        self.clear_page_session()
 
         candidates = self.get_all_candidates()
         experts, admins = candidates.get('experts'), candidates.get('admins')
@@ -49,20 +69,20 @@ class SpecialPermissionsView(TemplateView, CandidatesMixin):
         # Дерево для кандидатов в эксперты
         experts_tree_data = self.get_candidates_tree_data(candidates_data=experts)
         context.update({f'experts_{key}': value for key, value in experts_tree_data.items()})
-        context['experts_checked_category'] = ''
+        context['experts_checked_category'] = self.request.session.get('experts_checked_category')
 
         # Дерево для кандидатов в руководители
         admins_tree_data = self.get_candidates_tree_data(candidates_data=admins)
         context.update({f'admins_{key}': value for key, value in admins_tree_data.items()})
-        context['admins_checked_category'] = ''
+        context['admins_checked_category'] = self.request.session.get('admins_checked_category')
 
         # Блок кандидатов в руководители
         search_result = None
         if editor_last_name := self.request.GET.get('editor_last_name'):
             search_result = User.objects.filter(last_name__icontains=editor_last_name)
             context['editor_last_name'] = editor_last_name
-        context['editors'] = User.objects.all() if not search_result else search_result
-        context['last_set_editors'] = ''
+        context['editors'] = User.objects.order_by('first_name') if not search_result else search_result
+        context['last_set_editors'] = self.request.session.get('last_set_editors')
         return context
 
 
@@ -72,9 +92,34 @@ def set_users_as_editor(request):
         Назначить права редактора пользователям
     """
     users_pk = [int(elm.replace('editor_', '')) for elm in request.POST.keys() if elm != 'csrfmiddlewaretoken']
+    # Если после повторного сохранения пользователя нет в списке редакторов,
+    # которые получили права в рамках текущей сессии, то снимаем с них права редакторов
+    if request.session.get('last_set_editors'):
+        unset_editor_perm = [user_pk for user_pk in request.session.get('last_set_editors') if user_pk not in users_pk]
+        if unset_editor_perm:
+            users_for_unset_perm = User.objects.filter(pk__in=unset_editor_perm, is_redactor=True)
+            updated_users = list()
+            for user in users_for_unset_perm:
+                user.is_redactor = False
+                updated_users.append(user)
+            User.objects.bulk_update(updated_users, ['is_redactor'])
+
+            updated_permissions = list()
+            for user in users_for_unset_perm:
+                user_permissions, _ = SpecialPermissions.objects.get_or_create(expert=user)
+                user_permissions.editor = False
+                updated_permissions.append(user_permissions)
+            SpecialPermissions.objects.bulk_update(updated_permissions, ['editor'])
+            for user in updated_users:
+                request.session['last_set_editors'].remove(user.pk)
+
     if not users_pk:
         return redirect('special_permissions_page')
-    users = User.objects.filter(pk__in=users_pk)
+
+    users = User.objects.filter(pk__in=users_pk, is_redactor=False)
+    if not users.exists():
+        return redirect('special_permissions_page')
+
     updated_users = list()
     for user in users:
         user.is_redactor = True
@@ -87,6 +132,12 @@ def set_users_as_editor(request):
         user_permissions.editor = True
         updated_permissions.append(user_permissions)
     SpecialPermissions.objects.bulk_update(updated_permissions, ['editor'])
+
+    # Сохраняем данные о назначенных редакторах за текущую сессию
+    if session_data := request.session.get('last_set_editors'):
+        request.session['last_set_editors'] += [user.pk for user in updated_users if user.pk not in session_data]
+    else:
+        request.session['last_set_editors'] = [user.pk for user in updated_users]
     return redirect('special_permissions_page')
 
 
@@ -130,6 +181,12 @@ def set_users_as_expert(request, category_pk):
         user_permissions, _ = SpecialPermissions.objects.get_or_create(expert=user)
         user_permissions.categories.add(category)
         user_permissions.save()
+
+    # Сохраняем данные о категориях в которых были выданы права эксперта за текущую сессию
+    if request.session.get('experts_checked_category'):
+        request.session['experts_checked_category'].append(category_pk)
+    else:
+        request.session['experts_checked_category'] = [category_pk]
     return redirect('special_permissions_page')
 
 
@@ -174,6 +231,12 @@ def set_users_as_admin(request, category_pk):
         user_permissions, _ = SpecialPermissions.objects.get_or_create(expert=user)
         user_permissions.admin_competencies.add(category)
         user_permissions.save()
+
+    # Сохраняем данные о категориях в которых были выданы права руководителя за текущую сессию
+    if request.session.get('admins_checked_category'):
+        request.session['admins_checked_category'].append(category_pk)
+    else:
+        request.session['admins_checked_category'] = [category_pk]
     return redirect('special_permissions_page')
 
 
@@ -229,9 +292,10 @@ class UsersSpecialPermissionsView(TemplateView, CandidatesMixin):
         expert_competencies = permissions.categories.values_list('pk', flat=True)
         context['expert_comp'] = self.get_competencies_data_by_categories(expert_competencies, competencies_data)
         context['experts_nodes'] = self.get_user_permissions_tree_data(competencies_data=context['expert_comp'])
+
         # Получение данных по работе пользователя как редактора
-
-
+        if permissions.editor:
+            context['edit_knowledge_count'] = Znanie.objects.filter(redactor_id=user_pk).count()
 
         # Получение данных по компетенциям пользователя как руководителя
         admin_competencies = permissions.admin_competencies.values_list('pk', flat=True)

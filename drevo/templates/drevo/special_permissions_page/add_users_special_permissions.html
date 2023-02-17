@@ -9,12 +9,16 @@
 
 {% block content %}
 <div class="container">
-    {% if experts %}
     <div class="border-bottom border-dark text-center">
         <h3>Назначение прав экспертов</h3>
     </div>
+    {% if experts %}
     <div class="container mt-3">
         {% include 'drevo/special_permissions_page/tree_experts_block.html' %}
+    </div>
+    {% else %}
+    <div class="text-center mt-3 mb-3">
+        <h4>Кандидатов на получение прав эксперта ещё нет</h4>
     </div>
     {% endif %}
     {% if editors %}
@@ -25,12 +29,16 @@
             {% include 'drevo/special_permissions_page/editors_list_block.html' %}
     </div>
     {% endif %}
-    {% if admins %}
     <div class="border-bottom border-dark text-center">
         <h3>Назначение прав руководителей</h3>
     </div>
+    {% if admins %}
     <div class="container mt-3">
         {% include 'drevo/special_permissions_page/tree_admins_block.html' %}
+    </div>
+    {% else %}
+    <div class="text-center mt-3">
+        <h4>Кандидатов на получение прав руководителя ещё нет</h4>
     </div>
     {% endif %}
 </div>

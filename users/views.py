@@ -148,9 +148,8 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        expert = self.object.expert.all()
+        expert = self.object.expert
         if expert:
-            expert = expert[0]
             competence = expert.categories.all()
             context['competence'] = competence
         context['title'] = 'Ваш профиль'

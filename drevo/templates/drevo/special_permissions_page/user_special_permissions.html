@@ -9,20 +9,25 @@
 
 {% block content %}
 <div class="container">
+    {% if not permissions %}
+    <div class="text-center">
+        <h3>У вас ещё нет особых прав</h3>
+    </div>
+    {% endif %}
     {% if permissions.categories.all %}
     <div class="border-bottom border-dark">
         <h3>Эксперт</h3>
     </div>
     <div class="container mt-3">
-    {% include 'drevo/special_permissions_page/expert_user_permissions_tree.html' %}
+        {% include 'drevo/special_permissions_page/expert_user_permissions_tree.html' %}
     </div>
     {% endif %}
     {% if permissions.editor %}
     <div class="border-bottom border-dark">
         <h3>Редактор</h3>
     </div>
-    <div class="container mt-3">
-
+    <div class="container mt-3 mb-3">
+        <p>Отредактировано: <strong>{{ edit_knowledge_count }}</strong>.</p>
     </div>
     {% endif %}
     {% if permissions.admin_competencies.all %}
@@ -30,7 +35,7 @@
         <h3>Руководитель</h3>
     </div>
     <div class="container mt-3">
-    {% include 'drevo/special_permissions_page/admin_user_permissions_tree.html' %}
+        {% include 'drevo/special_permissions_page/admin_user_permissions_tree.html' %}
     </div>
     {% endif %}
 </div>
