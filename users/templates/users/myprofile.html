@@ -91,16 +91,14 @@
                 {% if user.is_public %}
                     <input type = 'checkbox' name = 'is_public' value="True" onclick="ShowSections(this.value)" checked>
                     Публичный человек
-                <div class="form-row">
-                <div style="display: block;margin-top: 16px;" id="sections">
                 {% else %}
                     <input type = 'checkbox' name = 'is_public' value="True" onclick="ShowSections(this.value)">
                     Публичный человек
-                <div class="form-row">
-                <div style="display: none;margin-top: 16px;" id="sections">
                 {% endif %}
+                <div class="form-row">
+                <div style="display: block;margin-top: 16px;" id="sections">
                     <div style="display: none" id="previous">{{sections}}</div>
-                    <h5>Разделы, которые будут показаны</h5>
+                    <h5>Страницы, которые будут показаны друзья (публике для публичного человека)</h5>
                     {% if 'znanie' in access or 'expert' in access or 'predznanie' in access %}
                     <div style="padding-bottom: 16px;font-size: 18px;" class="activity">
                         <input type = 'checkbox' class = 'section_title' id="activity" onclick="SelectAll(this.id)">

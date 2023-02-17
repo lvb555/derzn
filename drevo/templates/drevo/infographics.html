@@ -1,5 +1,6 @@
 {% extends 'drevo/base.html' %}
 {% load static %}
+{% load infographics %}
 {% load grades %}
 {% load custom_humanize %}
 
@@ -149,16 +150,18 @@
                                 {{ element_tree.for_or_against }}
                             </span>
                             <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
-                            {% if element_tree.proof_value %}
-                            <span style="background-color: {{ element_tree.bg_color }}; 
-                                  color: {{ element_tree.font_color }};
-                                  border: 1px solid black">
-                            {% else %}
-                            <span style="border: 1px solid black; color: black;">
-                            {% endif %}
+                            <span style="color:black">
                                 {{ element_tree.name }}
                             </span>
                             </a>
+
+                            {% if element_tree.proof_value %}
+                            <span style="background-color: {{ element_tree.bg_color }};
+                                  color: {{ element_tree.font_color }};
+                                  border: 1px solid black">
+                            {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                                    {{ element_tree.proof_grade }}
+                            </span>
 
                             {% if element_tree.proof_value %}
                             <span style="background-color: #FFFF00">
@@ -184,16 +187,18 @@
                                 {{ element_tree.for_or_against }}
                             </span>
                             <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
-                            {% if element_tree.proof_value %}
-                            <span style="background-color: {{ element_tree.bg_color }}; 
-                                  color: {{ element_tree.font_color }};
-                                  border: 1px solid black">
-                            {% else %}
-                            <span style="border: 1px solid black; color:black;">
-                            {% endif %}
+                            <span style="color:black">
                                 {{ element_tree.name }}
                             </span>
                             </a>
+
+                            {% if element_tree.proof_value %}
+                            <span style="background-color: {{ element_tree.bg_color }};
+                                  color: {{ element_tree.font_color }};
+                                  border: 1px solid black">
+                            {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                                    {{ element_tree.proof_grade }}
+                            </span>
                             
                             {% if element_tree.proof_value %}
                              <span style="background-color: #FFFF00">
@@ -214,16 +219,18 @@
                                 {{ element_tree.for_or_against }}
                             </span>
                             <a class="text-decoration-none" href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}">
-                            {% if element_tree.proof_value %}
-                            <span style="background-color: {{ element_tree.bg_color }}; 
-                                  color: {{ element_tree.font_color }};
-                                  border: 1px solid black">
-                            {% else %}
-                            <span style="border: 1px solid black; color: black;">
-                            {% endif %}
+                            <span style="color:black">
                                 {{ element_tree.name }}
                             </span>
                             </a>
+
+                            {% if element_tree.proof_value %}
+                            <span style="background-color: {{ element_tree.bg_color }};
+                                  color: {{ element_tree.font_color }};
+                                  border: 1px solid black">
+                            {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                                    {{ element_tree.proof_grade }}
+                            </span>
 
                             {% if element_tree.proof_value %}
                             <span style="background-color: #FFFF00">
@@ -245,31 +252,46 @@
     <div class="row justify-content-center">
         <h4 class="text-center my-4">Легенда</h4>
         <div class="col-6">
+        <div style="display:flex; flex-direction: row; justify-content: space-between;">
+            <p> </p>
+            <p class="text-center" style="width: 150px;"><strong>Довод "За"</strong></p>
+            <p> </p>
+            <p class="text-center" style="width: 150px;"><strong>Довод "Против"</strong></p>
+            <p> </p>
+        </div>
         <table class="table table-sm text-center" style="border-collapse: collapse;">
             <style>
                 .table-border {
                     border: 2px black solid;
                 }
+
+                {% get_gradients as bg_color %}
+                .grade_for{
+                    background: linear-gradient({{ bg_color.for.low_light }}, {{ bg_color.for.high_light }});
+                }
+                .grade_against{
+                    background: linear-gradient({{ bg_color.against.low_light }}, {{ bg_color.against.high_light }});
+                }
             </style>
+            <colgroup>
+              <col class="grade_for" />
+              <col />
+              <col class="grade_against"/>
+            </colgroup>
             <tbody>
-                <th class="text-center">
-                    Довод "За"
-                </th>
-                <th style="border:none;"></th>
-                <th class="text-center">
-                    Довод "Против"
-                </th>
                 {% for grade_scale in grade_scales %}
                     <tr>
-                        <td class="table-border" style="background-color: {{ grade_scale.argument_color_background }};
-                                   color: {{ grade_scale.argument_color_font }};">
+                        {% if grade_scale.name != "Нет оценки" %}
+                        <td class="table-border"> <!--style="background-color: {{ grade_scale.argument_color_background }};
+                                   color: {{ grade_scale.argument_color_font }};"-->
                             {{ grade_scale.name }}
                         </td>
                         <td style="border: none;"></td>
-                        <td class="table-border" style="background-color: {{ grade_scale.contraargument_color_background }};
-                                   color: {{ grade_scale.contraargument_color_font }};">
+                        <td class="table-border"> <!--style="background-color: {{ grade_scale.contraargument_color_background }};
+                                   color: {{ grade_scale.contraargument_color_font }};"-->
                             {{ grade_scale.name }}
                         </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>

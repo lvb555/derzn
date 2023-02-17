@@ -1,5 +1,6 @@
 {% extends 'drevo/base.html' %}
 {% load grades %}
+{% load infographics %}
 {% load knowledge_has_children %}
 {% load custom_humanize %}
 
@@ -82,7 +83,6 @@
                 </form>
             </div>
         {% endif %}
-
         <form action="{{ request.get_full_path }}" method="post" id="gradeForm">
             {% csrf_token %}
             <input type="hidden" name="variant" readonly value="{{ request.GET.variant }}">
@@ -91,8 +91,13 @@
                 <tbody>
                 <tr>
                     <th>Оценка знания:</th>
-                    <td>
-                        <select name="base_knowledge_grade" id="id_base_knowledge_grade">
+                    <td {% if selected_base_grade.grade.name != "Нет оценки" %}
+            style="background: {{ selected_base_grade.grade.get_base_grade|get_color_from_knowledge_grade_value:0 }};"
+                            {% endif %}>
+                        <select name="base_knowledge_grade" id="id_base_knowledge_grade"
+                            {% if selected_base_grade.grade.name != "Нет оценки" %}
+            style="background: {{ selected_base_grade.grade.get_base_grade|get_color_from_knowledge_grade_value:0 }}; border:none;"
+                            {% endif %}>
                             {% for grade in knowledge_scale %}
                                 <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                         {% if selected_base_grade and selected_base_grade.grade == grade %}
@@ -102,10 +107,14 @@
                             {% endfor %}
                         </select>
                     </td>
-                    <td id="currentGrade" style="width: 48px">
+                    <td id="currentGrade"
+                        {% if selected_base_grade.grade.name != "Нет оценки" %}
+            style="background: {{ selected_base_grade.grade.get_base_grade|get_color_from_knowledge_grade_value:0 }}; width:48px;">
+                        {% else %}
+                        style="width: 48px">
+                        {% endif %}
                         {% if selected_base_grade %}
-                            {% if selected_base_grade.grade.get_base_grade == 2.0 %}
-                            {% else %}
+                            {% if selected_base_grade.grade.name != "Нет оценки" %}
                                 {{ selected_base_grade.grade.get_base_grade|floatformat:-2 }}
                             {% endif %}
                         {% endif %}
@@ -114,13 +123,29 @@
                 {% if proof_relations.exists %}
                     <tr>
                         <th>Оценка доказательной базы:</th>
-                        <td>{{ proof_base_grade.name }}</td>
-                        <td>{{ proof_base_value|floatformat:-2 }}</td>
+                        <td {% if proof_base_grade.name != "Нет оценки" %}
+            style="background: {{ proof_base_value|get_color_from_knowledge_grade_value:0 }}; width:48px;"
+                        {% endif %}>
+                            {{ proof_base_grade.name }}
+                        </td>
+                        <td {% if proof_base_grade.name != "Нет оценки" %}
+            style="background: {{ proof_base_value|get_color_from_knowledge_grade_value:0 }}; width:48px;"
+                        {% endif %}>
+                            {{ proof_base_value|floatformat:-2 }}
+                        </td>
                     </tr>
                     <tr>
                         <th>Общая оценка знания:</th>
-                        <td>{{ common_grade.name }}</td>
-                        <td>{{ common_grade_value|floatformat:-2 }}</td>
+                        <td {% if common_grade.name != "Нет оценки" %}
+            style="background: {{ common_grade_value|get_color_from_knowledge_grade_value:0 }}; width:48px;"
+                        {% endif %}>
+                            {{ common_grade.name }}
+                        </td>
+                        <td {% if common_grade.name != "Нет оценки" %}
+            style="background: {{ common_grade_value|get_color_from_knowledge_grade_value:0 }}; width:48px;"
+                        {% endif %}>
+                            {{ common_grade_value|floatformat:-2 }}
+                        </td>
                     </tr>
                 {% endif %}
                 </tbody>
@@ -174,31 +199,40 @@
                                     {{ relation.tr.name|endings_filter }}
                                 </td>
                                 {% with relation|proof_grade:request as pw %}
-                                    <td class="table-border" style="border-right: none;">
+                                    <td class="table-border" style="border-right: none;{% if pw != null %} background: {{ pw|get_color_from_knowledge_grade_value:relation.tr.argument_type }};{% endif %}">
                                         {% if pw == null %}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                         {% else %}
+                                        <span>
                                             {{ pw|grade_name }}
+                                        </span>
                                         {% endif %}
                                     </td>
-                                    <td class="table-border text-center" style="border-left: none;">
+                                    <td class="table-border text-center" style="border-left: none;{% if pw != null %} background: {{ pw|get_color_from_knowledge_grade_value:relation.tr.argument_type }};{% endif %}">
                                         {{ pw|floatformat:-2 }}
                                     </td>
                                 {% endwith %}
                                 {% with relation.rz|common_grades:request as grades_iter %}
-                                    <td class="table-border" style="border-right: none;">
+                                    <td class="table-border" style="border-right: none; {% if grades_iter.0 != null %}background: {{ grades_iter.0|get_color_from_knowledge_grade_value:relation.tr.argument_type }};{% endif %}">
                                         {% if grades_iter.0 == null%}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                         {% else %}
                                             {{ grades_iter.0|grade_name }}
                                         {% endif %}
                                     </td>
-                                    <td class="table-border text-center" style="border-left: none;">
+                                    <td class="table-border text-center" style="border-left: none; {% if grades_iter.0 != null %}background: {{ grades_iter.0|get_color_from_knowledge_grade_value:relation.tr.argument_type }};{% endif %}">
                                         {{ grades_iter.0|floatformat:-2 }}
                                     </td>
                                 {% endwith %}
-                                <td class="table-border" style="border-right: none;">
-                                    <select name="knowledge_grade" id="id_relation_grade{{ relation.id }}">
+                                <td class="table-border"
+                                    {% if relation.rz|object_grade_num:user|grade_name != "Нет оценки" %}
+            style="background: {{ relation.rz|object_grade_num:user|get_color_from_knowledge_grade_value:relation.tr.argument_type }}; border-right:none;"
+                                    {% else %}
+                                    style="border-right: none;"
+                                    {% endif %}>
+                                    <select name="knowledge_grade" id="id_relation_grade{{ relation.id }}"
+                                            style="background: none; border: none;">
+
                                         {% for grade in knowledge_scale %}
                                             <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                                     id="proofRelationId{{ relation.id }}"
@@ -208,11 +242,22 @@
                                         {% endfor %}
                                     </select>
                                 </td>
-                                <td class="table-border text-center" style="border-left: none;">
+                                <td class="table-border text-center"
+                                    {% if relation.rz|object_grade_num:user|grade_name != "Нет оценки" %}
+            style="background: {{ relation.rz|object_grade_num:user|get_color_from_knowledge_grade_value:relation.tr.argument_type }}; border-left:none;"
+                                    {% else %}
+                                    style="border-left: none;"
+                                    {% endif %}>
                                     {{ relation.rz|object_grade_num:user|floatformat:-2 }}
                                 </td>
-                                <td class="table-border" style="border-right: none;">
-                                    <select name="relation_grade" id="id_relation_grade{{ relation.id }}">
+                                <td class="table-border"
+                                    {% if relation|object_grade_num:user|grade_name != "Нет оценки" %}
+            style="background: {{ relation|object_grade_num:user|get_color_from_knowledge_grade_value:0 }}; border-right:none;"
+                                    {% else %}
+                                    style="border-right: none;"
+                                    {% endif %}>
+                                    <select name="relation_grade" id="id_relation_grade{{ relation.id }}"
+                                            style="background:none; border: none;">
                                         {% for grade in relation_scale %}
                                             <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                                     id="proofRelationId{{ relation.id }}"
@@ -222,7 +267,12 @@
                                         {% endfor %}
                                     </select>
                                 </td>
-                                <td class="table-border text-center" style="border-left: none;">
+                                <td class="table-border text-center"
+                                    {% if relation|object_grade_num:user|grade_name != "Нет оценки" %}
+            style="background: {{ relation|object_grade_num:user|get_color_from_knowledge_grade_value:0 }}; border-left:none;"
+                                    {% else %}
+                                    style="border-left: none;"
+                                    {% endif %}>
                                     {{ relation|object_grade_num:user|floatformat:-2 }}
                                 </td>
                             </tr>
@@ -232,6 +282,71 @@
 <!--                </div>-->
             {% endif %}
         </form>
+    {% if grade_scales %}
+    <div class="row justify-content-center">
+        <h4 class="text-center my-4">Легенда</h4>
+        <div class="col-6">
+        <div style="display:flex; flex-direction: row; justify-content: space-between;">
+            <p> </p>
+            <p class="text-center" style="width: 150px;"><strong>Любая оценка</strong></p>
+            <p> </p>
+            <p class="text-center" style="width: 150px;"><strong>Довод "Против"</strong></p>
+            <p> </p>
+        </div>
+        <table class="table table-sm text-center" style="border-collapse: collapse;">
+            <style>
+                .table-border {
+                    border: 2px black solid;
+                }
+
+                {% get_gradients as bg_color %}
+                .grade_for{
+                    background: linear-gradient({{ bg_color.for.low_light }}, {{ bg_color.for.high_light }});
+                }
+                .grade_against{
+                    background: linear-gradient({{ bg_color.against.low_light }}, {{ bg_color.against.high_light }});
+                }
+            </style>
+            <colgroup>
+              <col class="grade_for" />
+              <col />
+              <col class="grade_against"/>
+            </colgroup>
+            <tbody>
+                {% for grade_scale in grade_scales %}
+                    <tr>
+                        {% if grade_scale.name != "Нет оценки" %}
+                        <td class="table-border"> <!--style="background-color: {{ grade_scale.argument_color_background }};
+                                   color: {{ grade_scale.argument_color_font }};"-->
+                            {{ grade_scale.name }}
+                        </td>
+                        <td style="border: none;"></td>
+                        <td class="table-border"> <!--style="background-color: {{ grade_scale.contraargument_color_background }};
+                                   color: {{ grade_scale.contraargument_color_font }};"-->
+                            {{ grade_scale.name }}
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <table class="table table-sm text-center" style="border-collapse:collapse; width: 200px;">
+            <style>
+                .table-border {
+                    border: 2px black solid;
+                }
+            </style>
+            <tbody>
+                <td class="text-center table-border">
+                    Нет оценки
+                </td>
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
     {% endif %}
     <script>
         function init() {

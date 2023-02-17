@@ -9,6 +9,12 @@
 <link rel="stylesheet" href="{% static '/drevo/css/subscriptions.css' %}">
 <link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<style>
+    .legend{
+        display: list-item;
+        list-style-type: disc;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -31,8 +37,11 @@
 <br>
 <div style="float: right">
 <br><p style="margin: 0px; padding-left: 45%;">Легенда:</p>
-                <p style="color: green;margin: 0px;padding-left: 55%;">Вы не подписаны на категорию</p>
-                <p style="color: red;margin: 0px;padding-left: 55%;">Вы подписаны на категорию</p>
+    <ul>
+        <li class="legend" style="color: green;margin: 0px;">Вы не подписаны на категорию</li>
+        <li class="legend" style="color: red;margin: 0px;">Вы подписаны на категорию</li>
+        <li class="legend" style="color: blue;margin: 0px;">Ищи там, где синий цвет</li>
+    </ul>
 </div>
 <div>
  <h5 class='previous' style="display: none">{{categories}}</h5>
@@ -69,9 +78,38 @@
 
     {% csrf_token %}
 {% endif %}
+<div id="result"></div>
 </div>
 
 <script>
+
+function ShowFirst(){
+    let checked_options = document.querySelectorAll('input[type="checkbox"]:checked');
+    for( let r=0; r<checked_options.length; r++){
+        parent = checked_options[r].parentNode;
+        grandparent = parent.parentNode;
+        disabled_checkboxes = parent.querySelectorAll('input[type="checkbox"]');
+        for(let i=0; i < disabled_checkboxes.length; i++){
+            for_span = document.getElementById(disabled_checkboxes[i].value);
+            disabled_checkboxes[i].checked = true;
+            disabled_checkboxes[i].disabled = true;
+            for_span.innerHTML = "<span style='color: red'>"+for_span.textContent+"</span>";
+        }
+        if(grandparent.classList.contains('items') == true |
+         grandparent.parentNode.querySelector('input[type="checkbox"]').checked == false){
+            checked_options[r].disabled = false;
+        }
+        if(grandparent.classList.contains('children')){
+            while(grandparent.classList.contains('items') == false){
+                previous_grandparent = grandparent;
+                grandparent = grandparent.parentNode;
+            }
+            previous_grandparent.querySelector('span').style.color = 'blue';
+        }
+    }
+}
+
+ShowFirst()
 
 var dict_to_send = new Object();
 
@@ -89,10 +127,12 @@ function submit_category(int){
         }
         }
     }send_data_to_category(int, dict_to_send)
+    document.querySelector('#result').innerHTML = 'Сохранение прошло успешно!';
 }
 
 function isAvailable(elem){
     parent = elem.parentNode;
+    grandparent = parent.parentNode;
     if(elem.checked == true){
         disabled_checkboxes = parent.querySelectorAll('input[type="checkbox"]');
         for(let i=0; i < disabled_checkboxes.length; i++){
@@ -109,6 +149,17 @@ function isAvailable(elem){
             disabled_checkboxes[i].checked = false;
             disabled_checkboxes[i].disabled = false;
             for_span.innerHTML = "<span style='color: green'>"+for_span.textContent+"</span>";
+        }
+    }
+    if(grandparent.classList.contains('children')){
+        while(grandparent.classList.contains('items') == false){
+            previous_grandparent = grandparent;
+            grandparent = grandparent.parentNode;
+        }
+        if(elem.checked == true){
+            previous_grandparent.querySelector('span').style.color = 'blue';
+        }else{
+            previous_grandparent.querySelector('span').style.color = 'green';
         }
     }
 }
