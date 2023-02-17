@@ -337,7 +337,6 @@ class MenuSectionsAdd(ProcessFormView):
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
             user = request.user
-
             sections = json.loads(request.GET.get('sections'))
             user.sections.clear()
             for section in sections:

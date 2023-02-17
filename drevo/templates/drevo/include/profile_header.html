@@ -185,7 +185,7 @@
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         {% if 'По категориям' in sections %}
                         <li>
-                            <a href="{% url 'subscription_by_category' user.id %}" class="dropdown-item">По категориям</a>
+                            <a href="{% url 'subscription_by_category' pub_user.id %}" class="dropdown-item">По категориям</a>
                         </li>
                         {% endif %}
                         {% if 'По авторам' in sections %}
