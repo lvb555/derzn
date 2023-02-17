@@ -1,6 +1,7 @@
 {% extends 'drevo/base.html' %}
 {% load static %}
 {% load grades %}
+{% load infographics %}
 {% load custom_humanize %}
 
 {% block title %}
@@ -98,7 +99,9 @@
                             {% if count_users == 0 %}
                                 <td>–</td>
                             {% else %}
-                                <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
+                                <td style="background: {{ all_users.value|get_color_from_knowledge_grade_value:0 }};">
+                                    {{ all_users.name }} {{ all_users.value|floatformat:-2 }}
+                                </td>
                             {% endif %}
                         </tr>
                         <tr style = "border-top: 3px solid black">
@@ -109,7 +112,9 @@
                             {% if count_male_users == 0 %}
                                 <td>–</td>
                             {% else %}
-                                <td>{{ male_users.name }} {{ male_users.value|floatformat:-2 }}</td>
+                                <td style="background: {{ male_users.value|get_color_from_knowledge_grade_value:0 }}">
+                                    {{ male_users.name }} {{ male_users.value|floatformat:-2 }}
+                                </td>
                             {% endif %}
                         </tr>
                         <tr style = "border-top: 3px solid black">
@@ -120,7 +125,9 @@
                             {% if count_female_users == 0 %}
                                 <td>–</td>
                             {% else %}
-                                <td>{{ female_users.name }} {{ female_users.value|floatformat:-2 }}</td>
+                                <td style="background: {{ female_users.value|get_color_from_knowledge_grade_value:0 }}">
+                                    {{ female_users.name }} {{ female_users.value|floatformat:-2 }}
+                                </td>
                             {% endif %}
                         </tr>
                     </tbody>
@@ -146,7 +153,9 @@
                              {% if count_users == 0 %}
                                 <td>–</td>
                             {% else %}
-                                <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
+                                <td style="background: {{ all_users.value|get_color_from_knowledge_grade_value:0 }};">
+                                    {{ all_users.name }} {{ all_users.value|floatformat:-2 }}
+                                </td>
                             {% endif %}
                         </tr>
                         {% for age_scale_grade in age_scales_grades %}
@@ -164,7 +173,9 @@
                             {% if age_scale_grade.count_users == 0 %}
                                 <td>–</td>
                             {% else %}
-                                <td>{{ age_scale_grade.name }} {{ age_scale_grade.value|floatformat:-2 }}</td>
+                                <td style="background: {{ age_scale_grade.value|get_color_from_knowledge_grade_value:0 }}">
+                                    {{ age_scale_grade.name }} {{ age_scale_grade.value|floatformat:-2 }}
+                                </td>
                             {% endif %}
                         </tr>
                         {% endfor %}

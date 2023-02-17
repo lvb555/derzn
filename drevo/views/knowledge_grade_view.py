@@ -49,6 +49,7 @@ class KnowledgeFormView(TemplateView):
             context['proof_relations'] = proof_relations
             context['knowledge_scale'] = KnowledgeGradeScale.objects.all()
             context['relation_scale'] = RelationGradeScale.objects.all()
+            context['grade_scales'] = KnowledgeGradeScale.objects.all()
 
             common_grade_value, proof_base_value = knowledge.get_common_grades(request=self.request)
 

@@ -196,9 +196,14 @@ def get_grade_values(request, users, relation: Relation) -> dict:
         copy_request.user = user
 
         # добавление значения оценки довода в список
+        variant = request.GET.get('variant')
+        if variant and variant.isdigit():
+            variant = int(variant)
+        else:
+            variant = 1
         proof_grade = relation.get_proof_grade(
             copy_request,
-            copy_request.GET.get("variant", 1)
+            variant
         )
         if proof_grade:
             grade_values["proof_grade"].append(proof_grade)
@@ -232,6 +237,7 @@ def get_grade_values(request, users, relation: Relation) -> dict:
                 grade_values["relation_grade"].append(
                     relation_grade_value
                 )
+    print()
     return grade_values
 
 def get_average_grades(request, users, relation: Relation) -> dict:
@@ -331,9 +337,14 @@ def get_average_proof(users, request, relation: Relation) -> Grade:
     proof_grades = []
     for user in users:
         copy_request.user = user
+        variant = request.GET.get('variant')
+        if variant and variant.isdigit():
+            variant = int(variant)
+        else:
+            variant = 1
         proof_grade_value = relation.get_proof_grade(
             copy_request,
-            copy_request.GET.get("variant", 2)
+            variant
         )
         if proof_grade_value:
             proof_grades.append(proof_grade_value)
@@ -374,6 +385,7 @@ def get_group_relations(request, users, relations: list[Relation]) -> list[dict]
             group_relations.append({
                 "knowledge": relation.rz,
                 "type_name": relation.tr.name,
+                "argument_type": relation.tr.argument_type,
                 "proof_grade": grades["proof_grade"],
                 "common_grade": grades["common_grade"],
                 "knowledge_grade": grades["knowledge_grade"],
