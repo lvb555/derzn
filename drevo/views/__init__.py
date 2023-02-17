@@ -55,6 +55,7 @@ from .special_permissions_work.view import (
     set_users_as_expert,
     AdminsCandidatesListView,
     set_users_as_admin,
+    UsersSpecialPermissionsView,
 )
 
 __all__ = [
@@ -107,4 +108,5 @@ __all__ = [
     'set_users_as_expert',
     'AdminsCandidatesListView',
     'set_users_as_admin',
+    'UsersSpecialPermissionsView',
 ]

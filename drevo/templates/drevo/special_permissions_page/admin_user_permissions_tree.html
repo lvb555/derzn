@@ -1,54 +1,44 @@
-{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
 {% load static %}
+{% load special_permissions_tags %}
 
-{% block title %} Добавление особых прав пользователям {% endblock %}
+<button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">Развернуть</button>
+&nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">Свернуть</button>
+<ul class="root ps-0" id="tree_root">
+    {% recursetree admins_nodes %}
+    <li id="li_{{ node.id }}">
+        {% if not node.has_published_children %}
+        <i class="bi-file-plus-fill lonely"></i>
+        {% else %}
+        <i class="family bi-file-minus-fill" onclick="toggleHiddenElement(this);"></i>
+        {% endif %}
 
-{% block cssfiles %}
-<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
-{% endblock %}
+        <a
+                href="{% url 'admins_candidates_page' node.pk %}"
+                class="
+                {% if node.pk in admin_comp %}
+                text-success
+                {% else %}
+                text-dark
+                {% endif %}
+                "
+        >
+            {{ node.name }}
+            {% if node.pk in admin_comp %}
+            <span class="badge bg-danger text-light"> Знаний: {{ admin_comp|knowledge_count_by_competencies:node.pk }} </span>
+            <span class="badge bg-danger text-light"> Экспертиз: {{ admin_comp|expertise_count_by_competencies:node.pk }} </span>
+            {% endif %}
+        </a>
 
-{% block content %}
-<div class="container">
-    {% if experts %}
-    <div class="border-bottom border-dark text-center">
-        <h3>Назначение прав экспертов</h3>
-    </div>
-    <div class="container mt-3">
-        {% include 'drevo/special_permissions_page/tree_experts_block.html' %}
-    </div>
-    {% endif %}
-    {% if editors %}
-    <div class="border-bottom border-dark text-center">
-        <h3>Назначение прав редакторов</h3>
-    </div>
-    <div class="container mt-3">
-            {% include 'drevo/special_permissions_page/editors_list_block.html' %}
-    </div>
-    {% endif %}
-    {% if admins %}
-    <div class="border-bottom border-dark text-center">
-        <h3>Назначение прав руководителей</h3>
-    </div>
-    <div class="container mt-3">
-        {% include 'drevo/special_permissions_page/tree_admins_block.html' %}
-    </div>
-    {% endif %}
-</div>
+        {% if not node.is_leaf_node %}
+        <ul class="children">
+            {{ children }}
+        </ul>
+        {% endif %}
+    </li>
+    {% endrecursetree %}
+</ul>
 
-<style>
-    a.disabled{
-    pointer-events: none;
-    cursor: default;
-    color: black;
-}
-</style>
-{% endblock %}
-
-
-{% block jsfiles %}
-
-
-<!--Admins tree scripts-->
 <script>
 
   function toggleHiddenElement(element) {
@@ -118,4 +108,3 @@
         }
     }
 </script>
-{% endblock %}
