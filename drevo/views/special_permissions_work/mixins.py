@@ -1,4 +1,4 @@
-from django.db.models import Count, F
+from django.db.models import Count, F, QuerySet, Case, When, IntegerField
 from django.shortcuts import get_object_or_404
 from drevo.models import SpecialPermissions, SettingsOptions, Znanie, Category
 from drevo.relations_tree import get_knowledges_by_categories
@@ -18,7 +18,10 @@ class CandidatesMixin:
         param = int(selection_param.default_param)
         candidates_without_cat = list()
         for candidate_pk, data in candidates.items():
-            drop_data = [cat_pk for cat_pk, cnt in data['categories'].items() if cnt < param]
+            drop_data = [
+                cat_pk for cat_pk, cnt in data['categories'].items()
+                if (sum(cnt) if isinstance(cnt, list) else cnt) < param
+            ]
             if not drop_data:
                 continue
             for category_pk in drop_data:
@@ -50,6 +53,22 @@ class CandidatesMixin:
             for author in data_for_drop:
                 del candidates[author]
         return candidates
+
+    @staticmethod
+    def _get_additional_knowledge(knowledge: QuerySet) -> list:
+        """
+            Метод для получения категорий для дополнительных знаний (знаний без категорий)
+            Результирующие  данные: \n
+            [(knowledge, category), (knowledge, category)...]
+        """
+        without_cat_data = list()
+        _, zn = get_knowledges_by_categories(knowledge)
+        for kn_obj in knowledge:
+            for cat, data in zn.items():
+                if kn_obj in data.get('additional'):
+                    without_cat_data.append((kn_obj, get_object_or_404(Category, name=cat)))
+                    break
+        return without_cat_data
 
     def get_all_candidates(self) -> dict:
         """
@@ -85,13 +104,7 @@ class CandidatesMixin:
         knowledge_without_cat = knowledge.filter(category__isnull=True)
 
         # Получаем категории для знаний у которых их нет
-        without_cat_data = list()
-        _, zn = get_knowledges_by_categories(knowledge_without_cat)
-        for kn_obj in knowledge_without_cat:
-            for cat, data in zn.items():
-                if kn_obj in data.get('additional'):
-                    without_cat_data.append((kn_obj, get_object_or_404(Category, name=cat)))
-                    break
+        without_cat_data = self._get_additional_knowledge(knowledge=knowledge_without_cat)
 
         candidates = {
             elm.get('user_pk'): dict(name=elm.get('user_name'), categories=dict()) for elm in knowledge_with_cat
@@ -118,9 +131,13 @@ class CandidatesMixin:
         """
             Метод для получения кандидатов в руководители.
             Результирующие  данные:\n
-            {<int:author_pk>: {name: <str:author_name>, categories: {<int:category_pk>: <int:category_count>...}}...}
+            {
+            <int:author_pk>:
+            {
+            name: <str:author_name>, categories: {<int:category_pk>: [<int:knowledge_count>, <int:expertise_count>]...}
+            }...
+            }
         """
-
         min_count_to_transition = get_object_or_404(SettingsOptions, name='Минимальный порог перехода в руководители')
 
         # Получаем список всех опубликованных знаний у которых есть автор, которых является экспертом
@@ -151,18 +168,13 @@ class CandidatesMixin:
         )
 
         # Берём из списка только те знания у которых нет категории
-        knowledge_without_cat = knowledge.filter(category__isnull=True)
+        knowledge_without_cat = queryset.filter(category__isnull=True)
 
         # Получаем категории для знаний у которых их нет
-        without_cat_data = list()
-        _, zn = get_knowledges_by_categories(knowledge_without_cat)
-        for kn_obj in knowledge_without_cat:
-            for cat, data in zn.items():
-                if kn_obj in data.get('additional'):
-                    without_cat_data.append((kn_obj, get_object_or_404(Category, name=cat)))
-                    break
+        without_cat_data = self._get_additional_knowledge(knowledge=knowledge_without_cat)
 
         candidates = dict()
+
         for knowledge_data in knowledge_with_cat:
             author, user_name, category, expert_pk, first_name, last_name, cnt = knowledge_data.values()
             author_pk = expert_pk if not author else author
@@ -170,11 +182,14 @@ class CandidatesMixin:
             if author_pk in candidates.keys():
                 candidate_data = candidates[author_pk]['categories']
                 if category in candidate_data.keys():
-                    candidate_data[category] += cnt
-                else:
-                    candidate_data[category] = cnt
+                    if author:
+                        candidate_data[category][0] += cnt
+                    else:
+                        candidate_data[category][1] += cnt
+                    continue
+                candidate_data[category] = [0, cnt] if not author else [cnt, 0]
                 continue
-            candidates[author_pk] = dict(name=name, categories={category: cnt})
+            candidates[author_pk] = dict(name=name, categories={category: [0, cnt] if not author else [cnt, 0]})
 
         for know, cat in without_cat_data:
             author_pk = know.author.user_author_id
@@ -187,9 +202,72 @@ class CandidatesMixin:
                 continue
             candidate_categories = candidates[author_id]['categories']
             if cat.pk in candidate_categories.keys():
-                candidate_categories[cat.pk] += 1
+                if know.author:
+                    candidate_categories[cat.pk][0] += 1
+                else:
+                    candidate_categories[cat.pk][1] += 1
             else:
-                candidate_categories[cat.pk] = 1
+                candidate_categories[cat.pk] = [0, 1] if not know.author else [1, 0]
 
         candidates = self._selection_of_candidates(min_count_to_transition, candidates)
         return candidates
+
+    def get_user_competencies_data(self, user_pk: int) -> dict:
+        """
+            Метод для получения данных о всех компетенциях пользователя (как в роли эксперта так и руководителя)
+            Результирующие  данные:\n
+            {<int:category_pk>: [<int:knowledge_count>, <int:expertise_count>]...}
+        """
+
+        # Получаем список всех опубликованных знаний пользователя
+        knowledge = (
+            Znanie.objects
+            .select_related('author', 'tz', 'author__user_author').prefetch_related('knowledge_status')
+            .filter(is_published=True, author__user_author_id=user_pk,
+                    tz__is_systemic=False, knowledge_status__status='PUB')
+        )
+        # Получаем список всех опубликованных экспертиз пользователя
+        expertise = (
+            Znanie.objects
+            .select_related('expert', 'tz').prefetch_related('knowledge_status')
+            .filter(is_published=True, expert_id=user_pk, tz__is_systemic=False, knowledge_status__status='PUB')
+        )
+
+        queryset = (knowledge | expertise).distinct()
+
+        # Берём из списка только те знания и экспертизы у которых есть категория
+        knowledge_with_cat = (
+            queryset
+            .filter(category__isnull=False)
+            .annotate(is_expertise=Case(When(expert__isnull=False, then=1), default=0, output_field=IntegerField()))
+            .values('category_id', 'is_expertise')
+            .annotate(cnt=Count('category_id'))
+        )
+
+        # Берём из списка только те знания у которых нет категории
+        knowledge_without_cat = queryset.filter(category__isnull=True)
+
+        # Получаем категории для знаний у которых их нет
+        without_cat_data = self._get_additional_knowledge(knowledge=knowledge_without_cat)
+
+        competencies_data = dict()
+
+        for knowledge_data in knowledge_with_cat:
+            category, is_expertise, cnt = knowledge_data.values()
+            if category not in competencies_data.keys():
+                competencies_data[category] = [0, cnt] if is_expertise else [cnt, 0]
+                continue
+            if is_expertise:
+                competencies_data[category][1] += cnt
+            else:
+                competencies_data[category][0] += cnt
+
+        for know, cat in without_cat_data:
+            if (category := cat.pk) in competencies_data.keys():
+                if know.author:
+                    competencies_data[category][0] += 1
+                else:
+                    competencies_data[category][1] += 1
+            else:
+                competencies_data[category] = [0, 1] if not know.author else [1, 0]
+        return competencies_data
