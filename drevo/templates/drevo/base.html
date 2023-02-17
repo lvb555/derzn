@@ -320,12 +320,13 @@
                                     <a class="dropdown-item" href="{% url 'favourites' %}"
                                        id="favourites_link">Избранное</a>
                                     <a class="dropdown-item" href="{% url 'friends' %}" id="friends_link">Друзья</a>
-                                    {% if user.expert.all %}
+                                    {% if user.is_expert %}
                                         <a class="dropdown-item" href="{% url 'filling_tables' %}" id="filling_tables">Наполнение таблиц</a>
                                         <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
                                     {% endif %}
                                     {% if user.is_staff %}
                                         <a class="dropdown-item" href="{% url 'all_interview' %}">Предложения экспертов</a>
+                                        <a class="dropdown-item" href="{% url 'special_permissions_page' %}">Добавление особых прав</a>
                                     {% endif %}
                                 {% endif %}
                             </div>

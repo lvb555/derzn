@@ -10,7 +10,7 @@ def interview_view(request, pk):
     """
     Отображаем страницу Интервью
     """
-    expert = request.user.expert.all()
+    expert = request.user.expert
     if expert:
         context = get_list_question(pk, request.user)
         return render(request, 'drevo//interview_page.html', context)

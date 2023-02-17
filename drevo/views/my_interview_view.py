@@ -14,9 +14,9 @@ def my_interview_view(request):
     """
     Отобажаем страницу Мои интервью
     """
-    expert = request.user.expert.all()
+    expert = request.user.expert
     if expert:
-        context = get_tree(expert[0], request.user)
+        context = get_tree(expert, request.user)
         return render(request, "drevo//my_interview_page.html", context)
     return redirect("/drevo/")
 
