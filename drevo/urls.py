@@ -71,6 +71,7 @@ from .views.special_permissions_work.view import (
     set_users_as_expert,
     AdminsCandidatesListView,
     set_users_as_admin,
+    UsersSpecialPermissionsView,
 )
 from .views.interview_and_proposal import my_interview, my_proposal
 from .views.klz_all_knowledges import klz_all
@@ -232,6 +233,11 @@ urlpatterns = [
         'special_permissions/set_users_as_admin/<int:category_pk>',
         set_users_as_admin,
         name='set_users_as_admin'
+    ),
+    path(
+        'my_special_permissions/',
+        UsersSpecialPermissionsView.as_view(),
+        name='my_special_permissions'
     ),
 
     path("friends/", friends_view, name="friends"),

@@ -1,4 +1,4 @@
-from django.db.models import F, Count
+from django.db.models import F, Count, QuerySet
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
 from django.shortcuts import redirect
@@ -23,10 +23,9 @@ class SpecialPermissionsView(TemplateView, CandidatesMixin):
             Метод для получения данных для построения дерева категорий для которых есть кандидаты
             Данные словаря на выходе:
             1. candidates_count - Кол-во кандидатов для каждой категории {<int:category_pk>: <int:candidates_count>}
-            2. active_nodes - Элементы дерева которые должны быть отображены и открыты изначально {category1, category2}
-            3. nodes - Категории
+            2. nodes - Категории
         """
-        tree_data = {'candidates_count': None, 'active_nodes': None, 'nodes': None}
+        tree_data = {'candidates_count': None, 'nodes': None}
         tree_categories = list()
         for _, data in candidates_data.items():
             categories = data.get('categories')
@@ -70,7 +69,7 @@ class SpecialPermissionsView(TemplateView, CandidatesMixin):
 @require_http_methods(["POST"])
 def set_users_as_editor(request):
     """
-        Назначить/снять права редактора пользователям
+        Назначить права редактора пользователям
     """
     users_pk = [int(elm.replace('editor_', '')) for elm in request.POST.keys() if elm != 'csrfmiddlewaretoken']
     if not users_pk:
@@ -142,31 +141,14 @@ class AdminsCandidatesListView(TemplateView, CandidatesMixin):
 
     def get_context_data(self, **kwargs):
         context = super(AdminsCandidatesListView, self).get_context_data(**kwargs)
-        category_pk = self.kwargs.get('category_pk')
-        category = Category.objects.get(pk=category_pk)
+        category = Category.objects.get(pk=self.kwargs.get('category_pk'))
         context['category'] = category
         candidates = self.get_admin_candidates()
         candidates_by_category = list()
-
-        users_pk = candidates.keys()
-        knowledge_cnt = (
-            Znanie.objects
-            .select_related('tz', 'author__user_author').prefetch_related('knowledge_status')
-            .filter(is_published=True, author__user_author_id__in=users_pk, tz__is_systemic=False,
-                    expert__isnull=True, knowledge_status__status='PUB', category_id=category_pk)
-        ).values(user_pk=F('author__user_author_id')).annotate(knowledge_count=Count('user_pk'))
-        expertise_cnt = (
-            Znanie.objects
-            .select_related('expert', 'tz').prefetch_related('knowledge_status')
-            .filter(is_published=True, expert_id__in=users_pk, tz__is_systemic=False,
-                    knowledge_status__status='PUB', category_id=category_pk)
-        ).values(user_pk=F('expert_id')).annotate(expertise_count=Count('user_pk'))
-
         for user_pk, user_data in candidates.items():
             if category.pk in user_data['categories'].keys():
                 user = User.objects.get(pk=user_pk)
-                knowledge_count = knowledge_cnt.get(user_pk=user_pk).get('knowledge_count')
-                expertise_count = expertise_cnt.get(user_pk=user_pk).get('expertise_count')
+                knowledge_count, expertise_count = user_data['categories'][category.pk]
                 candidates_by_category.append((user_pk, user.get_full_name(), knowledge_count, expertise_count))
         context['candidates'] = candidates_by_category
         return context
@@ -193,3 +175,67 @@ def set_users_as_admin(request, category_pk):
         user_permissions.admin_competencies.add(category)
         user_permissions.save()
     return redirect('special_permissions_page')
+
+
+class UsersSpecialPermissionsView(TemplateView, CandidatesMixin):
+    """
+        Страница с описанием особых прав пользователя
+    """
+    template_name = 'drevo/special_permissions_page/user_special_permissions.html'
+
+    @staticmethod
+    def get_user_permissions_tree_data(competencies_data: dict) -> QuerySet:
+        """
+            Метод для получения данных для построения дерева категорий, которые входят в компетенцию пользователя
+        """
+        tree_categories = list()
+        tree_categories.extend(category_pk for category_pk in competencies_data.keys())
+        categories = Category.objects.filter(pk__in=set(tree_categories))
+        active_nodes = list()
+        for cat in categories:
+            active_nodes.extend(list(cat.get_ancestors()))
+        nodes_pk = list(cat.pk for cat in set(active_nodes)) + list(competencies_data.keys())
+        nodes = Category.tree_objects.exclude(is_published=False).filter(pk__in=nodes_pk)
+        return nodes
+
+    @staticmethod
+    def get_competencies_data_by_categories(categories_pk: list, all_competencies_data: dict) -> dict:
+        """
+            Метод для получения данных о кол-ве созданных знаний и экспертиз
+            пользователя в рамках той или иной компетенции (категории)
+            Результирующие данные:
+            {<int:category_pk>: {knowledge_count: <int:count>, expertise_count: <int:count>}...}
+        """
+        return {
+            category: {'knowledge_count': knowledge_count, 'expertise_count': expertise_count}
+            for category, (knowledge_count, expertise_count) in all_competencies_data.items()
+            if category in categories_pk
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super(UsersSpecialPermissionsView, self).get_context_data(**kwargs)
+        user_pk = self.request.user.pk
+        permissions = (
+            SpecialPermissions.objects
+            .prefetch_related('categories', 'admin_competencies')
+            .filter(expert_id=user_pk)
+        ).first()
+
+        if not permissions:
+            return context
+
+        competencies_data = self.get_user_competencies_data(user_pk)
+        # Получение данных по компетенциям пользователя как эксперта
+        expert_competencies = permissions.categories.values_list('pk', flat=True)
+        context['expert_comp'] = self.get_competencies_data_by_categories(expert_competencies, competencies_data)
+        context['experts_nodes'] = self.get_user_permissions_tree_data(competencies_data=context['expert_comp'])
+        # Получение данных по работе пользователя как редактора
+
+
+
+        # Получение данных по компетенциям пользователя как руководителя
+        admin_competencies = permissions.admin_competencies.values_list('pk', flat=True)
+        context['admin_comp'] = self.get_competencies_data_by_categories(admin_competencies, competencies_data)
+        context['admins_nodes'] = self.get_user_permissions_tree_data(competencies_data=context['admin_comp'])
+        context['permissions'] = permissions
+        return context
