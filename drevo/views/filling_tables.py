@@ -19,10 +19,10 @@ def filling_tables(request):
     """
     Отображение страницы "Ввод табличных значений", сохранение данных в форму
     """
-    expert = request.user.expert.all()
+    expert = request.user.expert
 
     if expert:
-        context = get_contex_data(expert[0])
+        context = get_contex_data(expert)
 
         template_name = "drevo/filling_tables.html"
 
