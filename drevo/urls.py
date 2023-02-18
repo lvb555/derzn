@@ -56,6 +56,7 @@ from .views.expert_work.views import (
     set_answer_as_incorrect,
     set_answer_is_agreed,
     proposal_update_view,
+    set_new_answer_is_agreed,
 )
 from .views.admin_interview_work.views import (
     AllInterviewView,
@@ -168,12 +169,17 @@ urlpatterns = [
         name='add_subanswer'
     ),
     path(
-        'interview/answer/<int:proposal_pk>/answer_as_incorrect',
+        'interview/<int:interview_pk>/question/<int:question_pk>/answer/<int:answer_pk>/answer_as_incorrect',
         set_answer_as_incorrect,
         name='set_answer_as_incorrect'
     ),
     path(
-        'interview/answer/<int:proposal_pk>/answer_is_agreed',
+        'interview/answer/<int:proposal_pk>/new_answer_is_agreed',
+        set_new_answer_is_agreed,
+        name='set_new_answer_is_agreed'
+    ),
+    path(
+        'interview/<int:interview_pk>/question/<int:question_pk>/answer/<int:answer_pk>/answer_is_agreed',
         set_answer_is_agreed,
         name='set_answer_is_agreed'
     ),
