@@ -22,8 +22,13 @@ def filling_tables(request):
     expert = request.user.expert
 
     if expert:
-        context = get_contex_data(expert)
 
+        # Нахождение id связей с именами "Строка", "Столбец" и "Значение"
+        row_id = Tr.objects.get(name='Строка').id
+        column_id = Tr.objects.get(name='Столбец').id
+        value_id = Tr.objects.get(name='Значение').id
+
+        context = get_contex_data(expert, row_id, column_id)
         template_name = "drevo/filling_tables.html"
 
         if request.method == 'POST':
