@@ -1,9 +1,8 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
 from drevo.models.author import Author
-from drevo.models.category import Category
 from drevo.models.knowledge import Znanie
 from drevo.models.knowledge_kind import Tz
 from drevo.models.relation_type import Tr
@@ -22,8 +21,13 @@ def filling_tables(request):
     expert = request.user.expert.all()
 
     if expert:
-        context = get_contex_data(expert[0])
 
+        # Нахождение id связей с именами "Строка", "Столбец" и "Значение"
+        row_id = Tr.objects.get(name='Строка').id
+        column_id = Tr.objects.get(name='Столбец').id
+        value_id = Tr.objects.get(name='Значение').id
+
+        context = get_contex_data(expert[0], row_id, column_id)
         template_name = "drevo/filling_tables.html"
 
         if request.method == 'POST':
@@ -42,7 +46,8 @@ def filling_tables(request):
 
                 # Создание автора с именем и фамилией пользователя, если такого не существует
                 author, created = Author.objects.get_or_create(
-                    name=f"{request.user.first_name} {request.user.last_name}"
+                    name=f"{request.user.first_name} {request.user.last_name}",
+
                 )
                 Relation.objects.get_or_create(
                     tr_id=tr_id,
@@ -52,11 +57,6 @@ def filling_tables(request):
                     user_id=request.user.id,
                     is_published=True
                 )
-
-            # Нахождение id связей с именами "Строка", "Столбец" и "Значение"
-            row_id = Tr.objects.get(name='Строка').id
-            column_id = Tr.objects.get(name='Столбец').id
-            value_id = Tr.objects.get(name='Значение').id
 
             # Создание связи "Строка": базовое знание - знание, связанное знание - строка
             create_relation(row_id, selected_row_pk, selected_znanie_pk)
@@ -69,12 +69,13 @@ def filling_tables(request):
 
             return HttpResponse("Данные были успешно сохранены!")
 
-        return render(request, template_name, context)
+        if context != {}:
+            return render(request, template_name, context)
 
-    return reverse("/drevo/")
+    return HttpResponseRedirect(reverse('drevo'))
 
 
-def get_contex_data(obj):
+def get_contex_data(obj, row_id, column_id):
     """
     Получение всех таблиц, удовлетворяющих условию, а также атрибутов для создания знания
     """
@@ -94,13 +95,21 @@ def get_contex_data(obj):
         for zn in zn_in_this_category:
             table_dict[zn.pk] = zn.name
 
+    row_column_exist = False
+    for table, table_id in enumerate(table_dict):
+        if Relation.objects.filter(tr_id=row_id, bz_id=table_id, is_published=True).exists() and Relation.objects.filter(
+                tr_id=column_id, bz_id=table_id, is_published=True).exists():
+            row_column_exist = True
+
+    if not row_column_exist:
+        return {}
+
     # Список всех опубликованных несистемных знаний
     non_systemic_kind = Znanie.objects.filter(tz__is_systemic=False)
     zn = non_systemic_kind.values('id', 'name').order_by('name')
 
     context["table_dict"] = table_dict
     context["znanie"] = zn
-
     return context
 
 
@@ -148,3 +157,20 @@ def show_new_znanie(request):
     """
     new_znanie = Znanie.objects.all().order_by('-id')[0]
     return JsonResponse([new_znanie.id, new_znanie.name], safe=False)
+
+
+def show_filling_tables_page(request):
+    """Показывает страницу «Наполнение таблиц», если существует хотя бы одна таблица в компетенции
+    эксперта и в ней есть хотя бы одна строка и столбец"""
+
+    expert = request.user.expert.all()
+
+    if expert:
+        row_id = Tr.objects.get(name='Строка').id
+        column_id = Tr.objects.get(name='Столбец').id
+        context = get_contex_data(expert[0], row_id, column_id)
+        if context != {}:
+            data = True
+        else:
+            data = False
+    return JsonResponse([data], safe=False)
