@@ -15,6 +15,7 @@ from .expert_work.views import (
     ExpertProposalDeleteView,
     set_answer_as_incorrect,
     set_answer_is_agreed,
+    set_new_answer_is_agreed,
     proposal_update_view,
 )
 from .admin_interview_work.views import (
@@ -49,7 +50,15 @@ from .knowledges_grades_view import knowledges_grades
 from .group_infographics_view import GroupInfographicsView
 from .group_knowledge_grade_statistics import GroupKnowledgeStatisticsView
 from .parameter_settings_view import parameter_settings
-
+from .special_permissions_work.view import (
+    SpecialPermissionsView,
+    set_users_as_editor,
+    ExpertsCandidatesListView,
+    set_users_as_expert,
+    AdminsCandidatesListView,
+    set_users_as_admin,
+    UsersSpecialPermissionsView,
+)
 
 __all__ = [
     "AuthorDetailView",
@@ -95,4 +104,12 @@ __all__ = [
     'set_answer_as_incorrect',
     'set_answer_is_agreed',
     'proposal_update_view',
+    'SpecialPermissionsView',
+    'set_users_as_editor',
+    'ExpertsCandidatesListView',
+    'set_users_as_expert',
+    'AdminsCandidatesListView',
+    'set_users_as_admin',
+    'UsersSpecialPermissionsView',
+    'set_new_answer_is_agreed',
 ]

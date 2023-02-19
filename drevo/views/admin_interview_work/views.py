@@ -9,7 +9,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy, reverse
 from django.utils.timezone import now
 from django.views.generic import ListView, DetailView, UpdateView, RedirectView
-from ...models import Relation, Tz, Author, Tr, CategoryExpert
+from ...models import Relation, Tz, Author, Tr, SpecialPermissions
 from ...models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from ...models.knowledge import Znanie
 from ...models.interview_results_schedule import InterviewResultsSendingSchedule
@@ -349,7 +349,7 @@ class NotifyExpertsView(RedirectView):
             experts = [
                 cat_exp.expert
                 for cat_exp in
-                CategoryExpert.objects.select_related('expert').filter(categories__pk=inter_competence.pk)
+                SpecialPermissions.objects.select_related('expert').filter(categories__pk=inter_competence.pk)
             ]
 
             sender = InterviewResultSender(

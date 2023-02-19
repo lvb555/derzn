@@ -57,6 +57,7 @@ from .views.expert_work.views import (
     set_answer_as_incorrect,
     set_answer_is_agreed,
     proposal_update_view,
+    set_new_answer_is_agreed,
 )
 from .views.admin_interview_work.views import (
     AllInterviewView,
@@ -64,6 +65,15 @@ from .views.admin_interview_work.views import (
     question_admin_work_view,
     AdminEditingKnowledgeView,
     NotifyExpertsView,
+)
+from .views.special_permissions_work.view import (
+    SpecialPermissionsView,
+    set_users_as_editor,
+    ExpertsCandidatesListView,
+    set_users_as_expert,
+    AdminsCandidatesListView,
+    set_users_as_admin,
+    UsersSpecialPermissionsView,
 )
 from .views.interview_and_proposal import my_interview, my_proposal
 from .views.klz_all_knowledges import klz_all
@@ -156,17 +166,22 @@ urlpatterns = [
         name="delete_proposal",
     ),
     path(
-        'interview/questions/<int:quest_pk>/answer/<int:answer_pk>/add_subanswer',
+        'interview/<int:inter_pk>/questions/<int:quest_pk>/answer/<int:answer_pk>/add_subanswer',
         sub_answer_create_view,
         name='add_subanswer'
     ),
     path(
-        'interview/answer/<int:proposal_pk>/answer_as_incorrect',
+        'interview/<int:interview_pk>/question/<int:question_pk>/answer/<int:answer_pk>/answer_as_incorrect',
         set_answer_as_incorrect,
         name='set_answer_as_incorrect'
     ),
     path(
-        'interview/answer/<int:proposal_pk>/answer_is_agreed',
+        'interview/answer/<int:proposal_pk>/new_answer_is_agreed',
+        set_new_answer_is_agreed,
+        name='set_new_answer_is_agreed'
+    ),
+    path(
+        'interview/<int:interview_pk>/question/<int:question_pk>/answer/<int:answer_pk>/answer_is_agreed',
         set_answer_is_agreed,
         name='set_answer_is_agreed'
     ),
@@ -195,6 +210,42 @@ urlpatterns = [
         "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/notify_experts/",
         NotifyExpertsView.as_view(),
         name='admin_notify_experts'
+    ),
+
+    path(
+        'special_permissions/',
+        SpecialPermissionsView.as_view(),
+        name='special_permissions_page'
+    ),
+    path(
+        'special_permissions/set_users_as_editor',
+        set_users_as_editor,
+        name='set_users_as_editor'
+    ),
+    path(
+        'special_permissions/to_experts/<int:category_pk>',
+        ExpertsCandidatesListView.as_view(),
+        name='experts_candidates_page'
+    ),
+    path(
+        'special_permissions/set_users_as_expert/<int:category_pk>',
+        set_users_as_expert,
+        name='set_users_as_expert'
+    ),
+    path(
+        'special_permissions/to_admins/<int:category_pk>',
+        AdminsCandidatesListView.as_view(),
+        name='admins_candidates_page'
+    ),
+    path(
+        'special_permissions/set_users_as_admin/<int:category_pk>',
+        set_users_as_admin,
+        name='set_users_as_admin'
+    ),
+    path(
+        'my_special_permissions/',
+        UsersSpecialPermissionsView.as_view(),
+        name='my_special_permissions'
     ),
 
     path("friends/", friends_view, name="friends"),

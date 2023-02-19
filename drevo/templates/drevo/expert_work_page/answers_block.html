@@ -18,7 +18,7 @@
         <div class="col border-start border-dark">
             <div class="row">
                 <div class="col">
-                    <form action="{% if answer.proposal %}{% url 'set_answer_is_agreed' answer.proposal.pk %}{% endif %}" method="get" id="opinion_is_agreed_form{{ answer.id }}">
+                    <form action="{% url 'set_answer_is_agreed' interview.id question.id answer.id %}" method="get" id="opinion_is_agreed_form{{ answer.id }}">
                         <div class="form-check">
                             <input type="checkbox" id="opinion_is_agreed"
                                    name="is_agreed"
@@ -36,7 +36,11 @@
                     </form>
                 </div>
                 <div class="col">
-                    <form action="{% if answer.proposal %}{% url 'set_answer_as_incorrect' answer.proposal.pk %}{% endif %}" method="get" id="opinion_is_incorrect_form{{ answer.id }}">
+                    <form
+                            action="{% url 'set_answer_as_incorrect' interview.id question.id answer.id %}"
+                            method="get"
+                            id="opinion_is_incorrect_form{{ answer.id }}"
+                    >
                         <div class="form-check">
                             <input type="checkbox" id="incorrect_answer{{ answer.id }}" name="is_incorrect"
                                    class="form-check-input"
@@ -64,8 +68,7 @@
             </div>
             <div class="row text-center">
                 <div class="collapse {% if answer.proposal.is_incorrect_answer %} show {% endif %} text-dark" id="answer{{ answer.id }}">
-                    {% if answer.proposal %}
-                    <form action="{% url 'set_answer_as_incorrect' answer.proposal.pk %}" method="post" id="answer_as_incorrect{{ answer.id }}">
+                    <form action="{% url 'set_answer_as_incorrect' interview.id question.id answer.id %}" method="post" id="answer_as_incorrect{{ answer.id }}">
                         {% csrf_token %}
                         <div class="form-group mt-3 text-start">
                             <textarea
@@ -85,7 +88,6 @@
                             </label>
                         </div>
                     </form>
-                    {% endif %}
                 </div>
             </div>
         </div>

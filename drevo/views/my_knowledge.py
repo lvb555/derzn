@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from loguru import logger
 from users.models import User, MenuSections
-from ..models import Znanie, CategoryExpert
+from ..models import Znanie, SpecialPermissions
 from ..relations_tree import get_knowledges_by_categories
 from drevo.common import variables
 
@@ -27,7 +27,7 @@ def my_knowledge(request, id):
                 context['link'] = 'public_human'
                 context['id'] = id
             context['pub_user'] = user
-            context['expert_categories'] = CategoryExpert.objects.filter(expert__id=id).values_list('categories__name')
+            context['expert_categories'] = SpecialPermissions.objects.filter(expert__id=id).values_list('categories__name')
             knowledges_of_author = Znanie.published.filter(
                 author__user_author__id=id)
             context['categories'], context['knowledges'] = \
@@ -57,7 +57,7 @@ def my_preknowledge(request, id):
                 context['link'] = 'public_human'
                 context['id'] = id
             context['pub_user'] = user
-            context['expert_categories'] = CategoryExpert.objects.filter(expert__id=id).values_list('categories__name')
+            context['expert_categories'] = SpecialPermissions.objects.filter(expert__id=id).values_list('categories__name')
             knowledges_of_author = Znanie.published.filter(
                 author__user_author__id=id)
             context['categories'], context['knowledges'] = \
