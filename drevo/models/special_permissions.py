@@ -29,6 +29,13 @@ class SpecialPermissions(models.Model):
         related_name='special_permissions'
     )
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            user = User.objects.get(id=self.expert.id)
+            user.is_expert = True
+            user.save()
+        super(SpecialPermissions, self).save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.expert}'
 
