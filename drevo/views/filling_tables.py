@@ -163,12 +163,12 @@ def show_filling_tables_page(request):
     """Показывает страницу «Наполнение таблиц», если существует хотя бы одна таблица в компетенции
     эксперта и в ней есть хотя бы одна строка и столбец"""
 
-    expert = request.user.expert.all()
+    expert = request.user.expert
 
     if expert:
         row_id = Tr.objects.get(name='Строка').id
         column_id = Tr.objects.get(name='Столбец').id
-        context = get_contex_data(expert[0], row_id, column_id)
+        context = get_contex_data(expert, row_id, column_id)
         if context != {}:
             data = True
         else:
