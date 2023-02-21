@@ -4,14 +4,15 @@ from drevo.models.author import Author
 from drevo.models.knowledge import Znanie
 from drevo.models.knowledge_kind import Tz
 from drevo.models.relation_type import Tr
+from drevo.models.special_permissions import SpecialPermissions
 
 
 def interview_view(request, pk):
     """
     Отображаем страницу Интервью
     """
-    expert = request.user.expert
-    if expert:
+    expert = SpecialPermissions.objects.filter(expert=request.user)
+    if expert.exists():
         context = get_list_question(pk, request.user)
         return render(request, 'drevo//interview_page.html', context)
     return redirect('/drevo/')

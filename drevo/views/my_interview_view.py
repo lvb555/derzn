@@ -5,6 +5,7 @@ from drevo.models.category import Category
 from drevo.models.knowledge import Znanie
 from drevo.models.knowledge_kind import Tz
 from drevo.models.relation_type import Tr
+from drevo.models.special_permissions import SpecialPermissions
 
 import datetime
 import re
@@ -14,9 +15,9 @@ def my_interview_view(request):
     """
     Отобажаем страницу Мои интервью
     """
-    expert = request.user.expert
-    if expert:
-        context = get_tree(expert, request.user)
+    expert = SpecialPermissions.objects.filter(expert=request.user)
+    if expert.exists():
+        context = get_tree(expert.first(), request.user)
         return render(request, "drevo//my_interview_page.html", context)
     return redirect("/drevo/")
 

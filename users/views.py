@@ -16,6 +16,7 @@ from users.forms import UserSetPasswordForm
 from users.models import User, Profile, MenuSections, Favourite
 from drevo.models.settings_options import SettingsOptions
 from drevo.models.user_parameters import UserParameters
+from drevo.models.special_permissions import SpecialPermissions
 
 
 class LoginFormView(FormView):
@@ -148,9 +149,9 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        expert = self.object.expert
-        if expert:
-            competence = expert.categories.all()
+        expert = SpecialPermissions.objects.filter(expert=self.object)
+        if expert.exists():
+            competence = expert.first().categories.all()
             context['competence'] = competence
         context['title'] = 'Ваш профиль'
         context['profile_form'] = ProfileModelForm(
