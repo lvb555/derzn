@@ -16,3 +16,8 @@ def knowledge_count_by_competencies(competencies_data: dict, competencies_pk: in
 @register.filter
 def expertise_count_by_competencies(competencies_data: dict, competencies_pk: int) -> int:
     return competencies_data.get(competencies_pk).get('expertise_count')
+
+
+@register.filter
+def preknowledge_count_by_competencies(competencies_data: dict, competencies_pk: int) -> int:
+    return competencies_data.get(competencies_pk).get('preknowledge_count')

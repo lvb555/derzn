@@ -25,8 +25,21 @@
         >
             {{ node.name }}
             {% if node.pk in expert_comp %}
-            <span class="badge bg-danger text-light"> Знаний: {{ expert_comp|knowledge_count_by_competencies:node.pk }} </span>
-            <span class="badge bg-danger text-light"> Экспертиз: {{ expert_comp|expertise_count_by_competencies:node.pk }} </span>
+                {% if expert_comp|preknowledge_count_by_competencies:node.pk > 0 %}
+                <span class="badge bg-danger text-light">
+                    Предзнаний: {{ expert_comp|preknowledge_count_by_competencies:node.pk }}
+                </span>
+                {% endif %}
+                {% if expert_comp|knowledge_count_by_competencies:node.pk > 0 %}
+                <span class="badge bg-danger text-light">
+                    Знаний: {{ expert_comp|knowledge_count_by_competencies:node.pk }}
+                </span>
+                {% endif %}
+                {% if expert_comp|expertise_count_by_competencies:node.pk > 0 %}
+                <span class="badge bg-danger text-light">
+                    Экспертиз: {{ expert_comp|expertise_count_by_competencies:node.pk }}
+                </span>
+                {% endif %}
             {% endif %}
         </a>
 

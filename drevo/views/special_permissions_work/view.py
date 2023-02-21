@@ -267,14 +267,21 @@ class UsersSpecialPermissionsView(TemplateView, CandidatesMixin):
     @staticmethod
     def get_competencies_data_by_categories(categories_pk: list, all_competencies_data: dict) -> dict:
         """
-            Метод для получения данных о кол-ве созданных знаний и экспертиз
+            Метод для получения данных о кол-ве созданных знаний, экспертиз и предзнаний
             пользователя в рамках той или иной компетенции (категории)
             Результирующие данные:
-            {<int:category_pk>: {knowledge_count: <int:count>, expertise_count: <int:count>}...}
+            {
+            <int:category_pk>:
+            {knowledge_count: <int:count>, expertise_count: <int:count>, 'preknowledge_count': <int:count>}...
+            }
         """
         return {
-            category: {'knowledge_count': knowledge_count, 'expertise_count': expertise_count}
-            for category, (knowledge_count, expertise_count) in all_competencies_data.items()
+            category: {
+                'knowledge_count': knowledge_count,
+                'expertise_count': expertise_count,
+                'preknowledge_count': preknowledge_count
+            }
+            for category, (knowledge_count, expertise_count, preknowledge_count) in all_competencies_data.items()
             if category in categories_pk
         }
 
