@@ -10,10 +10,11 @@ class CandidatesMixin:
     """
     model = SpecialPermissions
 
-    def _selection_of_candidates(self, selection_param: SettingsOptions, candidates: dict) -> dict:
+    def _selection_of_candidates(self, selection_param: SettingsOptions, candidates: dict, admin: bool = False) -> dict:
         """
             Метод для фильтрации данных кандидатов с целью отбора тех,
             которые соответствуют установленному параметру
+            admin = True (если фильтруются кандидаты в руководители)
         """
         param = int(selection_param.default_param)
         candidates_without_cat = list()
@@ -38,11 +39,18 @@ class CandidatesMixin:
         data_for_drop = list()
         for author in candidates.keys():
             author_data = candidates.get(author)
-            cur_competencies = (
-                self.model.objects
-                    .filter(expert_id=author, categories__in=list(author_data['categories'].keys()))
-                    .values_list('categories', flat=True)
-            )
+            if admin:
+                cur_competencies = (
+                    self.model.objects
+                        .filter(expert_id=author, admin_competencies__in=list(author_data['categories'].keys()))
+                        .values_list('admin_competencies', flat=True)
+                )
+            else:
+                cur_competencies = (
+                    self.model.objects
+                        .filter(expert_id=author, categories__in=list(author_data['categories'].keys()))
+                        .values_list('categories', flat=True)
+                )
             if not cur_competencies.exists():
                 continue
             for category in cur_competencies:
@@ -216,7 +224,7 @@ class CandidatesMixin:
                 else:
                     candidate_categories[cat.pk][2] += 1
 
-        candidates = self._selection_of_candidates(min_count_to_transition, candidates)
+        candidates = self._selection_of_candidates(min_count_to_transition, candidates, True)
         return candidates
 
     def get_user_competencies_data(self, user_pk: int) -> dict:
