@@ -20,7 +20,9 @@
                 {% else %}
                 Пользователь {{ user_pk }}
                 {% endif %}
-                , Предзнаний опубликовано: {{ knowledge_count }}
+                | <a href="{% url 'expert_candidate_knowledge' category.pk user_pk %}" class="btn btn-sm btn-outline-primary rounded" title="Перейти к списку знаний кандидата">
+                Публикаций сделано: <span class="badge bg-danger">{{ knowledge_count }}</span>
+                </a>
             </label>
         </li>
         {% endfor %}

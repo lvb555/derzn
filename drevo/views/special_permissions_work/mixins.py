@@ -1,4 +1,4 @@
-from django.db.models import Count, F, QuerySet, Case, When, IntegerField
+from django.db.models import Count, F, QuerySet, Case, When, IntegerField, Q
 from django.shortcuts import get_object_or_404
 from drevo.models import SpecialPermissions, SettingsOptions, Znanie, Category
 from drevo.relations_tree import get_knowledges_by_categories
@@ -86,12 +86,12 @@ class CandidatesMixin:
         """
         min_count_to_transition = get_object_or_404(SettingsOptions, name='Минимальный порог перехода в эксперты')
 
-        # Получаем список всех опубликованных предзнаний у которых есть автор и он не является экспертом
+        # Получаем список всех опубликованных предзнаний и знаний (если такие имеются) у которых есть автор
         knowledge = (
             Znanie.objects
             .select_related('author', 'tz', 'author__user_author').prefetch_related('knowledge_status')
-            .filter(is_published=True, author__isnull=False, author__user_author__isnull=False,
-                    author__user_author__is_expert=False, tz__is_systemic=False, knowledge_status__status='PUB_PRE')
+            .filter(Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'),
+                    is_published=True, author__isnull=False, author__user_author__isnull=False, tz__is_systemic=False)
         )
         # Берём из списка только те знания у которых есть категория
         knowledge_with_cat = (
@@ -271,3 +271,53 @@ class CandidatesMixin:
             else:
                 competencies_data[category] = [0, 1] if not know.author else [1, 0]
         return competencies_data
+
+    def get_expert_candidate_knowledge(self, candidate_pk: int, category_pk: int) -> dict[str, list]:
+        """
+            Метод для получения знаний кандидата в эксперты в рамках определённой категории
+            Результирующие данные:
+            {'knowledge': [(<int:pk>, <str:name), ... ], 'preknowledge': [(<int:pk>, <str:name), ... ]}
+        """
+        knowledge_data = {'knowledge': list(), 'preknowledge': list()}
+
+        # Получаем все знания и предзнания кандидата
+        knowledge = (
+            Znanie.objects
+            .select_related('author', 'tz', 'author__user_author').prefetch_related('knowledge_status')
+            .filter(Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'),
+                    is_published=True, author__user_author_id=candidate_pk, tz__is_systemic=False)
+            .annotate(
+                is_preknowledge=Case(
+                    When(knowledge_status__status='PUB_PRE', then=1),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            )
+            .order_by('-date')
+        )
+
+        # Отбираем те знания у которых есть категория и значение категории текущей компетенции
+        knowledge_with_cat = (
+            knowledge
+            .filter(category_id=category_pk)
+            .values('pk', 'name', 'is_preknowledge')
+        )
+        # Отбираем те знания у которых категории нет (если такие имеются), чтобы её определить
+        if len(knowledge_with_cat) != len(knowledge):
+            knowledge_without_cat = knowledge.filter(category__isnull=True)
+            without_cat_data = [
+                know for know, cat in self._get_additional_knowledge(knowledge_without_cat) if cat.pk == category_pk
+            ]
+            for know in without_cat_data:
+                if know.knowledge_status.status == 'PUB_PRE':
+                    knowledge_data['preknowledge'].append((know.pk, know.name))
+                    continue
+                knowledge_data['knowledge'].append((know.pk, know.name))
+
+        for know_info in knowledge_with_cat:
+            knowledge_pk, name, is_preknowledge = know_info.values()
+            if is_preknowledge:
+                knowledge_data['preknowledge'].append((knowledge_pk, name))
+                continue
+            knowledge_data['knowledge'].append((knowledge_pk, name))
+        return knowledge_data

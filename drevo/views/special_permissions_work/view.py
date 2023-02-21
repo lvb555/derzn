@@ -1,7 +1,8 @@
 from django.db.models import QuerySet
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from .mixins import CandidatesMixin
 from drevo.models import Category, SpecialPermissions, Znanie
 from users.models import User
@@ -302,4 +303,21 @@ class UsersSpecialPermissionsView(TemplateView, CandidatesMixin):
         context['admin_comp'] = self.get_competencies_data_by_categories(admin_competencies, competencies_data)
         context['admins_nodes'] = self.get_user_permissions_tree_data(competencies_data=context['admin_comp'])
         context['permissions'] = permissions
+        return context
+
+
+class ExpertCandidateKnowledgeView(TemplateView, CandidatesMixin):
+    """
+        Страница со списком знаний, которые были созданы кандидатом в эксперты в рамках определённой компетенции
+    """
+    template_name = 'drevo/special_permissions_page/expert_candidate_knowledge_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ExpertCandidateKnowledgeView, self).get_context_data(**kwargs)
+        candidate_pk = self.kwargs.get('candidate_pk')
+        category_pk = self.kwargs.get('category_pk')
+        context['candidate'] = get_object_or_404(User, pk=candidate_pk)
+        knowledge_data = self.get_expert_candidate_knowledge(candidate_pk=candidate_pk, category_pk=category_pk)
+        context['knowledge_data'] = knowledge_data
+        context['backup_url'] = reverse('experts_candidates_page', kwargs={'category_pk': category_pk})
         return context
