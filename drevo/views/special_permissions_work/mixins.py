@@ -134,7 +134,9 @@ class CandidatesMixin:
             {
             <int:author_pk>:
             {
-            name: <str:author_name>, categories: {<int:category_pk>: [<int:knowledge_count>, <int:expertise_count>]...}
+                name: <str:author_name>, categories: {
+                <int:category_pk>: [<int:preknowledge_count>, <int:knowledge_count>, <int:expertise_count>]...
+                }
             }...
             }
         """
@@ -144,16 +146,15 @@ class CandidatesMixin:
         knowledge = (
             Znanie.objects
             .select_related('author', 'tz', 'author__user_author').prefetch_related('knowledge_status')
-            .filter(is_published=True, author__isnull=False, author__user_author__isnull=False,
-                    author__user_author__is_expert=True, author__user_author__is_director=False,
-                    tz__is_systemic=False, knowledge_status__status='PUB')
+            .filter(Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'),
+                    is_published=True, author__isnull=False, author__user_author__isnull=False,
+                    author__user_author__is_expert=True, tz__is_systemic=False)
         )
         # Получаем список всех опубликованных экспертиз
         expertise = (
             Znanie.objects
             .select_related('expert', 'tz').prefetch_related('knowledge_status')
-            .filter(is_published=True, expert__isnull=False, expert__is_director=False,
-                    tz__is_systemic=False, knowledge_status__status='PUB')
+            .filter(is_published=True, expert__isnull=False, tz__is_systemic=False, knowledge_status__status='PUB')
         )
 
         queryset = (knowledge | expertise).distinct()
@@ -162,52 +163,58 @@ class CandidatesMixin:
         knowledge_with_cat = (
             queryset
             .filter(category__isnull=False)
+            .annotate(
+                is_preknowledge=Case(
+                    When(knowledge_status__status='PUB_PRE', then=1),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            )
             .values(user_pk=F('author__user_author_id'), user_name=F('author__name'), category_pk=F('category_id'),
-                    expert_pk=F('expert_id'), first_name=F('expert__first_name'), last_name=F('expert__last_name'))
+                    expert_pk=F('expert_id'), first_name=F('expert__first_name'), last_name=F('expert__last_name'),
+                    is_preknowledge=F('is_preknowledge'))
             .annotate(cnt=Count('category_pk'))
         )
-
-        # Берём из списка только те знания у которых нет категории
-        knowledge_without_cat = queryset.filter(category__isnull=True)
-
-        # Получаем категории для знаний у которых их нет
-        without_cat_data = self._get_additional_knowledge(knowledge=knowledge_without_cat)
 
         candidates = dict()
 
         for knowledge_data in knowledge_with_cat:
-            author, user_name, category, expert_pk, first_name, last_name, cnt = knowledge_data.values()
+            is_preknowledge, author, fullname, category, expert_pk, first_name, last_name, cnt = knowledge_data.values()
             author_pk = expert_pk if not author else author
-            name = f'{first_name} {last_name}' if not user_name else user_name
-            if author_pk in candidates.keys():
-                candidate_data = candidates[author_pk]['categories']
-                if category in candidate_data.keys():
-                    if author:
-                        candidate_data[category][0] += cnt
-                    else:
-                        candidate_data[category][1] += cnt
-                    continue
-                candidate_data[category] = [0, cnt] if not author else [cnt, 0]
-                continue
-            candidates[author_pk] = dict(name=name, categories={category: [0, cnt] if not author else [cnt, 0]})
-
-        for know, cat in without_cat_data:
-            author_pk = know.author.user_author_id
-            author_id = author_pk if author_pk else know.expert_id
-            if author_id not in candidates.keys():
-                author_name = know.author.name
-                name = author_name if author_name else f'{know.expert.first_name} {know.expert.last_name}'
-                candidates[author_id] = dict(name=name, categories=dict())
-                candidates[author_id]['categories'] = {cat.pk: 1}
-                continue
-            candidate_categories = candidates[author_id]['categories']
-            if cat.pk in candidate_categories.keys():
-                if know.author:
-                    candidate_categories[cat.pk][0] += 1
-                else:
-                    candidate_categories[cat.pk][1] += 1
+            name = f'{first_name} {last_name}' if not fullname else fullname
+            if author_pk not in candidates.keys():
+                candidates[author_pk] = dict(name=name, categories={category: [0, 0, 0]})
+            candidate_data = candidates[author_pk]['categories']
+            if category not in candidate_data.keys():
+                candidate_data[category] = [0, 0, 0]
+            if is_preknowledge:
+                candidate_data[category][0] += cnt
+            elif author:
+                candidate_data[category][1] += cnt
             else:
-                candidate_categories[cat.pk] = [0, 1] if not know.author else [1, 0]
+                candidate_data[category][2] += cnt
+
+        # Берём из списка только те знания у которых нет категории
+        knowledge_without_cat = queryset.filter(category__isnull=True)
+        if len(knowledge_without_cat) != len(queryset):
+            # Получаем категории для знаний у которых их нет
+            without_cat_data = self._get_additional_knowledge(knowledge=knowledge_without_cat)
+            for know, cat in without_cat_data:
+                author_pk = know.author.user_author_id
+                author_id = author_pk if author_pk else know.expert_id
+                if author_id not in candidates.keys():
+                    author_name = know.author.name
+                    name = author_name if author_name else f'{know.expert.first_name} {know.expert.last_name}'
+                    candidates[author_id] = dict(name=name, categories={cat.pk: [0, 0, 0]})
+                candidate_categories = candidates[author_id]['categories']
+                if cat.pk not in candidate_categories.keys():
+                    candidate_categories[cat.pk] = [0, 0, 0]
+                if know.knowledge_status.status == 'PUB_PRE':
+                    candidate_categories[cat.pk][0] += 1
+                elif know.author:
+                    candidate_categories[cat.pk][1] += 1
+                else:
+                    candidate_categories[cat.pk][2] += 1
 
         candidates = self._selection_of_candidates(min_count_to_transition, candidates)
         return candidates
@@ -283,7 +290,7 @@ class CandidatesMixin:
         # Получаем все знания и предзнания кандидата
         knowledge = (
             Znanie.objects
-            .select_related('author', 'tz', 'author__user_author').prefetch_related('knowledge_status')
+            .select_related('author', 'tz').prefetch_related('knowledge_status')
             .filter(Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'),
                     is_published=True, author__user_author_id=candidate_pk, tz__is_systemic=False)
             .annotate(
@@ -320,4 +327,68 @@ class CandidatesMixin:
                 knowledge_data['preknowledge'].append((knowledge_pk, name))
                 continue
             knowledge_data['knowledge'].append((knowledge_pk, name))
+        return knowledge_data
+
+    def get_admin_candidate_knowledge(self, candidate_pk: int, category_pk: int) -> dict[str, list]:
+        """
+            Метод для получения знаний кандидата в руководители в рамках определённой категории.
+            Результирующие данные:
+            {
+            'knowledge': [(<int:pk>, <str:name), ... ],
+            'preknowledge': [(<int:pk>, <str:name), ... ],
+            'expertise': [(<int:pk>, <str:name), ... ]
+            }
+        """
+        knowledge_data = {'knowledge': list(), 'preknowledge': list(), 'expertise': list()}
+
+        # Получаем все знания, предзнания и экспертизы кандидата
+        knowledge = (
+            Znanie.objects
+            .select_related('author', 'tz').prefetch_related('knowledge_status')
+            .filter(Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'),
+                    Q(author__user_author_id=candidate_pk) | Q(expert_id=candidate_pk),
+                    is_published=True, tz__is_systemic=False)
+            .annotate(
+                is_preknowledge=Case(
+                    When(knowledge_status__status='PUB_PRE', then=1),
+                    default=0,
+                    output_field=IntegerField()
+                ),
+                is_expertise=Case(
+                    When(expert__isnull=False, then=1),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            )
+            .order_by('-date')
+        )
+
+        # Отбираем те знания у которых есть категория и значение категории текущей компетенции
+        knowledge_with_cat = (
+            knowledge
+            .filter(category_id=category_pk)
+            .values('pk', 'name', 'is_preknowledge', 'is_expertise')
+        )
+        # Отбираем те знания у которых категории нет (если такие имеются), чтобы её определить
+        if len(knowledge_with_cat) != len(knowledge):
+            knowledge_without_cat = knowledge.filter(category__isnull=True)
+            without_cat_data = [
+                know for know, cat in self._get_additional_knowledge(knowledge_without_cat) if cat.pk == category_pk
+            ]
+            for know in without_cat_data:
+                if know.expert:
+                    knowledge_data['expertise'].append((know.pk, know.name))
+                elif know.knowledge_status.status == 'PUB_PRE':
+                    knowledge_data['preknowledge'].append((know.pk, know.name))
+                else:
+                    knowledge_data['knowledge'].append((know.pk, know.name))
+
+        for know_info in knowledge_with_cat:
+            knowledge_pk, name, is_preknowledge, is_expertise = know_info.values()
+            if is_expertise:
+                knowledge_data['expertise'].append((knowledge_pk, name))
+            elif is_preknowledge:
+                knowledge_data['preknowledge'].append((knowledge_pk, name))
+            else:
+                knowledge_data['knowledge'].append((knowledge_pk, name))
         return knowledge_data

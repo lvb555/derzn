@@ -1,12 +1,11 @@
 {% extends 'drevo/base.html' %}
 
-{% block title %} Знания кандидата в эксперты | {{ candidate.get_full_name }} {% endblock %}
+{% block title %} {{ page_title }} {% endblock %}
 
 {% block content %}
 <div class="container">
-
     <div class="text-center">
-        <h3>Список знаний кандидата в эксперты: {{ candidate.get_full_name }}</h3>
+        <h3>{{ page_title }}</h3>
         <a href="{{ backup_url }}" class="btn btn-warning mb-3">Вернуться к списку кандидатов</a>
     </div>
 
@@ -39,7 +38,20 @@
             </ul>
         </div>
         {% endif %}
+        {% if knowledge_data.expertise %}
+        <div class="col">
+            <div class="border-bottom border-dark">
+                <p class="fs-4">Список экспертиз <span class="badge bg-danger">Всего: {{ knowledge_data.expertise|length }}</span></p>
+            </div>
+            <ul style="overflow-y: scroll; overflow-x: hidden; height:450px;">
+                {% for exp_pk, exp_name in knowledge_data.expertise %}
+                <li>
+                    <a href="{% url 'zdetail' exp_pk %}" target="_blank">{{ exp_name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
     </div>
-
 </div>
 {% endblock %}

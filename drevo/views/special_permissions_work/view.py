@@ -206,8 +206,10 @@ class AdminsCandidatesListView(TemplateView, CandidatesMixin):
         for user_pk, user_data in candidates.items():
             if category.pk in user_data['categories'].keys():
                 user = User.objects.get(pk=user_pk)
-                knowledge_count, expertise_count = user_data['categories'][category.pk]
-                candidates_by_category.append((user_pk, user.get_full_name(), knowledge_count, expertise_count))
+                preknowledge_count, knowledge_count, expertise_count = user_data['categories'][category.pk]
+                candidates_by_category.append(
+                    (user_pk, user.get_full_name(), preknowledge_count, knowledge_count, expertise_count)
+                )
         context['candidates'] = candidates_by_category
         return context
 
@@ -310,7 +312,7 @@ class ExpertCandidateKnowledgeView(TemplateView, CandidatesMixin):
     """
         Страница со списком знаний, которые были созданы кандидатом в эксперты в рамках определённой компетенции
     """
-    template_name = 'drevo/special_permissions_page/expert_candidate_knowledge_page.html'
+    template_name = 'drevo/special_permissions_page/candidate_knowledge_page.html'
 
     def get_context_data(self, **kwargs):
         context = super(ExpertCandidateKnowledgeView, self).get_context_data(**kwargs)
@@ -320,4 +322,23 @@ class ExpertCandidateKnowledgeView(TemplateView, CandidatesMixin):
         knowledge_data = self.get_expert_candidate_knowledge(candidate_pk=candidate_pk, category_pk=category_pk)
         context['knowledge_data'] = knowledge_data
         context['backup_url'] = reverse('experts_candidates_page', kwargs={'category_pk': category_pk})
+        context['page_title'] = f'Список знаний кандидата в эксперты: {context["candidate"].get_full_name()}'
+        return context
+
+
+class AdminCandidateKnowledgeView(TemplateView, CandidatesMixin):
+    """
+        Страница со списком знаний, которые были созданы кандидатом в руководители в рамках определённой компетенции
+    """
+    template_name = 'drevo/special_permissions_page/candidate_knowledge_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AdminCandidateKnowledgeView, self).get_context_data(**kwargs)
+        candidate_pk = self.kwargs.get('candidate_pk')
+        category_pk = self.kwargs.get('category_pk')
+        context['candidate'] = get_object_or_404(User, pk=candidate_pk)
+        knowledge_data = self.get_admin_candidate_knowledge(candidate_pk=candidate_pk, category_pk=category_pk)
+        context['knowledge_data'] = knowledge_data
+        context['backup_url'] = reverse('admins_candidates_page', kwargs={'category_pk': category_pk})
+        context['page_title'] = f'Список знаний кандидата в руководители: {context["candidate"].get_full_name()}'
         return context

@@ -59,6 +59,7 @@ from .special_permissions_work.view import (
     set_users_as_admin,
     UsersSpecialPermissionsView,
     ExpertCandidateKnowledgeView,
+    AdminCandidateKnowledgeView,
 )
 
 __all__ = [
@@ -114,4 +115,5 @@ __all__ = [
     'UsersSpecialPermissionsView',
     'set_new_answer_is_agreed',
     'ExpertCandidateKnowledgeView',
+    'AdminCandidateKnowledgeView',
 ]
