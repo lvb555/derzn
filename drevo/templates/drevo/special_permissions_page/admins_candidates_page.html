@@ -9,6 +9,7 @@
         <p class="fs-5">Категория: {{ category.name }}</p>
         <h3>Список кандидатов в руководители</h3>
     </div>
+    <a href="{% url 'special_permissions_page' %}" class="btn btn-warning mb-3">Назад</a>
     <form method="post" action="{% url 'set_users_as_admin' category.pk %}" class="mt-3" id="admins_candidates_form">
         {% csrf_token %}
         {% for user_pk, name, knowledge_count, expertise_count in candidates %}
