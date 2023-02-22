@@ -206,9 +206,9 @@ class AdminsCandidatesListView(TemplateView, CandidatesMixin):
         for user_pk, user_data in candidates.items():
             if category.pk in user_data['categories'].keys():
                 user = User.objects.get(pk=user_pk)
-                preknowledge_count, knowledge_count, expertise_count = user_data['categories'][category.pk]
+                knowledge_count = sum(user_data['categories'][category.pk])
                 candidates_by_category.append(
-                    (user_pk, user.get_full_name(), preknowledge_count, knowledge_count, expertise_count)
+                    (user_pk, user.get_full_name(), knowledge_count)
                 )
         context['candidates'] = candidates_by_category
         return context
