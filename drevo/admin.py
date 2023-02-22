@@ -511,6 +511,7 @@ class QuestionFilter(admin.SimpleListFilter):
                 rz__tz_id=get_object_or_404(Tz, name='Вопрос').id
             )
             .values(question_pk=F('rz_id'), question_name=F('rz__name'))
+            .order_by().distinct()
         )
         return [(quest_data.get('question_pk'), quest_data.get('question_name')) for quest_data in interview_questions]
 
