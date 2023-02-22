@@ -520,6 +520,25 @@ class QuestionFilter(admin.SimpleListFilter):
         return queryset
 
 
+class ExpertsFilter(admin.SimpleListFilter):
+    title = 'Ответивший эксперт'
+    parameter_name = 'expert'
+
+    def lookups(self, request, model_admin):
+        experts_with_proposals = (
+            InterviewAnswerExpertProposal.objects
+            .select_related('expert')
+            .values(expert_pk=F('expert_id'), expert_username=F('expert__username'))
+            .order_by().distinct()
+        )
+        return [(expert.get('expert_pk'), expert.get('expert_username')) for expert in experts_with_proposals]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(expert__id=self.value())
+        return queryset
+
+
 @admin.register(InterviewAnswerExpertProposal)
 class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
     exclude = ("updated",)
@@ -537,7 +556,7 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
         "is_notified"
     )
     list_display_links = ("id",)
-    list_filter = (InterviewFilter, QuestionFilter)
+    list_filter = (InterviewFilter, QuestionFilter, ExpertsFilter)
     search_fields = (
         'interview__name',
         'question__name',
