@@ -1,5 +1,5 @@
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
 from drevo.models.author import Author
@@ -19,16 +19,16 @@ def filling_tables(request):
     """
     Отображение страницы "Ввод табличных значений", сохранение данных в форму
     """
-    expert = SpecialPermissions.objects.filter(expert=request.user)
+    expert = get_object_or_404(SpecialPermissions, expert=request.user)
 
-    if expert.exists():
+    if expert:
 
         # Нахождение id связей с именами "Строка", "Столбец" и "Значение"
         row_id = Tr.objects.get(name='Строка').id
         column_id = Tr.objects.get(name='Столбец').id
         value_id = Tr.objects.get(name='Значение').id
 
-        context = get_contex_data(expert.first(), row_id, column_id)
+        context = get_contex_data(expert, row_id, column_id)
         template_name = "drevo/filling_tables.html"
 
         if request.method == 'POST':

@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from drevo.models.author import Author
 
 from drevo.models.category import Category
@@ -15,11 +15,9 @@ def my_interview_view(request):
     """
     Отобажаем страницу Мои интервью
     """
-    expert = SpecialPermissions.objects.filter(expert=request.user)
-    if expert.exists():
-        context = get_tree(expert.first(), request.user)
-        return render(request, "drevo//my_interview_page.html", context)
-    return redirect("/drevo/")
+    expert = get_object_or_404(SpecialPermissions, expert=request.user)
+    context = get_tree(expert, request.user)
+    return render(request, "drevo//my_interview_page.html", context)
 
 
 def search_node_categories(categories_expert):
