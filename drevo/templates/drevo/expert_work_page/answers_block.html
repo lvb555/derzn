@@ -23,11 +23,12 @@
                             <input type="checkbox" id="opinion_is_agreed"
                                    name="is_agreed"
                                    onchange="this.form.submit()"
-                                   {% if answer.proposal.is_agreed %} checked {% endif %}
-                                   class="form-check-input"
-                                   {% if answer.proposal.is_incorrect_answer or cur_agreed_count >= max_agreed %}
+                                   {% if answer.proposal.is_agreed %}
+                                   checked
+                                   {% elif answer.proposal.is_incorrect_answer or cur_agreed_count >= max_agreed %}
                                     disabled
-                                    {% endif %}
+                                   {% endif %}
+                                   class="form-check-input"
                             >
                             <label for="opinion_is_agreed" class="form-check-label">
                                 С ответом согласен
@@ -51,10 +52,9 @@
                                    {% if answer.proposal.is_incorrect_answer %}
                                    checked
                                    onchange="this.form.submit()"
+                                   {% elif answer.proposal.is_agreed or cur_agreed_count >= max_agreed %}
+                                    disabled
                                    {% endif %}
-                                   {% if answer.proposal.is_agreed or cur_agreed_count >= max_agreed %}
-                            disabled
-                            {% endif %}
                             >
                             <label for="incorrect_answer{{ answer.id }}" class="form-check-label">
                                 Некорректный ответ
