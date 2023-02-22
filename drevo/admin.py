@@ -1,6 +1,6 @@
 from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin
-from django.db.models import Q
+from django.db.models import Q, F
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -503,7 +503,16 @@ class QuestionFilter(admin.SimpleListFilter):
     parameter_name = 'question'
 
     def lookups(self, request, model_admin):
-        return [(quest.id, quest.name) for quest in Znanie.objects.select_related('tz').filter(tz__name='Вопрос')]
+        interview_questions = (
+            Relation.objects
+            .select_related('rz', 'bz')
+            .filter(
+                bz__tz_id=get_object_or_404(Tz, name='Интервью').id,
+                rz__tz_id=get_object_or_404(Tz, name='Вопрос').id
+            )
+            .values(question_pk=F('rz_id'), question_name=F('rz__name'))
+        )
+        return [(quest_data.get('question_pk'), quest_data.get('question_name')) for quest_data in interview_questions]
 
     def queryset(self, request, queryset):
         if self.value():
