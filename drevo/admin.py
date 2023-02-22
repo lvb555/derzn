@@ -538,6 +538,13 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
     )
     list_display_links = ("id",)
     list_filter = (InterviewFilter, QuestionFilter)
+    search_fields = (
+        'interview__name',
+        'question__name',
+        'answer__name',
+        'incorrect_answer_explanation',
+        'new_answer_text',
+    )
 
     @staticmethod
     def link_to_knowledge_change(obj):
