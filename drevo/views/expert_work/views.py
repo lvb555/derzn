@@ -56,7 +56,10 @@ class QuestionExpertWorkPage(TemplateView):
             .order_by()
             .last()
         )
-        max_agreed = get_object_or_404(orm.Znanie, id=max_agreed.rz_id).name
+        if max_agreed:
+            max_agreed = get_object_or_404(orm.Znanie, id=max_agreed.rz_id).name
+        else:
+            max_agreed = '10'
         context["max_agreed"] = int(max_agreed)
 
         # забираем все ответы по вопросу
