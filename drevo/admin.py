@@ -10,7 +10,7 @@ from mptt.admin import DraggableMPTTAdmin
 from drevo.models import InterviewAnswerExpertProposal
 from drevo.models.expert_category import CategoryExpert
 from drevo.models.knowledge_grade import KnowledgeGrade
-from drevo.models.interconnections_of_relations import InteractionsOfRelations
+from drevo.models.interconnections_of_relations import AllowedRelationCombinations
 from .forms.relation_form import RelationAdminForm
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation_grade import RelationGrade
@@ -261,8 +261,8 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
 admin.site.register(Tz, TzAdmin)
 
 
-@admin.register(InteractionsOfRelations)
-class InteractionfOfRelationsAdmin(admin.ModelAdmin):
+@admin.register(AllowedRelationCombinations)
+class AllowedRelationCombinationsAdmin(admin.ModelAdmin):
     list_display = ('base_knowledge_type', 'relation_type', 'related_knowledge_type')
 
 
@@ -283,6 +283,11 @@ class RelationAdmin(admin.ModelAdmin):
         kwargs["form"] = RelationAdminForm
         return super().get_form(request, obj, change, **kwargs)
 
+    def get_search_results(self, request, queryset, search_term) :
+        # if request.GET()
+        print(f"search results data: {request}")
+        return super().get_search_results(request, queryset, search_term)
+
     def save_model(self, request, obj, form, change):
         obj.user = request.user
         send_flag = form.cleaned_data.get("send_flag")
@@ -301,7 +306,7 @@ class RelationAdmin(admin.ModelAdmin):
 
     class Media:
         css = {"all": ("drevo/css/style.css",)}
-        js = ("drevo/js/notify_interview.js", "drevo/js/test.js")
+        js = ("drevo/js/notify_interview.js", "drevo/js/load_combinations.js")
 
 
 admin.site.register(Relation, RelationAdmin)

@@ -1,5 +1,5 @@
 from ..models.relation_type import Tr
-from ..models.interconnections_of_relations import InteractionsOfRelations
+from ..models.interconnections_of_relations import AllowedRelationCombinations
 from ..models.relation_type import Tr
 
 from dal import autocomplete
@@ -26,3 +26,4 @@ class RelationAutocomplete(autocomplete.Select2QuerySetView):
         #     qs = Tr.objects.all()
         # return qs
         
+

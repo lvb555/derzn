@@ -70,8 +70,8 @@ from .views.knowledge_tp_view import (
     DirectorKnowledgeProcess,
     KlzKnowledgeProcess,
 )
-from .views.load_interactions_zn import KnowledgeAutocomplete, test_ajax_view, test_response
-from .views.load_interactions_rel import RelationAutocomplete
+from .views.load_interactions_zn import test_ajax_view, load_tr, load_bz
+
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
@@ -207,18 +207,9 @@ urlpatterns = [
     ),
     path("klz/", KlzKnowledgeProcess.as_view(), name="klz"),
     path('profile/settings/', parameter_settings, name='parameter_settings'),
-    path(
-        'knowledge_autocomplete/', 
-        KnowledgeAutocomplete.as_view(), 
-        name="knowledge_autocomplete"
-    ),
-    path(
-        'relation_autocomplete/', 
-        RelationAutocomplete.as_view(), 
-        name="relation_autocomplete"
-    ),
     path('test_ajax/', test_ajax_view, name="test_ajax"),
-    path('test_res/', test_response, name="test_response"),
+    path('load_tr/', load_tr, name="load_tr"),
+    path('load_bz/', load_bz, name="load_bz"),
 ]
 
 if settings.DEBUG:

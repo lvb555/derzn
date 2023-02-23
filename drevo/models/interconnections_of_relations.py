@@ -3,7 +3,7 @@ from .knowledge_kind import Tz
 from .relation_type import Tr
 
 
-class InteractionsOfRelations(models.Model):
+class AllowedRelationCombinations(models.Model):
     """
     Таблица хранящая список разрешенных комбинаций вида 'Вид знания - Вид связи - Вид знания'
     """

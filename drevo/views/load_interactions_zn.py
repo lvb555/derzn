@@ -1,7 +1,7 @@
 from ..models.knowledge_kind import Tz
 from ..models.knowledge import Znanie
 from ..models.relation_type import Tr
-from ..models.interconnections_of_relations import InteractionsOfRelations
+from ..models.interconnections_of_relations import AllowedRelationCombinations
 from ..models.relation_type import Tr
 
 from django.shortcuts import render
@@ -12,62 +12,48 @@ from dal import autocomplete
 
 from django.core import serializers
 
-import json
+import json, pprint
 
  
-class KnowledgeAutocomplete(autocomplete.Select2QuerySetView):
-    """
-    View который фильтрует объекты модели Знание на основе выбранного вида связи
-    И видов знания, подходящих для вида связи
-    """
-
-    def get_queryset(self):
-        
-        qs = []
-
-        rel_type = self.forwarded.get('tr', None)
-
-        if rel_type:
-            qs = Znanie.objects.all()
-            allowed_combinations = InteractionsOfRelations.objects.filter(relation_type=rel_type)
-            for knowledge in qs:
-                if knowledge.tz in allowed_combinations:
-                    qs.append(knowledge)
-            print(qs)
-        elif self.q:
-            qs = None#qs.filter(bz__name=self.q)#Znanie.objects.all() 
-        return qs
-
-
 def test_ajax_view(request):
-
     return render(request, "drevo/test.html", {})
 
 
-def test_response(request):
+def load_tr(request):
     bz = Znanie.objects.filter(name=request.GET["bz"]).get()
-    # print(bz)
-    allowed_tr = InteractionsOfRelations.objects.filter(base_knowledge_type=bz.tz).all()
+    allowed_tr = AllowedRelationCombinations.objects.filter(base_knowledge_type=bz.tz).values()
     print(allowed_tr)
-    allowed_tr_list = []
     allowed_json = {}
     for elem in allowed_tr:
-        print(elem)
-        # tr = Tr.objects.filter(name=elem['relation_type'])
-        # print(tr)
-    #     if tr not in allowed_tr_list:
-    #         allowed_tr_list.append(tr)
-    #     allowed_json[tr.name] = tr.id
-    # print(f"allowed types of relation{allowed_tr}")
+        tr = Tr.objects.filter(id=elem['relation_type_id']).values_list('id', 'name')
+        print(tr[0])
+        allowed_json[tr[0][1]] = tr[0][0]
+    print("-----------------------------")
+    print(allowed_json)
+    return JsonResponse(allowed_json, safe=False)
 
-    print(allowed_tr_list)
-    return JsonResponse({}, safe=False)
 
+def load_bz(requset):
+    tr = Tr.objects.filter(name=requset.GET['tr']).get()
+    print(tr)
+    allowed_bz = AllowedRelationCombinations.objects.filter(relation_type=tr).values()
+    print(allowed_bz)
+    allowed_json = {}
+    for elem in allowed_bz:
+        bz = Znanie.objects.filter(id=elem['base_knowledge_type_id']).values_list('id', 'name')
+        print(bz[0])
+        allowed_json[bz[0][1]] = bz[0][0]
+    print("-----------------------------")
+    print(allowed_json)
+    return JsonResponse(allowed_json, safe=False)
+
+def load_rz(request):
+    pass
 
 def zn_autocomplete(request):
     tr = request.GET.get('tr', None)
 
-    allowed_combinations = InteractionsOfRelations.objects.filter(relation_type=tr)
+    allowed_combinations = AllowedRelationCombinations.objects.filter(relation_type=tr)
 
     qs = Znanie.objects.all()
 
@@ -88,7 +74,7 @@ def tr_autocomplete(request):
     # for obj in qs:
     #     pass
 
-    return JsonResponse(qs)
+    return JsonResponse({})
 
 
 
