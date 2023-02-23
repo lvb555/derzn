@@ -1,5 +1,5 @@
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
 from drevo.models.author import Author
@@ -7,6 +7,7 @@ from drevo.models.knowledge import Znanie
 from drevo.models.knowledge_kind import Tz
 from drevo.models.relation_type import Tr
 from drevo.models.relation import Relation
+from drevo.models.special_permissions import SpecialPermissions
 
 from .my_interview_view import search_node_categories
 
@@ -18,7 +19,7 @@ def filling_tables(request):
     """
     Отображение страницы "Ввод табличных значений", сохранение данных в форму
     """
-    expert = request.user.expert
+    expert = get_object_or_404(SpecialPermissions, expert=request.user)
 
     if expert:
 
@@ -163,12 +164,12 @@ def show_filling_tables_page(request):
     """Показывает страницу «Наполнение таблиц», если существует хотя бы одна таблица в компетенции
     эксперта и в ней есть хотя бы одна строка и столбец"""
 
-    expert = request.user.expert
+    expert = SpecialPermissions.objects.filter(expert=request.user)
 
-    if expert:
+    if expert.exists():
         row_id = Tr.objects.get(name='Строка').id
         column_id = Tr.objects.get(name='Столбец').id
-        context = get_contex_data(expert, row_id, column_id)
+        context = get_contex_data(expert.first(), row_id, column_id)
         if context != {}:
             data = True
         else:
