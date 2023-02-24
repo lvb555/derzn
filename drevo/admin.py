@@ -1,6 +1,6 @@
 from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin
-from django.db.models import Q
+from django.db.models import Q, F
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -503,11 +503,40 @@ class QuestionFilter(admin.SimpleListFilter):
     parameter_name = 'question'
 
     def lookups(self, request, model_admin):
-        return [(quest.id, quest.name) for quest in Znanie.objects.select_related('tz').filter(tz__name='Вопрос')]
+        interview_questions = (
+            Relation.objects
+            .select_related('rz', 'bz')
+            .filter(
+                bz__tz_id=get_object_or_404(Tz, name='Интервью').id,
+                rz__tz_id=get_object_or_404(Tz, name='Вопрос').id
+            )
+            .values(question_pk=F('rz_id'), question_name=F('rz__name'))
+            .order_by().distinct()
+        )
+        return [(quest_data.get('question_pk'), quest_data.get('question_name')) for quest_data in interview_questions]
 
     def queryset(self, request, queryset):
         if self.value():
             return queryset.filter(question__id=self.value())
+        return queryset
+
+
+class ExpertsFilter(admin.SimpleListFilter):
+    title = 'Ответивший эксперт'
+    parameter_name = 'expert'
+
+    def lookups(self, request, model_admin):
+        experts_with_proposals = (
+            InterviewAnswerExpertProposal.objects
+            .select_related('expert')
+            .values(expert_pk=F('expert_id'), expert_username=F('expert__username'))
+            .order_by().distinct()
+        )
+        return [(expert.get('expert_pk'), expert.get('expert_username')) for expert in experts_with_proposals]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(expert__id=self.value())
         return queryset
 
 
@@ -528,7 +557,14 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
         "is_notified"
     )
     list_display_links = ("id",)
-    list_filter = (InterviewFilter, QuestionFilter)
+    list_filter = (InterviewFilter, QuestionFilter, ExpertsFilter)
+    search_fields = (
+        'interview__name',
+        'question__name',
+        'answer__name',
+        'incorrect_answer_explanation',
+        'new_answer_text',
+    )
 
     @staticmethod
     def link_to_knowledge_change(obj):

@@ -1,7 +1,8 @@
 from django.db.models import QuerySet
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from .mixins import CandidatesMixin
 from drevo.models import Category, SpecialPermissions, Znanie
 from users.models import User
@@ -205,8 +206,10 @@ class AdminsCandidatesListView(TemplateView, CandidatesMixin):
         for user_pk, user_data in candidates.items():
             if category.pk in user_data['categories'].keys():
                 user = User.objects.get(pk=user_pk)
-                knowledge_count, expertise_count = user_data['categories'][category.pk]
-                candidates_by_category.append((user_pk, user.get_full_name(), knowledge_count, expertise_count))
+                knowledge_count = sum(user_data['categories'][category.pk])
+                candidates_by_category.append(
+                    (user_pk, user.get_full_name(), knowledge_count)
+                )
         context['candidates'] = candidates_by_category
         return context
 
@@ -264,14 +267,21 @@ class UsersSpecialPermissionsView(TemplateView, CandidatesMixin):
     @staticmethod
     def get_competencies_data_by_categories(categories_pk: list, all_competencies_data: dict) -> dict:
         """
-            Метод для получения данных о кол-ве созданных знаний и экспертиз
+            Метод для получения данных о кол-ве созданных знаний, экспертиз и предзнаний
             пользователя в рамках той или иной компетенции (категории)
             Результирующие данные:
-            {<int:category_pk>: {knowledge_count: <int:count>, expertise_count: <int:count>}...}
+            {
+            <int:category_pk>:
+            {knowledge_count: <int:count>, expertise_count: <int:count>, 'preknowledge_count': <int:count>}...
+            }
         """
         return {
-            category: {'knowledge_count': knowledge_count, 'expertise_count': expertise_count}
-            for category, (knowledge_count, expertise_count) in all_competencies_data.items()
+            category: {
+                'knowledge_count': knowledge_count,
+                'expertise_count': expertise_count,
+                'preknowledge_count': preknowledge_count
+            }
+            for category, (knowledge_count, expertise_count, preknowledge_count) in all_competencies_data.items()
             if category in categories_pk
         }
 
@@ -302,4 +312,40 @@ class UsersSpecialPermissionsView(TemplateView, CandidatesMixin):
         context['admin_comp'] = self.get_competencies_data_by_categories(admin_competencies, competencies_data)
         context['admins_nodes'] = self.get_user_permissions_tree_data(competencies_data=context['admin_comp'])
         context['permissions'] = permissions
+        return context
+
+
+class ExpertCandidateKnowledgeView(TemplateView, CandidatesMixin):
+    """
+        Страница со списком знаний, которые были созданы кандидатом в эксперты в рамках определённой компетенции
+    """
+    template_name = 'drevo/special_permissions_page/candidate_knowledge_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ExpertCandidateKnowledgeView, self).get_context_data(**kwargs)
+        candidate_pk = self.kwargs.get('candidate_pk')
+        category_pk = self.kwargs.get('category_pk')
+        context['candidate'] = get_object_or_404(User, pk=candidate_pk)
+        knowledge_data = self.get_expert_candidate_knowledge(candidate_pk=candidate_pk, category_pk=category_pk)
+        context['knowledge_data'] = knowledge_data
+        context['backup_url'] = reverse('experts_candidates_page', kwargs={'category_pk': category_pk})
+        context['page_title'] = f'Список знаний кандидата в эксперты: {context["candidate"].get_full_name()}'
+        return context
+
+
+class AdminCandidateKnowledgeView(TemplateView, CandidatesMixin):
+    """
+        Страница со списком знаний, которые были созданы кандидатом в руководители в рамках определённой компетенции
+    """
+    template_name = 'drevo/special_permissions_page/candidate_knowledge_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AdminCandidateKnowledgeView, self).get_context_data(**kwargs)
+        candidate_pk = self.kwargs.get('candidate_pk')
+        category_pk = self.kwargs.get('category_pk')
+        context['candidate'] = get_object_or_404(User, pk=candidate_pk)
+        knowledge_data = self.get_admin_candidate_knowledge(candidate_pk=candidate_pk, category_pk=category_pk)
+        context['knowledge_data'] = knowledge_data
+        context['backup_url'] = reverse('admins_candidates_page', kwargs={'category_pk': category_pk})
+        context['page_title'] = f'Список знаний кандидата в руководители: {context["candidate"].get_full_name()}'
         return context

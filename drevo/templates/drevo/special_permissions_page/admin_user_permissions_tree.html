@@ -14,7 +14,7 @@
         {% endif %}
 
         <a
-                href="{% url 'admins_candidates_page' node.pk %}"
+                href=""
                 class="
                 {% if node.pk in admin_comp %}
                 text-success
@@ -24,10 +24,10 @@
                 "
         >
             {{ node.name }}
-            {% if node.pk in admin_comp %}
-            <span class="badge bg-danger text-light"> Знаний: {{ admin_comp|knowledge_count_by_competencies:node.pk }} </span>
-            <span class="badge bg-danger text-light"> Экспертиз: {{ admin_comp|expertise_count_by_competencies:node.pk }} </span>
-            {% endif %}
+<!--            {% if node.pk in admin_comp %}-->
+<!--            <span class="badge bg-danger text-light"> Знаний: {{ admin_comp|knowledge_count_by_competencies:node.pk }} </span>-->
+<!--            <span class="badge bg-danger text-light"> Экспертиз: {{ admin_comp|expertise_count_by_competencies:node.pk }} </span>-->
+<!--            {% endif %}-->
         </a>
 
         {% if not node.is_leaf_node %}
