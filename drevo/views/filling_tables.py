@@ -21,11 +21,11 @@ def filling_tables(request):
     """
     expert = get_object_or_404(SpecialPermissions, expert=request.user)
 
-    if expert:
+    if expert.exists():
 
         # Нахождение id связей с именами "Строка", "Столбец" и "Значение"
-        row_id = Tr.objects.get(name='Строка').id
-        column_id = Tr.objects.get(name='Столбец').id
+        row_id = get_object_or_404(Tr, name='Строка').id
+        column_id = get_object_or_404(Tr, name='Столбец').id
 
         context = get_contex_data(expert, row_id, column_id)
         template_name = "drevo/filling_tables.html"
@@ -127,10 +127,8 @@ def show_filling_tables_page(request):
         row_id = Tr.objects.get(name='Строка').id
         column_id = Tr.objects.get(name='Столбец').id
         context = get_contex_data(expert.first(), row_id, column_id)
-        if context != {}:
-            data = True
-        else:
-            data = False
+        data = True if context != {} else False
+
     return JsonResponse([data], safe=False)
 
 
@@ -140,9 +138,9 @@ def get_form_data(request):
     """
 
     # Нахождение id связей с именами "Строка" и "Столбец"
-    row_id = Tr.objects.get(name='Строка').id
-    column_id = Tr.objects.get(name='Столбец').id
-    value_id = Tr.objects.get(name='Значение').id
+    row_id = get_object_or_404(Tr, name='Строка').id
+    column_id = get_object_or_404(Tr, name='Столбец').id
+    value_id = get_object_or_404(Tr, name='Значение').id
 
     # Получение значений выбранной таблицы, знания, строки и столбца
     selected_table_pk = request.POST.get('table')
@@ -164,8 +162,8 @@ def get_form_data(request):
             bz_id=bz_id,
             rz_id=rz_id,
             author_id=author.id,
-            user_id=request.user.id,
-            is_published=True
+            is_published=True,
+            defaults={'user_id': request.user.id}
         )
 
     # Создание связи "Строка": базовое знание - знание, связанное знание - строка
