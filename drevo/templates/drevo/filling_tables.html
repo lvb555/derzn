@@ -17,17 +17,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-ru_RU.js"></script>
 {% endblock %}
 
-{% block title %}Ввод табличных знаний{% endblock %}
-
 <div id="page">
 {% block content %}
 
-<form method="POST"> {% csrf_token %}
+<form method="POST" class="form" id="form" name="form"> {% csrf_token %}
     <div style="display: flex; flex-direction: column; margin-bottom: 15px;">
         <h1>Наполнение таблиц</h1>
         <label for="id_table">Таблица:</label>
-        <select name="table" data-live-search="true" class="selectpicker" id="id_table" style="width: 400px">
-            <option value="" disabled selected hidden>Выбрать таблицу</option>
+        <select name="table" data-live-search="true" class="selectpicker" id="id_table" data-dropup-auto="false"    style="width: 400px">
+            <option value="" selected disabled>Выберите таблицу</option>
             {% for pk, element in table_dict.items %}
                 <option value="{{ pk }}" id="{{ pk }}"> {{ element }} </option>
             {% endfor %}
@@ -38,25 +36,25 @@
         <h2>Координаты ячейки</h2>
         <label for="id_row">Строка:</label>
         <select class="form-select" name="row" id="id_row" disabled>
-            <option>Выберите таблицу</option>
+            <option value="">Выберите строку</option>
         </select>
         <label for="id_column">Столбец:</label>
         <select class="form-select" name="column" id="id_column" disabled>
-            <option>Выберите таблицу</option>
+            <option value="">Выберите столбец</option>
         </select>
         <label for="id_znanie">Знание:</label>
     </div>
 
-    <select data-live-search="true" class="selectpicker" name="znanie" id="id_znanie" style="margin-bottom: 15px;">
-        <option value="" disabled selected hidden>Выбрать знание</option>
+    <select data-live-search="true" class="selectpicker" name="znanie" disabled id="id_znanie" data-dropup-auto="false" style="margin-bottom: 15px;">
+        <option value="" selected disabled>Выберите знание</option>
         {% for zn in znanie %}
         <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option> {% endfor %}
     </select>
     <span>
-    <input type="button" value="+" class="quiet" id="add-znanie" style="vertical-align: middle; font-size: 30px" onclick="winOpen()">
+    <input type="button" value="+" class="quiet" id="add_znanie" style="vertical-align: middle; font-size: 30px" disabled onclick="winOpen()">
     </span>
 
-    <div id="div-param" style="display: none; flex-direction: column; margin-bottom: 15px;">
+    <div id="div-param" style="display: flex; flex-direction: column; margin-bottom: 15px;">
         <h2 class="" style="margin-top: 15px;">Параметры ячейки</h2>
         <label for="id_view">Вид знания:</label>
         <input id="id_view" readonly style="width: 600px" type="text">
@@ -68,8 +66,8 @@
         <textarea id="text_id" class="text-show" name="name" readonly type="text"></textarea>
         </div>
         <div style="margin-top: 15px">
-        <input style="align-self: flex-start;" type="submit" value="Сохранить" name="_save">
-        <input style="align-self: flex-start;" id="btn_show" type="button" value="Показать">
+            <input style="align-self: flex-start;" id="btn_show" type="button" value="Показать">
+            <input style="align-self: flex-start;" id="btn_save" type="submit" value="Сохранить" name="_save">
         </div>
     </div>
 
@@ -78,47 +76,106 @@
 
 <div id="div1"></div>
 
-    <style>
-        body {
-            margin: 0;
-            --bs-font-sans-serif: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-            font-family: var(--bs-font-sans-serif);;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #212529;
-            background-color: #fff;
-            -webkit-text-size-adjust: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
-        label {
-            margin: 0;
-        }
-        .btn-show{
-            display: flex;
-            justify-content: right;
-            border-width: 2px;
-        }
-        .quiet {
-            border: 0;
-            vertical-align: middle;
-            background: 0;
-        }
-        .text-show{
-            width: 500px;
-            height: 150px;
-            resize: none;
-        }
-        .caret{
-            display: none;
-        }
-        .bootstrap-select {
-          width: 600px !important;
-        }
-        .form-select{
-            width: 600px;
-        }
-    </style>
+<div class="overlay js-successful">
+    <div class="popup js-successful">
+        <h2 style="position: relative; top: 50%; transform: translateY(-50%); text-align: center">Данные были успешно сохранены</h2>
+        <div class="close-popup js-close-successful"></div>
+    </div>
+</div>
+
+<style>
+
+    body {
+        margin: 0;
+        --bs-font-sans-serif: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+        font-family: var(--bs-font-sans-serif);;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+    }
+    label {
+        margin: 0;
+    }
+    .btn_show{
+        display: flex;
+        justify-content: right;
+        border-width: 2px;
+    }
+    .quiet {
+        border: 0;
+        vertical-align: middle;
+        background: 0;
+    }
+    .text-show{
+        width: 500px;
+        height: 150px;
+        resize: none;
+    }
+    .caret{
+        display: none;
+     }
+    .bootstrap-select {
+      width: 600px !important;
+     }
+    .form-select{
+        width: 600px;
+     }
+    .overlay {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, .5);
+        display: none;
+        z-index: 1;
+    }
+    .popup {
+        position: absolute;
+        width: 450px;
+        height: 250px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        padding: 40px;
+        background-color: #FFF;
+        border-radius: 10px;
+    }
+    .close-popup {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 23px;
+        height: 23px;
+        cursor: pointer;
+    }
+    .close-popup:before {
+        content: '';
+        background-color: #000;
+        position: absolute;
+        height: 1px;
+        width: 31px;
+        top: 11px;
+        left: -4px;
+        transform: rotate(-45deg);
+    }
+    .close-popup:after {
+        content: '';
+        background-color: #000;
+        position: absolute;
+        height: 1px;
+        width: 31px;
+        top: 11px;
+        transform: rotate(45deg);
+        left: -4px;
+    }
+
+</style>
+
 <script>
 
     var element = $('#page').detach();
@@ -133,6 +190,7 @@
     let id_author = $("#id_author")
     let znanie_content = $("#znanie_content")
     let btn_show = $("#btn_show")
+    let add_znanie = $("#add_znanie")
     text_show = $("#text_id")
 
     function winOpen() {
@@ -175,26 +233,13 @@
         });
     }
 
-    id_znanie.on('changed.bs.select', function (e, clickedIndex) {
+    id_table.change(getTableId);
+
+     id_znanie.on('changed.bs.select', function (e, clickedIndex) {
         getZnanieId(id_znanie.children()[clickedIndex].id)
         $('#div-param').css('display', 'flex')
     });
 
-    id_table.change(getTableId);
-
-    btn_show.on('click', function(){
-        Array.from(id_table.children()).forEach(element => {
-            if (element.id == id_table.val()) {
-                try {
-                     window.open(`/drevo/znanie/${element.id}`);
-                }
-                catch (error) {
-                    console.log(error);
-                }
-            }
-        });
-
-    })
     function getTableId(e) {
        let table_id = e.target.value
        const data = { id: table_id};
@@ -210,6 +255,9 @@
         })
         .then(response => response.json())
         .then(data => {
+            id_znanie.prop('disabled', false)
+            id_znanie.selectpicker('refresh')
+            add_znanie.prop('disabled', false)
             let rows = data[0]
             if (rows.length === 0) {
                 id_row.children().text("Строки отсутствуют")
@@ -231,7 +279,7 @@
             else {
                 id_column.prop('disabled', false)
                 id_column.empty()
-                for (let i = 0; i < rows.length; i++) {
+                for (let i = 0; i < columns.length; i++) {
                     id_column.append(`<option value="${columns[i]['rz_id']}">${columns[i]['rz__name']}</option>`)
                 }
             }
@@ -262,7 +310,6 @@
 
             if (data[2]) {
                 $('#div-content').css('display', 'flex')
-
                 text_show.val(data[2])
             }
             else {
@@ -274,6 +321,49 @@
         console.log('Error:', error);
         });
     }
+
+     btn_show.on('click', function(){
+        Array.from(id_table.children()).forEach(element => {
+            if (element.id === id_table.val()) {
+                try {
+                     window.open(`/drevo/znanie/${element.id}`);
+                }
+                catch (error) {
+                    console.log(error);
+                }
+            }
+        });
+
+    })
+
+    $(document).ready(function () {
+        $('#form').submit(function () {
+            // Если какое-либо поле не заполнено, форма не отправляется
+            if (document.form.table.value === '' || document.form.row.value === '' ||
+                document.form.column.value === '' || document.form.znanie.value === ''){
+                return false;
+             }
+            $.ajax({
+                method: "POST",
+                url: "{% url 'get_form_data' %}",
+                data: $(this).serialize()
+             }).done(function () {
+                $('.js-successful').fadeIn();
+             });
+            return false;
+         });
+    })
+
+    $('.js-close-successful').click(function () {
+        $('.js-successful').fadeOut();
+    })
+
+    $(document).mouseup(function (e) {
+        var popup = $('.popup');
+        if (e.target !== popup[0] && popup.has(e.target).length === 0) {
+            $('.js-successful').fadeOut();
+        }
+    })
 
 </script>
 {% endblock %}
