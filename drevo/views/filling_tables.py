@@ -21,7 +21,7 @@ def filling_tables(request):
     """
     expert = get_object_or_404(SpecialPermissions, expert=request.user)
 
-    if expert.exists():
+    if expert:
 
         # Нахождение id связей с именами "Строка", "Столбец" и "Значение"
         row_id = get_object_or_404(Tr, name='Строка').id
@@ -72,6 +72,21 @@ def get_contex_data(obj, row_id, column_id):
     return {}
 
 
+def show_filling_tables_page(request):
+    """Возвращает True для показа страницы «Наполнение таблиц», если существует хотя бы одна таблица в компетенции
+    эксперта и в ней есть хотя бы одна строка и столбец"""
+
+    expert = SpecialPermissions.objects.filter(expert=request.user)
+
+    if expert.exists():
+        row_id = Tr.objects.get(name='Строка').id
+        column_id = Tr.objects.get(name='Столбец').id
+        context = get_contex_data(expert.first(), row_id, column_id)
+        data = True if context != {} else False
+
+    return JsonResponse([data], safe=False)
+
+
 def get_rows_and_columns(request):
     """
     Возвращает атрибуты строк и столбцов, связанных с данной таблицей: id и имя каждого знания
@@ -115,21 +130,6 @@ def show_new_znanie(request):
     """
     new_znanie = Znanie.objects.all().order_by('-id')[0]
     return JsonResponse([new_znanie.id, new_znanie.name], safe=False)
-
-
-def show_filling_tables_page(request):
-    """Возвращает True для показа страницы «Наполнение таблиц», если существует хотя бы одна таблица в компетенции
-    эксперта и в ней есть хотя бы одна строка и столбец"""
-
-    expert = SpecialPermissions.objects.filter(expert=request.user)
-
-    if expert.exists():
-        row_id = Tr.objects.get(name='Строка').id
-        column_id = Tr.objects.get(name='Столбец').id
-        context = get_contex_data(expert.first(), row_id, column_id)
-        data = True if context != {} else False
-
-    return JsonResponse([data], safe=False)
 
 
 def get_form_data(request):
