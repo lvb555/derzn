@@ -146,6 +146,9 @@
                     </a>
 
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a href="{% url 'new_knowledges' pub_user.id %}" class="dropdown-item">Новые, интересные знания</a>
+                        </li>
                         {% if 'Избранные знания' in sections %}
                         <li>
                             <a href="{% url 'my_favourites' pub_user.id %}" class="dropdown-item">Избранные знания</a>

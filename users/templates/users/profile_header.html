@@ -85,7 +85,7 @@
                         </li>
                     </ul>
                 </div>
-                {% if 'znanie' in sections or 'expert' in sections or 'predznanie' in sections %}
+                {% if 'znanie' in sections or 'expert' in sections or 'predznanie' in sections or 'interview' in sections %}
                 <div class="btn-group">
                     <div class="dropdown">
                         <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
@@ -162,6 +162,9 @@
                     </a>
 
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a href="{% url 'new_knowledges' user.id %}" class="dropdown-item">Новые, интересные знания</a>
+                        </li>
                         {% if 'favourite' in sections %}
                         <li>
                             <a href="{% url 'my_favourites' user.id %}" class="dropdown-item">Избранные знания</a>

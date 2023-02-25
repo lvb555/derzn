@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse_lazy, reverse
 from django.contrib import auth, messages
@@ -363,9 +364,9 @@ def access_sections(user):
     interview = InterviewAnswerExpertProposal.objects.filter(expert=user)
     if interview is not None:
         sections.append('interview')
-        if interview.exclude(new_answer_text='').exists():
+        if interview.exclude(Q(new_answer_text=None) | Q(new_answer_text='')).exists():
             sections.append('proposal')
-        if interview.filter(new_answer_text='').exists():
+        if interview.filter(Q(new_answer_text=None) | Q(new_answer_text='')).exists():
             sections.append('answer')
     knowledges = KnowledgeStatuses.objects.filter(user=user)
     if knowledges is not None:

@@ -79,9 +79,9 @@ function showFirst() {
                     full_answer = answers[o].textContent.split(' ');
                     delete full_answer[full_answer.length-1];
                     if(answers[o].textContent.endsWith('True')==true||answers[o].textContent.endsWith('APPRVE')==true){
-                        answers[o].style.color = 'green';
                         if(answers[o].textContent.endsWith('APPRVE')==true){
                             answers[o].innerHTML = full_answer.join(' ')+'принят';
+                            answers[o].style.color = 'green';
                         }else{
                             answers[o].innerHTML = full_answer.join(' ')+'эксперт согласен с ответом';
                         }
