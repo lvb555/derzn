@@ -283,9 +283,14 @@ class RelationAdmin(admin.ModelAdmin):
         kwargs["form"] = RelationAdminForm
         return super().get_form(request, obj, change, **kwargs)
 
-    def get_search_results(self, request, queryset, search_term) :
-        # if request.GET()
+    def get_search_results(self, request, queryset, search_term):
+        print("In get search results")
+        if request.GET['tr']:
+            tr = Tr.objects.filter(name=request.GET['tr'].get())
+            print(tr)
+            queryset = Znanie.objects.filter(id=1)
         print(f"search results data: {request}")
+        queryset = Znanie.objects.filter(id=1)
         return super().get_search_results(request, queryset, search_term)
 
     def save_model(self, request, obj, form, change):
@@ -306,7 +311,7 @@ class RelationAdmin(admin.ModelAdmin):
 
     class Media:
         css = {"all": ("drevo/css/style.css",)}
-        js = ("drevo/js/notify_interview.js", "drevo/js/load_combinations.js")
+        js = ("drevo/js/notify_interview.js", "drevo/js/load_combinations.js", "drevo/js/test.js")
 
 
 admin.site.register(Relation, RelationAdmin)
