@@ -69,6 +69,7 @@ from .views.interview_and_proposal import my_interview, my_proposal
 from .views.klz_all_knowledges import klz_all
 from .views.my_favourites import my_favourites
 from .views.my_knowledge import my_knowledge, my_preknowledge, my_expertise
+from .views.new_knowledges import new_knowledge
 from .views.public_people import public_people_view, public_human
 from .views.quiz_result import show_quiz_result
 from .views.subscribe_to_author_view import sub_by_author
@@ -131,6 +132,7 @@ urlpatterns = [
     path("subscribe_to_author/<int:id>/", sub_by_author, name="subscribe_to_author"),
     path("subscription_by_tag/<int:id>/", sub_by_tag, name="subscription_by_tag"),
     path("subscription_by_category/<int:id>/", sub_by_category, name="subscription_by_category"),
+    path("new_knowledges/<int:id>/", new_knowledge, name="new_knowledges"),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
     path("my_favourites/<int:id>/", my_favourites, name="my_favourites"),
     path("my_knowledge/<int:id>/", my_knowledge, name="my_knowledge"),

@@ -32,6 +32,8 @@ class User(AbstractUser):
 
     date_joined = last_login = None
     user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True, editable = False)
+    knowledge_to_notification_page = models.ManyToManyField('drevo.Znanie', verbose_name='Знания для страницы уведомлений',
+                                                            related_name='notificated_users',blank=True)
 
     def __str__(self):
         return self.username
