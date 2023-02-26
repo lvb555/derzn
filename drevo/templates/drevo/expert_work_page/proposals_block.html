@@ -35,16 +35,17 @@
                     Предложение - {{ proposal.pk }}
                     {% endif %}
                 </p>
-                <form action="{% url 'set_answer_is_agreed' proposal.pk %}" method="get" id="opinion_is_agreed_form{{ proposal.pk }}">
+                <form action="{% url 'set_new_answer_is_agreed' proposal.pk %}" method="get" id="opinion_is_agreed_form{{ proposal.pk }}">
                     <div class="form-check">
                         <input type="checkbox" id="proposal{{ proposal.pk }}_i_agreed"
                                name="is_agreed"
                                onchange="this.form.submit()"
-                               {% if proposal.is_agreed %} checked {% endif %}
+                               {% if proposal.is_agreed %}
+                               checked
+                               {% elif cur_agreed_count >= max_agreed %}
+                                disabled
+                               {% endif %}
                                class="form-check-input"
-                            {% if cur_agreed_count >= max_agreed %}
-                            disabled
-                            {% endif %}
                         >
                         <label for="proposal{{ proposal.pk }}_i_agreed" class="form-check-label">
                             С ответом согласен

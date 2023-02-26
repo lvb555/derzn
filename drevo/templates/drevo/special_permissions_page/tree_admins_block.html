@@ -1,0 +1,41 @@
+{% load mptt_tags %}
+{% load static %}
+{% load special_permissions_tags %}
+
+<button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">Развернуть</button>
+&nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">Свернуть</button>
+<ul class="root ps-0" id="tree_root">
+    {% recursetree admins_nodes %}
+    <li id="li_{{ node.id }}">
+        {% if not node.has_published_children %}
+        <i class="bi-file-plus-fill lonely"></i>
+        {% else %}
+        <i class="family bi-file-minus-fill" onclick="toggleHiddenElement(this);"></i>
+        {% endif %}
+
+        <a
+                href="{% url 'admins_candidates_page' node.pk %}"
+                class="
+                {% if node.pk in admins_checked_category %}
+                text-success
+                {% elif node.pk not in admins_candidates_count %}
+                disabled text-dark
+                {% else %}
+                text-danger
+                {% endif %}
+                "
+        >
+            {{ node.name }}
+            {% if node.pk in admins_candidates_count %}
+            <span class="badge bg-danger text-light"> {{ admins_candidates_count|get_category_count:node.pk }} </span>
+            {% endif %}
+        </a>
+
+        {% if not node.is_leaf_node %}
+        <ul class="children">
+            {{ children }}
+        </ul>
+        {% endif %}
+    </li>
+    {% endrecursetree %}
+</ul>

@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from . import Tr
+from . import Tr, Tz
 from .knowledge import Znanie
 from .relation import Relation
 
@@ -16,6 +16,13 @@ class SubAnswers(models.Model):
         to='users.User',
         on_delete=models.CASCADE,
         related_name='sub_answers'
+    )
+    interview = models.ForeignKey(
+        verbose_name='Интервью',
+        to='drevo.Znanie',
+        on_delete=models.CASCADE,
+        related_name='inter_sub_answers',
+        null=True
     )
     question = models.ForeignKey(
         verbose_name='Вопрос',
@@ -42,6 +49,8 @@ class SubAnswers(models.Model):
             raise ValidationError(f'Знание "{self.question}" не является вопросом')
         if not self._is_answer(self.answer):
             raise ValidationError(f'Знание "{self.answer}" не является ответом')
+        if not self._is_interview(self.interview):
+            raise ValidationError(f'Знание "{self.interview}" не является интервью')
 
     @staticmethod
     def _is_question(knowledge: Znanie) -> bool:
@@ -61,6 +70,16 @@ class SubAnswers(models.Model):
             :return:
         """
         queryset = Relation.objects.filter(rz_id=knowledge.pk, tr_id=Tr.objects.get(name="Ответ [ы]").pk)
+        return True if queryset.exists() else False
+
+    @staticmethod
+    def _is_interview(knowledge: Znanie) -> bool:
+        """
+            Проверка на то, что знание является интервью
+            :param knowledge:
+            :return:
+        """
+        queryset = Znanie.objects.filter(pk=knowledge.pk, tz_id=Tz.objects.get(name='Интервью').pk)
         return True if queryset.exists() else False
 
     def __str__(self):

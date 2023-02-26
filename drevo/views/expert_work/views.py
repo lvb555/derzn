@@ -1,9 +1,10 @@
+from django.db.models import Q
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView, RedirectView
-from django.db import transaction, DatabaseError
+from django.db import transaction, DatabaseError, IntegrityError
 
 from drevo import models as orm
 from drevo.views.expert_work.data_loaders import load_interview
@@ -55,46 +56,72 @@ class QuestionExpertWorkPage(TemplateView):
             .order_by()
             .last()
         )
-        max_agreed = get_object_or_404(orm.Znanie, id=max_agreed.rz_id).name
+        if max_agreed:
+            max_agreed = get_object_or_404(orm.Znanie, id=max_agreed.rz_id).name
+        else:
+            max_agreed = '10'
         context["max_agreed"] = int(max_agreed)
 
         # забираем все ответы по вопросу
         question_raw = get_object_or_404(orm.Znanie, pk=question_pk)
         answers_links = question_raw.base.filter(
             tr_id=orm.Tr.objects.get(name="Ответ [ы]").id
-        ).select_related("rz").prefetch_related('rz__answ_sub_answers', 'rz__answer_proposals')
+        ).select_related("rz").prefetch_related('rz__answ_sub_answers', 'rz__answer_proposals').distinct()
 
         answers = {}
         cur_agreed_count = 0
         for answer_link in answers_links:
             answer = answer_link.rz
-            proposal = answer.answer_proposals.all().first()
+            if answer.pk in answers:
+                continue
+            # Если это ответ был дан самим экспертом, то берум его предложение иначе ищем "пустое"
+            is_my_proposal = (
+                answer.answer_proposals
+                .filter(expert=self.request.user, interview_id=interview_pk,
+                        question_id=question_pk, status__isnull=False)
+                .first()
+            )
+            if not is_my_proposal:
+                proposal = (
+                    answer.answer_proposals
+                    .filter(Q(new_answer_text__exact='') | Q(new_answer_text__isnull=True),
+                            expert=self.request.user, interview_id=interview_pk, question_id=question_pk)
+                    .first()
+                )
+            else:
+                proposal = is_my_proposal
             if proposal and proposal.is_agreed:
                 cur_agreed_count += 1
             answers[answer.pk] = dict(
                 id=answer.pk,
                 text=answer.name,
-                sub_answers=answer.answ_sub_answers.all().values_list('sub_answer', flat=True),
+                sub_answers=answer.answ_sub_answers.filter(
+                    interview_id=interview_pk
+                ).values_list('sub_answer', flat=True),
                 proposal=proposal
             )
-        context['cur_agreed_count'] = cur_agreed_count
 
         # собираем предложения
         proposals = orm.InterviewAnswerExpertProposal.objects.filter(
             interview_id=interview_pk,
             question_id=question_pk,
             expert_id=self.request.user.pk,
-        ).order_by("id")
+            new_answer_text__isnull=False
+        ).exclude(new_answer_text__exact='').order_by("id")
 
         # разделяем предложения на две группы,
         # те которе уже прошли проверку администратором 'reviewed' и которые в ожидании 'pending'
         expert_proposals = {'reviewed': list(), 'pending': list()}
         for prop in proposals:
+            if prop.is_agreed and not prop.status:
+                cur_agreed_count += 1
             # предложение к существующему вопросу
             if prop.status:
                 expert_proposals['reviewed'].append(prop)
             else:
                 expert_proposals['pending'].append(prop)
+
+        context['cur_agreed_count'] = cur_agreed_count
 
         prev_quest, next_quest = self.get_prev_next_question_url(cur_question=question_raw)
         context['prev_quest'] = prev_quest
@@ -132,14 +159,17 @@ def propose_answer(req: HttpRequest, interview_pk: int, question_pk: int):
 
 
 @require_http_methods(['POST'])
-def sub_answer_create_view(request: HttpRequest, quest_pk: int, answer_pk: int):
+def sub_answer_create_view(request: HttpRequest, inter_pk: int, quest_pk: int, answer_pk: int):
     """
         Добавление подответа к ответу на вопрос интервью
     """
     sub_answer = request.POST.get('subanswer')
     question = orm.Znanie.objects.get(pk=quest_pk)
     answer = orm.Znanie.objects.get(pk=answer_pk)
-    orm.SubAnswers.objects.create(expert=request.user, question=question, answer=answer, sub_answer=sub_answer)
+    interview = orm.Znanie.objects.get(pk=inter_pk)
+    orm.SubAnswers.objects.create(
+        expert=request.user, interview=interview, question=question, answer=answer, sub_answer=sub_answer
+    )
     message_text = f'Ваш подответ к ответу "{answer.name}" был успешно создан.'
     request.session['success_message_text'] = message_text
     scroll_to_elm = f'answer_{answer.id}'
@@ -164,59 +194,95 @@ class ExpertProposalDeleteView(RedirectView):
 
 
 @require_http_methods(['POST', 'GET'])
-def set_answer_as_incorrect(request: HttpRequest, proposal_pk: int):
+def set_answer_as_incorrect(request: HttpRequest, interview_pk: int, question_pk: int, answer_pk: int):
     """
-        Определение предложения (ответа) как некорректное
+        Определение ответа как некорректное
     """
-    try:
-        with transaction.atomic():
-            proposal = get_object_or_404(
-                orm.InterviewAnswerExpertProposal.objects.select_for_update(nowait=True),
-                pk=proposal_pk
+    proposals = (
+        orm.InterviewAnswerExpertProposal.objects
+        .filter(Q(new_answer_text__exact='') | Q(new_answer_text__isnull=True), expert=request.user,
+                answer_id=answer_pk, interview_id=interview_pk, question_id=question_pk)
+    )
+    if not proposals.exists():
+        try:
+            proposal = orm.InterviewAnswerExpertProposal.objects.create(
+                answer_id=answer_pk,
+                expert=request.user,
+                interview_id=interview_pk,
+                question_id=question_pk,
+                is_agreed=False
             )
-            if request.method == 'GET':
-                proposal.incorrect_answer_explanation = ''
-                proposal.is_incorrect_answer = False
-                message_text = 'Подтверждение, что вы не считаете данный ответ некорректным было сохранено.'
-            else:
-                explanation = request.POST.get('explanation').strip()
-                proposal.incorrect_answer_explanation = explanation
-                proposal.is_incorrect_answer = True
-                message_text = 'Подтверждение, что вы считаете данный ответ некорректным было сохранено.'
-            proposal.save()
-    except DatabaseError:
-        message_text = 'Ваши изменения не были сохранены так как над данным вопросом уже работает другой эксперт.'
-        request.session['success_message_text'] = message_text
-        return redirect(request.META.get('HTTP_REFERER'))
+        except IntegrityError:
+            proposal = orm.InterviewAnswerExpertProposal.objects.filter(
+                expert=request.user, answer_id=answer_pk, interview_id=interview_pk, question_id=question_pk,
+                status__in=('REJECT', 'APPRVE')
+            ).first()
+
+    else:
+        proposal = proposals.first()
+
+    if request.method == 'GET':
+        proposal.incorrect_answer_explanation = ''
+        proposal.is_incorrect_answer = False
+        message_text = 'Подтверждение, что вы не считаете данный ответ некорректным было сохранено.'
+    else:
+        explanation = request.POST.get('explanation').strip()
+        proposal.incorrect_answer_explanation = explanation
+        proposal.is_incorrect_answer = True
+        message_text = 'Подтверждение, что вы считаете данный ответ некорректным было сохранено.'
+    proposal.save()
     request.session['success_message_text'] = message_text
     scroll_to_elm = f'answer_{proposal.answer_id}'
     return redirect(f"{request.META.get('HTTP_REFERER')}#{scroll_to_elm}")
 
 
 @require_http_methods(['GET'])
-def set_answer_is_agreed(request: HttpRequest, proposal_pk: int):
+def set_answer_is_agreed(request: HttpRequest, interview_pk: int, question_pk: int, answer_pk: int):
     """
-        Согласиться с предложением
+        Согласиться ответом
     """
-    try:
-        with transaction.atomic():
-            proposal = get_object_or_404(
-                orm.InterviewAnswerExpertProposal.objects.select_for_update(nowait=True),
-                pk=proposal_pk
+    proposals = (
+        orm.InterviewAnswerExpertProposal.objects
+        .filter(Q(new_answer_text__exact='') | Q(new_answer_text__isnull=True), expert=request.user,
+                answer_id=answer_pk, interview_id=interview_pk, question_id=question_pk)
+    )
+    if not proposals.exists():
+        try:
+            proposal = orm.InterviewAnswerExpertProposal.objects.create(
+                answer_id=answer_pk,
+                expert=request.user,
+                interview_id=interview_pk,
+                question_id=question_pk,
+                is_agreed=False
             )
-            proposal.is_agreed = True if request.GET.get('is_agreed') else False
-            proposal.save()
-    except DatabaseError:
-        message_text = 'Ваши изменения не были сохранены так как над данным вопросом уже работает другой эксперт.'
-        request.session['success_message_text'] = message_text
-        return redirect(request.META.get('HTTP_REFERER'))
+        except IntegrityError:
+            proposal = orm.InterviewAnswerExpertProposal.objects.filter(
+                expert=request.user, answer_id=answer_pk, interview_id=interview_pk, question_id=question_pk,
+                status__in=('REJECT', 'APPRVE')
+            ).first()
+    else:
+        proposal = proposals.first()
+
+    proposal.is_agreed = True if request.GET.get('is_agreed') else False
+    proposal.save()
+
     message_text = 'Изменения были сохранены.'
     request.session['success_message_text'] = message_text
-    if not proposal.answer_id:
-        scroll_to_elm = f'opinion_is_agreed_form{proposal_pk}'
-    else:
-        scroll_to_elm = f'opinion_is_agreed_form{proposal.answer_id}'
-    return redirect(f"{request.META.get('HTTP_REFERER')}#{scroll_to_elm}")
+    return redirect(f"{request.META.get('HTTP_REFERER')}#opinion_is_agreed_form{answer_pk}")
+
+
+@require_http_methods(['GET'])
+def set_new_answer_is_agreed(request: HttpRequest, proposal_pk: int):
+    """
+        Согласиться с новым ответом
+    """
+    proposal = get_object_or_404(orm.InterviewAnswerExpertProposal, pk=proposal_pk)
+    proposal.is_agreed = True if request.GET.get('is_agreed') else False
+    proposal.save()
+
+    message_text = 'Изменения были сохранены.'
+    request.session['success_message_text'] = message_text
+    return redirect(f"{request.META.get('HTTP_REFERER')}#opinion_is_agreed_form{proposal_pk}")
 
 
 @require_http_methods(['POST'])
@@ -224,10 +290,9 @@ def proposal_update_view(request: HttpRequest, proposal_pk: int):
     """
         Обновление текста ответа предложения
     """
-    with transaction.atomic():
-        proposal = get_object_or_404(orm.InterviewAnswerExpertProposal.objects.select_for_update(), pk=proposal_pk)
-        proposal.new_answer_text = request.POST.get('new_proposal_text')
-        proposal.save()
+    proposal = get_object_or_404(orm.InterviewAnswerExpertProposal, pk=proposal_pk)
+    proposal.new_answer_text = request.POST.get('new_proposal_text')
+    proposal.save()
     message_text = f'Изменения были сохранены.'
     request.session['success_message_text'] = message_text
     return redirect(f"{request.META.get('HTTP_REFERER')}#proposed_answers")

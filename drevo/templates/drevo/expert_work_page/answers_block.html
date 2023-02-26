@@ -18,16 +18,17 @@
         <div class="col border-start border-dark">
             <div class="row">
                 <div class="col">
-                    <form action="{% if answer.proposal %}{% url 'set_answer_is_agreed' answer.proposal.pk %}{% endif %}" method="get" id="opinion_is_agreed_form{{ answer.id }}">
+                    <form action="{% url 'set_answer_is_agreed' interview.id question.id answer.id %}" method="get" id="opinion_is_agreed_form{{ answer.id }}">
                         <div class="form-check">
                             <input type="checkbox" id="opinion_is_agreed"
                                    name="is_agreed"
                                    onchange="this.form.submit()"
-                                   {% if answer.proposal.is_agreed %} checked {% endif %}
-                                   class="form-check-input"
-                                   {% if answer.proposal.is_incorrect_answer or cur_agreed_count >= max_agreed %}
+                                   {% if answer.proposal.is_agreed %}
+                                   checked
+                                   {% elif answer.proposal.is_incorrect_answer or cur_agreed_count >= max_agreed %}
                                     disabled
-                                    {% endif %}
+                                   {% endif %}
+                                   class="form-check-input"
                             >
                             <label for="opinion_is_agreed" class="form-check-label">
                                 С ответом согласен
@@ -36,7 +37,11 @@
                     </form>
                 </div>
                 <div class="col">
-                    <form action="{% if answer.proposal %}{% url 'set_answer_as_incorrect' answer.proposal.pk %}{% endif %}" method="get" id="opinion_is_incorrect_form{{ answer.id }}">
+                    <form
+                            action="{% url 'set_answer_as_incorrect' interview.id question.id answer.id %}"
+                            method="get"
+                            id="opinion_is_incorrect_form{{ answer.id }}"
+                    >
                         <div class="form-check">
                             <input type="checkbox" id="incorrect_answer{{ answer.id }}" name="is_incorrect"
                                    class="form-check-input"
@@ -47,10 +52,9 @@
                                    {% if answer.proposal.is_incorrect_answer %}
                                    checked
                                    onchange="this.form.submit()"
+                                   {% elif answer.proposal.is_agreed or cur_agreed_count >= max_agreed %}
+                                    disabled
                                    {% endif %}
-                                   {% if answer.proposal.is_agreed or cur_agreed_count >= max_agreed %}
-                            disabled
-                            {% endif %}
                             >
                             <label for="incorrect_answer{{ answer.id }}" class="form-check-label">
                                 Некорректный ответ
@@ -64,8 +68,7 @@
             </div>
             <div class="row text-center">
                 <div class="collapse {% if answer.proposal.is_incorrect_answer %} show {% endif %} text-dark" id="answer{{ answer.id }}">
-                    {% if answer.proposal %}
-                    <form action="{% url 'set_answer_as_incorrect' answer.proposal.pk %}" method="post" id="answer_as_incorrect{{ answer.id }}">
+                    <form action="{% url 'set_answer_as_incorrect' interview.id question.id answer.id %}" method="post" id="answer_as_incorrect{{ answer.id }}">
                         {% csrf_token %}
                         <div class="form-group mt-3 text-start">
                             <textarea
@@ -74,18 +77,17 @@
                                     required
                                     class="form-control text-start"
                                     help_text='dawd'
-                                    placeholder="Введите пояснение, почему считаете ответ некорректным и нажмите ENTER..."
+                                    placeholder="Введите текст пояснения..."
                                     onkeydown="set_answer_as_incorrect(event, answer_as_incorrect{{ answer.id }})"
                                     {% if answer.proposal.is_agreed or cur_agreed_count >= max_agreed %}
                                     disabled
                                     {% endif %}
                             >{% if answer.proposal.is_incorrect_answer %}{{ answer.proposal.incorrect_answer_explanation }}{% endif %}</textarea>
-                            <label for="explanation" class="form-check-label">
+                            <label for="explanation" class="form-check-label text-secondary">
                             Введите пояснение, почему считаете ответ некорректным и нажмите "Enter"
                             </label>
                         </div>
                     </form>
-                    {% endif %}
                 </div>
             </div>
         </div>

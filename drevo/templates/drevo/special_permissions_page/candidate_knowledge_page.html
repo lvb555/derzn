@@ -1,0 +1,57 @@
+{% extends 'drevo/base.html' %}
+
+{% block title %} {{ page_title }} {% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="text-center">
+        <h3>{{ page_title }}</h3>
+        <a href="{{ backup_url }}" class="btn btn-warning mb-3">Вернуться к списку кандидатов</a>
+    </div>
+
+    <div class="row mt-3">
+        {% if knowledge_data.preknowledge %}
+        <div class="col">
+            <div class="border-bottom border-dark">
+                <p class="fs-4">Список предзнаний <span class="badge bg-danger">Всего: {{ knowledge_data.preknowledge|length }}</span></p>
+            </div>
+            <ul style="overflow-y: scroll; overflow-x: hidden; height:450px;">
+                {% for preknow_pk, preknow_name in knowledge_data.preknowledge %}
+                <li>
+                    <a href="{% url 'zdetail' preknow_pk %}" target="_blank">{{ preknow_name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% if knowledge_data.knowledge %}
+        <div class="col">
+            <div class="border-bottom border-dark">
+                <p class="fs-4">Список знаний <span class="badge bg-danger">Всего: {{ knowledge_data.knowledge|length }}</span></p>
+            </div>
+            <ul style="overflow-y: scroll; overflow-x: hidden; height:450px;">
+                {% for know_pk, know_name in knowledge_data.knowledge %}
+                <li>
+                    <a href="{% url 'zdetail' know_pk %}" target="_blank">{{ know_name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% if knowledge_data.expertise %}
+        <div class="col">
+            <div class="border-bottom border-dark">
+                <p class="fs-4">Список экспертиз <span class="badge bg-danger">Всего: {{ knowledge_data.expertise|length }}</span></p>
+            </div>
+            <ul style="overflow-y: scroll; overflow-x: hidden; height:450px;">
+                {% for exp_pk, exp_name in knowledge_data.expertise %}
+                <li>
+                    <a href="{% url 'zdetail' exp_pk %}" target="_blank">{{ exp_name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

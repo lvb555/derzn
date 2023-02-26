@@ -1,9 +1,5 @@
-import typing as t
-
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 from drevo.models.knowledge import Znanie
 from drevo.models.relation import Relation
@@ -94,16 +90,6 @@ class InterviewAnswerExpertProposal(models.Model):
         verbose_name="Эксперт согласен с ответом?",
     )
 
-    # реквизит "Текст дополнения" – текстовый.
-    # список аргументов или контраргументов
-    # для получения полей используейте getters ниже (get_arguments, get_counter_arguments)
-    comment = models.JSONField(
-        default=comment_default_factory,
-        verbose_name="Аргументы и контраргументы (JSON)",
-        blank=True,
-        null=True,
-    )
-
     # реквизит "Дата/время сессии" – дата/время
     updated = models.DateTimeField(auto_now=True)
 
@@ -185,18 +171,12 @@ class InterviewAnswerExpertProposal(models.Model):
         interview_id: int,
         question_id: int = None,
         text: str = None,
-        comment: t.Optional[dict] = None,
         is_agreed: bool = False,
         is_incorrect_answer: bool = False,
     ) -> "InterviewAnswerExpertProposal":
-
-        if comment is None:
-            comment = comment_default_factory()
-
         return InterviewAnswerExpertProposal.objects.create(
             new_answer_text=text,
             expert=expert_user,
-            comment=comment,
             interview_id=interview_id,
             question_id=question_id,
             is_agreed=is_agreed,
@@ -263,27 +243,6 @@ class InterviewAnswerExpertProposal(models.Model):
 
         return True
 
-    def get_arguments(self) -> t.List[str]:
-        return self.comment.get("arguments", [])
-
-    def get_counter_arguments(self) -> t.List[str]:
-        return self.comment.get("counter_arguments", [])
-
-    def clean(self, *args, **kwargs):
-        validation_error_text = _(
-            "comment should be dict with fields "
-            "'arguments' and 'counter_arguments' that are list of string"
-        )
-
-        if not isinstance(self.comment, dict):
-            raise ValidationError({"comment": validation_error_text})
-
-        args = self.comment.get("arguments")
-        cargs = self.comment.get("counter_arguments")
-
-        if not is_list_of_strings(args) or not is_list_of_strings(cargs):
-            raise ValidationError({"comment": validation_error_text})
-
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
@@ -299,11 +258,3 @@ class InterviewAnswerExpertProposal(models.Model):
                 name="single_proposal_from_expert_on_answer",
             ),
         ]
-
-
-def is_list_of_strings(value):
-    """
-    возвращаем true для списка строк. Иначе - false.
-    Проверка для полей JSON поля comment
-    """
-    return isinstance(value, list) and all([isinstance(a, str) for a in value])

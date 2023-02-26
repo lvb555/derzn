@@ -1,7 +1,7 @@
 from adminsortable2.admin import SortableAdminMixin
 from django.conf.urls import url
 from django.contrib import admin
-from django.db.models import Q
+from django.db.models import Q, F
 from django.db.models.functions import Lower
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from mptt.admin import DraggableMPTTAdmin
 
 from drevo.models import InterviewAnswerExpertProposal
-from drevo.models.expert_category import CategoryExpert
+from drevo.models.special_permissions import SpecialPermissions
 from drevo.models.knowledge_grade import KnowledgeGrade
 from .forms.relation_form import RelationAdminForm
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
@@ -458,9 +458,12 @@ class RelationGradeAdmin(admin.ModelAdmin):
 admin.site.register(RelationGrade, RelationGradeAdmin)
 
 
-class CategoryExpertAdmin(admin.ModelAdmin):
-    list_display = ("expert", "get_categories")
-    fields = ("expert", "categories")
+@admin.register(SpecialPermissions)
+class SpecialPermissionsAdmin(admin.ModelAdmin):
+    list_display = ("pk", "expert", "get_categories", "get_admin_competencies", "editor")
+    list_filter = ('editor',)
+    search_fields = ('expert',)
+    save_as = True
 
     def get_categories(self, obj):
         """
@@ -472,17 +475,25 @@ class CategoryExpertAdmin(admin.ModelAdmin):
         list_categories = list(set(list_categories))
         return ",\n".join(list_categories)
 
+    def get_admin_competencies(self, obj):
+        """
+        Собирает категории, которые входят в список компетенций руководителя у экспертов
+        """
+        return ', \n'.join(obj.admin_competencies.values_list('name', flat=True))
+
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         form.base_fields["categories"] = CtegoryExpertForm.base_fields["category"]
-        form.base_fields["categories"].label = "Компетенции"
+        form.base_fields["categories"].label = "Компетенции эксперта"
+        form.base_fields["admin_competencies"] = CtegoryExpertForm.base_fields['admin_competencies']
+        form.base_fields["admin_competencies"].label = 'Компетенции руководителя'
         return form
+
+    get_categories.short_description = 'Компетенции эксперта'
+    get_admin_competencies.short_description = 'Компетенции руководителя'
 
     class Media:
         css = {"all": ("drevo/css/style.css",)}
-
-
-admin.site.register(CategoryExpert, CategoryExpertAdmin)
 
 
 class InterviewInline(admin.TabularInline):
@@ -507,11 +518,40 @@ class QuestionFilter(admin.SimpleListFilter):
     parameter_name = 'question'
 
     def lookups(self, request, model_admin):
-        return [(quest.id, quest.name) for quest in Znanie.objects.select_related('tz').filter(tz__name='Вопрос')]
+        interview_questions = (
+            Relation.objects
+            .select_related('rz', 'bz')
+            .filter(
+                bz__tz_id=get_object_or_404(Tz, name='Интервью').id,
+                rz__tz_id=get_object_or_404(Tz, name='Вопрос').id
+            )
+            .values(question_pk=F('rz_id'), question_name=F('rz__name'))
+            .order_by().distinct()
+        )
+        return [(quest_data.get('question_pk'), quest_data.get('question_name')) for quest_data in interview_questions]
 
     def queryset(self, request, queryset):
         if self.value():
             return queryset.filter(question__id=self.value())
+        return queryset
+
+
+class ExpertsFilter(admin.SimpleListFilter):
+    title = 'Ответивший эксперт'
+    parameter_name = 'expert'
+
+    def lookups(self, request, model_admin):
+        experts_with_proposals = (
+            InterviewAnswerExpertProposal.objects
+            .select_related('expert')
+            .values(expert_pk=F('expert_id'), expert_username=F('expert__username'))
+            .order_by().distinct()
+        )
+        return [(expert.get('expert_pk'), expert.get('expert_username')) for expert in experts_with_proposals]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(expert__id=self.value())
         return queryset
 
 
@@ -532,7 +572,14 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
         "is_notified"
     )
     list_display_links = ("id",)
-    list_filter = (InterviewFilter, QuestionFilter)
+    list_filter = (InterviewFilter, QuestionFilter, ExpertsFilter)
+    search_fields = (
+        'interview__name',
+        'question__name',
+        'answer__name',
+        'incorrect_answer_explanation',
+        'new_answer_text',
+    )
 
     @staticmethod
     def link_to_knowledge_change(obj):
@@ -616,9 +663,9 @@ class ParameterCategoriesAdmin(admin.ModelAdmin):
 
 @admin.register(SubAnswers)
 class SubAnswersAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'expert', 'question', 'answer', 'sub_answer')
+    list_display = ('pk', 'expert', 'interview', 'question', 'answer', 'sub_answer')
     list_display_links = ('pk', 'expert')
-    search_fields = ('question', 'answer', 'expert')
-    autocomplete_fields = ('question', 'answer')
+    search_fields = ('interview', 'question', 'answer', 'expert')
+    autocomplete_fields = ('interview', 'question', 'answer')
     save_as = True
     save_on_top = True
