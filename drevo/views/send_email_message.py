@@ -18,16 +18,16 @@ def send_email_messages():
     # Берем все знания, включая дополнительные
     categories, knowledges = get_knowledges_by_categories(all_new_knowledges)
     set_with_users_info = set()
-    for a, b in knowledges.items():
-        c = b['base'] + b['additional']
-        for obj in c:
+    for category_name, knowledge_list in knowledges.items():
+        all_knowledges = knowledge_list['base'] + knowledge_list['additional']
+        for obj in all_knowledges:
             user_to_notify = set(obj.author.subscribers.all())
             for knowledge_tags in obj.labels.all():
                 # Объеденяем множества. Так не будут повторяться пользовотели, которым нужно отправить уведомление.
                 user_to_notify = user_to_notify | set(knowledge_tags.subscribers.all())
             # Проверяем, есть ли категория
-            if a != 'None':
-                category = Category.objects.get(name=a)
+            if category_name != 'None':
+                category = Category.objects.get(name=category_name)
                 knowledge_categories = category.get_ancestors(include_self=True)
                 for knowledge_category in knowledge_categories:
                     user_to_notify = user_to_notify | set(knowledge_category.subscribers.all())
@@ -44,11 +44,11 @@ def send_email_messages():
         knowledge_by_tags = []
         knowledge_by_categories = []
         new_knowledge = set()
-        for a, b in knowledges.items():
-            c = b['base'] + b['additional']
-            if a != 'None':
-                category_by_a = Category.objects.get(name=a)
-            for obj in c:
+        for category_name, knowledge_list in knowledges.items():
+            all_knowledges = knowledge_list['base'] + knowledge_list['additional']
+            if category_name != 'None':
+                category_by_name = Category.objects.get(name=category_name)
+            for obj in all_knowledges:
                 if user_to_send in set(obj.author.subscribers.all()):
                     knowledge_by_author.append(obj.author.name)
                     new_knowledge.add(obj)
@@ -56,8 +56,8 @@ def send_email_messages():
                     if user_to_send in set(knowledge_tags.subscribers.all()):
                         knowledge_by_tags.append(knowledge_tags.name)
                         new_knowledge.add(obj)
-                if a != 'None':
-                    knowledge_categories = category_by_a.get_ancestors(include_self=True)
+                if category_name != 'None':
+                    knowledge_categories = category_by_name.get_ancestors(include_self=True)
                     for knowledge_category in knowledge_categories:
                         if user_to_send in set(knowledge_category.subscribers.all()):
                             knowledge_by_categories.append(knowledge_category.name)

@@ -6,7 +6,7 @@ from users.views import access_sections
 
 
 def get_special_permission(request, id):
-    user = User.objects.filter(id=id).first()
+    user = get_object_or_404(User, id=id)
     context = {}
 
     users_permissions = UsersSpecialPermissionsView()
