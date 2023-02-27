@@ -359,27 +359,29 @@ def my_profile(request):
         return render(request, 'users/profile_header.html', context)
 
 def access_sections(user):
-    #Проверяем какие опции меню будут отображаться
-    sections = []
+    #Проверяем какие опции меню будут отображаться ///////Поменять чтобы делать проверку плюс поменять везде блин
+    sections = ['Мои оценки знаний','По категориям','По авторам','По тегам']
     interview = InterviewAnswerExpertProposal.objects.filter(expert=user)
     if interview is not None:
-        sections.append('interview')
+        sections.append('Интервью')
         if interview.exclude(Q(new_answer_text=None) | Q(new_answer_text='')).exists():
-            sections.append('proposal')
+            sections.append('Мои предложения')
         if interview.filter(Q(new_answer_text=None) | Q(new_answer_text='')).exists():
-            sections.append('answer')
+            sections.append('Мои интервью')
     knowledges = KnowledgeStatuses.objects.filter(user=user)
     if knowledges is not None:
         if knowledges.filter(status='PUB_PRE').exists():
-            sections.append('predznanie')
+            sections.append('Мои знания (пользовательский вклад)')
         if knowledges.filter(status='PUB').exists():
-            sections.append('znanie')
+            sections.append('Мои знания')
     if Znanie.published.filter(expert=user).exists():
-        sections.append('expert')
+        sections.append('Мои экспертизы')
     if Favourite.objects.filter(user=user).exists():
-        sections.append('favourite')
+        sections.append('Избранные знания')
     if BrowsingHistory.objects.filter(user=user).exists():
-        sections.append('history')
+        sections.append('История просмотров')
     if QuizResult.objects.filter(user=user).exists():
-        sections.append('quiz')
+        sections.append('Результаты тестов')
+    if user.is_expert is True or user.is_redactor is True or user.is_director is True:
+        sections.append('Компетенции')
     return sections

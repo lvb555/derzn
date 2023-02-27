@@ -67,6 +67,7 @@ from .views.admin_interview_work.views import (
     AdminEditingKnowledgeView,
     NotifyExpertsView,
 )
+from .views.special_permissions_for_public import get_special_permission
 from .views.special_permissions_work.view import (
     SpecialPermissionsView,
     set_users_as_editor,
@@ -153,6 +154,7 @@ urlpatterns = [
     path("my_preknowledge/<int:id>/", my_preknowledge, name="my_preknowledge"),
     path("my_expertise/<int:id>/", my_expertise, name="my_expertise"),
     path("my__interview/<int:id>/", my_interview, name="my_interview_profile"),
+    path("special_permission/<int:id>/", get_special_permission, name="special_permission"),
     path("my_proposal/<int:id>/", my_proposal, name="my_proposal"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 import json
 from drevo.models import Category
 from users.models import MenuSections, User
+from users.views import access_sections
 
 
 def sub_by_category(request, id):
@@ -11,9 +12,9 @@ def sub_by_category(request, id):
         if user is not None:
             context['categories'] = [i.name for i in Category.objects.filter(subscribers=user,is_published=True)]
             if user == request.user:
-                context['sections'] = [i.name for i in MenuSections.objects.all()]
-                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
-                            i.name.startswith('Моя')]
+                context['sections'] = access_sections(user)
+                context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                                       i.startswith('Моя')]
                 context['link'] = 'users:myprofile'
             else:
                 context['sections'] = [i.name for i in user.sections.all()]

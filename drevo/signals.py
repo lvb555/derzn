@@ -29,11 +29,11 @@ def on_transaction_commit(func):
     return inner
 
 
-# @on_transaction_commit
-# def notify(sender, instance: Znanie, created, **kwargs):
-#     if sender._meta.object_name == "Migrate":
-#         breakpoint()
-#         return
+@on_transaction_commit
+def notify(sender, instance: Znanie, created, **kwargs):
+    if sender._meta.object_name == "Migrate":
+        breakpoint()
+        return
 #     """Sends messages with application to author subscribers on knowledge creation"""
 #     tz_model = instance.__class__.tz.field.remote_field.model
 #
