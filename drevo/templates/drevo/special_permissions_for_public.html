@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}Новые, интересные знания{% endblock %}
+{% block title %}Особые права{% endblock %}
 
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/subscriptions.css' %}">
@@ -11,14 +11,13 @@
 
 {% block content %}
 <div class="container header_info">
-    <h1>Новые, интересные знания</h1>
+    <h1>Особые права</h1>
     <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
           <li class="breadcrumb-item"><a {% if link == 'users:myprofile' %} href="{% url 'users:my_profile' %}"
               {% else %} href="{% url link id %}" {% endif %}>Профиль</a></li>
-          <li class="breadcrumb-item"><a>Изучение знаний</a></li>
-          <li class="breadcrumb-item opened"><a>Новые, интересные знания</a></li>
+          <li class="breadcrumb-item opened"><a>Особые права</a></li>
         </ol>
     </nav>
 </div>
