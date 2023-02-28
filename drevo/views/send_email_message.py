@@ -5,7 +5,7 @@ from drevo.models import Znanie, Relation, Category
 from collections import Counter
 from django.template.loader import render_to_string
 from loguru import logger
-
+from dz import settings
 
 logger.add(
     "logs/main.log", format="{time} {level} {message}", rotation="100Kb", level="INFO"
@@ -57,11 +57,9 @@ def send_email_messages():
                         knowledge_by_tags.append(knowledge_tags.name)
                         new_knowledge.add(obj)
                 if category_name != 'None':
-                    knowledge_categories = category_by_name.get_ancestors(include_self=True)
-                    for knowledge_category in knowledge_categories:
-                        if user_to_send in set(knowledge_category.subscribers.all()):
-                            knowledge_by_categories.append(knowledge_category.name)
-                            new_knowledge.add(obj)
+                    if user_to_send in set(category_by_name.subscribers.all()):
+                        knowledge_by_categories.append(category_by_name.name)
+                        new_knowledge.add(obj)
         # Очищаем поле со знаниями, которые были при прошлой рассылки и добавляем новые
         user_to_send.knowledge_to_notification_page.clear()
         for knowledge in new_knowledge:
@@ -74,7 +72,7 @@ def send_email_messages():
         message_subject = "Новое знание"
 
         context = {
-            'page_url': '/drevo/new_knowledges/'+str(user_to_send.id)+'/',
+            'page_url': settings.BASE_URL + '/drevo/new_knowledges/'+str(user_to_send.id)+'/',
             'author_sub': author_sub,
             'tags_sub': tags_sub,
             'category_sub': category_sub
@@ -98,16 +96,21 @@ def make_sentence(sub_info, sub):
     if sub_info:
         full = 'Было создано '
         final_list = []
-        for sub_obj in Counter(sub_info):
-            if str(Counter(sub_info)[sub_obj]).endswith('1'):
-                zn = 'знание'
-            elif str(Counter(sub_info)[sub_obj]).endswith('2') or str(Counter(sub_info)[sub_obj]).endswith('3') or\
-                    str(Counter(sub_info)[sub_obj]).endswith('4'):
-                zn = 'знания'
-            else:
-                zn = 'знаний'
-            final_list.append(f'{Counter(sub_info)[sub_obj]} {zn} {sub} {sub_obj}')
+        if sub != 'в категории':
+            for sub_obj in Counter(sub_info):
+                if str(Counter(sub_info)[sub_obj]).endswith('1'):
+                    zn = 'знание'
+                elif str(Counter(sub_info)[sub_obj]).endswith('2') or str(Counter(sub_info)[sub_obj]).endswith('3') or\
+                        str(Counter(sub_info)[sub_obj]).endswith('4'):
+                    zn = 'знания'
+                else:
+                    zn = 'знаний'
+                final_list.append(f'{Counter(sub_info)[sub_obj]} {zn} {sub} {sub_obj}')
 
-        return full+', '.join(final_list)
+            return full+', '.join(final_list)
+        else:
+            for sub_obj in Counter(sub_info):
+                final_list.append(f'"{sub_obj}" - {Counter(sub_info)[sub_obj]}')
+            return final_list
     else:
         return ''

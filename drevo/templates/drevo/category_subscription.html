@@ -103,7 +103,9 @@ function ShowFirst(){
             all_previous_grandparents = [];
             while(grandparent.classList.contains('items') == false){
                 previous_grandparent = grandparent;
-                all_previous_grandparents.push(previous_grandparent);
+                if(!(previous_grandparent.nodeName == 'UL')){
+                    all_previous_grandparents.push(previous_grandparent);
+                }
                 grandparent = grandparent.parentNode;
             }
             for(let g=0; g < all_previous_grandparents.length; g++){
@@ -159,16 +161,18 @@ function isAvailable(elem){
         let all_previous_grandparents = [];
         while(grandparent.classList.contains('items') == false){
             previous_grandparent = grandparent;
-            all_previous_grandparents.push(previous_grandparent);
+            if(!(previous_grandparent.nodeName == 'UL')){
+                all_previous_grandparents.push(previous_grandparent);
+            }
             grandparent = grandparent.parentNode;
         }
         if(elem.checked == true){
-            for(let g=1; g < all_previous_grandparents.length; g++){
+            for(let g=0; g < all_previous_grandparents.length; g++){
                 span_obj = all_previous_grandparents[g].querySelector('span')
                 span_obj.innerHTML = "<span style='color: blue'>"+span_obj.textContent+"</span>";
             }
         }else{
-            for(let gp=1; gp < all_previous_grandparents.length; gp++){
+            for(let gp=0; gp < all_previous_grandparents.length; gp++){
                 if(all_previous_grandparents[gp].querySelectorAll('input[type="checkbox"]:checked').length == 0){
                 span_obj = all_previous_grandparents[gp].querySelector('span')
                 span_obj.innerHTML = "<span style='color: green'>"+span_obj.textContent+"</span>";

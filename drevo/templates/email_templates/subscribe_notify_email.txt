@@ -3,7 +3,10 @@
 По вашим подпискам были созданы следующие знания:
 {{author_sub}}
 {{tags_sub}}
-{{category_sub}}
+Были созданы знания в следующих категориях:
+{% for category in category_sub %}
+    {{category}}
+{% endfor %}
 
 Ссылка на страницу с новыми знаниями: {{ page_url }}
 

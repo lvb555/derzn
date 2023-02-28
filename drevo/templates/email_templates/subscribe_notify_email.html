@@ -12,7 +12,12 @@
 <p>По вашим подпискам были созданы следующие знания:</p>
 <p>{{author_sub}}</p>
 <p>{{tags_sub}}</p>
-<p>{{category_sub}}</p>
+<p>Были созданы знания в следующих категориях:</p>
+<ul>
+    {% for category in category_sub %}
+    <li>{{category}}</li>
+    {% endfor %}
+</ul>
 <br>
 <a href="{{ page_url }}">Новые, интересные знания</a></p>
 <br>
