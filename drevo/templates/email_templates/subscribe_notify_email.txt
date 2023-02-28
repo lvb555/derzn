@@ -1,7 +1,10 @@
 Уважаемый {{ appeal }} {{ patr }}!
 
-{{ date_with_month }} было создано новое знание {{ instance.name }}:
-Ссылка на знание: {{ author_publication_url }}
-Автор: {{ instance.author }}
+По вашим подпискам были созданы следующие знания:
+{{author_sub}}
+{{tags_sub}}
+{{category_sub}}
+
+Ссылка на страницу с новыми знаниями: {{ page_url }}
 
 Администрация портала "Дерево знаний"

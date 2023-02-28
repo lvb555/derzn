@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from users.models import User, MenuSections
 import copy
 
+from users.views import access_sections
 
 
 def my_knowledge_grade(request, id) -> HttpResponse:
@@ -18,9 +19,9 @@ def my_knowledge_grade(request, id) -> HttpResponse:
         user = User.objects.filter(id=id).first()
         if user is not None:
             if user == request.user:
-                context['sections'] = [i.name for i in MenuSections.objects.all()]
-                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
-                                       i.name.startswith('Моя')]
+                context['sections'] = access_sections(user)
+                context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                                       i.startswith('Моя')]
                 context['link'] = 'users:myprofile'
             else:
                 context['sections'] = [i.name for i in user.sections.all()]

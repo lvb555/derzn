@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from loguru import logger
 from users.models import User, MenuSections
+from users.views import access_sections
 from ..models import Znanie, SpecialPermissions
 from ..relations_tree import get_knowledges_by_categories
 from drevo.common import variables
@@ -16,9 +17,9 @@ def my_knowledge(request, id):
         context = {}
         if user is not None:
             if user == request.user:
-                context['sections'] = [i.name for i in MenuSections.objects.all()]
-                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
-                                       i.name.startswith('Моя')]
+                context['sections'] = access_sections(user)
+                context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                                       i.startswith('Моя')]
                 context['link'] = 'users:myprofile'
             else:
                 context['sections'] = [i.name for i in user.sections.all()]
@@ -46,9 +47,9 @@ def my_preknowledge(request, id):
         context = {}
         if user is not None:
             if user == request.user:
-                context['sections'] = [i.name for i in MenuSections.objects.all()]
-                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
-                                       i.name.startswith('Моя')]
+                context['sections'] = access_sections(user)
+                context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                                       i.startswith('Моя')]
                 context['link'] = 'users:myprofile'
             else:
                 context['sections'] = [i.name for i in user.sections.all()]
@@ -76,9 +77,9 @@ def my_expertise(request, id):
         context = {}
         if user is not None:
             if user == request.user:
-                context['sections'] = [i.name for i in MenuSections.objects.all()]
-                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
-                                       i.name.startswith('Моя')]
+                context['sections'] = access_sections(user)
+                context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                                       i.startswith('Моя')]
                 context['link'] = 'users:myprofile'
             else:
                 context['sections'] = [i.name for i in user.sections.all()]

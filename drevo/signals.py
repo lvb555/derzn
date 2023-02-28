@@ -34,76 +34,76 @@ def notify(sender, instance: Znanie, created, **kwargs):
     if sender._meta.object_name == "Migrate":
         breakpoint()
         return
-    """Sends messages with application to author subscribers on knowledge creation"""
-    tz_model = instance.__class__.tz.field.remote_field.model
-
-    if (
-        not instance.is_published
-        or not instance.author
-        or not created
-        or not tz_model.objects.filter(id=instance.tz_id).exists()
-        or instance.tz.is_systemic
-    ):
-        return
-
-    user_to_notify = set(instance.author.subscribers.all())
-
-    for knowledge_tags in instance.labels.all():
-        # Объеденяем множества. Так у нас не будут повторяться пользовотели, которым нужно отправить уведомление.
-        user_to_notify = user_to_notify | set(knowledge_tags.subscribers.all())
-
-    # Проверяем, есть ли категория и добавляем пользователей, подписанных на нее или ее parent
-    if instance.category:
-        knowledge_categories = instance.category.get_ancestors(include_self=True)
-        for knowledge_category in knowledge_categories:
-            user_to_notify = user_to_notify | set(knowledge_category.subscribers.all())
-
-    if not user_to_notify:
-        return
-    author_publication_url = settings.BASE_URL + instance.get_absolute_url()
-    message_subject = "Новое знание"
-    months = {
-        1: "января",
-        2: "февраля",
-        3: "марта",
-        4: "апреля",
-        5: "мая",
-        6: "июня",
-        7: "июля",
-        8: "августа",
-        9: "сентября",
-        10: "октября",
-        11: "ноября",
-        12: "декабря",
-    }
-    date_now = datetime.date.today()
-    cur_month_formed = months[date_now.month]
-
-    date_with_month = date_now.strftime(f'%d {cur_month_formed} %Y')
-
-    context = {
-        'date_with_month': date_with_month,
-        'author_publication_url': author_publication_url,
-        'instance_name': instance.name,
-        'instance_author': instance.author
-    }
-
-
-    for addressee in user_to_notify:
-        patr = ""
-        user_profile = addressee.profile
-        if addressee.first_name and user_profile.patronymic:
-
-            patr = ' ' + user_profile.patronymic
-        appeal = addressee.first_name or 'пользователь'
-
-        context['appeal'] = appeal
-        context['patr'] = patr
-
-        message_text = render_to_string('email_templates/subscribe_notify_email.txt', context)
-        message_html = render_to_string('email_templates/subscribe_notify_email.html', context)
-
-        send_email(addressee.email, message_subject, message_html, message_text)
+#     """Sends messages with application to author subscribers on knowledge creation"""
+#     tz_model = instance.__class__.tz.field.remote_field.model
+#
+#     if (
+#         not instance.is_published
+#         or not instance.author
+#         or not created
+#         or not tz_model.objects.filter(id=instance.tz_id).exists()
+#         or instance.tz.is_systemic
+#     ):
+#         return
+#
+#     user_to_notify = set(instance.author.subscribers.all())
+#
+#     for knowledge_tags in instance.labels.all():
+#         # Объеденяем множества. Так у нас не будут повторяться пользовотели, которым нужно отправить уведомление.
+#         user_to_notify = user_to_notify | set(knowledge_tags.subscribers.all())
+#
+#     # Проверяем, есть ли категория и добавляем пользователей, подписанных на нее или ее parent
+#     if instance.category:
+#         knowledge_categories = instance.category.get_ancestors(include_self=True)
+#         for knowledge_category in knowledge_categories:
+#             user_to_notify = user_to_notify | set(knowledge_category.subscribers.all())
+#
+#     if not user_to_notify:
+#         return
+#     author_publication_url = settings.BASE_URL + instance.get_absolute_url()
+#     message_subject = "Новое знание"
+#     months = {
+#         1: "января",
+#         2: "февраля",
+#         3: "марта",
+#         4: "апреля",
+#         5: "мая",
+#         6: "июня",
+#         7: "июля",
+#         8: "августа",
+#         9: "сентября",
+#         10: "октября",
+#         11: "ноября",
+#         12: "декабря",
+#     }
+#     date_now = datetime.date.today()
+#     cur_month_formed = months[date_now.month]
+#
+#     date_with_month = date_now.strftime(f'%d {cur_month_formed} %Y')
+#
+#     context = {
+#         'date_with_month': date_with_month,
+#         'author_publication_url': author_publication_url,
+#         'instance_name': instance.name,
+#         'instance_author': instance.author
+#     }
+#
+#
+#     for addressee in user_to_notify:
+#         patr = ""
+#         user_profile = addressee.profile
+#         if addressee.first_name and user_profile.patronymic:
+#
+#             patr = ' ' + user_profile.patronymic
+#         appeal = addressee.first_name or 'пользователь'
+#
+#         context['appeal'] = appeal
+#         context['patr'] = patr
+#
+#         message_text = render_to_string('email_templates/subscribe_notify_email.txt', context)
+#         message_html = render_to_string('email_templates/subscribe_notify_email.html', context)
+#
+#         send_email(addressee.email, message_subject, message_html, message_text)
 
 
 @receiver(post_save, sender=Relation)

@@ -118,7 +118,7 @@
                                 </div>
                             </li>
                             {% endif %}
-                            {% if 'Мои знания (пользовательский вклад)' in sections or 'Мои связи (пользовательский вклад)' in sections or 'Мои предзнания' in sections or 'Мои предсвязи' in sections %}
+                            {% if 'Мои знания (пользовательский вклад)' in sections or 'Мои предзнания' in sections %}
                             <li>
                                 <div class="btn-group text-center">
                                     <a class="dropdown-item" href="#">Мой вклад, как пользователя</a>
@@ -146,6 +146,9 @@
                     </a>
 
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a href="{% url 'new_knowledges' pub_user.id %}" class="dropdown-item">Новые, интересные знания</a>
+                        </li>
                         {% if 'Избранные знания' in sections %}
                         <li>
                             <a href="{% url 'my_favourites' pub_user.id %}" class="dropdown-item">Избранные знания</a>
@@ -203,7 +206,7 @@
                 {% endif %}
                 {% if 'Компетенции' in sections %}
                 <div class="btn-group">
-                    <a class="btn shadow-none group-title" type="button" data-bs-auto-close="true" aria-expanded="false">
+                    <a href="{% url 'special_permission' pub_user.id %}" class="btn shadow-none group-title" type="button" data-bs-auto-close="true" aria-expanded="false">
                       Особые права
                     </a>
                 </div>

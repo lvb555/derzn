@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from loguru import logger
-from users.models import MenuSections
+from users.views import access_sections
 from ..models import Znanie, KnowledgeStatuses
 from ..relations_tree import get_knowledges_by_categories
 from drevo.common import variables
@@ -13,9 +13,9 @@ logger.add('logs/main.log',
 
 def klz_all(request):
     context = {}
-    context['sections'] = [i.name for i in MenuSections.objects.all()]
-    context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
-                           i.name.startswith('Моя')]
+    context['sections'] = access_sections(user)
+    context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                           i.startswith('Моя')]
     context['link'] = 'users:myprofile'
     context['pub_user'] = request.user
     #Берем все знания со статусами "Предзнание в КЛЗ" и "Знание в КЛЗ"

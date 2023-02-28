@@ -3,6 +3,7 @@ from loguru import logger
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from users.models import User, MenuSections
+from users.views import access_sections
 from ..models import BrowsingHistory, Comment
 
 logger.add('logs/main.log',
@@ -14,9 +15,9 @@ def browsing_history(request, id):
     context = {}
     if user is not None:
         if user == request.user:
-            context['sections'] = [i.name for i in MenuSections.objects.all()]
-            context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
-                                   i.name.startswith('Моя')]
+            context['sections'] = access_sections(user)
+            context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                                   i.startswith('Моя')]
             context['link'] = 'users:myprofile'
         else:
             context['sections'] = [i.name for i in user.sections.all()]

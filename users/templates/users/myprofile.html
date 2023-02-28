@@ -99,44 +99,44 @@
                 <div style="display: block;margin-top: 16px;" id="sections">
                     <div style="display: none" id="previous">{{sections}}</div>
                     <h5>Страницы, которые будут показаны друзья (публике для публичного человека)</h5>
-                    {% if 'znanie' in access or 'expert' in access or 'predznanie' in access %}
+                    {% if 'Мои экспертизы' in access or 'Мои знания' in access or 'Мои знания (пользовательский вклад)' in access or 'Интервью' in access %}
                     <div style="padding-bottom: 16px;font-size: 18px;" class="activity">
                         <input type = 'checkbox' class = 'section_title' id="activity" onclick="SelectAll(this.id)">
                         Активность
                         <div style="margin-left: 24px;font-size: 16px;">
-                            {% if 'interview' in access %}
-                            <div style="padding-bottom: 16px;font-size: 16px;" class="interviews">
+                            {% if 'Интервью' in access %}
+                           <div style="padding-bottom: 16px;font-size: 16px;" class="interviews">
                                 <input type = 'checkbox' class = 'section_title' id="interviews" onclick="SelectAll(this.id)">
                                 Мои интервью
                                 <div style="margin-left: 24px;font-size: 14px;">
-                                    {% if 'answer' in access %}
+                                    {% if 'Мои интервью' in access %}
                                     <input type = 'checkbox' class = 'section' name = 'Мои интервью' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои ответы
                                     {% endif %}
-                                    {% if 'proposal' in access %}
+                                    {% if 'Мои предложения' in access %}
                                     <input type = 'checkbox' class = 'section' name = 'Мои предложения' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои предложения
                                     {% endif %}
                                 </div>
                             </div>
                             {% endif %}
-                            {% if 'znanie' in access or 'expert' in access %}
+                            {% if 'Мои знания' in access or 'Мои экспертизы' in access %}
                             <div style="padding-bottom: 16px; padding-top: 16px;font-size: 16px;" class="expert_contribution">
                                 <input type = 'checkbox' class = 'section_title' id="expert_contribution" onclick="SelectAll(this.id)">
                                 Мой вклад, как эксперта
                                 <div style="margin-left: 24px;font-size: 14px;">
-                                    {% if 'znanie' in access %}
+                                    {% if 'Мои знания' in access %}
                                     <input type = 'checkbox' class = 'section' name = 'Мои знания' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои знания
                                     {% endif %}
-                                    {% if 'expert' in access %}
+                                    {% if 'Мои экспертизы' in access %}
                                     <input type = 'checkbox' class = 'section' name = 'Мои экспертизы' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои экспертизы
                                     {% endif %}
                                 </div>
                             </div>
                             {% endif %}
-                            {% if 'predznanie' in access %}
+                            {% if 'Мои знания (пользовательский вклад)' in access %}
                             <div class="user_contribution" style="font-size: 16px;">
                                 <input type = 'checkbox' class = 'section_title' id="user_contribution" onclick="SelectAll(this.id)">
                                 Мой вклад, как пользователя
@@ -149,22 +149,22 @@
                         </div>
                     </div>
                     {% endif %}
-                    {% if 'favourite' in access or 'history' in access or 'quiz' in access or 'klz' in access %}
+                    {% if 'Избранные знания' in access or 'История просмотров' in access or 'Результаты тестов' in access or user.in_klz is True %}
                     <div style="padding-bottom: 16px;font-size: 18px;" class="learning">
                         <input type = 'checkbox' class = 'section_title' id="learning" onclick="SelectAll(this.id)">
                         Изучение знаний
                         <div style="margin-left: 24px;font-size: 16px;">
-                            {% if 'favourite' in access %}
+                            {% if 'Избранные знания' in access %}
                             <input type = 'checkbox' class = 'section' name = 'Избранные знания' value="True" checked onclick="IsAllChecked(this.name)">
                             Избранные знания
                             {% endif %}
-                            {% if 'history' in access %}
+                            {% if 'История просмотров' in access %}
                             <input type = 'checkbox' class = 'section' name = 'История просмотров' value="True" checked onclick="IsAllChecked(this.name)">
                             История просмотров
                             {% endif %}
                             <input type = 'checkbox' class = 'section' name = 'Мои оценки знаний' value="True" checked onclick="IsAllChecked(this.name)">
                             Мои оценки знаний
-                            {% if 'quiz' in access %}
+                            {% if 'Результаты тестов' in access %}
                             <input type = 'checkbox' class = 'section' name = 'Результаты тестов' value="True" checked onclick="IsAllChecked(this.name)">
                             Результаты тестов
                             {% endif %}
@@ -183,10 +183,12 @@
                             По тегам
                         </div>
                     </div>
+                    {% if 'Компетенции' in access %}
                     <div style="padding-bottom: 16px;font-size: 18px;">
                         <input type = 'checkbox' class = 'section' name = 'Компетенции' value="True" checked>
                         Особые права
                     </div>
+                    {% endif %}
                 </div>
                     <div class="col-lg-12" style="margin-top: 32px;margin-bottom: 32px;">
                         <input class="btn btn-primary" type="submit" value="Сохранить" onclick="SendUserMenu()">
