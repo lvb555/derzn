@@ -1,0 +1,18 @@
+<li id="tree{{ tree_num }}_li_{{ base_knowledge.pk }}">
+    {% if not knowledge_data %}
+        <i class="bi-file-plus-fill lonely"></i>
+    {% else %}
+        <i class="family bi-file-minus-fill" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
+    {% endif %}
+    <i class="bi-file-text-fill text-primary"></i>
+    <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-success {% else %} text-dark {% endif %}">
+        {{ base_knowledge.name }}
+    </a>
+    <ul class="children">
+        {% for b_zn, zn_data in knowledge_data.items %}
+            {% with base_knowledge=b_zn knowledge_data=zn_data template_name="drevo/tags/knowledge_nodes.html" %}
+                {% include template_name %}
+            {% endwith %}
+        {% endfor %}
+    </ul>
+</li>

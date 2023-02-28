@@ -1,0 +1,113 @@
+{% load mptt_tags %}
+{% load static %}
+{% load knowledge_tree %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+<button type="button" class="btn btn-secondary btn-sm" onclick="tree{{ tree_num }}_showAll();">Развернуть</button>
+&nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="tree{{ tree_num }}_hiddenAll();">Свернуть</button>
+<ul class="root ps-0" id="tree{{ tree_num }}_root">
+    {% recursetree category_nodes %}
+    <li id="tree{{ tree_num }}_li_category_{{ node.pk }}">
+        <i class="family bi-file-minus-fill" onclick="toggleHiddenCategoryElementTree{{ tree_num }}(this);"></i>
+
+        <a href="{{ node.get_absolute_url }}" class="text-dark">
+            {{ node.name }}
+        </a>
+
+        {% if not node.is_leaf_node %}
+        <ul class="children">
+            {{ children }}
+        </ul>
+        {% endif %}
+
+        <ul class="children">
+            {% get_data_by_category tree_data node as category_knowledge %}
+            {% for knowledge in category_knowledge %}
+            {%for base_knowledge, knowledge_data in knowledge.items %}
+            {% include 'drevo/tags/knowledge_nodes.html' %}
+            {%endfor%}
+            {% endfor %}
+        </ul>
+    </li>
+    {% endrecursetree %}
+
+</ul>
+
+<!-- Tree scripts-->
+<script>
+    function tree{{ tree_num }}_showAll() {
+    let ulToHidden = document.querySelectorAll('ul#tree{{ tree_num }}_root ul');
+
+    ulToHidden.forEach(function (x) {
+      x.hidden = false;
+    }
+    )
+
+    let treeRoot = document.getElementById("tree{{ tree_num }}_root");
+    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
+    for (let icon of listIconsToChange) {
+      icon.classList.remove("bi-file-plus-fill")
+      icon.classList.add("bi-file-minus-fill");
+    }
+  }
+
+  function tree{{ tree_num }}_hiddenAll() {
+    let ulToHidden = document.querySelectorAll('ul#tree{{ tree_num }}_root ul');
+    ulToHidden.forEach(function (item) {
+      item.hidden = true;
+    })
+
+    let treeRoot = document.getElementById("tree{{ tree_num }}_root");
+    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
+    for (let icon of listIconsToChange) {
+      icon.classList.remove("bi-file-minus-fill")
+      icon.classList.add("bi-file-plus-fill");
+    }
+  }
+</script>
+
+<!-- Category tree scripts-->
+<script>
+  function toggleHiddenCategoryElementTree{{ tree_num }}(element) {
+    let tree{{ tree_num }}_li_category_id = element.parentNode.id;
+    let selector_string = "li#" + tree{{ tree_num }}_li_category_id + " > ul";
+
+    let ulToHidden = document.querySelectorAll(selector_string);
+    ulToHidden.forEach(function (item) {
+      item.hidden = !item.hidden;
+    })
+
+    if (element.classList.contains("bi-file-minus-fill")) {
+      element.classList.remove("bi-file-minus-fill")
+      element.classList.add("bi-file-plus-fill");
+    }
+    else {
+      element.classList.remove("bi-file-plus-fill")
+      element.classList.add("bi-file-minus-fill");
+    }
+  }
+</script>
+
+<!-- Knowledge tree scripts-->
+<script>
+  function toggleHiddenElementTree{{ tree_num }}(element) {
+    let tree{{ tree_num }}_li_id = element.parentNode.id;
+    let selector_string = "li#" + tree{{ tree_num }}_li_id + " > ul";
+
+    let ulToHidden = document.querySelectorAll(selector_string);
+    ulToHidden.forEach(function (item) {
+      item.hidden = !item.hidden;
+    })
+
+    if (element.classList.contains("bi-file-minus-fill")) {
+      element.classList.remove("bi-file-minus-fill")
+      element.classList.add("bi-file-plus-fill");
+    }
+    else {
+      element.classList.remove("bi-file-plus-fill")
+      element.classList.add("bi-file-minus-fill");
+    }
+  }
+</script>
