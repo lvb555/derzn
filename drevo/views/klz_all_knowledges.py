@@ -13,7 +13,7 @@ logger.add('logs/main.log',
 
 def klz_all(request):
     context = {}
-    context['sections'] = access_sections(user)
+    context['sections'] = access_sections(request.user)
     context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
                            i.startswith('Моя')]
     context['link'] = 'users:myprofile'
