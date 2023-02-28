@@ -225,7 +225,9 @@
 
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <li>
-                            <a href="{% url 'filling_tables' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
+                            {% if user.is_expert %}
+                                <a href="{% url 'filling_tables' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
+                            {% endif %}
                         </li>
                     </ul>
                 </div>
