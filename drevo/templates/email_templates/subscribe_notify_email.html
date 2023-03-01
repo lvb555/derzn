@@ -10,14 +10,34 @@
 <h4>Уважаемый {{ appeal }} {{ patr }}!</h4>
 <br>
 <p>По вашим подпискам были созданы следующие знания:</p>
-<p>{{author_sub}}</p>
-<p>{{tags_sub}}</p>
+
+{% if author_sub != '' %}
+<h5>Подписка по авторам</h5>
+<p>Были созданы знания от следующих авторов:</p>
+<ul>
+    {% for author in author_sub %}
+    <li>{{author}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% if tags_sub != '' %}
+<h5>Подписка по тегам</h5>
+<p>Были созданы знания по следующим тегам:</p>
+<ul>
+    {% for tag in tags_sub %}
+    <li>{{tag}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% if category_sub != '' %}
+<h5>Подписка по категориям</h5>
 <p>Были созданы знания в следующих категориях:</p>
 <ul>
     {% for category in category_sub %}
     <li>{{category}}</li>
     {% endfor %}
 </ul>
+{% endif %}
 <br>
 <a href="{{ page_url }}">Новые, интересные знания</a></p>
 <br>

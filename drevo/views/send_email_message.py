@@ -37,7 +37,7 @@ def send_email_messages():
             set_with_users_info = set_with_users_info | user_to_notify
 
     if not set_with_users_info:
-        return
+        return 0
 
     for user_to_send in set_with_users_info:
         knowledge_by_author = []
@@ -65,9 +65,9 @@ def send_email_messages():
         for knowledge in new_knowledge:
             obj = get_object_or_404(Znanie, pk=knowledge.pk)
             user_to_send.knowledge_to_notification_page.add(obj)
-        author_sub = make_sentence(knowledge_by_author,'от автора')
-        tags_sub = make_sentence(knowledge_by_tags,'по тегу')
-        category_sub = make_sentence(knowledge_by_categories,'в категории')
+        author_sub = make_sentence(knowledge_by_author, 'от автора')
+        tags_sub = make_sentence(knowledge_by_tags, 'по тегу')
+        category_sub = make_sentence(knowledge_by_categories, 'в категории')
 
         message_subject = "Новое знание"
 
@@ -91,26 +91,18 @@ def send_email_messages():
         message_text = render_to_string('email_templates/subscribe_notify_email.txt', context)
         message_html = render_to_string('email_templates/subscribe_notify_email.html', context)
         send_email(user_to_send.email, message_subject, message_html, message_text)
+    return len(set_with_users_info)
 
 def make_sentence(sub_info, sub):
     if sub_info:
-        full = 'Было создано '
         final_list = []
-        if sub != 'в категории':
-            for sub_obj in Counter(sub_info):
-                if str(Counter(sub_info)[sub_obj]).endswith('1'):
-                    zn = 'знание'
-                elif str(Counter(sub_info)[sub_obj]).endswith('2') or str(Counter(sub_info)[sub_obj]).endswith('3') or\
-                        str(Counter(sub_info)[sub_obj]).endswith('4'):
-                    zn = 'знания'
-                else:
-                    zn = 'знаний'
-                final_list.append(f'{Counter(sub_info)[sub_obj]} {zn} {sub} {sub_obj}')
-
-            return full+', '.join(final_list)
-        else:
+        if sub != 'от автора':
             for sub_obj in Counter(sub_info):
                 final_list.append(f'"{sub_obj}" - {Counter(sub_info)[sub_obj]}')
+            return final_list
+        else:
+            for sub_obj in Counter(sub_info):
+                final_list.append(f'{sub_obj} - {Counter(sub_info)[sub_obj]}')
             return final_list
     else:
         return ''

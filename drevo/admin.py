@@ -195,7 +195,13 @@ class ZnanieAdmin(admin.ModelAdmin):
 
     def process_sending(self, request):
         sending_emails = send_email_messages()
-        self.message_user(request, f"Сообщения разосланы!")
+        if str(sending_emails).endswith('1'):
+            mail = 'письмо'
+        elif str(sending_emails).endswith('2') or str(sending_emails).endswith('3') or str(sending_emails).endswith('4'):
+            mail = 'письма'
+        else:
+            mail = 'писем'
+        self.message_user(request, f"Отправлено {sending_emails} {mail}!")
         return HttpResponseRedirect("../")
 
     class Media:
