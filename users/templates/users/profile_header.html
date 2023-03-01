@@ -219,9 +219,17 @@
                 </div>
                 {% endif %}
                 <div class="btn-group">
-                    <a class="btn shadow-none group-title" type="button" data-bs-auto-close="true" aria-expanded="false">
-                      Подготовка знаний
+                    <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                      Подготовка знаний <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
                     </a>
+
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            {% if user.is_expert %}
+                                <a href="{% url 'filling_tables' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
+                            {% endif %}
+                        </li>
+                    </ul>
                 </div>
             </div>
         </nav>
@@ -233,4 +241,48 @@ function logAndStop(event) {
     event.stopPropagation();
 }
 </script>
+
+<script>
+    // Проверка перед открытием страницы "Наполнение таблиц"
+    let filling_tables = document.getElementById("filling_tables")
+    const csrftoken = getCookie('csrftoken');
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+    }
+    showFillingTables()
+
+    function showFillingTables() {
+      const data = {};
+      let url = "{% url 'show_filling_tables_page' %}"
+      return fetch(url, {
+         method: 'POST',
+         headers: {
+             'Content-Type': 'application/json',
+             'X-CSRFToken': csrftoken
+         },
+          body: JSON.stringify(data),
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (!data[0]) {
+              filling_tables.remove()
+          }
+      })
+      .catch((error) => {
+      console.log('Error:', error);
+      });
+    }
+</script>
+
 {% endblock %}

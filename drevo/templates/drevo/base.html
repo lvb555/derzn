@@ -321,7 +321,6 @@
                                        id="favourites_link">Избранное</a>
                                     <a class="dropdown-item" href="{% url 'friends' %}" id="friends_link">Друзья</a>
                                     {% if user.is_expert %}
-                                        <a class="dropdown-item" href="{% url 'filling_tables' %}" id="filling_tables">Наполнение таблиц</a>
                                         <a class="dropdown-item" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
                                     {% endif %}
                                     {% if user.is_staff %}
@@ -391,50 +390,6 @@
         localStorage.setItem('active_link', link.id);
       }
     }
-</script>
-
-<script>
-    // Проверка перед открытием страницы "Наполнение таблиц"
-    let filling_tables = document.getElementById("filling_tables")
-    const csrftoken = getCookie('csrftoken');
-    showFillingTables()
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-          const cookies = document.cookie.split(';');
-          for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i].trim();
-              if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                  break;
-              }
-          }
-      }
-      return cookieValue;
-    }
-
-    function showFillingTables() {
-      const data = {};
-      let url = "{% url 'show_filling_tables_page' %}"
-      return fetch(url, {
-         method: 'POST',
-         headers: {
-             'Content-Type': 'application/json',
-             'X-CSRFToken': csrftoken
-         },
-          body: JSON.stringify(data),
-      })
-      .then(response => response.json())
-      .then(data => {
-          if (!data[0]) {
-              filling_tables.remove()
-           }
-      })
-      .catch((error) => {
-      console.log('Error:', error);
-      });
-    }
-
 </script>
 
 <script>
