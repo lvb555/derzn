@@ -1,12 +1,28 @@
 Уважаемый {{ appeal }} {{ patr }}!
 
 По вашим подпискам были созданы следующие знания:
-{{author_sub}}
-{{tags_sub}}
+
+{% if author_sub != '' %}
+Подписка по авторам
+Были созданы знания от следующих авторов:
+    {% for author in author_sub %}
+        {{author}}
+    {% endfor %}
+{% endif %}
+{% if tags_sub != '' %}
+Подписка по тегам
+Были созданы знания по следующим тегам:
+    {% for tag in tags_sub %}
+        {{tag}}
+    {% endfor %}
+{% endif %}
+{% if category_sub != '' %}
+Подписка по категориям
 Были созданы знания в следующих категориях:
-{% for category in category_sub %}
-    {{category}}
-{% endfor %}
+    {% for category in category_sub %}
+        {{category}}
+    {% endfor %}
+{% endif %}
 
 Ссылка на страницу с новыми знаниями: {{ page_url }}
 
