@@ -325,8 +325,15 @@ class ExpertCandidateKnowledgeView(TemplateView, CandidatesMixin):
         context = super(ExpertCandidateKnowledgeView, self).get_context_data(**kwargs)
         candidate_pk = self.kwargs.get('candidate_pk')
         category_pk = self.kwargs.get('category_pk')
+        context['category'] = Category.objects.get(pk=category_pk).name
         context['candidate'] = get_object_or_404(User, pk=candidate_pk)
         knowledge_data = self.get_expert_candidate_knowledge(candidate_pk=candidate_pk, category_pk=category_pk)
+        knowledge_data['knowledge'] = Znanie.objects.filter(
+            pk__in=[kn_pk for kn_pk, _ in knowledge_data.get('knowledge')]
+        )
+        knowledge_data['preknowledge'] = Znanie.objects.filter(
+            pk__in=[kn_pk for kn_pk, _ in knowledge_data.get('preknowledge')]
+        )
         context['knowledge_data'] = knowledge_data
         context['backup_url'] = reverse('experts_candidates_page', kwargs={'category_pk': category_pk})
         context['page_title'] = f'Список знаний кандидата в эксперты: {context["candidate"].get_full_name()}'
@@ -343,8 +350,18 @@ class AdminCandidateKnowledgeView(TemplateView, CandidatesMixin):
         context = super(AdminCandidateKnowledgeView, self).get_context_data(**kwargs)
         candidate_pk = self.kwargs.get('candidate_pk')
         category_pk = self.kwargs.get('category_pk')
+        context['category'] = Category.objects.get(pk=category_pk).name
         context['candidate'] = get_object_or_404(User, pk=candidate_pk)
         knowledge_data = self.get_admin_candidate_knowledge(candidate_pk=candidate_pk, category_pk=category_pk)
+        knowledge_data['knowledge'] = Znanie.objects.filter(
+            pk__in=[kn_pk for kn_pk, _ in knowledge_data.get('knowledge')]
+        )
+        knowledge_data['preknowledge'] = Znanie.objects.filter(
+            pk__in=[kn_pk for kn_pk, _ in knowledge_data.get('preknowledge')]
+        )
+        knowledge_data['expertise'] = Znanie.objects.filter(
+            pk__in=[kn_pk for kn_pk, _ in knowledge_data.get('expertise')]
+        )
         context['knowledge_data'] = knowledge_data
         context['backup_url'] = reverse('admins_candidates_page', kwargs={'category_pk': category_pk})
         context['page_title'] = f'Список знаний кандидата в руководители: {context["candidate"].get_full_name()}'

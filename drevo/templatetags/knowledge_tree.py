@@ -1,3 +1,4 @@
+from django.core.exceptions import EmptyResultSet
 from django.db.models import QuerySet
 from django.template import Library
 
@@ -13,6 +14,8 @@ def build_knowledge_tree(queryset: QuerySet[Znanie], tree_num: int = 1):
         Тег для построения дерева знаний
         tree_num: номер дерева (на случай если необходимо на одной странице создать несколько деревьев)
     """
+    if not queryset:
+        raise EmptyResultSet('Для построения дерева необходим queryset знаний')
     tree_builder = KnowledgeTreeBuilder(queryset)
     tree_context = tree_builder.get_nodes_data_for_tree()
     context = dict(tree_num=tree_num, active_knowledge=queryset, **tree_context)
