@@ -21,4 +21,4 @@ def build_knowledge_tree(queryset: QuerySet[Znanie], tree_num: int = 1):
 
 @register.simple_tag
 def get_data_by_category(tree_data: dict, category) -> list:
-    return tree_data.get(category)
+    return tree_data.get(category.pk)

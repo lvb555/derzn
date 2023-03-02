@@ -1,4 +1,4 @@
-<li id="tree{{ tree_num }}_li_{{ base_knowledge.pk }}">
+<li id="tree{{ tree_num }}_li_{{ base_knowledge.pk }}{{ parent_id }}">
     {% if not knowledge_data %}
         <i class="bi-file-plus-fill lonely"></i>
     {% else %}
@@ -10,7 +10,7 @@
     </a>
     <ul class="children">
         {% for b_zn, zn_data in knowledge_data.items %}
-            {% with base_knowledge=b_zn knowledge_data=zn_data template_name="drevo/tags/knowledge_nodes.html" %}
+            {% with base_knowledge=b_zn knowledge_data=zn_data parent_id=base_knowledge.pk template_name="drevo/tags/knowledge_nodes.html" %}
                 {% include template_name %}
             {% endwith %}
         {% endfor %}
