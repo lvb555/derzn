@@ -1,7 +1,9 @@
 from adminsortable2.admin import SortableAdminMixin
+from django.conf.urls import url
 from django.contrib import admin
 from django.db.models import Q, F
 from django.db.models.functions import Lower
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
@@ -53,6 +55,8 @@ from .models import (
     SubAnswers
 )
 from .services import send_notify_interview
+from .views.send_email_message import send_email_messages
+
 
 class CategoryMPTT(DraggableMPTTAdmin):
     search_fields = ["name"]
@@ -144,6 +148,7 @@ class ZnanieAdmin(admin.ModelAdmin):
         ZnImageInline,
     ]
     exclude = ("visits",)
+    change_list_template = "admin/drevo/knowledge/change_list.html"
 
     def save_model(self, request, obj, form, change):
         obj.user = request.user
@@ -182,6 +187,22 @@ class ZnanieAdmin(admin.ModelAdmin):
             form_url,
             extra_context=extra_context,
         )
+
+    def get_urls(self):
+        urls = super(ZnanieAdmin, self).get_urls()
+        custom_urls = [url('^send_email_messages/$', self.process_sending, name='process_sending'), ]
+        return custom_urls + urls
+
+    def process_sending(self, request):
+        sending_emails = send_email_messages()
+        if str(sending_emails).endswith('1'):
+            mail = 'письмо'
+        elif str(sending_emails).endswith('2') or str(sending_emails).endswith('3') or str(sending_emails).endswith('4'):
+            mail = 'письма'
+        else:
+            mail = 'писем'
+        self.message_user(request, f"Отправлено {sending_emails} {mail}!")
+        return HttpResponseRedirect("../")
 
     class Media:
         css = {"all": ("drevo/css/style.css",)}

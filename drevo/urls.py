@@ -28,6 +28,7 @@ from .views import (
     friends_added_view,
     get_rows_and_columns,
     filling_tables,
+    get_form_data,
     znanie_attributes,
     show_new_znanie,
     show_filling_tables_page,
@@ -66,6 +67,7 @@ from .views.admin_interview_work.views import (
     AdminEditingKnowledgeView,
     NotifyExpertsView,
 )
+from .views.special_permissions_for_public import get_special_permission
 from .views.special_permissions_work.view import (
     SpecialPermissionsView,
     set_users_as_editor,
@@ -81,6 +83,7 @@ from .views.interview_and_proposal import my_interview, my_proposal
 from .views.klz_all_knowledges import klz_all
 from .views.my_favourites import my_favourites
 from .views.my_knowledge import my_knowledge, my_preknowledge, my_expertise
+from .views.new_knowledges import new_knowledge
 from .views.public_people import public_people_view, public_human
 from .views.quiz_result import show_quiz_result
 from .views.subscribe_to_author_view import sub_by_author
@@ -122,6 +125,7 @@ urlpatterns = [
     path("filling_tables/", filling_tables, name="filling_tables"),
     path("show_new_znanie/", show_new_znanie, name="show_new_znanie"),
     path("show_filling_tables_page/", show_filling_tables_page, name="show_filling_tables_page"),
+    path("get_form_data/", get_form_data, name="get_form_data"),
     path("all_quizzes/", QuizListView.as_view(), name="all_quizzes"),
     path("quiz/<int:pk>", QuizDetailView.as_view(), name="quiz"),
     path("quiz/<int:pk>/quiz_result/", QuizResultAdd.as_view()),
@@ -143,12 +147,14 @@ urlpatterns = [
     path("subscribe_to_author/<int:id>/", sub_by_author, name="subscribe_to_author"),
     path("subscription_by_tag/<int:id>/", sub_by_tag, name="subscription_by_tag"),
     path("subscription_by_category/<int:id>/", sub_by_category, name="subscription_by_category"),
+    path("new_knowledges/<int:id>/", new_knowledge, name="new_knowledges"),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
     path("my_favourites/<int:id>/", my_favourites, name="my_favourites"),
     path("my_knowledge/<int:id>/", my_knowledge, name="my_knowledge"),
     path("my_preknowledge/<int:id>/", my_preknowledge, name="my_preknowledge"),
     path("my_expertise/<int:id>/", my_expertise, name="my_expertise"),
     path("my__interview/<int:id>/", my_interview, name="my_interview_profile"),
+    path("special_permission/<int:id>/", get_special_permission, name="special_permission"),
     path("my_proposal/<int:id>/", my_proposal, name="my_proposal"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
