@@ -1,5 +1,5 @@
 from django.db.models import QuerySet
-from drevo.models import Znanie, Relation, Category
+from drevo.models import Znanie, Relation, Category, Tz
 
 
 class KnowledgeTreeBuilder:
@@ -11,6 +11,8 @@ class KnowledgeTreeBuilder:
         self.queryset = queryset
         self.categories_data = dict()
         self.knowledge = dict()
+        self._systemic_types = Tz.objects.filter(is_systemic=True).values_list('pk', flat=True)
+        self.relations_name = dict()  # {(<parent_id>, <child_id>): relation_name, }
 
     def get_nodes_data_for_tree(self) -> dict:
         """
@@ -27,7 +29,7 @@ class KnowledgeTreeBuilder:
         active_nodes = list(Category.tree_objects.get_queryset_ancestors(categories, include_self=False))
         nodes_pk = list(cat.pk for cat in set(active_nodes)) + categories_pk
         category_nodes = Category.tree_objects.exclude(is_published=False).filter(pk__in=nodes_pk).distinct()
-        return dict(tree_data=tree_data, category_nodes=category_nodes)
+        return dict(tree_data=tree_data, category_nodes=category_nodes, relations_name=self.relations_name)
 
     def get_data_for_tree(self) -> dict:
         """
@@ -70,6 +72,8 @@ class KnowledgeTreeBuilder:
         def check_exists(tree: dict, knowledge: list) -> None:
             while knowledge:
                 parent = knowledge.pop(0)
+                if parent.tz_id in self._systemic_types:
+                    continue
                 if parent in tree:
                     check_exists(tree[parent], knowledge)
                 else:
@@ -85,15 +89,19 @@ class KnowledgeTreeBuilder:
             Метод для получения предков для списка знаний \n
             На выходе получается двумерный список связей всех полученных знаний от базового знания до текущего
         """
-        queryset = Relation.objects.prefetch_related('bz', 'rz').raw(
+        queryset = Relation.objects.prefetch_related('bz', 'rz', 'bz__tz', 'rz__tz').raw(
             '''
             WITH RECURSIVE rel_data(id, bz_id) AS (
-                    SELECT drevo_relation.id, bz_id, rz_id, rz_id as main_rel FROM drevo_relation
+                    SELECT drevo_relation.id, bz_id, rz_id, rz_id as main_rel, (
+                        SELECT name FROM drevo_tr WHERE drevo_relation.tr_id = drevo_tr.id
+                    ) as rel_name FROM drevo_relation
                     JOIN drevo_tr as rel_tr 
                     ON drevo_relation.tr_id = rel_tr.id AND rel_tr.is_systemic = False
                     WHERE rz_id IN %s AND drevo_relation.is_published = True
                 UNION ALL
-                    SELECT drel.id, drel.bz_id, r.rz_id, drel.rz_id as main_rel
+                    SELECT drel.id, drel.bz_id, r.rz_id, drel.rz_id as main_rel, (
+                        SELECT name FROM drevo_tr WHERE drel.tr_id = drevo_tr.id
+                    ) as rel_name
                     FROM drevo_relation AS drel, rel_data AS r
                     WHERE drel.rz_id = r.bz_id
             )
@@ -105,6 +113,8 @@ class KnowledgeTreeBuilder:
         raw_data = dict()
 
         for relation in queryset:
+            self.relations_name[(relation.bz_id, relation.main_rel)] = relation.rel_name
+
             if relation.rz not in raw_data:
                 raw_data[relation.rz] = {relation.main_rel: [relation.bz]}
                 continue

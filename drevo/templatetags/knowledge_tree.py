@@ -25,3 +25,10 @@ def build_knowledge_tree(queryset: QuerySet[Znanie], tree_num: int = 1):
 @register.simple_tag
 def get_data_by_category(tree_data: dict, category) -> list:
     return tree_data.get(category.pk)
+
+
+@register.simple_tag
+def get_relation_name(relations_names: dict, parent: Znanie, child: Znanie) -> str:
+    if not parent:
+        return ''
+    return relations_names.get((parent.pk, child.pk))

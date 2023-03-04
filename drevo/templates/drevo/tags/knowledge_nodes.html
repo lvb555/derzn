@@ -1,18 +1,50 @@
-<li id="tree{{ tree_num }}_li_{{ base_knowledge.pk }}{{ parent_id }}">
-    {% if not knowledge_data %}
-        <i class="bi-file-plus-fill lonely"></i>
-    {% else %}
-        <i class="family bi-file-minus-fill" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
+{% load knowledge_tree %}
+
+<li id="tree{{ tree_num }}_li_{{ base_knowledge.pk }}{{ parent.id }}" class="treeline mb-2">
+    {% get_relation_name relations_name parent base_knowledge as relation %}
+    {% if relation %}
+    <div class="row text-secondary" style="margin-left: 30px">
+        {{ relation }}
+    </div>
     {% endif %}
-    <i class="bi-file-text-fill text-primary"></i>
+    {% if not knowledge_data %}
+        <i class="bi-plus-circle-fill lonely"></i>
+    {% else %}
+        <i class="family bi bi-dash-circle-fill" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
+    {% endif %}
+    <i class="bi bi-file-earmark-fill text-primary fs-4"></i>{{ base_knowledge.tz.name }}
     <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-success {% else %} text-dark {% endif %}">
         {{ base_knowledge.name }}
     </a>
-    <ul class="children">
+    ({{ base_knowledge.author }})
+    <ul class="children treeline">
         {% for b_zn, zn_data in knowledge_data.items %}
-            {% with base_knowledge=b_zn knowledge_data=zn_data parent_id=base_knowledge.pk template_name="drevo/tags/knowledge_nodes.html" %}
+            {% with base_knowledge=b_zn knowledge_data=zn_data parent=base_knowledge template_name="drevo/tags/knowledge_nodes.html" %}
                 {% include template_name %}
             {% endwith %}
         {% endfor %}
     </ul>
 </li>
+
+<style>
+.treeline, .treeline ul, .treeline li {
+   margin: 0; padding: 0; line-height: 1.2; list-style: none;
+}
+.treeline ul {margin: 0 0 0 12px; /* отступ вертикальной линии */}
+.treeline > li:not(:only-child), .treeline li li {
+   position: relative;
+   padding: 3px 0 0 20px; /* отступ текста */
+}
+/* Стиль вертикальной линии */
+.treeline li:not(:last-child) { border-left: dotted 1px  #ccc;}
+
+/* Стили горизонтальной линии*/
+.treeline li li:before, .treeline > li:not(:only-child):before {
+   content: ""; position: absolute; top: 0; left: 0; margin-top: 30px;
+   width: 1.1em; height: .4em; border-bottom: dotted 1px  #ccc;
+}
+/* Вертикальная линия последнего пункта в списка */
+.treeline li:last-child:before {
+   width: calc(1.1em - 1px); border-left: 1px solid #ccc;
+}
+</style>
