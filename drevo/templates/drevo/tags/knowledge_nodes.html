@@ -12,7 +12,7 @@
     {% else %}
         <i class="family bi bi-dash-circle-fill" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
     {% endif %}
-    <i class="bi bi-file-earmark-fill text-primary fs-4"></i>{{ base_knowledge.tz.name }}
+    <i class="bi bi-file-earmark-fill text-primary fs-4"></i>&nbsp{{ base_knowledge.tz.name }}&nbsp
     <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-success {% else %} text-dark {% endif %}">
         {{ base_knowledge.name }}
     </a>
