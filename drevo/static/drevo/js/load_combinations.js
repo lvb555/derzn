@@ -40,7 +40,7 @@ jQuery(document).ready(function($){
             console.log(`Current value: ${$("option:selected", this).text()}`)
         })
         $("#id_tr").on('change', function(){
-            tr_choice = $("option:selected", this).text()
+            tr_choice = $("option:selected", this).attr('value')
             let $select = $("#id_bz");
             $select.select2("destroy").djangoAdminSelect2({
                 ajax: {

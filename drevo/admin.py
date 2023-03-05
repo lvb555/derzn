@@ -285,12 +285,12 @@ class RelationAdmin(admin.ModelAdmin):
 
     def get_search_results(self, request, queryset, search_term):
         print("In get search results")
-        if request.GET['tr']:
+        if request.GET.get('tr') is not None:
             tr = Tr.objects.filter(name=request.GET['tr'].get())
             print(tr)
-            queryset = Znanie.objects.filter(id=1)
-        print(f"search results data: {request}")
-        queryset = Znanie.objects.filter(id=1)
+        #     queryset = Znanie.objects.filter(id=1)
+        print(f"search results data: {request.__dict__}")
+        # queryset = Znanie.objects.all()
         return super().get_search_results(request, queryset, search_term)
 
     def save_model(self, request, obj, form, change):
