@@ -1,10 +1,9 @@
 {% load knowledge_tree %}
 
 <li id="tree{{ tree_num }}_li_{{ base_knowledge.pk }}{{ parent.id }}" class="treeline mb-2">
-    {% get_relation_name relations_name parent base_knowledge as relation %}
-    {% if relation %}
+    {% if parent %}
     <div class="row text-secondary" style="margin-left: 30px">
-        {{ relation }}
+        {% get_relation_name relations_name parent base_knowledge %}
     </div>
     {% endif %}
     {% if not knowledge_data %}
@@ -16,7 +15,9 @@
     <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-success {% else %} text-dark {% endif %}">
         {{ base_knowledge.name }}
     </a>
+    {% if base_knowledge.author %}
     ({{ base_knowledge.author }})
+    {% endif %}
     <ul class="children treeline">
         {% for b_zn, zn_data in knowledge_data.items %}
             {% with base_knowledge=b_zn knowledge_data=zn_data parent=base_knowledge template_name="drevo/tags/knowledge_nodes.html" %}
