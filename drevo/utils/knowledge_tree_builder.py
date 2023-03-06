@@ -9,20 +9,20 @@ class KnowledgeTreeBuilder:
     """
     def __init__(self, queryset: QuerySet[Znanie]):
         self.queryset = queryset
-        self.categories_data = dict()
-        self.knowledge = dict()
+        self.categories_data = {}
+        self.knowledge = {}
         self._systemic_types = Tz.objects.filter(is_systemic=True).values_list('pk', flat=True)
-        self.relations_name = dict()  # {(<parent_id>, <child_id>): relation_name, }
+        self.relations_name = {}  # {(<parent_id>, <child_id>): relation_name, }
 
         relations = (
             Relation.objects
             .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
             .filter(is_published=True, tr__is_systemic=False)
         )
-        relations_data = {rel.rz: list() for rel in relations}
+        relations_data = {rel.rz.id: [] for rel in relations}
         for rel in relations:
             self.relations_name.update({(rel.bz.id, rel.rz.id): rel.tr.name})
-            relations_data[rel.rz].append(rel.bz)
+            relations_data[rel.rz.id].append(rel.bz)
         self.relations_data = relations_data
 
     def get_nodes_data_for_tree(self) -> dict:
@@ -85,11 +85,9 @@ class KnowledgeTreeBuilder:
                 parent = knowledge.pop(0)
                 if parent.tz_id in self._systemic_types:
                     continue
-                if parent in tree:
-                    check_exists(tree[parent], knowledge)
-                else:
-                    tree[parent] = dict()
-                    check_exists(tree[parent], knowledge)
+                if parent not in tree:
+                    tree[parent] = {}
+                check_exists(tree[parent], knowledge)
             return
 
         knowledge_data = knowledge_list.copy()
@@ -100,20 +98,18 @@ class KnowledgeTreeBuilder:
             Метод для получения предков для списка знаний \n
             На выходе получается двумерный список связей всех полученных знаний от базового знания до текущего
         """
-        raw_data = {knowledge: self.relations_data.get(knowledge) for knowledge in self.queryset}
-        rel_path_list = list()
+        raw_data = {knowledge: self.relations_data.get(knowledge.id) for knowledge in self.queryset}
+        rel_path_list = []
         for rz, relation_data in raw_data.items():
             if not relation_data:
                 rel_path_list.append([rz])
                 continue
             for bz in relation_data:
-                knowledge_relations = [rz, bz]
-                relations = self.relations_data.get(bz)
-                if not relations:
-                    rel_path_list.append(knowledge_relations)
+                if not self.relations_data.get(bz.id):
+                    rel_path_list.append([bz, rz])
                     continue
-                rel_path_list.extend([[rz] + path for path in self._get_all_relations(bz, self.relations_data)])
-        return [ancestors[::-1] for ancestors in rel_path_list]
+                rel_path_list.extend([path[::-1] + [rz] for path in self._get_all_relations(bz, self.relations_data)])
+        return rel_path_list
 
     @staticmethod
     def _get_all_relations(base_knowledge: Znanie, base_data: dict) -> list[list]:
@@ -128,10 +124,10 @@ class KnowledgeTreeBuilder:
                 return
             visited.add(node)
             path.append(node)
-            if node not in base_data:
+            if node.id not in base_data:
                 paths.append(path)
                 return
-            for neighbour in base_data[node]:
+            for neighbour in base_data[node.id]:
                 get_paths(neighbour, path.copy())
 
         get_paths(base_knowledge, [])
