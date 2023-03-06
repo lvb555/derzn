@@ -14,6 +14,17 @@ class KnowledgeTreeBuilder:
         self._systemic_types = Tz.objects.filter(is_systemic=True).values_list('pk', flat=True)
         self.relations_name = dict()  # {(<parent_id>, <child_id>): relation_name, }
 
+        relations = (
+            Relation.objects
+            .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
+            .filter(is_published=True, tr__is_systemic=False)
+        )
+        relations_data = {rel.rz: list() for rel in relations}
+        for rel in relations:
+            self.relations_name.update({(rel.bz.id, rel.rz.id): rel.tr.name})
+            relations_data[rel.rz].append(rel.bz)
+        self.relations_data = relations_data
+
     def get_nodes_data_for_tree(self) -> dict:
         """
             Метод для получения всех данных узлов, необходимых для построения дерева знаний и категорий \n
@@ -89,58 +100,19 @@ class KnowledgeTreeBuilder:
             Метод для получения предков для списка знаний \n
             На выходе получается двумерный список связей всех полученных знаний от базового знания до текущего
         """
-        queryset = Relation.objects.prefetch_related('bz', 'rz', 'bz__tz', 'rz__tz').raw(
-            '''
-            WITH rel_data(id, bz_id) AS (
-                    SELECT drevo_relation.id, bz_id, rz_id, rz_id as main_rel, (
-                        SELECT name FROM drevo_tr WHERE drevo_relation.tr_id = drevo_tr.id
-                    ) as rel_name FROM drevo_relation
-                    JOIN drevo_tr as rel_tr 
-                    ON drevo_relation.tr_id = rel_tr.id AND rel_tr.is_systemic = False
-                    WHERE rz_id IN %s AND drevo_relation.is_published = True
-                UNION ALL
-                    SELECT drel.id, drel.bz_id, r.rz_id, drel.rz_id as main_rel, (
-                        SELECT name FROM drevo_tr WHERE drel.tr_id = drevo_tr.id
-                    ) as rel_name
-                    FROM drevo_relation AS drel, rel_data AS r
-                    WHERE drel.rz_id = r.bz_id
-            )
-            SELECT * FROM rel_data
-            '''
-            , [tuple(knowledge.pk for knowledge in self.queryset)]
-        )
-
-        raw_data = dict()
-
-        for relation in queryset:
-            self.relations_name[(relation.bz_id, relation.main_rel)] = relation.rel_name
-
-            if relation.rz not in raw_data:
-                raw_data[relation.rz] = {relation.main_rel: [relation.bz]}
-                continue
-            relation_data = raw_data[relation.rz]
-            if relation.main_rel in relation_data:
-                relation_data[relation.main_rel].append(relation.bz)
-            else:
-                relation_data.update({relation.main_rel: [relation.bz]})
-
-        for knowledge in self.queryset:
-            if knowledge not in raw_data:
-                raw_data[knowledge] = {}
-
+        raw_data = {knowledge: self.relations_data.get(knowledge) for knowledge in self.queryset}
         rel_path_list = list()
         for rz, relation_data in raw_data.items():
             if not relation_data:
                 rel_path_list.append([rz])
                 continue
-            for bz in relation_data.get(rz.id):
+            for bz in relation_data:
                 knowledge_relations = [rz, bz]
-                relations = relation_data.get(bz.id)
+                relations = self.relations_data.get(bz)
                 if not relations:
                     rel_path_list.append(knowledge_relations)
                     continue
-                rel_path_list.extend([[rz] + path for path in self._get_all_relations(bz, relation_data)])
-
+                rel_path_list.extend([[rz] + path for path in self._get_all_relations(bz, self.relations_data)])
         return [ancestors[::-1] for ancestors in rel_path_list]
 
     @staticmethod
@@ -156,10 +128,10 @@ class KnowledgeTreeBuilder:
                 return
             visited.add(node)
             path.append(node)
-            if node.pk not in base_data:
+            if node not in base_data:
                 paths.append(path)
                 return
-            for neighbour in base_data[node.pk]:
+            for neighbour in base_data[node]:
                 get_paths(neighbour, path.copy())
 
         get_paths(base_knowledge, [])
