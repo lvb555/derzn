@@ -91,7 +91,7 @@ class KnowledgeTreeBuilder:
         """
         queryset = Relation.objects.prefetch_related('bz', 'rz', 'bz__tz', 'rz__tz').raw(
             '''
-            WITH RECURSIVE rel_data(id, bz_id) AS (
+            WITH rel_data(id, bz_id) AS (
                     SELECT drevo_relation.id, bz_id, rz_id, rz_id as main_rel, (
                         SELECT name FROM drevo_tr WHERE drevo_relation.tr_id = drevo_tr.id
                     ) as rel_name FROM drevo_relation

@@ -10,19 +10,19 @@
 <ul class="root ps-0" id="tree{{ tree_num }}_root">
     {% recursetree category_nodes %}
     <li id="tree{{ tree_num }}_li_category_{{ node.pk }}">
-        <i class="family bi-file-minus-fill" onclick="toggleHiddenCategoryElementTree{{ tree_num }}(this);"></i>
+        <i class="family bi-file-plus-fill fs-3" onclick="toggleHiddenCategoryElementTree{{ tree_num }}(this);"></i>
 
         <a href="{{ node.get_absolute_url }}" class="text-dark">
             {{ node.name }}
         </a>
 
         {% if not node.is_leaf_node %}
-        <ul class="children">
+        <ul class="children" hidden>
             {{ children }}
         </ul>
         {% endif %}
 
-        <ul class="children">
+        <ul class="children" hidden>
             {% get_data_by_category tree_data node as category_knowledge %}
             {% for knowledge in category_knowledge %}
             {%for base_knowledge, knowledge_data in knowledge.items %}
