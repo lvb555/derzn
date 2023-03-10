@@ -263,7 +263,7 @@
                         <div class="dropdown-menu p-3" style="max-height: 400px; overflow-y: auto">
                             {% get_relation_types as rel_types %}
                             {% for type in rel_types %}
-                            <a class="dropdown-item" href="">
+                            <a class="dropdown-item" href="{% url 'relation_type' type.pk %}">
                                 {{ type.name }}
                             </a>
                             {% endfor %}

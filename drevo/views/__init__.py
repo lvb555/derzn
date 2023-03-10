@@ -62,6 +62,7 @@ from .special_permissions_work.view import (
     AdminCandidateKnowledgeView,
 )
 from .knowledge_types_view import KnowledgeTypesView
+from .relation_types_view import RelationTypesView
 
 __all__ = [
     "AuthorDetailView",
@@ -123,4 +124,5 @@ __all__ = [
     'ExpertCandidateKnowledgeView',
     'AdminCandidateKnowledgeView',
     'KnowledgeTypesView',
+    'RelationTypesView',
 ]

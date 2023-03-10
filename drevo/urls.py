@@ -46,6 +46,8 @@ from .views import (
     parameter_settings,
     send_message_view,
     messages_feed_view,
+    KnowledgeTypesView,
+    RelationTypesView,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
@@ -100,7 +102,6 @@ from .views.knowledge_tp_view import (
     DirectorKnowledgeProcess,
     KlzKnowledgeProcess,
 )
-from .views import KnowledgeTypesView
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
@@ -141,6 +142,7 @@ urlpatterns = [
     path("glossary/", GlossaryListView.as_view(), name="glossary"),
     path("knowledge/", KnowledgeView.as_view(), name="knowledge"),
     path('knowledge/types/<int:type_pk>', KnowledgeTypesView.as_view(), name='knowledge_type'),
+    path('relations/types/<int:type_pk>', RelationTypesView.as_view(), name='relation_type'),
     path("search/knowledge", KnowledgeSearchView.as_view(), name="search_knowledge"),
     path("new_knowledge/", NewKnowledgeListView.as_view(), name="new_knowledge"),
     path("search/author", AuthorSearchView.as_view(), name="search_author"),
