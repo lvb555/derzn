@@ -61,6 +61,7 @@ from .special_permissions_work.view import (
     ExpertCandidateKnowledgeView,
     AdminCandidateKnowledgeView,
 )
+from .knowledge_types_view import KnowledgeTypesView
 
 __all__ = [
     "AuthorDetailView",
@@ -121,4 +122,5 @@ __all__ = [
     'set_new_answer_is_agreed',
     'ExpertCandidateKnowledgeView',
     'AdminCandidateKnowledgeView',
+    'KnowledgeTypesView',
 ]

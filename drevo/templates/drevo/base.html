@@ -252,8 +252,8 @@
                         <div class="dropdown-menu p-3" style="max-height: 400px; overflow-y: auto">
                             {% get_knowledge_types as kn_types %}
                             {% for type in kn_types %}
-                            <a class="dropdown-item" href="">
-                                {{ type.name }} &nbsp <span class="badge bg-danger">{{type.knowledge_count}}</span>
+                            <a class="dropdown-item" href="{% url 'knowledge_type' type.pk %}">
+                                {{ type.name }}
                             </a>
                             {% endfor %}
                         </div>
@@ -264,7 +264,7 @@
                             {% get_relation_types as rel_types %}
                             {% for type in rel_types %}
                             <a class="dropdown-item" href="">
-                                {{ type.name }} &nbsp <span class="badge bg-danger">{{type.knowledge_count}}</span>
+                                {{ type.name }}
                             </a>
                             {% endfor %}
                         </div>
