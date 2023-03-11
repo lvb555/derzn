@@ -1,4 +1,5 @@
 {% load static %}
+{% load base_tags %}
 <!doctype html>
 <html lang="en">
 
@@ -245,6 +246,28 @@
                 <div class="col row mb-2 mb-lg-0 ms-auto" style="justify-content: end;">
                     <div class="nav-item mx-2 col-auto">
                         <a class="nav-link auto_active_link" href="{% url 'knowledge' %}" id="tree_link">Дерево знаний</a>
+                    </div>
+                    <div class="nav-item mx-2 col-auto px-2 dropdown">
+                        <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Виды знаний</a>
+                        <div class="dropdown-menu p-3" style="max-height: 400px; overflow-y: auto">
+                            {% get_knowledge_types as kn_types %}
+                            {% for type in kn_types %}
+                            <a class="dropdown-item" href="{% url 'knowledge_type' type.pk %}">
+                                {{ type.name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="nav-item mx-2 col-auto px-2 dropdown">
+                        <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Виды связей</a>
+                        <div class="dropdown-menu p-3" style="max-height: 400px; overflow-y: auto">
+                            {% get_relation_types as rel_types %}
+                            {% for type in rel_types %}
+                            <a class="dropdown-item" href="{% url 'relation_type' type.pk %}">
+                                {{ type.name }}
+                            </a>
+                            {% endfor %}
+                        </div>
                     </div>
                     <div class="nav-item mx-2 col-auto">
                         <a class="nav-link auto_active_link" aria-current="page" href="{% url 'authors' %}"
