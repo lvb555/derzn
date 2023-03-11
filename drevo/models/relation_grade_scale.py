@@ -23,11 +23,15 @@ class RelationGradeScale(models.Model):
         default=False,
         verbose_name='Диапазон включает верхнее значение',
     )
+    order = models.IntegerField(
+        default=1,
+        verbose_name="Порядок",
+    )
 
     class Meta:
         verbose_name = 'Градация'
         verbose_name_plural = 'Шкала оценок связей'
-        ordering = ('-high_value',)
+        ordering = ('order',)
 
     def __str__(self):
         return self.name

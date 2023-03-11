@@ -35,11 +35,15 @@ class KnowledgeGradeScale(models.Model):
         default="#000000",
         verbose_name='Цвет шрифта довода "Против"'
     )
+    order = models.IntegerField(
+        default=1,
+        verbose_name="Порядок",
+    )
 
     class Meta:
         verbose_name = 'Градация'
         verbose_name_plural = 'Шкала оценок знаний'
-        ordering = ('-high_value',)
+        ordering = ('order',)
 
     def __str__(self):
         return self.name
