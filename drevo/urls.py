@@ -53,6 +53,8 @@ from .views import (
     delete_competence_expert,
     ExpertKnowledgeView,
     delete_editor_permissions,
+    AdminsPermissionsDeleteView,
+    delete_competence_admin,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
@@ -298,6 +300,16 @@ urlpatterns = [
         'special_permissions/delete/editors',
         delete_editor_permissions,
         name='delete_editor_permissions'
+    ),
+    path(
+        'special_permissions/admins_for_delete/<int:category_pk>',
+        AdminsPermissionsDeleteView.as_view(),
+        name='deleting_admins_permissions_page'
+    ),
+    path(
+        'special_permissions/admins_for_delete/<int:category_pk>/delete',
+        delete_competence_admin,
+        name='delete_competence_admin'
     ),
 
     path("friends/", friends_view, name="friends"),

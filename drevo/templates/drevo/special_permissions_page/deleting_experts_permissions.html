@@ -24,7 +24,7 @@
                 | <a
                     href="{% url 'expert_knowledge_page' category.pk user_pk %}"
                     class="btn btn-sm btn-outline-primary rounded {% if not knowledge_count %}disabled {% endif %}"
-                    title="Перейти к списку знаний кандидата"
+                    title="Перейти к списку знаний эксперта"
                 >
                 Публикаций сделано: <span class="badge bg-danger">{{ knowledge_count }}</span>
                 </a>

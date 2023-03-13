@@ -524,3 +524,59 @@ class UserPermissionsMixin:
             .annotate(knowledge_edited=Count('redactor'))
             .order_by('first_name')
         )
+
+    def get_admins_for_delete(self, for_category=None):
+        """
+            Метод для получения данных пользователей с правами руководителя.
+            for_category: Если передать категорию, то на выходе будут руководители в рамках данной категории.
+
+            Результирующие  данные: \n
+            1. Если категория установлена
+            {admin_pk: knowledge_count,}
+            2. Если категория не установлена
+            {category_pk: admins_count,}
+        """
+        # Получаем руководителей и их компетенции
+        permissions = (
+            SpecialPermissions.objects.filter(admin_competencies__isnull=False).values('expert', 'admin_competencies')
+        )
+        admins = set(perm.get('expert') for perm in permissions)
+
+        # Получем все обработанные знания руководителя
+        knowledge = (
+            Znanie.objects
+            .select_related('category')
+            .filter(
+                director__in=admins, is_published=True, tz__is_systemic=False, knowledge_status__status='PUB'
+            )
+        )
+
+        admins_data = dict()
+
+        for perm_data in permissions:
+            category = perm_data.get('admin_competencies')
+            admin = perm_data.get('expert')
+            if category not in admins_data:
+                admins_data[category] = {admin: 0}
+                continue
+            admins_data[category].update({admin: 0})
+
+        # Получаем категорию для дополнительных знаний
+        knowledge_without_cat = knowledge.filter(category__isnull=True)
+        knowledge_without_cat = self._get_additional_knowledge(knowledge_without_cat)
+        for kn in knowledge:
+            if kn in knowledge_without_cat:
+                kn.category = knowledge_without_cat.get(kn)
+
+        knowledge = knowledge.filter(category__in=admins_data)
+
+        for kn in knowledge:
+            category_data = admins_data[kn.category.id]
+            admin = kn.director.id
+            if admin not in category_data:
+                continue
+            category_data[admin] += 1
+
+        if for_category:
+            return admins_data.get(for_category.id)
+        return {cat_id: len(data) for cat_id, data in admins_data.items() if len(data) > 0}

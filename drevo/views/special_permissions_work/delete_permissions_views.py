@@ -1,4 +1,3 @@
-from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
@@ -43,6 +42,11 @@ class SpecialPermissionsDeleteView(TemplateView, UserPermissionsMixin):
         if editor_last_name := self.request.GET.get('editor_last_name'):
             context['editor_last_name'] = editor_last_name
         context['editors'] = self.get_editors_data(last_name=self.request.GET.get('editor_last_name'))
+
+        # Блок удаления прав руководителей
+        admins_data = self.get_admins_for_delete()
+        context['admins_candidates_count'] = admins_data
+        context['admins_nodes'] = self.get_users_tree_data(admins_data.keys())
         return context
 
 
@@ -119,4 +123,33 @@ def delete_editor_permissions(request):
         updated_perm_data.append(editor_perm)
     User.objects.bulk_update(updated_user_data, ['is_redactor'])
     SpecialPermissions.objects.bulk_update(updated_perm_data, ['editor'])
+    return redirect('delete_special_permissions_page')
+
+
+class AdminsPermissionsDeleteView(TemplateView, UserPermissionsMixin):
+    """
+        Страница "Удаление прав руководителя"
+    """
+    template_name = 'drevo/special_permissions_page/deleting_admins_permissions.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AdminsPermissionsDeleteView, self).get_context_data(**kwargs)
+        category = get_object_or_404(Category, pk=self.kwargs.get('category_pk'))
+        admins_data_raw = self.get_admins_for_delete(for_category=category)
+        admins = User.objects.filter(pk__in=admins_data_raw.keys())
+        admins_data = [(admin.pk, admin.get_full_name(), admins_data_raw.get(admin.pk)) for admin in admins]
+        context['category'] = category
+        context['admins_data'] = admins_data
+        return context
+
+
+@require_http_methods(['POST'])
+def delete_competence_admin(request, category_pk):
+    """
+        Удалить компетенцию для руководителя/руководителей
+    """
+    admins = [int(req_data.split('_')[1]) for req_data in request.POST if req_data != 'csrfmiddlewaretoken']
+    permissions = SpecialPermissions.objects.filter(expert_id__in=admins)
+    for admin_perms in permissions:
+        admin_perms.admin_competencies.remove(category_pk)
     return redirect('delete_special_permissions_page')

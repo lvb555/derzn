@@ -36,9 +36,9 @@
     <div class="border-bottom border-dark text-center">
         <h3>Удаление прав руководителя</h3>
     </div>
-    {% if admins %}
+    {% if admins_nodes %}
     <div class="container mt-3">
-        {% include 'drevo/special_permissions_page/tree_admins_block.html' %}
+        {% include 'drevo/special_permissions_page/tree_admins_for_delete.html' %}
     </div>
     {% else %}
     <div class="text-center mt-3">
