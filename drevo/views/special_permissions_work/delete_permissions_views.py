@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
@@ -33,10 +34,15 @@ class SpecialPermissionsDeleteView(TemplateView, UserPermissionsMixin):
 
     def get_context_data(self, **kwargs):
         context = super(SpecialPermissionsDeleteView, self).get_context_data(**kwargs)
+        # Блок удаления прав экспертов
         experts_data = self.get_experts_for_delete()
-
         context['experts_candidates_count'] = experts_data
         context['experts_nodes'] = self.get_users_tree_data(experts_data.keys())
+
+        # Блок удаления прав редакторов
+        if editor_last_name := self.request.GET.get('editor_last_name'):
+            context['editor_last_name'] = editor_last_name
+        context['editors'] = self.get_editors_data(last_name=self.request.GET.get('editor_last_name'))
         return context
 
 
@@ -92,3 +98,25 @@ class ExpertKnowledgeView(TemplateView, UserPermissionsMixin):
         context['category'] = category
         context['backup_url'] = reverse('deleting_experts_permissions_page', kwargs={'category_pk': category_pk})
         return context
+
+
+@require_http_methods(['POST'])
+def delete_editor_permissions(request):
+    """
+        Удалить права редактора
+    """
+    editors_for_delete = [int(req_data.split('_')[1]) for req_data in request.POST if req_data != 'csrfmiddlewaretoken']
+    if not editors_for_delete:
+        return redirect('delete_special_permissions_page')
+    editors = User.objects.prefetch_related('expert').filter(pk__in=editors_for_delete)
+    updated_user_data = list()
+    updated_perm_data = list()
+    for editor in editors:
+        editor.is_redactor = False
+        updated_user_data.append(editor)
+        editor_perm = editor.expert
+        editor_perm.editor = False
+        updated_perm_data.append(editor_perm)
+    User.objects.bulk_update(updated_user_data, ['is_redactor'])
+    SpecialPermissions.objects.bulk_update(updated_perm_data, ['editor'])
+    return redirect('delete_special_permissions_page')

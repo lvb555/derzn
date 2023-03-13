@@ -503,3 +503,24 @@ class UserPermissionsMixin:
         if for_category:
             return experts_data.get(for_category.id)
         return {cat_id: len(data) for cat_id, data in experts_data.items() if len(data) > 0}
+
+    @staticmethod
+    def get_editors_data(last_name: str = None):
+        """
+            Метод для получения данных о редакторах
+            Результирующие  данные: \n
+            [(editor_pk, editor_name, knowledge_edited_count), ]
+        """
+        if last_name:
+            return (
+                User.objects
+                .filter(is_redactor=True, last_name__icontains=last_name, expert__editor=True)
+                .annotate(knowledge_edited=Count('redactor'))
+                .order_by('first_name')
+            )
+        return (
+            User.objects
+            .filter(is_redactor=True, expert__editor=True)
+            .annotate(knowledge_edited=Count('redactor'))
+            .order_by('first_name')
+        )
