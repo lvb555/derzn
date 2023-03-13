@@ -2,6 +2,7 @@ from django.db.models import Count, F, QuerySet, Case, When, IntegerField, Q
 from django.shortcuts import get_object_or_404
 from drevo.models import SpecialPermissions, SettingsOptions, Znanie, Category
 from drevo.relations_tree import get_knowledges_by_categories
+from users.models import User
 
 
 class CandidatesMixin:
@@ -409,3 +410,96 @@ class CandidatesMixin:
             else:
                 knowledge_data['knowledge'].append((knowledge_pk, name))
         return knowledge_data
+
+
+class UserPermissionsMixin:
+    """
+        Миксин для работы с пользователями, которые имеют особые права
+    """
+    model = SpecialPermissions
+
+    @staticmethod
+    def _get_additional_knowledge(knowledge: QuerySet) -> dict:
+        """
+            Метод для получения категорий для дополнительных знаний (знаний без категорий)
+            Результирующие  данные: \n
+            {knowledge1: category, knowledge2: category...}
+        """
+        without_cat_data = dict()
+        _, zn = get_knowledges_by_categories(knowledge)
+        for kn_obj in knowledge:
+            for cat, data in zn.items():
+                if kn_obj in data.get('additional'):
+                    without_cat_data[kn_obj] = get_object_or_404(Category, name=cat)
+                    break
+        return without_cat_data
+
+    def get_experts_for_delete(self, for_category=None):
+        """
+            Метод для получения пользователей, которые не выполняют свои обязанности как экспертов.
+            for_category: Если передать категорию, то на выходе будут эксперты в рамках данной категории.
+
+            Результирующие  данные: \n
+            1. Если категория установлена
+            {expert_pk: [knowledge],}
+            2. Если категория не установлена
+            {category_pk: experts_count,}
+        """
+        min_knowledge_param = get_object_or_404(
+            SettingsOptions, name='Минимальное число знаний и экспертиз за период для эксперта'
+        )
+        min_knowledge_param = int(min_knowledge_param.default_param)
+
+        # Получаем экспертов и их компетенции
+        permissions = SpecialPermissions.objects.filter(categories__isnull=False).values('expert', 'categories')
+
+        experts = set(perm.get('expert') for perm in permissions)
+
+        # Получем все опубликованные знания и экспертизы экспертов
+        knowledge = (
+            Znanie.objects.select_related('author__user_author', 'category')
+            .filter(
+                Q(author__user_author__in=experts) | Q(expert__in=experts),
+                is_published=True, tz__is_systemic=False, knowledge_status__status='PUB'
+            )
+            .annotate(
+                is_expertise=Case(
+                    When(expert__isnull=False, then=1),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            )
+        )
+
+        experts_data = dict()
+
+        for perm_data in permissions:
+            category = perm_data.get('categories')
+            expert = perm_data.get('expert')
+            if category not in experts_data:
+                experts_data[category] = {expert: list()}
+                continue
+            experts_data[category].update({expert: list()})
+
+        # Получаем категорию для дополнительных знаний
+        knowledge_without_cat = knowledge.filter(category__isnull=True)
+        knowledge_without_cat = self._get_additional_knowledge(knowledge_without_cat)
+        for kn in knowledge:
+            if kn in knowledge_without_cat:
+                kn.category = knowledge_without_cat.get(kn)
+
+        knowledge = knowledge.filter(category__in=experts_data)
+
+        for kn in knowledge:
+            category_data = experts_data[kn.category.id]
+            expert = kn.expert.id if kn.is_expertise else kn.author.user_author.id
+            if expert not in category_data:
+                continue
+            expert_knowledge = category_data[expert]
+            expert_knowledge.append(kn)
+            if len(expert_knowledge) >= min_knowledge_param:
+                del experts_data[kn.category.id][expert]
+
+        if for_category:
+            return experts_data.get(for_category.id)
+        return {cat_id: len(data) for cat_id, data in experts_data.items() if len(data) > 0}

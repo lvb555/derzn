@@ -61,6 +61,12 @@ from .special_permissions_work.view import (
     ExpertCandidateKnowledgeView,
     AdminCandidateKnowledgeView,
 )
+from .special_permissions_work.delete_permissions_views import (
+    SpecialPermissionsDeleteView,
+    ExpertsPermissionsDeleteView,
+    delete_competence_expert,
+    ExpertKnowledgeView,
+)
 from .knowledge_types_view import KnowledgeTypesView
 from .relation_types_view import RelationTypesView
 
@@ -125,4 +131,8 @@ __all__ = [
     'AdminCandidateKnowledgeView',
     'KnowledgeTypesView',
     'RelationTypesView',
+    'SpecialPermissionsDeleteView',
+    'ExpertsPermissionsDeleteView',
+    'delete_competence_expert',
+    'ExpertKnowledgeView',
 ]

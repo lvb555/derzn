@@ -349,6 +349,7 @@
                                     {% if user.is_staff %}
                                         <a class="dropdown-item" href="{% url 'all_interview' %}">Предложения экспертов</a>
                                         <a class="dropdown-item" href="{% url 'special_permissions_page' %}">Добавление особых прав</a>
+                                        <a class="dropdown-item" href="{% url 'delete_special_permissions_page' %}">Удаление особых прав</a>
                                     {% endif %}
                                 {% endif %}
                             </div>
