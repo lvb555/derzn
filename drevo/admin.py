@@ -406,6 +406,7 @@ class KnowledgeGradeScaleAdmin(admin.ModelAdmin):
         "is_low_in_range",
         "high_value",
         "is_high_in_range",
+        "order",
     )
 
 
@@ -431,6 +432,7 @@ class RelationGradeScaleAdmin(admin.ModelAdmin):
         "is_low_in_range",
         "high_value",
         "is_high_in_range",
+        "order",
     )
 
 

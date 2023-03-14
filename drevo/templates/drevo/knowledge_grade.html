@@ -99,11 +99,13 @@
             style="background: {{ selected_base_grade.grade.get_base_grade|get_color_from_knowledge_grade_value:0 }}; border:none;"
                             {% endif %}>
                             {% for grade in knowledge_scale %}
+                                {% if grade.name != "Нет оценки" %}
                                 <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                         {% if selected_base_grade and selected_base_grade.grade == grade %}
                                         selected {% endif %}>
                                     {{ grade.name }}
                                 </option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                     </td>
@@ -199,8 +201,8 @@
                                     {{ relation.tr.name|endings_filter }}
                                 </td>
                                 {% with relation|proof_grade:request as pw %}
-                                    <td class="table-border" style="border-right: none;{% if pw != null %} background: {{ pw|get_color_from_knowledge_grade_value:relation.tr.argument_type }};{% endif %}">
-                                        {% if pw == null %}
+                                    <td class="table-border" style="border-right: none;{% if pw != 0 %} background: {{ pw|get_color_from_knowledge_grade_value:relation.tr.argument_type }};{% endif %}">
+                                        {% if pw == null or pw == 0%}
                                         <span class="item-missing" style="color: red">Нет оценки</span>
                                         {% else %}
                                         <span>
@@ -208,14 +210,14 @@
                                         </span>
                                         {% endif %}
                                     </td>
-                                    <td class="table-border text-center" style="border-left: none;{% if pw != null %} background: {{ pw|get_color_from_knowledge_grade_value:relation.tr.argument_type }};{% endif %}">
+                                    <td class="table-border text-center" style="border-left: none;{% if pw != 0 %} background: {{ pw|get_color_from_knowledge_grade_value:relation.tr.argument_type }};{% endif %}">
                                         {{ pw|floatformat:-2 }}
                                     </td>
                                 {% endwith %}
                                 {% with relation.rz|common_grades:request as grades_iter %}
                                     <td class="table-border" style="border-right: none; {% if grades_iter.0 != null %}background: {{ grades_iter.0|get_color_from_knowledge_grade_value:relation.tr.argument_type }};{% endif %}">
-                                        {% if grades_iter.0 == null%}
-                                        <span class="item-missing" style="color: red">Нет оценки</span>
+                                        {% if grades_iter.0 == null %}
+                                            <span class="item-missing" style="color: red">Нет оценки</span>
                                         {% else %}
                                             {{ grades_iter.0|grade_name }}
                                         {% endif %}
@@ -234,11 +236,13 @@
                                             style="background: none; border: none;">
 
                                         {% for grade in knowledge_scale %}
+                                            {% if grade.name != "Нет оценки" %}
                                             <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                                     id="proofRelationId{{ relation.id }}"
                                                     {% if relation.rz|object_grade:user == grade %} selected {% endif %}>
                                                 {{ grade.name }}
                                             </option>
+                                            {% endif %}
                                         {% endfor %}
                                     </select>
                                 </td>
