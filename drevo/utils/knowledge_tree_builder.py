@@ -1,5 +1,5 @@
 from django.db.models import QuerySet
-from drevo.models import Znanie, Relation, Category, Tz
+from drevo.models import Znanie, Relation, Category, Tz, Tr
 
 
 class KnowledgeTreeBuilder:
@@ -7,12 +7,13 @@ class KnowledgeTreeBuilder:
         Конструктор дерева знаний.
         Данный класс реализует функционал постройки дерева по знаниям и категориям.
     """
-    def __init__(self, queryset: QuerySet[Znanie]):
+    def __init__(self, queryset: QuerySet[Znanie], show_only: Tr = None):
         self.queryset = queryset
         self.categories_data = {}
         self.knowledge = {}
         self._systemic_types = Tz.objects.filter(is_systemic=True).values_list('pk', flat=True)
         self.relations_name = {}  # {(<parent_id>, <child_id>): relation_name, }
+        self.show_only = show_only  # Вид связи, который необходимо отображать на дереве для знаний из queryset
 
         relations = (
             Relation.objects
@@ -21,6 +22,8 @@ class KnowledgeTreeBuilder:
         )
         relations_data = {rel.rz.id: [] for rel in relations}
         for rel in relations:
+            if self.show_only and rel.rz in queryset and rel.tr != self.show_only:
+                continue
             self.relations_name.update({(rel.bz.id, rel.rz.id): rel.tr.name})
             relations_data[rel.rz.id].append(rel.bz)
         self.relations_data = relations_data

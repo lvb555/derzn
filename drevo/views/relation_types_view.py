@@ -20,5 +20,5 @@ class RelationTypesView(TemplateView):
                 tz__is_systemic=False, is_published=True,
             )
         )
-        context.update({'knowledge': knowledge, 'type_name': rel_type.name})
+        context.update({'knowledge': knowledge, 'relation_type': rel_type})
         return context
