@@ -5,6 +5,7 @@
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
+{% if category_nodes %}
 <button type="button" class="btn btn-secondary btn-sm" onclick="tree{{ tree_num }}_showAll();">Развернуть</button>
 &nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="tree{{ tree_num }}_hiddenAll();">Свернуть</button>
 <ul class="root ps-0" id="tree{{ tree_num }}_root">
@@ -32,8 +33,12 @@
         </ul>
     </li>
     {% endrecursetree %}
-
 </ul>
+{% else %}
+<div class="text-center mt-3">
+    <p class="fs-4">{{ empty_tree_message }}</p>
+</div>
+{% endif %}
 
 <!-- Tree scripts-->
 <script>

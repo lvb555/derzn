@@ -9,16 +9,18 @@ register = Library()
 
 
 @register.inclusion_tag('drevo/tags/knowledge_tree.html')
-def build_knowledge_tree(queryset: QuerySet[Znanie], tree_num: int = 1):
+def build_knowledge_tree(queryset: QuerySet[Znanie], tree_num: int = 1, empty_tree_message: str = ''):
     """
         Тег для построения дерева знаний
-        tree_num: номер дерева (на случай если необходимо на одной странице создать несколько деревьев)
+        tree_num: номер дерева (на случай если необходимо на одной странице создать несколько деревьев);
+        empty_tree_message: если дерево по какой либо причине нельзя построить, то будет выводиться сообщение указанное
+        в данном параметре;
     """
     if not queryset:
         raise EmptyResultSet('Для построения дерева необходим queryset знаний')
     tree_builder = KnowledgeTreeBuilder(queryset)
     tree_context = tree_builder.get_nodes_data_for_tree()
-    context = dict(tree_num=tree_num, active_knowledge=queryset, **tree_context)
+    context = dict(tree_num=tree_num, empty_tree_message=empty_tree_message, active_knowledge=queryset, **tree_context)
     return context
 
 
