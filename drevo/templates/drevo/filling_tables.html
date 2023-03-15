@@ -24,8 +24,8 @@
     <div style="display: flex; flex-direction: column; margin-bottom: 15px;">
         <h1>Наполнение таблиц</h1>
         <label for="id_table">Таблица:</label>
-        <select name="table" data-live-search="true" class="selectpicker" id="id_table" data-dropup-auto="false"    style="width: 400px">
-            <option value="" selected disabled>Выберите таблицу</option>
+
+        <select name="table" style="appearance: none; width: 600px; height: 30px; padding-left: 9px">
             {% for pk, element in table_dict.items %}
                 <option value="{{ pk }}" id="{{ pk }}"> {{ element }} </option>
             {% endfor %}
@@ -35,23 +35,29 @@
     <div style="display: flex; flex-direction: column;">
         <h2>Координаты ячейки</h2>
         <label for="id_row">Строка:</label>
-        <select class="form-select" name="row" id="id_row" disabled>
-            <option value="">Выберите строку</option>
+        <select class="form-select" name="row" id="id_row">
+            <option value="" selected disabled>Выберите строку</option>
+            {% for row in rows_attributes %}
+                <option value="{{ row.rz_id }}" id="{{ row.rz_id }}"> {{ row.rz__name }} </option>
+            {% endfor %}
         </select>
         <label for="id_column">Столбец:</label>
-        <select class="form-select" name="column" id="id_column" disabled>
-            <option value="">Выберите столбец</option>
+        <select class="form-select" name="column" id="id_column">
+            <option value="" selected disabled>Выберите столбец</option>
+            {% for column in columns_attributes %}
+                <option value="{{ column.rz_id }}" id="{{ column.rz_id }}"> {{ column.rz__name }} </option>
+            {% endfor %}
         </select>
         <label for="id_znanie">Знание:</label>
     </div>
 
-    <select data-live-search="true" class="selectpicker" name="znanie" disabled id="id_znanie" data-dropup-auto="false" style="margin-bottom: 15px;">
+    <select data-live-search="true" class="selectpicker" name="znanie" id="id_znanie" data-dropup-auto="false" disabled style="margin-bottom: 15px;">
         <option value="" selected disabled>Выберите знание</option>
         {% for zn in znanie %}
         <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option> {% endfor %}
     </select>
     <span>
-    <input type="button" value="+" class="quiet" id="add_znanie" style="vertical-align: middle; font-size: 30px" disabled onclick="winOpen()">
+    <input type="button" value="+" class="quiet" id="add_znanie" style="vertical-align: middle; font-size: 30px" onclick="winOpen()">
     </span>
 
     <div id="div-param" style="display: flex; flex-direction: column; margin-bottom: 15px;">
@@ -184,7 +190,6 @@
     let id_table = $("#id_table")
     let id_row = $("#id_row")
     let id_column = $("#id_column")
-
     let id_znanie = $("#id_znanie")
     let id_view = $("#id_view")
     let id_author = $("#id_author")
@@ -208,6 +213,21 @@
       }
       return cookieValue;
     }
+
+     function checkSelection() {
+        if (document.form.row.value !== "" && document.form.column.value !== "") {
+            id_znanie.prop('disabled', false);
+            id_znanie.selectpicker('refresh')
+        }
+    }
+
+    id_row.change( function () {
+        checkSelection();
+    });
+
+    id_column.change( function () {
+        checkSelection();
+    });
 
     function winOpen() {
         tab = window.open('/admin/drevo/znanie/add/', 'tab', 'Width=1280,Height=650')
@@ -249,61 +269,10 @@
         });
     }
 
-    id_table.change(getTableId);
-
      id_znanie.on('changed.bs.select', function (e, clickedIndex) {
         getZnanieId(id_znanie.children()[clickedIndex].id)
         $('#div-param').css('display', 'flex')
     });
-
-    function getTableId(e) {
-       let table_id = e.target.value
-       const data = { id: table_id};
-       let url = "{% url 'get_rows_and_columns' %}"
-
-        fetch(url, {
-           method: 'POST',
-           headers: {
-               'Content-Type': 'application/json',
-               'X-CSRFToken': csrftoken
-           },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(data => {
-            id_znanie.prop('disabled', false)
-            id_znanie.selectpicker('refresh')
-            add_znanie.prop('disabled', false)
-            let rows = data[0]
-            if (rows.length === 0) {
-                id_row.children().text("Строки отсутствуют")
-                id_row.prop('disabled', true)
-            }
-            else {
-                id_row.prop('disabled', false)
-                id_row.empty()
-                for (let i = 0; i < rows.length; i++) {
-                    id_row.append(`<option value = "${rows[i]['rz_id']}">${rows[i]['rz__name']}</option>`)
-                }
-            }
-
-            let columns = data[1]
-            if (columns.length === 0) {
-                id_column.prop('disabled', true)
-                id_column.children().text("Столбцы отсутствуют")
-            }
-            else {
-                id_column.prop('disabled', false)
-                id_column.empty()
-                for (let i = 0; i < columns.length; i++) {
-                    id_column.append(`<option value="${columns[i]['rz_id']}">${columns[i]['rz__name']}</option>`)
-                }
-            }
-         })
-        .catch((error) => {
-        console.log('Error:', error);
-        });
-     }
 
     function getZnanieId(e) {
         const data = {id: e};
