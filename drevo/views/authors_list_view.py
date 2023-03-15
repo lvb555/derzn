@@ -1,8 +1,6 @@
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.views.generic import ListView
 from ..models import Author, AuthorType
-from ..models import Author, AuthorType
-from ..forms import AuthorsFilterForm
 from loguru import logger
 
 logger.add('logs/main.log',
@@ -18,37 +16,21 @@ class AuthorsListView(ListView):
     context_object_name = 'authors'
 
     def get_queryset(self):
-        """
-        Возвращает queryset авторов в соответствии с фильтром, полученным из формы
-        на странице со списком авторов
-        """
-
-        # получаем значение фильтра из запроса
-        # breakpoint()
-        author_type_to_filter = self.request.GET.get('author_type')
-        queryset = Author.objects.all()
-        if author_type_to_filter:
-            queryset = (queryset.filter(
-                znanie__is_published=True,
-                atype__name=author_type_to_filter)
-                .order_by('name'))
-        else:
-            queryset = (queryset.filter(
-                znanie__is_published=True)
-                .order_by('name'))
-
-        queryset = queryset.annotate(zn_num=Count('znanie'))
-
-        return queryset
+        if search_data := self.request.GET.get('author_for_search'):
+            return (
+                Author.objects
+                .filter(znanie__is_published=True, name__icontains=search_data)
+                .annotate(zn_num=Count('znanie')).order_by('name')
+            )
+        return Author.objects.filter(znanie__is_published=True).annotate(zn_num=Count('znanie')).order_by('name')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
         Контекст, передаваемый в шаблон
         """
         context = super().get_context_data(**kwargs)
-
-        rform = AuthorsFilterForm(self.request.GET)
-        rform.is_valid()
-        context['rform'] = rform
-
+        types = self.get_queryset().values_list('atype', flat=True).distinct()
+        context['author_types'] = AuthorType.objects.filter(pk__in=types)
+        if author_for_search := self.request.GET.get('author_for_search'):
+            context['author_for_search'] = author_for_search
         return context
