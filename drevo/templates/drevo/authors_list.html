@@ -36,7 +36,7 @@
             {% empty %}
             <div class="row">
                 <div class="col">
-                    Список авторов пуст
+                    {% if not author_for_search %} Список авторов пуст {% else %} Авторы не найдены {% endif %}
                 </div>
             </div>
             {% endfor %}
