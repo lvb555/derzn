@@ -164,7 +164,7 @@
         </ul>
         {% else %}
         <br>
-        {% build_knowledge_tree queryset=knowledges_of_author empty_tree_message='Дерево знаний данного автора пустое, перейдите к списку знаний' %}
+        {% build_knowledge_tree queryset=knowledges_of_author empty_tree_message='Дерево знаний данного автора пустое, перейдите к списку знаний' hidden_author=author %}
         {% endif %}
         {% endif %}
     </div>

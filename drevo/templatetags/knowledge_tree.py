@@ -3,7 +3,7 @@ from django.db.models import QuerySet
 from django.template import Library
 
 from drevo.utils.knowledge_tree_builder import KnowledgeTreeBuilder
-from drevo.models import Znanie, Category, Tr
+from drevo.models import Znanie, Category, Tr, Author
 
 register = Library()
 
@@ -12,7 +12,9 @@ register = Library()
 def build_knowledge_tree(queryset: QuerySet[Znanie],
                          tree_num: int = 1,
                          empty_tree_message: str = '',
-                         show_only: Tr = None):
+                         show_only: Tr = None,
+                         hidden_author: Author = None
+                         ):
     """
         Тег для построения дерева знаний \n
         tree_num: номер дерева (на случай если необходимо на одной странице создать несколько деревьев); \n
@@ -20,13 +22,20 @@ def build_knowledge_tree(queryset: QuerySet[Znanie],
         в данном параметре; \n
         show_only: принимает объект вида связи, если передан данный параметр, то будут отображаться только связи
         данного вида для переданных знаний (используется если у одного знания из queryset есть несколько связей разных
-        видов и необходимо отобразить связи только определённого вида)
+        видов и необходимо отобразить связи только определённого вида); \n
+        hidden_author: принимает объект автора, около знаний данного автора он не указывается
     """
     if not queryset:
         raise EmptyResultSet('Для построения дерева необходим queryset знаний')
     tree_builder = KnowledgeTreeBuilder(queryset, show_only)
     tree_context = tree_builder.get_nodes_data_for_tree()
-    context = dict(tree_num=tree_num, empty_tree_message=empty_tree_message, active_knowledge=queryset, **tree_context)
+    context = dict(
+        tree_num=tree_num,
+        empty_tree_message=empty_tree_message,
+        hidden_author=hidden_author,
+        active_knowledge=queryset,
+        **tree_context
+    )
     return context
 
 
