@@ -50,6 +50,13 @@ from .views import (
     messages_feed_view,
     KnowledgeTypesView,
     RelationTypesView,
+    SpecialPermissionsDeleteView,
+    ExpertsPermissionsDeleteView,
+    delete_competence_expert,
+    ExpertKnowledgeView,
+    delete_editor_permissions,
+    AdminsPermissionsDeleteView,
+    delete_competence_admin,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
@@ -272,6 +279,41 @@ urlpatterns = [
         'my_special_permissions/',
         UsersSpecialPermissionsView.as_view(),
         name='my_special_permissions'
+    ),
+    path(
+        'special_permissions/delete',
+        SpecialPermissionsDeleteView.as_view(),
+        name='delete_special_permissions_page'
+    ),
+    path(
+        'special_permissions/experts_for_delete/<int:category_pk>',
+        ExpertsPermissionsDeleteView.as_view(),
+        name='deleting_experts_permissions_page'
+    ),
+    path(
+        'special_permissions/experts_for_delete/<int:category_pk>/delete',
+        delete_competence_expert,
+        name='delete_competence_expert'
+    ),
+    path(
+        'special_permissions/experts_for_delete/<int:category_pk>/expert/<int:expert_pk>/knowledge',
+        ExpertKnowledgeView.as_view(),
+        name='expert_knowledge_page'
+    ),
+    path(
+        'special_permissions/delete/editors',
+        delete_editor_permissions,
+        name='delete_editor_permissions'
+    ),
+    path(
+        'special_permissions/admins_for_delete/<int:category_pk>',
+        AdminsPermissionsDeleteView.as_view(),
+        name='deleting_admins_permissions_page'
+    ),
+    path(
+        'special_permissions/admins_for_delete/<int:category_pk>/delete',
+        delete_competence_admin,
+        name='delete_competence_admin'
     ),
 
     path("friends/", friends_view, name="friends"),

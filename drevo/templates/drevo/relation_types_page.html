@@ -1,24 +1,24 @@
 {% extends 'drevo/base.html' %}
 {% load knowledge_tree %}
 
-{% block title %} Вид связи | {{ type_name }} {% endblock %}
+{% block title %} Вид связи | {{ relation_type.name }} {% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="text-center mt-3 border-bottom border-dark mb-3">
-        <h2>Все связи вида <b>{{ type_name }}</b></h2>
+        <h2>Все связи вида <b>{{ relation_type.name }}</b></h2>
     </div>
     {% if knowledge %}
-    {% build_knowledge_tree knowledge %}
-    <div>
-        <h2>Легенда</h2>
-        <h4 class="text-success">Знания, связанные связью указанного вида</h4>
-        <h4 class="">Знания, связанные связью других видов</h4>
-    </div>
+    {% build_knowledge_tree queryset=knowledge empty_tree_message='Знаний, использующих данный вид связи ещё нет' show_only=relation_type %}
     {% else %}
     <div class="text-center mt-3">
         <p class="fs-4">Знаний, использующих данный вид связи ещё нет</p>
     </div>
     {% endif %}
+    <div>
+        <h2>Легенда</h2>
+        <h4 class="text-success">Знания, связанные связью указанного вида</h4>
+        <h4 class="">Знания, связанные связью других видов</h4>
+    </div>
 </div>
 {% endblock %}

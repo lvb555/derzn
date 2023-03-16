@@ -1,0 +1,131 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block title %} Удаление особых прав пользователей {% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="border-bottom border-dark text-center">
+        <h3>Удаление прав эксперта</h3>
+    </div>
+    {% if experts_nodes %}
+    <div class="container mt-3">
+        {% include 'drevo/special_permissions_page/tree_experts_for_delete.html' %}
+    </div>
+    {% else %}
+    <div class="text-center mt-3 mb-3">
+        <h4>На данный момент нет экспертов у которых можно удалить права</h4>
+    </div>
+    {% endif %}
+    <div class="border-bottom border-dark text-center">
+        <h3>Удаление прав редактора</h3>
+    </div>
+    {% if editors %}
+    <div class="container mt-3">
+            {% include 'drevo/special_permissions_page/editors_for_delete.html' %}
+    </div>
+    {% else %}
+    <div class="text-center mt-3 mb-3">
+        <h4>Список редакторов пуст</h4>
+    </div>
+    {% endif %}
+    <div class="border-bottom border-dark text-center">
+        <h3>Удаление прав руководителя</h3>
+    </div>
+    {% if admins_nodes %}
+    <div class="container mt-3">
+        {% include 'drevo/special_permissions_page/tree_admins_for_delete.html' %}
+    </div>
+    {% else %}
+    <div class="text-center mt-3">
+        <h4>На данный момент нет руководителей ни в одной компетенции</h4>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    a.disabled{
+    pointer-events: none;
+    cursor: default;
+    color: black;
+}
+</style>
+{% endblock %}
+
+
+{% block jsfiles %}
+<!--Admins tree scripts-->
+<script>
+
+  function toggleHiddenElement(element) {
+    let li_id = element.parentNode.id;
+    let selector_string = "li#" + li_id + " > ul";
+    let ulToHidden = document.querySelectorAll(selector_string);
+    ulToHidden.forEach(function (item) {
+      item.hidden = !item.hidden;
+    })
+
+    if (element.classList.contains("bi-file-minus-fill")) {
+      element.classList.remove("bi-file-minus-fill")
+      element.classList.add("bi-file-plus-fill");
+    }
+    else {
+      element.classList.remove("bi-file-plus-fill")
+      element.classList.add("bi-file-minus-fill");
+    }
+  }
+
+  function showAll() {
+    let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+
+    ulToHidden.forEach(function (x) {
+      x.hidden = false;
+    }
+    )
+
+    let treeRoot = document.getElementById("tree_root");
+    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
+    for (let icon of listIconsToChange) {
+      icon.classList.remove("bi-file-plus-fill")
+      icon.classList.add("bi-file-minus-fill");
+    }
+
+  }
+
+  function hiddenAll() {
+    let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+    ulToHidden.forEach(function (item) {
+      item.hidden = true;
+    })
+
+    let treeRoot = document.getElementById("tree_root");
+    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
+    for (let icon of listIconsToChange) {
+      icon.classList.remove("bi-file-minus-fill")
+      icon.classList.add("bi-file-plus-fill");
+    }
+
+  }
+
+
+  function toggleAddZnVisibility(element) {
+        let ulToToggle = document.querySelectorAll('.user_li');
+        if (element.checked == true) {
+            ulToToggle.forEach(function (x) {
+                x.hidden = true;
+            }
+            )
+        }
+        else {
+            ulToToggle.forEach(function (x) {
+                x.hidden = false;
+            }
+            )
+        }
+    }
+</script>
+{% endblock %}
