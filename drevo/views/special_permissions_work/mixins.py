@@ -218,7 +218,7 @@ class CandidatesMixin:
                 candidate_categories = candidates[author_id]['categories']
                 if cat.pk not in candidate_categories.keys():
                     candidate_categories[cat.pk] = [0, 0, 0]
-                if know.knowledge_status.status == 'PUB_PRE':
+                if 'PUB_PRE' in know.knowledge_status.values_list('status', flat=True):
                     candidate_categories[cat.pk][0] += 1
                 elif know.author:
                     candidate_categories[cat.pk][1] += 1
@@ -290,7 +290,7 @@ class CandidatesMixin:
                     competencies_data[category] = [0, 0, 0]
                 if know.expert:
                     competencies_data[category][1] += 1
-                elif know.knowledge_status.status == 'PUB_PRE':
+                elif 'PUB_PRE' in know.knowledge_status.values_list('status', flat=True):
                     competencies_data[category][2] += 1
                 else:
                     competencies_data[category][0] += 1
@@ -334,7 +334,7 @@ class CandidatesMixin:
                 know for know, cat in self._get_additional_knowledge(knowledge_without_cat) if cat.pk == category_pk
             ]
             for know in without_cat_data:
-                if know.knowledge_status.status == 'PUB_PRE':
+                if 'PUB_PRE' in know.knowledge_status.values_list('status', flat=True):
                     knowledge_data['preknowledge'].append((know.pk, know.name))
                     continue
                 knowledge_data['knowledge'].append((know.pk, know.name))
@@ -396,7 +396,7 @@ class CandidatesMixin:
             for know in without_cat_data:
                 if know.expert:
                     knowledge_data['expertise'].append((know.pk, know.name))
-                elif know.knowledge_status.status == 'PUB_PRE':
+                elif 'PUB_PRE' in know.knowledge_status.values_list('status', flat=True):
                     knowledge_data['preknowledge'].append((know.pk, know.name))
                 else:
                     knowledge_data['knowledge'].append((know.pk, know.name))
