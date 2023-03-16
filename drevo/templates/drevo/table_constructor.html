@@ -22,10 +22,9 @@
 
 <form method="POST" class="form" id="form" name="form"> {% csrf_token %}
     <div style="display: flex; flex-direction: column; margin-bottom: 15px;">
-        <h1>Наполнение таблиц</h1>
+        <h1>Конструктор таблиц</h1>
         <label for="id_table">Таблица:</label>
-
-        <select name="table" style="appearance: none; width: 600px; height: 30px; padding-left: 9px">
+        <select name="table" data-live-search="true" class="selectpicker" id="id_table" data-dropup-auto="false"    style="width: 400px">
             {% for pk, element in table_dict.items %}
                 <option value="{{ pk }}" id="{{ pk }}"> {{ element }} </option>
             {% endfor %}
@@ -33,7 +32,6 @@
     </div>
 
     <div style="display: flex; flex-direction: column;">
-        <h2>Координаты ячейки</h2>
         <label for="id_row">Строка:</label>
         <select class="form-select" name="row" id="id_row">
             <option value="" selected disabled>Выберите строку</option>
@@ -48,29 +46,12 @@
                 <option value="{{ column.rz_id }}" id="{{ column.rz_id }}"> {{ column.rz__name }} </option>
             {% endfor %}
         </select>
-        <label for="id_znanie">Знание:</label>
+        <span>
+        <input type="button" value="+" class="quiet" id="add_znanie" style="vertical-align: middle; font-size: 30px" onclick="winOpen()">
+        </span>
     </div>
 
-    <select data-live-search="true" class="selectpicker" name="znanie" id="id_znanie" data-dropup-auto="false" disabled style="margin-bottom: 15px;">
-        <option value="" selected disabled>Выберите знание</option>
-        {% for zn in znanie %}
-        <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option> {% endfor %}
-    </select>
-    <span>
-    <input type="button" value="+" class="quiet" id="add_znanie" style="vertical-align: middle; font-size: 30px" onclick="winOpen()">
-    </span>
-
     <div id="div-param" style="display: flex; flex-direction: column; margin-bottom: 15px;">
-        <h2 class="" style="margin-top: 15px;">Параметры ячейки</h2>
-        <label for="id_view">Вид знания:</label>
-        <input id="id_view" readonly style="width: 600px" type="text">
-        <label for="id_author">Автор:</label>
-        <input id="id_author" name="author" id="id_author" readonly style="width: 600px" type="text">
-        <div id="div-content" style="display: none; flex-direction: column;">
-        <h2 style="margin-top: 15px;">Содержание знания:</h2>
-        <label for="text_id">Вид знания:</label>
-        <textarea id="text_id" class="text-show" name="name" readonly type="text"></textarea>
-        </div>
         <div style="margin-top: 15px">
             <input style="align-self: flex-start;" id="btn_show" type="button" value="Показать">
             <input style="align-self: flex-start;" id="btn_save" type="submit" value="Сохранить" name="_save">
@@ -190,6 +171,7 @@
     let id_table = $("#id_table")
     let id_row = $("#id_row")
     let id_column = $("#id_column")
+
     let id_znanie = $("#id_znanie")
     let id_view = $("#id_view")
     let id_author = $("#id_author")
@@ -213,21 +195,6 @@
       }
       return cookieValue;
     }
-
-     function checkSelection() {
-        if (document.form.row.value !== "" && document.form.column.value !== "") {
-            id_znanie.prop('disabled', false);
-            id_znanie.selectpicker('refresh')
-        }
-    }
-
-    id_row.change( function () {
-        checkSelection();
-    });
-
-    id_column.change( function () {
-        checkSelection();
-    });
 
     function winOpen() {
         tab = window.open('/admin/drevo/znanie/add/', 'tab', 'Width=1280,Height=650')
