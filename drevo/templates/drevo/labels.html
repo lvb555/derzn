@@ -5,6 +5,9 @@
 {% block content %}
 
 <h2>Теги</h2>
+<form role="search" method="get" class="w-25 mb-3">
+    <input class="form-control" type="search" name="tag_for_search" placeholder="Поиск по тегам..." aria-label="Search" value="{{ tag_for_search }}">
+</form>
 <div class="row">
     <div class="col-auto">
         <ul class="list-group">
@@ -26,7 +29,7 @@
             {% empty %}
             <div class="row">
                 <div class="col">
-                    Список авторов пуст
+                    {% if not tag_for_search %} Список тегов пуст {% else %} Теги не найдены {% endif %}
                 </div>
             </div>
             {% endfor %}

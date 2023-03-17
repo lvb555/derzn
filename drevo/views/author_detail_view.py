@@ -29,8 +29,10 @@ class AuthorDetailView(DetailView):
         # получаем знания данного автора
         knowledges_of_author = Znanie.published.filter(
             author__id=int(self.kwargs['pk']))
-
-        context['categories'], context['knowledges'] = \
-            get_knowledges_by_categories(knowledges_of_author)
-
+        context['knowledge_by'] = self.request.GET.get('knowledge_by')
+        if context['knowledge_by']:
+            context['categories'], context['knowledges'] = \
+                get_knowledges_by_categories(knowledges_of_author)
+        else:
+            context['knowledges_of_author'] = knowledges_of_author
         return context
