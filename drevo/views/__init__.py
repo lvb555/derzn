@@ -57,7 +57,7 @@ from .my_knowledge_grade_view import my_knowledge_grade
 from .knowledges_grades_view import knowledges_grades
 from .group_infographics_view import GroupInfographicsView
 from .group_knowledge_grade_statistics import GroupKnowledgeStatisticsView
-from .parameter_settings_view import parameter_settings
+from .parameter_settings_view import ParameterSettingsView, update_user_settings
 from .special_permissions_work.view import (
     SpecialPermissionsView,
     set_users_as_editor,
@@ -126,7 +126,8 @@ __all__ = [
     "knowledges_grades",
     "GroupInfographicsView",
     "GroupKnowledgeStatisticsView",
-    'parameter_settings',
+    'ParameterSettingsView',
+    'update_user_settings',
     'sub_answer_create_view',
     'ExpertProposalDeleteView',
     'set_answer_as_incorrect',
