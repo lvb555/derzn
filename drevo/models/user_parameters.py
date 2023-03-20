@@ -15,10 +15,10 @@ class UserParameters(models.Model):
         on_delete=models.CASCADE,
         related_name='user_params'
     )
-    param_value = models.CharField(
+    param_value = models.IntegerField(
         verbose_name='Значение параметра',
-        max_length=255,
-        blank=True
+        blank=True,
+        null=True
     )
 
     class Meta:
