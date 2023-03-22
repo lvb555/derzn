@@ -18,6 +18,7 @@
     {% if base_knowledge.author and base_knowledge.author != hidden_author %}
     ({{ base_knowledge.author }})
     {% endif %}
+    {% get_knowledge_counts knowledge_rel_counts base_knowledge %}
     <ul class="children treeline">
         {% for b_zn, zn_data in knowledge_data.items %}
             {% with base_knowledge=b_zn knowledge_data=zn_data parent=base_knowledge template_name="drevo/tags/knowledge_nodes.html" %}

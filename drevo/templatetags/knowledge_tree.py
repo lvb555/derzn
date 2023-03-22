@@ -1,7 +1,7 @@
 from django.core.exceptions import EmptyResultSet
 from django.db.models import QuerySet
 from django.template import Library
-
+from django.utils.safestring import mark_safe
 from drevo.utils.knowledge_tree_builder import KnowledgeTreeBuilder
 from drevo.models import Znanie, Category, Tr, Author
 
@@ -49,3 +49,29 @@ def get_relation_name(relations_names: dict, parent: Znanie, child: Znanie) -> s
     if not parent:
         return ''
     return relations_names.get((parent.pk, child.pk))
+
+
+@register.simple_tag
+def get_knowledge_counts(data, knowledge):
+    counts = data.get(knowledge)
+    if not counts:
+        return ''
+    knowledge_count = counts.get('knowledge_count')
+    child_count = counts.get('child_count')
+    html = f'<span class="badge bg-danger" title="Общее число знаний (Число дочерних знаний)">' \
+           f'{knowledge_count} ({child_count})' \
+           f'</span>'
+    return mark_safe(html)
+
+
+@register.simple_tag
+def get_category_counts(data, category):
+    counts = data.get(category)
+    if not counts:
+        return ''
+    knowledge_count = counts.get('knowledge_count')
+    base_knowledge_count = counts.get('base_knowledge_count')
+    html = f'<span class="badge bg-info" title="Общее число знаний (Число основных знаний)">' \
+           f'{knowledge_count} ({base_knowledge_count})' \
+           f'</span>'
+    return mark_safe(html)

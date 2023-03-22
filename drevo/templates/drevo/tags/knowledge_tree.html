@@ -16,6 +16,7 @@
         <a href="{{ node.get_absolute_url }}" class="text-dark">
             {{ node.name }}
         </a>
+        {% get_category_counts category_rel_counts node.id %}
 
         {% if not node.is_leaf_node %}
         <ul class="children" hidden>
