@@ -6,17 +6,49 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 
 from drevo.models.author import Author
+from drevo.models.category import Category
 from drevo.models.knowledge import Znanie
 from drevo.models.knowledge_kind import Tz
 from drevo.models.relation_type import Tr
 from drevo.models.relation import Relation
 from drevo.models.special_permissions import SpecialPermissions
 
-from .knowledge_tp_view import get_knowledge_dict
 from .my_interview_view import search_node_categories
 
-import json
-import re
+
+def get_knowledge_dict(knowledge, user=None):
+    """
+    Возвращает кортеж, который содержит кверисет с категориями и
+    словарь, в котором ключи - категории, а значения - знания
+    :param knowledge: кверисет со знаниями
+    :param user: ползьзователь
+    :return: кортеж: (категории, {категория: знания})
+    """
+    _knowledge_dict = {}
+    # формирует список категорий
+    _categories = Category.tree_objects.exclude(is_published=False)
+
+    for category in _categories:
+        if user:
+            experts = category.get_expert_ancestors_category()
+            if user in experts:
+                zn_in_this_category = knowledge.filter(
+                    category=category)
+                # Проверка, существуют ли в данной категории знания. Категория добавляется только в том
+                # случае, если существует хотя бы одно знание
+                if zn_in_this_category:
+                    _knowledge_dict[category.name] = zn_in_this_category
+        else:
+            zn_in_this_category = knowledge.filter(
+                category=category)
+            if not zn_in_this_category:
+                continue
+            _knowledge_dict[category.name] = zn_in_this_category
+    result_categories = []
+    for category in _categories:
+        if category.name in _knowledge_dict.keys():
+            result_categories.append(category)
+    return result_categories, _knowledge_dict
 
 
 class TableKnowledgeTreeView(LoginRequiredMixin, TemplateView):
@@ -162,25 +194,6 @@ def show_filling_tables_page(request):
                 data = True
 
     return JsonResponse([data], safe=False)
-
-
-def znanie_attributes(request):
-    """
-    Возвращает атрибуты выбранного знания: вид знания, автор, содержимое
-    """
-    data = json.loads(request.body)
-    znanie_id = data['id']
-    current_zn = Znanie.objects.get(pk=znanie_id)
-
-    knowledge_kind = current_zn.tz
-
-    author_name = current_zn.author.name if current_zn.author else "Нет автора"
-
-    # Удаление тегов HTML в тексте ячейки
-    content = re.sub(r"<[^>]+>", " ", current_zn.content, flags=re.S)
-    if not content:
-        return JsonResponse([knowledge_kind.name, author_name], safe=False)
-    return JsonResponse([knowledge_kind.name, author_name, content], safe=False)
 
 
 def show_new_znanie(request):
