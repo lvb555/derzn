@@ -45,7 +45,8 @@ from .views import (
     my_knowledge_grade,
     knowledges_grades,
     GroupKnowledgeStatisticsView,
-    parameter_settings,
+    ParameterSettingsView,
+    update_user_settings,
     send_message_view,
     messages_feed_view,
     KnowledgeTypesView,
@@ -365,7 +366,8 @@ urlpatterns = [
         name="znanie_director_process",
     ),
     path("klz/", KlzKnowledgeProcess.as_view(), name="klz"),
-    path('profile/settings/', parameter_settings, name='parameter_settings')
+    path('profile/settings/', ParameterSettingsView.as_view(), name='parameter_settings'),
+    path('profile/settings/update', update_user_settings, name='update_settings')
 ]
 
 if settings.DEBUG:

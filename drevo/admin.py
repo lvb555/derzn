@@ -643,17 +643,17 @@ admin.site.register(AgeUsersScale)
 
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
-    list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)
+    list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active', 'created_at')
     autocomplete_fields = ['knowledge']
     search_fields = ['knowledge__name']
 
 
 @admin.register(SettingsOptions)
 class SettingsOptionsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'category', 'default_param', 'admin']
+    list_display = ['id', 'name', 'category', 'default_param', 'admin', 'is_bool']
     search_fields = ['name']
     list_display_links = ['id']
-    list_filter = ['category', 'admin']
+    list_filter = ['category', 'admin', 'is_bool']
 
 
 @admin.register(UserParameters)

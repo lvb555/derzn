@@ -1,47 +1,61 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.views.decorators.http import require_http_methods
+from django.views.generic import ListView
+from ..models import UserParameters, ParameterCategories
 
-from users.models import User
-from ..models import UserParameters
+
+class ParameterSettingsView(LoginRequiredMixin, ListView):
+    """
+        Страница "Настройки параметров"
+    """
+    model = UserParameters
+    template_name = 'drevo/parameter_settings.html'
+    context_object_name = 'settings'
+    login_url = reverse_lazy('login')
+
+    def get_queryset(self):
+        params = UserParameters.objects.select_related('param').filter(user=self.request.user)
+        if filter_by := self.request.GET.get('filter'):
+            return params.filter(param__category__name=filter_by)
+        return params
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(ParameterSettingsView, self).get_context_data(**kwargs)
+        context['categories'] = (
+            ParameterCategories.objects.filter(params__admin=False).values_list('name', flat=True).distinct()
+        )
+        context['cur_filter'] = self.request.GET.get('filter')
+        return context
 
 
 @login_required
-def parameter_settings(request):
+@require_http_methods(['POST'])
+def update_user_settings(request):
     """
-        Представление для старницы настройки параметров
+        Обновление настроек пользователя
     """
-    if request.method == 'POST':
-        post_data = request.POST
-        updated_settings = list()
-        for param, param_value in post_data.items():
-            if param == 'csrfmiddlewaretoken':
-                continue
-            param_pk = param.split('_')[1]
-            # Если значение параметра есть, то устанавливаем его
-            if param_value:
-                updated_settings.append(UserParameters(pk=param_pk, param_value=param_value))
-                continue
-            # Если значения нет, то устанавливаем значение по умолчанию
-            default_param = UserParameters.objects.select_related('param').filter(pk=param_pk).values_list(
-                'param__default_param', flat=True
-            ).first()
-            updated_settings.append(UserParameters(pk=param_pk, param_value=default_param))
-        UserParameters.objects.bulk_update(updated_settings, ['param_value'])
-        return redirect('parameter_settings')
+    post_data = {
+        int(param_name.split('_')[1]): value
+        for param_name, value in request.POST.items() if param_name != 'csrfmiddlewaretoken'
+    }
+    updated_settings = list()
+    user_settings = UserParameters.objects.select_related('param').filter(user=request.user)
 
-    context = dict()
-    user_settings = UserParameters.objects.select_related('param').prefetch_related('param__category').filter(
-        user=request.user
-    )
-    context['categories'] = set(
-        user_setting.param.category.name for user_setting in user_settings if user_setting.param.category
-    )
-    user = User.objects.get(id=request.user.id)
-    context['user'] = user
-    filter_value = request.GET.get('filter')
-    if filter_value:
-        context['settings'] = user_settings.filter(param__category__name=filter_value)
-        context['cur_filter'] = request.GET.get('filter')
-    else:
-        context['settings'] = user_settings
-    return render(request, 'drevo/parameter_settings.html', context=context)
+    for setting in user_settings:
+        new_param = post_data.get(setting.pk)
+        if new_param == 'on':
+            new_param = 1
+        if not new_param and setting.param.is_bool:
+            setting.param_value = 0
+        elif not new_param:
+            setting.param_value = setting.param.default_param
+        elif int(new_param) != setting.param_value:
+            setting.param_value = int(new_param)
+        else:
+            continue
+        updated_settings.append(setting)
+    UserParameters.objects.bulk_update(updated_settings, ['param_value'])
+    return redirect('parameter_settings')

@@ -93,7 +93,7 @@ class ExpertKnowledgeView(TemplateView, UserPermissionsMixin):
         data = self.get_experts_for_delete(for_category=category)
         knowledge_data = {'knowledge': list(), 'expertise': list()}
         for knowledge in data.get(expert_pk):
-            if knowledge.is_expertise:
+            if 'is_expertise' not in knowledge.__dict__.keys() or knowledge.is_expertise:
                 knowledge_data['expertise'].append(knowledge)
             else:
                 knowledge_data['knowledge'].append(knowledge)
