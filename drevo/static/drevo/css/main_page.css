@@ -87,10 +87,16 @@ cite{
 .btn-header {
     font-weight: 500;
     font-size: 12px;
-    line-height: 120%;
+    line-height: 200%;
     letter-spacing: 0.02em;
-    color: #083E2F;
+    background-color: #083E2F;
+    color:#f8f9fa;
     border-radius: 8px !important;
+}
+
+.btn-header:hover {
+    background-color: #052F23;
+    color:#f8f9fa;
 }
 
 body {
@@ -98,14 +104,46 @@ body {
     font-style: normal;
 }
 
-.header-bottom {
+.header {
     font-family: 'Rubik';
     font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 120%;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 17px;
     letter-spacing: 0.02em;
     color: #212529 !important;
+}
+
+.nav-header {
+    font-family: Rubik;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 17px;
+    letter-spacing: 0.02em;
+    text-align: left;
+}
+
+a.nav-header.show, a.from-nav.show {
+    color: #083E2F;
+}
+
+.dropstart .dropdown-menu[data-bs-popper] {
+    right: -1.9vh;
+    top: 100%;
+}
+
+a.from-nav.change-arrow.show img {
+    transform: rotate(180deg);
+}
+
+
+.from-nav {
+    font-family: Rubik;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 17px;
+    letter-spacing: 0.02em;
+    text-align: left;
 }
 
 #tree_link img {
@@ -138,17 +176,10 @@ body {
     letter-spacing: 0.02em;
     color: #212529;
     padding: 10px 12px;
-    border-right: 1px solid #DFDFE3;
 }
 
 .header-avatar {
-    border-radius: 5px;
-}
-
-.header .dropdown-menu[data-bs-popper] {
-    right: 0;
-    left: auto;
-    width: 300px
+    border-radius: 10px;
 }
 
 .header .dropdown-item:focus,.header .dropdown-item:hover {
@@ -189,12 +220,47 @@ body {
     border-radius: 7px;
 }
 
-.header-menu-username {
-    font-weight: 500;
+div.dropdown-item a.profile-options {
+    font-family: Rubik;
     font-size: 14px;
-    line-height: 120%;
+    font-weight: 500;
+    line-height: 17px;
     letter-spacing: 0.02em;
+    text-align: left;
+    color: #6C757D;
+}
+
+div.dropdown-item a.profile-options:hover {
+    color: #083E2F;
+}
+
+div.dropdown-item.profile {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 0px;
+}
+
+div.dropdown-item.profile:hover {
+    background-color: #E7ECEB;
+    border-radius: 8px;
+}
+
+.profile-menu {
+    width: 306px;
+    left: 1142px;
+    top: 88px;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.header-menu-username {
     color: #212529;
+    font-family: Rubik;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 17px;
+    letter-spacing: 0.02em;
+    text-align: left;
 }
 
 .header-menu-email {
@@ -229,9 +295,12 @@ body {
     padding-left: 10px;
     letter-spacing: 0.02em;
     color: rgba(224, 31, 39, 0.5);
+    padding-bottom: 0px;
+    padding-left: 0px;
+}
 
-    border-top: 1px solid #DFDFE3;
-    padding: 10px 14px;
+.exit-button:hover  {
+    background-color:#fff;
 }
 
 .exit-button a:hover {
