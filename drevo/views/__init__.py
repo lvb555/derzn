@@ -32,7 +32,6 @@ from .filling_tables import (
     CreateChangeTableView,
     filling_tables,
     table_constructor,
-    znanie_attributes,
     show_new_znanie,
     show_filling_tables_page,
     get_form_data
@@ -106,7 +105,6 @@ __all__ = [
     "CreateChangeTableView",
     "table_constructor",
     "get_form_data",
-    "znanie_attributes",
     "show_new_znanie",
     "show_filling_tables_page",
     "friends_view",
