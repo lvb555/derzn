@@ -24,11 +24,19 @@
     <div style="display: flex; flex-direction: column; margin-bottom: 15px;">
         <h1>Конструктор таблиц</h1>
         <label for="id_table">Таблица:</label>
-        <select name="table" data-live-search="true" class="selectpicker" id="id_table" data-dropup-auto="false"    style="width: 400px">
+        <select name="table" style="appearance: none; width: 600px; height: 30px; padding-left: 9px" id="id_table">
             {% for pk, element in table_dict.items %}
                 <option value="{{ pk }}" id="{{ pk }}"> {{ element }} </option>
             {% endfor %}
         </select>
+       <span>
+        <a type="button" id="add-znanie" onclick="winOpen()">
+            <img src="{% static 'drevo/img/knowledge_search/plus.svg' %}" height="20px">
+        </a>
+        <a type="button" id="add-znanie" onclick="deleteConfirmation()">
+            <img src="{% static 'drevo/img/knowledge_search/minus.svg' %}" height="20px">
+        </a>
+        </span>
     </div>
 
     <div style="display: flex; flex-direction: column;">
@@ -39,6 +47,14 @@
                 <option value="{{ row.rz_id }}" id="{{ row.rz_id }}"> {{ row.rz__name }} </option>
             {% endfor %}
         </select>
+        <span>
+        <a type="button" id="add-znanie" onclick="winOpen()">
+            <img src="{% static 'drevo/img/knowledge_search/plus.svg' %}" height="20px">
+        </a>
+        <a type="button" id="add-znanie" onclick="deleteConfirmation()">
+            <img src="{% static 'drevo/img/knowledge_search/minus.svg' %}" height="20px">
+        </a>
+        </span>
         <label for="id_column">Столбец:</label>
         <select class="form-select" name="column" id="id_column">
             <option value="" selected disabled>Выберите столбец</option>
@@ -47,7 +63,12 @@
             {% endfor %}
         </select>
         <span>
-        <input type="button" value="+" class="quiet" id="add_znanie" style="vertical-align: middle; font-size: 30px" onclick="winOpen()">
+        <a type="button" id="add-znanie" onclick="winOpen()">
+            <img src="{% static 'drevo/img/knowledge_search/plus.svg' %}" height="20px">
+        </a>
+        <a type="button" id="add-znanie" onclick="deleteConfirmation()">
+            <img src="{% static 'drevo/img/knowledge_search/minus.svg' %}" height="20px">
+        </a>
         </span>
     </div>
 
@@ -67,6 +88,16 @@
     <div class="popup js-successful">
         <h2 style="position: relative; top: 50%; transform: translateY(-50%); text-align: center">Данные были успешно сохранены</h2>
         <div class="close-popup js-close-successful"></div>
+    </div>
+</div>
+
+<div class="overlay js-successful">
+    <div class="popup js-successful">
+        <h2 style="position: relative; top: 50%; transform: translateY(-50%); text-align: center">Вы точно хотите удалить это знание и связанные с ним связи?</h2>
+        <div class="modal_choice_but" style="margin-top: 35px; text-align: center">
+            <input style="align-self: flex-start;" type="button" value="Ок">
+            <input style="align-self: flex-start;" type="button" value="Отмена">
+        </div>
     </div>
 </div>
 
@@ -172,10 +203,6 @@
     let id_row = $("#id_row")
     let id_column = $("#id_column")
 
-    let id_znanie = $("#id_znanie")
-    let id_view = $("#id_view")
-    let id_author = $("#id_author")
-    let znanie_content = $("#znanie_content")
     let btn_show = $("#btn_show")
     let add_znanie = $("#add_znanie")
     text_show = $("#text_id")
@@ -212,87 +239,19 @@
         }, true);
     }
 
-    function newZnanie() {
-        const data = {};
-        let url = "{% url 'show_new_znanie' %}"
-        return fetch(url, {
-           method: 'POST',
-           headers: {
-               'Content-Type': 'application/json',
-               'X-CSRFToken': csrftoken
-           },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(data => {
-            $('#id_znanie').append(`<option value="${data[0]}" id="${data[0]}" selected> ${data[1]} </option>`)
-            $('#id_znanie').selectpicker('refresh')
-            $('#id_znanie option:last').prop('selected', true)
-            $('#id_znanie').selectpicker('refresh')
-            getZnanieId(data[0])
-        })
-        .catch((error) => {
-        console.log('Error:', error);
-        });
+    function deleteConfirmation() {
+        $('.js-successful').fadeIn();
     }
 
-     id_znanie.on('changed.bs.select', function (e, clickedIndex) {
-        getZnanieId(id_znanie.children()[clickedIndex].id)
-        $('#div-param').css('display', 'flex')
-    });
-
-    function getZnanieId(e) {
-        const data = {id: e};
-        let url = "{% url 'znanie_attributes' %}"
-
-        fetch(url, {
-           method: 'POST',
-           headers: {
-               'Content-Type': 'application/json',
-               'X-CSRFToken': csrftoken
-           },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(data => {
-            id_view.val(data[0]);
-            id_view.attr("readonly");
-
-            id_author.val(data[1])
-
-            if (data[2]) {
-                $('#div-content').css('display', 'flex')
-                text_show.val(data[2])
-            }
-            else {
-                $('#div-content').hide()
-                text_show.empty()
-            }
-        })
-        .catch((error) => {
-        console.log('Error:', error);
-        });
-    }
-
-     btn_show.on('click', function(){
-        Array.from(id_table.children()).forEach(element => {
-            if (element.id === id_table.val()) {
-                try {
-                     window.open(`/drevo/znanie/${element.id}`);
-                }
-                catch (error) {
-                    console.log(error);
-                }
-            }
-        });
-
-    })
+    btn_show.on('click', function(){
+      window.open(`/drevo/znanie/${id_table.val()}`);
+     });
 
     $(document).ready(function () {
         $('#form').submit(function () {
             // Если какое-либо поле не заполнено, форма не отправляется
             if (document.form.table.value === '' || document.form.row.value === '' ||
-                document.form.column.value === '' || document.form.znanie.value === ''){
+                document.form.column.value === ''){
                 return false;
              }
             $.ajax({
