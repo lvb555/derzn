@@ -14,6 +14,8 @@ class KnowledgeTreeBuilder:
         self._systemic_types = Tz.objects.filter(is_systemic=True).values_list('pk', flat=True)
         self.relations_name = {}  # {(<parent_id>, <child_id>): relation_name, }
         self.show_only = show_only  # Вид связи, который необходимо отображать на дереве для знаний из queryset
+        self.category_rel_counts = dict()  # {category_pk: {'knowledge_count': 0, 'base_knowledge_count': 0}
+        self.knowledge_rel_counts = dict()  # {knowledge: {'knowledge_count': 0, 'child_count': 0}
 
         relations = (
             Relation.objects
@@ -35,6 +37,9 @@ class KnowledgeTreeBuilder:
             {
                 tree_data: <Вложенный словарь категорий и знаний>,
                 category_nodes: <Узлы для построения дерева категорий>
+                relations_name: <Название вида связи между знаниями дерева>
+                knowledge_rel_counts: <Показатели кол-ва всех и дочерних знаний для каждой ветви знания>
+                category_rel_counts: <Показатели кол-ва всех и основных знаний для каждой ветви категории>
             }
         """
         tree_data = self.get_data_for_tree()
@@ -42,8 +47,26 @@ class KnowledgeTreeBuilder:
         categories = Category.tree_objects.exclude(is_published=False).filter(pk__in=categories_pk)
         active_nodes = list(Category.tree_objects.get_queryset_ancestors(categories, include_self=False))
         nodes_pk = list(cat.pk for cat in set(active_nodes)) + categories_pk
-        category_nodes = Category.tree_objects.exclude(is_published=False).filter(pk__in=nodes_pk).distinct()
-        return dict(tree_data=tree_data, category_nodes=category_nodes, relations_name=self.relations_name)
+        category_nodes = (
+            Category.tree_objects
+            .exclude(is_published=False)
+            .select_related('parent')
+            .filter(pk__in=nodes_pk).distinct()
+        )
+        category_relations = {cat.id: [] for cat in category_nodes}
+        for cat in category_nodes:
+            if cat.parent and cat.parent.is_published:
+                category_relations[cat.id].append(cat.parent.id)
+        self._gather_knowledge_counter()
+        self._gather_category_counter(category_relations, categories)
+        context = {
+            'tree_data': tree_data,
+            'category_nodes': category_nodes,
+            'relations_name': self.relations_name,
+            'knowledge_rel_counts': self.knowledge_rel_counts,
+            'category_rel_counts': self.category_rel_counts
+        }
+        return context
 
     def get_data_for_tree(self) -> dict:
         """
@@ -135,3 +158,88 @@ class KnowledgeTreeBuilder:
 
         get_paths(base_knowledge, [])
         return paths
+
+    def _gather_knowledge_counter(self) -> None:
+        """
+            Метод для получения показателей кол-ва всех и дочерних знаний для каждого знания дерева
+        """
+        knowledge_data = self.knowledge
+
+        def count_knowledge(data: dict, cnt: int = 0) -> int:
+            for values in data.values():
+                cnt += count_knowledge(values) + len(values)
+            return cnt
+
+        def increase_knowledge_rel_count(knowledge_dict: dict) -> None:
+            """
+                Метод для увеличения показателей кол-ва всех и дочерних знаний с которыми связано текущее
+            """
+            for key, values in knowledge_dict.items():
+                if len(values) == 0:
+                    continue
+                if key not in self.knowledge_rel_counts.keys():
+                    self.knowledge_rel_counts[key] = {
+                        'knowledge_count': len(values)+count_knowledge(values),
+                        'child_count': len(values)
+                    }
+                increase_knowledge_rel_count(values)
+        increase_knowledge_rel_count(knowledge_data)
+
+    def _gather_category_counter(self, category_relations: dict, base_categories: QuerySet[Category]) -> None:
+        """
+            Метод для получения показателей кол-ва всех и основных знаний, которые относятся к категориям дерева
+        """
+        def count_base_knowledge(data: dict, cnt: int = 0) -> int:
+            """
+                Метод для подсчёта основных знаний (тех у которых есть категория)
+            """
+            for key, value in data.items():
+                if key.category_id:
+                    cnt += 1
+                cnt += sum(1 for knowledge in value.keys() if knowledge.category_id)
+                count_base_knowledge(value, cnt)
+            return cnt
+
+        # Получаем данные о знаниях, которые привязаны к категориям
+        category_data = {cat.id: self.categories_data.get(cat.id) for cat in base_categories}
+
+        # Собираем показатели для тех категорий от которых строятся знания
+        for category, values in category_data.items():
+            knowledge_count = len(values)
+            base_knowledge_count = 0
+            kns = []
+            for base_kn in values:
+                kns.extend(base_kn.keys())
+
+            for base_kn in kns:
+                if base_kn.category_id:
+                    base_knowledge_count += 1
+                base_knowledge_count += count_base_knowledge(self.knowledge.get(base_kn))
+                kn_data = self.knowledge_rel_counts.get(base_kn)
+                if not kn_data:
+                    continue
+                knowledge_count += self.knowledge_rel_counts.get(base_kn)['knowledge_count']
+
+            self.category_rel_counts[category] = {
+                'knowledge_count': knowledge_count,
+                'base_knowledge_count': base_knowledge_count
+            }
+        # Дополняем словарь родителями тех категорий от которых строятся знания
+        for category in category_relations.keys():
+            if category not in self.category_rel_counts:
+                self.category_rel_counts[category] = {'knowledge_count': 0, 'base_knowledge_count': 0}
+
+        def count_parent_data(category_obj: Category, kn_count=0, base_kn_count=0):
+            """
+                Метод для посчёта показателей категорий родителей на основе данных их дочерних категорий
+            """
+            parents = category_relations.get(category_obj)
+
+            for parent in parents:
+                self.category_rel_counts[parent]['knowledge_count'] += kn_count
+                self.category_rel_counts[parent]['base_knowledge_count'] += base_kn_count
+                count_parent_data(parent, kn_count, base_kn_count)
+
+        for category in category_data.keys():
+            knowledge_count, base_knowledge_count = self.category_rel_counts[category].values()
+            count_parent_data(category, knowledge_count, base_knowledge_count)
