@@ -643,7 +643,7 @@ admin.site.register(AgeUsersScale)
 
 @admin.register(KnowledgeStatuses)
 class KnowledgeStatusesAdmin(admin.ModelAdmin):
-    list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active',)
+    list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active', 'created_at')
     autocomplete_fields = ['knowledge']
     search_fields = ['knowledge__name']
 

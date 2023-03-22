@@ -49,7 +49,7 @@ class SettingsOptions(models.Model):
 
     def clean(self):
         param = self.default_param
-        if self.is_bool and (param > 1 or param < 0):
+        if self.is_bool and param not in [0, 1]:
             raise ValidationError('Для параметра логического типа допустимы значения 0 или 1')
 
     def __str__(self):
