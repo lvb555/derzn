@@ -145,7 +145,7 @@ def get_tree(obj, user):
             period_dict = collector_dict_period(zn_in_this_category, dict_period)
         zn_dict[category] = zn_in_this_category
     zn_dict = {key: value for key, value in zn_dict.items() if len(value)}
-    tr_answer = Tr.objects.get(name="Ответ [ы]").id
+    tr_answer = get_object_or_404(Tr, name="Ответ").id
     obj_interview = Tr.objects.get(name="Состав").id
 
     def my_answer(list_answer):

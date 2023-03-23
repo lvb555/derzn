@@ -1,4 +1,6 @@
 from dataclasses import dataclass, field, asdict
+
+from django.shortcuts import get_object_or_404
 from drevo.models import Znanie, Tz, Tr
 from django.http.response import HttpResponse
 import json
@@ -64,7 +66,7 @@ def load_interview(pk) -> Interview:
     """
 
     interview_type_id = Tz.objects.get(name="Интервью").id
-    answer_type_id = Tr.objects.get(name="Ответ [ы]").id
+    answer_type_id = get_object_or_404(Tr, name="Ответ").id
     interview_contents_type_id = Tr.objects.get(name="Состав").id
     # bypass 404
     interview_raw = Znanie.objects.get(

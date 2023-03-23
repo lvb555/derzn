@@ -65,7 +65,7 @@ class QuestionExpertWorkPage(TemplateView):
         # забираем все ответы по вопросу
         question_raw = get_object_or_404(orm.Znanie, pk=question_pk)
         answers_links = question_raw.base.filter(
-            tr_id=orm.Tr.objects.get(name="Ответ [ы]").id
+            tr_id=orm.Tr.objects.get(name="Ответ").id
         ).select_related("rz").prefetch_related('rz__answ_sub_answers', 'rz__answer_proposals').distinct()
 
         answers = {}
