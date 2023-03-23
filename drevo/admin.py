@@ -52,7 +52,8 @@ from .models import (
     SettingsOptions,
     UserParameters,
     ParameterCategories,
-    SubAnswers
+    SubAnswers,
+    RelationshipTzTr,
 )
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -677,3 +678,12 @@ class SubAnswersAdmin(admin.ModelAdmin):
     autocomplete_fields = ('interview', 'question', 'answer')
     save_as = True
     save_on_top = True
+
+
+@admin.register(RelationshipTzTr)
+class RelationshipTzTrAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'base_tz', 'rel_type', 'rel_tz')
+    search_fields = ('base_tz__name', 'rel_type__name', 'rel_tz__name')
+    list_display_links = ('pk',)
+    save_as = True
+
