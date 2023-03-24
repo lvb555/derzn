@@ -287,7 +287,7 @@ admin.site.register(Tz, TzAdmin)
 class RelationAdmin(admin.ModelAdmin):
     list_display = ("id", "bz", "tr", "rz", "author", "date", "user")
     save_as = True
-    autocomplete_fields = ["bz", "rz", "author"]
+    #autocomplete_fields = ["bz", "rz", "author"]
     search_fields = ["bz__name", "rz__name"]
     list_filter = (
         "tr",
@@ -296,10 +296,7 @@ class RelationAdmin(admin.ModelAdmin):
         "is_published",
     )
     ordering = ("-date",)
-
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        kwargs["form"] = RelationAdminForm
-        return super().get_form(request, obj, change, **kwargs)
+    form = RelationAdminForm
 
     def save_model(self, request, obj, form, change):
         obj.user = request.user
