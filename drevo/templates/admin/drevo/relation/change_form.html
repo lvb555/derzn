@@ -78,6 +78,44 @@
 
 </div>
 </form></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{% static 'admin/js/admin/refresh_tr_list.js' %}"></script>
 <script src="{% static 'admin/js/admin/refresh_rz_list.js' %}"></script>
+<script>
+ $(function(){
+  $("#id_rz").select2();
+ });
+</script>
+<style>
+    .select2-container--default .select2-selection--single {
+    background-color: #121212;
+    }
+    .select2-selection__rendered{
+    color: #eeeeee !important;
+    background-color: #121212;
+    }
+
+    .select2-search__field{
+    background-color: #121212;
+    color: #eeeeee !important;
+    border: #353535 !important;
+    }
+    .select2-search{
+    background-color: #212121;
+    border: #353535 !important;
+    }
+    .select2-results__options{
+    background-color: #121212;
+    }
+    .select2-results__option--selected{
+    background-color: #272727 !important;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected]{
+    background-color: #264b5d !important;
+    }
+</style>
 {% endblock %}

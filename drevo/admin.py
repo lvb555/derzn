@@ -287,7 +287,7 @@ admin.site.register(Tz, TzAdmin)
 class RelationAdmin(admin.ModelAdmin):
     list_display = ("id", "bz", "tr", "rz", "author", "date", "user")
     save_as = True
-    #autocomplete_fields = ["bz", "rz", "author"]
+    autocomplete_fields = ["author"]
     search_fields = ["bz__name", "rz__name"]
     list_filter = (
         "tr",
@@ -315,7 +315,7 @@ class RelationAdmin(admin.ModelAdmin):
                 result = send_notify_interview(interview, period_relation)
 
     class Media:
-        css = {"all": ("drevo/css/style.css",)}
+        #css = {"all": ("drevo/css/style.css",)}
         js = ("drevo/js/notify_interview.js",)
 
 
