@@ -57,6 +57,8 @@ from .views import (
     delete_editor_permissions,
     AdminsPermissionsDeleteView,
     delete_competence_admin,
+    get_required_tr,
+    get_required_rz,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
@@ -365,7 +367,9 @@ urlpatterns = [
     ),
     path("klz/", KlzKnowledgeProcess.as_view(), name="klz"),
     path('profile/settings/', ParameterSettingsView.as_view(), name='parameter_settings'),
-    path('profile/settings/update', update_user_settings, name='update_settings')
+    path('profile/settings/update', update_user_settings, name='update_settings'),
+    path('get_required_tr', get_required_tr, name='get_required_tr'),
+    path('get_required_rz', get_required_rz, name='get_required_rz'),
 ]
 
 if settings.DEBUG:
