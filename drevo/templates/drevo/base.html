@@ -81,8 +81,35 @@
                         <li><a class="dropdown-item from-nav" href="{% url 'authors' %}" id="authors_link">Авторы</a></li>
 						<li><a class="dropdown-item from-nav" href="{% url 'labels' %}" id="tags_link">Теги</a></li>
                         <li><a class="dropdown-item from-nav" href="{% url 'new_knowledge'%}" id="new_knowledge_link">Новые знания</a></li>
-                        <li><a class="dropdown-item from-nav" href="#">Виды знаний</a></li>
-						<li><a class="dropdown-item from-nav" href="#">Виды связей</a></li>
+
+                        <li>
+                            <div class="btn-group dropstart">
+                                <a onclick="logAndStop(event)" class="dropdown-item from-nav change-arrow" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Виды знаний <img src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                                    <span class="visually-hidden"></span>
+                                </a>
+                                <ul class="dropdown-menu scrollbar" style="overflow: auto; height:200px;">
+                                    {% get_knowledge_types as knowledge_types %}
+                                    {% for knowledge_type in knowledge_types %}
+                                    <li><a class="dropdown-item from-nav" href="{% url 'knowledge_type' knowledge_type.pk %}">{{knowledge_type}}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="btn-group dropstart">
+                                <a onclick="logAndStop(event)" class="dropdown-item from-nav change-arrow" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Виды связей <img src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                                    <span class="visually-hidden"></span>
+                                </a>
+                                <ul class="dropdown-menu scrollbar" style="overflow: auto; height:200px;">
+                                    {% get_relation_types as relation_types %}
+                                    {% for relation_type in relation_types %}
+                                    <li><a class="dropdown-item from-nav" href="{% url 'relation_type' relation_type.pk %}">{{relation_type}}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
                       </ul>
                     </div>
                     <div class="btn-group">
@@ -108,19 +135,6 @@
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <li><a class="dropdown-item from-nav" href="{% url 'all_quizzes' %}">Тесты</a></li>
                         <li><a class="dropdown-item from-nav" href="{% url 'public_people' %}">Публичные люди</a></li>
-                        {% if user.is_expert %}
-						<li>
-						<div class="btn-group dropend">
-                            <a onclick="logAndStop(event)" class="dropdown-item from-nav" data-bs-toggle="dropdown" aria-expanded="false">
-                                Подготовка знаний <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                                <span class="visually-hidden"></span>
-                            </a>
-							<ul class="dropdown-menu">
-								<li><a class="dropdown-item from-nav" href="{% url 'table_knowledge_tree' %}">Наполнение таблиц</a></li>
-							</ul>
-						</div>
-						</li>
-                        {% endif %}
                         {% if user.is_staff %}
 						<li>
 						<div class="btn-group dropend">
@@ -133,7 +147,7 @@
                                 <li><a class="dropdown-item from-nav" href="/admin" id="control_panel_link">Панель управления</a></li>
                                 {% endif %}
                                 <li><a class="dropdown-item from-nav" href="{% url 'special_permissions_page' %}">Добавление особых прав</a></li>
-                                <li><a class="dropdown-item from-nav" href="#">Удаление особых прав</a></li>
+                                <li><a class="dropdown-item from-nav" href="{% url 'delete_special_permissions_page' %}">Удаление особых прав</a></li>
 								<li>
                                     <div class="btn-group dropstart">
                                     <a onclick="logAndStop(event)" class="dropdown-item from-nav change-arrow" data-bs-toggle="dropdown" aria-expanded="false">
