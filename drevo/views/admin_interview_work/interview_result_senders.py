@@ -120,7 +120,7 @@ class InterviewResultSender:
             # Получаем все ответы по вопросу интервью
             answers_data[question] = Relation.objects.\
                 select_related('bz', 'rz', 'tr').prefetch_related('rz__author, rz__answer_proposals').filter(
-                bz__name=question, tr__name='Ответ [ы]'
+                bz__name=question, tr__name='Ответ'
             ).order_by('-rz__order').values(
                 answer_name=F('rz__name'),
                 author_name=F('rz__author__name'),

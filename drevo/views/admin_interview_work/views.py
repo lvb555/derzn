@@ -134,7 +134,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     context['cur_filter'] = request.GET.get('filter')
 
     answers = Relation.objects.select_related('rz', 'tr').filter(
-        bz__pk=quest_pk, tr__name='Ответ [ы]'
+        bz__pk=quest_pk, tr__name='Ответ'
     ).order_by('rz__name', 'rz__order')
 
     def expert_to_author(expert) -> Author:
@@ -209,9 +209,9 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     )
 
                     if obj.question.tz.name == 'Вопрос':
-                        tr = Tr.objects.get(name='Ответ [ы]')
+                        tr = Tr.objects.get(name='Ответ')
                     else:
-                        tr = Tr.objects.get(name='Аргумент [ы]')
+                        tr = Tr.objects.get(name='Аргумент')
                     Relation.objects.create(
                         bz=obj.question,
                         rz=new_knowledge,
@@ -254,7 +254,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                         Relation.objects.update_or_create(
                             bz=obj.question,
                             rz=other_obj,
-                            tr=Tr.objects.get(name='Ответ [ы]'),
+                            tr=Tr.objects.get(name='Ответ'),
                             author=expert_to_author(obj.expert),
                             user=obj.expert,
                             is_published=True
