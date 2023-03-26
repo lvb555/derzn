@@ -79,6 +79,7 @@ from .special_permissions_work.delete_permissions_views import (
 )
 from .knowledge_types_view import KnowledgeTypesView
 from .relation_types_view import RelationTypesView
+from .relationship_tr_tz_view import get_required_tr, get_required_rz
 
 __all__ = [
     "AuthorDetailView",
@@ -150,4 +151,6 @@ __all__ = [
     'delete_editor_permissions',
     'AdminsPermissionsDeleteView',
     'delete_competence_admin',
+    'get_required_tr',
+    'get_required_rz',
 ]

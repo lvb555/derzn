@@ -52,7 +52,8 @@ from .models import (
     SettingsOptions,
     UserParameters,
     ParameterCategories,
-    SubAnswers
+    SubAnswers,
+    RelationshipTzTr,
 )
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -286,7 +287,7 @@ admin.site.register(Tz, TzAdmin)
 class RelationAdmin(admin.ModelAdmin):
     list_display = ("id", "bz", "tr", "rz", "author", "date", "user")
     save_as = True
-    autocomplete_fields = ["bz", "rz", "author"]
+    autocomplete_fields = ["author"]
     search_fields = ["bz__name", "rz__name"]
     list_filter = (
         "tr",
@@ -295,10 +296,7 @@ class RelationAdmin(admin.ModelAdmin):
         "is_published",
     )
     ordering = ("-date",)
-
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        kwargs["form"] = RelationAdminForm
-        return super().get_form(request, obj, change, **kwargs)
+    form = RelationAdminForm
 
     def save_model(self, request, obj, form, change):
         obj.user = request.user
@@ -317,7 +315,7 @@ class RelationAdmin(admin.ModelAdmin):
                 result = send_notify_interview(interview, period_relation)
 
     class Media:
-        css = {"all": ("drevo/css/style.css",)}
+        #css = {"all": ("drevo/css/style.css",)}
         js = ("drevo/js/notify_interview.js",)
 
 
@@ -677,3 +675,12 @@ class SubAnswersAdmin(admin.ModelAdmin):
     autocomplete_fields = ('interview', 'question', 'answer')
     save_as = True
     save_on_top = True
+
+
+@admin.register(RelationshipTzTr)
+class RelationshipTzTrAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'base_tz', 'rel_type', 'rel_tz')
+    search_fields = ('base_tz__name', 'rel_type__name', 'rel_tz__name')
+    list_display_links = ('pk',)
+    save_as = True
+
