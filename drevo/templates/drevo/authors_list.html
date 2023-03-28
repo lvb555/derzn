@@ -5,32 +5,26 @@
 {% block content %}
 
 <h2>Авторы</h2>
+<form role="search" method="get" class="w-25 mb-3">
+    <input class="form-control" type="search" name="author_for_search" placeholder="Поиск по авторам..." aria-label="Search" value="{{ author_for_search }}">
+</form>
 
-{% comment %}
-форма отправляется на сервер по наступлению события oninput
-вызовом функции doSubmit(), см. ниже.
-Атрибут поля формы oninput прописан во вьюхе,
-которая рендерит этот шаблон.
-{% endcomment %}
-<div class="row">
-    <div class="col-3">
-        <form action="" id="rform">
-            {{ rform.author_type }}
-        </form>
-    </div>
-
-</div>
+<select class="author_types form-control w-25" id="select">
+    <option value="all">Все</option>
+    {% for type in author_types %}
+    <option value="type_{{ type.id }}">
+        {{ type.name }}
+    </option>
+    {% endfor %}
+</select>
 
 <br>
 <div class="row">
     <div class="col-auto">
         <ul class="list-group">
-
             {% for author in authors %}
-
-            <div class="row">
+            <div class="row" name="author" id="type_{{ author.atype.id }}">
                 <div class="col">
-
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <a href="{% url 'author' author.pk %}" class="text-decoration-none d-inline-block me-3">
                             {{ author.name }}
@@ -39,25 +33,33 @@
                     </li>
                 </div>
             </div>
-
             {% empty %}
             <div class="row">
                 <div class="col">
-                    Список авторов пуст
+                    {% if not author_for_search %} Список авторов пуст {% else %} Авторы не найдены {% endif %}
                 </div>
             </div>
             {% endfor %}
-
             {% endblock %}
-
-            {% block jsfiles %}
-            <script>
-                function doSubmit(s) {
-                    document.getElementById(s).submit();
-                }
-            </script>
-            {% endblock %}
-
         </ul>
     </div>
 </div>
+
+{% block jsfiles %}
+<script>
+    const select = document.getElementById('select');
+    const authors = "author";
+
+    select.addEventListener('change', () => {
+        const selectedValue = select.value;
+        const elements = document.querySelectorAll(`[name="${authors}"]`);
+        elements.forEach((element) => {
+            if (selectedValue === 'all' || element.id === selectedValue) {
+            element.style.display = 'block';
+            } else {
+            element.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

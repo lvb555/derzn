@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-
+from django.shortcuts import get_object_or_404
 from . import Tr, Tz
 from .knowledge import Znanie
 from .relation import Relation
@@ -59,7 +59,7 @@ class SubAnswers(models.Model):
             :param knowledge:
             :return:
         """
-        queryset = Relation.objects.filter(bz_id=knowledge.pk, tr_id=Tr.objects.get(name="Ответ [ы]").pk)
+        queryset = Relation.objects.filter(bz_id=knowledge.pk, tr_id=get_object_or_404(Tr, name="Вопрос").pk)
         return True if queryset.exists() else False
 
     @staticmethod
@@ -69,7 +69,7 @@ class SubAnswers(models.Model):
             :param knowledge:
             :return:
         """
-        queryset = Relation.objects.filter(rz_id=knowledge.pk, tr_id=Tr.objects.get(name="Ответ [ы]").pk)
+        queryset = Relation.objects.filter(rz_id=knowledge.pk, tr_id=get_object_or_404(Tr, name="Ответ").pk)
         return True if queryset.exists() else False
 
     @staticmethod

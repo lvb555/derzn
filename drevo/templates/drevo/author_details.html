@@ -1,6 +1,7 @@
 {% extends 'drevo/base.html' %}
 {% load static %}
 {% load filter %}
+{% load knowledge_tree %}
 
 {% block title %}Автор {{ author.name }}{% endblock %}
 
@@ -35,8 +36,27 @@
 
 <div class="row">
     <div>
-        {% if not knowledges|length_is:"0" %}
-        <h2>Список знаний</h2>
+        {% if knowledges or knowledges_of_author %}
+
+        {% if not knowledge_by %}
+        <span class="fs-2">
+            Дерево знаний
+        </span>
+        /
+        <a href="{% url 'author' author.pk %}?knowledge_by=list" class="link-primary fs-4" style="text-decoration: none;">
+        Список знаний
+        </a>
+        {% else %}
+        <a href="{% url 'author' author.pk %}" class="link-primary fs-4" style="text-decoration: none;">
+            Дерево знаний
+        </a>
+        /
+        <span class="fs-2">
+        Список знаний
+        </span>
+        {% endif %}
+
+        {% if knowledge_by %}
         <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"
                 onchange="toggleAddZnVisibility(this);">
@@ -142,6 +162,10 @@
             </li>
             {% endif %}
         </ul>
+        {% else %}
+        <br>
+        {% build_knowledge_tree queryset=knowledges_of_author empty_tree_message='Дерево знаний данного автора пустое, перейдите к списку знаний' hidden_author=author %}
+        {% endif %}
         {% endif %}
     </div>
 </div>

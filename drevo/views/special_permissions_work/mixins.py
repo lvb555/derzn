@@ -1,7 +1,10 @@
+from datetime import timedelta
 from django.db.models import Count, F, QuerySet, Case, When, IntegerField, Q
-from django.shortcuts import get_object_or_404
-from drevo.models import SpecialPermissions, SettingsOptions, Znanie, Category
+from django.shortcuts import get_object_or_404, get_list_or_404
+from django.utils.timezone import now
+from drevo.models import SpecialPermissions, SettingsOptions, Znanie, Category, KnowledgeStatuses
 from drevo.relations_tree import get_knowledges_by_categories
+from users.models import User
 
 
 class CandidatesMixin:
@@ -217,7 +220,7 @@ class CandidatesMixin:
                 candidate_categories = candidates[author_id]['categories']
                 if cat.pk not in candidate_categories.keys():
                     candidate_categories[cat.pk] = [0, 0, 0]
-                if know.knowledge_status.status == 'PUB_PRE':
+                if 'PUB_PRE' in know.knowledge_status.values_list('status', flat=True):
                     candidate_categories[cat.pk][0] += 1
                 elif know.author:
                     candidate_categories[cat.pk][1] += 1
@@ -289,7 +292,7 @@ class CandidatesMixin:
                     competencies_data[category] = [0, 0, 0]
                 if know.expert:
                     competencies_data[category][1] += 1
-                elif know.knowledge_status.status == 'PUB_PRE':
+                elif 'PUB_PRE' in know.knowledge_status.values_list('status', flat=True):
                     competencies_data[category][2] += 1
                 else:
                     competencies_data[category][0] += 1
@@ -333,7 +336,7 @@ class CandidatesMixin:
                 know for know, cat in self._get_additional_knowledge(knowledge_without_cat) if cat.pk == category_pk
             ]
             for know in without_cat_data:
-                if know.knowledge_status.status == 'PUB_PRE':
+                if 'PUB_PRE' in know.knowledge_status.values_list('status', flat=True):
                     knowledge_data['preknowledge'].append((know.pk, know.name))
                     continue
                 knowledge_data['knowledge'].append((know.pk, know.name))
@@ -395,7 +398,7 @@ class CandidatesMixin:
             for know in without_cat_data:
                 if know.expert:
                     knowledge_data['expertise'].append((know.pk, know.name))
-                elif know.knowledge_status.status == 'PUB_PRE':
+                elif 'PUB_PRE' in know.knowledge_status.values_list('status', flat=True):
                     knowledge_data['preknowledge'].append((know.pk, know.name))
                 else:
                     knowledge_data['knowledge'].append((know.pk, know.name))
@@ -409,3 +412,205 @@ class CandidatesMixin:
             else:
                 knowledge_data['knowledge'].append((knowledge_pk, name))
         return knowledge_data
+
+
+class UserPermissionsMixin:
+    """
+        Миксин для работы с пользователями, которые имеют особые права
+    """
+    model = SpecialPermissions
+
+    @staticmethod
+    def _get_additional_knowledge(knowledge: list) -> dict:
+        """
+            Метод для получения категорий для дополнительных знаний (знаний без категорий)
+            Результирующие  данные: \n
+            {knowledge1: category, knowledge2: category...}
+        """
+        without_cat_data = dict()
+        _, zn = get_knowledges_by_categories(knowledge)
+        for kn_obj in knowledge:
+            for cat, data in zn.items():
+                if kn_obj in data.get('additional'):
+                    without_cat_data[kn_obj] = get_object_or_404(Category, name=cat)
+                    break
+        return without_cat_data
+
+    def get_experts_for_delete(self, for_category=None):
+        """
+            Метод для получения пользователей, которые не выполняют свои обязанности как экспертов.
+            for_category: Если передать категорию, то на выходе будут эксперты в рамках данной категории.
+
+            Результирующие  данные: \n
+            1. Если категория установлена
+            {expert_pk: [knowledge],}
+            2. Если категория не установлена
+            {category_pk: experts_count,}
+        """
+        param_names = (
+            'Минимальное число знаний и экспертиз за период для эксперта', 'Период деятельности эксперта (дней)'
+        )
+        params = get_list_or_404(SettingsOptions, name__in=param_names)
+        param_data = {param.name: int(param.default_param) for param in params}
+
+        # Получаем экспертов и их компетенции
+        permissions = SpecialPermissions.objects.filter(categories__isnull=False).values('expert', 'categories')
+
+        experts = set(perm.get('expert') for perm in permissions)
+
+        # Получем все опубликованные знания и экспертизы экспертов
+        knowledge_statuses = ('RET_PRE_EDIT', 'PRE_EXP', 'PRE_REJ', 'PRE_REF_EXP', 'PRE_FIN')
+        period = (now() - timedelta(days=param_data.get('Период деятельности эксперта (дней)')))
+
+        knowledge = (
+            Znanie.objects.select_related('author__user_author', 'category')
+            .filter(
+                (Q(author__user_author__in=experts) | Q(expert__in=experts)) & Q(date__gt=period),
+                is_published=True, tz__is_systemic=False, knowledge_status__status='PUB'
+            )
+            .annotate(
+                is_expertise=Case(
+                    When(expert__isnull=False, then=1),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            )
+            .distinct()
+        )
+        # Получаем экспертизы и экспертов по определённым статусам
+        expertise_by_status = (
+            KnowledgeStatuses.objects
+            .select_related('knowledge').prefetch_related('knowledge__category')
+            .filter(user__in=experts, status__in=knowledge_statuses, created_at__gt=period)
+        )
+
+        experts_data = dict()
+
+        for perm_data in permissions:
+            category = perm_data.get('categories')
+            expert = perm_data.get('expert')
+            if category not in experts_data:
+                experts_data[category] = {expert: list()}
+                continue
+            experts_data[category].update({expert: list()})
+
+        # Получаем категорию для дополнительных знаний
+        knowledge_without_cat = [kn for kn in knowledge if not kn.category]
+        knowledge_without_cat = self._get_additional_knowledge(knowledge_without_cat)
+        for kn in knowledge:
+            if kn in knowledge_without_cat:
+                kn.category = knowledge_without_cat.get(kn)
+
+        expertise_without_cat = [exp_data.knowledge for exp_data in expertise_by_status if not exp_data.knowledge.category]
+        knowledge_without_cat = self._get_additional_knowledge(expertise_without_cat)
+        for exp_data in expertise_by_status:
+            if exp_data.knowledge in expertise_without_cat:
+                exp_data.knowledge.category = knowledge_without_cat.get(exp_data.knowledge)
+
+        knowledge = [kn for kn in knowledge if kn.category.id in experts_data]
+        expertise_by_status = [
+            (exp_data.knowledge, exp_data.user.id)
+            for exp_data in expertise_by_status if exp_data.knowledge.category.id in experts_data
+        ]
+
+        for kn in knowledge:
+            category_data = experts_data[kn.category.id]
+            expert = kn.expert.id if kn.is_expertise else kn.author.user_author.id
+            if expert not in category_data:
+                continue
+            expert_knowledge = category_data[expert]
+            expert_knowledge.append(kn)
+            if len(expert_knowledge) >= param_data.get('Минимальное число знаний и экспертиз за период для эксперта'):
+                del experts_data[kn.category.id][expert]
+
+        for kn, expert in expertise_by_status:
+            category_data = experts_data[kn.category.id]
+            if expert not in category_data:
+                continue
+            expert_knowledge = category_data[expert]
+            if kn in expert_knowledge:
+                continue
+            expert_knowledge.append(kn)
+            if len(expert_knowledge) >= param_data.get('Минимальное число знаний и экспертиз за период для эксперта'):
+                del experts_data[kn.category.id][expert]
+
+        if not for_category:
+            return {cat_id: len(data) for cat_id, data in experts_data.items() if len(data) > 0}
+        return experts_data.get(for_category.id)
+
+    @staticmethod
+    def get_editors_data(last_name: str = None):
+        """
+            Метод для получения данных о редакторах
+            Результирующие  данные: \n
+            [(editor_pk, editor_name, knowledge_edited_count), ]
+        """
+        if last_name:
+            return (
+                User.objects
+                .filter(is_redactor=True, last_name__icontains=last_name, expert__editor=True)
+                .annotate(knowledge_edited=Count('redactor'))
+                .order_by('first_name')
+            )
+        return (
+            User.objects
+            .filter(is_redactor=True, expert__editor=True)
+            .annotate(knowledge_edited=Count('redactor'))
+            .order_by('first_name')
+        )
+
+    def get_admins_for_delete(self, for_category=None):
+        """
+            Метод для получения данных пользователей с правами руководителя.
+            for_category: Если передать категорию, то на выходе будут руководители в рамках данной категории.
+
+            Результирующие  данные: \n
+            1. Если категория установлена
+            {admin_pk: knowledge_count,}
+            2. Если категория не установлена
+            {category_pk: admins_count,}
+        """
+        # Получаем руководителей и их компетенции
+        permissions = (
+            SpecialPermissions.objects.filter(admin_competencies__isnull=False).values('expert', 'admin_competencies')
+        )
+        admins = set(perm.get('expert') for perm in permissions)
+
+        # Получем все обработанные знания руководителя
+        knowledge = (
+            Znanie.objects
+            .select_related('category')
+            .filter(
+                director__in=admins, is_published=True, tz__is_systemic=False, knowledge_status__status='PUB'
+            )
+        )
+
+        admins_data = dict()
+
+        for perm_data in permissions:
+            category = perm_data.get('admin_competencies')
+            admin = perm_data.get('expert')
+            if category not in admins_data:
+                admins_data[category] = {admin: 0}
+                continue
+            admins_data[category].update({admin: 0})
+
+        # Получаем категорию для дополнительных знаний
+        knowledge_without_cat = knowledge.filter(category__isnull=True)
+        knowledge_without_cat = self._get_additional_knowledge(knowledge_without_cat)
+        for kn in knowledge:
+            if kn in knowledge_without_cat:
+                kn.category = knowledge_without_cat.get(kn)
+
+        knowledge = knowledge.filter(category__in=admins_data)
+
+        for kn in knowledge:
+            category_data = admins_data[kn.category.id]
+            admin = kn.director.id
+            if admin not in category_data:
+                continue
+            category_data[admin] += 1
+
+        if for_category:
+            return admins_data.get(for_category.id)
+        return {cat_id: len(data) for cat_id, data in admins_data.items() if len(data) > 0}

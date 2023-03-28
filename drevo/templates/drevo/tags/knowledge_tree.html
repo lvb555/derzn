@@ -5,6 +5,7 @@
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
+{% if category_nodes %}
 <button type="button" class="btn btn-secondary btn-sm" onclick="tree{{ tree_num }}_showAll();">Развернуть</button>
 &nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="tree{{ tree_num }}_hiddenAll();">Свернуть</button>
 <ul class="root ps-0" id="tree{{ tree_num }}_root">
@@ -15,6 +16,7 @@
         <a href="{{ node.get_absolute_url }}" class="text-dark">
             {{ node.name }}
         </a>
+        {% get_category_counts category_rel_counts node.id %}
 
         {% if not node.is_leaf_node %}
         <ul class="children" hidden>
@@ -32,8 +34,12 @@
         </ul>
     </li>
     {% endrecursetree %}
-
 </ul>
+{% else %}
+<div class="text-center mt-3">
+    <p class="fs-4">{{ empty_tree_message }}</p>
+</div>
+{% endif %}
 
 <!-- Tree scripts-->
 <script>
@@ -46,10 +52,15 @@
     )
 
     let treeRoot = document.getElementById("tree{{ tree_num }}_root");
-    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
-    for (let icon of listIconsToChange) {
+    let listCategoryIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
+    for (let icon of listCategoryIconsToChange) {
       icon.classList.remove("bi-file-plus-fill")
       icon.classList.add("bi-file-minus-fill");
+    }
+    let listKnowledgeIconsToChange = treeRoot.querySelectorAll('.bi-plus-circle-fill');
+    for (let icon of listKnowledgeIconsToChange) {
+      icon.classList.remove("bi-plus-circle-fill")
+      icon.classList.add("bi-dash-circle-fill");
     }
   }
 
@@ -60,10 +71,15 @@
     })
 
     let treeRoot = document.getElementById("tree{{ tree_num }}_root");
-    let listIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
-    for (let icon of listIconsToChange) {
+    let listCategoryIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
+    for (let icon of listCategoryIconsToChange) {
       icon.classList.remove("bi-file-minus-fill")
       icon.classList.add("bi-file-plus-fill");
+    }
+    let listKnowledgeIconsToChange = treeRoot.querySelectorAll('.bi-dash-circle-fill');
+    for (let icon of listKnowledgeIconsToChange) {
+      icon.classList.remove("bi-dash-circle-fill")
+      icon.classList.add("bi-plus-circle-fill");
     }
   }
 </script>

@@ -1,8 +1,12 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.views.generic import TemplateView
 
 from drevo.models.author import Author
+from drevo.models.category import Category
 from drevo.models.knowledge import Znanie
 from drevo.models.knowledge_kind import Tz
 from drevo.models.relation_type import Tr
@@ -11,65 +15,153 @@ from drevo.models.special_permissions import SpecialPermissions
 
 from .my_interview_view import search_node_categories
 
-import json
-import re
+
+def get_knowledge_dict(knowledge, user=None):
+    """
+    Возвращает кортеж, который содержит кверисет с категориями и
+    словарь, в котором ключи - категории, а значения - знания
+    :param knowledge: кверисет со знаниями
+    :param user: ползьзователь
+    :return: кортеж: (категории, {категория: знания})
+    """
+    _knowledge_dict = {}
+    # формирует список категорий
+    _categories = Category.tree_objects.exclude(is_published=False)
+
+    for category in _categories:
+        if user:
+            experts = category.get_expert_ancestors_category()
+            if user in experts:
+                zn_in_this_category = knowledge.filter(
+                    category=category)
+                # Проверка, существуют ли в данной категории знания. Категория добавляется только в том
+                # случае, если существует хотя бы одно знание
+                if zn_in_this_category:
+                    _knowledge_dict[category.name] = zn_in_this_category
+        else:
+            zn_in_this_category = knowledge.filter(
+                category=category)
+            if not zn_in_this_category:
+                continue
+            _knowledge_dict[category.name] = zn_in_this_category
+    result_categories = []
+    for category in _categories:
+        if category.name in _knowledge_dict.keys():
+            result_categories.append(category)
+    return result_categories, _knowledge_dict
 
 
-def filling_tables(request):
+class TableKnowledgeTreeView(LoginRequiredMixin, TemplateView):
+    """
+    Представление страницы дерева табличных знаний
+    """
+    template_name = 'drevo/table_create_and_update.html'
+
+    def get_context_data(self, **kwargs):
+        """Передает контекст в шаблон"""
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        # Формирование списка знаний вида "Таблица" со статусом "Опубликованное знание"
+        zn = Znanie.objects.filter(
+            Q(tz__name='Таблица') & Q(knowledge_status__status='PUB')
+        )
+
+        for z in zn:
+            row_id = get_object_or_404(Tr, name='Строка').id
+            column_id = get_object_or_404(Tr, name='Столбец').id
+            # Проверка, существуют ли в таблице опубликованные строка и столбец
+            if not(Relation.objects.filter(tr_id=row_id, bz_id=z.id, is_published=True).exists() and
+                   Relation.objects.filter(tr_id=column_id, bz_id=z.id, is_published=True).exists()):
+                zn = zn.exclude(id=z.id)
+
+        context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn, user=user)
+        context['title'] = 'Дерево табличных знаний'
+
+        return context
+
+
+class CreateChangeTableView(LoginRequiredMixin, TemplateView):
+    """
+    Представление страницы создания/изменения таблиц
+    """
+    template_name = 'drevo/table_create_and_update.html'
+
+    def get_context_data(self, **kwargs):
+        """Передает контекст в шаблон"""
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        # Формирование списка знаний вида "Таблица" со статусом "Опубликованное знание"
+        zn = Znanie.objects.filter(
+            Q(tz__name='Таблица') & Q(knowledge_status__status='PUB')
+        )
+        context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn, user=user)
+        context['title'] = 'Создание и изменение таблиц'
+        context['table_create'] = True
+
+        return context
+
+
+def filling_tables(request, pk):
     """
     Отображение страницы "Ввод табличных значений"
     """
     expert = get_object_or_404(SpecialPermissions, expert=request.user)
 
     if expert:
-
-        # Нахождение id связей с именами "Строка", "Столбец" и "Значение"
-        row_id = get_object_or_404(Tr, name='Строка').id
-        column_id = get_object_or_404(Tr, name='Столбец').id
-
-        context = get_contex_data(expert, row_id, column_id)
+        context = get_contex_data(pk)
         template_name = "drevo/filling_tables.html"
-
-        if context != {}:
-            return render(request, template_name, context)
+        return render(request, template_name, context)
 
     return HttpResponseRedirect(reverse('drevo'))
 
 
-def get_contex_data(obj, row_id, column_id):
+def table_constructor(request, pk):
     """
-    Получение всех таблиц, удовлетворяющих условию, а также атрибутов для создания знания
+    Отображение страницы "Конструктор таблиц"
+    """
+    expert = get_object_or_404(SpecialPermissions, expert=request.user)
+
+    if expert:
+
+        context = get_contex_data(pk, table_create=True)
+        template_name = "drevo/table_constructor.html"
+        return render(request, template_name, context)
+
+    return HttpResponseRedirect(reverse('drevo'))
+
+
+def get_contex_data(pk, table_create=False):
+    """
+    Получение выбранной таблицы, связанных с ней строк и столбцов, а также несистемных знаний
+    в случае работы со страницей "Наполнение таблиц"
     """
     context = {}
-    categories_expert = obj.categories.all()
 
-    # Получаем список категорий по уровням
-    categories = search_node_categories(categories_expert)
-    tz_id = Tz.objects.get(name="Таблица").id
-    zn_queryset = Znanie.objects.filter(tz_id=tz_id, is_published=True)
+    if pk == '0':
+        return context
+    selected_table = Znanie.objects.get(id=pk)
+    table_attributes = {selected_table.id: selected_table.name}
+    table_id = pk
 
-    # Выбор опубликованных знаний вида "Таблица" в пределах компетенции эксперта
-    table_dict = {}
-    for category in categories:
-        zn_in_this_category = zn_queryset.filter(category=category).order_by('name')
+    # Получение id и имени знаний, связанных с таблицей с помощью вида "Строка"
+    selected_rows = Relation.objects.filter(tr__name="Строка", bz_id=table_id)
+    rows_attributes = selected_rows.values('rz_id', 'rz__name').order_by('-rz__order')
 
-        for zn in zn_in_this_category:
-            table_dict[zn.pk] = zn.name
+    # Получение id и имени знаний, связанных с таблицей с помощью вида "Столбец"
+    selected_columns = Relation.objects.filter(tr__name="Столбец", bz_id=table_id)
+    columns_attributes = selected_columns.values('rz_id', 'rz__name').order_by('-rz__order')
 
-    # Список всех опубликованных несистемных знаний
-    non_systemic_kind = Znanie.objects.filter(tz__is_systemic=False)
-    zn = non_systemic_kind.values('id', 'name').order_by('name')
+    if not table_create:
+        # Список всех опубликованных несистемных знаний в случае открытия страницы "Наполнение таблиц"
+        non_systemic_kind = Znanie.objects.filter(tz__is_systemic=False)
+        zn = non_systemic_kind.values('id', 'name').order_by('name')
+        context["znanie"] = zn
 
-    context["table_dict"] = table_dict
-    context["znanie"] = zn
+    context["table_dict"] = table_attributes
+    context["rows_attributes"] = rows_attributes
+    context["columns_attributes"] = columns_attributes
 
-    # Проверка, существует ли хотя бы строка и столбец хотя бы в одной подходящей таблице
-    for table, table_id in enumerate(table_dict):
-        if Relation.objects.filter(tr_id=row_id, bz_id=table_id, is_published=True).exists() and Relation.objects.filter(
-                tr_id=column_id, bz_id=table_id, is_published=True).exists():
-            return context
-
-    return {}
+    return context
 
 
 def show_filling_tables_page(request):
@@ -79,49 +171,29 @@ def show_filling_tables_page(request):
     expert = SpecialPermissions.objects.filter(expert=request.user)
 
     if expert.exists():
-        row_id = Tr.objects.get(name='Строка').id
-        column_id = Tr.objects.get(name='Столбец').id
-        context = get_contex_data(expert.first(), row_id, column_id)
-        data = True if context != {} else False
+        categories_expert = object.categories.all()
+        row_id = get_object_or_404(Tr, name='Строка').id
+        column_id = get_object_or_404(Tr, name='Столбец').id
+        categories = search_node_categories(categories_expert)
+        tz_id = get_object_or_404(Tz, name="Таблица").id
+        zn_queryset = Znanie.objects.filter(tz_id=tz_id, is_published=True)
+
+        # Выбор опубликованных знаний вида "Таблица" в пределах компетенции эксперта
+        table_dict = {}
+        for category in categories:
+            zn_in_this_category = zn_queryset.filter(category=category).order_by('name')
+
+            for zn in zn_in_this_category:
+                table_dict[zn.pk] = zn.name
+
+        data = False
+        for table, table_id in enumerate(table_dict):
+            if Relation.objects.filter(tr_id=row_id, bz_id=table_id,
+                                       is_published=True).exists() and Relation.objects.filter(
+                    tr_id=column_id, bz_id=table_id, is_published=True).exists():
+                data = True
 
     return JsonResponse([data], safe=False)
-
-
-def get_rows_and_columns(request):
-    """
-    Возвращает атрибуты строк и столбцов, связанных с данной таблицей: id и имя каждого знания
-    """
-    data = json.loads(request.body)
-    table_id = data['id']
-
-    # Получение id и имени знаний, связанных с таблицей с помощью вида "Строка"
-    selected_rows = Relation.objects.filter(tr__name="Строка", bz_id=table_id)
-    rows_name = selected_rows.values('rz_id', 'rz__name').order_by('-rz__order')
-
-    # Получение id и имени знаний, связанных с таблицей с помощью вида "Столбец"
-    selected_columns = Relation.objects.filter(tr__name="Столбец", bz_id=table_id)
-    columns_name = selected_columns.values('rz_id', 'rz__name').order_by('-rz__order')
-
-    return JsonResponse([list(rows_name), list(columns_name)], safe=False)
-
-
-def znanie_attributes(request):
-    """
-    Возвращает атрибуты выбранного знания: вид знания, автор, содержимое
-    """
-    data = json.loads(request.body)
-    znanie_id = data['id']
-    current_zn = Znanie.objects.get(pk=znanie_id)
-
-    knowledge_kind = current_zn.tz
-
-    author_name = current_zn.author.name if current_zn.author else "Нет автора"
-
-    # Удаление тегов HTML в тексте ячейки
-    content = re.sub(r"<[^>]+>", " ", current_zn.content, flags=re.S)
-    if not content:
-        return JsonResponse([knowledge_kind.name, author_name], safe=False)
-    return JsonResponse([knowledge_kind.name, author_name, content], safe=False)
 
 
 def show_new_znanie(request):

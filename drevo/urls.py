@@ -26,10 +26,11 @@ from .views import (
     QuestionExpertWorkPage,
     friends_view,
     friends_added_view,
-    get_rows_and_columns,
     filling_tables,
+    TableKnowledgeTreeView,
+    CreateChangeTableView,
+    table_constructor,
     get_form_data,
-    znanie_attributes,
     show_new_znanie,
     show_filling_tables_page,
     KnowledgeFormView,
@@ -43,9 +44,21 @@ from .views import (
     my_knowledge_grade,
     knowledges_grades,
     GroupKnowledgeStatisticsView,
-    parameter_settings,
+    ParameterSettingsView,
+    update_user_settings,
     send_message_view,
     messages_feed_view,
+    KnowledgeTypesView,
+    RelationTypesView,
+    SpecialPermissionsDeleteView,
+    ExpertsPermissionsDeleteView,
+    delete_competence_expert,
+    ExpertKnowledgeView,
+    delete_editor_permissions,
+    AdminsPermissionsDeleteView,
+    delete_competence_admin,
+    get_required_tr,
+    get_required_rz,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
@@ -120,9 +133,10 @@ urlpatterns = [
     path("znanie/<int:pk>/grade/infographics", InfographicsView.as_view(), name="grade_infographics"),
     path("knowledges_grades/", knowledges_grades, name="knowledges_grades"),
     path("my_knowledge_grade/<int:id>/", my_knowledge_grade, name="my_knowledge_grade"),
-    path("row/", get_rows_and_columns, name="get_rows_and_columns"),
-    path("column/", znanie_attributes, name="znanie_attributes"),
-    path("filling_tables/", filling_tables, name="filling_tables"),
+    path("filling_tables/<pk>/", filling_tables, name="filling_tables"),
+    path("table_constructor/<pk>/", table_constructor, name="table_constructor"),
+    path('table_knowledge_tree/', TableKnowledgeTreeView.as_view(), name="table_knowledge_tree"),
+    path("table_edit", CreateChangeTableView.as_view(), name="table_edit"),
     path("show_new_znanie/", show_new_znanie, name="show_new_znanie"),
     path("show_filling_tables_page/", show_filling_tables_page, name="show_filling_tables_page"),
     path("get_form_data/", get_form_data, name="get_form_data"),
@@ -139,6 +153,8 @@ urlpatterns = [
     path("labels/", LabelsListView.as_view(), name="labels"),
     path("glossary/", GlossaryListView.as_view(), name="glossary"),
     path("knowledge/", KnowledgeView.as_view(), name="knowledge"),
+    path('knowledge/types/<int:type_pk>', KnowledgeTypesView.as_view(), name='knowledge_type'),
+    path('relations/types/<int:type_pk>', RelationTypesView.as_view(), name='relation_type'),
     path("search/knowledge", KnowledgeSearchView.as_view(), name="search_knowledge"),
     path("new_knowledge/", NewKnowledgeListView.as_view(), name="new_knowledge"),
     path("search/author", AuthorSearchView.as_view(), name="search_author"),
@@ -265,6 +281,41 @@ urlpatterns = [
         UsersSpecialPermissionsView.as_view(),
         name='my_special_permissions'
     ),
+    path(
+        'special_permissions/delete',
+        SpecialPermissionsDeleteView.as_view(),
+        name='delete_special_permissions_page'
+    ),
+    path(
+        'special_permissions/experts_for_delete/<int:category_pk>',
+        ExpertsPermissionsDeleteView.as_view(),
+        name='deleting_experts_permissions_page'
+    ),
+    path(
+        'special_permissions/experts_for_delete/<int:category_pk>/delete',
+        delete_competence_expert,
+        name='delete_competence_expert'
+    ),
+    path(
+        'special_permissions/experts_for_delete/<int:category_pk>/expert/<int:expert_pk>/knowledge',
+        ExpertKnowledgeView.as_view(),
+        name='expert_knowledge_page'
+    ),
+    path(
+        'special_permissions/delete/editors',
+        delete_editor_permissions,
+        name='delete_editor_permissions'
+    ),
+    path(
+        'special_permissions/admins_for_delete/<int:category_pk>',
+        AdminsPermissionsDeleteView.as_view(),
+        name='deleting_admins_permissions_page'
+    ),
+    path(
+        'special_permissions/admins_for_delete/<int:category_pk>/delete',
+        delete_competence_admin,
+        name='delete_competence_admin'
+    ),
 
     path("friends/", friends_view, name="friends"),
     path("friends/friends_added/", friends_added_view, name="friends_added"),
@@ -315,7 +366,10 @@ urlpatterns = [
         name="znanie_director_process",
     ),
     path("klz/", KlzKnowledgeProcess.as_view(), name="klz"),
-    path('profile/settings/', parameter_settings, name='parameter_settings')
+    path('profile/settings/', ParameterSettingsView.as_view(), name='parameter_settings'),
+    path('profile/settings/update', update_user_settings, name='update_settings'),
+    path('get_required_tr', get_required_tr, name='get_required_tr'),
+    path('get_required_rz', get_required_rz, name='get_required_rz'),
 ]
 
 if settings.DEBUG:

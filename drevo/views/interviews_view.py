@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from drevo.models.author import Author
 
 from drevo.models.knowledge import Znanie
@@ -39,7 +39,7 @@ def get_list_question(pk, user):
         need_interview = relation[0].bz_id
         if need_interview == interview.id:
             list_d.append(zn)
-    tr_answer = Tr.objects.get(name='Ответ [ы]').id
+    tr_answer = get_object_or_404(Tr, name='Ответ').id
     dict_q = {}
     for q in list_d:
         relation_answer = q.base.filter(tr_id=tr_answer, is_published=True)

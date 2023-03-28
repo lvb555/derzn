@@ -226,7 +226,8 @@
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <li>
                             {% if user.is_expert %}
-                                <a href="{% url 'filling_tables' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
+                                <a href="{% url 'table_knowledge_tree' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
+                                <a href="{% url 'table_edit' %}" id="table_id" class="dropdown-item">Создание/изменение таблиц</a>
                             {% endif %}
                         </li>
                     </ul>
@@ -245,6 +246,7 @@ function logAndStop(event) {
 <script>
     // Проверка перед открытием страницы "Наполнение таблиц"
     let filling_tables = document.getElementById("filling_tables")
+    let table_id = document.getElementById("table_id")
     const csrftoken = getCookie('csrftoken');
     function getCookie(name) {
       let cookieValue = null;
@@ -277,6 +279,7 @@ function logAndStop(event) {
       .then(data => {
           if (!data[0]) {
               filling_tables.remove()
+              table_id.remove()
           }
       })
       .catch((error) => {

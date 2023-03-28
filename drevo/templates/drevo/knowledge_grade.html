@@ -118,11 +118,13 @@
             style="background: {{ selected_base_grade.grade.get_base_grade|get_color_from_knowledge_grade_value:0 }}; border:none; padding: 0;"
                         {% endif %}>
                             {% for grade in knowledge_scale %}
+                                {% if grade.name != "Нет оценки" %}
                                 <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                         {% if selected_base_grade and selected_base_grade.grade == grade %}
                                         selected {% endif %}>
                                     {{ grade.name }}
                                 </option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                         <br>
@@ -236,13 +238,14 @@
                                     {% endif %}>
                                         <select name="knowledge_grade" id="id_relation_grade{{ relation.id }}"
                                                 style="background: none; border: none; padding: 0;">
-
                                             {% for grade in knowledge_scale %}
+                                                {% if grade.name != "Нет оценки" %}
                                                 <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                                         id="proofRelationId{{ relation.id }}"
                                                         {% if relation.rz|object_grade:user == grade %} selected {% endif %}>
                                                     {{ grade.name }}
                                                 </option>
+                                                {% endif %}
                                             {% endfor %}
                                         </select>
                                         <br>

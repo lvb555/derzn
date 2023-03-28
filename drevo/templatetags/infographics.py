@@ -62,7 +62,7 @@ def get_color_from_knowledge_grade_value(value: float, knowledge_type: bool):
         knowledge_type=knowledge_type)
     saturation = (range_color.saturation*100)/255
     if isinstance(value, str):
-        return ""
+        return ''
     light = 100 - ((
         (range_color.high_light - range_color.low_light) \
         * value + range_color.low_light) * 100) / 255
