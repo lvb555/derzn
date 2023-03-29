@@ -7,16 +7,25 @@ class KnowledgeTreeBuilder:
         Конструктор дерева знаний.
         Данный класс реализует функционал постройки дерева по знаниям и категориям.
     """
-    def __init__(self, queryset: QuerySet[Znanie], show_only: Tr = None):
+    def __init__(self, queryset: QuerySet[Znanie], show_only: Tr = None, show_complex: bool = False):
         self.queryset = queryset
         self.categories_data = {}
         self.knowledge = {}
         self._systemic_types = Tz.objects.filter(is_systemic=True).values_list('pk', flat=True)
+        self.show_complex = show_complex
+        complex_tz_names = ('Таблица', 'Тест')
+        self.complex_tz = Tz.objects.filter(name__in=complex_tz_names).values_list('pk', flat=True)
         self.relations_name = {}  # {(<parent_id>, <child_id>): relation_name, }
         self.show_only = show_only  # Вид связи, который необходимо отображать на дереве для знаний из queryset
         self.category_rel_counts = dict()  # {category_pk: {'knowledge_count': 0, 'base_knowledge_count': 0}
         self.knowledge_rel_counts = dict()  # {knowledge: {'knowledge_count': 0, 'child_count': 0}
+        self.relations_data = self._gather_relations_data()
 
+    def _gather_relations_data(self) -> dict:
+        """
+            Метод для получения всех связей в следующем виде: \n
+            {related_knowledge_id: [base_knowledge_id1, base_knowledge_id2,]}
+        """
         relations = (
             Relation.objects
             .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
@@ -24,11 +33,11 @@ class KnowledgeTreeBuilder:
         )
         relations_data = {rel.rz.id: [] for rel in relations}
         for rel in relations:
-            if self.show_only and rel.rz in queryset and rel.tr != self.show_only:
+            if self.show_only and rel.rz in self.queryset and rel.tr != self.show_only:
                 continue
             self.relations_name.update({(rel.bz.id, rel.rz.id): rel.tr.name})
             relations_data[rel.rz.id].append(rel.bz)
-        self.relations_data = relations_data
+        return relations_data
 
     def get_nodes_data_for_tree(self) -> dict:
         """
@@ -109,6 +118,11 @@ class KnowledgeTreeBuilder:
         def check_exists(tree: dict, knowledge: list) -> None:
             while knowledge:
                 parent = knowledge.pop(0)
+                if parent.tz_id in self.complex_tz and not self.show_complex:
+                    knowledge.clear()
+                    return
+                elif parent.tz_id in self.complex_tz and self.show_complex:
+                    knowledge.clear()
                 if parent.tz_id in self._systemic_types:
                     continue
                 if parent not in tree:

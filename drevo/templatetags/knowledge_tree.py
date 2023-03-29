@@ -13,21 +13,28 @@ def build_knowledge_tree(queryset: QuerySet[Znanie],
                          tree_num: int = 1,
                          empty_tree_message: str = '',
                          show_only: Tr = None,
-                         hidden_author: Author = None
+                         hidden_author: Author = None,
+                         show_complex: bool = False
                          ):
     """
         Тег для построения дерева знаний \n
         tree_num: номер дерева (на случай если необходимо на одной странице создать несколько деревьев); \n
+
         empty_tree_message: если дерево по какой либо причине нельзя построить, то будет выводиться сообщение указанное
         в данном параметре; \n
+
         show_only: принимает объект вида связи, если передан данный параметр, то будут отображаться только связи
         данного вида для переданных знаний (используется если у одного знания из queryset есть несколько связей разных
         видов и необходимо отобразить связи только определённого вида); \n
-        hidden_author: принимает объект автора, около знаний данного автора он не указывается
+
+        hidden_author: принимает объект автора, около знаний данного автора он не указывается; \n
+
+        show_complex: если данный параметр имеет значение True, то на дереве будут отображаться сложные знания.
+        В настоящее время для отображения на дереве существует 2 вида сложных знаний: "Таблица", "Тест"
     """
     if not queryset:
         raise EmptyResultSet('Для построения дерева необходим queryset знаний')
-    tree_builder = KnowledgeTreeBuilder(queryset, show_only)
+    tree_builder = KnowledgeTreeBuilder(queryset, show_only, show_complex)
     tree_context = tree_builder.get_nodes_data_for_tree()
     context = dict(
         tree_num=tree_num,

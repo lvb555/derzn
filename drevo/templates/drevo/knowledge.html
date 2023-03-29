@@ -9,7 +9,7 @@
 
 {% block content %}
 <h1 class="h1-drevo my-3">Дерево</h1>
-{% build_knowledge_tree zn_queryset %}
+{% build_knowledge_tree queryset=zn_queryset show_complex=True %}
 {% comment %}
 <!--<button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть дерево</button>-->
 <!--&nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть дерево</button>-->
