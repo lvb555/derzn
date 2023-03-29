@@ -9,7 +9,7 @@
         <h2>Все связи вида <b>{{ relation_type.name }}</b></h2>
     </div>
     {% if knowledge %}
-    {% build_knowledge_tree queryset=knowledge empty_tree_message='Знаний, использующих данный вид связи ещё нет' show_only=relation_type %}
+    {% build_knowledge_tree queryset=knowledge empty_tree_message='Знаний, использующих данный вид связи ещё нет' show_only=relation_type show_complex=True %}
     {% else %}
     <div class="text-center mt-3">
         <p class="fs-4">Знаний, использующих данный вид связи ещё нет</p>
