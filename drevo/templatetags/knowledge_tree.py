@@ -68,7 +68,7 @@ def get_knowledge_counts(data, knowledge):
     html = f'<span class="badge bg-danger" title="Общее число знаний (Число дочерних знаний)">' \
            f'{knowledge_count} ({child_count})' \
            f'</span>'
-    if knowledge_count == child_count:
+    if knowledge_count == child_count or child_count == 0:
         html = f'<span class="badge bg-danger" title="Общее число знаний">' \
                f'{knowledge_count}' \
                f'</span>'
@@ -85,7 +85,7 @@ def get_category_counts(data, category):
     html = f'<span class="badge bg-info" title="Общее число знаний (Число основных знаний)">' \
            f'{knowledge_count} ({base_knowledge_count})' \
            f'</span>'
-    if knowledge_count == base_knowledge_count:
+    if knowledge_count == base_knowledge_count or base_knowledge_count == 0:
         html = f'<span class="badge bg-info" title="Общее число знаний">' \
                f'{knowledge_count}' \
                f'</span>'
