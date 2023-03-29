@@ -141,6 +141,9 @@ class KnowledgeTreeBuilder:
         raw_data = {knowledge: self.relations_data.get(knowledge.id) for knowledge in self.queryset}
         rel_path_list = []
         for rz, relation_data in raw_data.items():
+            # Если знание сложное и параметр для таких знаний не установлен, то не собираем связи, которые идут от него
+            if rz.tz_id in self.complex_tz and not self.show_complex:
+                continue
             if not relation_data:
                 rel_path_list.append([rz])
                 continue
