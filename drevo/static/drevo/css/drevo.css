@@ -172,10 +172,7 @@ a {
    position: relative;
    padding: 3px 0 0 20px; /* отступ текста */
 }
-/* Стиль вертикальной линии */
-/*.treeline li:not(:last-child) { border-left: dotted 1px  #ccc;}*/
 
-/* Стили горизонтальной линии*/
 .treeline li li:before, .treeline > li:before {
     content: "";
     position: absolute;
@@ -189,7 +186,6 @@ a {
     height: 18px;
     margin-top: 1.5vh !important;
 }
-/* Вертикальная линия последнего пункта в списка */
 
 .title-treeline li:before {
     content: "";
