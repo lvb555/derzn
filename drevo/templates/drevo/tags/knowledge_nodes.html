@@ -7,16 +7,24 @@
     </div>
     {% endif %}
     {% if not knowledge_data %}
-        <i class="bi-plus-circle-fill lonely"></i>
+        <i class="bi-plus-circle-fill lonely circle_icon without_children"></i>
     {% else %}
-        <i class="family bi bi-dash-circle-fill" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
+        <i class="family bi bi-dash-circle-fill circle_icon" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
     {% endif %}
-    <i class="bi bi-file-earmark-fill text-primary fs-4"></i>&nbsp{{ base_knowledge.tz.name }}&nbsp
-    <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-success {% else %} text-dark {% endif %}" target="_blank">
+    {% if base_knowledge.tz.name == 'Тезис' %}
+    <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/green_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% elif base_knowledge.tz.name == 'Вопрос' %}
+    <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% elif base_knowledge.tz.name == 'Факт' %}
+    <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% else %}
+    <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% endif %}
+    <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-dark {% else %} text-dark {% endif %} znanie" style="color: #212529;">
         {{ base_knowledge.name }}
     </a>
     {% if base_knowledge.author and base_knowledge.author != hidden_author %}
-    ({{ base_knowledge.author }})
+    <a class="znanie" style="color: #6C757D;">({{ base_knowledge.author }})</a>
     {% endif %}
     {% get_knowledge_counts knowledge_rel_counts base_knowledge %}
     <ul class="children treeline">
