@@ -172,6 +172,11 @@
     padding: 8px 12px;
 
     border-radius: 8px;
+
+    background: #F5F5F5;
+
+    border: 1px solid #DFDFE3;
+    border-radius: 8px;
 }
 
 td, th {
@@ -204,4 +209,28 @@ th {
     border-collapse: separate;
     border-spacing: 0px;
     border-radius: 10px;
+}
+
+.legend_for_and_against{
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    margin-top: 32px;
+}
+
+.legend{
+    margin-right: 50px;
+}
+
+.input{
+    background: rgba(245, 245, 245, 0.75);
+    border-radius: 8px;
+
+    border: none;
+
+    color: #6C757D;
+
+    padding: 12px 16px;
+
+    min-width: 100px;
 }

@@ -24,7 +24,7 @@
         </div>
         <div class="d-flex justify-content-around">
             <a style="margin-right: 10px;" class="btn btn-filled-white" href="{{ knowledge.get_absolute_url }}/grade">
-                Вернуться к оценки знания
+                Вернуться к оценке знания
             </a>
         </div>
     </div>
@@ -98,7 +98,8 @@
                                         </span>
                                 {% else %}
                                 <td class="table-border">
-                                    <div class="knowledge_grade" style="width: auto; display: inline-block;">
+                                    <div {% if grade_scale != "Всего: " %}class="knowledge_grade"{% endif %}
+                                         style="width: auto; display: inline-block;">
                                         <span {% if grade_scale == "Всего: " %} style="font-weight: 700;" {% endif %}>
                                             {{ grade_scale }}
                                         </span>
@@ -193,7 +194,8 @@
                                         </span>
                                     </div>
                                 {% else %}
-                                    <div class="knowledge_grade" style="width: auto; display: inline-block;">
+                                    <div {% if grade != "Всего:" %}class="knowledge_grade"{% endif %}
+                                         style="width: auto; display: inline-block;">
                                         <span {% if grade == "Всего:" %} style="font-weight: 700;" {% endif %}>
                                             {{ grade }}
                                         </span>
@@ -296,7 +298,8 @@
                                             </span>
                                         </div>
                                     {% else %}
-                                        <div class="knowledge_grade" style="width: auto; display: inline-block;">
+                                        <div class="knowledge_grade"
+                                             style="width: auto; display: inline-block;">
                                             <span {% if grade == "Всего:" %} style="font-weight: 700;" {% endif %}>
                                                 {{ grade }}
                                             </span>
@@ -325,7 +328,7 @@
                             
                             <tr>
                                 <td rowspan="2" class="table-border">
-                                    <div class="knowledge_grade" style="width: auto; display: inline-block; ">
+                                    <div style="width: auto; display: inline-block; ">
                                         <span style="font-weight: 700;">
                                             Всего
                                         </span>
