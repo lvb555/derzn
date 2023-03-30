@@ -13,7 +13,8 @@ def build_knowledge_tree(queryset: QuerySet[Znanie],
                          tree_num: int = 1,
                          empty_tree_message: str = '',
                          show_only: Tr = None,
-                         hidden_author: Author = None
+                         hidden_author: Author = None,
+                         show_complex: bool = False
                          ):
     """
         Тег для построения дерева знаний \n
@@ -23,11 +24,15 @@ def build_knowledge_tree(queryset: QuerySet[Znanie],
         show_only: принимает объект вида связи, если передан данный параметр, то будут отображаться только связи
         данного вида для переданных знаний (используется если у одного знания из queryset есть несколько связей разных
         видов и необходимо отобразить связи только определённого вида); \n
-        hidden_author: принимает объект автора, около знаний данного автора он не указывается
+
+        hidden_author: принимает объект автора, около знаний данного автора он не указывается; \n
+
+        show_complex: если данный параметр имеет значение True, то на дереве будут отображаться сложные знания.
+        В настоящее время для отображения на дереве существует 2 вида сложных знаний: "Таблица", "Тест"
     """
     if not queryset:
         raise EmptyResultSet('Для построения дерева необходим queryset знаний')
-    tree_builder = KnowledgeTreeBuilder(queryset, show_only)
+    tree_builder = KnowledgeTreeBuilder(queryset, show_only, show_complex)
     tree_context = tree_builder.get_nodes_data_for_tree()
     context = dict(
         tree_num=tree_num,
@@ -58,9 +63,22 @@ def get_knowledge_counts(data, knowledge):
         return ''
     knowledge_count = counts.get('knowledge_count')
     child_count = counts.get('child_count')
-    html = f'<p class="badge kn_count">{knowledge_count} ({child_count})' \
-           f'<span class="tooltip-text">Общее число знаний (Число дочерних знаний)</span>' \
-           f'</p>'
+
+    if knowledge_count == child_count:
+        html = f'<p class="badge kn_count">' \
+               f'{knowledge_count}' \
+               f'<span class="tooltip-text">Общее число знаний</span>' \
+               f'</p>'
+    elif child_count == 0:
+        html = f'<p class="badge kn_count">' \
+               f'{knowledge_count} ( )' \
+               f'<span class="tooltip-text">Общее число знаний (Число дочерних знаний)</span>' \
+               f'</p>'
+    else:
+        html = f'<p class="badge kn_count">' \
+               f'{knowledge_count} ({child_count})' \
+               f'<span class="tooltip-text">Общее число знаний (Число дочерних знаний)</span>' \
+               f'</p>'
     return mark_safe(html)
 
 
@@ -71,7 +89,20 @@ def get_category_counts(data, category):
         return ''
     knowledge_count = counts.get('knowledge_count')
     base_knowledge_count = counts.get('base_knowledge_count')
-    html = f'<p href="#" class="badge kn_count">{knowledge_count} ({base_knowledge_count})' \
-           f'<span class="tooltip-text">Общее число знаний (Число основных знаний)</span>' \
-           f'</p>'
+
+    if knowledge_count == base_knowledge_count:
+        html = f'<p class="badge kn_count">' \
+               f'{knowledge_count}' \
+               f'<span class="tooltip-text">Общее число знаний</span>' \
+               f'</p>'
+    elif base_knowledge_count == 0:
+        html = f'<p class="badge kn_count">' \
+               f'{knowledge_count} ( )' \
+               f'<span class="tooltip-text">Общее число знаний (Число основных знаний)</span>' \
+               f'</p>'
+    else:
+        html = f'<p class="badge kn_count">' \
+               f'{knowledge_count} ({base_knowledge_count})' \
+               f'<span class="tooltip-text">Общее число знаний (Число основных знаний)</span>' \
+               f'</p>'
     return mark_safe(html)
