@@ -6,14 +6,15 @@
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
 {% if category_nodes %}
-<button type="button" class="btn btn-secondary btn-sm" onclick="tree{{ tree_num }}_showAll();">Развернуть</button>
-&nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="tree{{ tree_num }}_hiddenAll();">Свернуть</button>
+<div style="background-color: #FFFFFF; padding: 32px;border-radius: 10px;">
+<button type="button" class="btn tree-btn" onclick="tree{{ tree_num }}_showAll();">Развернуть</button>
+<button type="button" class="btn tree-btn" onclick="tree{{ tree_num }}_hiddenAll();">Свернуть</button>
 <ul class="root ps-0" id="tree{{ tree_num }}_root">
     {% recursetree category_nodes %}
-    <li id="tree{{ tree_num }}_li_category_{{ node.pk }}">
-        <i class="family bi-file-plus-fill fs-3" onclick="toggleHiddenCategoryElementTree{{ tree_num }}(this);"></i>
+    <li id="tree{{ tree_num }}_li_category_{{ node.pk }}" class="title-treeline">
+        <i class="family bi-file-plus-fill circle_icon" onclick="toggleHiddenCategoryElementTree{{ tree_num }}(this);"></i>
 
-        <a href="{{ node.get_absolute_url }}" class="text-dark">
+        <a href="{{ node.get_absolute_url }}" class="text-dark title" style="vertical-align: 0.5vh;">
             {{ node.name }}
         </a>
         {% get_category_counts category_rel_counts node.id %}
@@ -35,6 +36,7 @@
     </li>
     {% endrecursetree %}
 </ul>
+</div>
 {% else %}
 <div class="text-center mt-3">
     <p class="fs-4">{{ empty_tree_message }}</p>
@@ -43,6 +45,17 @@
 
 <!-- Tree scripts-->
 <script>
+    function setClass(){
+        all_main_titles = document.querySelector('#tree1_root').childNodes;
+        for(let i=0;i< all_main_titles.length;i++){
+            if(all_main_titles[i].tagName == 'LI'){
+                all_main_titles[i].classList.add("main-title");
+            }
+        }
+    }
+
+    setClass()
+
     function tree{{ tree_num }}_showAll() {
     let ulToHidden = document.querySelectorAll('ul#tree{{ tree_num }}_root ul');
 

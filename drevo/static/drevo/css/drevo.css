@@ -30,3 +30,218 @@ a {
 .know_action_btn {
     margin-top: 30px;
 }
+
+.tree-btn {
+    padding: 4px 24px;
+    width: 154px;
+    height: 30px;
+    background: #E7ECEB;
+    border-radius: 8px;
+    text-align: center;
+    color: #083E2F;
+    font-family: Rubik;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+    margin: 0px 15px 15px 0px;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    position: absolute;
+    z-index: 2;
+    width: 306px;
+    color: #6C757D;
+    background: #E7ECEB;
+    border-radius: 5px;
+    padding: 4px 12px;
+    font-family: Rubik;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+    text-align: left;
+    margin-top: -3vh;
+}
+
+.kn_count:hover .tooltip-text {
+  visibility: visible;
+}
+
+.kn_count {
+    background-color: #1B56B54D;
+    color: #1B56B5;
+    vertical-align: super;
+    font-family: Rubik;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+    text-align: left;
+    margin: 0px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 8px;;
+    white-space: nowrap;
+    background: #F1FAFF;
+    border: 1px solid rgba(27, 86, 181, 0.3);
+}
+
+.bi-file-minus-fill::before {
+    content: "\f2e5";
+}
+
+.bi-file-plus-fill::before {
+    content: "\f4f9";
+}
+
+.circle_icon {
+    color: #DFDFE3;
+    width: 24px;
+    background: radial-gradient(0.9vh, #6C757D 100%, #FFFFFF 100% );
+}
+
+.without_children{
+    background: radial-gradient(0.9vh, #BFBFBF 100%, #FFFFFF 100% );
+}
+
+.without_children::before {
+    content: "\f2e5";
+}
+
+.title{
+    font-family: Rubik;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 19px;
+    letter-spacing: 0.05em;
+    text-align: left;
+}
+
+.page-title {
+    font-family: Rubik;
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 34px;
+    letter-spacing: 0.05em;
+    text-align: left;
+    color: #212529;
+}
+
+.header_info .breadcrumb-item {
+    height: hug(14px);
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400 !important;
+    font-size: 12px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+}
+
+.breadcrumb-item a {
+    text-decoration: none;
+    color: #6C757D;
+}
+
+.header_info .opened {
+    color: #212529;
+    font-family: Rubik;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+    text-align: left;
+}
+
+.main-title {
+    border-block-end: dashed 1px;
+    color: #DFDFE3;
+    padding-bottom: 1vh;
+    padding-top: 1vh;
+}
+
+.treeline, .treeline ul, .treeline li {
+   margin: 0; line-height: 1.25; list-style: none;
+}
+.treeline ul {margin: 0 0 0 12px; /* отступ вертикальной линии */}
+.treeline > li, .treeline li li {
+   position: relative;
+   padding: 3px 0 0 20px; /* отступ текста */
+}
+
+.treeline li li:before, .treeline > li:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 32px;
+    border-left: 1px solid #ccc;
+    border-radius: 0px 0px 0px 10px;
+    border-bottom: dotted 1px #ccc;
+    border-left: dotted 1px #ccc;
+    height: 18px;
+    margin-top: 1.5vh !important;
+}
+
+.title-treeline li:before {
+    content: "";
+    position:
+    absolute;
+    top: 0;
+    left: 0;
+    width: 32px;
+    border-left: 1px solid #ccc;
+    border-radius: 0px 0px 0px 10px;
+    border-bottom: dotted 1px #ccc;
+    border-left: dotted 1px #ccc;
+    height: 18px;
+    margin-left: -4.5vh;
+    margin-top: -0.05vh;
+}
+
+.title-treeline {
+    margin: 0;
+    line-height: 1.25;
+    list-style: none;
+}
+
+.title-treeline ul {margin: 0 0 0 12px; /* отступ вертикальной линии */}
+.title-treeline > li, .title-treeline li {
+   position: relative;
+   padding: 3px 0 0 20px; /* отступ текста */
+}
+
+.kn_type {
+    font-family: Rubik;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 17px;
+    letter-spacing: 0.02em;
+    text-align: left;
+    font-style: normal;
+    vertical-align: 0.5vh;
+}
+
+.znanie {
+    font-family: Rubik;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 17px;
+    letter-spacing: 0.02em;
+    text-align: left;
+    vertical-align: 0.5vh;
+}
+
+.text-secondary {
+    font-family: Rubik;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+    text-align: left;
+    color: #6C757D;
+}
