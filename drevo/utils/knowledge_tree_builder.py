@@ -7,16 +7,26 @@ class KnowledgeTreeBuilder:
         Конструктор дерева знаний.
         Данный класс реализует функционал постройки дерева по знаниям и категориям.
     """
-    def __init__(self, queryset: QuerySet[Znanie], show_only: Tr = None):
+    def __init__(self, queryset: QuerySet[Znanie], show_only: Tr = None, show_complex: bool = False):
         self.queryset = queryset
+        self.building_knowledge = set(kn.id for kn in queryset)  # Множество знаний используемых для построения дерева
         self.categories_data = {}
         self.knowledge = {}
         self._systemic_types = Tz.objects.filter(is_systemic=True).values_list('pk', flat=True)
+        self.show_complex = show_complex
+        complex_tz_names = ('Таблица', 'Тест')
+        self.complex_tz = Tz.objects.filter(name__in=complex_tz_names).values_list('pk', flat=True)
         self.relations_name = {}  # {(<parent_id>, <child_id>): relation_name, }
         self.show_only = show_only  # Вид связи, который необходимо отображать на дереве для знаний из queryset
         self.category_rel_counts = dict()  # {category_pk: {'knowledge_count': 0, 'base_knowledge_count': 0}
         self.knowledge_rel_counts = dict()  # {knowledge: {'knowledge_count': 0, 'child_count': 0}
+        self.relations_data = self._gather_relations_data()
 
+    def _gather_relations_data(self) -> dict:
+        """
+            Метод для получения всех связей в следующем виде: \n
+            {related_knowledge_id: [base_knowledge_id1, base_knowledge_id2,]}
+        """
         relations = (
             Relation.objects
             .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
@@ -24,11 +34,11 @@ class KnowledgeTreeBuilder:
         )
         relations_data = {rel.rz.id: [] for rel in relations}
         for rel in relations:
-            if self.show_only and rel.rz in queryset and rel.tr != self.show_only:
+            if self.show_only and rel.rz.id in self.building_knowledge and rel.tr != self.show_only:
                 continue
             self.relations_name.update({(rel.bz.id, rel.rz.id): rel.tr.name})
             relations_data[rel.rz.id].append(rel.bz)
-        self.relations_data = relations_data
+        return relations_data
 
     def get_nodes_data_for_tree(self) -> dict:
         """
@@ -109,6 +119,11 @@ class KnowledgeTreeBuilder:
         def check_exists(tree: dict, knowledge: list) -> None:
             while knowledge:
                 parent = knowledge.pop(0)
+                if parent.tz_id in self.complex_tz and not self.show_complex:
+                    knowledge.clear()
+                    return
+                elif parent.tz_id in self.complex_tz and self.show_complex:
+                    knowledge.clear()
                 if parent.tz_id in self._systemic_types:
                     continue
                 if parent not in tree:
@@ -127,18 +142,22 @@ class KnowledgeTreeBuilder:
         raw_data = {knowledge: self.relations_data.get(knowledge.id) for knowledge in self.queryset}
         rel_path_list = []
         for rz, relation_data in raw_data.items():
+            # Если знание сложное и параметр для таких знаний не установлен, то не собираем связи, которые идут от него
+            if rz.tz_id in self.complex_tz and not self.show_complex:
+                continue
             if not relation_data:
                 rel_path_list.append([rz])
                 continue
             for bz in relation_data:
+                if bz.tz_id in self.complex_tz and not self.show_complex:
+                    continue
                 if not self.relations_data.get(bz.id):
                     rel_path_list.append([bz, rz])
                     continue
                 rel_path_list.extend([path[::-1] + [rz] for path in self._get_all_relations(bz, self.relations_data)])
         return rel_path_list
 
-    @staticmethod
-    def _get_all_relations(base_knowledge: Znanie, base_data: dict) -> list[list]:
+    def _get_all_relations(self, base_knowledge: Znanie, base_data: dict) -> list[list]:
         """
             Метод для получения двумерного списка со всеми путями связей от текущего знания до базового
         """
@@ -157,6 +176,9 @@ class KnowledgeTreeBuilder:
                 get_paths(neighbour, path.copy())
 
         get_paths(base_knowledge, [])
+
+        if not self.show_complex:
+            return [path for path in paths if not [kn for kn in path if kn.tz_id in self.complex_tz]]
         return paths
 
     def _gather_knowledge_counter(self) -> None:
@@ -165,9 +187,14 @@ class KnowledgeTreeBuilder:
         """
         knowledge_data = self.knowledge
 
+        def filter_data(elm):
+            if elm.id in self.building_knowledge:
+                return True
+            return False
+
         def count_knowledge(data: dict, cnt: int = 0) -> int:
             for values in data.values():
-                cnt += count_knowledge(values) + len(values)
+                cnt += count_knowledge(values) + sum(map(filter_data, values))
             return cnt
 
         def increase_knowledge_rel_count(knowledge_dict: dict) -> None:
@@ -177,10 +204,11 @@ class KnowledgeTreeBuilder:
             for key, values in knowledge_dict.items():
                 if len(values) == 0:
                     continue
-                if key not in self.knowledge_rel_counts.keys():
+                if key not in self.knowledge_rel_counts.keys() and key.id in self.building_knowledge:
+                    knowledge_for_count = sum(map(filter_data, values))
                     self.knowledge_rel_counts[key] = {
-                        'knowledge_count': len(values)+count_knowledge(values),
-                        'child_count': len(values)
+                        'knowledge_count': knowledge_for_count + count_knowledge(values),
+                        'child_count': knowledge_for_count
                     }
                 increase_knowledge_rel_count(values)
         increase_knowledge_rel_count(knowledge_data)
@@ -189,36 +217,40 @@ class KnowledgeTreeBuilder:
         """
             Метод для получения показателей кол-ва всех и основных знаний, которые относятся к категориям дерева
         """
-        def count_base_knowledge(data: dict, cnt: int = 0) -> int:
+
+        def count_data(data: dict, cnt_base: int = 0, cnt: int = 0) -> tuple[int, int]:
             """
-                Метод для подсчёта основных знаний (тех у которых есть категория)
+                Метод для подсчёта основных(тех у которых есть категория) и всех знаний для категории
             """
             for key, value in data.items():
-                if key.category_id:
+                if key.category_id and key.id in self.building_knowledge:
+                    cnt_base += 1
+                if key.id in self.building_knowledge:
                     cnt += 1
-                cnt += sum(1 for knowledge in value.keys() if knowledge.category_id)
-                count_base_knowledge(value, cnt)
-            return cnt
+                cnt += count_data(value, cnt_base)[1]
+            return cnt_base, cnt
 
         # Получаем данные о знаниях, которые привязаны к категориям
         category_data = {cat.id: self.categories_data.get(cat.id) for cat in base_categories}
 
         # Собираем показатели для тех категорий от которых строятся знания
         for category, values in category_data.items():
-            knowledge_count = len(values)
+            knowledge_count = 0
+
             base_knowledge_count = 0
             kns = []
             for base_kn in values:
                 kns.extend(base_kn.keys())
 
             for base_kn in kns:
-                if base_kn.category_id:
+                if base_kn.category_id and base_kn.id in self.building_knowledge:
                     base_knowledge_count += 1
-                base_knowledge_count += count_base_knowledge(self.knowledge.get(base_kn))
-                kn_data = self.knowledge_rel_counts.get(base_kn)
-                if not kn_data:
-                    continue
-                knowledge_count += self.knowledge_rel_counts.get(base_kn)['knowledge_count']
+                if base_kn.id in self.building_knowledge:
+                    knowledge_count += 1
+
+                base_cnt, knowledge_cnt = count_data(self.knowledge.get(base_kn))
+                base_knowledge_count += base_cnt
+                knowledge_count += knowledge_cnt
 
             self.category_rel_counts[category] = {
                 'knowledge_count': knowledge_count,

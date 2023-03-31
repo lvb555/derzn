@@ -8,8 +8,16 @@
 {% endblock %}
 
 {% block content %}
-<h1 class="h1-drevo my-3">Дерево</h1>
-{% build_knowledge_tree zn_queryset %}
+<div class="container header_info" style="padding-left: 0px;">
+    <h1 class="page-title">Дерево знаний</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item opened"><a>Дерево знаний</a></li>
+        </ol>
+    </nav>
+</div>
+{% build_knowledge_tree queryset=zn_queryset show_complex=True %}
 {% comment %}
 <!--<button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть дерево</button>-->
 <!--&nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть дерево</button>-->

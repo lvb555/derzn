@@ -1,4 +1,5 @@
 {% load knowledge_tree %}
+{% load static %}
 
 <li id="tree{{ tree_num }}_li_{{ base_knowledge.pk }}{{ parent.id }}" class="treeline mb-2">
     {% if parent %}
@@ -7,16 +8,24 @@
     </div>
     {% endif %}
     {% if not knowledge_data %}
-        <i class="bi-plus-circle-fill lonely"></i>
+        <i class="bi-plus-circle-fill lonely circle_icon without_children"></i>
     {% else %}
-        <i class="family bi bi-dash-circle-fill" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
+        <i class="family bi bi-dash-circle-fill circle_icon" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
     {% endif %}
-    <i class="bi bi-file-earmark-fill text-primary fs-4"></i>&nbsp{{ base_knowledge.tz.name }}&nbsp
-    <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-success {% else %} text-dark {% endif %}">
+    {% if base_knowledge.tz.name == 'Тезис' %}
+    <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/green_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% elif base_knowledge.tz.name == 'Вопрос' %}
+    <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% elif base_knowledge.tz.name == 'Факт' %}
+    <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% else %}
+    <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% endif %}
+    <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-dark {% else %} text-dark {% endif %} znanie" style="color: #212529;">
         {{ base_knowledge.name }}
     </a>
     {% if base_knowledge.author and base_knowledge.author != hidden_author %}
-    ({{ base_knowledge.author }})
+    <a class="znanie" style="color: #6C757D;">({{ base_knowledge.author }})</a>
     {% endif %}
     {% get_knowledge_counts knowledge_rel_counts base_knowledge %}
     <ul class="children treeline">
@@ -27,26 +36,3 @@
         {% endfor %}
     </ul>
 </li>
-
-<style>
-.treeline, .treeline ul, .treeline li {
-   margin: 0; padding: 0; line-height: 1.2; list-style: none;
-}
-.treeline ul {margin: 0 0 0 12px; /* отступ вертикальной линии */}
-.treeline > li:not(:only-child), .treeline li li {
-   position: relative;
-   padding: 3px 0 0 20px; /* отступ текста */
-}
-/* Стиль вертикальной линии */
-.treeline li:not(:last-child) { border-left: dotted 1px  #ccc;}
-
-/* Стили горизонтальной линии*/
-.treeline li li:before, .treeline > li:not(:only-child):before {
-   content: ""; position: absolute; top: 0; left: 0; margin-top: 30px;
-   width: 1.1em; height: .4em; border-bottom: dotted 1px  #ccc;
-}
-/* Вертикальная линия последнего пункта в списка */
-.treeline li:last-child:before {
-   width: calc(1.1em - 1px); border-left: 1px solid #ccc;
-}
-</style>

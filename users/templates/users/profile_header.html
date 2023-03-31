@@ -230,6 +230,36 @@
                                 <a href="{% url 'table_edit' %}" id="table_id" class="dropdown-item">Создание/изменение таблиц</a>
                             {% endif %}
                         </li>
+                        {% if user.is_staff %}
+						<li>
+                            <div class="btn-group text-center">
+                                <a class="dropdown-item" href="#">Администратор</a>
+                                <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                {% if user.is_active %}
+                                <li><a class="dropdown-item from-nav" href="/admin" id="control_panel_link">Панель управления</a></li>
+                                {% endif %}
+                                <li><a class="dropdown-item from-nav" href="{% url 'special_permissions_page' %}">Добавление особых прав</a></li>
+                                <li><a class="dropdown-item from-nav" href="{% url 'delete_special_permissions_page' %}">Удаление особых прав</a></li>
+								<li>
+                                    <div class="btn-group text-center">
+                                        <a class="dropdown-item" href="#">Обработка интервью</a>
+                                        <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="visually-hidden"></span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item from-nav" href="{% url 'all_interview' %}">•  Новые ответы</a></li>
+                                            <li><a class="dropdown-item from-nav" href="#">•  Некорректные ответы</a></li>
+                                            <li><a class="dropdown-item from-nav" href="#">•  Подответы</a></li>
+                                        </ul>
+                                    </div>
+								</li>
+							</ul>
+						</div>
+						</li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
