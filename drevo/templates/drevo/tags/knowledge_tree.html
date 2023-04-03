@@ -5,6 +5,21 @@
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
+
+<form role="search" method="post" action="{% url 'search_by_tree' %}" class="mb-3" target="_blank">
+    {% csrf_token %}
+    <div class="input-group">
+        <input class="form-control" type="search" name="search_word" placeholder="Поиск по дереву..." aria-label="Search" value="{{ search_word }}">
+        <input class="form-control" type="text" name="knowledge_from_tree" value="{{ tree_knowledge }}" hidden>
+        <div class="input-group-btn">
+            <button type="submit" class="btn btn-outline-success" name="default_search">
+                <img src="/static/drevo/img/main_page/search.png">
+            </button>
+            <input type="submit" class="btn btn-outline-info" value="Расширенный поиск">
+        </div>
+    </div>
+</form>
+
 {% if category_nodes %}
 <div style="background-color: #FFFFFF; padding: 32px;border-radius: 10px;">
 <button type="button" class="btn tree-btn" onclick="tree{{ tree_num }}_showAll();">Развернуть</button>
@@ -42,6 +57,26 @@
     <p class="fs-4">{{ empty_tree_message }}</p>
 </div>
 {% endif %}
+
+<!-- Модальное окно -->
+<div class="modal fade" id="search_message" tabindex="-1" aria-labelledby="searchModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-dark" style="background-color:#5ad65a;">
+            <div class="modal-body text-center" id="searchModalLabel">
+                <h5>Ничего не найдено</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+if ("{{ empty_result }}") {
+  $(window).on('load', function() {
+        $('#search_message').modal('show');
+    });
+}
+</script>
 
 <!-- Tree scripts-->
 <script>
