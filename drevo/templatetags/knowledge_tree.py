@@ -1,20 +1,21 @@
 from django.core.exceptions import EmptyResultSet
 from django.db.models import QuerySet
-from django.template import Library
+from django.template import Library, RequestContext
 from django.utils.safestring import mark_safe
 from drevo.utils.knowledge_tree_builder import KnowledgeTreeBuilder
-from drevo.models import Znanie, Category, Tr, Author
+from drevo.models import Znanie, Category, Tr, Author, UserParameters
 
 register = Library()
 
 
-@register.inclusion_tag('drevo/tags/knowledge_tree.html')
-def build_knowledge_tree(queryset: QuerySet[Znanie],
+@register.inclusion_tag('drevo/tags/knowledge_tree.html', takes_context=True)
+def build_knowledge_tree(context: RequestContext,
+                         queryset: QuerySet[Znanie],
                          tree_num: int = 1,
                          empty_tree_message: str = '',
                          show_only: Tr = None,
                          hidden_author: Author = None,
-                         show_complex: bool = False
+                         show_complex: bool = False,
                          ):
     """
         Тег для построения дерева знаний \n
@@ -33,15 +34,30 @@ def build_knowledge_tree(queryset: QuerySet[Znanie],
     if not queryset:
         raise EmptyResultSet('Для построения дерева необходим queryset знаний')
     tree_builder = KnowledgeTreeBuilder(queryset, show_only, show_complex)
-    tree_context = tree_builder.get_nodes_data_for_tree()
-    context = dict(
+    tree_builder_context = tree_builder.get_nodes_data_for_tree()
+    tree_context = dict(
         tree_num=tree_num,
         empty_tree_message=empty_tree_message,
         hidden_author=hidden_author,
         active_knowledge=queryset,
-        **tree_context
+        **tree_builder_context
     )
-    return context
+    # Search block
+    search_word = context.request.POST.get('search_word', '')
+    user_search_param = (
+        UserParameters.objects
+        .select_related('param')
+        .filter(user=context.request.user, param__name='Учитывать структурные знания').first()
+    )
+    if user_search_param:
+        user_search_param = True if user_search_param.param_value else False
+    else:
+        user_search_param = False
+    tree_knowledge = tree_builder.get_tree_knowledge_list(with_struct_knowledge=user_search_param)
+    tree_context['empty_result'] = context.request.GET.get('empty_result', '')
+    tree_context['tree_knowledge'] = ','.join(list(map(str, tree_knowledge)))
+    tree_context['search_word'] = search_word
+    return tree_context
 
 
 @register.simple_tag
