@@ -40,6 +40,24 @@ class KnowledgeTreeBuilder:
             relations_data[rel.rz.id].append(rel.bz)
         return relations_data
 
+    def get_tree_knowledge_list(self, with_struct_knowledge: bool = False) -> list:
+        """
+            Метод для получения множества всех знаний, которые отображены на дереве (используется для поиска) \n
+            with_struct_knowledge: Получить все знания, даже структурные
+        """
+        if not with_struct_knowledge:
+            return list(self.building_knowledge)
+
+        tree_knowledge = set()
+
+        def gather_all_tree_knowledge(data: dict) -> None:
+            for key, value in data.items():
+                tree_knowledge.add(key.id)
+                gather_all_tree_knowledge(value)
+
+        gather_all_tree_knowledge(self.knowledge)
+        return list(tree_knowledge)
+
     def get_nodes_data_for_tree(self) -> dict:
         """
             Метод для получения всех данных узлов, необходимых для построения дерева знаний и категорий \n
