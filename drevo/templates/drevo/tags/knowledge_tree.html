@@ -9,6 +9,7 @@
 {% if show_searchbar %}
 <form
         role="search"
+        id="search_form"
         method="post"
         action="{% if not is_advance_search %}{% url 'search_by_tree' %}{% else %}{% url 'advance_search_by_tree' %}{% endif %}"
         class="mb-3"
@@ -20,7 +21,7 @@
         <input class="form-control" type="text" name="knowledge_from_tree" value="{{ tree_knowledge }}" hidden>
         <div class="input-group-btn">
             {% if not is_advance_search %}
-            <button type="submit" class="btn btn-outline-success" name="default_search">
+            <button type="submit" class="btn btn-outline-success" id="default_search" name="default_search">
                 <img src="/static/drevo/img/main_page/search.png">
             </button>
             <input type="submit" class="btn btn-outline-info" name="advance_search" value="Расширенный поиск">
@@ -102,6 +103,7 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Search empty result notify script-->
 <script type="text/javascript">
 if ("{{ empty_result }}") {
   $(window).on('load', function() {
@@ -109,6 +111,19 @@ if ("{{ empty_result }}") {
     });
 }
 </script>
+
+<!-- Search action script-->
+<script>
+    const form = document.getElementById('search_form');
+    const defaultSearchBtn = document.getElementById('default_search');
+
+    defaultSearchBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        form.target = '';
+        form.submit();
+    });
+</script>
+
 
 <!-- Tree scripts-->
 <script>
