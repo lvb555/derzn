@@ -18,6 +18,8 @@
     <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
     {% elif base_knowledge.tz.name == 'Факт' %}
     <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% elif base_knowledge.tz.name == 'Классификация' %}
+    <i class="kn_type" style="color: #BA7507;"><img src="{% static 'drevo/img/ginger_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
     {% else %}
     <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
     {% endif %}

@@ -14,6 +14,7 @@ class AuthorsListView(ListView):
     template_name = 'drevo/authors_list.html'
     model = Author
     context_object_name = 'authors'
+    paginate_by = 25
 
     def get_queryset(self):
         if search_data := self.request.GET.get('author_for_search'):
