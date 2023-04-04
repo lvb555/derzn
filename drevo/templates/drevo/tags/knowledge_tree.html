@@ -17,7 +17,7 @@
 >
     {% csrf_token %}
     <div class="input-group">
-        <input class="form-control" type="search" name="search_word" placeholder="Поиск по дереву..." aria-label="Search" value="{{ search_word }}" required>
+        <input class="form-control" type="search" name="search_word" placeholder="Поиск по дереву..." aria-label="Search" value="{{ search_word }}" {% if is_advance_search %}required {% endif %}>
         <input class="form-control" type="text" name="knowledge_from_tree" value="{{ tree_knowledge }}" hidden>
         <div class="input-group-btn">
             {% if not is_advance_search %}

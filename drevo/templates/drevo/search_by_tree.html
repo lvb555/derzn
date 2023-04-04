@@ -6,12 +6,12 @@
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
 
-{% block title %} Результаты поиска | {{ search_word }} {% endblock %}
+{% block title %} Результаты поиска {% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="text-center mt-3 border-bottom border-dark mb-3">
-        <h2>Результаты {% if is_advance_search %} расширенного {% endif %} поиска | {{ search_word }}</h2>
+        <h2>Результаты {% if is_advance_search %} расширенного {% endif %} поиска</h2>
     </div>
     {% if search_knowledge %}
         {% build_knowledge_tree queryset=search_knowledge empty_tree_message='Ничего не найдено' show_complex=True %}

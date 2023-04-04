@@ -4,6 +4,7 @@ from django.template import Library, RequestContext
 from django.utils.safestring import mark_safe
 from drevo.utils.knowledge_tree_builder import KnowledgeTreeBuilder
 from drevo.models import Znanie, Category, Tr, Author, UserParameters
+from drevo.forms import AdvanceTreeSearchFrom
 
 register = Library()
 
@@ -12,6 +13,7 @@ register = Library()
 def build_knowledge_tree(context: RequestContext,
                          queryset: QuerySet[Znanie],
                          tree_num: int = 1,
+                         show_searchbar: bool = True,
                          empty_tree_message: str = '',
                          show_only: Tr = None,
                          hidden_author: Author = None,
@@ -20,8 +22,12 @@ def build_knowledge_tree(context: RequestContext,
     """
         Тег для построения дерева знаний \n
         tree_num: номер дерева (на случай если необходимо на одной странице создать несколько деревьев); \n
+
+        show_searchbar: отображать поле поиска по дереву; \n
+
         empty_tree_message: если дерево по какой либо причине нельзя построить, то будет выводиться сообщение указанное
         в данном параметре; \n
+
         show_only: принимает объект вида связи, если передан данный параметр, то будут отображаться только связи
         данного вида для переданных знаний (используется если у одного знания из queryset есть несколько связей разных
         видов и необходимо отобразить связи только определённого вида); \n
@@ -37,6 +43,7 @@ def build_knowledge_tree(context: RequestContext,
     tree_builder_context = tree_builder.get_nodes_data_for_tree()
     tree_context = dict(
         tree_num=tree_num,
+        show_searchbar=show_searchbar,
         empty_tree_message=empty_tree_message,
         hidden_author=hidden_author,
         active_knowledge=queryset,
@@ -44,19 +51,33 @@ def build_knowledge_tree(context: RequestContext,
     )
     # Search block
     search_word = context.request.POST.get('search_word', '')
-    user_search_param = (
+
+    param_names = (
+        'Искать в поле "Содержание"', 'Искать в поле "Комментарий к источнику"', 'Учитывать структурные знания'
+    )
+    user_params_queryset = (
         UserParameters.objects
         .select_related('param')
-        .filter(user=context.request.user, param__name='Учитывать структурные знания').first()
+        .filter(user=context.request.user, param__name__in=param_names)
+        .values('param__name', 'param_value')
     )
-    if user_search_param:
-        user_search_param = True if user_search_param.param_value else False
-    else:
-        user_search_param = False
-    tree_knowledge = tree_builder.get_tree_knowledge_list(with_struct_knowledge=user_search_param)
+    user_search_param = {param.get('param__name'): param.get('param_value') for param in user_params_queryset}
+    show_struct_param = True if user_search_param.get('Учитывать структурные знания') else False
+
+    fields_by_param = {
+        'Искать в поле "Содержание"': 'content',
+        'Искать в поле "Комментарий к источнику"': 'source_com',
+        'Учитывать структурные знания': 'use_struct'
+    }
+    user_search_param = {(fields_by_param.get(name), name): value for name, value in user_search_param.items()}
+    tree_context['user_search_param'] = user_search_param
+    tree_knowledge = tree_builder.get_tree_knowledge_list(with_struct_knowledge=show_struct_param)
     tree_context['empty_result'] = context.request.GET.get('empty_result', '')
     tree_context['tree_knowledge'] = ','.join(list(map(str, tree_knowledge)))
     tree_context['search_word'] = search_word
+    tree_context['is_advance_search'] = True if 'advance_search' in context.request.POST else False
+    if tree_context['is_advance_search']:
+        tree_context['form'] = AdvanceTreeSearchFrom(data=context.request.POST)
     return tree_context
 
 
