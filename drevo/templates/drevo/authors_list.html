@@ -1,65 +1,184 @@
 {% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock %}
 
 {% block title %}Список авторов{% endblock %}
 
 {% block content %}
+<div class="container header_info" style="padding-left: 0px;">
+    <h1 class="page-title">Авторы</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item opened"><a>Авторы</a></li>
+        </ol>
+    </nav>
+</div>
+<div style="background-color: #FFFFFF; padding: 32px;border-radius: 10px;">
 
-<h2>Авторы</h2>
-<form role="search" method="get" class="w-25 mb-3">
-    <input class="form-control" type="search" name="author_for_search" placeholder="Поиск по авторам..." aria-label="Search" value="{{ author_for_search }}">
-</form>
-
-<select class="author_types form-control w-25" id="select">
-    <option value="all">Все</option>
-    {% for type in author_types %}
-    <option value="type_{{ type.id }}">
-        {{ type.name }}
-    </option>
-    {% endfor %}
-</select>
-
-<br>
-<div class="row">
-    <div class="col-auto">
-        <ul class="list-group">
-            {% for author in authors %}
-            <div class="row" name="author" id="type_{{ author.atype.id }}">
-                <div class="col">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <a href="{% url 'author' author.pk %}" class="text-decoration-none d-inline-block me-3">
-                            {{ author.name }}
-                        </a>
-                        <span class="badge bg-primary rounded-pill">{{ author.zn_num }}</span>
-                    </li>
-                </div>
+    <div class="select">
+        <div class="select__header">
+            <span value="all" class="select__current" id="select">Все авторы</span>
+            <div class="select__icon">
+                <img style="height: 6px;weight: 10.5px;opacity: 0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
             </div>
-            {% empty %}
-            <div class="row">
-                <div class="col">
-                    {% if not author_for_search %} Список авторов пуст {% else %} Авторы не найдены {% endif %}
-                </div>
+        </div>
+
+        <div class="select__body">
+            <div class="select__item" value="all">Все авторы</div>
+                {% for type in author_types %}
+            <div class="select__item" value="type_{{ type.id }}">
+                {{ type.name }}
             </div>
             {% endfor %}
-            {% endblock %}
-        </ul>
+        </div>
     </div>
+
+    <form role="search" method="get" class="search-block">
+        <input class="form-control icon" type="search" name="author_for_search" placeholder="Поиск" aria-label="Search"
+               value="{{ author_for_search }}">
+    </form>
+
+    <br>
+        <div class="col-auto">
+            {% if not author_for_search %}
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="author-page-article">АВТОР</p>
+                <p class="author-page-article">КОЛ-ВО ОПУБЛИКОВАННЫХ ЗНАНИЙ</p>
+            </div>
+            {% endif %}
+            <ul class="list-group">
+                {% for author in authors %}
+                <div class="row" name="author" id="type_{{ author.atype.id }}">
+                    <div class="col">
+                        <li class="list-group-item d-flex justify-content-between align-items-center author-list">
+                            <div>
+                            {% if author.photo %}
+                                <a href="{% url 'author' author.pk %}">
+                                    <img src="{{ author.photo.url }}"
+                                    alt="Users photo" class="header-avatar"
+                                    style="width: 50px; z-index: 1; margin-right: 10px;">
+                                </a>
+                            {% else %}
+                                <span class="author-avatar">{{ author.name }}</span>
+                            {% endif %}
+                            <a href="{% url 'author' author.pk %}" class="author-name">
+                                {{ author.name }}
+                            </a>
+                                </div>
+                            <span class="author-count">{{ author.zn_num }}</span>
+                        </li>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="row">
+                    <div class="col" style="padding-top: 24px;">
+                        {% if not author_for_search %} Список авторов пуст {% else %} Авторы не найдены {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+
+            </ul>
+        </div>
+    {% if is_paginated %}
+    <div class="pagination" style="justify-content: space-between;align-items: baseline;margin-top: 15px;">
+        <span class='text-secondary' style="color:#BFBFBF; height: 14px;">
+            {{page_obj.start_index}}-{{page_obj.end_index}} из {{paginator.count}}
+        </span>
+
+        <span class="page-links d-inline-flex pages">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">
+                    <img style="height: 6px;weight: 10.5px;transform: rotate(90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                </a>
+            {% else %}
+                <a>
+                    <img style="height: 6px;weight: 10.5px;transform: rotate(90deg);opacity:0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                </a>
+            {% endif %}
+                <ul class="d-flex p-0 m-0">
+                    {% for p in page_obj.paginator.page_range %}
+                    <li>
+                        <a href="?page={{ p }}">{{ p }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">
+                    <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                </a>
+            {% else %}
+                <a>
+                    <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);opacity:0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                </a>
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
 </div>
+{% endblock %}
 
 {% block jsfiles %}
 <script>
-    const select = document.getElementById('select');
     const authors = "author";
 
-    select.addEventListener('change', () => {
-        const selectedValue = select.value;
-        const elements = document.querySelectorAll(`[name="${authors}"]`);
-        elements.forEach((element) => {
-            if (selectedValue === 'all' || element.id === selectedValue) {
-            element.style.display = 'block';
-            } else {
-            element.style.display = 'none';
+    function makeAvatar(){
+        all_authors_without_picture = document.querySelectorAll('.author-avatar');
+        for(let i=0;i< all_authors_without_picture.length;i++){
+            author_full_name = all_authors_without_picture[i].textContent.split(' ');
+            author_initials = ''
+            if(author_full_name.length > 1 && !(author_full_name[1] == '-')){
+                author_initials += Array.from(author_full_name[0].replace(/[^a-zа-яё]/gi, ''))[0];
+                author_initials += Array.from(author_full_name[1])[0];
+            }else{
+                author_initials += Array.from(author_full_name[0])[0];
             }
+            all_authors_without_picture[i].innerHTML = author_initials.toUpperCase();
+        }
+    }
+
+    makeAvatar()
+
+    function fakeSelect() {
+        let selectHeader = document.querySelectorAll('.select__header');
+        let selectItem = document.querySelectorAll('.select__item');
+
+        selectHeader.forEach(item => {
+            item.addEventListener('click', selectToggle);
         });
-    });
+
+        selectItem.forEach(item => {
+            item.addEventListener('click', selectChoose)
+        });
+
+        function selectToggle() {
+            this.parentElement.classList.toggle('is-active');
+        }
+
+        function selectChoose() {
+            selectedValue = this.getAttribute('value')
+            let text = this.innerText,
+                select = this.closest('.select'),
+                currentText = select.querySelector('.select__current');
+            currentText.innerText = text;
+            spanElement = document.getElementById('select');
+            spanElement.setAttribute('value',selectedValue);
+            elements = document.querySelectorAll(`[name="${authors}"]`);
+            elements.forEach((element) => {
+                if (selectedValue === 'all' || element.id === selectedValue) {
+                element.style.display = 'block';
+                } else {
+                element.style.display = 'none';
+                }
+            });
+            select.classList.remove('is-active');
+        }
+    };
+
+    fakeSelect();
 </script>
 {% endblock %}
