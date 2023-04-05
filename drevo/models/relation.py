@@ -45,6 +45,22 @@ class Relation(models.Model):
         editable=False,
         verbose_name='Пользователь'
     )
+    expert = models.ForeignKey(
+        verbose_name='Эксперт',
+        to=User,
+        on_delete=models.SET_NULL,
+        related_name='rel_expert',
+        null=True,
+        blank=True
+    )
+    director = models.ForeignKey(
+        verbose_name='Руководитель',
+        to=User,
+        on_delete=models.SET_NULL,
+        related_name='rel_director',
+        null=True,
+        blank=True
+    )
     is_published = models.BooleanField(
         default=False,
         verbose_name='Опубликовано?'

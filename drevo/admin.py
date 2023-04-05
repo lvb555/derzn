@@ -1,5 +1,5 @@
 from adminsortable2.admin import SortableAdminMixin
-from django.conf.urls import url
+#from django.conf.urls import url
 from django.contrib import admin
 from django.db.models import Q, F
 from django.db.models.functions import Lower
@@ -54,6 +54,7 @@ from .models import (
     ParameterCategories,
     SubAnswers,
     RelationshipTzTr,
+    RelationStatuses,
 )
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -285,7 +286,7 @@ admin.site.register(Tz, TzAdmin)
 
 
 class RelationAdmin(admin.ModelAdmin):
-    list_display = ("id", "bz", "tr", "rz", "author", "date", "user")
+    list_display = ("id", "bz", "tr", "rz", "author", "date", "user", "expert", "director")
     save_as = True
     autocomplete_fields = ["author"]
     search_fields = ["bz__name", "rz__name"]
@@ -644,6 +645,15 @@ class KnowledgeStatusesAdmin(admin.ModelAdmin):
     list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active', 'created_at')
     autocomplete_fields = ['knowledge']
     search_fields = ['knowledge__name']
+
+
+@admin.register(RelationStatuses)
+class RelationStatusesAdmin(admin.ModelAdmin):
+    list_display = ('relation', 'status', 'user', 'time_limit', 'is_active', 'created_at')
+    autocomplete_fields = ('relation',)
+    search_fields = ('relation__name',)
+    list_filter = ('status',)
+    save_as = True
 
 
 @admin.register(SettingsOptions)
