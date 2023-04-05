@@ -1,5 +1,5 @@
 from adminsortable2.admin import SortableAdminMixin
-#from django.conf.urls import url
+from django.conf.urls import url
 from django.contrib import admin
 from django.db.models import Q, F
 from django.db.models.functions import Lower
