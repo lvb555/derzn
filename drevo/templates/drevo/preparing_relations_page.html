@@ -1,14 +1,27 @@
 {% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
 
-{% block title %} Подготовка связей | {{ step_name }} {% endblock %}
+{% block title %} Подготовка связей | {{ stage_name }} {% endblock %}
 
 {% block content %}
 <div class="container">
-    <div class="">
-        <h3>Этап: {{ step_name }}</h3>
+    <div class="text-center border-bottom border-dark">
+        <h1>Подготовка связей</h1>
     </div>
-    <div class="">
-        <h3>Статус связи: {{ selected_status }}</h3>
+    <div class="border-bottom border-dark mb-3">
+        <div class="row">
+            <div class="col">
+                <h3>Этап: {{ stage_name }}</h3>
+                <h3>Статус связи: {{ selected_status }}</h3>
+            </div>
+            <div class="col border-start border-dark">
+                <form action="" method="get">
+                    {% csrf_token %}
+                    {{ statuses_form.as_p }}
+                </form>
+            </div>
+        </div>
     </div>
+    {% build_knowledge_tree queryset=knowledge %}
 </div>
 {% endblock %}

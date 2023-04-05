@@ -13,6 +13,7 @@ from .category_expert_form import CtegoryExpertForm
 from .znanie_send_message_form import ZnanieSendMessage
 from .admin_interview_work_form import InterviewAnswerExpertProposalForms
 from .advance_tree_search_form import AdvanceTreeSearchFrom
+from .relation_statuses_form import RelationStatusesForm
 
 __all__ = [
     'AuthorSubscriptionDeleteForm',
@@ -30,4 +31,5 @@ __all__ = [
     'ZnanieSendMessage',
     'InterviewAnswerExpertProposalForms',
     'AdvanceTreeSearchFrom',
+    'RelationStatusesForm',
 ]

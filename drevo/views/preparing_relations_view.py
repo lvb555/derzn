@@ -1,18 +1,33 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
+from drevo.models import Znanie, RelationStatuses
+from drevo.forms import RelationStatusesForm
 
 
 class PreparingRelationsView(LoginRequiredMixin, TemplateView):
     """
-        Страница подготовки связей
+        Страница подготовки связей.
+        Этапы:
+        - Создание связей (create)
+        - Изменение связи (update)
+        - Экспертизв ПредСвязи (expertise)
+        - Публикация cвязей (publication)
     """
     template_name = 'drevo/preparing_relations_page.html'
     login_url = reverse_lazy('login')
 
     def get_context_data(self, **kwargs):
         context = super(PreparingRelationsView, self).get_context_data(**kwargs)
-        context['title'] = ''
-        context['step_name'] = ''
+        stage_name = self.request.GET.get('stage')
+        stage_names = {
+            'create': 'Создание связей',
+            'update': 'Изменение связи',
+            'expertise': 'Экспертизв ПредСвязи',
+            'publication': 'Публикация cвязей'
+        }
+        context['statuses_form'] = RelationStatusesForm()
+        context['knowledge'] = Znanie.objects.filter(is_published=True).all()[:50]
+        context['stage_name'] = stage_names.get(stage_name) if stage_name else 'Создание связей'
         context['selected_status'] = ''
         return context
