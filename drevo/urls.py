@@ -61,6 +61,7 @@ from .views import (
     get_required_rz,
     search_by_tree_view,
     advance_search_by_tree_view,
+    PreparingRelationsView,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
@@ -373,7 +374,8 @@ urlpatterns = [
     path('get_required_tr', get_required_tr, name='get_required_tr'),
     path('get_required_rz', get_required_rz, name='get_required_rz'),
     path('tree/search_results', search_by_tree_view, name='search_by_tree'),
-    path('tree/search_results/advance', advance_search_by_tree_view, name='advance_search_by_tree')
+    path('tree/search_results/advance', advance_search_by_tree_view, name='advance_search_by_tree'),
+    path('relations/preparing', PreparingRelationsView.as_view(), name='preparing_relations_page'),
 ]
 
 if settings.DEBUG:

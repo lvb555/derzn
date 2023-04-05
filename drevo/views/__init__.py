@@ -81,6 +81,7 @@ from .knowledge_types_view import KnowledgeTypesView
 from .relation_types_view import RelationTypesView
 from .relationship_tr_tz_view import get_required_tr, get_required_rz
 from .search_by_tree_view import search_by_tree_view, advance_search_by_tree_view
+from .preparing_relations_view import PreparingRelationsView
 
 __all__ = [
     "AuthorDetailView",
@@ -156,4 +157,5 @@ __all__ = [
     'get_required_rz',
     'search_by_tree_view',
     'advance_search_by_tree_view',
+    'PreparingRelationsView',
 ]
