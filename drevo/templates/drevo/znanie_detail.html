@@ -370,7 +370,7 @@
             {{ znanie.name }}
           </p>
           {% if relative_znania %}
-            {% build_knowledge_tree queryset=relative_znania empty_tree_message='Дерево' %}
+            {% build_knowledge_tree queryset=relative_znania empty_tree_message='' %}
           {% endif %}
       </div>
       {% if siblings %}
@@ -440,7 +440,8 @@
 
 <script>
   function cutTree(){
-    all_tree = document.getElementById('tree-part').childNodes[5];
+    all_tree = document.getElementById('tree-part').childNodes[7];
+    document.getElementById('tree-part').childNodes[5].remove();
     all_tree.classList.add('part');
     all_tree.style.width = 'max-content';
     all_tree.style.padding = 0;
