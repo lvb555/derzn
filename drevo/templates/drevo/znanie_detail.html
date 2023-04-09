@@ -1,6 +1,7 @@
 {% extends 'drevo/base.html' %}
 {% load mptt_tags %}
 {% load static %}
+{% load knowledge_tree %}
 
 {% block title %}Знание: {{ znanie.name }}{% endblock %}
 
@@ -8,441 +9,390 @@
 
 {% block cssfiles %}
     <link rel="stylesheet" href="{% static '/drevo/css/knowledge-feed.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
 <div style="display:none" id="success-alert" class="alert alert-success">
   Сообщение отправлено!
 </div>
-{% if znanie.category.pk %}
-<h6><a href="{% url 'drevo_type' znanie.category.pk %}">
-    <<< {{ znanie.category }}</a>
-</h6>
-{% endif %}
+<div class="container mt-3" style="background-color: #FFFFFF;border-radius: 10px;">
+  {% if znanie.category.pk %}
+  <h6><a href="{% url 'drevo_type' znanie.category.pk %}">
+      <<< {{ znanie.category }}</a>
+  </h6>
+  {% endif %}
 
-<h1>{{ znanie.name }}</h1>
+  <h1 id="znanie_name" value="{{ znanie.get_absolute_url }}">{{ znanie.name }}</h1>
 
-<div class="container">
-  <div class="row">
-    <div class="col">
-      Вид знания: {{ znanie.tz }}
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        Вид знания: {{ znanie.tz }}
+      </div>
+      <div class="col">
+        {% if znanie.author %}
+        Автор: <a href="{% url 'author' znanie.author.pk %}">{{ znanie.author }}</a>
+        {% else %}
+        Автор: не указан
+        {% endif %}
+      </div>
+      <div class="col">
+        Дата: {{ znanie.date }}
+      </div>
     </div>
-    <div class="col">
-      {% if znanie.author %}
-      Автор: <a href="{% url 'author' znanie.author.pk %}">{{ znanie.author }}</a>
-      {% else %}
-      Автор: не указан
+  </div>
+
+
+  {% if znanie.content %}
+  <hr>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        Содержание: {{ znanie.content|safe }}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Таблица #}
+  {% if znanie.tz.name == 'Таблица' %}
+  {% if table %}
+  <div class="container">
+    <div class="row my-2">
+      <div class="col">
+        {% include 'drevo/table.html' with table=table %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% endif %}
+
+  {% if znanie.href %}
+  <hr>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <a href="{{ znanie.href }}">Источник</a>
+      </div>
+      {% if znanie.source_com %}
+      <div class="col">
+        Комментарий к источнику: {{ znanie.source_com }}
+      </div>
       {% endif %}
     </div>
-    <div class="col">
-      Дата: {{ znanie.date }}
+  </div>
+  {% endif %}
+
+  {% if visits %}
+  <hr>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        Число просмотров: {{ visits }}
+      </div>
     </div>
   </div>
-</div>
+  {% endif %}
 
-
-{% if znanie.content %}
-<hr>
-<div class="container">
-  <div class="row">
-    <div class="col">
-      Содержание: {{ znanie.content|safe }}
+  {% if znanie.tz.can_be_rated %}
+  <hr>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <a href="{% url 'grade' znanie.id %}" class="btn btn-secondary">Оценка знания</a>
+        {% if button %}
+          {%for i in button%}
+            {%for b in i%}
+              <a href="{{ b.get_absolute_url }}" class="btn btn-secondary">Пройти тестирование: {{ b.name }} </a>
+            {%endfor%}
+          {%endfor%}
+        {% endif %}
+      </div>
     </div>
   </div>
-</div>
-{% endif %}
+  {% endif %}
 
-{# Таблица #}
-{% if znanie.tz.name == 'Таблица' %}
-{% if table %}
-<div class="container">
-  <div class="row my-2">
-    <div class="col">
-      {% include 'drevo/table.html' with table=table %}
-    </div>
-  </div>
-</div>
-{% endif %}
-{% endif %}
+  <hr>
+  <div class="container">
+    <div class="row mb-2">
+      <div class="col">
+        <div class="d-flex">
+          <div class="button-block mx-3" style="white-space: nowrap">
+            <button type="button" id="likeButton" class="btn btn-outline-secondary shadow-none mx-1"
+            {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
+              <i class="bi {% if user_vote.like %} bi-hand-thumbs-up-fill {% else %} bi-hand-thumbs-up {% endif %} fs-5"
+                id="likeIcon"></i>
+            </button>
+            <span id="likesCounter">{{ likes_count }}</span>
+          </div>
+          <div class="mx-3" style="white-space: nowrap">
+            <button type="button" id="dislikeButton" class="btn btn-outline-secondary shadow-none mx-1"
+            {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
+              <i class="bi {% if user_vote.dislike %} bi-hand-thumbs-down-fill {% else %} bi-hand-thumbs-down {% endif %} fs-5"
+                id="dislikeIcon"></i>
+            </button>
+            <span id="dislikesCounter">{{ dislikes_count }}</span>
+          </div>
+          {% if znanie.is_send and not znanie.tz.is_systemic %}
+          <div class="mx-3" style="white-space: nowrap">
+            <a href="{% url 'zsend_mes' znanie.pk %}" type="button" id="sendButton" class="btn btn-outline-secondary shadow-none mx-1 h-100"
+               {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-send fs-5" viewBox="0 0 16 16">
+                <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
+              </svg>
+            </a>
+          </div>
+          {% endif %}
 
-{% if znanie.href %}
-<hr>
-<div class="container">
-  <div class="row">
-    <div class="col">
-      <a href="{{ znanie.href }}">Источник</a>
+          <div class="mb-lg-0 ms-auto" style="white-space: nowrap">
+            <button type="button" id="favouriteButton" class="btn btn-outline-primary shadow-none mx-1"
+                    {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
+                <i class="bi bi-star{% if user_favourite %}-fill{% endif %} fs-5"
+                   id="favouriteIcon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    {% if znanie.source_com %}
-    <div class="col">
-      Комментарий к источнику: {{ znanie.source_com }}
-    </div>
+    {% if request.user.is_authenticated %}
+      <div>
+        <a class="btn open-popup" style="text-decoration:none; color: #212121"><i class="cart-icon material-icons text-success">reply</i>Отправить в Ленту знаний</a>
+        <div class="popup__bg">
+          <form class="popup" method="post" id="feedmessage_form" novalidate" onsubmit="return false;">
+              {% csrf_token %}
+              <svg class="close-popup" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#052F23" d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/></svg>
+              <div class="d-flex justify-content-around">
+                  <input id="send_message_btn" type="submit" value="Отправить" name="_save" class="btn shadow-none">
+              </div>
+
+              <div class="mt-1">
+                  <label for="znanie">Знание:</label>
+                  <h1 name="znanie" required id="id_znanie" class="form-text">{{znanie.name}}</h1>
+              </div>
+
+              <div class="mt-3">
+                  <label>Ярлык:</label>
+                  <select class="form-select shadow-none" name="label" required id="id_label">
+                      <option value="" selected>------</option>
+                      {% for label in labels %}
+                          <option value="{{label.id}}">{{label.name}}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+
+              <div class="mt-3 col-auto">
+                  <label class="col-form-label">Текст письма:</label>
+                  <textarea name="text" cols="40" rows="10" class="vLargeTextField form-control shadow-none" maxlength="511" required id="id_text"></textarea>
+              </div>
+              {% if form.errors.text %}
+                  <ul>
+                      {{form.errors.text}}
+                  </ul>
+              {% endif %}
+
+              <div>
+                  {% if friends_count > 0 %}
+                      <p class="text-start">Получатели</p>
+                      <div class="d-flex">
+                          <input type="checkbox" id="all_friends" class="form-check-input shadow-none"> Все друзья
+                      </div>
+                      {% for friend in friends %}
+                          <div class="d-flex mt-2">
+                              <input type="checkbox" value="{{friend.id}}" class="me-1 form-check-input shadow-none checkbox">
+                              {% if friend.profile.avatar %}
+                                  <img src="{{ friend.profile.avatar.url }}" class="rounded-circle" height="30px" width="30px">
+                              {% else %}
+                                  <img src="{% static 'src/default_avatar.jpg' %}" class="rounded-circle"  height="30px" width="30px">
+                              {% endif %}
+                              <p class="ms-1">{{friend.first_name}} {{friend.last_name}}</p>
+                          </div>
+                      {% endfor %}
+                  {% else %}
+                      <p class="text-start text-danger">У Вас пока нет друзей, чтобы отправить им сообщение</p>
+                  {% endif %}
+              </div>
+          </form>
+        </div>
+      </div>
     {% endif %}
   </div>
-</div>
-{% endif %}
 
-{% if visits %}
-<hr>
-<div class="container">
-  <div class="row">
-    <div class="col">
-      Число просмотров: {{ visits }}
+  <!-- Модальное окно -->
+  <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="authModalLabel">Требуется авторизация</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+        <div class="modal-body">
+          Войдите в свой аккаунт, чтобы поставить отметку.
+        </div>
+        <div class="modal-footer">
+          <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-primary">Войти</a>
+          <a href="{% url 'users:register' %}" class="btn btn-secondary">Зарегистрироваться</a>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-{% endif %}
 
-{% if znanie.tz.can_be_rated %}
-<hr>
-<div class="container">
-  <div class="row">
-    <div class="col">
-      <a href="{% url 'grade' znanie.id %}" class="btn btn-secondary">Оценка знания</a>
-      {% if button %}
-        {%for i in button%}
-          {%for b in i%}
-            <a href="{{ b.get_absolute_url }}" class="btn btn-secondary">Пройти тестирование: {{ b.name }} </a>
-          {%endfor%}
-        {%endfor%}
-      {% endif %}
+  {% if znanie.labels.all %}
+  <hr>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        Метки: {% for label in znanie.labels.all %} #<a href="{% url 'zlabel' label.pk %}">{{ label }}</a> {% endfor %}
+      </div>
     </div>
   </div>
-</div>
-{% endif %}
+  {% endif %}
 
-<hr>
-<div class="container">
-  <div class="row mb-2">
-    <div class="col">
-      <div class="d-flex">
-        <div class="button-block mx-3" style="white-space: nowrap">
-          <button type="button" id="likeButton" class="btn btn-outline-secondary shadow-none mx-1" 
-          {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
-            <i class="bi {% if user_vote.like %} bi-hand-thumbs-up-fill {% else %} bi-hand-thumbs-up {% endif %} fs-5"
-              id="likeIcon"></i>
-          </button>
-          <span id="likesCounter">{{ likes_count }}</span>
+  {% if znanie.photos.all %}
+  <hr>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        {% for photo in znanie.photos.all %} <a href="{{ MEDIA_URL }}{{ photo.photo }}"><img
+            src="{{ MEDIA_URL }}{{ photo.photo }}" height="150"></a>&nbsp;&nbsp;&nbsp;{% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <hr>
+  {# Блок комментариев #}
+  <div class="container">
+    {# Заголовок #}
+    <div class="row">
+      <div class="col">
+        <span>Комментарии ({{ znanie.get_comments_count }}):</span>
+      </div>
+    </div>
+
+    {# Форма #}
+    <div class="row my-2">
+      <div class="col">
+        {% if user.is_authenticated %}
+        <div id="comments-form-block">
+          {% include 'drevo/comments_form.html' with parent_comment_id='' %}
         </div>
-        <div class="mx-3" style="white-space: nowrap">
-          <button type="button" id="dislikeButton" class="btn btn-outline-secondary shadow-none mx-1" 
-          {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
-            <i class="bi {% if user_vote.dislike %} bi-hand-thumbs-down-fill {% else %} bi-hand-thumbs-down {% endif %} fs-5"
-              id="dislikeIcon"></i>
-          </button>
-          <span id="dislikesCounter">{{ dislikes_count }}</span>
-        </div>
-        {% if znanie.is_send and not znanie.tz.is_systemic %}
-        <div class="mx-3" style="white-space: nowrap">
-          <a href="{% url 'zsend_mes' znanie.pk %}" type="button" id="sendButton" class="btn btn-outline-secondary shadow-none mx-1 h-100"
-             {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-send fs-5" viewBox="0 0 16 16">
-              <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
-            </svg>
-          </a>
+        {% else %}
+        <div class="card alert-warning">
+          <div class="card-body">
+            <span class="card-text">
+              <a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
+              или
+              <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+              чтобы написать комментарий.
+            </span>
+          </div>
         </div>
         {% endif %}
+      </div>
+    </div>
 
-        <div class="mb-lg-0 ms-auto" style="white-space: nowrap">
-          <button type="button" id="favouriteButton" class="btn btn-outline-primary shadow-none mx-1"
-                  {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
-              <i class="bi bi-star{% if user_favourite %}-fill{% endif %} fs-5"
-                 id="favouriteIcon"></i>
+    {# Дерево комментариев #}
+    <div class="row">
+      <div class="col">
+        <div id="comments-list-block"></div>
+        <div class="my-4" id="commentsListSpinner">
+          <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% if not znanie.comments.exists %}
+    <div class="text-center mt-4" id="no-comments-text">Комментариев ещё нет.</div>
+    {% endif %}
+
+    {# Кнопка загрузки и спиннер #}
+    <div class="row mb-2">
+      <div class="my-1" id="commentsListSpinner">
+        <div class="d-flex justify-content-center">
+          <div class="spinner-border" role="status" style="display: none"></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="d-flex justify-content-center my-1">
+          <button class="btn btn-outline-secondary" style="display: none" id="loadMoreCommentsButton"
+            onclick="getComments(this)">
+            Загрузить ещё
           </button>
         </div>
       </div>
     </div>
   </div>
-  {% if request.user.is_authenticated %}
-    <div>
-      <a class="btn open-popup" style="text-decoration:none; color: #212121"><i class="cart-icon material-icons text-success">reply</i>Отправить в Ленту знаний</a>
-      <div class="popup__bg">
-        <form class="popup" method="post" id="feedmessage_form" novalidate" onsubmit="return false;">
-            {% csrf_token %}
-            <svg class="close-popup" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#052F23" d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/></svg>
-            <div class="d-flex justify-content-around">
-                <input id="send_message_btn" type="submit" value="Отправить" name="_save" class="btn shadow-none">
-            </div>
+  <hr>
+</div>
 
-            <div class="mt-1">
-                <label for="znanie">Знание:</label>
-                <h1 name="znanie" required id="id_znanie" class="form-text">{{znanie.name}}</h1>
-            </div>
-
-            <div class="mt-3">
-                <label>Ярлык:</label>
-                <select class="form-select shadow-none" name="label" required id="id_label">
-                    <option value="" selected>------</option>
-                    {% for label in labels %}
-                        <option value="{{label.id}}">{{label.name}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="mt-3 col-auto">
-                <label class="col-form-label">Текст письма:</label>
-                <textarea name="text" cols="40" rows="10" class="vLargeTextField form-control shadow-none" maxlength="511" required id="id_text"></textarea>
-            </div>
-            {% if form.errors.text %}
-                <ul>
-                    {{form.errors.text}}
-                </ul>
-            {% endif %}
-
-            <div>
-                {% if friends_count > 0 %}
-                    <p class="text-start">Получатели</p>
-                    <div class="d-flex">
-                        <input type="checkbox" id="all_friends" class="form-check-input shadow-none"> Все друзья
-                    </div>
-                    {% for friend in friends %}
-                        <div class="d-flex mt-2">
-                            <input type="checkbox" value="{{friend.id}}" class="me-1 form-check-input shadow-none checkbox">
-                            {% if friend.profile.avatar %}
-                                <img src="{{ friend.profile.avatar.url }}" class="rounded-circle" height="30px" width="30px">
-                            {% else %}
-                                <img src="{% static 'src/default_avatar.jpg' %}" class="rounded-circle"  height="30px" width="30px">
-                            {% endif %}
-                            <p class="ms-1">{{friend.first_name}} {{friend.last_name}}</p>
-                        </div>
-                    {% endfor %}
+<div class="mt-3 d-flex" style="background-color: #FFFFFF;border-radius: 10px;">
+  <div class='scrollbar' style="width: 25%; margin: 32px;overflow-x: scroll;height: fit-content;">
+      <p class="choice-header p-0" style="border:none;height:auto;">Дерево</p>
+      <div style="width: max-content;">
+            <ul class="category-item p-0">
+            {% recursetree category_tree %}
+                <li {% if node in categories  %} class="active-node" {% else %} class="nonactive-node" {% endif %}
+                    {% if not node.is_leaf_node %} style="font-weight: 500;" {% else %} style="font-weight: 400;" {% endif %} id="li_{{ node.id }}">
+                {% if not node.has_published_children %}
+                    <i class="bi-file-plus-fill lonely"><img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}"></i>
                 {% else %}
-                    <p class="text-start text-danger">У Вас пока нет друзей, чтобы отправить им сообщение</p>
+                    <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"><img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}"></i>
                 {% endif %}
-            </div>
-        </form>
+                    <span id="{{node.name}}"><a href="{{node.get_absolute_url}}">{{ node.name }}</a></span>
+                {% if not node.is_leaf_node %}
+                    <ul class="children" hidden>
+                        {{ children }}
+                        <li class="nonactive-node" style="opacity:0.6;" onclick="hide(this);" id="hide">
+                            <i><img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}"></i>
+                            <span style="opacity:0.6;"><a>Скрыть</a></span>
+                        </li>
+                    </ul>
+                {% endif %}
+                </li>
+            {% endrecursetree %}
+            </ul>
       </div>
-    </div>
-  {% endif %}
-</div>
-
-<!-- Модальное окно -->
-<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="authModalLabel">Требуется авторизация</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-      </div>
-      <div class="modal-body">
-        Войдите в свой аккаунт, чтобы поставить отметку.
-      </div>
-      <div class="modal-footer">
-        <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-primary">Войти</a>
-        <a href="{% url 'users:register' %}" class="btn btn-secondary">Зарегистрироваться</a>
-      </div>
-    </div>
   </div>
-</div>
-
-{% if znanie.labels.all %}
-<hr>
-<div class="container">
-  <div class="row">
-    <div class="col">
-      Метки: {% for label in znanie.labels.all %} #<a href="{% url 'zlabel' label.pk %}">{{ label }}</a> {% endfor %}
-    </div>
-  </div>
-</div>
-{% endif %}
-
-{% if znanie.photos.all %}
-<hr>
-<div class="container">
-  <div class="row">
-    <div class="col">
-      {% for photo in znanie.photos.all %} <a href="{{ MEDIA_URL }}{{ photo.photo }}"><img
-          src="{{ MEDIA_URL }}{{ photo.photo }}" height="150"></a>&nbsp;&nbsp;&nbsp;{% endfor %}
-    </div>
-  </div>
-</div>
-{% endif %}
-
-<hr>
-{# Блок комментариев #}
-<div class="container">
-  {# Заголовок #}
-  <div class="row">
-    <div class="col">
-      <span>Комментарии ({{ znanie.get_comments_count }}):</span>
-    </div>
-  </div>
-
-  {# Форма #}
-  <div class="row my-2">
-    <div class="col">
-      {% if user.is_authenticated %}
-      <div id="comments-form-block">
-        {% include 'drevo/comments_form.html' with parent_comment_id='' %}
+  <div class='p-0' style="margin: 29px 32px 32px 32px;">
+      <div id="tree-part" class='scrollbar' style="overflow-x: scroll;width: 110vh;">
+          <p class="choice-header" style="padding:0px; border:none; height: auto;">
+            {% if znanie.tz.name == 'Тезис' %}
+            <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/green_file.png' %}"></i>
+            {% elif znanie.tz.name == 'Вопрос' %}
+            <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}"></i>
+            {% elif znanie.tz.name == 'Факт' %}
+            <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}"></i>
+            {% elif znanie.tz.name == 'Классификация' %}
+            <i class="kn_type" style="color: #BA7507;"><img src="{% static 'drevo/img/ginger_file.png' %}"></i>
+            {% else %}
+            <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}"></i>
+            {% endif %}
+            {{ znanie.name }}
+          </p>
+          {% if relative_znania %}
+            {% build_knowledge_tree queryset=relative_znania empty_tree_message='Дерево' %}
+          {% endif %}
       </div>
-      {% else %}
-      <div class="card alert-warning">
-        <div class="card-body">
-          <span class="card-text">
-            <a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
-            или
-            <a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
-            чтобы написать комментарий.
-          </span>
-        </div>
-      </div>
-      {% endif %}
-    </div>
-  </div>
-
-  {# Дерево комментариев #}
-  <div class="row">
-    <div class="col">
-      <div id="comments-list-block"></div>
-      <div class="my-4" id="commentsListSpinner">
-        <div class="d-flex justify-content-center">
-          <div class="spinner-border" role="status"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  {% if not znanie.comments.exists %}
-  <div class="text-center mt-4" id="no-comments-text">Комментариев ещё нет.</div>
-  {% endif %}
-
-  {# Кнопка загрузки и спиннер #}
-  <div class="row mb-2">
-    <div class="my-1" id="commentsListSpinner">
-      <div class="d-flex justify-content-center">
-        <div class="spinner-border" role="status" style="display: none"></div>
-      </div>
-    </div>
-    <div class="col">
-      <div class="d-flex justify-content-center my-1">
-        <button class="btn btn-outline-secondary" style="display: none" id="loadMoreCommentsButton"
-          onclick="getComments(this)">
-          Загрузить ещё
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-<hr>
-
-{% for c in categories %}
-<ul>
-  <li>
-    {% if c == category %} <a href="{{ c.get_absolute_url }}" class="fw-bold">{{ c.name }} </a>
-    {% else %} <a href="{{ c.get_absolute_url }}">{{ c.name }} </a>
-    {% endif %}
-  </li>
-  {% endfor %}
-
-  {# Цепочка знаний #}
-  {% for z in chain %}
-  <ul>
-    <li>
-      <a href="{{ z.get_absolute_url }}">{{ z.name }} </a>
-    </li>
-    {% empty %}
-    <div class="container">
-      <div class='row'>
-        &nbsp;
-      </div>
-    </div>
-    {% endfor %}
-
-    {# Текущее знание, без ссылки #}
-    <ul>
-      <li>
-        <p class='fw-bold'>{{ znanie.name }}</p>
-      </li>
-
-      {# Дети текущего знания, сгруппированные по видам связей #}
-      {% if children_by_tr %}
-      <ul>
-        {% for rel_type, children in children_by_tr.items %}
-        <li> {{ rel_type }}
-          <ul>
-            {% for child in children %}
-            <li>
-              {{ child.tz }}&#10000;<a href="{{ child.get_absolute_url }}">{{ child.name }} </a>,
-              {{ child.author|default_if_none:'автор не указан' }}
-            </li>
-            {% endfor %}
-          </ul>
-        </li>
+      {% if siblings %}
+      <div class="p-32 part">
+        <p class="header_info opened" style="color:#6C757D;padding-top:32px;">Другие знания этой категории</p>
+        <ul class="children treeline p-0">
+        {% for sibling in siblings %}
+          <li class="treeline mb-2">
+            <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/blue_file.png' %}"></i>
+            <a href="{{ sibling.get_absolute_url }}" class="znanie" style="color: #212529;">
+                {{sibling.name}}
+            </a>
+          </li>
         {% endfor %}
-      </ul>
+        </ul>
+      </div>
       {% endif %}
-
-    </ul>
-
-    {# Братья/сёстры текущего знания #}
-    {% if siblings %}
-    <ul>
-      {% for s in siblings %}
-      <li>
-        <a href="{{ s.get_absolute_url }}">{{ s.name }} </a>
-      </li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-
-
-    {# Закрывающие теги для дерева предков #}
-    {% for z in chain %}
-  </ul>
-  {% endfor %}
-
-  {# Закрывающие теги для дерева категорий #}
-  {% for c in categories %}
-</ul>
-{% endfor %}
-
-
-{% if rels %}
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Связанное знание</th>
-      <th scope="col">Вид знания</th>
-      <th scope="col">Автор</th>
-    </tr>
-  </thead>
-  <tbody>
-    <br /><br />
-
-    {% for item in rels %}
-    <tr>
-      <td colspan="3">
-        <h3>{{ item.0 }}</h3>
-      </td>
-    </tr>
-    {% for z in item.1 %}
-    <tr>
-      <th scope="row">{{ forloop.counter }}</th>
-      <td><a href="{% url 'zdetail' z.rz.pk %}">{{ z.rz }}</a></td>
-      <td> {{ z.rz.tz }}</td>
-      <td> {{ z.rz.author }}</td>
-    </tr>
-    {% empty %}
-    <tr>
-      <td colspan="3">
-        <h5>данных нет</h5>
-      </td>
-    </tr>
-    {% endfor %}
-
-    {% empty %}
-    <tr>
-      <td colspan="3">
-        <h5>данных нет</h5>
-      </td>
-    </tr>
-    {% endfor %}
-
-  </tbody>
-</table>
-
-{% endif %}
+  </div>
+</div>
 
 <script>
   // обработка открытия и закрытия модального окна
-  
   var popupBgs = document.querySelectorAll('.popup__bg');
   var popupBg = document.querySelector('.popup__bg');
   var popups = document.querySelectorAll('.popup');
@@ -489,6 +439,55 @@
 </script>
 
 <script>
+  function cutTree(){
+    all_tree = document.getElementById('tree-part').childNodes[5];
+    all_tree.classList.add('part');
+    all_tree.style.width = 'max-content';
+    all_tree.style.padding = 0;
+    current_znanie = document.getElementById('znanie_name');
+    selectedValue = String(current_znanie.getAttribute('value'));
+    href_elem_in_tree = document.querySelector("a[href='"+selectedValue+"']");
+    elem_in_tree = href_elem_in_tree.parentNode.querySelector('ul');
+    copied_part = elem_in_tree.cloneNode(true);
+    copied_part.style.padding = 0;
+    count_of_knowledge = copied_part.querySelectorAll('p');
+    for(let i=0;i<count_of_knowledge.length;i++){
+      count_of_knowledge[i].style.display = 'none';
+    }
+    all_tree.innerHTML = '';
+    all_tree.append(copied_part);
+    element_to_toggle = all_tree.querySelectorAll('i.bi');
+    for(let i=0;i<element_to_toggle.length;i++){
+      toggleHiddenElementTree1(element_to_toggle[i]);
+    }
+  }
+
+  cutTree();
+
+  function hide(elem){
+    console.log(elem.parentNode);
+    element_to_hide = elem.parentNode.childNodes;
+    if(elem.querySelector('a').textContent == 'Ещё'){
+        for(let i=0;i<element_to_hide.length;i++){
+            if(element_to_hide[i].tagName == 'LI' && element_to_hide[i].id != 'hide'
+            && element_to_hide[i].className == 'nonactive-node'){
+                console.log(element_to_hide[i]);
+                element_to_hide[i].style.display = 'block';
+            }
+        }
+        elem.querySelector('a').textContent = 'Скрыть';
+    }else{
+        for(let i=0;i<element_to_hide.length;i++){
+            if(element_to_hide[i].tagName == 'LI' && element_to_hide[i].id != 'hide'
+            && element_to_hide[i].className == 'nonactive-node'){
+                console.log(element_to_hide[i]);
+                element_to_hide[i].style.display = 'none';
+            }
+        }
+        elem.querySelector('a').textContent = 'Ещё';
+    }
+  }
+
   var all_checkboxes = document.getElementsByClassName('checkbox'); // все чекбоксы отдельных друзей
   var friends_ids_array = []; // массив для передачи выбранных друзей в django view
   var checkbox_all_friends = document.getElementById('all_friends'); // чекбокс "Все друзья"
@@ -575,6 +574,22 @@
     }
   })
 
+  function toggleHiddenElement(element) {
+      let li_id = element.parentNode.id;
+      let selector_string = "li#" + li_id + " > ul";
+      let ulToHidden = document.querySelectorAll(selector_string);
+      ulToHidden.forEach(function (item) {
+          item.hidden = !item.hidden;
+      })
+
+      if (element.classList.contains("bi-file-minus-fill")) {
+          element.classList.remove("bi-file-minus-fill")
+          element.classList.add("bi-file-plus-fill");
+      } else {
+          element.classList.remove("bi-file-plus-fill")
+          element.classList.add("bi-file-minus-fill");
+      }
+  }
 </script>
 
 {% endblock %}
