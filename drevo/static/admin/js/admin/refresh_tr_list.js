@@ -30,12 +30,6 @@ $(function(){
                option.text = item.name;
                tr_list.appendChild(option);
             });
-        }else{
-            const tr_list = document.getElementById('id_tr');
-            if (tr_list.disabled === false){
-                tr_list.disabled = true;
-                tr_list.value = null;
-            };
         };
     });
   });;

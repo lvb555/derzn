@@ -1,5 +1,6 @@
 {% load static %}
 {% load base_tags %}
+{% load expert_work_tags %}
 <!doctype html>
 <html lang="en">
 
@@ -123,7 +124,10 @@
                     </a>
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         {% if user.is_expert %}
+                          {% get_interview_in_categories user as interview %}
+                          {% if interview %}
                           <li><a class="dropdown-item from-nav" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a></li>
+                          {% endif %}
                         {% endif %}
                           <li><a class="dropdown-item from-nav" href="#">Опросы</a></li>
                       </ul>
@@ -135,36 +139,6 @@
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <li><a class="dropdown-item from-nav" href="{% url 'all_quizzes' %}">Тесты</a></li>
                         <li><a class="dropdown-item from-nav" href="{% url 'public_people' %}">Публичные люди</a></li>
-                        {% if user.is_staff %}
-						<li>
-						<div class="btn-group dropend">
-                            <a onclick="logAndStop(event)" class="dropdown-item from-nav" data-bs-toggle="dropdown" aria-expanded="false">
-                                Администратор <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                                <span class="visually-hidden"></span>
-                            </a>
-							<ul class="dropdown-menu">
-                                {% if user.is_active %}
-                                <li><a class="dropdown-item from-nav" href="/admin" id="control_panel_link">Панель управления</a></li>
-                                {% endif %}
-                                <li><a class="dropdown-item from-nav" href="{% url 'special_permissions_page' %}">Добавление особых прав</a></li>
-                                <li><a class="dropdown-item from-nav" href="{% url 'delete_special_permissions_page' %}">Удаление особых прав</a></li>
-								<li>
-                                    <div class="btn-group dropstart">
-                                    <a onclick="logAndStop(event)" class="dropdown-item from-nav change-arrow" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Обработка интервью <img src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                                        <span class="visually-hidden"></span>
-                                    </a>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item from-nav" href="{% url 'all_interview' %}">•  Новые ответы</a></li>
-                                            <li><a class="dropdown-item from-nav" href="#">•  Некорректные ответы</a></li>
-                                            <li><a class="dropdown-item from-nav" href="#">•  Подответы</a></li>
-                                        </ul>
-                                    </div>
-								</li>
-							</ul>
-						</div>
-						</li>
-                        {% endif %}
                       </ul>
                     </div>
                 </div>

@@ -213,9 +213,47 @@
                 {% endif %}
                 {% if link == 'users:myprofile' %}
                 <div class="btn-group">
-                    <a class="btn shadow-none group-title" type="button" data-bs-auto-close="true" aria-expanded="false">
-                      Подготовка знаний
+                    <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                      Подготовка знаний <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
                     </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% if user.is_expert %}
+                        <li>
+                            <a href="{% url 'table_knowledge_tree' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
+                            <a href="{% url 'table_edit' %}" id="table_id" class="dropdown-item">Создание/изменение таблиц</a>
+                        </li>
+                        {% endif %}
+                        {% if user.is_staff %}
+						<li>
+                            <div class="btn-group text-center">
+                                <a class="dropdown-item" href="#">Администратор</a>
+                                <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                {% if user.is_active %}
+                                <li><a class="dropdown-item from-nav" href="/admin" id="control_panel_link">Панель управления</a></li>
+                                {% endif %}
+                                <li><a class="dropdown-item from-nav" href="{% url 'special_permissions_page' %}">Добавление особых прав</a></li>
+                                <li><a class="dropdown-item from-nav" href="{% url 'delete_special_permissions_page' %}">Удаление особых прав</a></li>
+								<li>
+                                    <div class="btn-group text-center">
+                                        <a class="dropdown-item" href="#">Обработка интервью</a>
+                                        <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="visually-hidden"></span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item from-nav" href="{% url 'all_interview' %}">•  Новые ответы</a></li>
+                                            <li><a class="dropdown-item from-nav" href="#">•  Некорректные ответы</a></li>
+                                            <li><a class="dropdown-item from-nav" href="#">•  Подответы</a></li>
+                                        </ul>
+                                    </div>
+								</li>
+							</ul>
+						</div>
+						</li>
+                        {% endif %}
+                    </ul>
                 </div>
                 {% endif %}
             </div>

@@ -9,19 +9,25 @@ class RelationshipTzTr(models.Model):
         verbose_name='Вид базового знания',
         to='drevo.Tz',
         on_delete=models.CASCADE,
-        related_name='base_relationship'
+        related_name='base_relationship',
+        blank=True,
+        null=True
     )
     rel_type = models.ForeignKey(
         verbose_name='Вид связи',
         to='drevo.Tr',
         on_delete=models.CASCADE,
-        related_name='relationship'
+        related_name='relationship',
+        blank=True,
+        null=True
     )
     rel_tz = models.ForeignKey(
         verbose_name='Вид связанного знания',
         to='drevo.Tz',
         on_delete=models.CASCADE,
-        related_name='related_relationship'
+        related_name='related_relationship',
+        blank=True,
+        null=True
     )
 
     class Meta:
