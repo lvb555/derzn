@@ -9,7 +9,8 @@ from ..models import Znanie, Relation, Tr, IP, Visits, Comment, BrowsingHistory,
 from loguru import logger
 from ..relations_tree import (get_category_for_knowledge, get_ancestors_for_knowledge,
                               get_siblings_for_knowledge,
-                              get_children_by_relation_type_for_knowledge, get_children_for_knowledge)
+                              get_children_by_relation_type_for_knowledge, get_children_for_knowledge,
+                              get_descendants_for_knowledge)
 import humanize
 
 logger.add('logs/main.log',
@@ -88,6 +89,8 @@ class ZnanieDetailView(DetailView):
                 ascending=False, include_self=True)
         else:
             categories = []
+        context['category_tree'] = categories[0].get_descendants(include_self=True)
+        context['relative_znania'] = get_descendants_for_knowledge(knowledge)
         context['category'] = category
         context['categories'] = categories
         context['chain'] = get_ancestors_for_knowledge(knowledge)
