@@ -59,8 +59,8 @@
                             <div>
                             {% if author.photo %}
                                 <a href="{% url 'author' author.pk %}">
-                                    <img src="{{ author.photo.url }}"
-                                    alt="Users photo" class="header-avatar"
+                                    <img src="{% get_media_prefix %}{{ author.photo }}"
+                                    alt="{{ author.name }}" class="header-avatar"
                                     style="width: 50px; z-index: 1; margin-right: 10px;">
                                 </a>
                             {% else %}

@@ -372,13 +372,13 @@ table.table td {
 }
 
 .choice-header a{
-font-family: 'Rubik';
-font-style: normal;
-font-weight: 500;
-font-size: 16px;
-line-height: 120%;
-letter-spacing: 0.02em;
-color: #6C757D;
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #6C757D;
 }
 
 .author-page-article {
@@ -512,4 +512,62 @@ input.icon {
     letter-spacing: 0.02em;
     text-align: left;
     color: #6C757D;
+}
+
+.part > ul > li:before {
+    content:none !important;
+}
+
+.part > ul > li {
+    padding:0px !important;
+}
+
+.part > ul > li > ul > li:before {
+	left: -32px;
+}
+
+.category-item  li  i.bi-file-plus-fill:before{
+    content: none;
+	transform: rotate(45deg);
+}
+
+.category-item  li  i.bi-file-minus-fill:before{
+    content: none;
+	transform: rotate(45deg);
+}
+
+.category-item i.bi-file-minus-fill img{
+    transform: rotate(0deg) !important;
+}
+
+.nonactive-node > i img{
+	opacity: 0.3;
+}
+
+.nonactive-node a, .active-node a{
+    font-family: Rubik;
+    font-size: 14px;
+    line-height: 17px;
+    letter-spacing: 0.02em;
+    text-align: left;
+}
+
+.nonactive-node span a{
+    color:#6C757D;
+}
+
+.active-node a{
+    color:#212529;
+}
+
+.scrollbar::-webkit-scrollbar {
+  height: 3px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+    background: #BFBFBF;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+    background-color: #f2f2f2;
 }

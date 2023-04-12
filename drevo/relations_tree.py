@@ -192,3 +192,29 @@ def get_siblings_for_knowledge(knowledge: Znanie) -> [None, list]:
             return None
     else:
         return None
+
+
+def get_descendants_for_knowledge(knowledge: Znanie) -> list:
+    """
+    Возвращает QuerySet знаний, которые являются потомками заданного знания
+    """
+
+    list_of_descendants = []
+
+    def get_all(queryset):
+        """
+        Рекурсивно ищет потомков текущего знания до тех пор,
+        пока функция get_children_for_knowledge не вернет None
+        """
+        for every_child in list(queryset):
+            founded = get_children_for_knowledge(every_child)
+            if founded:
+                list_of_descendants.append(founded)
+                get_all(founded)
+        return list_of_descendants
+    get_all([knowledge])
+    q1 = Znanie.objects.none()
+    for i in list_of_descendants:
+        q2 = q1 | i
+        q1 = q2
+    return q1
