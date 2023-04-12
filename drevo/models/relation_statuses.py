@@ -10,8 +10,9 @@ class RelationStatuses(models.Model):
     class Status(models.TextChoices):
         WORK_PRE = 'WORK_PRE', 'ПредСвязь в работе'
         WORK = 'WORK', 'Связь в работе'
-        PRE_FINISH = 'PRE_FIN', 'Готовая ПредСвязь'
-        FINISH = 'FIN', 'Готовая Связь'
+        PRE_READY = 'PRE_READY', 'Готовая ПредСвязь'
+        PRE_FINISH = 'PRE_FIN', 'Завершенная ПредСвязь'
+        FINISH = 'FIN', 'Завершенная Связь'
         PRE_EXPERTISE = 'PRE_EXP', 'Экспертизв ПредСвязи'
         REJECT = 'REJ', 'Отклоненная Связь'
         PRE_REJECT = 'PRE_REJ', 'Отклоненная ПредСвязь'

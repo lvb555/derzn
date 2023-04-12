@@ -15,7 +15,7 @@
                 <h3>Статус связи: {{ selected_status }}</h3>
             </div>
             <div class="col border-start border-dark">
-                <form action="" method="get">
+                <form action="{% if stage %} ?stage={{ stage }} {% endif %}" method="get">
                     {% csrf_token %}
                     {{ statuses_form.as_p }}
                 </form>

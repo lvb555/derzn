@@ -19,15 +19,19 @@ class PreparingRelationsView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(PreparingRelationsView, self).get_context_data(**kwargs)
-        stage_name = self.request.GET.get('stage')
+        stage_name = self.request.GET.get('stage') if self.request.GET.get('stage') else 'create'
+        context['stage'] = stage_name
         stage_names = {
             'create': 'Создание связей',
             'update': 'Изменение связи',
             'expertise': 'Экспертизв ПредСвязи',
             'publication': 'Публикация cвязей'
         }
-        context['statuses_form'] = RelationStatusesForm()
-        context['knowledge'] = Znanie.objects.filter(is_published=True).all()[:50]
+        context['statuses_form'] = RelationStatusesForm(stage=stage_name)
         context['stage_name'] = stage_names.get(stage_name) if stage_name else 'Создание связей'
-        context['selected_status'] = ''
+
+        context['knowledge'] = Znanie.objects.filter(is_published=True).all()[:50]
+
+        selected_status = self.request.GET.get('status')
+        context['selected_status'] = selected_status if selected_status else 'Все'
         return context
