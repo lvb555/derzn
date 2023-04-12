@@ -30,6 +30,6 @@ class AdvanceTreeSearchFrom(forms.Form):
         queryset=Label.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
         required=False,
-        help_text='Чтобы выделить несколько тегов выберите их предварительно зажав "CTRL"'
+        help_text='Выбор нескольких тегов проводится при нажатой клавише CTRL'
     )
 

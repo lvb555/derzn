@@ -7,12 +7,16 @@
 {% endblock %}
 
 {% if show_searchbar %}
+<a href="" class="btn btn-success mb-3" data-bs-toggle="collapse" data-bs-target="#search_form">
+    <strong>Поиск знания</strong>
+    <img src="/static/drevo/img/main_page/search.png">
+</a>
 <form
         role="search"
         id="search_form"
         method="post"
         action="{% if not is_advance_search %}{% url 'search_by_tree' %}{% else %}{% url 'advance_search_by_tree' %}{% endif %}"
-        class="mb-3"
+        class="mb-3 collapse"
         {% if not is_advance_search %} target="_blank" {% endif %}
 >
     {% csrf_token %}
@@ -22,33 +26,27 @@
         <div class="input-group-btn">
             {% if not is_advance_search %}
             <button type="submit" class="btn btn-outline-success" id="default_search" name="default_search">
-                <img src="/static/drevo/img/main_page/search.png">
+                Найти
             </button>
             <input type="submit" class="btn btn-outline-info" name="advance_search" value="Расширенный поиск">
             {% else %}
             <button type="submit" class="btn btn-outline-success" name="advance_search">
-                <img src="/static/drevo/img/main_page/search.png">
+                Найти
             </button>
             {% endif %}
         </div>
     </div>
     {% for field_data, value in user_search_param.items %}
     <div class="form-group form-check-inline">
-        <input type="checkbox" class="form-check-input" id="{{ field_data.0 }}" name="{{ field_data.0 }}" {% if value %}checked{% endif %}>
+        <input type="checkbox" class="form-check-input" id="{{ field_data.0 }}" name="{{ field_data.0 }}" {% if value %}checked{% endif %} {% if user.is_anonymous %} disabled {% endif %}>
         <label class="form-check-label" for="{{ field_data.0 }}">{{ field_data.1 }}</label> |
     </div>
     {% endfor %}
 
     {% if is_advance_search %}
-    <a href="" class="text-dark" data-bs-toggle="collapse" data-bs-target="#search_settings">
-        <strong>Расширенный поиск</strong>
-        <img src="/static/drevo/img/knowledge_search/collapse_down.svg" data-img-toggle="/static/drevo/img/knowledge_search/collapse_up.svg" alt="collapse" height="20px" id="extendedSearchButtonImg">
-    </a>
-    <div class="collapse" id="search_settings">
         <div class="mx-4">
             {{ form.as_p }}
         </div>
-    </div>
     {% endif %}
 </form>
 {% endif %}
