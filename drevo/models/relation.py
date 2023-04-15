@@ -68,7 +68,7 @@ class Relation(models.Model):
     objects = models.Manager()
 
     def __str__(self):
-        return f"{self.title} {self.tr.name}"
+        return f'{self.bz} | {self.rz}'
 
     def get_grouped_relations(self):
         return list(sorted(
