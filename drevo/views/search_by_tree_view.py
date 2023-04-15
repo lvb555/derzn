@@ -4,7 +4,7 @@ from operator import or_
 
 from django.db.models import Q
 from django.shortcuts import render, redirect
-from drevo.models import UserParameters, Znanie
+from drevo.models import UserParameters, Znanie, SettingsOptions
 
 
 def _get_user_search_params(user, req_data) -> list:
@@ -14,6 +14,16 @@ def _get_user_search_params(user, req_data) -> list:
     param_names = (
         'Искать в поле "Содержание"', 'Искать в поле "Комментарий к источнику"', 'Учитывать структурные знания'
     )
+    fields_by_param = {
+        'Искать в поле "Содержание"': 'content',
+        'Искать в поле "Комментарий к источнику"': 'source_com',
+        'Учитывать структурные знания': 'use_struct'
+    }
+
+    if user.is_anonymous:
+        params = SettingsOptions.objects.filter(name__in=param_names, default_param=1, is_bool=True)
+        return [fields_by_param.get(param.name) for param in params]
+
     params = UserParameters.objects.select_related('param').filter(user=user, param__name__in=param_names)
 
     cur_params = {
@@ -22,11 +32,6 @@ def _get_user_search_params(user, req_data) -> list:
         'use_struct': 1 if 'use_struct' in req_data else 0,
     }
 
-    fields_by_param = {
-        'Искать в поле "Содержание"': 'content',
-        'Искать в поле "Комментарий к источнику"': 'source_com',
-        'Учитывать структурные знания': 'use_struct'
-    }
     updated_user_param = list()
 
     for user_param in params:
@@ -69,7 +74,8 @@ def search_by_tree_view(request):
     context = {
         'search_knowledge': filtered_queryset,
         'search_word': search_word,
-        'is_advance_search': is_advance_search
+        'is_advance_search': is_advance_search,
+        'page_title': 'Результаты поиска' if not is_advance_search else 'Расширенный поиск'
     }
     return render(request, 'drevo/search_by_tree.html', context)
 
@@ -104,5 +110,9 @@ def advance_search_by_tree_view(request):
         return queryset.filter(filter_query)
 
     filtered_queryset = advanced_filter_queryset(knowledge_queryset)
-    context = {'search_knowledge': filtered_queryset, 'search_word': search_word}
+    context = {
+        'search_knowledge': filtered_queryset,
+        'search_word': search_word,
+        'page_title': 'Результаты расширенного поиска'
+    }
     return render(request, 'drevo/search_by_tree.html', context)

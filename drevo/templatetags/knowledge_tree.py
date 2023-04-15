@@ -3,7 +3,7 @@ from django.db.models import QuerySet
 from django.template import Library, RequestContext
 from django.utils.safestring import mark_safe
 from drevo.utils.knowledge_tree_builder import KnowledgeTreeBuilder
-from drevo.models import Znanie, Category, Tr, Author, UserParameters
+from drevo.models import Znanie, Category, Tr, Author, UserParameters, SettingsOptions
 from drevo.forms import AdvanceTreeSearchFrom
 
 register = Library()
@@ -55,21 +55,27 @@ def build_knowledge_tree(context: RequestContext,
     param_names = (
         'Искать в поле "Содержание"', 'Искать в поле "Комментарий к источнику"', 'Учитывать структурные знания'
     )
-    user_params_queryset = (
-        UserParameters.objects
-        .select_related('param')
-        .filter(user=context.request.user, param__name__in=param_names)
-        .values('param__name', 'param_value')
-    )
-    user_search_param = {param.get('param__name'): param.get('param_value') for param in user_params_queryset}
-    show_struct_param = True if user_search_param.get('Учитывать структурные знания') else False
-
     fields_by_param = {
         'Искать в поле "Содержание"': 'content',
         'Искать в поле "Комментарий к источнику"': 'source_com',
         'Учитывать структурные знания': 'use_struct'
     }
-    user_search_param = {(fields_by_param.get(name), name): value for name, value in user_search_param.items()}
+
+    if context.request.user.is_anonymous:
+        params = SettingsOptions.objects.filter(name__in=param_names)
+        user_search_param = {(fields_by_param.get(param.name), param.name): param.default_param for param in params}
+        show_struct_param = True if user_search_param.get(('use_struct', 'Учитывать структурные знания')) else False
+    else:
+        user_params_queryset = (
+            UserParameters.objects
+            .select_related('param')
+            .filter(user=context.request.user, param__name__in=param_names)
+            .values('param__name', 'param_value')
+        )
+        user_search_param = {param.get('param__name'): param.get('param_value') for param in user_params_queryset}
+        show_struct_param = True if user_search_param.get('Учитывать структурные знания') else False
+        user_search_param = {(fields_by_param.get(name), name): value for name, value in user_search_param.items()}
+
     tree_context['user_search_param'] = user_search_param
     tree_knowledge = tree_builder.get_tree_knowledge_list(with_struct_knowledge=show_struct_param)
     tree_context['empty_result'] = context.request.GET.get('empty_result', '')
