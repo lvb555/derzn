@@ -2,48 +2,69 @@
 {% load mptt_tags %}
 {% load static %}
 
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
 {% block title %}Сообщение об интересном знании{% endblock %}
 
 {% block content %}
 
-<div class="container">
-    <form method="post">
-        {% csrf_token %}
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            {% if message.tags == 'error' %}
-            <li class="text-danger"> {{ message }} </li>
+<div class="container d-grid" style="justify-items: center;">
+    <h1 class="w-auto page-title">Сообщение об интересном знании</h1>
+    <button type="button" class="btn btn-icon mb-4" style="background-color: #fff; padding: 8px 24px;">
+            <a href="{% url 'zdetail' znanie_name.pk %}" style="color:#083E2F;">Вернуться к знанию</a>
+        </button>
+    <div class="container mt-3 d-flex" style="background-color: #FFFFFF; border-radius: 10px; justify-content: center; width: fit-content; padding: 32px;">
+        <form method="post" style="justify-content: center; display: grid; gap: 10px;">
+            {% csrf_token %}
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                {% if message.tags == 'error' %}
+                <li class="text-danger"> {{ message }} </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
             {% endif %}
+            <p class="choice-header p-0 h-auto" style="border: none;">
+            {% if value.tz.name == 'Тезис' %}
+            <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/green_file.png' %}"></i>
+            {% elif value.tz.name == 'Вопрос' %}
+            <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}"></i>
+            {% elif value.tz.name == 'Факт' %}
+            <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}"></i>
+            {% elif value.tz.name == 'Классификация' %}
+            <i class="kn_type" style="color: #BA7507;"><img src="{% static 'drevo/img/ginger_file.png' %}"></i>
+            {% else %}
+            <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}"></i>
+            {% endif %}
+            Знание: {{ znanie_name.name }}</p>
+            {% for field in form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field}}
+
+            <div class="text-danger">
+                {{ field.errors }}
+            </div>
             {% endfor %}
-        </ul>
-        {% endif %}
-        <h1><input type="submit" class="btn btn-warning" value="Отправить"> Сообщение об интересном знании</h1>
-        <h3>Знание: {{ znanie_name.name }}</h3>
-        {% for field in form %}
-        <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
-        {{ field}}
-        <div class="text-danger">
-            {{ field.errors }}
-        </div>
-        {% endfor %}
-    </form>
+            <input type="submit" class="btn btn-warning btn-header" style="width: fit-content; justify-self: center; border: none;" value="Отправить">
+        </form>
+    </div>
 </div>
 
 <!-- Модальное окно -->
 <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content text-dark" style="background-color:#5ad65a;">
-            <div class="modal-header">
-                <h5 class="modal-title" id="authModalLabel">Сообщение успешно отправлено</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        <div class="modal-content text-dark py-4" style="background-color:#fff;border-radius: 10px;">
+            <div class="modal-header" style="justify-content: center; border: none;">
+                <i class="bi bi-check2 rounded-circle" style="font-size: xxx-large; border: solid 1px #19875433; color: #198754; width: 10vh; height: 10vh;"></i>
             </div>
-            <div class="modal-body">
-                Ваше сообщение было успешно отправлено. Вы можете отправить следующее сообщение или вернуться на страницу знания.
+            <div class="modal-body author-title" style="text-align: center;">
+                Успешно отправлено!
             </div>
-            <div class="modal-footer">
-                <a href="{% url 'zdetail' znanie_name.pk %}" class="btn btn-info" style="background-color:#3399ff;">К знанию</a>
-                <button type="button" class="btn btn-info" data-bs-dismiss="modal" aria-label="Отправить новое сообщение" style="background-color:#3399ff;">Отправить новое сообщение</button>
+            <div class="modal-footer" style="justify-content: center; border: none;">
+                <button type="button" class="btn btn-info btn-header" style="width: fit-content; justify-self: center; border: none;" data-bs-dismiss="modal" aria-label="Прекрасно!">Прекрасно!</button>
             </div>
         </div>
     </div>

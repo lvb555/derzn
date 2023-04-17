@@ -1,3 +1,4 @@
+{% load static %}
 <style>
     .table-border {
         border: 2px black solid;
@@ -11,9 +12,9 @@
         text-decoration: none;
     }
 </style>
-<div class="table-responsive">
-    <table class="table align-middle my-2" style="border-collapse: collapse;">
-        <tbody class="table-border">
+<div class="table-responsive scrollbar">
+    <table class="table align-middle my-2">
+        <tbody class="table-border" style="border-bottom-color: #BFBFBF;">
         {% if not table.rows.0.rz.tz.is_group and not table.cols.0.rz.tz.is_group %}
             {#  Вариант 1  #}
             <th class="table-border"></th>
@@ -148,6 +149,17 @@
                             {% for value in values_row %}
                                 <td class="table-border">
                                     {% if value %}
+                                        {% if value.tz.name == 'Тезис' %}
+                                        <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/green_file.png' %}"></i>
+                                        {% elif value.tz.name == 'Вопрос' %}
+                                        <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}"></i>
+                                        {% elif value.tz.name == 'Факт' %}
+                                        <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}"></i>
+                                        {% elif value.tz.name == 'Классификация' %}
+                                        <i class="kn_type" style="color: #BA7507;"><img src="{% static 'drevo/img/ginger_file.png' %}"></i>
+                                        {% else %}
+                                        <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}"></i>
+                                        {% endif %}
                                         {% if value.show_link %}
                                             <a href="{{ value.get_absolute_url }}">{{ value.name }}</a>
                                         {% else %}
