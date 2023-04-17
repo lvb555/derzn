@@ -18,6 +18,7 @@ def build_knowledge_tree(context: RequestContext,
                          show_only: Tr = None,
                          hidden_author: Author = None,
                          show_complex: bool = False,
+                         edit_widgets: list[str] = None
                          ):
     """
         Тег для построения дерева знаний \n
@@ -36,6 +37,11 @@ def build_knowledge_tree(context: RequestContext,
 
         show_complex: если данный параметр имеет значение True, то на дереве будут отображаться сложные знания.
         В настоящее время для отображения на дереве существует 2 вида сложных знаний: "Таблица", "Тест"
+
+        edit_widgets: список виджетов для редактирования дерева. Допустимые значения: \n
+        create - создать новую ветвь (связь)
+        delete - удалить ветвь (связь)
+        update - удалить ветвь (связь)
     """
     if not queryset:
         raise EmptyResultSet('Для построения дерева необходим queryset знаний')
@@ -82,6 +88,7 @@ def build_knowledge_tree(context: RequestContext,
     tree_context['tree_knowledge'] = ','.join(list(map(str, tree_knowledge)))
     tree_context['search_word'] = search_word
     tree_context['is_advance_search'] = True if 'advance_search' in context.request.POST else False
+    tree_context['edit_widgets'] = ''.join(edit_widgets).split(' ') if edit_widgets else []
     if tree_context['is_advance_search']:
         tree_context['form'] = AdvanceTreeSearchFrom(data=context.request.POST)
     return tree_context

@@ -29,6 +29,11 @@
     {% if base_knowledge.author and base_knowledge.author != hidden_author %}
     <a class="znanie" style="color: #6C757D;">({{ base_knowledge.author }})</a>
     {% endif %}
+
+    {% if edit_widgets and base_knowledge in active_knowledge and 'create' in edit_widgets %}
+    <a href="{% url 'relation_create_page' %}?base_kn={{ base_knowledge.pk }}">+</a>
+    {% endif %}
+
     {% get_knowledge_counts knowledge_rel_counts base_knowledge %}
     <ul class="children treeline">
         {% for b_zn, zn_data in knowledge_data.items %}
