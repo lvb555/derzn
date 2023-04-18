@@ -223,11 +223,19 @@ form.search-block {
     margin-left: 32px;
 }
 
-table.table td, table.table th {
+table.table tr {
+    border-block-end: dashed lightgrey 1px;
+}
+
+table.table td {
+    border: none;
+}
+
+table.table.align-middle.my-2 td, table.table th {
     border: 1px solid #BFBFBF;
 }
 
-table.table th {
+table.table.align-middle.my-2 th {
 	font-family: Rubik;
     font-size: 14px;
     font-weight: 500;
@@ -236,7 +244,7 @@ table.table th {
     text-align: left;
 }
 
-table.table td {
+table.table.align-middle.my-2 td {
 	font-family: Rubik;
 	font-size: 14px;
 	font-weight: 400;
@@ -246,7 +254,7 @@ table.table td {
 }
 
 
-table.table {
+table.table.align-middle.my-2 {
 	border-spacing: 0;
 	border-collapse: separate;
 	border-radius: 10px;
@@ -772,4 +780,8 @@ label[for=id_email_address]::after{
 
 .errorlist {
 	padding: 0;
+}
+
+div#author-page-drevo > a.btn.btn-success.mb-3 {
+    margin: 32px;
 }

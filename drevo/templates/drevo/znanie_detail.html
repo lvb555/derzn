@@ -509,7 +509,8 @@
 
   function cutTree(){
     if(document.getElementById('tree-part').childNodes.length > 3){
-        all_tree = document.getElementById('tree-part').childNodes[7];
+        console.log(document.getElementById('tree-part').childNodes);
+        all_tree = document.getElementById('tree-part').childNodes[9];
         document.getElementById('tree-part').childNodes[5].remove();
         if(!(all_tree.querySelector('.fs-4'))){
             all_tree.classList.add('part');

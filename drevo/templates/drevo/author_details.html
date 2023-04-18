@@ -246,8 +246,10 @@
         </ul>
             </div>
         {% else %}
-        <p class="author-title" style="margin:32px 0px 0px 32px;padding-bottom: 0px;">Дерево знаний</p>
+        <div id="author-page-drevo">
+         <p class="author-title" style="margin:32px 0px 0px 32px;padding-bottom: 0px;">Дерево знаний</p>
         {% build_knowledge_tree queryset=knowledges_of_author empty_tree_message='Дерево знаний данного автора пустое, перейдите к списку знаний' hidden_author=author %}
+        </div>
         {% endif %}
         {% endif %}
     </div>
