@@ -11,20 +11,20 @@ class Relation(models.Model):
     # связанное знание
     bz = models.ForeignKey(
         'Znanie',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Базовое знание',
         help_text='укажите базовое знание',
         related_name='base'
     )
     tr = models.ForeignKey(
         'Tr',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Вид связи',
         help_text='укажите вид связи'
     )
     rz = models.ForeignKey(
         'Znanie',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Связанное знание',
         help_text='укажите связанное знание',
         related_name='related'
