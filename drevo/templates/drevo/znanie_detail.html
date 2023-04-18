@@ -35,14 +35,14 @@
                                 alt="{{ znanie.author.name }}" width="70" height="70">
                             <div style="display: table-cell; height: 70px; margin-left: 85px; vertical-align: middle; padding-left: 10px;">
                                 <p class="m-0 author-description" style="color: #6C757D;">Автор</p>
-                                <p class="m-0 author-count" style="color: #212529; width: auto;">{{ znanie.author.name }}</p>
+                                <a href="{% url 'author' znanie.author.pk %}"><p class="m-0 author-count" style="color: #212529; width: auto;">{{ znanie.author.name }}</p></a>
                             </div>
                             {% else %}
                             <div class="d-flex">
                                 <span class="author-avatar rounded-circle" style="width: 70px; height: 70px;">{{ znanie.author.name }}</span>
                                 <div style="align-self: center;">
                                     <p class="m-0 author-description" style="color: #6C757D;">Автор</p>
-                                    <p class="m-0 author-count" style="color: #212529; width: auto;">{{ znanie.author.name }}</p>
+                                    <a href="{% url 'author' znanie.author.pk %}"><p class="m-0 author-count" style="color: #212529; width: auto;">{{ znanie.author.name }}</p></a>
                                 </div>
                             </div>
                             {% endif %}
@@ -509,7 +509,6 @@
 
   function cutTree(){
     if(document.getElementById('tree-part').childNodes.length > 3){
-        console.log(document.getElementById('tree-part').childNodes);
         all_tree = document.getElementById('tree-part').childNodes[9];
         document.getElementById('tree-part').childNodes[5].remove();
         if(!(all_tree.querySelector('.fs-4'))){
