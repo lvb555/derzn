@@ -7,8 +7,14 @@ class KnowledgeTreeBuilder:
         Конструктор дерева знаний.
         Данный класс реализует функционал постройки дерева по знаниям и категориям.
     """
-    def __init__(self, queryset: QuerySet[Znanie], show_only: Tr = None, show_complex: bool = False):
+    def __init__(self,
+                 queryset: QuerySet[Znanie],
+                 show_only: Tr = None,
+                 show_complex: bool = False,
+                 edit_mode: bool = False
+                 ):
         self.queryset = queryset
+        self.edit_mode = edit_mode
         self.building_knowledge = set(kn.id for kn in queryset)  # Множество знаний используемых для построения дерева
         self.categories_data = {}
         self.knowledge = {}
@@ -27,10 +33,13 @@ class KnowledgeTreeBuilder:
             Метод для получения всех связей в следующем виде: \n
             {related_knowledge_id: [base_knowledge_id1, base_knowledge_id2,]}
         """
+        filter_lookups = {'is_published': True, 'tr__is_systemic': False}
+        if self.edit_mode:
+            filter_lookups.update({'is_published': False})
         relations = (
             Relation.objects
             .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
-            .filter(is_published=True, tr__is_systemic=False)
+            .filter(**filter_lookups)
         )
         relations_data = {rel.rz.id: [] for rel in relations}
         for rel in relations:

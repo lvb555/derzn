@@ -45,7 +45,11 @@ def build_knowledge_tree(context: RequestContext,
     """
     if not queryset:
         raise EmptyResultSet('Для построения дерева необходим queryset знаний')
-    tree_builder = KnowledgeTreeBuilder(queryset, show_only, show_complex)
+    edit_mode = True if edit_widgets else False
+    builder_kwargs = {
+        'queryset': queryset, 'show_only': show_only, 'show_complex': show_complex, 'edit_mode': edit_mode
+    }
+    tree_builder = KnowledgeTreeBuilder(**builder_kwargs)
     tree_builder_context = tree_builder.get_nodes_data_for_tree()
     tree_context = dict(
         tree_num=tree_num,
@@ -89,6 +93,7 @@ def build_knowledge_tree(context: RequestContext,
     tree_context['search_word'] = search_word
     tree_context['is_advance_search'] = True if 'advance_search' in context.request.POST else False
     tree_context['edit_widgets'] = ''.join(edit_widgets).split(' ') if edit_widgets else []
+    tree_context['user'] = context.request.user
     if tree_context['is_advance_search']:
         tree_context['form'] = AdvanceTreeSearchFrom(data=context.request.POST)
     return tree_context
