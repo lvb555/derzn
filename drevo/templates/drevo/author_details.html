@@ -23,7 +23,6 @@
             <a href="{% url 'authors' %}" style="color:#083E2F;">Вернуться к списку авторов</a>
         </button>
     </nav>
-
 </div>
 
 <div class="container mt-3" style="background-color: #FFFFFF;border-radius: 10px;">
@@ -31,7 +30,7 @@
         <div class="row" style="padding:20px">
             {% if author.photo %}
             <div style="width: 150px; padding: 0px;border-radius: 8px;">
-                <img src="{% get_media_prefix %}{{ author.photo }}" class="rounded float-end img-thumbnail"
+                <img src="{% get_media_prefix %}{{ author.photo }}" class="rounded float-end"
                     alt="{{ author.name }}" width="150">
             </div>
             {% endif %}

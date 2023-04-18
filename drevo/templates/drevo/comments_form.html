@@ -1,18 +1,16 @@
-<div class="card" style="background-color: #f2f2f2">
-    <div class="card-body">
-        <form id="commentForm{{ comment.id }}">
-            <input type="hidden" name="parent" id="id_parent" value="{{ comment.id }}">
-            <textarea name="content" cols="1" rows="1" maxlength="{{ comment_max_length }}"
-                placeholder="{% if comment %} Ответить {% else %} Комментировать {% endif %}" class="form-control mb-2"
-                style="overflow: hidden; resize: none;" required="" id="commentTextareaForm{{ comment.id }}"
-                oninput="onInputHandler(this)" data-basic-height></textarea>
-            <div class="form-footer d-flex justify-content-end">
-                <span>
-                    <span id="commentCharCounter{{ comment.id }}">0</span>&nbsp;/&nbsp;{{ comment_max_length }}
-                    <input type="button" class="send-comment-button btn btn-secondary ms-2" value="Отправить"
-                        id="sendFormButton{{ comment.id }}" onclick="onButtonSendClick({{ comment.id }})" disabled>
-                </span>
-            </div>
-        </form>
-    </div>
+<p style="text-align: end; margin-bottom: -1.5vh;" class="small-text"><span id="commentCharCounter{{ comment.id }}">0</span>&nbsp;/&nbsp;{{ comment_max_length }}</p>
+<div class="card-body p-0">
+    <form id="commentForm{{ comment.id }}">
+        <input type="hidden" name="parent" id="id_parent" value="{{ comment.id }}">
+        <textarea name="content" cols="1" rows="1" maxlength="{{ comment_max_length }}"
+            placeholder="{% if comment %} Ответить {% else %} Комментировать {% endif %}" class="form-control mb-2 author-page-article"
+            style="overflow: hidden; resize: none;height: 86px; background: rgba(245, 245, 245, 0.75); border-radius: 8px; color: #BFBFBF;" required="" id="commentTextareaForm{{ comment.id }}"
+            oninput="onInputHandler(this)" data-basic-height></textarea>
+        <div class="form-footer d-flex justify-content-end">
+            <span>
+                <input type="button" class="send-comment-button ms-2 btn btn-header" value="Отправить" style="opacity: 1;"
+                    id="sendFormButton{{ comment.id }}" onclick="onButtonSendClick({{ comment.id }})" disabled>
+            </span>
+        </div>
+    </form>
 </div>
