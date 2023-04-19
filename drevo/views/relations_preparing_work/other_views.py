@@ -1,9 +1,11 @@
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.db.models import Q, Count, Case, When, IntegerField
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
 
-from drevo.models import Znanie, RelationshipTzTr, Tz
+from drevo.models import Znanie, RelationshipTzTr, Tz, Relation
 
 
 @require_http_methods(['GET'])
@@ -71,3 +73,16 @@ def get_related_tz(request):
         related_tz = Tz.objects.filter(pk__in=req_relationship, is_systemic=False).values('id', 'name').distinct()
     res_data = {'related_tz': [{'id': tz.get('id'), 'name': tz.get('name')} for tz in related_tz]}
     return JsonResponse(data=res_data)
+
+
+@login_required
+@require_http_methods(['GET'])
+@transaction.atomic
+def relation_delete_view(request):
+    """
+        Вьюшка удаления связи
+    """
+    bz = request.GET.get('bz_id')
+    rz = request.GET.get('rz_id')
+    Relation.objects.filter(bz_id=bz, rz_id=rz, user=request.user).delete()
+    return redirect(request.META['HTTP_REFERER'])
