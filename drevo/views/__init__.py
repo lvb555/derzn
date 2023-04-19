@@ -94,6 +94,8 @@ from .relations_preparing_work import (
     RelationCreatePageView,
     relation_create_view,
     relation_delete_view,
+    RelationUpdatePageView,
+    relation_update_view,
 )
 
 __all__ = [
@@ -181,4 +183,6 @@ __all__ = [
     'create_additional_knowledge',
     'get_related_tz',
     'additional_knowledge_update_view',
+    'RelationUpdatePageView',
+    'relation_update_view',
 ]

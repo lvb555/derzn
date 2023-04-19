@@ -72,6 +72,8 @@ from .views import (
     create_additional_knowledge,
     get_related_tz,
     additional_knowledge_update_view,
+    RelationUpdatePageView,
+    relation_update_view,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
@@ -439,6 +441,16 @@ urlpatterns = [
         'relation/preparing/additional_knowledge/update/<int:kn_pk>',
         additional_knowledge_update_view,
         name='update_additional_knowledge_page'
+    ),
+    path(
+        'relations/preparing/update_stage/update_relation',
+        RelationUpdatePageView.as_view(),
+        name='relation_update_page'
+    ),
+    path(
+        'relations/update/<int:relation_pk>',
+        relation_update_view,
+        name='relation_update'
     ),
 
 ]
