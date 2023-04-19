@@ -65,6 +65,13 @@ from .views import (
     PreparingRelationsUpdateView,
     PreparingRelationsExpertiseView,
     PreparingRelationsPublicationView,
+    RelationCreatePageView,
+    check_related,
+    relation_create_view,
+    relation_delete_view,
+    create_additional_knowledge,
+    get_related_tz,
+    additional_knowledge_update_view,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
@@ -379,24 +386,59 @@ urlpatterns = [
     path('tree/search_results', search_by_tree_view, name='search_by_tree'),
     path('tree/search_results/advance', advance_search_by_tree_view, name='advance_search_by_tree'),
     path(
-        'relations/preparing/create',
+        'relations/preparing/create_stage',
         PreparingRelationsCreateView.as_view(),
         name='preparing_relations_create_page'
     ),
     path(
-        'relations/preparing/update',
+        'relations/preparing/update_stage',
         PreparingRelationsUpdateView.as_view(),
         name='preparing_relations_update_page'
     ),
     path(
-        'relations/preparing/expertise',
+        'relations/preparing/expertise_stage',
         PreparingRelationsExpertiseView.as_view(),
         name='preparing_relations_expertise_page'
     ),
     path(
-        'relations/preparing/publication',
+        'relations/preparing/publication_stage',
         PreparingRelationsPublicationView.as_view(),
         name='preparing_relations_publication_page'
+    ),
+    path(
+        'relations/preparing/create_stage/new_relation',
+        RelationCreatePageView.as_view(),
+        name='relation_create_page'
+    ),
+    path(
+        'relations/preparing/check_related',
+        check_related,
+        name='check_related'
+    ),
+    path(
+        'relations/preparing/related_tz',
+        get_related_tz,
+        name='get_related_tz'
+    ),
+    path(
+        'relations/create',
+        relation_create_view,
+        name='create_relation'
+    ),
+    path(
+        'relation/delete',
+        relation_delete_view,
+        name='delete_relation'
+    ),
+    path(
+        'relation/preparing/additional_knowledge/create',
+        create_additional_knowledge,
+        name='create_additional_knowledge'
+    ),
+    path(
+        'relation/preparing/additional_knowledge/update/<int:kn_pk>',
+        additional_knowledge_update_view,
+        name='update_additional_knowledge_page'
     ),
 
 ]
