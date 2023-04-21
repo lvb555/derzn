@@ -112,6 +112,24 @@ def get_relation_name(relations_names: dict, parent: Znanie, child: Znanie) -> s
 
 
 @register.simple_tag
+def get_relation_status(relations_status: dict, parent: Znanie, child: Znanie) -> str:
+    if not parent:
+        return ''
+    return relations_status.get((parent.pk, child.pk))
+
+
+@register.simple_tag
+def get_require_widgets(widgets: list, status: str = None) -> list:
+    if widgets == ['create', 'delete']:
+        return widgets
+    require_by_status = {
+        'delete': ('WORK_PRE', 'WORK'),
+        'update': ('WORK_PRE', 'WORK', 'PRE_READY', 'PRE_EXP', 'PRE_FIN', 'PRE_REJ', 'FIN', 'REJ')
+    }
+    return [widget for widget in widgets if status in require_by_status.get(widget)]
+
+
+@register.simple_tag
 def get_knowledge_counts(data, knowledge):
     counts = data.get(knowledge)
     if not counts:

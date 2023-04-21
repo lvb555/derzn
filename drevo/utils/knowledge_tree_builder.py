@@ -1,5 +1,5 @@
 from django.db.models import QuerySet
-from drevo.models import Znanie, Relation, Category, Tz, Tr
+from drevo.models import Znanie, Relation, Category, Tz, Tr, RelationStatuses
 
 
 class KnowledgeTreeBuilder:
@@ -23,6 +23,7 @@ class KnowledgeTreeBuilder:
         complex_tz_names = ('Таблица', 'Тест')
         self.complex_tz = Tz.objects.filter(name__in=complex_tz_names).values_list('pk', flat=True)
         self.relations_name = {}  # {(<parent_id>, <child_id>): relation_name, }
+        self.relations_status = {}  # {(<parent_id>, <child_id>): status_name, }
         self.show_only = show_only  # Вид связи, который необходимо отображать на дереве для знаний из queryset
         self.category_rel_counts = dict()  # {category_pk: {'knowledge_count': 0, 'base_knowledge_count': 0}
         self.knowledge_rel_counts = dict()  # {knowledge: {'knowledge_count': 0, 'child_count': 0}
@@ -41,10 +42,17 @@ class KnowledgeTreeBuilder:
             .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
             .filter(**filter_lookups)
         )
+        if self.edit_mode:
+            relations_statuses = RelationStatuses.objects.filter(is_active=True)
+            statuses_data = {rel_status.relation.id: rel_status.status for rel_status in relations_statuses}
+        else:
+            statuses_data = {}
         relations_data = {rel.rz.id: [] for rel in relations}
         for rel in relations:
             if self.show_only and rel.rz.id in self.building_knowledge and rel.tr != self.show_only:
                 continue
+            if self.edit_mode and rel.id in statuses_data:
+                self.relations_status.update({(rel.bz.id, rel.rz.id): statuses_data.get(rel.id)})
             self.relations_name.update({(rel.bz.id, rel.rz.id): rel.tr.name})
             relations_data[rel.rz.id].append(rel.bz)
         return relations_data
@@ -100,6 +108,7 @@ class KnowledgeTreeBuilder:
             'tree_data': tree_data,
             'category_nodes': category_nodes,
             'relations_name': self.relations_name,
+            'relations_status': self.relations_status,
             'knowledge_rel_counts': self.knowledge_rel_counts,
             'category_rel_counts': self.category_rel_counts
         }
