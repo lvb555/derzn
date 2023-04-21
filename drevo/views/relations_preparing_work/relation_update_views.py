@@ -2,13 +2,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.decorators.http import require_http_methods
 from drevo.forms import RelationStatusesForm, AdditionalKnowledgeForm
 from drevo.utils.preparing_relations import PreparingRelationsMixin
 from drevo.models import Relation, Znanie, Tr, RelationStatuses
-from pip._vendor import requests
 
 
 class PreparingRelationsUpdateView(LoginRequiredMixin, TemplateView, PreparingRelationsMixin):
@@ -76,10 +75,32 @@ def relation_update_view(request, relation_pk):
     req_data = request.POST
     tr = get_object_or_404(Tr, pk=req_data.get('relation_type'))
     rz = get_object_or_404(Znanie, pk=req_data.get('related_knowledge'))
-    rel_status = req_data.get('relation_status')
+    new_status = req_data.get('relation_status')
     change_statuses = {'WORK': 'FIN', 'WORK_PRE': 'PRE_FIN', 'FIN': 'WORK', 'PRE_FIN': 'WORK_PRE'}
     relation.tr = tr
     relation.rz = rz
     relation.save()
-    RelationStatuses.objects.filter(relation=relation).update(status=change_statuses.get(rel_status))
+
+    relation_statuses = RelationStatuses.objects.filter(relation=relation)
+    last_rel_status = None
+    new_rel_status = None
+    for rel_status in relation_statuses:
+        if rel_status.is_active:
+            last_rel_status = rel_status
+            continue
+        if rel_status.status == new_status:
+            new_rel_status = rel_status
+            continue
+
+    if last_rel_status:
+        last_rel_status.is_active = False
+        last_rel_status.save()
+
+    if new_rel_status:
+        new_rel_status.is_active = True
+        new_rel_status.user = request.user
+        new_rel_status.save()
+    else:
+        RelationStatuses.objects.create(relation=relation, status=change_statuses.get(new_status), user=request.user)
+
     return redirect('preparing_relations_update_page')

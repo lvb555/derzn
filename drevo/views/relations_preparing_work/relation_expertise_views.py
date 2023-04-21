@@ -1,9 +1,14 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
-
+from django.views.decorators.http import require_http_methods
 from drevo.forms import RelationStatusesForm
 from drevo.utils.preparing_relations import PreparingRelationsMixin
+from drevo.models import Relation, Tr, Znanie, RelationStatuses
+from drevo.forms import AdditionalKnowledgeForm
 
 
 class PreparingRelationsExpertiseView(LoginRequiredMixin, TemplateView, PreparingRelationsMixin):
@@ -13,7 +18,7 @@ class PreparingRelationsExpertiseView(LoginRequiredMixin, TemplateView, Preparin
     """
     template_name = 'drevo/relations_preparing_page/preparing_relations_page.html'
     login_url = reverse_lazy('login')
-    extra_context = {'stage_name': 'Экспертиза ПредСвязи'}
+    extra_context = {'stage_name': 'Экспертиза ПредСвязи', 'related_widgets': 'expertise'}
 
     def get_context_data(self, **kwargs):
         context = super(PreparingRelationsExpertiseView, self).get_context_data(**kwargs)
@@ -29,3 +34,82 @@ class PreparingRelationsExpertiseView(LoginRequiredMixin, TemplateView, Preparin
             form_data['initial'] = {'status': selected_status}
         context['statuses_form'] = RelationStatusesForm(**form_data)
         return context
+
+
+class RelationsExpertisePageView(LoginRequiredMixin, TemplateView, PreparingRelationsMixin):
+    """
+        Страница экспертизы знания
+    """
+    template_name = 'drevo/relations_preparing_page/relation_update_page.html'
+    login_url = reverse_lazy('login')
+    extra_context = {'title': 'Экспертиза связи знаний', 'stage': 'expertise'}
+
+    def get_context_data(self, **kwargs):
+        context = super(RelationsExpertisePageView, self).get_context_data(**kwargs)
+        bz_pk, rz_pk = self.request.GET.get('bz'), self.request.GET.get('rz')
+        context.update(self.get_relation_update_context(request=self.request, bz_pk=bz_pk, rz_pk=rz_pk))
+        context['create_form'] = AdditionalKnowledgeForm()
+
+        required_statuses = {
+            'PRE_READY': [
+                ('PRE_EXP', 'Экспертиза ПредСвязи'),
+                ('PRE_REJ', 'Отклонить ПредСвязь'),
+                ('PRE_FIN', 'Завершить экспертизу ПредСвязи')
+            ],
+            'PRE_EXP': [
+                ('PRE_READY', 'Отказаться от экспертизы ПредСвязи'),
+                ('PRE_REJ', 'Отклонить ПредСвязь'),
+                ('PRE_FIN', 'Завершить экспертизу ПредСвязи')
+            ],
+            'PRE_REJ': [
+                ('PRE_EXP', 'Вернуть Предсвязь на экспертизу'),
+            ],
+            'PRE_FIN': [
+                ('PRE_EXP', 'Вернуть Предсвязь на экспертизу'),
+            ]
+        }
+
+        context['relation_statuses'] = required_statuses.get(context.get('cur_status'))
+        return context
+
+
+@login_required
+@require_http_methods(['POST'])
+@transaction.atomic
+def relation_expertise_view(request, relation_pk):
+    """
+        Вьюшка для экспертизы знания
+    """
+    relation = get_object_or_404(Relation, pk=relation_pk)
+    req_data = request.POST
+    tr = get_object_or_404(Tr, pk=req_data.get('relation_type'))
+    rz = get_object_or_404(Znanie, pk=req_data.get('related_knowledge'))
+    new_status = req_data.get('relation_status')
+    relation.tr = tr
+    relation.rz = rz
+    relation.expert = request.user if new_status != 'PRE_READY' else None
+    relation.save()
+
+    relation_statuses = RelationStatuses.objects.filter(relation=relation)
+    last_rel_status = None
+    new_rel_status = None
+    for rel_status in relation_statuses:
+        if rel_status.is_active:
+            last_rel_status = rel_status
+            continue
+        if rel_status.status == new_status:
+            new_rel_status = rel_status
+            continue
+
+    if last_rel_status:
+        last_rel_status.is_active = False
+        last_rel_status.save()
+
+    if new_rel_status:
+        new_rel_status.is_active = True
+        new_rel_status.user = request.user
+        new_rel_status.save()
+    else:
+        RelationStatuses.objects.create(relation=relation, status=new_status, user=request.user)
+
+    return redirect('preparing_relations_expertise_page')

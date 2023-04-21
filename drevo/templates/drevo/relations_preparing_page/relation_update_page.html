@@ -14,7 +14,7 @@
                 {% if stage == 'update' %}
                 {% url 'relation_update' relation.pk %}
                 {% elif stage == 'expertise' %}
-                {% url 'relation_update' relation.pk %}
+                {% url 'expertise_relation' relation.pk %}
                 {% else %}
                 {% url 'relation_update' relation.pk %}
                 {% endif %}
@@ -63,7 +63,7 @@
             <label for="relation_status">Статус связи</label>
             <select name="relation_status" id="relation_status" class="form-control" {% if not rz_param.is_pub %}disabled{% endif %}>
                 {% for value, name in relation_statuses %}
-                <option value="{{ value }}">{{ name }}</option>
+                <option value="{{ value }}" {% if value == cur_status %} selected {% endif %}>{{ name }}</option>
                 {% endfor %}
             </select>
 

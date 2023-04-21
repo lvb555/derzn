@@ -4,7 +4,7 @@ from operator import or_
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from drevo.models import Znanie, Relation, SpecialPermissions, Category
+from drevo.models import Znanie, Relation, SpecialPermissions, Category, RelationStatuses
 from drevo.relations_tree import get_knowledges_by_categories
 from pip._vendor import requests
 
@@ -187,6 +187,8 @@ class PreparingRelationsMixin:
     def get_relation_update_context(self, request, bz_pk: int, rz_pk: int):
         context = dict()
         relation = Relation.objects.select_related('bz', 'rz').filter(bz_id=bz_pk, rz_id=rz_pk).first()
+        cur_status = RelationStatuses.objects.filter(relation=relation, is_active=True).first()
+        context['cur_status'] = cur_status.status
         context['relation'] = relation
         context['rz_param'] = self.check_rz(request=request, rz_pk=rz_pk)
         context['rt_data'] = self.get_require_tr(request=request, bz_pk=bz_pk)
