@@ -3,8 +3,10 @@ from operator import or_
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from drevo.models import Znanie, Relation, SpecialPermissions, Category
 from drevo.relations_tree import get_knowledges_by_categories
+from pip._vendor import requests
 
 
 class PreparingRelationsMixin:
@@ -24,7 +26,13 @@ class PreparingRelationsMixin:
     def __get_create_queryset(user, status: str = None):
         return (
                 Znanie.objects
-                .filter((Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB')) | Q(user=user))
+                .filter(
+                    (
+                        (Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'))
+                        & Q(knowledge_status__is_active=True)
+                    )
+                    | Q(user=user)
+                )
             )
 
     @staticmethod
@@ -40,8 +48,17 @@ class PreparingRelationsMixin:
         return (
                 Znanie.objects
                 .filter(
-                    (Q(base__relation_status__status__in=filter_data)
-                     | Q(related__relation_status__status__in=filter_data))
+                    (
+                        (
+                            Q(base__relation_status__status__in=filter_data)
+                            & Q(base__relation_status__is_active=True)
+                        )
+                        |
+                        (
+                            Q(related__relation_status__status__in=filter_data)
+                            & Q(related__relation_status__is_active=True)
+                        )
+                    )
                     & Q(related__user=user)
                 )
             )
@@ -86,7 +103,8 @@ class PreparingRelationsMixin:
             queryset = (
                 Znanie.objects.select_related('category')
                 .filter(
-                    Q(base__relation_status__status__in=statuses) | Q(related__relation_status__status__in=statuses)
+                    (Q(base__relation_status__status__in=statuses) & Q(base__relation_status__is_active=True))
+                    | (Q(related__relation_status__status__in=statuses) & Q(related__relation_status__is_active=True))
                 )
             )
             knowledge_list = list()
@@ -112,7 +130,7 @@ class PreparingRelationsMixin:
         for category, statuses in statuses_data.items():
             if status not in statuses:
                 continue
-            base_lookups = (Q(related__relation_status__status=status))
+            base_lookups = (Q(related__relation_status__status=status) & Q(related__relation_status__is_active=True))
             if category == 'my':
                 filter_lookups = base_lookups & (Q(related__expert=user))
                 return Znanie.objects.filter(filter_lookups)
@@ -123,7 +141,10 @@ class PreparingRelationsMixin:
         statuses_data = ('PRE_FIN', 'PUB_PRE', 'PRE_REJ', 'FIN', 'PUB', 'REJ')
         statuses = (status,) if status else statuses_data
         base_lookups = reduce(
-            or_, [Q(base__relation_status__status__in=statuses), Q(related__relation_status__status__in=statuses)]
+            or_, [
+                (Q(base__relation_status__status__in=statuses) & Q(base__relation_status__is_active=True)),
+                (Q(related__relation_status__status__in=statuses) & Q(related__relation_status__is_active=True))
+            ]
         )
         return self.__get_knowledge_by_competence(user, 'director', base_lookups)
 
@@ -142,3 +163,32 @@ class PreparingRelationsMixin:
             'PUB': 'Опубликованная Связь'
         }
         return stage_names.get(system_name)
+
+    @staticmethod
+    def get_require_tr(request, bz_pk: int):
+        url = request.build_absolute_uri(reverse('get_required_tr'))
+        resp = requests.get(url=url, params={'bz_id': bz_pk})
+        rt_data = resp.json().get('required_tr')
+        return [(type_data.get('id'), type_data.get('name')) for type_data in rt_data] if rt_data else []
+
+    @staticmethod
+    def get_require_rz(request, bz_pk: int, tr_pk: int):
+        url = request.build_absolute_uri(reverse('get_required_rz'))
+        resp = requests.get(url=url, params={'bz_id': bz_pk, 'tr_id': tr_pk})
+        rz_data = resp.json().get('required_rz')
+        return [(rz.get('id'), rz.get('name')) for rz in rz_data] if rz_data else []
+
+    @staticmethod
+    def check_rz(request, rz_pk: int):
+        url = request.build_absolute_uri(reverse('check_related'))
+        resp = requests.get(url=url, params={'rz_id': rz_pk})
+        return resp.json()
+
+    def get_relation_update_context(self, request, bz_pk: int, rz_pk: int):
+        context = dict()
+        relation = Relation.objects.select_related('bz', 'rz').filter(bz_id=bz_pk, rz_id=rz_pk).first()
+        context['relation'] = relation
+        context['rz_param'] = self.check_rz(request=request, rz_pk=rz_pk)
+        context['rt_data'] = self.get_require_tr(request=request, bz_pk=bz_pk)
+        context['rz_data'] = self.get_require_rz(request=request, bz_pk=bz_pk, tr_pk=relation.tr_id)
+        return context

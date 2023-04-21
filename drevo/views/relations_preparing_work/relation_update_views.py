@@ -41,38 +41,18 @@ class PreparingRelationsUpdateView(LoginRequiredMixin, TemplateView, PreparingRe
         return context
 
 
-class RelationUpdatePageView(LoginRequiredMixin, TemplateView):
+class RelationUpdatePageView(LoginRequiredMixin, TemplateView, PreparingRelationsMixin):
     """
         Страница обновления связей
     """
     template_name = 'drevo/relations_preparing_page/relation_update_page.html'
     login_url = reverse_lazy('login')
-
-    def get_require_tr(self, bz_pk: int):
-        url = self.request.build_absolute_uri(reverse('get_required_tr'))
-        resp = requests.get(url=url, params={'bz_id': bz_pk})
-        rt_data = resp.json().get('required_tr')
-        return [(type_data.get('id'), type_data.get('name')) for type_data in rt_data] if rt_data else []
-
-    def get_require_rz(self, bz_pk: int, tr_pk: int):
-        url = self.request.build_absolute_uri(reverse('get_required_rz'))
-        resp = requests.get(url=url, params={'bz_id': bz_pk, 'tr_id': tr_pk})
-        rz_data = resp.json().get('required_rz')
-        return [(rz.get('id'), rz.get('name')) for rz in rz_data] if rz_data else []
-
-    def check_rz(self, rz_pk: int):
-        url = self.request.build_absolute_uri(reverse('check_related'))
-        resp = requests.get(url=url, params={'rz_id': rz_pk})
-        return resp.json()
+    extra_context = {'title': 'Обновление связи знаний', 'stage': 'update'}
 
     def get_context_data(self, **kwargs):
         context = super(RelationUpdatePageView, self).get_context_data(**kwargs)
         bz_pk, rz_pk = self.request.GET.get('bz'), self.request.GET.get('rz')
-        relation = Relation.objects.select_related('bz', 'rz').filter(bz_id=bz_pk, rz_id=rz_pk).first()
-        context['relation'] = relation
-        context['rz_param'] = self.check_rz(rz_pk=rz_pk)
-        context['rt_data'] = self.get_require_tr(bz_pk)
-        context['rz_data'] = self.get_require_rz(bz_pk=bz_pk, tr_pk=relation.tr_id)
+        context.update(self.get_relation_update_context(request=self.request, bz_pk=bz_pk, rz_pk=rz_pk))
         context['create_form'] = AdditionalKnowledgeForm()
 
         required_statuses = {

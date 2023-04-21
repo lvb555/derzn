@@ -1,15 +1,26 @@
 {% extends 'drevo/base.html' %}
 
-{% block title %} Обновление связи знаний {% endblock %}
+{% block title %} {{ title }} {% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="text-center">
-        <h2>Обновление связи знаний</h2>
+        <h2>{{ title }}</h2>
         <h3>< {{ relation.bz.name }} ></h3>
     </div>
     <div class="container">
-        <form action="{% url 'relation_update' relation.pk %}" method="post">
+        <form
+                action="
+                {% if stage == 'update' %}
+                {% url 'relation_update' relation.pk %}
+                {% elif stage == 'expertise' %}
+                {% url 'relation_update' relation.pk %}
+                {% else %}
+                {% url 'relation_update' relation.pk %}
+                {% endif %}
+                "
+                method="post"
+        >
             {% csrf_token %}
             <label for="relation_type">Вид связи</label>
             <select name="relation_type" id="relation_type" class="form-control" required>

@@ -16,9 +16,10 @@ def check_related(request):
     rz_pk = request.GET.get('rz_id')
     knowledge = (
         Znanie.objects
+        .select_related('user')
         .filter(Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'), pk=rz_pk)
         .annotate(
-            user_kn=Count(
+            is_pub=Count(
                 Case(
                     When(knowledge_status__status='PUB_PRE', then=1),
                     When(knowledge_status__status='PUB', then=1),
@@ -26,9 +27,11 @@ def check_related(request):
                     output_field=IntegerField()
                 )
             ),
-            is_pub=Count(
+            user_kn=Count(
                 Case(
                     When(user_id=request.user.pk, then=1),
+                    When(user__is_expert=True, then=1),
+                    When(user__is_director=True, then=1),
                     default=0,
                     output_field=IntegerField()
                 )
