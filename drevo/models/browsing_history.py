@@ -12,7 +12,7 @@ class BrowsingHistory(models.Model):
 
     znanie = models.ForeignKey(
         'Znanie',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Знание',
         editable=False,
     )
