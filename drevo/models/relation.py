@@ -11,7 +11,7 @@ class Relation(models.Model):
     # связанное знание
     bz = models.ForeignKey(
         'Znanie',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Базовое знание',
         help_text='укажите базовое знание',
         related_name='base'
