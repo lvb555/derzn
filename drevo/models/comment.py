@@ -10,15 +10,16 @@ class Comment(models.Model):
 
     author = models.ForeignKey(
         User,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         verbose_name='Автор комментария',
+        null=True
     )
     parent = models.ForeignKey(
         'self',
         blank=True,
         null=True,
         default=None,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Родительский комментарий',
         related_name='answers',
     )

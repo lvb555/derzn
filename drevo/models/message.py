@@ -9,9 +9,9 @@ class Message(models.Model):
     Таблица Сообщения
     """
     sender = models.ForeignKey(User, verbose_name='Отправитель', related_name='sender_of_message',
-                               on_delete=models.DO_NOTHING)
+                               on_delete=models.SET_NULL, null=True)
     recipient = models.ForeignKey(User, verbose_name='Получатель', related_name='recipient_of_message',
-                                  on_delete=models.DO_NOTHING)
+                                  on_delete=models.SET_NULL, null=True)
     text = models.TextField(max_length=511, verbose_name='Текст сообщения')
     date_time = models.DateTimeField(auto_now_add=True, verbose_name='Дата и время отправки')
     was_read = models.BooleanField(default=False, verbose_name='Прочитано')
