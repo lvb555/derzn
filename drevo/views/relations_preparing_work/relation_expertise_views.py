@@ -68,7 +68,7 @@ class RelationsExpertisePageView(LoginRequiredMixin, TemplateView, PreparingRela
                 ('PRE_EXP', 'Вернуть Предсвязь на экспертизу'),
             ]
         }
-
+        context['is_readonly'] = self.is_readonly_status(context.get('cur_status'))
         context['relation_statuses'] = required_statuses.get(context.get('cur_status'))
         return context
 

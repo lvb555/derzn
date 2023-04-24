@@ -23,7 +23,7 @@
         >
             {% csrf_token %}
             <label for="relation_type">Вид связи</label>
-            <select name="relation_type" id="relation_type" class="form-control" required>
+            <select name="relation_type" id="relation_type" class="form-control" required {% if is_readonly %} disabled {% endif %}>
                 {% for value, name in rt_data %}
                 <option value="{{ value }}" {% if value == relation.tr.id %} selected {% endif %}>{{ name }}</option>
                 {% endfor %}
@@ -32,7 +32,7 @@
             <div class="row">
                 <label for="related_knowledge">Знание</label>
                 <div class="col">
-                    <select name="related_knowledge" id="related_knowledge" class="form-control" required>
+                    <select name="related_knowledge" id="related_knowledge" class="form-control" required {% if is_readonly %} disabled {% endif %}>
                         {% for value, name in rz_data %}
                         <option value="{{ value }}" {% if value == relation.rz.id %} selected {% endif %}>{{ name }}</option>
                         {% endfor %}
@@ -46,6 +46,7 @@
                                 <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
                             </svg>
                         </a>
+                        {% if not is_readonly %}
                         <a href="{% if rz_param.user_knowledge %} {% url 'update_additional_knowledge_page' relation.rz.id %}?bz_id={{ relation.bz.id }}&tr_id={{ relation.tr.id }} {% endif %}" class="text-info mt-1 me-2 disabled" id="update_knowledge" style="pointer-events: {% if rz_param.user_knowledge %}auto {% else %} none {% endif %};">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pen" viewBox="0 0 16 16">
                                 <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z"/>
@@ -56,12 +57,13 @@
                                 <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
                             </svg>
                         </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
 
             <label for="relation_status">Статус связи</label>
-            <select name="relation_status" id="relation_status" class="form-control" {% if not rz_param.is_pub %}disabled{% endif %}>
+            <select name="relation_status" id="relation_status" class="form-control" {% if not rz_param.is_pub or is_readonly %}disabled{% endif %}>
                 {% for value, name in relation_statuses %}
                 <option value="{{ value }}" {% if value == cur_status %} selected {% endif %}>{{ name }}</option>
                 {% endfor %}

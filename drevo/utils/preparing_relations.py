@@ -194,3 +194,7 @@ class PreparingRelationsMixin:
         context['rt_data'] = self.get_require_tr(request=request, bz_pk=bz_pk)
         context['rz_data'] = self.get_require_rz(request=request, bz_pk=bz_pk, tr_pk=relation.tr_id)
         return context
+
+    @staticmethod
+    def is_readonly_status(status: str) -> bool:
+        return True if status in ('PRE_READY', 'PRE_FIN', 'PRE_REJ', 'PUB_PRE', 'PUB') else False

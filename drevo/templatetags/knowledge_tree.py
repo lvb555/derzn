@@ -123,10 +123,10 @@ def get_require_widgets(widgets: list, status: str = None) -> list:
     if widgets == ['create', 'delete']:
         return widgets
     require_by_status = {
-        'expertise': ('PRE_READY', 'PRE_EXP'),
-        'publication': ('PRE_FIN', 'PRE_REJ', 'FIN', 'REJ'),
+        'expertise': ('PRE_READY', 'PRE_EXP', 'PRE_REJ', 'PRE_FIN'),
+        'publication': ('PRE_FIN', 'PRE_REJ', 'FIN', 'REJ', 'PUB_PRE', 'PUB'),
         'delete': ('WORK_PRE', 'WORK'),
-        'update': ('WORK_PRE', 'WORK'),
+        'update': ('WORK_PRE', 'WORK', 'PRE_READY', 'PRE_FIN'),
     }
     return [widget for widget in widgets if status in require_by_status.get(widget)]
 

@@ -58,6 +58,7 @@ class RelationUpdatePageView(LoginRequiredMixin, TemplateView, PreparingRelation
             'user': [('WORK_PRE', 'ПредСвязь в работе'), ('PRE_FIN', 'Завершенная ПредСвязь')],
             'expert': [('WORK', 'Связь в работе'), ('FIN', 'Завершенная Связь')]
         }
+        context['is_readonly'] = self.is_readonly_status(context.get('cur_status'))
         context['relation_statuses'] = (
             required_statuses.get('expert') if self.request.user.is_expert else required_statuses.get('user')
         )
