@@ -1,9 +1,7 @@
 from django.db.models import Count, Q
 from django.views.generic import ListView
 from ..models import Label
-from ..models import Label
 from loguru import logger
-from django.urls import reverse
 
 
 logger.add('logs/main.log',
