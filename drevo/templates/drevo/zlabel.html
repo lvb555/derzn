@@ -10,56 +10,96 @@
 {% endblock %}
 
 {% block precontent %}
-<div class="container mt-3">
-    <h2>Знания по тегу "{{ label }}"</h2>
+<div class="container header_info" style="padding-top: 24px;">
+    <h1 class="page-title m-0">Знания по тегу</h1>
+    <nav style="--bs-breadcrumb-divider: '-';display: inline-flex; justify-content: space-between; width: 100%;
+    align-items: self-end; margin: 0px;">
+        <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'labels' %}">Теги</a></li>
+            <li class="breadcrumb-item opened"><a>Знания по тегу</a></li>
+        </ol>
+        <button type="button" class="btn tree-btn m-0" style="width:auto;background:#FFFFFF;">
+            <a href="{% url 'labels' %}" style="color:#083E2F;">Вернуться к списку тегов</a>
+        </button>
+    </nav>
+</div>
+
+<div class="container mt-3 p-4" style="background-color: #FFFFFF;border-radius: 10px;">
+        <p class="author-title ps-1">{{ label.name }}</p>
 </div>
 {% endblock %}
 
 {% block content %}
-
-
-<div class="row">
-    <div>
+<div class="row" style="background-color: #FFFFFF;border-radius: 10px;">
+    <div style="padding: 0px">
         {% if knowledges or knowledges_of_label %}
-
+        <div class="choice-header">
         {% if not knowledge_by %}
-        <span class="fs-2">
+            Вид вывода знаний:
+        <span style="margin-left:75px;">
             Дерево знаний
         </span>
-        /
-        <a href="{% url 'zlabel' label.pk %}?knowledge_by=list" class="link-primary fs-4" style="text-decoration: none;">
+
+        <a href="{% url 'zlabel' label.pk %}?knowledge_by=list">
         Список знаний
         </a>
         {% else %}
-        <a href="{% url 'zlabel' label.pk %}" class="link-primary fs-4" style="text-decoration: none;">
+            Вид вывода знаний:
+        <a href="{% url 'zlabel' label.pk %}" style="margin-left:75px;">
             Дерево знаний
         </a>
-        /
-        <span class="fs-2">
+
+        <span>
         Список знаний
         </span>
         {% endif %}
 
+        </div>
         {% if knowledge_by %}
-        <div class="form-check form-switch">
+        <div style="display: inline-flex; justify-content: space-between; width: 100%; align-items: self-end; margin: 0px; padding-right: 32px;">
+        <p class="author-title" style="margin:32px 0px 0px 32px;padding-bottom: 0px;">Список знаний</p>
+        <div class="form-check form-switch" style="margin:32px 0px 0px 32px">
             <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"
                 onchange="toggleAddZnVisibility(this);">
-            <label class="form-check-label" for="flexSwitchCheckDefault">Выводить только основные знания?</label>
+            <label class="options" for="flexSwitchCheckDefault">Выводить только основные знания</label>
         </div>
-        <br>
-        <ul>
+        </div>
+        <div style="background-color: #FFFFFF; padding: 32px;border-radius: 10px;">
+        <div class="d-flex justify-content-between align-items-center">
+            <p class="author-page-article" style="width: 19%;">Категория</p>
+            <p class="author-page-article" style="width: 48%;">Знание</p>
+            <p class="author-page-article" style="width: 23%;">Тип связи</p>
+            <p class="author-page-article">Дата публикации</p>
+        </div>
+        <ul class="p-0">
             {% for category in categories %}
-            <li style="font-weight: 600;"><i class="bi-file-plus-fill lonely"></i><a
-                    href="{{ category.get_absolute_url }}">{{ category }}</a>
-                <ul>
+            <li class="d-flex" style="padding-bottom: 32px;">
+                <a href="{{ category.get_absolute_url }}" style="border-block-start: dashed lightgrey 1px;width: 20%;padding-top: 10px;" class="text-dark title">{{ category }}</a>
+                <ul class="knowledge-description">
                     <li>
                         <table class="table">
                             {% if not knowledges|dict_value:category.name|dict_value:"base"|length_is:"0" %}
                             {% for knowledge in knowledges|dict_value:category.name|dict_value:"base" %}
                             <tr style="font-weight: 400;">
-                                <td>
-                                    <i class="bi-file-text-fill zn_base"></i>
-                                    <a href="{% url 'zdetail' knowledge.pk %}" class="zn_base">{{ knowledge }}</a>
+                               <td style="width: 60%;">
+                                    {% if knowledge.tz.name == 'Тезис' %}
+                                    <i class="kn_type" style="color: #1CA053;">
+                                    <img src="{% static 'drevo/img/green_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Вопрос' %}
+                                    <i class="kn_type" style="color: #1BA2F1;">
+                                    <img src="{% static 'drevo/img/blue_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Факт' %}
+                                    <i class="kn_type" style="color: #FC918F;">
+                                    <img src="{% static 'drevo/img/red_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Классификация' %}
+                                    <i class="kn_type" style="color: #BA7507;">
+                                    <img src="{% static 'drevo/img/ginger_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% else %}
+                                    <i class="kn_type" style="color: #424141;">
+                                    <img src="{% static 'drevo/img/grey_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% endif %}
+                                    <a href="{% url 'zdetail' knowledge.pk %}" class="text-dark znanie">{{ knowledge }}</a>
                                 </td>
                                 <td>
                                     {{ knowledge.tz }}
@@ -67,7 +107,7 @@
                                 <td>
 
                                 </td>
-                                <td>
+                                <td style="float: right; border: none;">
                                     {{ knowledge.date }}
                                 </td>
                             </tr>
@@ -76,9 +116,24 @@
                             {% if not knowledges|dict_value:category.name|dict_value:"additional"|length_is:"0" %}
                             {% for knowledge in knowledges|dict_value:category.name|dict_value:"additional" %}
                             <tr class="li_add" style="font-weight: 400;">
-                                <td>
-                                    <i class="bi-file-text-fill zn_add"></i>
-                                    <a href="{% url 'zdetail' knowledge.pk %}" class="zn_add">{{ knowledge }}</a>
+                               <td style="width: 60%;">
+                                    {% if knowledge.tz.name == 'Тезис' %}
+                                    <i class="kn_type" style="color: #1CA053;">
+                                    <img src="{% static 'drevo/img/green_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Вопрос' %}
+                                    <i class="kn_type" style="color: #1BA2F1;">
+                                    <img src="{% static 'drevo/img/blue_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Факт' %}
+                                    <i class="kn_type" style="color: #FC918F;">
+                                    <img src="{% static 'drevo/img/red_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Классификация' %}
+                                    <i class="kn_type" style="color: #BA7507;">
+                                    <img src="{% static 'drevo/img/ginger_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% else %}
+                                    <i class="kn_type" style="color: #424141;">
+                                    <img src="{% static 'drevo/img/grey_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% endif %}
+                                    <a href="{% url 'zdetail' knowledge.pk %}" class="text-dark znanie">{{ knowledge }}</a>
                                 </td>
                                 <td>
                                     {{ knowledge.tz }}
@@ -86,7 +141,7 @@
                                 <td>
                                     {{ knowledge.related.all.first.tr }}
                                 </td>
-                                <td>
+                                <td style="float: right; border: none;">
                                     {{ knowledge.date }}
                                 </td>
                             </tr>
@@ -100,16 +155,30 @@
 
             {# знания, не имеющие категории #}
             {% if not knowledges|dict_value:'None'|length_is:"0" %}
-            <li style="font-weight: 600;" class="li_add">Знания, не имеющие категории
-                <ul>
+            <li class="d-flex" style="padding-bottom: 32px;"><a style="border-block-start: dashed lightgrey 1px;width: 20%;padding-top: 10px;" class="text-dark title">Знания, не имеющие категории</a>
+                <ul class="knowledge-description">
                     <li>
-
                         <table class="table">
                             {% for knowledge in knowledges|dict_value:'None'|dict_value:"base" %}
                             <tr style="font-weight: 400;">
-                                <td>
-                                    <i class="bi-file-text-fill zn_base"></i>
-                                    <a href="{% url 'zdetail' knowledge.pk %}" class="zn_base">{{ knowledge }}</a>
+                               <td style="width: 60%;">
+                                    {% if knowledge.tz.name == 'Тезис' %}
+                                    <i class="kn_type" style="color: #1CA053;">
+                                    <img src="{% static 'drevo/img/green_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Вопрос' %}
+                                    <i class="kn_type" style="color: #1BA2F1;">
+                                    <img src="{% static 'drevo/img/blue_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Факт' %}
+                                    <i class="kn_type" style="color: #FC918F;">
+                                    <img src="{% static 'drevo/img/red_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Классификация' %}
+                                    <i class="kn_type" style="color: #BA7507;">
+                                    <img src="{% static 'drevo/img/ginger_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% else %}
+                                    <i class="kn_type" style="color: #424141;">
+                                    <img src="{% static 'drevo/img/grey_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% endif %}
+                                    <a href="{% url 'zdetail' knowledge.pk %}" class="text-dark znanie">{{ knowledge }}</a>
                                 </td>
                                 <td>
                                     {{ knowledge.tz }}
@@ -117,7 +186,7 @@
                                 <td>
                                     {{ knowledge.related.all.first.tr }}
                                 </td>
-                                <td>
+                                <td style="float: right; border: none;">
                                     {{ knowledge.date }}
                                 </td>
                             </tr>
@@ -125,9 +194,24 @@
 
                             {% for knowledge in knowledges|dict_value:'None'|dict_value:"additional" %}
                             <tr style="font-weight: 400;" class="li_add">
-                                <td>
-                                    <i class="bi-file-text-fill zn_add"></i>
-                                    <a href="{% url 'zdetail' knowledge.pk %}" class="zn_add">{{ knowledge }}</a>
+                               <td style="width: 60%;">
+                                    {% if knowledge.tz.name == 'Тезис' %}
+                                    <i class="kn_type" style="color: #1CA053;">
+                                    <img src="{% static 'drevo/img/green_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Вопрос' %}
+                                    <i class="kn_type" style="color: #1BA2F1;">
+                                    <img src="{% static 'drevo/img/blue_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Факт' %}
+                                    <i class="kn_type" style="color: #FC918F;">
+                                    <img src="{% static 'drevo/img/red_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% elif knowledge.tz.name == 'Классификация' %}
+                                    <i class="kn_type" style="color: #BA7507;">
+                                    <img src="{% static 'drevo/img/ginger_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% else %}
+                                    <i class="kn_type" style="color: #424141;">
+                                    <img src="{% static 'drevo/img/grey_file.png' %}">&nbsp{{ knowledge.tz.name }}&nbsp</i>
+                                    {% endif %}
+                                    <a href="{% url 'zdetail' knowledge.pk %}" class="text-dark znanie">{{ knowledge }}</a>
                                 </td>
                                 <td>
                                     {{ knowledge.tz }}
@@ -135,7 +219,7 @@
                                 <td>
                                     {{ knowledge.related.all.first.tr }}
                                 </td>
-                                <td>
+                                <td style="float: right; border: none;">
                                     {{ knowledge.date }}
                                 </td>
                             </tr>
@@ -146,15 +230,16 @@
             </li>
             {% endif %}
         </ul>
+            </div>
         {% else %}
-        <br>
+        <div id="author-page-drevo">
+         <p class="author-title" style="margin:32px 0px 0px 32px;padding-bottom: 0px;">Дерево знаний</p>
         {% build_knowledge_tree queryset=knowledges_of_label empty_tree_message='Дерево знаний данного тега пустое, перейдите к списку знаний' %}
+        </div>
         {% endif %}
         {% endif %}
     </div>
 </div>
-
-
 {% endblock %}
 
 {% block jsfiles %}
