@@ -105,17 +105,24 @@ def get_data_by_category(tree_data: dict, category) -> list:
 
 
 @register.simple_tag
-def get_relation_name(relations_names: dict, parent: Znanie, child: Znanie) -> str:
+def get_relation_name(relations_data: dict, parent: Znanie, child: Znanie) -> str:
     if not parent:
         return ''
-    return relations_names.get((parent.pk, child.pk))
+    return relations_data.get((parent.pk, child.pk))['name']
 
 
 @register.simple_tag
-def get_relation_status(relations_status: dict, parent: Znanie, child: Znanie) -> str:
+def get_relation_status(relations_data: dict, parent: Znanie, child: Znanie) -> str:
     if not parent:
         return ''
-    return relations_status.get((parent.pk, child.pk))
+    return relations_data.get((parent.pk, child.pk))['status']
+
+
+@register.simple_tag
+def get_relation_author(relations_data: dict, parent: Znanie, child: Znanie) -> str:
+    if not parent:
+        return ''
+    return relations_data.get((parent.pk, child.pk))['author']
 
 
 @register.simple_tag

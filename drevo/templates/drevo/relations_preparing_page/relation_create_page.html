@@ -9,6 +9,7 @@
         <h3>< {{ base_knowledge.name }} ></h3>
     </div>
     <div class="container">
+        <a href="{{ backup_url }}" class="btn btn-warning">Назад</a>
         <form action="{% url 'create_relation' %}" method="post">
             {% csrf_token %}
             <input type="number" name="base_kn" value="{{ base_knowledge.pk }}" hidden>

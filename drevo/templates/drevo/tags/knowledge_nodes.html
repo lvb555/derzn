@@ -5,11 +5,12 @@
     {% if parent %}
     <div class="text-secondary d-flex align-items-center" style="margin-left: 30px; flex-wrap: nowrap;">
         {% if edit_widgets %}
-            {% get_relation_status relations_status parent base_knowledge as rel_status %}
+            {% get_relation_status relations_info parent base_knowledge as rel_status %}
             {% get_require_widgets edit_widgets rel_status as require_widgets %}
+            {% get_relation_author relations_info parent base_knowledge as rel_author_pk %}
         {% endif %}
-        <span>{% get_relation_name relations_name parent base_knowledge %}</span>
-        {% if base_knowledge.user == user or user.is_director or user.is_expert %}
+        <span>{% get_relation_name relations_info parent base_knowledge %}</span>
+        {% if user.id == rel_author_pk or user.is_director or user.is_expert %}
         {% if edit_widgets and 'update' in require_widgets %}
         <a href="{% url 'relation_update_page' %}?rz={{ base_knowledge.pk }}&bz={{ parent.pk }}" class="text-info ms-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-pen" viewBox="0 0 16 16">
@@ -30,7 +31,7 @@
         </a>
         {% endif %}
         {% endif %}
-        {% if edit_widgets and 'delete' in require_widgets %}
+        {% if edit_widgets and user.id == rel_author_pk and 'delete' in require_widgets %}
         <a href="{% url 'delete_relation' %}?bz_id={{ parent.pk }}&rz_id={{ base_knowledge.pk }}" class="text-danger ms-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
                 <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>

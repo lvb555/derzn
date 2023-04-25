@@ -55,6 +55,7 @@ class RelationCreatePageView(LoginRequiredMixin, TemplateView):
         context['relation_statuses'] = (
             required_statuses.get('expert') if self.request.user.is_expert else required_statuses.get('user')
         )
+        context['backup_url'] = reverse('preparing_relations_create_page')
         return context
 
 

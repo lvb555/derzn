@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView
 from django.views.decorators.http import require_http_methods
 from drevo.forms import RelationStatusesForm, AdditionalKnowledgeForm
@@ -74,6 +74,7 @@ class RelationUpdatePageView(LoginRequiredMixin, TemplateView, PreparingRelation
         }
         context['is_readonly'] = self.is_readonly_status(status=context.get('cur_status'), stage='update')
         context['relation_statuses'] = required_statuses.get(context.get('cur_status'))
+        context['backup_url'] = reverse('preparing_relations_update_page')
         return context
 
 
