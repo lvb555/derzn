@@ -11,23 +11,23 @@ class FeedMessage(models.Model):
     """
     Таблица для хранения сообщений ленты
     """
-    sender = models.ForeignKey(User, verbose_name = 'Отправитель', related_name = 'message_sender', on_delete=models.DO_NOTHING)
-    recipient = models.ForeignKey(User, verbose_name = 'Получатель', related_name = 'message_recipient', on_delete=models.DO_NOTHING)
-    label = models.ForeignKey(LabelFeedMessage, verbose_name = 'Ярлык сообщения', on_delete=models.DO_NOTHING)
-    znanie = models.ForeignKey(Znanie, verbose_name = 'Знание', related_name = 'message_znanie', on_delete=models.DO_NOTHING)
-    text = models.TextField(max_length = 511, verbose_name = 'Текст сообщения')
-    date_time = models.DateTimeField(auto_now_add = True, verbose_name = 'Дата и время отправки')
-    was_read = models.BooleanField(default = False, verbose_name = 'Прочитано')
-
+    sender = models.ForeignKey(User, verbose_name='Отправитель', related_name='message_sender',
+                               on_delete=models.CASCADE)
+    recipient = models.ForeignKey(User, verbose_name='Получатель', related_name='message_recipient',
+                                  on_delete=models.CASCADE)
+    label = models.ForeignKey(LabelFeedMessage, verbose_name='Ярлык сообщения', on_delete=models.CASCADE)
+    znanie = models.ForeignKey(Znanie, verbose_name='Знание', related_name='message_znanie',
+                               on_delete=models.CASCADE)
+    text = models.TextField(max_length=511, verbose_name='Текст сообщения')
+    date_time = models.DateTimeField(auto_now_add=True, verbose_name='Дата и время отправки')
+    was_read = models.BooleanField(default=False, verbose_name='Прочитано')
 
     class Meta:
         verbose_name = 'Сообщение ленты'
         verbose_name_plural = 'Сообщения ленты'
 
-
     def __str__(self) -> str:
         return str(self.sender) + " -> " + str(self.recipient) + ": " + str(self.znanie.name)
-
 
     def get_time(self) -> str:
         message_date = self.date_time.date()

@@ -1,9 +1,9 @@
 {% load humanize %}
 {% load static %}
 
-<div class="{% if comment.parent %} comment-answer {% else %} comment-card {% endif %} card shadow border-0 rounded-lg mb-2"
+<div class="{% if comment.parent %} comment-answer {% else %} comment-card {% endif %} card rounded-3 mb-4"
      id="{{ comment.id }}" {% if card_is_hidden %} hidden {% endif %}>
-    <div class="card-body">
+    <div class="card-body" style="padding: 24px;">
         {% if comment.is_published %}
             <div class="comment-header-user-container d-flex align-items-center flex-wrap">
                 <div class="avatar-block d-flex align-items-center">
@@ -19,28 +19,30 @@
                                background-repeat: no-repeat;
                                background-position: 50%;
                                display: block;
-                               height: 32px;
-                               width: 32px;
-                               border-radius: 50%;
+                               height: 50px;
+                               width: 50px;
+                               border-radius: 20%;
                                overflow: hidden;'></a>
-                    <div class="author-name-block card-link pe-2">
-                        <a href="{% url 'users:usersprofile' comment.author.id %}" target="_blank"
-                           class="text-decoration-none">
-                            {% if comment.author.first_name %}
-                                {{ comment.author.first_name }}
-                                {% if comment.author.last_name %}
-                                    {{ comment.author.last_name }}
+                    <div>
+                        <div class="author-name-block card-link pe-2">
+                            <a href="{% url 'users:usersprofile' comment.author.id %}" target="_blank"
+                               class="text-decoration-none author-count" style="color: #212529;">
+                                {% if comment.author.first_name %}
+                                    {{ comment.author.first_name }}
+                                    {% if comment.author.last_name %}
+                                        {{ comment.author.last_name }}
+                                    {% endif %}
+                                {% else %}
+                                    {{ comment.author.username }}
                                 {% endif %}
-                            {% else %}
-                                {{ comment.author.username }}
-                            {% endif %}
-                        </a>
+                            </a>
+                        </div>
+                        <div class="created-date-block" style="color: #6C757D;">
+                            <span title="{{ comment.created_at }}" style="cursor: pointer;">
+                                {{ comment.created_at|naturaltime }}
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div class="created-date-block" style="opacity: 0.8;">
-                    <span title="{{ comment.created_at }}" style="cursor: pointer;">
-                        {{ comment.created_at|naturaltime }}
-                    </span>
                 </div>
             </div>
         {% endif %}
@@ -57,14 +59,14 @@
                     data-bs-toggle="collapse" data-bs-target="#collapsedAnswers{{ comment.id }}" aria-expanded="false"
                     aria-controls="collapsedAnswers{{ comment.id }}"
                     {% if not comment.get_answers.exists %} disabled {% endif %}>
-                <span>Ответы (<span id="answersCount{{ comment.id }}">{{ comment.get_answers.count }}</span>)</span>
+                <span class="comment-answer" style="color: #083E2F;">Ответы (<span id="answersCount{{ comment.id }}">{{ comment.get_answers.count }}</span>)</span>
             </button>
             <button data-bs-toggle="collapse" data-bs-target="#collapsedReplyForm{{ comment.id }}"
                     aria-expanded="false" aria-controls="collapsedReplyForm{{ comment.id }}"
                     {% if not is_authenticated or not comment.is_published %} disabled {% endif %}
-                    class="reply-button btn btn-link text-decoration-none shadow-none p-0"
-                    style="cursor: pointer;" id="replyButton{{ comment.id }}" onclick="onCollapseRepyFormShow(this)">
-                Ответить
+                    class="reply-button btn btn-link text-decoration-none shadow-none p-0 btn-header"
+                    style="cursor: pointer; background-color: #FFFFFF;" id="replyButton{{ comment.id }}" onclick="onCollapseRepyFormShow(this)">
+                Ответить<i class="bi bi-arrow-90deg-down" style="transform: scale(1, -1);"></i>
             </button>
         </div>
     </div>

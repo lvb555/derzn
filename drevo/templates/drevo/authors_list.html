@@ -1,4 +1,5 @@
 {% extends 'drevo/base.html' %}
+{% load base_tags %}
 {% load static %}
 
 {% block cssfiles %}
@@ -45,17 +46,27 @@
 
     <br>
         <div class="col-auto">
-            {% if not author_for_search %}
             <div class="d-flex justify-content-between align-items-center">
                 <p class="author-page-article">АВТОР</p>
-                <p class="author-page-article">КОЛ-ВО ОПУБЛИКОВАННЫХ ЗНАНИЙ</p>
+                <span>
+                    <p class="author-page-article" style="float: left; padding-right: 5px;">
+                        КОЛ-ВО ОПУБЛИКОВАННЫХ ЗНАНИЙ
+                    </p>
+                    <span class="d-flex mt-1 sorting" style="flex-direction: column">
+                        <a href="?{% url_replace request 'order' 'count' %}" style="height: 8px;">
+                            <img style="height: 4.5px;weight: 8px;transform: rotate(-180deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                        </a>
+                        <a href="?{% url_replace request 'order' '-count' %}">
+                            <img style="height: 4.5px;weight: 8px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                        </a>
+                    </span>
+                </span>
             </div>
-            {% endif %}
-            <ul class="list-group">
+            <ul class="list-group" style="border-top: dashed lightgrey 1px;">
                 {% for author in authors %}
                 <div class="row" name="author" id="type_{{ author.atype.id }}">
                     <div class="col">
-                        <li class="list-group-item d-flex justify-content-between align-items-center author-list">
+                        <li class="d-flex justify-content-between align-items-center author-list">
                             <div>
                             {% if author.photo %}
                                 <a href="{% url 'author' author.pk %}">
@@ -92,7 +103,7 @@
 
         <span class="page-links d-inline-flex pages">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}">
+                <a href="?{% url_replace request 'page' page_obj.previous_page_number %}">
                     <img style="height: 6px;weight: 10.5px;transform: rotate(90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
                 </a>
             {% else %}
@@ -103,12 +114,16 @@
                 <ul class="d-flex p-0 m-0">
                     {% for p in page_obj.paginator.page_range %}
                     <li>
-                        <a href="?page={{ p }}">{{ p }}</a>
+                        {% if page_obj.number == p %}
+                            <a href="?{% url_replace request 'page' p %}" style="color:#083E2F;">{{ p }}</a>
+                        {% else %}
+                            <a href="?{% url_replace request 'page' p %}">{{ p }}</a>
+                        {% endif %}
                     </li>
                     {% endfor %}
                 </ul>
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">
+                <a href="?{% url_replace request 'page' page_obj.next_page_number %}">
                     <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
                 </a>
             {% else %}
