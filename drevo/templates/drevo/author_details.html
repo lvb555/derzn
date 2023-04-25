@@ -25,7 +25,7 @@
     </nav>
 </div>
 
-<div class="container mt-3" style="background-color: #FFFFFF;border-radius: 10px;">
+<div class="container mt-3 p-4" style="background-color: #FFFFFF;border-radius: 10px;">
     {% if author.info %}
         <div class="row" style="padding:20px">
             {% if author.photo %}
@@ -40,7 +40,7 @@
             </div>
         </div>
     {% else %}
-        <p class="author-title">{{ author.name }}</p>
+        <p class="author-title ps-1">{{ author.name }}</p>
     {% endif %}
 </div>
 {% endblock %}
@@ -254,8 +254,6 @@
         {% endif %}
     </div>
 </div>
-
-
 {% endblock %}
 
 {% block jsfiles %}

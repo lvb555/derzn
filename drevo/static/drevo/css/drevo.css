@@ -349,7 +349,7 @@ table.table.align-middle.my-2 {
 
 .pages li>a:hover {
     background:#083E2F;
-    color: rgba(245, 245, 245, 0.75);
+    color: rgba(245, 245, 245, 0.75) !important;
     border-radius: 4px;
 }
 
@@ -428,6 +428,7 @@ table.table.align-middle.my-2 {
     padding: 10px 0px;
     border-right: 0px;
     border-left: 0px;
+    border-bottom: dashed lightgrey 1px;
 }
 
 .author-name {
@@ -784,4 +785,12 @@ label[for=id_email_address]::after{
 
 div#author-page-drevo > a.btn.btn-success.mb-3 {
     margin: 32px;
+}
+
+.sorting img {
+    filter: invert(85%) sepia(18%) saturate(146%) hue-rotate(211deg) brightness(86%) contrast(86%);
+}
+
+.sorting img:hover {
+    filter: invert(35%) sepia(10%) saturate(940%) hue-rotate(213deg) brightness(95%) contrast(92%);
 }
