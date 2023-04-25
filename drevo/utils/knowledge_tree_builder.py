@@ -1,4 +1,4 @@
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 from drevo.models import Znanie, Relation, Category, Tz, Tr, RelationStatuses
 
 
@@ -34,13 +34,13 @@ class KnowledgeTreeBuilder:
             Метод для получения всех связей в следующем виде: \n
             {related_knowledge_id: [base_knowledge_id1, base_knowledge_id2,]}
         """
-        filter_lookups = {'is_published': True, 'tr__is_systemic': False}
+        filter_lookups = Q(is_published=True)
         if self.edit_mode:
-            filter_lookups.update({'is_published': False})
+            filter_lookups = filter_lookups | Q(is_published=False)
         relations = (
             Relation.objects
             .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
-            .filter(**filter_lookups)
+            .filter(filter_lookups, tr__is_systemic=False)
         )
         if self.edit_mode:
             relations_statuses = RelationStatuses.objects.filter(is_active=True)

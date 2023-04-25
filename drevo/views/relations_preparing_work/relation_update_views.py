@@ -55,13 +55,25 @@ class RelationUpdatePageView(LoginRequiredMixin, TemplateView, PreparingRelation
         context['create_form'] = AdditionalKnowledgeForm()
 
         required_statuses = {
-            'user': [('WORK_PRE', 'ПредСвязь в работе'), ('PRE_FIN', 'Завершенная ПредСвязь')],
-            'expert': [('WORK', 'Связь в работе'), ('FIN', 'Завершенная Связь')]
+            'WORK_PRE': [
+                ('WORK_PRE', 'Вернуть на доработку'),
+                ('PRE_READY', 'Предсвязь готова'),
+            ],
+            'PRE_READY': [
+                ('PRE_READY', 'Предсвязь готова'),
+                ('WORK_PRE', 'Вернуть на доработку'),
+            ],
+            'WORK': [
+                ('WORK', 'Вернуть на доработку'),
+                ('FIN', 'Связь готова'),
+            ],
+            'FIN': [
+                ('FIN', 'Связь готова'),
+                ('WORK', 'Вернуть на доработку'),
+            ],
         }
-        context['is_readonly'] = self.is_readonly_status(context.get('cur_status'))
-        context['relation_statuses'] = (
-            required_statuses.get('expert') if self.request.user.is_expert else required_statuses.get('user')
-        )
+        context['is_readonly'] = self.is_readonly_status(status=context.get('cur_status'), stage='update')
+        context['relation_statuses'] = required_statuses.get(context.get('cur_status'))
         return context
 
 
@@ -74,12 +86,14 @@ def relation_update_view(request, relation_pk):
     """
     relation = get_object_or_404(Relation, pk=relation_pk)
     req_data = request.POST
-    tr = get_object_or_404(Tr, pk=req_data.get('relation_type'))
-    rz = get_object_or_404(Znanie, pk=req_data.get('related_knowledge'))
+    if tr_pk := req_data.get('relation_type'):
+        tr = get_object_or_404(Tr, pk=tr_pk)
+        relation.tr = tr
+    if rz_pk := req_data.get('related_knowledge'):
+        rz = get_object_or_404(Znanie, pk=rz_pk)
+        relation.rz = rz
     new_status = req_data.get('relation_status')
     change_statuses = {'WORK': 'FIN', 'WORK_PRE': 'PRE_FIN', 'FIN': 'WORK', 'PRE_FIN': 'WORK_PRE'}
-    relation.tr = tr
-    relation.rz = rz
     relation.save()
 
     relation_statuses = RelationStatuses.objects.filter(relation=relation)

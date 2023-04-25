@@ -76,6 +76,8 @@ from .views import (
     relation_update_view,
     RelationsExpertisePageView,
     relation_expertise_view,
+    RelationsPublicationPageView,
+    relation_publication_view,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
@@ -463,6 +465,16 @@ urlpatterns = [
         'relations/update/<int:relation_pk>',
         relation_update_view,
         name='relation_update'
+    ),
+    path(
+        'relations/preparing/publication_stage/publication_relation',
+        RelationsPublicationPageView.as_view(),
+        name='relation_publication_page'
+    ),
+    path(
+        'relations/publication/<int:relation_pk>',
+        relation_publication_view,
+        name='relation_publication'
     ),
 
 ]

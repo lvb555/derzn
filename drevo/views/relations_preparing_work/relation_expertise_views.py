@@ -68,7 +68,7 @@ class RelationsExpertisePageView(LoginRequiredMixin, TemplateView, PreparingRela
                 ('PRE_EXP', 'Вернуть Предсвязь на экспертизу'),
             ]
         }
-        context['is_readonly'] = self.is_readonly_status(context.get('cur_status'))
+        context['is_readonly'] = self.is_readonly_status(status=context.get('cur_status'), stage='expertise')
         context['relation_statuses'] = required_statuses.get(context.get('cur_status'))
         return context
 
@@ -82,11 +82,13 @@ def relation_expertise_view(request, relation_pk):
     """
     relation = get_object_or_404(Relation, pk=relation_pk)
     req_data = request.POST
-    tr = get_object_or_404(Tr, pk=req_data.get('relation_type'))
-    rz = get_object_or_404(Znanie, pk=req_data.get('related_knowledge'))
+    if tr_pk := req_data.get('relation_type'):
+        tr = get_object_or_404(Tr, pk=tr_pk)
+        relation.tr = tr
+    if rz_pk := req_data.get('related_knowledge'):
+        rz = get_object_or_404(Znanie, pk=rz_pk)
+        relation.rz = rz
     new_status = req_data.get('relation_status')
-    relation.tr = tr
-    relation.rz = rz
     relation.expert = request.user if new_status != 'PRE_READY' else None
     relation.save()
 

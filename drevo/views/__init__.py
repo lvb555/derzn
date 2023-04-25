@@ -98,6 +98,8 @@ from .relations_preparing_work import (
     relation_update_view,
     RelationsExpertisePageView,
     relation_expertise_view,
+    RelationsPublicationPageView,
+    relation_publication_view,
 )
 
 __all__ = [
@@ -189,4 +191,6 @@ __all__ = [
     'relation_update_view',
     'RelationsExpertisePageView',
     'relation_expertise_view',
+    'RelationsPublicationPageView',
+    'relation_publication_view',
 ]

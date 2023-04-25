@@ -28,8 +28,9 @@ class PreparingRelationsMixin:
                 Znanie.objects
                 .filter(
                     (
-                        (Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'))
-                        & Q(knowledge_status__is_active=True)
+                        Q(is_published=True)
+                        # (Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'))
+                        # & Q(knowledge_status__is_active=True)
                     )
                     | Q(user=user)
                 )
@@ -196,5 +197,10 @@ class PreparingRelationsMixin:
         return context
 
     @staticmethod
-    def is_readonly_status(status: str) -> bool:
-        return True if status in ('PRE_READY', 'PRE_FIN', 'PRE_REJ', 'PUB_PRE', 'PUB') else False
+    def is_readonly_status(status: str, stage: str) -> bool:
+        statuses_by_stage = {
+            'update': ('PRE_READY', 'FIN',),
+            'expertise': ('PRE_REJ', 'PRE_FIN',),
+            'publication': ('PUB_PRE', 'PUB',)
+        }
+        return True if status in statuses_by_stage.get(stage) else False

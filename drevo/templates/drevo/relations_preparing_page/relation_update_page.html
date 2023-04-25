@@ -16,7 +16,7 @@
                 {% elif stage == 'expertise' %}
                 {% url 'expertise_relation' relation.pk %}
                 {% else %}
-                {% url 'relation_update' relation.pk %}
+                {% url 'relation_publication' relation.pk %}
                 {% endif %}
                 "
                 method="post"
@@ -63,6 +63,7 @@
             </div>
 
             <label for="relation_status">Статус связи</label>
+            <input type="text" name="relation_status" id="default_relation_status" value="{{ relation_statuses.0.0 }}" hidden>
             <select name="relation_status" id="relation_status" class="form-control" {% if not rz_param.is_pub or is_readonly %}disabled{% endif %}>
                 {% for value, name in relation_statuses %}
                 <option value="{{ value }}" {% if value == cur_status %} selected {% endif %}>{{ name }}</option>
@@ -193,10 +194,13 @@ const update_knowledge = document.getElementById('update_knowledge')
     update_knowledge.removeAttribute('href')
   }
 
+  const default_relation_status = document.getElementById('default_relation_status');
   if (data.is_pub === true) {
     status_select.disabled = false
+    default_relation_status.disabled = true
   } else {
     status_select.disabled = true
+    default_relation_status.disabled = false
   }
     });
 
