@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from loguru import logger
 from users.models import User, MenuSections
-from ..models import Znanie, CategoryExpert
+from users.views import access_sections
+from ..models import Znanie, SpecialPermissions
 from ..relations_tree import get_knowledges_by_categories
 from drevo.common import variables
 
@@ -16,9 +17,9 @@ def my_knowledge(request, id):
         context = {}
         if user is not None:
             if user == request.user:
-                context['sections'] = [i.name for i in MenuSections.objects.all()]
-                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
-                                       i.name.startswith('Моя')]
+                context['sections'] = access_sections(user)
+                context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                                       i.startswith('Моя')]
                 context['link'] = 'users:myprofile'
             else:
                 context['sections'] = [i.name for i in user.sections.all()]
@@ -27,7 +28,7 @@ def my_knowledge(request, id):
                 context['link'] = 'public_human'
                 context['id'] = id
             context['pub_user'] = user
-            context['expert_categories'] = CategoryExpert.objects.filter(expert__id=id).values_list('categories__name')
+            context['expert_categories'] = SpecialPermissions.objects.filter(expert__id=id).values_list('categories__name')
             knowledges_of_author = Znanie.published.filter(
                 author__user_author__id=id)
             context['categories'], context['knowledges'] = \
@@ -46,9 +47,9 @@ def my_preknowledge(request, id):
         context = {}
         if user is not None:
             if user == request.user:
-                context['sections'] = [i.name for i in MenuSections.objects.all()]
-                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
-                                       i.name.startswith('Моя')]
+                context['sections'] = access_sections(user)
+                context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                                       i.startswith('Моя')]
                 context['link'] = 'users:myprofile'
             else:
                 context['sections'] = [i.name for i in user.sections.all()]
@@ -57,7 +58,7 @@ def my_preknowledge(request, id):
                 context['link'] = 'public_human'
                 context['id'] = id
             context['pub_user'] = user
-            context['expert_categories'] = CategoryExpert.objects.filter(expert__id=id).values_list('categories__name')
+            context['expert_categories'] = SpecialPermissions.objects.filter(expert__id=id).values_list('categories__name')
             knowledges_of_author = Znanie.published.filter(
                 author__user_author__id=id)
             context['categories'], context['knowledges'] = \
@@ -76,9 +77,9 @@ def my_expertise(request, id):
         context = {}
         if user is not None:
             if user == request.user:
-                context['sections'] = [i.name for i in MenuSections.objects.all()]
-                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
-                                       i.name.startswith('Моя')]
+                context['sections'] = access_sections(user)
+                context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                                       i.startswith('Моя')]
                 context['link'] = 'users:myprofile'
             else:
                 context['sections'] = [i.name for i in user.sections.all()]

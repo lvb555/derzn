@@ -9,4 +9,5 @@ register = template.Library()
 
 @register.filter
 def dict_value(d, key):
-    return d.get(key)
+    data = d.get(key)
+    return data if data else {}

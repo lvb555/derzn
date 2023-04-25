@@ -5,7 +5,7 @@ class ZnImage(models.Model):
     znanie = models.ForeignKey(
         'Znanie',
         related_name='photos',
-        on_delete=models.PROTECT
+        on_delete=models.CASCADE
     )
     photo = models.ImageField(
         upload_to='photos/%Y/%m/%d/',

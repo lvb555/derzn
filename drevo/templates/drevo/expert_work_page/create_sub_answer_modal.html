@@ -1,0 +1,36 @@
+<div class="btn-group">
+    <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#create_sub_answer{{ answer.id }}">+</button>
+    <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#show_sub_answers{{ answer.id }}" {% if not answer.sub_answers %} disabled {% endif %}>
+        Подответы <span class="badge bg-danger rounded">{{ answer.sub_answers|length }}</span>
+    </button>
+</div>
+<div class="modal fade" id="create_sub_answer{{ answer.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-light text-dark">
+            <div class="modal-body">
+                <form action="{% url 'add_subanswer' interview.id question.id answer.id %}" method="post" id="create_sub_answer_form{{ answer.id }}">
+                    <textarea name="subanswer" required class="form-control" placeholder="Введите содержание подответа..."></textarea>
+                    {% csrf_token %}
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <input form="create_sub_answer_form{{ answer.id }}" type="submit" class="btn btn-outline-success text-center w-100" value="Добавить Подответ">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="show_sub_answers{{ answer.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-dark">
+            <div class="modal-title text-center border-bottom border-dark">
+                <p class="fs-4 mt-2">Подответы для ответа <br> "<strong>{{ answer.text }}</strong>"</p>
+            </div>
+            <div class="modal-body">
+                {% for sub_answ in answer.sub_answers %}
+                    <p>{{ forloop.counter }}. {{ sub_answ }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

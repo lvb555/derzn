@@ -1,0 +1,40 @@
+{% load knowledge_tree %}
+{% load static %}
+
+<li id="tree{{ tree_num }}_li_{{ base_knowledge.pk }}{{ parent.id }}" class="treeline mb-2">
+    {% if parent %}
+    <div class="row text-secondary" style="margin-left: 30px">
+        {% get_relation_name relations_name parent base_knowledge %}
+    </div>
+    {% endif %}
+    {% if not knowledge_data %}
+        <i class="bi-plus-circle-fill lonely circle_icon without_children"></i>
+    {% else %}
+        <i class="family bi bi-dash-circle-fill circle_icon" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
+    {% endif %}
+    {% if base_knowledge.tz.name == 'Тезис' %}
+    <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/green_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% elif base_knowledge.tz.name == 'Вопрос' %}
+    <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% elif base_knowledge.tz.name == 'Факт' %}
+    <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% elif base_knowledge.tz.name == 'Классификация' %}
+    <i class="kn_type" style="color: #BA7507;"><img src="{% static 'drevo/img/ginger_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% else %}
+    <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+    {% endif %}
+    <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-dark {% else %} text-dark {% endif %} znanie" style="color: #212529;">
+        {{ base_knowledge.name }}
+    </a>
+    {% if base_knowledge.author and base_knowledge.author != hidden_author %}
+    <a class="znanie" style="color: #6C757D;">({{ base_knowledge.author }})</a>
+    {% endif %}
+    {% get_knowledge_counts knowledge_rel_counts base_knowledge %}
+    <ul class="children treeline">
+        {% for b_zn, zn_data in knowledge_data.items %}
+            {% with base_knowledge=b_zn knowledge_data=zn_data parent=base_knowledge template_name="drevo/tags/knowledge_nodes.html" %}
+                {% include template_name %}
+            {% endwith %}
+        {% endfor %}
+    </ul>
+</li>

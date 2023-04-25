@@ -6,6 +6,7 @@ import json
 
 from drevo.models import Author
 from users.models import MenuSections, User
+from users.views import access_sections
 
 
 def sub_by_author(request,id):
@@ -15,9 +16,9 @@ def sub_by_author(request,id):
         if user is not None:
             context['authors'] = Author.objects.all()
             if user == request.user:
-                context['sections'] = [i.name for i in MenuSections.objects.all()]
-                context['activity'] = [i.name for i in MenuSections.objects.all() if i.name.startswith('Мои') or
-                                       i.name.startswith('Моя')]
+                context['sections'] = access_sections(user)
+                context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                                       i.startswith('Моя')]
                 context['link'] = 'users:myprofile'
             else:
                 context['sections'] = [i.name for i in user.sections.all()]

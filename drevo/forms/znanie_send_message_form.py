@@ -13,7 +13,7 @@ class ZnanieSendMessage(forms.Form):
     )
     mes_text = forms.CharField(
         label='Текст сообщения',
-        widget=forms.Textarea(attrs={'class': 'form-control'}),
+        widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Введите текст'}),
         required=False
     )
 

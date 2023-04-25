@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse_lazy, reverse
 from django.contrib import auth, messages
@@ -9,13 +10,14 @@ from django.views.generic.edit import ProcessFormView
 import json
 
 from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory
-from drevo.models.expert_category import CategoryExpert
+from drevo.models.special_permissions import SpecialPermissions
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
 from users.models import User, Profile, MenuSections, Favourite
 from drevo.models.settings_options import SettingsOptions
 from drevo.models.user_parameters import UserParameters
+from drevo.models.special_permissions import SpecialPermissions
 
 
 class LoginFormView(FormView):
@@ -148,10 +150,9 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        expert = self.object.expert.all()
-        if expert:
-            expert = expert[0]
-            competence = expert.categories.all()
+        expert = SpecialPermissions.objects.filter(expert=self.object)
+        if expert.exists():
+            competence = expert.first().categories.all()
             context['competence'] = competence
         context['title'] = 'Ваш профиль'
         context['profile_form'] = ProfileModelForm(
@@ -201,7 +202,7 @@ class UserProfileTemplateView(LoginRequiredMixin, TemplateView):
                 context['object'] = _object
 
         try:
-            users_categories = CategoryExpert.objects.get(expert = _id)
+            users_categories = SpecialPermissions.objects.get(expert = _id)
             context['users_categories'] = users_categories
         except:
             context['users_categories'] = False
@@ -337,7 +338,6 @@ class MenuSectionsAdd(ProcessFormView):
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
             user = request.user
-
             sections = json.loads(request.GET.get('sections'))
             user.sections.clear()
             for section in sections:
@@ -359,27 +359,29 @@ def my_profile(request):
         return render(request, 'users/profile_header.html', context)
 
 def access_sections(user):
-    #Проверяем какие опции меню будут отображаться
-    sections = []
+    #Проверяем какие опции меню будут отображаться ///////Поменять чтобы делать проверку плюс поменять везде блин
+    sections = ['Мои оценки знаний','По категориям','По авторам','По тегам']
     interview = InterviewAnswerExpertProposal.objects.filter(expert=user)
     if interview is not None:
-        sections.append('interview')
-        if interview.exclude(new_answer_text='').exists():
-            sections.append('proposal')
-        if interview.filter(new_answer_text='').exists():
-            sections.append('answer')
+        sections.append('Интервью')
+        if interview.exclude(Q(new_answer_text=None) | Q(new_answer_text='')).exists():
+            sections.append('Мои предложения')
+        if interview.filter(Q(new_answer_text=None) | Q(new_answer_text='')).exists():
+            sections.append('Мои интервью')
     knowledges = KnowledgeStatuses.objects.filter(user=user)
     if knowledges is not None:
         if knowledges.filter(status='PUB_PRE').exists():
-            sections.append('predznanie')
+            sections.append('Мои знания (пользовательский вклад)')
         if knowledges.filter(status='PUB').exists():
-            sections.append('znanie')
+            sections.append('Мои знания')
     if Znanie.published.filter(expert=user).exists():
-        sections.append('expert')
+        sections.append('Мои экспертизы')
     if Favourite.objects.filter(user=user).exists():
-        sections.append('favourite')
+        sections.append('Избранные знания')
     if BrowsingHistory.objects.filter(user=user).exists():
-        sections.append('history')
+        sections.append('История просмотров')
     if QuizResult.objects.filter(user=user).exists():
-        sections.append('quiz')
+        sections.append('Результаты тестов')
+    if user.is_expert is True or user.is_redactor is True or user.is_director is True:
+        sections.append('Компетенции')
     return sections

@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from .parameter_categories import ParameterCategories
 from users.models import User
@@ -17,12 +18,15 @@ class SettingsOptions(models.Model):
         blank=True,
         null=True
     )
-    default_param = models.CharField(
-        verbose_name='Значение по умолчанию',
-        max_length=255
+    default_param = models.IntegerField(
+        verbose_name='Значение по умолчанию'
     )
     admin = models.BooleanField(
         verbose_name='Администратор',
+        default=False
+    )
+    is_bool = models.BooleanField(
+        verbose_name='Логический',
         default=False
     )
 
@@ -42,6 +46,11 @@ class SettingsOptions(models.Model):
             user_params_model.objects.bulk_create(updated_users_settings)
             return
         super(SettingsOptions, self).save(*args, **kwargs)
+
+    def clean(self):
+        param = self.default_param
+        if self.is_bool and param not in [0, 1]:
+            raise ValidationError('Для параметра логического типа допустимы значения 0 или 1')
 
     def __str__(self):
         return self.name

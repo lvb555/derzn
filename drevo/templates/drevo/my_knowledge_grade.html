@@ -79,18 +79,17 @@
                 <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
                 <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
                 {% with zn|common_grades:false_request as grades_iter %}
-                {% if grades_iter.0|grade %}
-                {% with grades_iter.0|grade as grade %}
-                <span style="background-color: {{ grade.argument_color_background }};
-                             color: {{ grade.argument_color_font }};
-                             border: 1px solid black">
-                {% endwith %}
-                {% else %}
-                <span style="border: 1px solid black; color: black;">
-                {% endif %}
+                <span style="color:black">
                     {{ zn.name }}
                 </span>
                 </a>
+
+                {% if grades_iter.0 %}
+                <span style="background-color: {{ grades_iter.0|get_color_from_knowledge_grade_value:0 }};
+                      border: 1px solid black">
+                {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                        {{ grades_iter.0|grade_name }}
+                </span>
 
                 <span style="background-color: #FFFF00">
                     {{ grades_iter.0|floatformat:-2 }}
@@ -113,16 +112,18 @@
                                 {{ element_tree.for_or_against }}
                             </span>
                             <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                            <span style="color:black">
+                                {{ element_tree.name }}
+                            </span>
+                            </a>
+
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
                                   border: 1px solid black">
-                            {% else %}
-                            <span style="border: 1px solid black; color: black;">
-                            {% endif %}
-                                {{ element_tree.name }}
+                            {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                                    {{ element_tree.proof_grade }}
                             </span>
-                            </a>
 
                             {% if element_tree.proof_value %}
                             <span style="background-color: #FFFF00">
@@ -148,16 +149,18 @@
                                 {{ element_tree.for_or_against }}
                             </span>
                             <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                            <span style="color:black">
+                                {{ element_tree.name }}
+                            </span>
+                            </a>
+
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
                                   border: 1px solid black">
-                            {% else %}
-                            <span style="border: 1px solid black; color:black;">
-                            {% endif %}
-                                {{ element_tree.name }}
+                            {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                                    {{ element_tree.proof_grade }}
                             </span>
-                            </a>
 
                             {% if element_tree.proof_value %}
                              <span style="background-color: #FFFF00">
@@ -178,16 +181,18 @@
                                 {{ element_tree.for_or_against }}
                             </span>
                             <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                            <span style="color:black">
+                                {{ element_tree.name }}
+                            </span>
+                            </a>
+
                             {% if element_tree.proof_value %}
                             <span style="background-color: {{ element_tree.bg_color }};
                                   color: {{ element_tree.font_color }};
                                   border: 1px solid black">
-                            {% else %}
-                            <span style="border: 1px solid black; color: black;">
-                            {% endif %}
-                                {{ element_tree.name }}
+                            {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                                    {{ element_tree.proof_grade }}
                             </span>
-                            </a>
 
                             {% if element_tree.proof_value %}
                             <span style="background-color: #FFFF00">
@@ -210,18 +215,17 @@
                 <i class="bi-file-plus-fill lonely" onclick="toggleHiddenElement(this);"></i>
                 <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
                 {% with zn|common_grades:false_request as grades_iter %}
-                {% if grades_iter.0|grade %}
-                {% with grades_iter.0|grade as grade %}
-                <span style="background-color: {{ grade.argument_color_background }};
-                             color: {{ grade.argument_color_font }};
-                             border: 1px solid black">
-                {% endwith %}
-                {% else %}
-                <span style="border: 1px solid black; color: black;">
-                {% endif %}
+                <span style="color:black">
                     {{ zn.name }}
                 </span>
                 </a>
+
+                {% if grades_iter.0 %}
+                <span style="background-color: {{ grades_iter.0|get_color_from_knowledge_grade_value:0 }};
+                      border: 1px solid black">
+                {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                        {{ grades_iter.0|grade_name }}
+                </span>
 
                 <span style="background-color: #FFFF00">
                     {{ grades_iter.0|floatformat:-2 }}

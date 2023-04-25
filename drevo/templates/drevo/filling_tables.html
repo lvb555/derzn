@@ -10,66 +10,60 @@
 {% endblock %}
 
 {% block jsfiles %}
-<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-ru_RU.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-ru_RU.js"></script>
 {% endblock %}
-<head>
-    <title>{% block title %}Ввод табличных знаний{% endblock %}</title>
-</head>
 
 <div id="page">
 {% block content %}
-<form method="POST"> {% csrf_token %}
 
+<form method="POST" class="form" id="form" name="form"> {% csrf_token %}
     <div style="display: flex; flex-direction: column; margin-bottom: 15px;">
         <h1>Наполнение таблиц</h1>
         <label for="id_table">Таблица:</label>
-        <select name="table" data-live-search="true" class="selectpicker" id="id_table" style="width: 400px">
-            <option value="" disabled selected hidden>Выбрать таблицу</option> {% for pk, element in table_dict.items %}
-            <option value="{{ pk }}" id="{{ pk }}"> {{ element }} </option> {% endfor %}
+
+        <select name="table" style="appearance: none; width: 600px; height: 30px; padding-left: 9px" id="id_table">
+            {% for pk, element in table_dict.items %}
+                <option value="{{ pk }}" id="{{ pk }}"> {{ element }} </option>
+            {% endfor %}
         </select>
     </div>
 
     <div style="display: flex; flex-direction: column;">
         <h2>Координаты ячейки</h2>
         <label for="id_row">Строка:</label>
-        <select class="form-select" name="row" id="id_row" disabled>
-            <option>Выберите таблицу</option>
+        <select class="form-select" name="row" id="id_row">
+            <option value="" selected disabled>Выберите строку</option>
+            {% for row in rows_attributes %}
+                <option value="{{ row.rz_id }}" id="{{ row.rz_id }}"> {{ row.rz__name }} </option>
+            {% endfor %}
         </select>
         <label for="id_column">Столбец:</label>
-        <select class="form-select" name="column" id="id_column" disabled>
-            <option>Выберите таблицу</option>
+        <select class="form-select" name="column" id="id_column">
+            <option value="" selected disabled>Выберите столбец</option>
+            {% for column in columns_attributes %}
+                <option value="{{ column.rz_id }}" id="{{ column.rz_id }}"> {{ column.rz__name }} </option>
+            {% endfor %}
         </select>
         <label for="id_znanie">Знание:</label>
-
     </div>
 
-    <select data-live-search="true" class="selectpicker" name="znanie" id="id_znanie" style="margin-bottom: 15px;">
-        <option disabled selected hidden>Выбрать знание V</option> {% for zn in znanie %}
+    <select data-live-search="true" class="selectpicker" name="znanie" id="id_znanie" data-dropup-auto="false" disabled style="margin-bottom: 15px;">
+        <option value="" selected disabled>Выберите знание</option>
+        {% for zn in znanie %}
         <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option> {% endfor %}
     </select>
     <span>
-    <input type="button" value="+" class="quiet" id="add-znanie" style="vertical-align: middle; font-size: 30px" onclick="window.open('/admin/drevo/znanie/add/', '_blank')"></input>
+    <input type="button" value="+" class="quiet" id="add_znanie" style="vertical-align: middle; font-size: 30px" onclick="winOpen()">
     </span>
 
-    <div id="div-param" style="display: none; flex-direction: column; margin-bottom: 15px;">
-        <h2 class="" style="margin-top: 15px;">Параметры ячейки</h2>
-        <label for="id_view">Вид знания:</label>
-        <input id="id_view" readonly style="width: 600px" type="text">
-        <label for="id_author">Автор:</label>
-        <input id="id_author" name="author" id="id_author" readonly style="width: 600px" type="text">
-        <div id="div-content" style="display: none; flex-direction: column;">
-        <h2 style="margin-top: 15px;">Содержание знания:</h2>
-        <label for="text_id">Вид знания:</label>
-        <textarea id="text_id" class="text-show" name="name" readonly type="text"></textarea>
-        </div>
+    <div id="div-param" style="display: flex; flex-direction: column; margin-bottom: 15px;">
         <div style="margin-top: 15px">
-        <input style="align-self: flex-start;" type="submit" value="Сохранить" name="_save">
-        <input style="align-self: flex-start;" id="btn_show" type="button" value="Показать">
+            <input style="align-self: flex-start;" id="btn_show" type="button" value="Показать">
+            <input style="align-self: flex-start;" id="btn_save" type="submit" value="Сохранить" name="_save">
         </div>
     </div>
 
@@ -78,49 +72,107 @@
 
 <div id="div1"></div>
 
-    <style>
-        body {
-            margin: 0;
-            --bs-font-sans-serif: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-            font-family: var(--bs-font-sans-serif);;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #212529;
-            background-color: #fff;
-            -webkit-text-size-adjust: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
-        label {
-            margin: 0;
-        }
-        .btn-show{
-            display: flex;
-            justify-content: right;
-            border-width: 2px;
-        }
-        .quiet {
-            border: 0;
-            vertical-align: middle;
-            background: 0;
-        }
-        .text-show{
-            width: 500px;
-            height: 150px;
-            resize: none;
-        }
-        .caret{
-            display: none;
-        }
-        .bootstrap-select {
-          width: 600px !important;
-        }
-        .form-select{
-            width: 600px;
-        }
-    </style>
-<script>
+<div class="overlay js-successful">
+    <div class="popup js-successful">
+        <h2 style="position: relative; top: 50%; transform: translateY(-50%); text-align: center">Данные были успешно сохранены</h2>
+        <div class="close-popup js-close-successful"></div>
+    </div>
+</div>
 
+<style>
+
+    body {
+        margin: 0;
+        --bs-font-sans-serif: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+        font-family: var(--bs-font-sans-serif);;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+    }
+    label {
+        margin: 0;
+    }
+    .btn_show{
+        display: flex;
+        justify-content: right;
+        border-width: 2px;
+    }
+    .quiet {
+        border: 0;
+        vertical-align: middle;
+        background: 0;
+    }
+    .text-show{
+        width: 500px;
+        height: 150px;
+        resize: none;
+    }
+    .caret{
+        display: none;
+     }
+    .bootstrap-select {
+      width: 600px !important;
+     }
+    .form-select{
+        width: 600px;
+     }
+    .overlay {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, .5);
+        display: none;
+        z-index: 1;
+    }
+    .popup {
+        position: absolute;
+        width: 450px;
+        height: 250px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        padding: 40px;
+        background-color: #FFF;
+        border-radius: 10px;
+    }
+    .close-popup {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 23px;
+        height: 23px;
+        cursor: pointer;
+    }
+    .close-popup:before {
+        content: '';
+        background-color: #000;
+        position: absolute;
+        height: 1px;
+        width: 31px;
+        top: 11px;
+        left: -4px;
+        transform: rotate(-45deg);
+    }
+    .close-popup:after {
+        content: '';
+        background-color: #000;
+        position: absolute;
+        height: 1px;
+        width: 31px;
+        top: 11px;
+        transform: rotate(45deg);
+        left: -4px;
+    }
+
+</style>
+
+<script>
 
     var element = $('#page').detach();
     $('body').children().children('div.row').append(element);
@@ -128,19 +180,57 @@
     let id_table = $("#id_table")
     let id_row = $("#id_row")
     let id_column = $("#id_column")
-
     let id_znanie = $("#id_znanie")
-    let id_view = $("#id_view")
-    let id_author = $("#id_author")
-    let znanie_content = $("#znanie_content")
     let btn_show = $("#btn_show")
+    let add_znanie = $("#add_znanie")
     text_show = $("#text_id")
 
     const csrftoken = getCookie('csrftoken');
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+    }
 
-    newZnanie().then(d => {
-        lastPage = d
-    })
+     function checkSelection() {
+        if (document.form.row.value !== "" && document.form.column.value !== "") {
+            id_znanie.prop('disabled', false);
+            id_znanie.selectpicker('refresh')
+        }
+    }
+
+    id_row.change( function () {
+        checkSelection();
+    });
+
+    id_column.change( function () {
+        checkSelection();
+    });
+
+    function winOpen() {
+        tab = window.open('/admin/drevo/znanie/add/', 'tab', 'Width=1280,Height=650')
+
+        $(tab).ready(function () {
+            $(tab.window).on('click', (event) => {
+                if (event.target.getAttribute("name") == "_save"){
+                    setTimeout(function New() {
+                        $('#div-param').css('display', 'flex')
+                        newZnanie();
+                        tab.close()
+                    }, 2000)
+                }
+            });
+        }, true);
+    }
 
     function newZnanie() {
         const data = {};
@@ -155,137 +245,48 @@
         })
         .then(response => response.json())
         .then(data => {
-            return data;
+            $('#id_znanie').append(`<option value="${data[0]}" id="${data[0]}" selected> ${data[1]} </option>`)
+            $('#id_znanie').selectpicker('refresh')
+            $('#id_znanie option:last').prop('selected', true)
+            $('#id_znanie').selectpicker('refresh')
         })
         .catch((error) => {
         console.log('Error:', error);
         });
     }
 
+     btn_show.on('click', function(){
+      window.open(`/drevo/znanie/${id_table.val()}`);
+     });
 
-    function getCookie(name) {
-       let cookieValue = null;
-       if (document.cookie && document.cookie !== '') {
-           const cookies = document.cookie.split(';');
-           for (let i = 0; i < cookies.length; i++) {
-               const cookie = cookies[i].trim();
-               if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                   cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                   break;
-               }
-           }
-       }
-       return cookieValue;
-    }
-
-    id_znanie.on('show.bs.select', function (e) {
-        newZnanie().then(data => {
-            if (data[0] != lastPage[0]) {
-                lastPage = data
-                $('#id_znanie').append(`<option id="${data[0]}"> ${data[1]} </option>`)
-                $('#id_znanie').selectpicker('refresh')
-            }
-        })
-    });
-
-    id_znanie.on('changed.bs.select', function (e, clickedIndex) {
-        getZnanieId(id_znanie.children()[clickedIndex].id)
-        $('#div-param').css('display', 'flex')
-    });
-
-    id_table.change(getTableId);
-
-    btn_show.on('click', function(){
-        Array.from(id_znanie.children()).forEach(element => {
-            if (element.id == id_znanie.val()) {
-                
-                window.open(`/drevo/znanie/${element.id}`)
-            }
-        });
-
+    $(document).ready(function () {
+        $('#form').submit(function () {
+            // Если какое-либо поле не заполнено, форма не отправляется
+            if (document.form.table.value === '' || document.form.row.value === '' ||
+                document.form.column.value === '' || document.form.znanie.value === ''){
+                return false;
+             }
+            $.ajax({
+                method: "POST",
+                url: "{% url 'get_form_data' %}",
+                data: $(this).serialize()
+             }).done(function () {
+                $('.js-successful').fadeIn();
+             });
+            return false;
+         });
     })
-    function getTableId(e) {
-       let table_id = e.target.value
-       const data = { id: table_id};
-       let url = "{% url 'get_rows_and_columns' %}"
 
-        fetch(url, {
-           method: 'POST',
-           headers: {
-               'Content-Type': 'application/json',
-               'X-CSRFToken': csrftoken
-           },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(data => {
-            let rows = data[0]
-            if (rows.length === 0) {
-                id_row.children().text("Строки отсутствуют")
-                id_row.prop('disabled', true)
-            }
-            else {
-                id_row.prop('disabled', false)
-                id_row.empty()
-                for (let i = 0; i < rows.length; i++) {
-                    id_row.append(`<option value = "${rows[i]['rz_id']}">${rows[i]['rz__name']}</option>`)
-                }
+    $('.js-close-successful').click(function () {
+        $('.js-successful').fadeOut();
+    })
 
-            }
-
-            let columns = data[1]
-            if (columns.length === 0) {
-                id_column.prop('disabled', true)
-                id_column.children().text("Столбцы отсутствуют")
-            }
-            else {
-                id_column.prop('disabled', false)
-                id_column.empty()
-                for (let i = 0; i < rows.length; i++) {
-                    id_column.append(`<option value="${columns[i]['rz_id']}">${columns[i]['rz__name']}</option>`)
-                }
-            }
-         })
-        .catch((error) => {
-        console.log('Error:', error);
-        });
-     }
-
-    function getZnanieId(e) {
-        const data = { id: e};
-        let url = "{% url 'znanie_attributes' %}"
-
-        fetch(url, {
-           method: 'POST',
-           headers: {
-               'Content-Type': 'application/json',
-               'X-CSRFToken': csrftoken
-           },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(data => {
-
-            id_view.val(data[0]);
-            id_view.attr("readonly");
-
-            id_author.val(data[1])
-
-            if (data[2]) {
-                $('#div-content').css('display', 'flex')
-
-                text_show.val(data[2])
-            }
-            else {
-                $('#div-content').hide()
-                text_show.empty()
-            }
-        })
-        .catch((error) => {
-        console.log('Error:', error);
-        });
-    }
+    $(document).mouseup(function (e) {
+        var popup = $('.popup');
+        if (e.target !== popup[0] && popup.has(e.target).length === 0) {
+            $('.js-successful').fadeOut();
+        }
+    })
 
 </script>
 {% endblock %}
-</div>

@@ -1,0 +1,222 @@
+{% load mptt_tags %}
+{% load static %}
+{% load knowledge_tree %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% if show_searchbar %}
+<a href="" class="btn btn-success mb-3" data-bs-toggle="collapse" data-bs-target="#search_form">
+    <strong>Поиск знания</strong>
+    <img src="/static/drevo/img/main_page/search.png">
+</a>
+<form
+        role="search"
+        id="search_form"
+        method="post"
+        action="{% if not is_advance_search %}{% url 'search_by_tree' %}{% else %}{% url 'advance_search_by_tree' %}{% endif %}"
+        class="mb-3 collapse"
+        {% if not is_advance_search %} target="_blank" {% endif %}
+>
+    {% csrf_token %}
+    <div class="input-group">
+        <input class="form-control" type="search" name="search_word" placeholder="Поиск по дереву..." aria-label="Search" value="{{ search_word }}" {% if is_advance_search %}required {% endif %}>
+        <input class="form-control" type="text" name="knowledge_from_tree" value="{{ tree_knowledge }}" hidden>
+        <div class="input-group-btn">
+            {% if not is_advance_search %}
+            <button type="submit" class="btn btn-outline-success" id="default_search" name="default_search">
+                Найти
+            </button>
+            <input type="submit" class="btn btn-outline-info" name="advance_search" value="Расширенный поиск">
+            {% else %}
+            <button type="submit" class="btn btn-outline-success" name="advance_search">
+                Найти
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% for field_data, value in user_search_param.items %}
+    <div class="form-group form-check-inline">
+        <input type="checkbox" class="form-check-input" id="{{ field_data.0 }}" name="{{ field_data.0 }}" {% if value %}checked{% endif %} {% if user.is_anonymous %} disabled {% endif %}>
+        <label class="form-check-label" for="{{ field_data.0 }}">{{ field_data.1 }}</label> |
+    </div>
+    {% endfor %}
+
+    {% if is_advance_search %}
+        <div class="mx-4">
+            {{ form.as_p }}
+        </div>
+    {% endif %}
+</form>
+{% endif %}
+
+{% if category_nodes %}
+<div style="background-color: #FFFFFF; padding: 32px;border-radius: 10px;">
+<button type="button" class="btn tree-btn" onclick="tree{{ tree_num }}_showAll();">Развернуть</button>
+<button type="button" class="btn tree-btn" onclick="tree{{ tree_num }}_hiddenAll();">Свернуть</button>
+<ul class="root ps-0" id="tree{{ tree_num }}_root">
+    {% recursetree category_nodes %}
+    <li id="tree{{ tree_num }}_li_category_{{ node.pk }}" class="title-treeline">
+        <i class="family bi-file-plus-fill circle_icon" onclick="toggleHiddenCategoryElementTree{{ tree_num }}(this);"></i>
+
+        <a href="{{ node.get_absolute_url }}" class="text-dark title" style="vertical-align: 0.5vh;">
+            {{ node.name }}
+        </a>
+        {% get_category_counts category_rel_counts node.id %}
+
+        {% if not node.is_leaf_node %}
+        <ul class="children" hidden>
+            {{ children }}
+        </ul>
+        {% endif %}
+
+        <ul class="children" hidden>
+            {% get_data_by_category tree_data node as category_knowledge %}
+            {% for knowledge in category_knowledge %}
+            {%for base_knowledge, knowledge_data in knowledge.items %}
+            {% include 'drevo/tags/knowledge_nodes.html' %}
+            {%endfor%}
+            {% endfor %}
+        </ul>
+    </li>
+    {% endrecursetree %}
+</ul>
+</div>
+{% else %}
+<div class="text-center mt-3">
+    <p class="fs-4">{{ empty_tree_message }}</p>
+</div>
+{% endif %}
+
+<!-- Модальное окно -->
+<div class="modal fade" id="search_message" tabindex="-1" aria-labelledby="searchModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-dark" style="background-color:#5ad65a;">
+            <div class="modal-body text-center" id="searchModalLabel">
+                <h5>Ничего не найдено</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Search empty result notify script-->
+<script type="text/javascript">
+if ("{{ empty_result }}") {
+  $(window).on('load', function() {
+        $('#search_message').modal('show');
+    });
+}
+</script>
+
+<!-- Search action script-->
+<script>
+    const form = document.getElementById('search_form');
+    const defaultSearchBtn = document.getElementById('default_search');
+
+    defaultSearchBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        form.target = '';
+        form.submit();
+    });
+</script>
+
+
+<!-- Tree scripts-->
+<script>
+    function setClass(){
+        all_main_titles = document.querySelector('#tree1_root').childNodes;
+        for(let i=0;i< all_main_titles.length;i++){
+            if(all_main_titles[i].tagName == 'LI'){
+                all_main_titles[i].classList.add("main-title");
+            }
+        }
+    }
+
+    setClass()
+
+    function tree{{ tree_num }}_showAll() {
+    let ulToHidden = document.querySelectorAll('ul#tree{{ tree_num }}_root ul');
+
+    ulToHidden.forEach(function (x) {
+      x.hidden = false;
+    }
+    )
+
+    let treeRoot = document.getElementById("tree{{ tree_num }}_root");
+    let listCategoryIconsToChange = treeRoot.querySelectorAll('.bi-file-plus-fill');
+    for (let icon of listCategoryIconsToChange) {
+      icon.classList.remove("bi-file-plus-fill")
+      icon.classList.add("bi-file-minus-fill");
+    }
+    let listKnowledgeIconsToChange = treeRoot.querySelectorAll('.bi-plus-circle-fill');
+    for (let icon of listKnowledgeIconsToChange) {
+      icon.classList.remove("bi-plus-circle-fill")
+      icon.classList.add("bi-dash-circle-fill");
+    }
+  }
+
+  function tree{{ tree_num }}_hiddenAll() {
+    let ulToHidden = document.querySelectorAll('ul#tree{{ tree_num }}_root ul');
+    ulToHidden.forEach(function (item) {
+      item.hidden = true;
+    })
+
+    let treeRoot = document.getElementById("tree{{ tree_num }}_root");
+    let listCategoryIconsToChange = treeRoot.querySelectorAll('.bi-file-minus-fill');
+    for (let icon of listCategoryIconsToChange) {
+      icon.classList.remove("bi-file-minus-fill")
+      icon.classList.add("bi-file-plus-fill");
+    }
+    let listKnowledgeIconsToChange = treeRoot.querySelectorAll('.bi-dash-circle-fill');
+    for (let icon of listKnowledgeIconsToChange) {
+      icon.classList.remove("bi-dash-circle-fill")
+      icon.classList.add("bi-plus-circle-fill");
+    }
+  }
+</script>
+
+<!-- Category tree scripts-->
+<script>
+  function toggleHiddenCategoryElementTree{{ tree_num }}(element) {
+    let tree{{ tree_num }}_li_category_id = element.parentNode.id;
+    let selector_string = "li#" + tree{{ tree_num }}_li_category_id + " > ul";
+
+    let ulToHidden = document.querySelectorAll(selector_string);
+    ulToHidden.forEach(function (item) {
+      item.hidden = !item.hidden;
+    })
+
+    if (element.classList.contains("bi-file-minus-fill")) {
+      element.classList.remove("bi-file-minus-fill")
+      element.classList.add("bi-file-plus-fill");
+    }
+    else {
+      element.classList.remove("bi-file-plus-fill")
+      element.classList.add("bi-file-minus-fill");
+    }
+  }
+</script>
+
+<!-- Knowledge tree scripts-->
+<script>
+  function toggleHiddenElementTree{{ tree_num }}(element) {
+    let tree{{ tree_num }}_li_id = element.parentNode.id;
+    let selector_string = "li#" + tree{{ tree_num }}_li_id + " > ul";
+
+    let ulToHidden = document.querySelectorAll(selector_string);
+    ulToHidden.forEach(function (item) {
+      item.hidden = !item.hidden;
+    })
+
+    if (element.classList.contains("bi-dash-circle-fill")) {
+      element.classList.remove("bi-dash-circle-fill")
+      element.classList.add("bi-plus-circle-fill");
+    }
+    else {
+      element.classList.remove("bi-plus-circle-fill")
+      element.classList.add("bi-dash-circle-fill");
+    }
+  }
+</script>

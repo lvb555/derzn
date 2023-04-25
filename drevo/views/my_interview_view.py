@@ -1,10 +1,11 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from drevo.models.author import Author
 
 from drevo.models.category import Category
 from drevo.models.knowledge import Znanie
 from drevo.models.knowledge_kind import Tz
 from drevo.models.relation_type import Tr
+from drevo.models.special_permissions import SpecialPermissions
 
 import datetime
 import re
@@ -14,16 +15,14 @@ def my_interview_view(request):
     """
     Отобажаем страницу Мои интервью
     """
-    expert = request.user.expert.all()
-    if expert:
-        context = get_tree(expert[0], request.user)
-        return render(request, "drevo//my_interview_page.html", context)
-    return redirect("/drevo/")
+    expert = get_object_or_404(SpecialPermissions, expert=request.user)
+    context = get_tree(expert, request.user)
+    return render(request, "drevo//my_interview_page.html", context)
 
 
 def search_node_categories(categories_expert):
     """
-    На ввод QuerySet категорий из таблицы CategoryExpert,
+    На ввод QuerySet категорий из таблицы SpecialPermissions,
     вызывается  categories_expert = obj.categories.all(),
     где obj = request.user.expert.all()[0].
     На выходе получаем список всех категорий,
@@ -146,7 +145,7 @@ def get_tree(obj, user):
             period_dict = collector_dict_period(zn_in_this_category, dict_period)
         zn_dict[category] = zn_in_this_category
     zn_dict = {key: value for key, value in zn_dict.items() if len(value)}
-    tr_answer = Tr.objects.get(name="Ответ [ы]").id
+    tr_answer = get_object_or_404(Tr, name="Ответ").id
     obj_interview = Tr.objects.get(name="Состав").id
 
     def my_answer(list_answer):

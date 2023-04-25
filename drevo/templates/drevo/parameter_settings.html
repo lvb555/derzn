@@ -225,13 +225,25 @@
     </div>
     <br>
     <div>
-        <form method="post">
+        <form method="post" action="{% url 'update_settings' %}">
             {% csrf_token %}
             <ul>
             {% for user_param in settings %}
                 <li class="mb-3">
                     <label for="id_param_{{ user_param.pk }}"><h4>{{ user_param }}</h4></label>
+                    {% if not user_param.param.is_bool %}
                     <input type="number" min="0" name="param_{{ user_param.pk }}" value="{{ user_param.param_value }}" class="form-control py-2 w-25" id="id_param_{{ user_param.pk }}">
+                    {% else %}
+                    <input
+                            type="checkbox"
+                            name="param_{{ user_param.pk }}"
+                            class="form-check-input mt-2 ms-3"
+                            id="id_param_{{ user_param.pk }}"
+                            {% if user_param.param_value %}
+                            checked
+                            {% endif %}
+                    >
+                    {% endif %}
                 </li>
             {% endfor %}
             </ul>

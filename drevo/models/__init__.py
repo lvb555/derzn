@@ -13,7 +13,7 @@ from .relation_type import Tr  # noqa
 from .relation import Relation  # noqa
 from .visits import Visits  # noqa
 from .browsing_history import BrowsingHistory  # noqa
-from .expert_category import CategoryExpert  # noqa
+from .special_permissions import SpecialPermissions  # noqa
 from .friends_invite import FriendsInviteTerm  # noqa
 from .interview_answer_expert_proposal import InterviewAnswerExpertProposal  # noqa
 from .knowledge_statuses import KnowledgeStatuses
@@ -25,3 +25,5 @@ from .parameter_categories import ParameterCategories
 from .settings_options import SettingsOptions
 from .user_parameters import UserParameters
 from .message import Message
+from .interview_sub_answers import SubAnswers
+from .relationship_tz_tr import RelationshipTzTr

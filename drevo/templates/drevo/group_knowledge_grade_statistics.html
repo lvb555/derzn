@@ -1,6 +1,7 @@
 {% extends 'drevo/base.html' %}
 {% load static %}
 {% load grades %}
+{% load infographics %}
 {% load custom_humanize %}
 
 {% block title %}
@@ -12,35 +13,52 @@
 {% endblock %}
 
 {% block cssfiles %}
-<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/knowledge_grade.css' %}">
 {% endblock %}
 
 {% block content %}
-    <div class="row justify-content-between">
-        <div class="col-auto ">
-            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
-                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
-                        {{ knowledge.name }}
-                </i>           
-            </a>
-        </div>
-    </div>
-    <div class="row justify-content-between">
-        <div class="col-auto ">
-            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}/grade/group?variant={{ request.GET.variant }}">
-                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
-                        Групповая оценка знания 
-                </i>           
-            </a>
-        </div>
-    </div>
-    <h2 class="my-2">
+    <h2 class="my-2 header">
         {% if request.GET.variant != '2' %}
             Статистика. Групповая оценка знания
         {% else %}
             Статистика. Групповая общая оценка знания
         {% endif %}
     </h2>
+    <div class="d-flex justify-content-between">
+        <div class="breadcrumbs">
+            <p>
+                <a class="text-decoration-none breadcrumbs" href="/">Главная</a> -
+                <a class="text-decoration-none breadcrumbs" href="/drevo/knowledge">Дерево знаний</a> -
+                <a class="text-decoration-none breadcrumbs" href="{{ knowledge.get_absolute_url }}">Знание</a> -
+                <a class="text-decoration-none breadcrumbs" href="{{ knowledge.get_absolute_url }}/grade">Оценка знания</a> -
+                <a class="text-decoration-none breadcrumbs" href="{{ knowledge.get_absolute_url }}/grade/group">Групповая оценка знания</a> -
+                <span style="color: #212529;">Статистика оценок</span>
+            </p>
+        </div>
+        <div class="d-flex justify-content-around">
+            <a style="margin-right: 10px;" class="btn btn-filled-white" href="{{ knowledge.get_absolute_url }}/grade/group">
+                Вернуться к групповой оценке знания
+            </a>
+        </div>
+    </div>
+    <div class="non-bootsctrap-card">
+        <div class="breadcrumbs">
+            <p style="font-size: 14px;">Оценка знания</p>
+        </div>
+        <div class="d-flex justify-content-between">
+            <div>
+                <i class="bi bi-file-earmark-fill text-success" style="font-size: 1.4rem; font-style: normal;">
+                    <span class="header" style="font-size:24px;">{{ knowledge.name }}</span>
+                </i>
+            </div>
+            <a class="btn btn-filled-gray" href="{{ knowledge.get_absolute_url }}">
+                Вернуться на страницу знания
+            </a>
+        </div>
+    </div>
+
+    <div class="non-bootsctrap-card">
     {% if not user.is_authenticated %}
         <div class="col">
             <div class="row">
@@ -58,113 +76,108 @@
             </div>
         </div>
     {% else %}
-        <div class="my-4">
+        <div class="my-4 header-tab">
             <form action="{{ request.get_full_path }}" method="get" id="modeForm">
-                    <div class="d-flex flex-row align-items-center">
-                        <span><strong>Вариант расчета:</strong></span>
-                        <span class="ms-2">
+                <div class="d-flex flex-row align-items-center">
+                    <span class="header" style="font-size: 20px; padding-bottom: 34px; margin-right: 100px;">
+                        Вариант расчета
+                    </span>
+                    <span class="ms-2">
                         <fieldset id="variant" class="input-group">
                             <span style="white-space: nowrap">
-                                <input class="ms-2" type="radio" id="var1" name="variant" value="1"
+                                <input class="ms-2" type="radio" id="var1" name="variant" value="1" style="display:none;"
                                         {% if request.GET.variant != '2' %} checked {% endif %}>
-                                <label for="var1">Оценка знания</label>
+                                <label for="var1"
+                                       {% if request.GET.variant != '2' %} class="check-type-knowledge-grade-active"
+                                       {% else %} class="check-type-knowledge-grade" {% endif %}>
+                                    Оценка знания
+                                </label>
                             </span>
                             <span style="white-space: nowrap">
-                                <input class="ms-2" type="radio" id="var2" name="variant" value="2"
+                                <input class="ms-2" type="radio" id="var2" name="variant" value="2" style="display:none;"
                                         {% if request.GET.variant == '2' %} checked {% endif %}>
-                                <label for="var2">Общая оценка знания</label>
+                                <label for="var2"
+                                       {% if request.GET.variant == '2' %} class="check-type-knowledge-grade-active"
+                                       {% else %} class="check-type-knowledge-grade" {% endif %}>
+                                    Общая оценка знания
+                                </label>
                             </span>
                         </fieldset>
                     </span>
-                    </div>
+                </div>
             </form>
         </div>
-        <div class='row justify-content-center'>
-            <h4 class="text-center my-4">Различия оценок по полу<br>(Только у кого указан пол)</h4>
-            <div class="col-4">
-                <table class="table table-bordered table-sm "  style = "border: 2px solid black">
-        
-                    <thead align="center">
-                        <th valign="middle">Группа</th>
-                        <th valign="middle">Численность группы</th>
-                        <th valign="middle">Групповая оценка</th>
-                    </thead>
-                    <tbody align="center">
-                        <tr style = "border-top: 3px solid black">
-                            <td valign="middle">{% if count_users %}<a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}">{% endif %}
-                                Все
-                            {% if count_users %}</a>{% endif %}</td>
-                            <td>{{ count_users }}</td>
-                            {% if count_users == 0 %}
-                                <td>–</td>
-                            {% else %}
-                                <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
-                            {% endif %}
-                        </tr>
-                        <tr style = "border-top: 3px solid black">
-                            <td valign="middle">{% if count_male_users %}<a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=M">{% endif %}
-                                Мужчины
-                            {% if count_male_users %}</a>{% endif %}</td>
-                            <td>{{ count_male_users }}</td>
-                            {% if count_male_users == 0 %}
-                                <td>–</td>
-                            {% else %}
-                                <td>{{ male_users.name }} {{ male_users.value|floatformat:-2 }}</td>
-                            {% endif %}
-                        </tr>
-                        <tr style = "border-top: 3px solid black">
-                            <td valign="middle">{% if count_female_users %}<a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=F">{% endif %}
-                                Женщины
-                            {% if count_female_users %}</a>{% endif %}</td>
-                            <td>{{ count_female_users }}</td>
-                            {% if count_female_users == 0 %}
-                                <td>–</td>
-                            {% else %}
-                                <td>{{ female_users.name }} {{ female_users.value|floatformat:-2 }}</td>
-                            {% endif %}
-                        </tr>
-                    </tbody>
-                </table>
+        <div style="display: flex; justify-content: space-around;">
+        <div style="flex-grow: 2;">
+            <span class="header" style="font-size: 20px; padding-bottom: 12px;">
+                Различия оценок по возрастным категориям
+            </span>
+            <div class="breadcrumbs">
+                <p style="font-size: 14px;">Только у кого указана дата рождения</p>
             </div>
-        </div>
-        <div class='row justify-content-center'>
-            <h4 class="text-center my-4">Различия оценок по возрастным категориям<br>(Только у кого указана дата рождения)</h4>
-            <div class="col-4">
-                <table class="table table-bordered table-sm "  style = "border: 2px solid black">
-                        
-                    <thead align="center">
-                        <th valign="middle">Группа</th>
-                        <th valign="middle">Численность группы</th>
-                        <th valign="middle">Групповая оценка</th>
+            <div style="margin-right: 24px;">
+                <table class="table-rounded">
+                    <thead>
+                        <th class="table-border" style="border-top: none;">Группа</th>
+                        <th class="table-border" style="border-top: none;">Численность группы</th>
+                        <th class="table-border" style="border-top: none; border-right: none;">
+                            Групповая оценка
+                        </th>
                     </thead>
-                    <tbody align="center">
-                        <tr style = "border-top: 3px solid black">
-                            <td valign="middle">{% if count_users %}<a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}">{% endif %}
-                                Все
-                            {% if count_users %}</a>{% endif %}</td>
-                            <td>{{ count_users }}</td>
+                    <tbody>
+                        <tr>
+                            <td class="table-border">
+                                {% if count_users %}
+                                    <a class="text-decoration-none" 
+                                       href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}"
+                                       style="color: #083E2F;">
+                                        Все <i class="bi bi-arrow-up-right"></i>
+                                    </a>
+                                {% else %}
+                                    Все
+                                {% endif %}
+                            </td>
+                            <td class="table-border">{{ count_users }}</td>
                              {% if count_users == 0 %}
-                                <td>–</td>
+                                <td class="table-border" style="border-right: none;">–</td>
                             {% else %}
-                                <td>{{ all_users.name }} {{ all_users.value|floatformat:-2 }}</td>
+                                <td class="table-border" style="border-right: none;">
+                                    <div class="knowledge_grade" style="background: {{ all_users.value|get_color_from_knowledge_grade_value:0 }}">
+                                    {{ all_users.name }}
+                                    <br>
+                                    <span style="font-weight: 500;">
+                                        {{ all_users.value|floatformat:-2 }}
+                                    </span>
+                                    </div>
+                                </td>
                             {% endif %}
                         </tr>
                         {% for age_scale_grade in age_scales_grades %}
-                        <tr style = "border-top: 3px solid black">
-                            <td valign="middle">
+                        <tr>
+                            <td class="table-border">
                                 {% if age_scale_grade.count_users %}
-                                <a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=&min_age={{ age_scale_grade.min_age }}&max_age={{ age_scale_grade.max_age }}">
-                                    {{ age_scale_grade.interval }}
+                                <a class="text-decoration-none" 
+                                   href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=&min_age={{ age_scale_grade.min_age }}&max_age={{ age_scale_grade.max_age }}"
+                                   style="color: #083E2F;">
+                                    {{ age_scale_grade.interval }} <i class="bi bi-arrow-up-right"></i>
                                 </a>
                                 {% else %}
                                 {{ age_scale_grade.interval }}
                                 {% endif %}
                             </td>
-                            <td>{{ age_scale_grade.count_users }}</td>
+                            <td class="table-border">{{ age_scale_grade.count_users }}</td>
                             {% if age_scale_grade.count_users == 0 %}
-                                <td>–</td>
+                                <td class="table-border" style="border-right: none;">–</td>
                             {% else %}
-                                <td>{{ age_scale_grade.name }} {{ age_scale_grade.value|floatformat:-2 }}</td>
+                                <td class="table-border" style="border-right: none;">
+                                    <div class="knowledge_grade" style="background: {{ age_scale_grade.value|get_color_from_knowledge_grade_value:0 }}">
+                                    {{ age_scale_grade.name }}
+                                    <br>
+                                    <span style="font-weight: 500;">
+                                        {{ age_scale_grade.value|floatformat:-2 }}
+                                    </span>
+                                    </div>
+                                </td>
                             {% endif %}
                         </tr>
                         {% endfor %}
@@ -172,7 +185,111 @@
                 </table>
             </div>
         </div>
+        <div style="flex-grow: 1;">
+            <span class="header" style="font-size: 20px; padding-bottom: 12px;">
+                Различия оценок по полу
+            </span>
+            <div class="breadcrumbs">
+                <p style="font-size: 14px;">Только у кого указан пол</p>
+            </div>
+            <div>
+                <table class="table-rounded">
+                    <thead>
+                        <th class="table-border" style="border-top: none;">Группа</th>
+                        <th class="table-border" style="border-top: none;">Численность группы</th>
+                        <th class="table-border" style="border-top: none; border-right: none;">
+                            Групповая оценка
+                        </th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="table-border">
+                                {% if count_users %}
+                                    <a class="text-decoration-none" 
+                                       href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}"
+                                       style="color: #083E2F;">
+                                        Все <i class="bi bi-arrow-up-right"></i>
+                                    </a>
+                                {% else %}
+                                    Все
+                                {% endif %}
+                            </td>
+                            <td class="table-border">{{ count_users }}</td>
+                            {% if count_users == 0 %}
+                                <td class="table-border" style="border-right: none;">–</td>
+                            {% else %}
+                                <td class="table-border" style="border-right: none;">
+                                    <div class="knowledge_grade" style="background: {{ all_users.value|get_color_from_knowledge_grade_value:0 }}">
+                                    {{ all_users.name }}
+                                    <br>
+                                    <span style="font-weight: 500;">
+                                        {{ all_users.value|floatformat:-2 }}
+                                    </span>
+                                    </div>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td class="table-border">
+                                {% if count_male_users %}
+                                <a class="text-decoration-none" 
+                                   href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=M"
+                                   style="color: #083E2F;">
+                                    Мужчины <i class="bi bi-arrow-up-right"></i>
+                                </a>
+                                {% else %}
+                                Мужчины
+                                {% endif %}
+                            </td>
+                            <td class="table-border">{{ count_male_users }}</td>
+                            {% if count_male_users == 0 %}
+                                <td class="table-border" style="border-right: none;">–</td>
+                            {% else %}
+                                <td class="table-border" style="border-right: none;">
+                                    <div class="knowledge_grade" style="background: {{ male_users.value|get_color_from_knowledge_grade_value:0 }}">
+                                    {{ male_users.name }}
+                                    <br>
+                                    <span style="font-weight: 500;">
+                                        {{ male_users.value|floatformat:-2 }}
+                                    </span>
+                                    </div>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td class="table-border">
+                                {% if count_female_users %}
+                                <a class="text-decoration-none" 
+                                   href="{{ knowledge.get_absolute_url }}/grade/group/infographics?variant={{ request.GET.variant }}&gender=F"
+                                   style="color: #083E2F;">
+                                    Женщины <i class="bi bi-arrow-up-right"></i>
+                                </a>
+                                {% else %}
+                                Женщины
+                                {% endif %}
+                            </td>
+                            <td class="table-border">{{ count_female_users }}</td>
+                            {% if count_female_users == 0 %}
+                                <td class="table-border" style="border-right: none;">–</td>
+                            {% else %}
+                                <td class="table-border" style="border-right: none;">
+                                    <div class="knowledge_grade" style="background: {{ female_users.value|get_color_from_knowledge_grade_value:0 }}">
+                                    {{ female_users.name }}
+                                    <br>
+                                    <span style="font-weight: 500;">
+                                        {{ female_users.value|floatformat:-2 }}
+                                    </span>
+                                    </div>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     {% endif %}
+    </div>
     <script>
         function init() {
             const radioButtons = document.querySelectorAll('input[name=variant]');

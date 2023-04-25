@@ -26,10 +26,13 @@ from .views import (
     QuestionExpertWorkPage,
     friends_view,
     friends_added_view,
-    get_rows_and_columns,
     filling_tables,
-    znanie_attributes,
+    TableKnowledgeTreeView,
+    CreateChangeTableView,
+    table_constructor,
+    get_form_data,
     show_new_znanie,
+    show_filling_tables_page,
     KnowledgeFormView,
     QuizListView,
     QuizResultAdd,
@@ -41,17 +44,36 @@ from .views import (
     my_knowledge_grade,
     knowledges_grades,
     GroupKnowledgeStatisticsView,
-    parameter_settings,
+    ParameterSettingsView,
+    update_user_settings,
     send_message_view,
     messages_feed_view,
+    KnowledgeTypesView,
+    RelationTypesView,
+    SpecialPermissionsDeleteView,
+    ExpertsPermissionsDeleteView,
+    delete_competence_expert,
+    ExpertKnowledgeView,
+    delete_editor_permissions,
+    AdminsPermissionsDeleteView,
+    delete_competence_admin,
+    get_required_tr,
+    get_required_rz,
+    search_by_tree_view,
+    advance_search_by_tree_view,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
-from .views.expert_work.proposal_delete_view import ProposalDeleteView
+
+
 from .views.expert_work.views import (
     propose_answer,
-    update_answer_proposal,
-    update_proposed_answer,
+    sub_answer_create_view,
+    ExpertProposalDeleteView,
+    set_answer_as_incorrect,
+    set_answer_is_agreed,
+    proposal_update_view,
+    set_new_answer_is_agreed,
 )
 from .views.admin_interview_work.views import (
     AllInterviewView,
@@ -60,13 +82,27 @@ from .views.admin_interview_work.views import (
     AdminEditingKnowledgeView,
     NotifyExpertsView,
 )
+from .views.special_permissions_for_public import get_special_permission
+from .views.special_permissions_work.view import (
+    SpecialPermissionsView,
+    set_users_as_editor,
+    ExpertsCandidatesListView,
+    set_users_as_expert,
+    AdminsCandidatesListView,
+    set_users_as_admin,
+    UsersSpecialPermissionsView,
+    ExpertCandidateKnowledgeView,
+    AdminCandidateKnowledgeView,
+)
 from .views.interview_and_proposal import my_interview, my_proposal
 from .views.klz_all_knowledges import klz_all
 from .views.my_favourites import my_favourites
 from .views.my_knowledge import my_knowledge, my_preknowledge, my_expertise
+from .views.new_knowledges import new_knowledge
 from .views.public_people import public_people_view, public_human
 from .views.quiz_result import show_quiz_result
 from .views.subscribe_to_author_view import sub_by_author
+from .views.subscription_by_category_view import sub_by_category
 from .views.subscription_by_tag_view import sub_by_tag
 from drevo.views.developer_view import developer_view
 from .views.knowledge_tp_view import (
@@ -99,10 +135,13 @@ urlpatterns = [
     path("znanie/<int:pk>/grade/infographics", InfographicsView.as_view(), name="grade_infographics"),
     path("knowledges_grades/", knowledges_grades, name="knowledges_grades"),
     path("my_knowledge_grade/<int:id>/", my_knowledge_grade, name="my_knowledge_grade"),
-    path("row/", get_rows_and_columns, name="get_rows_and_columns"),
-    path("column/", znanie_attributes, name="znanie_attributes"),
-    path("filling_tables/", filling_tables, name="filling_tables"),
+    path("filling_tables/<pk>/", filling_tables, name="filling_tables"),
+    path("table_constructor/<pk>/", table_constructor, name="table_constructor"),
+    path('table_knowledge_tree/', TableKnowledgeTreeView.as_view(), name="table_knowledge_tree"),
+    path("table_edit", CreateChangeTableView.as_view(), name="table_edit"),
     path("show_new_znanie/", show_new_znanie, name="show_new_znanie"),
+    path("show_filling_tables_page/", show_filling_tables_page, name="show_filling_tables_page"),
+    path("get_form_data/", get_form_data, name="get_form_data"),
     path("all_quizzes/", QuizListView.as_view(), name="all_quizzes"),
     path("quiz/<int:pk>", QuizDetailView.as_view(), name="quiz"),
     path("quiz/<int:pk>/quiz_result/", QuizResultAdd.as_view()),
@@ -116,6 +155,8 @@ urlpatterns = [
     path("labels/", LabelsListView.as_view(), name="labels"),
     path("glossary/", GlossaryListView.as_view(), name="glossary"),
     path("knowledge/", KnowledgeView.as_view(), name="knowledge"),
+    path('knowledge/types/<int:type_pk>', KnowledgeTypesView.as_view(), name='knowledge_type'),
+    path('relations/types/<int:type_pk>', RelationTypesView.as_view(), name='relation_type'),
     path("search/knowledge", KnowledgeSearchView.as_view(), name="search_knowledge"),
     path("new_knowledge/", NewKnowledgeListView.as_view(), name="new_knowledge"),
     path("search/author", AuthorSearchView.as_view(), name="search_author"),
@@ -123,12 +164,15 @@ urlpatterns = [
     path("history/<int:id>/", browsing_history, name="history"),
     path("subscribe_to_author/<int:id>/", sub_by_author, name="subscribe_to_author"),
     path("subscription_by_tag/<int:id>/", sub_by_tag, name="subscription_by_tag"),
+    path("subscription_by_category/<int:id>/", sub_by_category, name="subscription_by_category"),
+    path("new_knowledges/<int:id>/", new_knowledge, name="new_knowledges"),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
     path("my_favourites/<int:id>/", my_favourites, name="my_favourites"),
     path("my_knowledge/<int:id>/", my_knowledge, name="my_knowledge"),
     path("my_preknowledge/<int:id>/", my_preknowledge, name="my_preknowledge"),
     path("my_expertise/<int:id>/", my_expertise, name="my_expertise"),
     path("my__interview/<int:id>/", my_interview, name="my_interview_profile"),
+    path("special_permission/<int:id>/", get_special_permission, name="special_permission"),
     path("my_proposal/<int:id>/", my_proposal, name="my_proposal"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
@@ -138,24 +182,39 @@ urlpatterns = [
         name="question_expert_work",
     ),
     path(
-        "interview/<int:interview_pk>/questions/<int:question_pk>/answers/<int:answer_pk>",
-        update_answer_proposal,
-        name="update_answer_proposal",
-    ),
-    path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/new_answers",
         propose_answer,
         name="propose_answer",
     ),
     path(
-        "interview/new_answers/<int:proposal_pk>",
-        update_proposed_answer,
-        name="update_proposed_answer",
+        "interview/delete_proposal",
+        ExpertProposalDeleteView.as_view(),
+        name="delete_proposal",
     ),
     path(
-        "interview/<int:interview_pk>/questions/<int:question_pk>/<int:pk>",
-        ProposalDeleteView.as_view(),
-        name="delete",
+        'interview/<int:inter_pk>/questions/<int:quest_pk>/answer/<int:answer_pk>/add_subanswer',
+        sub_answer_create_view,
+        name='add_subanswer'
+    ),
+    path(
+        'interview/<int:interview_pk>/question/<int:question_pk>/answer/<int:answer_pk>/answer_as_incorrect',
+        set_answer_as_incorrect,
+        name='set_answer_as_incorrect'
+    ),
+    path(
+        'interview/answer/<int:proposal_pk>/new_answer_is_agreed',
+        set_new_answer_is_agreed,
+        name='set_new_answer_is_agreed'
+    ),
+    path(
+        'interview/<int:interview_pk>/question/<int:question_pk>/answer/<int:answer_pk>/answer_is_agreed',
+        set_answer_is_agreed,
+        name='set_answer_is_agreed'
+    ),
+    path(
+        'interview/proposal/<int:proposal_pk>/update',
+        proposal_update_view,
+        name='proposal_update'
     ),
     path("admin/interview/", AllInterviewView.as_view(), name="all_interview"),
     path(
@@ -164,7 +223,7 @@ urlpatterns = [
         name="interview_quests",
     ),
     path(
-        "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/",
+        "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/proposals/",
         question_admin_work_view,
         name="question_admin_work",
     ),
@@ -177,6 +236,87 @@ urlpatterns = [
         "admin/interview/<int:inter_pk>/questions/<int:quest_pk>/notify_experts/",
         NotifyExpertsView.as_view(),
         name='admin_notify_experts'
+    ),
+
+    path(
+        'special_permissions/',
+        SpecialPermissionsView.as_view(),
+        name='special_permissions_page'
+    ),
+    path(
+        'special_permissions/set_users_as_editor',
+        set_users_as_editor,
+        name='set_users_as_editor'
+    ),
+    path(
+        'special_permissions/to_experts/<int:category_pk>',
+        ExpertsCandidatesListView.as_view(),
+        name='experts_candidates_page'
+    ),
+    path(
+        'special_permissions/set_users_as_expert/<int:category_pk>',
+        set_users_as_expert,
+        name='set_users_as_expert'
+    ),
+    path(
+        'special_permissions/to_admins/<int:category_pk>',
+        AdminsCandidatesListView.as_view(),
+        name='admins_candidates_page'
+    ),
+    path(
+        'special_permissions/set_users_as_admin/<int:category_pk>',
+        set_users_as_admin,
+        name='set_users_as_admin'
+    ),
+    path(
+        'special_permissions/candidates/<int:category_pk>/experts/<int:candidate_pk>/knowledge_list/',
+        ExpertCandidateKnowledgeView.as_view(),
+        name='expert_candidate_knowledge'
+    ),
+    path(
+        'special_permissions/candidates/<int:category_pk>/admins/<int:candidate_pk>/knowledge_list/',
+        AdminCandidateKnowledgeView.as_view(),
+        name='admin_candidate_knowledge'
+    ),
+    path(
+        'my_special_permissions/',
+        UsersSpecialPermissionsView.as_view(),
+        name='my_special_permissions'
+    ),
+    path(
+        'special_permissions/delete',
+        SpecialPermissionsDeleteView.as_view(),
+        name='delete_special_permissions_page'
+    ),
+    path(
+        'special_permissions/experts_for_delete/<int:category_pk>',
+        ExpertsPermissionsDeleteView.as_view(),
+        name='deleting_experts_permissions_page'
+    ),
+    path(
+        'special_permissions/experts_for_delete/<int:category_pk>/delete',
+        delete_competence_expert,
+        name='delete_competence_expert'
+    ),
+    path(
+        'special_permissions/experts_for_delete/<int:category_pk>/expert/<int:expert_pk>/knowledge',
+        ExpertKnowledgeView.as_view(),
+        name='expert_knowledge_page'
+    ),
+    path(
+        'special_permissions/delete/editors',
+        delete_editor_permissions,
+        name='delete_editor_permissions'
+    ),
+    path(
+        'special_permissions/admins_for_delete/<int:category_pk>',
+        AdminsPermissionsDeleteView.as_view(),
+        name='deleting_admins_permissions_page'
+    ),
+    path(
+        'special_permissions/admins_for_delete/<int:category_pk>/delete',
+        delete_competence_admin,
+        name='delete_competence_admin'
     ),
 
     path("friends/", friends_view, name="friends"),
@@ -228,7 +368,12 @@ urlpatterns = [
         name="znanie_director_process",
     ),
     path("klz/", KlzKnowledgeProcess.as_view(), name="klz"),
-    path('profile/settings/', parameter_settings, name='parameter_settings')
+    path('profile/settings/', ParameterSettingsView.as_view(), name='parameter_settings'),
+    path('profile/settings/update', update_user_settings, name='update_settings'),
+    path('get_required_tr', get_required_tr, name='get_required_tr'),
+    path('get_required_rz', get_required_rz, name='get_required_rz'),
+    path('tree/search_results', search_by_tree_view, name='search_by_tree'),
+    path('tree/search_results/advance', advance_search_by_tree_view, name='advance_search_by_tree')
 ]
 
 if settings.DEBUG:

@@ -1,7 +1,29 @@
 Уважаемый {{ appeal }} {{ patr }}!
 
-{{ date_with_month }} было создано новое знание {{ instance.name }}:
-Ссылка на знание: {{ author_publication_url }}
-Автор: {{ instance.author }}
+По вашим подпискам были созданы следующие знания:
+
+{% if author_sub != '' %}
+Подписка по авторам
+Были созданы знания от следующих авторов:
+    {% for author in author_sub %}
+        {{author}}
+    {% endfor %}
+{% endif %}
+{% if tags_sub != '' %}
+Подписка по тегам
+Были созданы знания по следующим тегам:
+    {% for tag in tags_sub %}
+        {{tag}}
+    {% endfor %}
+{% endif %}
+{% if category_sub != '' %}
+Подписка по категориям
+Были созданы знания в следующих категориях:
+    {% for category in category_sub %}
+        {{category}}
+    {% endfor %}
+{% endif %}
+
+Ссылка на страницу с новыми знаниями: {{ page_url }}
 
 Администрация портала "Дерево знаний"

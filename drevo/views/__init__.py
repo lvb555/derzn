@@ -7,12 +7,16 @@ from .comment_page_view import CommentPageView
 from .comment_send_view import CommentSendView
 from .drevo_list_view import DrevoListView
 from .drevo_view import DrevoView
-from .expert_work.proposal_delete_view import ProposalDeleteView
 from .knowledge_view import KnowledgeView
 from .expert_work.views import (
     QuestionExpertWorkPage,
     propose_answer,
-    update_answer_proposal,
+    sub_answer_create_view,
+    ExpertProposalDeleteView,
+    set_answer_as_incorrect,
+    set_answer_is_agreed,
+    set_new_answer_is_agreed,
+    proposal_update_view,
 )
 from .admin_interview_work.views import (
     AllInterviewView,
@@ -23,7 +27,15 @@ from .admin_interview_work.views import (
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
-from .filling_tables import filling_tables, get_rows_and_columns, znanie_attributes, show_new_znanie
+from .filling_tables import (
+    TableKnowledgeTreeView,
+    CreateChangeTableView,
+    filling_tables,
+    table_constructor,
+    show_new_znanie,
+    show_filling_tables_page,
+    get_form_data
+)
 from .friends_added_view import friends_added_view
 from .friends_view import friends_view
 from .glossary_list_view import GlossaryListView
@@ -44,8 +56,31 @@ from .my_knowledge_grade_view import my_knowledge_grade
 from .knowledges_grades_view import knowledges_grades
 from .group_infographics_view import GroupInfographicsView
 from .group_knowledge_grade_statistics import GroupKnowledgeStatisticsView
-from .parameter_settings_view import parameter_settings
-
+from .parameter_settings_view import ParameterSettingsView, update_user_settings
+from .special_permissions_work.view import (
+    SpecialPermissionsView,
+    set_users_as_editor,
+    ExpertsCandidatesListView,
+    set_users_as_expert,
+    AdminsCandidatesListView,
+    set_users_as_admin,
+    UsersSpecialPermissionsView,
+    ExpertCandidateKnowledgeView,
+    AdminCandidateKnowledgeView,
+)
+from .special_permissions_work.delete_permissions_views import (
+    SpecialPermissionsDeleteView,
+    ExpertsPermissionsDeleteView,
+    delete_competence_expert,
+    ExpertKnowledgeView,
+    delete_editor_permissions,
+    AdminsPermissionsDeleteView,
+    delete_competence_admin,
+)
+from .knowledge_types_view import KnowledgeTypesView
+from .relation_types_view import RelationTypesView
+from .relationship_tr_tz_view import get_required_tr, get_required_rz
+from .search_by_tree_view import search_by_tree_view, advance_search_by_tree_view
 
 __all__ = [
     "AuthorDetailView",
@@ -68,16 +103,20 @@ __all__ = [
     "FavouritesView",
     "FavouriteProcessView",
     "filling_tables",
+    "TableKnowledgeTreeView",
+    "CreateChangeTableView",
+    "table_constructor",
+    "get_form_data",
+    "show_new_znanie",
+    "show_filling_tables_page",
     "friends_view",
     "friends_added_view",
     "friends_invite_view",
     "FavouriteProcessView",
     "propose_answer",
-    "update_answer_proposal",
     "QuestionExpertWorkPage",
     "send_znanie",
     "QuizListView",
-    "ProposalDeleteView",
     "KnowledgeStatisticFormView",
     'QuizResultAdd',
     "GroupKnowledgeView",
@@ -87,5 +126,34 @@ __all__ = [
     "knowledges_grades",
     "GroupInfographicsView",
     "GroupKnowledgeStatisticsView",
-    'parameter_settings',
+    'ParameterSettingsView',
+    'update_user_settings',
+    'sub_answer_create_view',
+    'ExpertProposalDeleteView',
+    'set_answer_as_incorrect',
+    'set_answer_is_agreed',
+    'proposal_update_view',
+    'SpecialPermissionsView',
+    'set_users_as_editor',
+    'ExpertsCandidatesListView',
+    'set_users_as_expert',
+    'AdminsCandidatesListView',
+    'set_users_as_admin',
+    'UsersSpecialPermissionsView',
+    'set_new_answer_is_agreed',
+    'ExpertCandidateKnowledgeView',
+    'AdminCandidateKnowledgeView',
+    'KnowledgeTypesView',
+    'RelationTypesView',
+    'SpecialPermissionsDeleteView',
+    'ExpertsPermissionsDeleteView',
+    'delete_competence_expert',
+    'ExpertKnowledgeView',
+    'delete_editor_permissions',
+    'AdminsPermissionsDeleteView',
+    'delete_competence_admin',
+    'get_required_tr',
+    'get_required_rz',
+    'search_by_tree_view',
+    'advance_search_by_tree_view',
 ]

@@ -9,7 +9,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy, reverse
 from django.utils.timezone import now
 from django.views.generic import ListView, DetailView, UpdateView, RedirectView
-from ...models import Relation, Tz, Author, Tr, CategoryExpert
+from ...models import Relation, Tz, Author, Tr, SpecialPermissions
 from ...models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from ...models.knowledge import Znanie
 from ...models.interview_results_schedule import InterviewResultsSendingSchedule
@@ -134,8 +134,17 @@ def question_admin_work_view(request, inter_pk, quest_pk):
     context['cur_filter'] = request.GET.get('filter')
 
     answers = Relation.objects.select_related('rz', 'tr').filter(
-        bz__pk=quest_pk, tr__name='Ответ [ы]'
+        bz__pk=quest_pk, tr__name='Ответ'
     ).order_by('rz__name', 'rz__order')
+
+    def expert_to_author(expert) -> Author:
+        """
+            Функция для создания автора по эксперту
+        """
+        authors = Author.objects.filter(user_author=expert)
+        if authors.exists():
+            return authors.first()
+        return Author.objects.create(name=expert.get_full_name, user_author=expert)
 
     def get_queryset():
         filter_by = request.GET.get('filter')
@@ -189,7 +198,7 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                         messages.error(request, f'Предложение  №{obj.pk}: Знание с такой темой уже существует.')
                         continue
                     tz = Tz.objects.filter(name='Тезис').first()
-                    author, is_created = Author.objects.get_or_create(name=obj.expert.get_full_name)
+                    author = expert_to_author(obj.expert)
                     new_knowledge = Znanie.objects.create(
                         name=knowledge_name,
                         content=knowledge_content,
@@ -200,9 +209,9 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     )
 
                     if obj.question.tz.name == 'Вопрос':
-                        tr = Tr.objects.get(name='Ответ [ы]')
+                        tr = Tr.objects.get(name='Ответ')
                     else:
-                        tr = Tr.objects.get(name='Аргумент [ы]')
+                        tr = Tr.objects.get(name='Аргумент')
                     Relation.objects.create(
                         bz=obj.question,
                         rz=new_knowledge,
@@ -242,12 +251,11 @@ def question_admin_work_view(request, inter_pk, quest_pk):
                     )
                     # Устанавливаем связь знания "Другое" с вопросом
                     if not Relation.objects.filter(bz=obj.question, rz=other_obj, user=obj.expert).exists():
-                        author, _ = Author.objects.get_or_create(name=obj.expert.get_full_name)
                         Relation.objects.update_or_create(
                             bz=obj.question,
                             rz=other_obj,
-                            tr=Tr.objects.get(name='Ответ [ы]'),
-                            author=author,
+                            tr=Tr.objects.get(name='Ответ'),
+                            author=expert_to_author(obj.expert),
                             user=obj.expert,
                             is_published=True
                         )
@@ -341,7 +349,7 @@ class NotifyExpertsView(RedirectView):
             experts = [
                 cat_exp.expert
                 for cat_exp in
-                CategoryExpert.objects.select_related('expert').filter(categories__pk=inter_competence.pk)
+                SpecialPermissions.objects.select_related('expert').filter(categories__pk=inter_competence.pk)
             ]
 
             sender = InterviewResultSender(

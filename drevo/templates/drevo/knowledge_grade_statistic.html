@@ -1,30 +1,48 @@
 {% extends 'drevo/base.html' %}
+{% load infographics %}
+{% load static %}
 
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/knowledge_grade.css' %}">
+{% endblock %}
 
 {% block title %}
-    {{ title }}
+    Статистика оценок
 {% endblock %}
 
 {% block content %}
-    <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}">
-        <div class="row">
-            <div class="col-auto">
-                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
-                    {{ knowledge.name }}
-                </i>
-            </div>
+    <h2 class="my-2 header">Статистика оценок</h2>
+    <div class="d-flex justify-content-between">
+        <div class="breadcrumbs">
+            <p>
+                <a class="text-decoration-none breadcrumbs" href="/">Главная</a> -
+                <a class="text-decoration-none breadcrumbs" href="/drevo/knowledge">Дерево знаний</a> -
+                <a class="text-decoration-none breadcrumbs" href="{{ knowledge.get_absolute_url }}">Знание</a> -
+                <a class="text-decoration-none breadcrumbs" href="{{ knowledge.get_absolute_url }}/grade">Оценка знания</a> -
+                <span style="color: #212529;">Статистика оценок</span>
+            </p>
         </div>
-    </a>
-    <div class="row justify-content-between">
-        <div class="col-auto ">
-            <a class="text-decoration-none" href="{{ knowledge.get_absolute_url }}/grade">
-                <i class="bi bi-arrow-left" style="font-size: 1.4rem; font-style: normal;">
-                        Оценка знания 
-                </i>           
+        <div class="d-flex justify-content-around">
+            <a style="margin-right: 10px;" class="btn btn-filled-white" href="{{ knowledge.get_absolute_url }}/grade">
+                Вернуться к оценке знания
             </a>
         </div>
     </div>
-    <h2 class="my-2">{{ title }}</h2>
+    <div class="non-bootsctrap-card">
+        <div class="breadcrumbs">
+            <p style="font-size: 14px;">Оценка знания</p>
+        </div>
+        <div class="d-flex justify-content-between">
+            <div>
+                <i class="bi bi-file-earmark-fill text-success" style="font-size: 1.4rem; font-style: normal;">
+                    <span class="header" style="font-size:24px;">{{ knowledge.name }}</span>
+                </i>
+            </div>
+            <a class="btn btn-filled-gray" href="{{ knowledge.get_absolute_url }}">
+                Вернуться на страницу знания
+            </a>
+        </div>
+    </div>
 
     {% if not user.is_authenticated %}
         <div class="col">
@@ -43,24 +61,61 @@
             </div>
         </div>
     {% else %}
-             {% if proof_relations.exists %}
+        {% if proof_relations.exists %}
+        <div class="non-bootsctrap-card">
              <div class='row justify-content-center'>
-                <div class="col-8">
-                    <h4 class="text-center my-4">Распределение оценок знания </h4>
-                    <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
-                        
-                        <thead align="center">
-                            <tr >
-                                <th valign="middle">Оценка знания</th> <th valign="middle">Число оценок</th> <th >Процент к оценившим</th>
+                <span class="header" style="font-size: 20px; padding-bottom: 12px;">
+                        Распределение оценок знания
+                </span>
+                <div class="my-2">
+                    <table class="table-rounded" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th class="table-border" style="border-top: none;">
+                                    Оценка знания
+                                </th>
+                                <th class="table-border" style="border-top: none;">
+                                    Число оценок
+                                </th>
+                                <th class="table-border" style="border-top: none; border-right: none;">
+                                    Процент к оценившим
+                                </th>
                             </tr>
                         </thead>
-                        <tbody align="center"> 
+                        <tbody>
                             {% for grade_scale, value in all_grades_statistic.items %}
                         
                             <tr style = "border-top: 3px solid black">
-                                <td valign="middle">{{ grade_scale }}</td>
-                                <td>{{ value.0 }}</td>
-                                <td>{{ value.1 }}%</td>
+                                {% if grade_scale.name != "Нет оценки" and grade_scale != "Всего: " %}
+                                <td class="table-border">
+                                    <div class="knowledge_grade"
+                                         style="background: linear-gradient(0deg,
+                                                {{ grade_scale.low_value|get_color_from_knowledge_grade_value:0 }} 0%,
+                                                {{ grade_scale.high_value|get_color_from_knowledge_grade_value:0 }} 100%);
+                                                width: auto; display: inline-block;">
+                                        <span>
+                                            {{ grade_scale }} ({{ grade_scale.low_value }}-{{ grade_scale.high_value }})
+                                        </span>
+                                {% else %}
+                                <td class="table-border">
+                                    <div {% if grade_scale != "Всего: " %}class="knowledge_grade"{% endif %}
+                                         style="width: auto; display: inline-block;">
+                                        <span {% if grade_scale == "Всего: " %} style="font-weight: 700;" {% endif %}>
+                                            {{ grade_scale }}
+                                        </span>
+                                {% endif %}
+                                    </div>
+                                </td>
+                                <td class="table-border">
+                                    <span {% if grade_scale == "Всего: " %} style="font-weight: 700;" {% endif %}>
+                                        {{ value.0 }}
+                                    </span>
+                                </td>
+                                <td class="table-border" style="border-right: none;">
+                                    <span {% if grade_scale == "Всего: " %} style="font-weight: 700;" {% endif %}>
+                                        {{ value.1 }}%
+                                    </span>
+                                </td>
                             </tr>
                             {% endfor %}
                             
@@ -68,29 +123,48 @@
                     </table>
                 </div>
             </div>
-            <div class='row justify-content-center'>
-                <div class="col-8">
-                    <h4 class="text-center my-4">Распределение оценок по полу <br> (Только у кого указан пол)</h4>
-                    <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
-                        
-                        <thead align="center">
-                            <tr >
-                                <th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="2">Из них</th>
+        </div>
+        <div class="non-bootsctrap-card">
+              <div class='row justify-content-center'>
+                <span class="header" style="font-size: 20px; padding-bottom: 12px;">
+                        Распределение оценок по полу
+                </span>
+                <div class="breadcrumbs">
+                    <p style="font-size: 14px;">Только у кого указан пол</p>
+                </div>
+                <div class="my-2">
+                    <table class="table-rounded" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="table-border" style="border-top: none;">
+                                    Оценка знания
+                                </th>
+                                <th rowspan="2" class="table-border" style="border-top: none;">
+                                    Число оценок <span style="color: #6C757D;">(кол-во / процент)</span>
+                                </th>
+                                <th colspan="2" class="table-border" style="border-top: none; border-right: none;
+                                                                            border-bottom: 1px dashed #BFBFBF;">
+                                    Из них <span style="color: #6C757D;">(кол-во / процент)</span>
+                                </th>
                             </tr>
                             <tr>
-                                <th>
+                                <th class="table-border" style="border-right:none; border-top:none;">
                                     {% if count_male_users %}
-                                    <a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?gender=M">
-                                        Мужчин
+                                    <a class="text-decoration-none"
+                                       style="color: #083E2F;"
+                                       href="{{ knowledge.get_absolute_url }}/grade/group/infographics?gender=M">
+                                        Мужчин <i class="bi bi-arrow-up-right"></i>
                                     </a>
                                     {% else %}
                                         Мужчин
                                     {% endif %}
                                 </th>
-                                <th>
+                                <th class="table-border" style="border-right:none; border-top:none;">
                                     {% if count_female_users %}
-                                    <a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?gender=F">
-                                        Женщин
+                                    <a class="text-decoration-none"
+                                       style="color: #083E2F;"
+                                       href="{{ knowledge.get_absolute_url }}/grade/group/infographics?gender=F">
+                                        Женщин <i class="bi bi-arrow-up-right"></i>
                                     </a>
                                     {% else %}
                                         Женщин
@@ -98,7 +172,7 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody align="center"> 
+                        <tbody>
                             {% for grade, value in gender_grades.items %}
                             {% comment %}
                             value  это список, порядок данных следующий:
@@ -108,13 +182,58 @@
                             {% endcomment %}
                         
                             <tr style = "border-top: 3px solid black">
-                                <td rowspan="2" valign="middle">{{ grade }}</td>
-                                <td>{{ value.0 }}</td>
-                                <td>{{ value.2 }}</td>
-                                <td>{{ value.4 }}</td>
+                                <td class="table-border" rowspan="2">
+                                {% if grade.name != "Нет оценки" and grade != "Всего:" %}
+                                    <div class="knowledge_grade"
+                                         style="background: linear-gradient(0deg,
+                                                {{ grade.low_value|get_color_from_knowledge_grade_value:0 }} 0%,
+                                                {{ grade.high_value|get_color_from_knowledge_grade_value:0 }} 100%);
+                                                width: auto; display: inline-block;">
+                                        <span>
+                                            {{ grade }} ({{ grade.low_value }}-{{ grade.high_value }})
+                                        </span>
+                                    </div>
+                                {% else %}
+                                    <div {% if grade != "Всего:" %}class="knowledge_grade"{% endif %}
+                                         style="width: auto; display: inline-block;">
+                                        <span {% if grade == "Всего:" %} style="font-weight: 700;" {% endif %}>
+                                            {{ grade }}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                                </td>
+                                <td class="table-border" style="border-bottom: 1px dashed #BFBFBF;">
+                                    <span {% if grade == "Всего:" %} style="font-weight: 700;" {% endif %}>
+                                        {{ value.0 }}
+                                    </span>
+                                </td>
+                                <td class="table-border" style="border-bottom: 1px dashed #BFBFBF;">
+                                    <span {% if grade == "Всего:" %} style="font-weight: 700;" {% endif %}>
+                                        {{ value.2 }}
+                                    </span>
+                                </td>
+                                <td class="table-border" style="border-right: none; border-bottom: 1px dashed #BFBFBF;">
+                                    <span {% if grade == "Всего:" %} style="font-weight: 700;" {% endif %}>
+                                        {{ value.4 }}
+                                    </span>
+                                </td>
                             </tr>
                             <tr>
-                                <td>{{ value.1 }}%</td> <td>{{ value.3 }}%</td> <td>{{ value.5 }}%</td>
+                                <td class="table-border" style="border-top: none;">
+                                    <span {% if grade == "Всего:" %} style="font-weight: 700;" {% endif %}>
+                                        {{ value.1 }}%
+                                    </span>
+                                </td>
+                                <td class="table-border" style="border-top: none;">
+                                    <span {% if grade == "Всего:" %} style="font-weight: 700;" {% endif %}>
+                                        {{ value.3 }}%
+                                    </span>
+                                </td>
+                                <td class="table-border" style="border-right: none; border-top: none;">
+                                    <span {% if grade == "Всего:" %} style="font-weight: 700;" {% endif %}>
+                                        {{ value.5 }}%
+                                    </span>
+                                </td>
                             </tr>
                             {% endfor %}
                             
@@ -124,22 +243,38 @@
                     </table>
                 </div>
             </div>
+        </div>
+        <div class="non-bootsctrap-card">
             <div class='row justify-content-center'>
-                <div class="col-8">
-                    <h4 class="text-center my-4">Распределение оценок по возрасту <br> (Только у кого указана дата рождения)</h4>
-                    
-                    <table class="table table-bordered table-sm "  style = "border: 2px solid black"> 
-                        
-                        <thead align="center">
-                            <tr >
-                                <th rowspan="2" valign="middle">Оценка знания</th> <th rowspan="2" valign="middle">Всего оценок</th> <th colspan="{{title_age_segment|length}}">Из них</th>
+                <span class="header" style="font-size: 20px; padding-bottom: 12px;">
+                        Распределение оценок по возрасту
+                </span>
+                <div class="breadcrumbs">
+                    <p style="font-size: 14px;">Только у кого указана дата рождения</p>
+                </div>
+                <div class="my-2">
+                    <table class="table-rounded" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="table-border" style="border-top: none;">
+                                    Оценка знания
+                                </th>
+                                <th rowspan="2" class="table-border" style="border-top: none;">
+                                    Число оценок <span style="color: #6C757D;">(кол-во / процент)</span>
+                                </th>
+                                <th colspan="{{ title_age_segment|length }}" class="table-border" style="border-top: none; border-right: none;
+                                                                            border-bottom: 1px dashed #BFBFBF;">
+                                    Из них <span style="color: #6C757D;">(кол-во / процент)</span>
+                                </th>
                             </tr>
                             <tr>
                                 {% for segment, value in title_age_segment.items %}
-                                <th>
+                                <th class="table-border" style="border-right:none; border-top:none;">
                                     {% if value.count_users %}
-                                    <a href="{{ knowledge.get_absolute_url }}/grade/group/infographics?min_age={{ value.segment.min_age }}&max_age={{ value.segment.max_age }}">
-                                    {{ segment }}
+                                    <a class="text-decoration-none"
+                                       href="{{ knowledge.get_absolute_url }}/grade/group/infographics?min_age={{ value.segment.min_age }}&max_age={{ value.segment.max_age }}"
+                                       style="color: #083E2F;">
+                                    {{ segment }} <i class="bi bi-arrow-up-right"></i>
                                     </a>
                                     {% else %}
                                     {{ segment }}
@@ -148,32 +283,73 @@
                                 {% endfor %}
                             </tr>
                         </thead>
-                        <tbody align="center"> 
+                        <tbody>
                             {% for grade, values in age_grades.items %}                                
-                                <tr style = "border-top: 3px solid black">
-                                    <td rowspan="2" valign="middle">{{ grade }}</td>
+                                <tr>
+                                    <td class="table-border" rowspan="2">
+                                    {% if grade.name != "Нет оценки" and grade != "Всего:" %}
+                                        <div class="knowledge_grade"
+                                             style="background: linear-gradient(0deg,
+                                                    {{ grade.low_value|get_color_from_knowledge_grade_value:0 }} 0%,
+                                                    {{ grade.high_value|get_color_from_knowledge_grade_value:0 }} 100%);
+                                                    width: auto; display: inline-block;">
+                                            <span>
+                                                {{ grade }} ({{ grade.low_value }}-{{ grade.high_value }})
+                                            </span>
+                                        </div>
+                                    {% else %}
+                                        <div class="knowledge_grade"
+                                             style="width: auto; display: inline-block;">
+                                            <span {% if grade == "Всего:" %} style="font-weight: 700;" {% endif %}>
+                                                {{ grade }}
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                    </td>
                                     {% for amount_and_percent in values %}
-                                    <td> {{ amount_and_percent.0 }} </td>
+                                    <td class="table-border"
+                                        style="border-bottom: 1px dashed #BFBFBF; {% if forloop.last %} border-right: none; {% endif %}">
+                                        <span>
+                                            {{ amount_and_percent.0 }}
+                                        </span>
+                                    </td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
                                     {% for amount_and_percent in values %}
-                                    <td> {{ amount_and_percent.1}}% </td>
+                                    <td class="table-border" style="border-top: none; {% if forloop.last %} border-right: none; {% endif %}">
+                                        <span>
+                                            {{ amount_and_percent.1}}%
+                                        </span>
+                                    </td>
                                     {% endfor %}
                                 </tr>
                             {% endfor %}
                             
-                            <tr style = "border-top: 3px solid black">
-                                <td rowspan="2" valign="middle">Всего: </td>
+                            <tr>
+                                <td rowspan="2" class="table-border">
+                                    <div style="width: auto; display: inline-block; ">
+                                        <span style="font-weight: 700;">
+                                            Всего
+                                        </span>
+                                    </div>
+                                </td>
                                 {% for values in total_amount_age_grade.values %}
-                                <td> {{values}} </td>
-
+                                <td class="table-border"
+                                    style="border-bottom: 1px dashed #BFBFBF; {% if forloop.last %} border-right: none; {% endif %}">
+                                    <span style="font-weight: 700;">
+                                        {{ values }}
+                                    </span>
+                                </td>
                                 {% endfor %}
-                                
                             </tr>
                             <tr>
                                 {% for values in total_amount_age_grade.values %}
-                                <td> 100%</td>
+                                <td class="table-border" style="border-top: none; {% if forloop.last %} border-right: none; {% endif %}">
+                                    <span style="font-weight: 700;">
+                                        100%
+                                    </span>
+                                </td>
                                 {% endfor %}
                             </tr>
                            
@@ -181,7 +357,8 @@
                     </table>
                 </div>
             </div>
-            {% endif %}
+        </div>
+        {% endif %}
         
     {% endif %}
   

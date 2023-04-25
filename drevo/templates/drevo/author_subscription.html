@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}Подписки на авторов{% endblock %}
+{% block title %}Подписка по авторам{% endblock %}
 
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/subscriptions.css' %}">
@@ -11,14 +11,14 @@
 
 {% block content %}
 <div class="container header_info">
-    <h1>По авторам</h1>
+    <h1>Подписка по авторам</h1>
     <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
           <li class="breadcrumb-item"><a {% if link == 'users:myprofile' %} href="{% url 'users:my_profile' %}" {% else %}
               href="{% url link id %}" {% endif %}>Профиль</a></li>
           <li class="breadcrumb-item"><a>Подписки</a></li>
-          <li class="breadcrumb-item opened"><a>По авторам</a></li>
+          <li class="breadcrumb-item opened"><a>Подписка по авторам</a></li>
         </ol>
     </nav>
 </div>

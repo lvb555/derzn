@@ -28,8 +28,13 @@ class ZnanieByLabelView(DetailView):
         label_id = int(self.kwargs['pk'])
         label = Label.objects.get(id=label_id)
         knowledges_of_label = Znanie.published.filter(labels__in=[label])
-        context['categories'], context['knowledges'] = \
-            get_knowledges_by_categories(knowledges_of_label)
+
+        context['knowledge_by'] = self.request.GET.get('knowledge_by')
+        if context['knowledge_by']:
+            context['categories'], context['knowledges'] = \
+                get_knowledges_by_categories(knowledges_of_label)
+        else:
+            context['knowledges_of_label'] = knowledges_of_label
 
         for z in knowledges_of_label:
             logger.debug(z.labels)
