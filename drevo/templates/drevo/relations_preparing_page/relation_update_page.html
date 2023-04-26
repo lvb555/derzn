@@ -87,6 +87,7 @@
             <div class="modal-body">
                 <form action="{% url 'create_additional_knowledge' %}" method="post" id="addition_create">
                     {% csrf_token %}
+                    <input type="text" name="bz_pk" value="{{ relation.bz.id }}" hidden>
                     {{ create_form.as_p }}
                     <input type="submit" class="btn btn-warning" value="Сохранить">
                 </form>

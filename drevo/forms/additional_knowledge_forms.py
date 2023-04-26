@@ -6,14 +6,11 @@ class AdditionalKnowledgeForm(forms.ModelForm):
     """
         Форма для дополнительных связей
     """
+    def __init__(self, *args, **kwargs):
+        super(AdditionalKnowledgeForm, self).__init__(*args, **kwargs)
+        for _, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
     class Meta:
         model = Znanie
         fields = ('name', 'tz', 'content', 'href', 'source_com', 'labels')
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'tz': forms.Select(attrs={'class': 'form-control'}),
-            'content': forms.Textarea(attrs={'class': 'form-control'}),
-            'href': forms.TextInput(attrs={'class': 'form-control'}),
-            'source_com': forms.TextInput(attrs={'class': 'form-control'}),
-            'labels': forms.SelectMultiple(attrs={'class': 'form-control'}),
-        }

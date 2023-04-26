@@ -5,8 +5,18 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from drevo.forms import AdditionalKnowledgeForm
-from drevo.models import KnowledgeStatuses, Znanie
+from drevo.models import KnowledgeStatuses, Znanie, SpecialPermissions
 from pip._vendor import requests
+from drevo.relations_tree import get_category_for_knowledge
+
+
+def check_competence(request) -> bool:
+    bz = get_object_or_404(Znanie, pk=request.POST.get('bz_pk'))
+    category = get_category_for_knowledge(bz)
+    user_competencies = SpecialPermissions.objects.filter(expert=request.user).first()
+    if not user_competencies:
+        return False
+    return True if category in user_competencies.categories.all() else False
 
 
 @login_required
@@ -23,7 +33,7 @@ def create_additional_knowledge(request):
         new_kn.user = user
         new_kn.is_published = True
         new_kn = form.save()
-        kn_status = 'PUB' if user.is_expert else 'PUB_PRE'
+        kn_status = 'PUB' if check_competence(request) else 'PUB_PRE'
         KnowledgeStatuses.objects.create(knowledge=new_kn, status=kn_status, user=user)
     return redirect(request.META['HTTP_REFERER'])
 

@@ -34,7 +34,7 @@ class RelationStatuses(models.Model):
     )
     user = models.ForeignKey(
         User,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         related_name='user_rel_status',
         verbose_name='Пользователь'

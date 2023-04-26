@@ -48,7 +48,7 @@ class Relation(models.Model):
     expert = models.ForeignKey(
         verbose_name='Эксперт',
         to=User,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name='rel_expert',
         null=True,
         blank=True
@@ -56,7 +56,7 @@ class Relation(models.Model):
     director = models.ForeignKey(
         verbose_name='Руководитель',
         to=User,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name='rel_director',
         null=True,
         blank=True
