@@ -262,6 +262,19 @@
                         {% endif %}
                     </ul>
                 </div>
+                <div class="btn-group">
+                    <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                      Подготовка связей <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a href="{% url 'preparing_relations_create_page' %}" id="rel_create" class="dropdown-item">Создание связей</a>
+                            <a href="{% url 'preparing_relations_update_page' %}" id="rel_update" class="dropdown-item">Изменение связи</a>
+                            <a href="{% url 'preparing_relations_expertise_page' %}" id="rel_expertise" class="dropdown-item">Экспертиза ПредСвязи</a>
+                            <a href="{% url 'preparing_relations_publication_page' %}" id="rel_pub" class="dropdown-item">Публикация cвязей</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
     </div>

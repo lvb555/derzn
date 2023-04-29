@@ -1,0 +1,20 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+
+{% block title %} Обновление дополнительных знаний {% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="text-center border-bottom border-dark">
+        <h1>Обновление дополнительного знания</h1>
+        <h3>{{ knowledge.name }}</h3>
+    </div>
+    <div>
+        <form method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" class="btn btn-outline-warning mt-3" value="Сохранить">
+        </form>
+    </div>
+</div>
+{% endblock %}

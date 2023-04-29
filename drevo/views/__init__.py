@@ -82,6 +82,26 @@ from .relation_types_view import RelationTypesView
 from .relationship_tr_tz_view import get_required_tr, get_required_rz
 from .search_by_tree_view import search_by_tree_view, advance_search_by_tree_view
 
+from .relations_preparing_work import (
+    create_additional_knowledge,
+    additional_knowledge_update_view,
+    check_related,
+    get_related_tz,
+    PreparingRelationsExpertiseView,
+    PreparingRelationsPublicationView,
+    PreparingRelationsUpdateView,
+    PreparingRelationsCreateView,
+    RelationCreatePageView,
+    relation_create_view,
+    relation_delete_view,
+    RelationUpdatePageView,
+    relation_update_view,
+    RelationsExpertisePageView,
+    relation_expertise_view,
+    RelationsPublicationPageView,
+    relation_publication_view,
+)
+
 __all__ = [
     "AuthorDetailView",
     "AuthorsListView",
@@ -156,4 +176,21 @@ __all__ = [
     'get_required_rz',
     'search_by_tree_view',
     'advance_search_by_tree_view',
+    'PreparingRelationsCreateView',
+    'PreparingRelationsUpdateView',
+    'PreparingRelationsExpertiseView',
+    'PreparingRelationsPublicationView',
+    'RelationCreatePageView',
+    'check_related',
+    'relation_create_view',
+    'relation_delete_view',
+    'create_additional_knowledge',
+    'get_related_tz',
+    'additional_knowledge_update_view',
+    'RelationUpdatePageView',
+    'relation_update_view',
+    'RelationsExpertisePageView',
+    'relation_expertise_view',
+    'RelationsPublicationPageView',
+    'relation_publication_view',
 ]

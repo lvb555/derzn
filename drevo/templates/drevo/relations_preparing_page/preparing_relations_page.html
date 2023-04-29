@@ -1,0 +1,32 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+
+{% block title %} Подготовка связей | {{ stage_name }} {% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="text-center border-bottom border-dark">
+        <h1>Подготовка связей</h1>
+    </div>
+    <div class="border-bottom border-dark mb-3">
+        <div class="row">
+            <div class="col">
+                <h3>Этап: {{ stage_name }}</h3>
+                <h3>Статус связи: {{ selected_status }}</h3>
+            </div>
+            <div class="col border-start border-dark">
+                <form action="" method="get" id="status_form" onchange='this.submit()'>
+                    {{ statuses_form.as_p }}
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if knowledge %}
+    {% build_knowledge_tree queryset=knowledge empty_tree_message='Связей для построения дерева не найдено' edit_widgets=related_widgets|make_list %}
+    {% else %}
+    <div>
+        <h3>Связей для построения дерева не найдено</h3>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
