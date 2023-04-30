@@ -34,6 +34,16 @@ function fill_rz_field() {
     .then(data => {
         const status_select = document.getElementById('relation_status');
         const readonly = document.querySelector('script[data-readonly]').getAttribute('data-readonly');
+
+        const default_relation_status = document.getElementById('default_relation_status');
+        if (data.is_pub === true) {
+            status_select.disabled = false
+            default_relation_status.disabled = true
+        } else {
+            status_select.disabled = true
+            default_relation_status.disabled = false
+        }
+
         if (readonly === true){
             return
         }
@@ -44,15 +54,6 @@ function fill_rz_field() {
         } else {
             update_knowledge.style.pointerEvents = 'none'
             update_knowledge.removeAttribute('href')
-        }
-
-        const default_relation_status = document.getElementById('default_relation_status');
-        if (data.is_pub === true) {
-            status_select.disabled = false
-            default_relation_status.disabled = true
-        } else {
-            status_select.disabled = true
-            default_relation_status.disabled = false
         }
     });
 }

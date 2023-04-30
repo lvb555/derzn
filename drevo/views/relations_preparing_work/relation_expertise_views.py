@@ -47,7 +47,7 @@ class RelationsExpertisePageView(LoginRequiredMixin, TemplateView, PreparingRela
     def get_context_data(self, **kwargs):
         context = super(RelationsExpertisePageView, self).get_context_data(**kwargs)
         bz_pk, rz_pk = self.request.GET.get('bz'), self.request.GET.get('rz')
-        context.update(self.get_relation_update_context(request=self.request, bz_pk=bz_pk, rz_pk=rz_pk))
+        context.update(self.get_relation_update_context(bz_pk=bz_pk, rz_pk=rz_pk))
         context['create_form'] = AdditionalKnowledgeForm()
 
         required_statuses = {

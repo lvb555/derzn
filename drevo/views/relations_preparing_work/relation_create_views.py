@@ -25,6 +25,7 @@ class PreparingRelationsCreateView(LoginRequiredMixin, TemplateView, PreparingRe
         context['knowledge'] = self.get_queryset(user=self.request.user, stage='create')
         statuses = [(None, '------')]
         context['statuses_form'] = RelationStatusesForm(statuses=statuses)
+        context['selected_status'] = 'Все'
         return context
 
 

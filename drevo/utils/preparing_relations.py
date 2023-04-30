@@ -2,9 +2,7 @@ from functools import reduce
 from operator import or_
 
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from drevo.models import Znanie, Relation, SpecialPermissions, Category, RelationStatuses
-from drevo.relations_tree import get_knowledges_by_categories
 
 
 class PreparingRelationsMixin:
@@ -62,25 +60,39 @@ class PreparingRelationsMixin:
                 )
             )
 
-    @staticmethod
-    def _get_additional_knowledge(knowledge, competence) -> list:
+    def __get_category_for_knowledge(self, knowledge: Znanie) -> [None, Category]:
+        if knowledge.category and knowledge.category.is_published and knowledge.is_published:
+            return knowledge.category
+        if not knowledge.is_published:
+            return None
+        if relation := Relation.objects.filter(rz=knowledge).first():
+            base_knowledge = relation.bz
+            return self.__get_category_for_knowledge(base_knowledge)
+        return None
+
+    def _get_additional_knowledge(self, knowledge, competence) -> list:
         """
             Метод для получения категорий для дополнительных знаний (знаний без категорий)
             Результирующие  данные: \n
             [knowledge_pk1, knowledge_pk2...]
         """
         without_cat_data = list()
-        _, zn = get_knowledges_by_categories(knowledge)
         for kn_obj in knowledge:
-            for cat, data in zn.items():
-                if kn_obj in data.get('additional') and get_object_or_404(Category, name=cat) in competence:
-                    without_cat_data.append(kn_obj.pk)
-                    break
+            if kn_obj.category:
+                continue
+            category = self.__get_category_for_knowledge(kn_obj)
+            if category in competence:
+                without_cat_data.append(kn_obj.pk)
         return without_cat_data
 
     def __get_knowledge_by_competence(self, user, role, base_lookups):
-        user_competencies = user.expert.categories.all() if role == 'expert' else user.expert.admin_competencies.all()
-        queryset = Znanie.objects.filter(base_lookups)
+        user_competencies = SpecialPermissions.objects.filter(expert=user).first()
+        if not user_competencies:
+            return
+        user_competencies = (
+            user_competencies.categories.all() if role == 'expert' else user_competencies.admin_competencies.all()
+        )
+        queryset = Znanie.objects.select_related('category').filter(base_lookups)
         knowledge_list = list()
         knowledge_without_cat = list()
         for know in queryset:
@@ -98,7 +110,10 @@ class PreparingRelationsMixin:
         statuses_data = {'my': ('PRE_EXP', 'PRE_FIN'), 'competence': ('PRE_READY', 'PRE_REJ')}
 
         if not status:
-            user_competencies = user.expert.categories.all()
+            user_competencies = SpecialPermissions.objects.filter(expert=user).first()
+            if not user_competencies:
+                return
+            user_competencies = user_competencies.categories.all()
             queryset = (
                 Znanie.objects.select_related('category')
                 .filter(

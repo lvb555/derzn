@@ -51,7 +51,7 @@ class RelationUpdatePageView(LoginRequiredMixin, TemplateView, PreparingRelation
     def get_context_data(self, **kwargs):
         context = super(RelationUpdatePageView, self).get_context_data(**kwargs)
         bz_pk, rz_pk = self.request.GET.get('bz'), self.request.GET.get('rz')
-        context.update(self.get_relation_update_context(request=self.request, bz_pk=bz_pk, rz_pk=rz_pk))
+        context.update(self.get_relation_update_context(bz_pk=bz_pk, rz_pk=rz_pk))
         context['create_form'] = AdditionalKnowledgeForm()
 
         required_statuses = {
@@ -94,7 +94,6 @@ def relation_update_view(request, relation_pk):
         rz = get_object_or_404(Znanie, pk=rz_pk)
         relation.rz = rz
     new_status = req_data.get('relation_status')
-    change_statuses = {'WORK': 'FIN', 'WORK_PRE': 'PRE_FIN', 'FIN': 'WORK', 'PRE_FIN': 'WORK_PRE'}
     relation.save()
 
     relation_statuses = RelationStatuses.objects.filter(relation=relation)
@@ -117,6 +116,6 @@ def relation_update_view(request, relation_pk):
         new_rel_status.user = request.user
         new_rel_status.save()
     else:
-        RelationStatuses.objects.create(relation=relation, status=change_statuses.get(new_status), user=request.user)
+        RelationStatuses.objects.create(relation=relation, status=new_status, user=request.user)
 
     return redirect('preparing_relations_update_page')

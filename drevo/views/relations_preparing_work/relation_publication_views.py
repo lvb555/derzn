@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView
 from django.views.decorators.http import require_http_methods
 from drevo.forms import RelationStatusesForm, AdditionalKnowledgeForm
@@ -47,7 +47,7 @@ class RelationsPublicationPageView(LoginRequiredMixin, TemplateView, PreparingRe
     def get_context_data(self, **kwargs):
         context = super(RelationsPublicationPageView, self).get_context_data(**kwargs)
         bz_pk, rz_pk = self.request.GET.get('bz'), self.request.GET.get('rz')
-        context.update(self.get_relation_update_context(request=self.request, bz_pk=bz_pk, rz_pk=rz_pk))
+        context.update(self.get_relation_update_context(bz_pk=bz_pk, rz_pk=rz_pk))
         context['create_form'] = AdditionalKnowledgeForm()
 
         required_statuses = {
@@ -74,6 +74,7 @@ class RelationsPublicationPageView(LoginRequiredMixin, TemplateView, PreparingRe
         }
         context['is_readonly'] = self.is_readonly_status(status=context.get('cur_status'), stage='publication')
         context['relation_statuses'] = required_statuses.get(context.get('cur_status'))
+        context['backup_url'] = reverse('preparing_relations_publication_page')
         return context
 
 
