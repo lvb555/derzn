@@ -1,4 +1,5 @@
 {% extends 'drevo/base.html' %}
+{% load static %}
 
 {% block title %} Создание новой связи знаний {% endblock %}
 
@@ -14,12 +15,7 @@
             {% csrf_token %}
             <input type="number" name="base_kn" value="{{ base_knowledge.pk }}" hidden>
             <label for="relation_type">Вид связи</label>
-            <select name="relation_type" id="relation_type" class="form-control" required>
-                <option value="">-----</option>
-                {% for value, name in rt_data %}
-                <option value="{{ value }}">{{ name }}</option>
-                {% endfor %}
-            </select>
+            <select name="relation_type" id="relation_type" class="form-control" required></select>
 
             <div class="row">
                 <label for="related_knowledge">Знание</label>
@@ -93,106 +89,12 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+<script src="{% static 'drevo/js/relations_preparing/refresh_rz_field.js' %}" data-bz-id="{{ base_knowledge.pk }}"></script>
+<script src="{% static 'drevo/js/relations_preparing/on_select_rz.js' %}" data-bz-id="{{ base_knowledge.pk }}"></script>
+<script src="{% static 'drevo/js/relations_preparing/fill_tr_field.js' %}" data-bz-id="{{ base_knowledge.pk }}" data-selected-tr=""></script>
 <script>
-    // Получаем ссылку на выпадающий список видов связей
-const tr_list = document.getElementById('relation_type');
-const add_knowledge = document.getElementById('add_knowledge');
-// Добавляем обработчик события на изменение значения в списке видов связей
-tr_list.addEventListener('change', () => {
-  // Получаем выбранное значение из списка видов связей
-  const selectedValue = tr_list.value;
-  // Получаем id уже выбранного базового знания
-  const bz_id = {{ base_knowledge.pk }};
-  // Отправляем запрос на сервер с выбранным значением
-  fetch(`/drevo/get_required_rz?tr_id=${selectedValue}&bz_id=${bz_id}`)
-    .then(response => response.json())
-    .then(data => {
-        if (Object.entries(data).length != 0){
-            // Получаем ссылку на выпадающий список связанных знаний
-            const rz_list = document.getElementById('related_knowledge');
-            // Очищаем содержимое списока связанных знаний
-            rz_list.innerHTML = '';
-
-            rz_list.disabled = false;
-            add_knowledge.style.pointerEvents = 'auto'
-            const null_option = document.createElement('option');
-            null_option.text = '-----';
-            rz_list.appendChild(null_option);
-
-            // Добавляем новые элементы в список связанных знаний
-            data.required_rz.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.id;
-                option.text = item.name;
-                rz_list.appendChild(option);
-            });
-        };
-    });
-
-  fetch(`/drevo/relations/preparing/related_tz?bz_id=${bz_id}&tr_id=${selectedValue}`)
-  .then(response => response.json())
-  .then(data => {
-        if (Object.entries(data).length != 0){
-            const tz_list = document.querySelector('#addition_create').querySelector('#id_tz');
-            tz_list.innerHTML = '';
-
-            const null_option = document.createElement('option');
-            null_option.text = '-----';
-            tz_list.appendChild(null_option);
-
-            // Добавляем новые элементы в список связанных знаний
-            data.related_tz.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.id;
-                option.text = item.name;
-                tz_list.appendChild(option);
-            });
-        };
-   });
-
-
-});
-</script>
-
-<script>
-const rel_kn_select = document.getElementById('related_knowledge');
-
-rel_kn_select.addEventListener('change', () => {
-
-const status_select = document.getElementById('relation_status')
-
-const show_knowledge = document.getElementById('show_knowledge')
-const update_knowledge = document.getElementById('update_knowledge')
-
-  const selectedValue = rel_kn_select.value;
-
-  show_knowledge.setAttribute('href', `/drevo/znanie/${selectedValue}`)
-
-  fetch(`/drevo/relations/preparing/check_related?rz_id=${selectedValue}`)
-    .then(response => response.json())
-    .then(data => {
-
-  if (data.user_knowledge === true) {
-    update_knowledge.style.pointerEvents = 'auto'
-    const selected_tr = document.getElementById('relation_type').value;
-    const bz_id = {{ base_knowledge.pk }};
-    update_knowledge.setAttribute('href', `/drevo/relation/preparing/additional_knowledge/update/${selectedValue}?bz_id=${bz_id}&tr_id=${selected_tr}`);
-
-  } else {
-    update_knowledge.style.pointerEvents = 'none'
-    update_knowledge.removeAttribute('href')
-  }
-
-  const default_relation_status = document.getElementById('default_relation_status');
-  if (data.is_pub === true) {
-    status_select.disabled = false
-    default_relation_status.disabled = true
-  } else {
-    status_select.disabled = true
-    default_relation_status.disabled = false
-  }
-    });
-
-});
+    window.onload = function() {
+      fill_tr_field();
+    }
 </script>
 {% endblock %}

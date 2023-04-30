@@ -1,5 +1,6 @@
 {% extends 'drevo/base.html' %}
 {% load knowledge_tree %}
+{% load static %}
 
 {% block title %} Обновление дополнительных знаний {% endblock %}
 
@@ -17,4 +18,13 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block jsfiles %}
+<script src="{% static 'drevo/js/relations_preparing/fill_tz_field.js' %}" data-bz-id="{{ bz_id }}" data-tr-id="{{ tr_id }}" data-selected-tz="{{ tz_id }}"></script>
+<script>
+    window.onload = function() {
+      fill_tz_field();
+    }
+</script>
 {% endblock %}

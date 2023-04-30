@@ -3,10 +3,8 @@ from operator import or_
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
 from drevo.models import Znanie, Relation, SpecialPermissions, Category, RelationStatuses
 from drevo.relations_tree import get_knowledges_by_categories
-from pip._vendor import requests
 
 
 class PreparingRelationsMixin:
@@ -166,34 +164,12 @@ class PreparingRelationsMixin:
         return stage_names.get(system_name)
 
     @staticmethod
-    def get_require_tr(request, bz_pk: int):
-        url = request.build_absolute_uri(reverse('get_required_tr'))
-        resp = requests.get(url=url, params={'bz_id': bz_pk})
-        rt_data = resp.json().get('required_tr')
-        return [(type_data.get('id'), type_data.get('name')) for type_data in rt_data] if rt_data else []
-
-    @staticmethod
-    def get_require_rz(request, bz_pk: int, tr_pk: int):
-        url = request.build_absolute_uri(reverse('get_required_rz'))
-        resp = requests.get(url=url, params={'bz_id': bz_pk, 'tr_id': tr_pk})
-        rz_data = resp.json().get('required_rz')
-        return [(rz.get('id'), rz.get('name')) for rz in rz_data] if rz_data else []
-
-    @staticmethod
-    def check_rz(request, rz_pk: int):
-        url = request.build_absolute_uri(reverse('check_related'))
-        resp = requests.get(url=url, params={'rz_id': rz_pk})
-        return resp.json()
-
-    def get_relation_update_context(self, request, bz_pk: int, rz_pk: int):
+    def get_relation_update_context(bz_pk: int, rz_pk: int):
         context = dict()
         relation = Relation.objects.select_related('bz', 'rz').filter(bz_id=bz_pk, rz_id=rz_pk).first()
         cur_status = RelationStatuses.objects.filter(relation=relation, is_active=True).first()
         context['cur_status'] = cur_status.status
         context['relation'] = relation
-        context['rz_param'] = self.check_rz(request=request, rz_pk=rz_pk)
-        context['rt_data'] = self.get_require_tr(request=request, bz_pk=bz_pk)
-        context['rz_data'] = self.get_require_rz(request=request, bz_pk=bz_pk, tr_pk=relation.tr_id)
         return context
 
     @staticmethod

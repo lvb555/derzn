@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
-from pip._vendor import requests
 
 from drevo.forms import RelationStatusesForm, AdditionalKnowledgeForm
 from drevo.models import Znanie, Author, Tr, Relation, RelationStatuses
@@ -41,11 +40,6 @@ class RelationCreatePageView(LoginRequiredMixin, TemplateView):
         bz_pk = self.request.GET.get('base_kn')
         base_knowledge = get_object_or_404(Znanie, pk=bz_pk)
         context['base_knowledge'] = base_knowledge
-
-        url = self.request.build_absolute_uri(reverse('get_required_tr'))
-        resp = requests.get(url=url, params={'bz_id': bz_pk})
-        rt_data = resp.json().get('required_tr')
-        context['rt_data'] = [(type_data.get('id'), type_data.get('name')) for type_data in rt_data] if rt_data else []
         context['create_form'] = AdditionalKnowledgeForm()
 
         required_statuses = {
