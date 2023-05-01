@@ -2,11 +2,7 @@ from functools import reduce
 from operator import or_
 
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
-from django.urls import reverse
 from drevo.models import Znanie, Relation, SpecialPermissions, Category, RelationStatuses
-from drevo.relations_tree import get_knowledges_by_categories
-from pip._vendor import requests
 
 
 class PreparingRelationsMixin:
@@ -64,25 +60,39 @@ class PreparingRelationsMixin:
                 )
             )
 
-    @staticmethod
-    def _get_additional_knowledge(knowledge, competence) -> list:
+    def __get_category_for_knowledge(self, knowledge: Znanie) -> [None, Category]:
+        if knowledge.category and knowledge.category.is_published and knowledge.is_published:
+            return knowledge.category
+        if not knowledge.is_published:
+            return None
+        if relation := Relation.objects.filter(rz=knowledge).first():
+            base_knowledge = relation.bz
+            return self.__get_category_for_knowledge(base_knowledge)
+        return None
+
+    def _get_additional_knowledge(self, knowledge, competence) -> list:
         """
             Метод для получения категорий для дополнительных знаний (знаний без категорий)
             Результирующие  данные: \n
             [knowledge_pk1, knowledge_pk2...]
         """
         without_cat_data = list()
-        _, zn = get_knowledges_by_categories(knowledge)
         for kn_obj in knowledge:
-            for cat, data in zn.items():
-                if kn_obj in data.get('additional') and get_object_or_404(Category, name=cat) in competence:
-                    without_cat_data.append(kn_obj.pk)
-                    break
+            if kn_obj.category:
+                continue
+            category = self.__get_category_for_knowledge(kn_obj)
+            if category in competence:
+                without_cat_data.append(kn_obj.pk)
         return without_cat_data
 
     def __get_knowledge_by_competence(self, user, role, base_lookups):
-        user_competencies = user.expert.categories.all() if role == 'expert' else user.expert.admin_competencies.all()
-        queryset = Znanie.objects.filter(base_lookups)
+        user_competencies = SpecialPermissions.objects.filter(expert=user).first()
+        if not user_competencies:
+            return
+        user_competencies = (
+            user_competencies.categories.all() if role == 'expert' else user_competencies.admin_competencies.all()
+        )
+        queryset = Znanie.objects.select_related('category').filter(base_lookups)
         knowledge_list = list()
         knowledge_without_cat = list()
         for know in queryset:
@@ -100,7 +110,10 @@ class PreparingRelationsMixin:
         statuses_data = {'my': ('PRE_EXP', 'PRE_FIN'), 'competence': ('PRE_READY', 'PRE_REJ')}
 
         if not status:
-            user_competencies = user.expert.categories.all()
+            user_competencies = SpecialPermissions.objects.filter(expert=user).first()
+            if not user_competencies:
+                return
+            user_competencies = user_competencies.categories.all()
             queryset = (
                 Znanie.objects.select_related('category')
                 .filter(
@@ -166,34 +179,12 @@ class PreparingRelationsMixin:
         return stage_names.get(system_name)
 
     @staticmethod
-    def get_require_tr(request, bz_pk: int):
-        url = request.build_absolute_uri(reverse('get_required_tr'))
-        resp = requests.get(url=url, params={'bz_id': bz_pk})
-        rt_data = resp.json().get('required_tr')
-        return [(type_data.get('id'), type_data.get('name')) for type_data in rt_data] if rt_data else []
-
-    @staticmethod
-    def get_require_rz(request, bz_pk: int, tr_pk: int):
-        url = request.build_absolute_uri(reverse('get_required_rz'))
-        resp = requests.get(url=url, params={'bz_id': bz_pk, 'tr_id': tr_pk})
-        rz_data = resp.json().get('required_rz')
-        return [(rz.get('id'), rz.get('name')) for rz in rz_data] if rz_data else []
-
-    @staticmethod
-    def check_rz(request, rz_pk: int):
-        url = request.build_absolute_uri(reverse('check_related'))
-        resp = requests.get(url=url, params={'rz_id': rz_pk})
-        return resp.json()
-
-    def get_relation_update_context(self, request, bz_pk: int, rz_pk: int):
+    def get_relation_update_context(bz_pk: int, rz_pk: int):
         context = dict()
         relation = Relation.objects.select_related('bz', 'rz').filter(bz_id=bz_pk, rz_id=rz_pk).first()
         cur_status = RelationStatuses.objects.filter(relation=relation, is_active=True).first()
         context['cur_status'] = cur_status.status
         context['relation'] = relation
-        context['rz_param'] = self.check_rz(request=request, rz_pk=rz_pk)
-        context['rt_data'] = self.get_require_tr(request=request, bz_pk=bz_pk)
-        context['rz_data'] = self.get_require_rz(request=request, bz_pk=bz_pk, tr_pk=relation.tr_id)
         return context
 
     @staticmethod

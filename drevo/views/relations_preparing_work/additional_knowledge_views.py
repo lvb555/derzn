@@ -1,12 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404, render
-from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from drevo.forms import AdditionalKnowledgeForm
 from drevo.models import KnowledgeStatuses, Znanie, SpecialPermissions
-from pip._vendor import requests
 from drevo.relations_tree import get_category_for_knowledge
 
 
@@ -44,16 +42,6 @@ def additional_knowledge_update_view(request, kn_pk):
     """
         Страница обновления дополнительного знания
     """
-    def get_related_types():
-        bz_id, tr_id = request.GET.get('bz_id'), request.GET.get('tr_id')
-        url = request.build_absolute_uri(reverse('get_related_tz'))
-        resp = requests.get(url=url, params={'bz_id': bz_id, 'tr_id': tr_id})
-        tz_data = resp.json()
-        related_tz = [('', '-------')]
-        if tz_data:
-            related_tz += [(tz.get('id'), tz.get('name')) for tz in tz_data.get('related_tz')]
-        return related_tz
-
     knowledge = get_object_or_404(Znanie, pk=kn_pk)
     if 'relation_create_url' not in request.session:
         request.session['relation_create_url'] = request.META['HTTP_REFERER']
@@ -67,6 +55,6 @@ def additional_knowledge_update_view(request, kn_pk):
             return redirect(red_url)
     else:
         form = AdditionalKnowledgeForm(instance=knowledge)
-
-    form.fields['tz'].widget.choices = get_related_types()
-    return render(request, 'drevo/relations_preparing_page/additional_knowledge_update_page.html', {'form': form})
+    bz_id, tr_id = request.GET.get('bz_id'), request.GET.get('tr_id')
+    context = {'form': form, 'bz_id': bz_id, 'tr_id': tr_id, 'tz_id': knowledge.tz_id}
+    return render(request, 'drevo/relations_preparing_page/additional_knowledge_update_page.html', context)

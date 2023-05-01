@@ -1,4 +1,5 @@
 {% extends 'drevo/base.html' %}
+{% load static %}
 
 {% block title %} {{ title }} {% endblock %}
 
@@ -24,20 +25,12 @@
         >
             {% csrf_token %}
             <label for="relation_type">Вид связи</label>
-            <select name="relation_type" id="relation_type" class="form-control" required {% if is_readonly %} disabled {% endif %}>
-                {% for value, name in rt_data %}
-                <option value="{{ value }}" {% if value == relation.tr.id %} selected {% endif %}>{{ name }}</option>
-                {% endfor %}
-            </select>
+            <select name="relation_type" id="relation_type" class="form-control" required {% if is_readonly %} disabled {% endif %}></select>
 
             <div class="row">
                 <label for="related_knowledge">Знание</label>
                 <div class="col">
-                    <select name="related_knowledge" id="related_knowledge" class="form-control" required {% if is_readonly %} disabled {% endif %}>
-                        {% for value, name in rz_data %}
-                        <option value="{{ value }}" {% if value == relation.rz.id %} selected {% endif %}>{{ name }}</option>
-                        {% endfor %}
-                    </select>
+                    <select name="related_knowledge" id="related_knowledge" class="form-control" required {% if is_readonly %} disabled {% endif %}></select>
                 </div>
                 <div class="col">
                     <div class="btn-group">
@@ -48,7 +41,7 @@
                             </svg>
                         </a>
                         {% if not is_readonly %}
-                        <a href="{% if rz_param.user_knowledge %} {% url 'update_additional_knowledge_page' relation.rz.id %}?bz_id={{ relation.bz.id }}&tr_id={{ relation.tr.id }} {% endif %}" class="text-info mt-1 me-2 disabled" id="update_knowledge" style="pointer-events: {% if rz_param.user_knowledge %}auto {% else %} none {% endif %};">
+                        <a href="" class="text-info mt-1 me-2 disabled" id="update_knowledge" style="pointer-events: none;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pen" viewBox="0 0 16 16">
                                 <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z"/>
                             </svg>
@@ -65,7 +58,7 @@
 
             <label for="relation_status">Статус связи</label>
             <input type="text" name="relation_status" id="default_relation_status" value="{{ relation_statuses.0.0 }}" hidden>
-            <select name="relation_status" id="relation_status" class="form-control" {% if not rz_param.is_pub or is_readonly %}disabled{% endif %}>
+            <select name="relation_status" id="relation_status" class="form-control" {% if is_readonly %}disabled{% endif %}>
                 {% for value, name in relation_statuses %}
                 <option value="{{ value }}" {% if value == cur_status %} selected {% endif %}>{{ name }}</option>
                 {% endfor %}
@@ -106,106 +99,14 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+<script src="{% static 'drevo/js/relations_preparing/refresh_rz_field.js' %}" data-bz-id="{{ relation.bz.pk }}"></script>
+<script src="{% static 'drevo/js/relations_preparing/on_select_rz.js' %}" data-bz-id="{{ relation.bz.pk }}"></script>
+<script src="{% static 'drevo/js/relations_preparing/fill_tr_field.js' %}" data-bz-id="{{ base_knowledge.pk }}" data-selected-tr="{{ relation.tr.id }}"></script>
+<script src="{% static 'drevo/js/relations_preparing/fill_rz_field.js' %}" data-bz-id="{{ base_knowledge.pk }}" data-tr-id="{{ relation.tr.id }}" data-selected-rz="{{ relation.rz.id }}" data-readonly="{{ is_readonly }}"></script>
 <script>
-    // Получаем ссылку на выпадающий список видов связей
-const tr_list = document.getElementById('relation_type');
-const add_knowledge = document.getElementById('add_knowledge');
-// Добавляем обработчик события на изменение значения в списке видов связей
-tr_list.addEventListener('change', () => {
-  // Получаем выбранное значение из списка видов связей
-  const selectedValue = tr_list.value;
-  // Получаем id уже выбранного базового знания
-  const bz_id = {{ relation.bz.pk }};
-  // Отправляем запрос на сервер с выбранным значением
-  fetch(`/drevo/get_required_rz?tr_id=${selectedValue}&bz_id=${bz_id}`)
-    .then(response => response.json())
-    .then(data => {
-        if (Object.entries(data).length != 0){
-            // Получаем ссылку на выпадающий список связанных знаний
-            const rz_list = document.getElementById('related_knowledge');
-            // Очищаем содержимое списока связанных знаний
-            rz_list.innerHTML = '';
-
-            rz_list.disabled = false;
-            add_knowledge.style.pointerEvents = 'auto'
-            const null_option = document.createElement('option');
-            null_option.text = '-----';
-            rz_list.appendChild(null_option);
-
-            // Добавляем новые элементы в список связанных знаний
-            data.required_rz.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.id;
-                option.text = item.name;
-                rz_list.appendChild(option);
-            });
-        };
-    });
-
-  fetch(`/drevo/relations/preparing/related_tz?bz_id=${bz_id}&tr_id=${selectedValue}`)
-  .then(response => response.json())
-  .then(data => {
-        if (Object.entries(data).length != 0){
-            const tz_list = document.querySelector('#addition_create').querySelector('#id_tz');
-            tz_list.innerHTML = '';
-
-            const null_option = document.createElement('option');
-            null_option.text = '-----';
-            tz_list.appendChild(null_option);
-
-            // Добавляем новые элементы в список связанных знаний
-            data.related_tz.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.id;
-                option.text = item.name;
-                tz_list.appendChild(option);
-            });
-        };
-   });
-
-
-});
-</script>
-
-<script>
-const rel_kn_select = document.getElementById('related_knowledge');
-
-rel_kn_select.addEventListener('change', () => {
-
-const status_select = document.getElementById('relation_status')
-
-const show_knowledge = document.getElementById('show_knowledge')
-const update_knowledge = document.getElementById('update_knowledge')
-
-  const selectedValue = rel_kn_select.value;
-
-  show_knowledge.setAttribute('href', `/drevo/znanie/${selectedValue}`)
-
-  fetch(`/drevo/relations/preparing/check_related?rz_id=${selectedValue}`)
-    .then(response => response.json())
-    .then(data => {
-
-  if (data.user_knowledge === true) {
-    update_knowledge.style.pointerEvents = 'auto'
-    const selected_tr = document.getElementById('relation_type').value;
-    const bz_id = {{ relation.bz.pk }};
-    update_knowledge.setAttribute('href', `/drevo/relation/preparing/additional_knowledge/update/${selectedValue}?bz_id=${bz_id}&tr_id=${selected_tr}`);
-
-  } else {
-    update_knowledge.style.pointerEvents = 'none'
-    update_knowledge.removeAttribute('href')
-  }
-
-  const default_relation_status = document.getElementById('default_relation_status');
-  if (data.is_pub === true) {
-    status_select.disabled = false
-    default_relation_status.disabled = true
-  } else {
-    status_select.disabled = true
-    default_relation_status.disabled = false
-  }
-    });
-
-});
+    window.onload = function() {
+      fill_tr_field();
+      fill_rz_field();
+    }
 </script>
 {% endblock %}

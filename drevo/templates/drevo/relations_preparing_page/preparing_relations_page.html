@@ -22,7 +22,7 @@
         </div>
     </div>
     {% if knowledge %}
-    {% build_knowledge_tree queryset=knowledge empty_tree_message='Связей для построения дерева не найдено' edit_widgets=related_widgets|make_list %}
+    {% build_knowledge_tree queryset=knowledge empty_tree_message='Связей для построения дерева не найдено' edit_widgets=related_widgets|make_list show_complex=True %}
     {% else %}
     <div>
         <h3>Связей для построения дерева не найдено</h3>
