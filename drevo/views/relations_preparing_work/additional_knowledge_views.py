@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404, render
 from django.views.decorators.http import require_http_methods
 
@@ -30,10 +31,11 @@ def create_additional_knowledge(request):
         new_kn = form.save(commit=False)
         new_kn.user = user
         new_kn.is_published = True
-        new_kn = form.save()
+        new_kn.save()
         kn_status = 'PUB' if check_competence(request) else 'PUB_PRE'
         KnowledgeStatuses.objects.create(knowledge=new_kn, status=kn_status, user=user)
-    return redirect(request.META['HTTP_REFERER'])
+        return JsonResponse(data={'name': new_kn.name, 'value': new_kn.pk, 'bz_pk': req_data.get('bz_pk')}, status=200)
+    return JsonResponse(data={}, status=400)
 
 
 @login_required
