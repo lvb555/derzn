@@ -21,6 +21,7 @@ tr_list.addEventListener('change', () => {
             add_knowledge.style.pointerEvents = 'auto'
             const null_option = document.createElement('option');
             null_option.text = '-----';
+            null_option.value = '';
             rz_list.appendChild(null_option);
 
             // Добавляем новые элементы в список связанных знаний
@@ -42,6 +43,7 @@ tr_list.addEventListener('change', () => {
 
             const null_option = document.createElement('option');
             null_option.text = '-----';
+            null_option.value = '';
             tz_list.appendChild(null_option);
 
             // Добавляем новые элементы в список связанных знаний

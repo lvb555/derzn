@@ -15,6 +15,7 @@ function fill_tz_field() {
 
             const null_option = document.createElement('option');
             null_option.text = '-----';
+            null_option.value = '';
             tz_list.appendChild(null_option);
 
             // Добавляем новые элементы в список связанных знаний
