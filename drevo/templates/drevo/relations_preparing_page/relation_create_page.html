@@ -14,7 +14,7 @@
         <form action="{% url 'create_relation' %}" method="post">
             {% csrf_token %}
             <input type="number" name="base_kn" value="{{ base_knowledge.pk }}" hidden>
-            <label for="relation_type">Вид связи</label>
+            <label for="relation_type" id="relation_type_label">Вид связи</label>
             <select name="relation_type" id="relation_type" class="form-control" required></select>
 
             <div class="row">
