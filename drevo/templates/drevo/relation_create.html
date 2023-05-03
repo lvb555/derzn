@@ -1,10 +1,128 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load filter %}
+{% load static %}
+
+{% block title %}Создание знания для таблицы{% endblock %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block jsfiles %}
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <h1>Выберите знание</h1>
+    <select name="table" id="id_table">
+    {% if new %}
+        <option value="{{ new_znanie_id }}" selected>{{ new_znanie_name }}</option>
+    {% else %}
+        <option value="" selected disabled>Выберите знание</option>
+    {% endif %}
+        {% for zn in heading_knowledges %}
+            <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option>
+        {% endfor %}
+    </select>
+    <div style="margin-top: 15px">
+        <input onclick="newZnanie()" class="btn btn-primary" readonly value="Создать знание">
+        <input type="submit" class="btn btn-success" id="zn_choose" value="Выбрать">
+    </div>
+    <div class="new-znanie" hidden style="margin-top: 15px">
+        <h1>{{ title }}</h1>
+        <form class="form-horizontal" action="{% url 'new_knowledge_for_relation' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.media }}
+            {{ form.as_p }}
+            <input type="submit" class="btn btn-primary" value="Сохранить">
+        </form>
+    </div>
+
+
+<script>
+
+    const rowSelect = window.opener.document.getElementById('id_row');
+    const columnSelect = window.opener.document.getElementById('id_column');
+    const deleteRow = window.opener.document.getElementById('delete_row');
+    const deleteColumn = window.opener.document.getElementById('delete_column');
+    const editRow = window.opener.document.getElementById('edit_row');
+    const editColumn = window.opener.document.getElementById('edit_column');
+    const selectZnanie = document.getElementById("id_table")
+    function newZnanie() {
+        if ($('.new-znanie').is(':hidden')) {
+            $('.new-znanie').removeAttr('hidden');
+        }
+        else {
+            $('.new-znanie').prop('hidden', true)
+        }
+     }
+     window.addEventListener('load', function() {
+        const chooseButton = document.getElementById('zn_choose');
+        const relation = window.opener.document.getElementById('relation_type');
+        chooseButton.addEventListener('click', function() {
+            const selectedOptionIndex = selectZnanie.selectedIndex;
+           const selectedOptionValue = selectZnanie.options[selectedOptionIndex].value;
+           const selectedOptionText = selectZnanie.options[selectedOptionIndex].textContent;
+           if (selectedOptionValue != ''){
+               if (relation.value === 'row') {
+                   rowSelect.innerHTML += `<option value="${selectedOptionValue}" selected> ${selectedOptionText}</option>`
+                   deleteRow.removeAttribute('hidden');
+                   editRow.removeAttribute('hidden');
+                }
+               else {
+                   columnSelect.innerHTML += `<option value="${selectedOptionValue}" selected> ${selectedOptionText}</option>`
+                   deleteColumn.removeAttribute('hidden');
+                   editColumn.removeAttribute('hidden');
+                }
+               window.close();
+           }
+        });
+      });
+
+</script>
+
+<style>
+
+    select {
+        display: block;
+        width: 100%;
+        height: calc(1.5em + .75rem + 2px);
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    select:focus {
+        border-color: #8E8E8E;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    select.form-select {
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        background-color: #fff;
+        background-image: none;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+</style>
+{% endblock %}

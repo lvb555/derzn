@@ -76,6 +76,24 @@ class Category(MPTTModel):
                 expert_list.append(expert.expert)
         return expert_list
 
+    def get_admins(self):
+        """
+        Возвращает QuerySet с руководителями в данной категории
+        """
+        return self.special_permissions.select_related()
+
+    def get_admin_ancestors_category(self):
+        """Возвращает список руководителей по данной категории и предками данной категории"""
+        categories = self.get_ancestors(ascending=False, include_self=True)
+        admin_list = []
+        for category in categories:
+            admins = category.get_admins()
+            if not admins:
+                continue
+            for admin in admins:
+                admin_list.append(admin.expert)
+        return admin_list
+
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'

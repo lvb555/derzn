@@ -1,10 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load filter %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <form class="form-horizontal" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        {{ image_form.management_form }}
+        {% for frm in image_form %}
+            {{ frm.as_p }}
+        {% endfor %}
+        <input type="submit" class="btn btn-success" id="table_save" value="Создать">
+    </form>
+
+    <script>
+        const tableSelect = window.opener.document.getElementById('id_table');
+        const tableAdd = window.opener.document.getElementById('add_table');
+        const tableDelete = window.opener.document.getElementById('delete_table');
+        const rowSelect = window.opener.document.getElementById('id_row');
+        const columnSelect = window.opener.document.getElementById('id_column');
+        const rowAdd = window.opener.document.getElementById('add_row');
+        const columnAdd = window.opener.document.getElementById('add_column');
+
+        const isNew = {{ new|yesno:"true,false" }};
+        if (isNew) {
+            const newZnanieName = '{{ new_znanie_name }}';
+            const newZnanieId = '{{ new_znanie_id }}';
+            tableSelect.innerHTML = `<option value="${newZnanieId}" selected> ${newZnanieName}</option>`
+            window.close();
+            rowSelect.disabled = false;
+            columnSelect.disabled = false;
+            rowAdd.disabled = false;
+            columnAdd.disabled = false;
+            tableAdd.style.display = "none";
+            tableDelete.removeAttribute('hidden');
+        }
+
+    </script>
+
+
+{% endblock %}
