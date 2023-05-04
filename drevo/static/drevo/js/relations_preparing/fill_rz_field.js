@@ -13,6 +13,7 @@ function fill_rz_field() {
         if (Object.entries(data).length != 0){
             const null_option = document.createElement('option');
             null_option.text = '-----';
+            null_option.value = '';
             rz_list.appendChild(null_option);
 
             // Добавляем новые элементы в список связанных знаний
