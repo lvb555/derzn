@@ -39,7 +39,9 @@ tr_list.addEventListener('change', () => {
                     console.log('Значение найдено в списке');
                     rz_list.disabled = false;
                     tr_label = document.getElementById('tr_error');
-                    tr_label.remove();
+                    if (tr_label) {
+                        tr_label.remove();
+                    }
                 } else {
                     console.log('Значение не найдено в списке');
                     const option = document.createElement('option');
