@@ -25,8 +25,6 @@ class PreparingRelationsMixin:
                 .filter(
                     (
                         Q(is_published=True)
-                        # (Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'))
-                        # & Q(knowledge_status__is_active=True)
                     )
                     | Q(user=user)
                 )
