@@ -57,15 +57,19 @@ class RelationUpdatePageView(LoginRequiredMixin, TemplateView, PreparingRelation
 
         required_statuses = {
             'WORK_PRE': [
+                ('WORK_PRE', 'ПредСвязь в работе'),
                 ('PRE_READY', 'Предсвязь готова'),
             ],
             'PRE_READY': [
+                ('PRE_READY', 'Готовая ПредСвязь'),
                 ('WORK_PRE', 'Вернуть на доработку'),
             ],
             'WORK': [
+                ('WORK', 'Связь в работе'),
                 ('FIN', 'Связь готова'),
             ],
             'FIN': [
+                ('FIN', 'Завершенная Связь'),
                 ('WORK', 'Вернуть на доработку'),
             ],
         }
