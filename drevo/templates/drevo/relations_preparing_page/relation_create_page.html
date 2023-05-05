@@ -3,6 +3,10 @@
 
 {% block title %} Создание новой связи знаний {% endblock %}
 
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="text-center">
@@ -62,7 +66,7 @@
 
 <!-- Модальное окно создания дополнительного знания -->
 <div class="modal fade" id="create_addention_knowledge" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered  modal-xl">
         <div class="modal-content bg-secondary text-light">
             <div class="modal-title p-3 text-center border-bottom">
                 <h3>Создание дополнительного знания</h3>
@@ -72,6 +76,11 @@
                     {% csrf_token %}
                     <input type="text" name="bz_pk" value="{{ base_knowledge.pk }}" hidden>
                     {{ create_form.as_p }}
+                    {{ create_form.media }}
+                    {{ image_form.management_form }}
+                    {% for frm in image_form %}
+                        {{ frm.as_p }}
+                    {% endfor %}
                     <input type="submit" class="btn btn-warning" value="Сохранить">
                 </form>
             </div>

@@ -6,7 +6,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
 
-from drevo.forms import RelationStatusesForm, AdditionalKnowledgeForm
+from drevo.forms import RelationStatusesForm, AdditionalKnowledgeForm, ZnImageFormSet
 from drevo.models import Znanie, Author, Tr, Relation, RelationStatuses
 from drevo.utils.preparing_relations import PreparingRelationsMixin
 
@@ -42,6 +42,7 @@ class RelationCreatePageView(LoginRequiredMixin, TemplateView):
         base_knowledge = get_object_or_404(Znanie, pk=bz_pk)
         context['base_knowledge'] = base_knowledge
         context['create_form'] = AdditionalKnowledgeForm()
+        context['image_form'] = ZnImageFormSet()
 
         required_statuses = {
             'user': [('WORK_PRE', 'ПредСвязь в работе'), ('PRE_FIN', 'Завершенная ПредСвязь')],

@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView
 from django.views.decorators.http import require_http_methods
-from drevo.forms import RelationStatusesForm, AdditionalKnowledgeForm
+from drevo.forms import RelationStatusesForm, AdditionalKnowledgeForm, ZnImageFormSet
 from drevo.utils.preparing_relations import PreparingRelationsMixin
 from drevo.models import Relation, Znanie, Tr, RelationStatuses
 
@@ -53,6 +53,7 @@ class RelationUpdatePageView(LoginRequiredMixin, TemplateView, PreparingRelation
         bz_pk, rz_pk = self.request.GET.get('bz'), self.request.GET.get('rz')
         context.update(self.get_relation_update_context(bz_pk=bz_pk, rz_pk=rz_pk))
         context['create_form'] = AdditionalKnowledgeForm()
+        context['image_form'] = ZnImageFormSet()
 
         required_statuses = {
             'WORK_PRE': [

@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from drevo.forms import RelationStatusesForm
 from drevo.utils.preparing_relations import PreparingRelationsMixin
 from drevo.models import Relation, Tr, Znanie, RelationStatuses
-from drevo.forms import AdditionalKnowledgeForm
+from drevo.forms import AdditionalKnowledgeForm, ZnImageFormSet
 
 
 class PreparingRelationsExpertiseView(LoginRequiredMixin, TemplateView, PreparingRelationsMixin):
@@ -49,6 +49,7 @@ class RelationsExpertisePageView(LoginRequiredMixin, TemplateView, PreparingRela
         bz_pk, rz_pk = self.request.GET.get('bz'), self.request.GET.get('rz')
         context.update(self.get_relation_update_context(bz_pk=bz_pk, rz_pk=rz_pk))
         context['create_form'] = AdditionalKnowledgeForm()
+        context['image_form'] = ZnImageFormSet()
 
         required_statuses = {
             'PRE_READY': [

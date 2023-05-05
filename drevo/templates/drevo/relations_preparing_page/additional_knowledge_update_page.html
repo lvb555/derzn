@@ -11,9 +11,14 @@
         <h3>{{ knowledge.name }}</h3>
     </div>
     <div>
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form }}
+            {{ form.as_p }}
+            {{ form.media }}
+            {{ image_form.management_form }}
+            {% for frm in image_form %}
+                {{ frm.as_p }}
+            {% endfor %}
             <input type="submit" class="btn btn-outline-warning mt-3" value="Сохранить">
         </form>
     </div>
