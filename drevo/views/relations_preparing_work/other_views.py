@@ -17,24 +17,23 @@ def check_related(request):
     knowledge = (
         Znanie.objects
         .select_related('user')
-        .filter(Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'), pk=rz_pk)
+        .filter(pk=rz_pk)
         .annotate(
-            is_pub=Count(
-                Case(
-                    When(knowledge_status__status='PUB_PRE', then=1),
-                    When(knowledge_status__status='PUB', then=1),
-                    default=0,
-                    output_field=IntegerField()
-                )
+            is_pub=Case(
+                When(knowledge_status__status='PUB_PRE', then=1),
+                When(knowledge_status__status='PUB', then=1),
+                default=0,
+                output_field=IntegerField()
             ),
-            user_kn=Count(
-                Case(
-                    When(user_id=request.user.pk, then=1),
-                    When(user__is_expert=True, then=1),
-                    When(user__is_director=True, then=1),
-                    default=0,
-                    output_field=IntegerField()
-                )
+            user_kn=Case(
+                When(
+                    Q(user_id=request.user.pk) & (
+                            Q(knowledge_status__status='WORK_PRE') | Q(knowledge_status__status='WORK')
+                    ), then=1),
+                    # When(user__is_expert=True, then=1),
+                    # When(user__is_director=True, then=1),
+                default=0,
+                output_field=IntegerField()
             ),
         )
         .first()
