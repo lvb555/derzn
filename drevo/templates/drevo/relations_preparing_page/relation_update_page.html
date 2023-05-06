@@ -66,6 +66,11 @@
 
             <input type="submit" class="btn btn-outline-warning mt-3" value="Сохранить">
         </form>
+        {% if stage == 'update' %}
+        <a href="{% url 'delete_relation' %}?bz_id={{ relation.bz.id }}&rz_id={{ relation.rz.id }}&stage=update" class="btn btn-outline-danger mt-3">
+            Удалить
+        </a>
+        {% endif %}
     </div>
 </div>
 

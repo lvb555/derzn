@@ -87,4 +87,10 @@ def relation_delete_view(request):
     bz = request.GET.get('bz_id')
     rz = request.GET.get('rz_id')
     Relation.objects.filter(bz_id=bz, rz_id=rz, user=request.user).delete()
+    related_knowledge = get_object_or_404(Znanie, pk=rz)
+    if not related_knowledge.is_published:
+        related_knowledge.delete()
+
+    if request.GET.get('stage'):
+        return redirect('preparing_relations_update_page')
     return redirect(request.META['HTTP_REFERER'])
