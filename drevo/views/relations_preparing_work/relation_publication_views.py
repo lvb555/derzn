@@ -5,7 +5,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView
 from django.views.decorators.http import require_http_methods
-from drevo.forms import RelationStatusesForm, AdditionalKnowledgeForm
+from drevo.forms import RelationStatusesForm, AdditionalKnowledgeForm, ZnImageFormSet
 from drevo.utils.preparing_relations import PreparingRelationsMixin
 from drevo.models import Relation, Tr, Znanie, RelationStatuses
 
@@ -49,26 +49,33 @@ class RelationsPublicationPageView(LoginRequiredMixin, TemplateView, PreparingRe
         bz_pk, rz_pk = self.request.GET.get('bz'), self.request.GET.get('rz')
         context.update(self.get_relation_update_context(bz_pk=bz_pk, rz_pk=rz_pk))
         context['create_form'] = AdditionalKnowledgeForm()
+        context['image_form'] = ZnImageFormSet()
 
         required_statuses = {
             'PRE_FIN': [
+                ('PRE_FIN', 'Завершенная ПредСвязь'),
                 ('PUB_PRE', 'Опубликовать ПредСвязь'),
                 ('PRE_REJ', 'Отклонить ПредСвязь'),
             ],
             'PUB_PRE': [
+                ('PUB_PRE', 'Опубликованная ПредСвязь'),
                 ('PRE_REJ', 'Отклонить ПредСвязь'),
             ],
             'PRE_REJ': [
+                ('PRE_REJ', 'Отклоненная ПредСвязь'),
                 ('PUB_PRE', 'Опубликовать ПредСвязь'),
             ],
             'FIN': [
+                ('FIN', 'Завершенная Связь'),
                 ('PUB', 'Опубликовать Связь'),
                 ('REJ', 'Отклонить Связь')
             ],
             'PUB': [
+                ('PUB', 'Опубликованная Связь'),
                 ('REJ', 'Отклонить Связь'),
             ],
             'REJ': [
+                ('REJ', 'Отклоненная Связь'),
                 ('PUB', 'Опубликовать Связь'),
             ]
         }

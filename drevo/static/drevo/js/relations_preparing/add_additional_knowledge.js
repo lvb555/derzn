@@ -32,4 +32,7 @@ form.addEventListener('submit', async (event) => {
     const default_relation_status = document.getElementById('default_relation_status');
     status_select.disabled = false
     default_relation_status.disabled = true
+
+    var modal = document.getElementById('create_addention_knowledge');
+    $(modal).modal('hide');
 });

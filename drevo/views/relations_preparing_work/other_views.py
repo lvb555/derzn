@@ -17,24 +17,23 @@ def check_related(request):
     knowledge = (
         Znanie.objects
         .select_related('user')
-        .filter(Q(knowledge_status__status='PUB_PRE') | Q(knowledge_status__status='PUB'), pk=rz_pk)
+        .filter(pk=rz_pk)
         .annotate(
-            is_pub=Count(
-                Case(
-                    When(knowledge_status__status='PUB_PRE', then=1),
-                    When(knowledge_status__status='PUB', then=1),
-                    default=0,
-                    output_field=IntegerField()
-                )
+            is_pub=Case(
+                When(knowledge_status__status='PUB_PRE', then=1),
+                When(knowledge_status__status='PUB', then=1),
+                default=0,
+                output_field=IntegerField()
             ),
-            user_kn=Count(
-                Case(
-                    When(user_id=request.user.pk, then=1),
-                    When(user__is_expert=True, then=1),
-                    When(user__is_director=True, then=1),
-                    default=0,
-                    output_field=IntegerField()
-                )
+            user_kn=Case(
+                When(
+                    Q(user_id=request.user.pk) & (
+                            Q(knowledge_status__status='WORK_PRE') | Q(knowledge_status__status='WORK')
+                    ), then=1),
+                    # When(user__is_expert=True, then=1),
+                    # When(user__is_director=True, then=1),
+                default=0,
+                output_field=IntegerField()
             ),
         )
         .first()
@@ -88,4 +87,10 @@ def relation_delete_view(request):
     bz = request.GET.get('bz_id')
     rz = request.GET.get('rz_id')
     Relation.objects.filter(bz_id=bz, rz_id=rz, user=request.user).delete()
+    related_knowledge = get_object_or_404(Znanie, pk=rz)
+    if not related_knowledge.is_published:
+        related_knowledge.delete()
+
+    if request.GET.get('stage'):
+        return redirect('preparing_relations_update_page')
     return redirect(request.META['HTTP_REFERER'])

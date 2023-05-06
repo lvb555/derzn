@@ -13,6 +13,7 @@ $(function(){
         const update_knowledge = document.getElementById('update_knowledge')
 
         show_knowledge.setAttribute('href', `/drevo/znanie/${selectedValue}`)
+        show_knowledge.style.pointerEvents = 'auto'
 
         fetch(`/drevo/relations/preparing/check_related?rz_id=${selectedValue}`)
             .then(response => response.json())

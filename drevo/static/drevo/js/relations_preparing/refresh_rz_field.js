@@ -50,14 +50,16 @@ tr_list.addEventListener('change', () => {
                     option.selected = true;
                     rz_list.appendChild(option);
 
-                    tr_label = document.getElementById('relation_type_label');
-                    const caption = document.createElement('span');
-                    caption.textContent = 'Данный вид связи не поддерживает выбранное вами знание';
-                    caption.className = 'text-danger ms-3';
-                    caption.id = 'tr_error';
-                    tr_label.appendChild(caption);
+                    const tr_error_elm = document.getElementById('tr_error');
+                    if (!tr_error_elm){
+                        tr_label = document.getElementById('relation_type_label');
+                        const caption = document.createElement('span');
+                        caption.textContent = 'Данный вид связи не поддерживает выбранное вами знание';
+                        caption.className = 'text-danger ms-3';
+                        caption.id = 'tr_error';
+                        tr_label.appendChild(caption);
+                    }
                     rz_list.disabled = true;
-
                 }
             }
 
