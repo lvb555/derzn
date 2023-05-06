@@ -516,7 +516,6 @@ def get_form_data(request):
     selected_table_pk = request.POST.get('table')
     selected_row_pk = request.POST.get('row')
     selected_column_pk = request.POST.get('column')
-    print(selected_table_pk, selected_row_pk, selected_column_pk)
     if filling_tables_page:
         selected_znanie_pk = request.POST.get('znanie')
 
@@ -528,7 +527,6 @@ def get_form_data(request):
             name=f"{request.user.first_name} {request.user.last_name}",
         )
 
-        print(tr_id, bz_id, rz_id, author.id, request.user.id)
         # Создание или нахождение опубликованной связи с выбранными значениями
         Relation.objects.get_or_create(
             tr_id=tr_id,
@@ -540,6 +538,7 @@ def get_form_data(request):
         )
 
     if filling_tables_page:
+
         # Создание связи "Строка": базовое знание - знание, связанное знание - строка
         create_relation(row_id, selected_row_pk, selected_znanie_pk)
 

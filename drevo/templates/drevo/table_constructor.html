@@ -1,18 +1,15 @@
-{% include 'drevo/base.html' %}
-
+{% extends 'drevo/base.html' %}
 {% load static %}
 
+{% block title %}Конструктор таблиц{% endblock %}
+
 {% block cssfiles %}
-    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/drevo/css/table_constructor/table_constructor.css">
 {% endblock %}
 
 {% block jsfiles %}
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+    <script src="{% static 'drevo/js/table_constructor/table_constructor.js'%}" data-delete-relations='{% url "delete_row_or_column" %}'
+    data-delete-table='{% url "delete_table" %}' data-get-form="{% url 'get_form_data' %}" data-relations-exists="{% url 'row_and_column_existence' %}"></script>
 {% endblock %}
 
 <div id="page">
@@ -20,11 +17,11 @@
 
 <form method="POST" class="form" id="form" name="form"> {% csrf_token %}
     <input type="hidden" name="filling_tables" value="">
-    <div style="display: flex; flex-direction: column; margin-bottom: 15px;">
+    <div class="constructor-block">
         <h1>Конструктор таблиц</h1>
         <label for="id_table">Таблица:</label>
-        <div style="display: flex; flex-direction: row;">
-            <select name="table" style="appearance: none; pointer-events: none; width: 600px; height: 40px; padding-left: 9px" id="id_table">
+        <div class="block-select-table">
+            <select class="select-table" name="table" id="id_table">
                 {% if new_table %}
                     <option value="" id="" selected disabled> Создайте таблицу </option>
                 {% else %}
@@ -35,19 +32,19 @@
             </select>
            <span>
                {% if new_table %}
-               <input type="button" value="➕" class="quiet" id="add_table" onclick="addTable()" style="vertical-align: middle; font-size: 30px">
+               <input type="button" value="➕" class="quiet button-edit" id="add_table" onclick="addTable()">
                {% endif %}
-               <input type="button" value="❌" class="quiet" id="delete_table" style="vertical-align: middle; font-size: 24px" {% if new_table %} hidden {% endif %}>
-               <input type="button" value="✐" class="quiet" id="edit_table" style="vertical-align: middle; padding-left: 0px; font-size: 24px" {% if new_table %} hidden {% endif %} onclick="editZnanie('table')">
+               <input type="button" value="❌" class="quiet button-edit" id="delete_table" {% if new_table %} hidden {% endif %}>
+               <input type="button" value="✐" class="quiet button-edit" id="edit_table" style="padding-left: 0px"  {% if new_table %} hidden {% endif %} onclick="editZnanie('table')">
             </span>
         </div>
     </div>
 
-    <div style="display: flex; flex-direction: column;">
+    <div class="row-column-block">
         <label for="id_row">Строка:</label>
-        <div style="display: flex; flex-direction: row;">
+        <div class="select-options">
             <input type="hidden" id="relation_type" value="">
-            <select class="form-select" name="row" id="id_row" style="margin-bottom: 15px;" {% if new_table %} disabled {% endif %}>
+            <select class="form-select row-choice" name="row" id="id_row" {% if new_table %} disabled {% endif %}>
                 {% if new_table %}
                     <option value="" selected disabled>Создайте строку</option>
                 {% else %}
@@ -58,13 +55,13 @@
                 {% endif %}
             </select>
             <span>
-                <input type="button" value="➕" class="quiet" id="add_row" style="vertical-align: middle; font-size: 24px" {% if new_table %} disabled {% endif %} onclick="addRelation('row')">
-                <input type="button" value="❌" class="quiet" id="delete_row" style="vertical-align: middle; padding-left: 0px; font-size: 24px" {% if new_table %} hidden {% endif %}>
-                <input type="button" value="✐" class="quiet" id="edit_row" style="vertical-align: middle; padding-left: 0px; font-size: 24px" {% if new_table %} hidden {% endif %} onclick="editZnanie('row')">
+                <input type="button" value="➕" class="quiet button-edit" id="add_row" {% if new_table %} disabled {% endif %} onclick="addRelation('row')">
+                <input type="button" value="❌" class="quiet button-edit" id="delete_row" style="padding-left: 0px" {% if new_table %} hidden {% endif %}>
+                <input type="button" value="✐" class="quiet button-edit" id="edit_row" style="padding-left: 0px" {% if new_table %} hidden {% endif %} onclick="editZnanie('row')">
             </span>
         </div>
         <label for="id_column">Столбец:</label>
-        <div style="display: flex; flex-direction: row;">
+        <div class="select-options">
             <select class="form-select" name="column" id="id_column" {% if new_table %} disabled {% endif %}>
                 {% if new_table %}
                     <option value="" selected disabled>Создайте столбец</option>
@@ -76,17 +73,17 @@
                 {% endif %}
             </select>
             <span>
-                <input type="button" value="➕" class="quiet" id="add_column" style="vertical-align: middle; font-size: 24px" {% if new_table %} disabled {% endif %} onclick="addRelation('column')">
-                <input type="button" value="❌" class="quiet" id="delete_column" style="vertical-align: middle; padding-left: 0px; font-size: 24px" {% if new_table %} hidden {% endif %}>
-                <input type="button" value="✐" class="quiet" id="edit_column" style="vertical-align: middle; padding-left: 0px; font-size: 24px" {% if new_table %} hidden {% endif %} onclick="editZnanie('column')">
+                <input type="button" value="➕" class="quiet button-edit" id="add_column" {% if new_table %} disabled {% endif %} onclick="addRelation('column')">
+                <input type="button" value="❌" class="quiet button-edit" id="delete_column" style="padding-left: 0px"  {% if new_table %} hidden {% endif %}>
+                <input type="button" value="✐" class="quiet button-edit" id="edit_column" style="padding-left: 0px"  {% if new_table %} hidden {% endif %} onclick="editZnanie('column')">
             </span>
         </div>
     </div>
 
-    <div id="div-param" style="display: flex; flex-direction: column; margin-bottom: 15px;">
-        <div style="margin-top: 15px">
-            <input style="align-self: flex-start;" id="btn_save" type="submit" value="Сохранить" name="_save">
-            <input style="align-self: flex-start;" id="btn_show" type="button" value="Показать">
+    <div id="div-param" class="button-block">
+        <div class="button-menu">
+            <input class="button-save" id="btn_save" type="submit" value="Сохранить" name="_save">
+            <input class="button-show" id="btn_show" type="button" value="Показать">
         </div>
     </div>
 
@@ -97,348 +94,19 @@
 
 <div class="overlay js-successful">
     <div class="popup js-successful">
-        <h2 style="position: relative; top: 50%; transform: translateY(-50%); text-align: center">Данные были успешно сохранены</h2>
+        <h2 class="success-save">Данные были успешно сохранены</h2>
         <div class="close-popup js-close-successful"></div>
     </div>
 </div>
 
 <div class="overlay js-table-delete">
     <div class="popup js-table-delete">
-        <h2 style="position: relative; top: 38%; transform: translateY(-50%); text-align: center">Вы точно хотите удалить знание и все связанные с ним объекты?</h2>
-        <div class="modal_choice_but" style="margin-top: 25px; text-align: center">
-            <input style="align-self: flex-start; width: 100px; height: 35px;" class="okay-popup js-okay-successful" type="button" value="Ок">
-            <input style="align-self: flex-start; width: 100px; height: 35px;" class="cancel-popup js-cancel-successful" type="button" value="Отмена">
+        <h2 class="delete-confirmation">Вы точно хотите удалить знание и все связанные с ним объекты?</h2>
+        <div class="modal_choice_but">
+            <input class="okay-popup js-okay-successful" type="button" value="Ок">
+            <input class="cancel-popup js-cancel-successful" type="button" value="Отмена">
         </div>
     </div>
 </div>
-
-<script>
-
-    var element = $('#page').detach();
-    $('body').children().children('div.row').append(element);
-
-    let id_table = $("#id_table")
-    let id_row = $("#id_row")
-    let id_column = $("#id_column")
-
-    let delete_table = $("#delete_table")
-    let delete_row = $("#delete_row")
-    let delete_column = $("#delete_column")
-    let btn_show = $("#btn_show")
-    let add_table = $("#add_table")
-    let add_row = $("#add_row")
-    let add_column = $("#add_column")
-    let edit_row = $("#edit_row")
-    let edit_column = $("#edit_column")
-    let edit_table = $("#edit_table")
-    text_show = $("#text_id")
-
-    const csrftoken = getCookie('csrftoken');
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-          const cookies = document.cookie.split(';');
-          for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i].trim();
-              if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                  break;
-              }
-          }
-      }
-      return cookieValue;
-    }
-
-    function addTable() {
-        window.open("{% url 'table_create' %}", 'modal', 'Width=1280,Height=650');
-    }
-    function addRelation(relation) {
-        if (relation === 'row') $('#relation_type').val('row')
-        else $('#relation_type').val('column')
-        window.open("{% url 'new_knowledge_for_relation' %}", 'modal', 'Width=1280,Height=650');
-    }
-
-    function editZnanie(relation) {
-        if (relation === 'row') {
-            let row_id = id_row.val()
-            if (row_id)
-                window.open(`/drevo/edit_knowledge_for_relation/${row_id}/row`, 'modal', 'Width=1280,Height=650');
-        }
-        else if (relation === 'column') {
-            let column_id = id_column.val()
-            if (column_id)
-                window.open(`/drevo/edit_knowledge_for_relation/${column_id}/column`, 'modal', 'Width=1280,Height=650');
-        }
-        else {
-            let table_id = id_table.val()
-            if (table_id)
-                window.open(`/drevo/table_update/${table_id}`, 'modal', 'Width=1280,Height=650');
-        }
-   }
-
-    delete_table.on('click', function(){
-        let table_id = id_table.val()
-        if (table_id) {
-            $('.js-table-delete').fadeIn();
-            $('.js-okay-successful').click(function () {
-                const data = { id: table_id};
-               let url = "{% url 'delete_table' %}"
-                fetch(url, {
-                   method: 'POST',
-                   headers: {
-                       'Content-Type': 'application/json',
-                       'X-CSRFToken': csrftoken
-                   },
-                    body: JSON.stringify(data),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    $('#delete_table').hide()
-                    $('#add_row').hide()
-                    $('#add_column').hide()
-                    $('#delete_row').hide()
-                    $('#delete_column').hide()
-                    $('#id_table option:selected').remove();
-                    id_row.prop('disabled', true);
-                    id_row.find('option').remove();
-                    id_column.prop('disabled', true);
-                    id_column.find('option').remove();
-                    $('#edit_table').hide()
-                    $('#edit_row').hide()
-                    $('#edit_column').hide()
-                    $('.js-table-delete').fadeOut();
-                 })
-                .catch((error) => {
-                console.log('Error:', error);
-                });
-            })
-        }
-    })
-
-    function deleteRelation(relation) {
-        let relation_id = 0
-        if (relation === 'row') relation_id = id_row.val()
-        else relation_id = id_column.val()
-        const data = { id: relation_id};
-       let url = "{% url 'delete_row_or_column' %}"
-        fetch(url, {
-           method: 'POST',
-           headers: {
-               'Content-Type': 'application/json',
-               'X-CSRFToken': csrftoken
-           },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (relation === 'row') $('#id_row option:selected').remove();
-            else $('#id_column option:selected').remove();
-            $('.js-table-delete').fadeOut();
-         })
-        .catch((error) => {
-            console.log('Error:', error);
-        });
-
-    }
-
-    delete_row.on('click', function(){
-        let relation_id = id_row.val()
-        if (relation_id) {
-            $('.js-table-delete').fadeIn();
-            $('.js-okay-successful').click(function () {
-                deleteRelation('row')
-            })
-        }
-    })
-
-    delete_column.on('click', function(){
-        let column_id = id_column.val()
-        if (column_id) {
-            $('.js-table-delete').fadeIn();
-            $('.js-okay-successful').click(function () {
-                deleteRelation('column')
-            })
-        }
-    })
-
-    $(document).ready(function () {
-        $('#form').submit(function () {
-            // Если таблица еще не создана, форма не отправляется
-            if ((document.form.table.value === '') || (document.form.row.value === '' && document.form.column.value === '' )){
-                return false;
-             }
-            $.ajax({
-                method: "POST",
-                url: "{% url 'get_form_data' %}",
-                data: $(this).serialize()
-             }).done(function () {
-                $('.js-successful').fadeIn();
-             });
-            return false;
-         });
-    })
-
-    $('.js-close-successful').click(function () {
-        $('.js-successful').fadeOut();
-    })
-
-    $('.js-cancel-successful').click(function () {
-        $('.js-table-delete').fadeOut();
-    })
-
-    $(document).mouseup(function (e) {
-        var popup = $('.popup');
-        if (e.target !== popup[0] && popup.has(e.target).length === 0) {
-            if ($('.js-successful').is(':visible'))
-                $('.js-successful').fadeOut();
-            else
-                $('.js-table-delete').fadeOut();
-        }
-    })
-
-    btn_show.on('click', function(){
-        let table_id = id_table.val()
-        if (table_id) {
-           const data = { id: table_id};
-            let url = "{% url 'row_and_column_existence' %}"
-            return fetch(url, {
-               method: 'POST',
-               headers: {
-                   'Content-Type': 'application/json',
-                   'X-CSRFToken': csrftoken
-               },
-                body: JSON.stringify(data),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data) window.open(`/drevo/znanie/${id_table.val()}`);
-            })
-            .catch((error) => {
-                console.log('Error:', error);
-            });
-            }
-         });
-
-</script>
-
-
-<style>
-
-    body {
-        margin: 0;
-        --bs-font-sans-serif: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-        font-family: var(--bs-font-sans-serif);;
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #212529;
-        background-color: #fff;
-        -webkit-text-size-adjust: 100%;
-        -webkit-tap-highlight-color: transparent;
-    }
-    label {
-        margin: 0;
-    }
-    select {
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 5px 10px;
-      font-size: 16px;
-      font-weight: normal;
-      background-color: #fff;
-      background-image: none;
-      cursor: pointer;
-    }
-
-    .disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .required:after {
-      content: '*';
-      color: #ff0000;
-      margin-left: 5px;
-    }
-
-    .btn_show{
-        display: flex;
-        justify-content: right;
-        border-width: 2px;
-    }
-    .quiet {
-        border: 0;
-        vertical-align: middle;
-        background: 0;
-    }
-    .text-show{
-        width: 500px;
-        height: 150px;
-        resize: none;
-    }
-    .caret{
-        display: none;
-     }
-    .bootstrap-select {
-      width: 600px !important;
-     }
-    .form-select{
-        width: 600px;
-        height: 40px;
-     }
-    .overlay {
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        background-color: rgba(0, 0, 0, .5);
-        display: none;
-        z-index: 1;
-    }
-    .popup {
-        position: absolute;
-        width: 450px;
-        height: 250px;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        padding: 40px;
-        background-color: #FFF;
-        border-radius: 10px;
-    }
-    .close-popup {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        width: 23px;
-        height: 23px;
-        cursor: pointer;
-    }
-    .close-popup:before {
-        content: '';
-        background-color: #000;
-        position: absolute;
-        height: 1px;
-        width: 31px;
-        top: 11px;
-        left: -4px;
-        transform: rotate(-45deg);
-    }
-    .close-popup:after {
-        content: '';
-        background-color: #000;
-        position: absolute;
-        height: 1px;
-        width: 31px;
-        top: 11px;
-        transform: rotate(45deg);
-        left: -4px;
-    }
-
-</style>
 
 {% endblock %}
