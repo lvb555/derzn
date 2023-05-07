@@ -45,7 +45,7 @@ jobs:
           # echo MAKE MIGRATIONS
           # python manage.py makemigrations
           echo MIGRATE
-          python manage.py migrate
+          python manage.py migrate --run-syncdb
 
 #          python manage.py test
   deploy:
