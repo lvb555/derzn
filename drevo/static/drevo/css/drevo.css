@@ -244,7 +244,7 @@ table.table.align-middle.my-2 th {
     text-align: left;
 }
 
-table.table.align-middle.my-2 td {
+table.table.align-middle.my-2 td, .search-header {
 	font-family: Rubik;
 	font-size: 14px;
 	font-weight: 400;
@@ -597,15 +597,15 @@ input.icon {
     height: 3px;
 }
 
-textarea#id_mes_text::-webkit-scrollbar{
+textarea#id_mes_text::-webkit-scrollbar, .select2-results__options::-webkit-scrollbar{
     width: 3px;
 }
 
-.scrollbar::-webkit-scrollbar-thumb, textarea#id_mes_text::-webkit-scrollbar-thumb {
+.scrollbar::-webkit-scrollbar-thumb, textarea#id_mes_text::-webkit-scrollbar-thumb, .select2-results__options::-webkit-scrollbar-thumb {
     background: #BFBFBF;
 }
 
-.scrollbar::-webkit-scrollbar-track, textarea#id_mes_text::-webkit-scrollbar-track {
+.scrollbar::-webkit-scrollbar-track, textarea#id_mes_text::-webkit-scrollbar-track, .select2-results__options::-webkit-scrollbar-track {
     background-color: #f2f2f2;
 }
 
@@ -793,4 +793,60 @@ div#author-page-drevo > a.btn.btn-success.mb-3 {
 
 .sorting img:hover {
     filter: invert(35%) sepia(10%) saturate(940%) hue-rotate(213deg) brightness(95%) contrast(92%);
+}
+
+.form-check-input:checked {
+    background-color: #198754;
+}
+
+.form-check-input {
+    background-color: #DFDFE3;
+}
+
+.advanced-search-form, .advanced-search-form-multiple, .select2-container {
+    background: rgba(245, 245, 245, 0.75);
+    color: #6C757D;
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+}
+
+.select2-container {
+  width: 100% !important;
+}
+
+.select2-selection.select2-selection--single{
+	background: rgba(245, 245, 245, 0.75) !important;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected], .advanced-search-form-multiple > option:checked{
+	color: #083E2F !important;
+	background: #E7ECEB !important;
+}
+
+.select2-selection__rendered{
+	color: #6C757D !important;
+}
+
+.select2-container--default .select2-selection--single {
+    border: 1px solid #ced4da !important;
+}
+
+select#id_tag  option {
+	padding: 8px 12px;
+}
+
+#author-page-drevo a#search_button {
+	top: 0vh !important;
+}
+
+#author-page-drevo form#search_form {
+    padding: 16px 32px 0px 32px;
+}
+
+#author-page-drevo {
+	position: relative;
 }
