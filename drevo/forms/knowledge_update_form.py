@@ -66,10 +66,11 @@ ZnImageEditFormSet = inlineformset_factory(
 
 class TableUpdateForm(ZnanieUpdateForm):
     """Форма создания Знания вида Таблица"""
-    try:
-        tz_id = Tz.objects.get(name='Таблица').id
-    except Tz.DoesNotExist:
-        pass
+
+    tz = Tz.objects.filter(name='Таблица').first()
+
+    tz_id = tz.id if tz else None
+
 
     @staticmethod
     def special_permissions_for_expert(user=None):
