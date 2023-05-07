@@ -145,7 +145,6 @@
                 </nav>
                 <div class="d-flex text-end align-items-center">
                     <a class='btn btn' href="{% url 'help' %}"><img src="{% static 'drevo/img/main_page/help.png' %}"></a>
-					<a class='btn btn' href="{% url 'search_knowledge' %}"><img src="{% static 'drevo/img/main_page/search.png' %}"></a>
                     {% if user.is_authenticated %}
                     <div class="nav-item mx-2 col dropdown">
                         <a href="#" class="dropdown-toggle nav-link header-menu" data-bs-toggle="dropdown" role="button">
@@ -201,7 +200,7 @@
 </div>
 <div class="container">
     <div class="row">
-        <div class="col mt-3">
+        <div class="col mt-3" style="position: relative;">
             {% block content %}
             {% endblock %}
         </div>

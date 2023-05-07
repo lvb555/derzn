@@ -7,46 +7,61 @@
 {% endblock %}
 
 {% if show_searchbar %}
-<a href="" class="btn btn-success mb-3" data-bs-toggle="collapse" data-bs-target="#search_form">
-    <strong>Поиск знания</strong>
-    <img src="/static/drevo/img/main_page/search.png">
+<a href="" class="btn btn-success mb-1 btn-header" onclick="changeText(this)" id="search_button" data-bs-toggle="collapse" data-bs-target="#search_form" style="position: absolute; top: 5vh; right: 2.5vh; padding: 4px 12px;">
+    {% if not is_advance_search %} Поиск знания {% else %} Расширенный поиск {% endif %}
+    <img src="/static/drevo/img/main_page/search.png" width="12px" style="filter: invert(95%) sepia(100%) saturate(0%) hue-rotate(190deg) brightness(929%) contrast(992%); vertical-align: text-top; margin-left: 5px;">
 </a>
 <form
         role="search"
         id="search_form"
         method="post"
         action="{% if not is_advance_search %}{% url 'search_by_tree' %}{% else %}{% url 'advance_search_by_tree' %}{% endif %}"
-        class="mb-3 collapse"
+        class="mb-3 collapse" style="background-color: #FFFFFF; padding: 32px;border-radius: 10px;"
         {% if not is_advance_search %} target="_blank" {% endif %}
 >
     {% csrf_token %}
-    <div class="input-group">
-        <input class="form-control" type="search" name="search_word" placeholder="Поиск по дереву..." aria-label="Search" value="{{ search_word }}" {% if is_advance_search %}required {% endif %}>
+    <div class="input-group" {% if is_advance_search %} style="width: 50%;" {% else %} style="width: 80%;" {% endif %}>
+        <input class="form-control icon me-2" style="border-radius: 8px; background-color: rgba(245, 245, 245, 0.75);" type="search" name="search_word" placeholder="Поиск по дереву" aria-label="Search" value="{{ search_word }}" {% if is_advance_search %}required {% endif %}>
         <input class="form-control" type="text" name="knowledge_from_tree" value="{{ tree_knowledge }}" hidden>
         <div class="input-group-btn">
             {% if not is_advance_search %}
-            <button type="submit" class="btn btn-outline-success" id="default_search" name="default_search">
+            <button type="submit" class="btn btn-outline-success btn-header me-1" id="default_search" name="default_search">
                 Найти
             </button>
-            <input type="submit" class="btn btn-outline-info" name="advance_search" value="Расширенный поиск">
-            {% else %}
-            <button type="submit" class="btn btn-outline-success" name="advance_search">
-                Найти
-            </button>
+            <input type="submit" class="btn btn-icon" style="color: #083E2F; padding: 8px 24px; border: none;" name="advance_search" value="Расширенный поиск">
             {% endif %}
         </div>
     </div>
     {% for field_data, value in user_search_param.items %}
-    <div class="form-group form-check-inline">
+    <div class="form-group form-check-inline py-1">
         <input type="checkbox" class="form-check-input" id="{{ field_data.0 }}" name="{{ field_data.0 }}" {% if value %}checked{% endif %} {% if user.is_anonymous %} disabled {% endif %}>
-        <label class="form-check-label" for="{{ field_data.0 }}">{{ field_data.1 }}</label> |
-    </div>
+        <label class="form-check-label author-description" style="color: #6C757D;" for="{{ field_data.0 }}">{{ field_data.1 }}</label>
+    </div><br>
     {% endfor %}
 
     {% if is_advance_search %}
-        <div class="mx-4">
-            {{ form.as_p }}
-        </div>
+        <div class="d-flex" style="flex-direction: row; gap: 15px;">
+            <div class="d-flex" style="flex-direction: column; width: 50%;">
+                {% for f in form %}
+                {% if f.name != 'tag' %}
+                <div class="select-wrap">
+                    <label class="search-header" for="id_{{f.name}}" style="margin-top: 15px;">{{f.label}}</label><br>
+                    {{f}}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <span style="width: 50%;">
+                <label class="search-header" for="id_tag" style="margin-top: 15px;">Тег</label>
+                {{form.tag}}
+                <span class="options">*{{form.tag.help_text}}</span>
+            </span>
+        </div><br>
+
+        <button type="submit" class="btn btn-outline-success btn-header" name="advance_search">
+            Найти
+        </button>
+
     {% endif %}
 </form>
 {% endif %}
@@ -58,7 +73,7 @@
 <ul class="root ps-0" id="tree{{ tree_num }}_root">
     {% recursetree category_nodes %}
     <li id="tree{{ tree_num }}_li_category_{{ node.pk }}" class="title-treeline">
-        <i class="family bi-file-plus-fill circle_icon" onclick="toggleHiddenCategoryElementTree{{ tree_num }}(this);"></i>
+        <i class="family bi-file-plus-fill circle_icon" style="color: #F3E5AD;" onclick="toggleHiddenCategoryElementTree{{ tree_num }}(this);"></i>
 
         <a href="{{ node.get_absolute_url }}" class="text-dark title" style="vertical-align: 0.5vh;">
             {{ node.name }}
@@ -101,6 +116,35 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<!--Script for select style and button`s text-->
+<script>
+    (function($) {
+      $(function() {
+        $('.advanced-search-form').select2();
+          $('.advanced-search-form.select2').replaceWith(function() {
+            return $('<select>').attr('name', $(this).attr('name')).addClass('select2').html($(this).html());
+          });
+      });
+    })(jQuery);
+
+    let searchButton = document.getElementById('search_button').innerHTML;
+    let searchText = document.getElementById('search_button').innerText;
+
+    search_dictionary={
+         "Поиск знания ":"Закрыть поиск",
+         "Расширенный поиск ":"Закрыть расширенный поиск"
+    };
+
+    function changeText(elem){
+        if(elem.innerText == searchText){
+            elem.innerHTML = search_dictionary[''+searchText+''];
+        }else{
+            elem.innerHTML = searchButton;
+        }
+    }
+</script>
 <!-- Search empty result notify script-->
 <script type="text/javascript">
 if ("{{ empty_result }}") {
