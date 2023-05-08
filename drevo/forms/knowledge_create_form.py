@@ -80,10 +80,6 @@ class RelationCreateForm(forms.ModelForm, ZnanieValidators):
 class TableCreateForm(ZnanieCreateForm):
     """Форма создания Знания вида Таблица"""
 
-    tz = Tz.objects.filter(name='Таблица').first()
-
-    tz_id = tz.id if tz else None
-
     @staticmethod
     def special_permissions_for_expert(user=None):
         """Выбор всех категорий в компетенции эксперта"""
@@ -99,7 +95,7 @@ class TableCreateForm(ZnanieCreateForm):
 
         return result_categories
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, tz_id, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Присвоение вида знания "Таблица"
