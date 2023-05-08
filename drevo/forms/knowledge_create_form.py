@@ -95,7 +95,7 @@ class TableCreateForm(ZnanieCreateForm):
 
         return result_categories
 
-    def __init__(self, user, tz_id, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Присвоение вида знания "Таблица"

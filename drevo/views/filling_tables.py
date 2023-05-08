@@ -133,10 +133,7 @@ class TableCreateView(LoginRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        tz = Tz.objects.filter(name='Таблица').first()
-        tz_id = tz.id if tz else None
         kwargs['user'] = self.request.user
-        kwargs['tz_id'] = tz_id
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -144,15 +141,12 @@ class TableCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Создание таблицы'
 
-        tz = Tz.objects.filter(name='Таблица').first()
-        tz_id = tz.id if tz else None
-
         # Передаем формы для создания знания и добавления фотографий к знанию
         if self.request.POST:
-            context['form'] = TableCreateForm(self.request.POST, tz_id=tz_id)
+            context['form'] = TableCreateForm(self.request.POST)
             context['image_form'] = ZnImageFormSet(self.request.POST)
         else:
-            context['form'] = TableCreateForm(user=self.request.user, tz_id=tz_id)
+            context['form'] = TableCreateForm(user=self.request.user)
             context['image_form'] = ZnImageFormSet()
         return context
 
