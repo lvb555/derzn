@@ -20,19 +20,30 @@ class PreparingRelationsExpertiseView(LoginRequiredMixin, TemplateView, Preparin
     login_url = reverse_lazy('login')
     extra_context = {'stage_name': 'Экспертиза ПредСвязи', 'related_widgets': 'expertise'}
 
+    def get_status_list(self, knowledge):
+        statuses_data = {
+            'my': {'PRE_FIN': 'Завершенная ПредСвязь', 'PRE_EXP': 'Экспертизв ПредСвязи'},
+            'competence': {'PRE_REJ': 'Отклоненная ПредСвязь', 'PRE_READY': 'Готовая ПредСвязь'}
+        }
+        statuses = self.get_stage_status_list('expertise', statuses_data, self.request.user, knowledge)
+        return statuses
+
+    def get_form(self, knowledge):
+        selected_status = self.request.GET.get('status')
+        statuses = self.get_status_list(knowledge)
+        if not statuses:
+            return None
+        form_data = {'statuses': statuses}
+        if selected_status:
+            form_data['initial'] = {'status': selected_status}
+        return RelationStatusesForm(**form_data)
+
     def get_context_data(self, **kwargs):
         context = super(PreparingRelationsExpertiseView, self).get_context_data(**kwargs)
         selected_status = self.request.GET.get('status')
         context['knowledge'] = self.get_queryset(user=self.request.user, stage='expertise', status=selected_status)
         context['selected_status'] = self.get_norm_stage_name(selected_status) if selected_status else 'Все'
-        statuses = [
-            (None, '------'), ('PRE_FIN', 'Завершенная ПредСвязь'), ('PRE_EXP', 'Экспертизв ПредСвязи'),
-            ('PRE_REJ', 'Отклоненная ПредСвязь'), ('PRE_READY', 'Готовая ПредСвязь')
-        ]
-        form_data = {'statuses': statuses}
-        if selected_status:
-            form_data['initial'] = {'status': selected_status}
-        context['statuses_form'] = RelationStatusesForm(**form_data)
+        context['statuses_form'] = self.get_form(context.get('knowledge'))
         return context
 
 

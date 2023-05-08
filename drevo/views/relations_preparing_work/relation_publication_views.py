@@ -19,20 +19,35 @@ class PreparingRelationsPublicationView(LoginRequiredMixin, TemplateView, Prepar
     login_url = reverse_lazy('login')
     extra_context = {'stage_name': 'Публикация cвязей', 'related_widgets': 'publication'}
 
+    def get_status_list(self, knowledge):
+        statuses_data = {
+            'PRE_FIN': 'Завершенная ПредСвязь',
+            'PUB_PRE': 'Опубликованная ПредСвязь',
+            'PRE_REJ': 'Отклоненная ПредСвязь',
+            'FIN': 'Завершенная Связь',
+            'PUB': 'Опубликованная Связь',
+            'REJ': 'Отклоненная Связь',
+        }
+        kw = {'stage': 'publication', 'require_statuses': statuses_data, 'knowledge_queryset': knowledge}
+        statuses = self.get_stage_status_list(**kw)
+        return statuses
+
+    def get_form(self, knowledge):
+        selected_status = self.request.GET.get('status')
+        statuses = self.get_status_list(knowledge)
+        if not statuses:
+            return None
+        form_data = {'statuses': statuses}
+        if selected_status:
+            form_data['initial'] = {'status': selected_status}
+        return RelationStatusesForm(**form_data)
+
     def get_context_data(self, **kwargs):
         context = super(PreparingRelationsPublicationView, self).get_context_data(**kwargs)
         selected_status = self.request.GET.get('status')
         context['knowledge'] = self.get_queryset(user=self.request.user, stage='publication', status=selected_status)
         context['selected_status'] = self.get_norm_stage_name(selected_status) if selected_status else 'Все'
-        statuses = [
-            (None, '------'), ('PRE_FIN', 'Завершенная ПредСвязь'), ('PUB_PRE', 'Опубликованная ПредСвязь'),
-            ('PRE_REJ', 'Отклоненная ПредСвязь'), ('FIN', 'Завершенная Связь'), ('PUB', 'Опубликованная Связь'),
-            ('REJ', 'Отклоненная Связь')
-        ]
-        form_data = {'statuses': statuses}
-        if selected_status:
-            form_data['initial'] = {'status': selected_status}
-        context['statuses_form'] = RelationStatusesForm(**form_data)
+        context['statuses_form'] = self.get_form(context.get('knowledge'))
         return context
 
 

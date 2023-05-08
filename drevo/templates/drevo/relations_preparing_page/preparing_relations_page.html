@@ -14,11 +14,13 @@
                 <h3>Этап: {{ stage_name }}</h3>
                 <h3>Статус связи: {{ selected_status }}</h3>
             </div>
+            {% if statuses_form %}
             <div class="col border-start border-dark">
                 <form action="" method="get" id="status_form" onchange='this.submit()'>
                     {{ statuses_form.as_p }}
                 </form>
             </div>
+            {% endif %}
         </div>
     </div>
     {% if knowledge %}
