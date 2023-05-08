@@ -42,8 +42,10 @@ jobs:
       - name: Test
         run: |
           echo TESTING
-          python manage.py makemigrations
-          python manage.py migrate
+          # echo MAKE MIGRATIONS
+          # python manage.py makemigrations
+          echo MIGRATE
+          python manage.py migrate drevo
 
 #          python manage.py test
   deploy:
