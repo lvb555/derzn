@@ -34,7 +34,7 @@ class PreparingRelationsMixin:
     def __get_update_queryset(user, status: str = None):
         statuses = {
             'user': ('WORK_PRE', 'PRE_FIN'),
-            'expert': ('WORK', 'FIN')
+            'expert': ('WORK', 'FIN', 'WORK_PRE', 'PRE_FIN')
         }
 
         user_role = 'expert' if user.is_expert else 'user'
@@ -59,7 +59,7 @@ class PreparingRelationsMixin:
             )
 
     def __get_category_for_knowledge(self, knowledge: Znanie) -> [None, Category]:
-        if knowledge.category and knowledge.category.is_published and knowledge.is_published:
+        if knowledge.category and knowledge.category.is_published:
             return knowledge.category
         if not knowledge.is_published:
             return None
@@ -82,6 +82,13 @@ class PreparingRelationsMixin:
             if category in competence:
                 without_cat_data.append(kn_obj.pk)
         return without_cat_data
+
+    def check_competence(self, user, knowledge: Znanie) -> bool:
+        category = self.__get_category_for_knowledge(knowledge=knowledge)
+        user_competencies = SpecialPermissions.objects.filter(expert=user).first()
+        if not user_competencies:
+            return False
+        return True if category in user_competencies.categories.all() else False
 
     def __get_knowledge_by_competence(self, user, role, base_lookups):
         user_competencies = SpecialPermissions.objects.filter(expert=user).first()

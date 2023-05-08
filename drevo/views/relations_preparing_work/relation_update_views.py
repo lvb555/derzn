@@ -21,7 +21,10 @@ class PreparingRelationsUpdateView(LoginRequiredMixin, TemplateView, PreparingRe
 
     def get_status_list(self):
         if self.request.user.is_expert:
-            return [(None, '------'), ('WORK', 'Связь в работе'), ('FIN', 'Завершенная Связь')]
+            return [
+                (None, '------'), ('WORK', 'Связь в работе'), ('FIN', 'Завершенная Связь'),
+                ('WORK_PRE', 'ПредСвязь в работе'), ('PRE_FIN', 'Завершенная ПредСвязь')
+            ]
         return [(None, '------'), ('WORK_PRE', 'ПредСвязь в работе'), ('PRE_FIN', 'Завершенная ПредСвязь')]
 
     def get_form(self):
