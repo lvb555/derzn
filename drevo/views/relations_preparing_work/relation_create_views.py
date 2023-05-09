@@ -45,7 +45,7 @@ class RelationCreatePageView(LoginRequiredMixin, TemplateView, PreparingRelation
         context['image_form'] = ZnImageFormSet()
 
         required_statuses = {
-            'user': [('WORK_PRE', 'ПредСвязь в работе'), ('PRE_FIN', 'Завершенная ПредСвязь')],
+            'user': [('WORK_PRE', 'ПредСвязь в работе'), ('PRE_READY', 'Предсвязь готова')],
             'expert': [('WORK', 'Связь в работе'), ('FIN', 'Завершенная Связь')]
         }
         user_is_expert = self.check_competence(self.request.user, base_knowledge)
