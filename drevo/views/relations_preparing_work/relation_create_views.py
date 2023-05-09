@@ -29,7 +29,7 @@ class PreparingRelationsCreateView(LoginRequiredMixin, TemplateView, PreparingRe
         return context
 
 
-class RelationCreatePageView(LoginRequiredMixin, TemplateView):
+class RelationCreatePageView(LoginRequiredMixin, TemplateView, PreparingRelationsMixin):
     """
         Страница создания связей
     """
@@ -48,8 +48,9 @@ class RelationCreatePageView(LoginRequiredMixin, TemplateView):
             'user': [('WORK_PRE', 'ПредСвязь в работе'), ('PRE_FIN', 'Завершенная ПредСвязь')],
             'expert': [('WORK', 'Связь в работе'), ('FIN', 'Завершенная Связь')]
         }
+        user_is_expert = self.check_competence(self.request.user, base_knowledge)
         context['relation_statuses'] = (
-            required_statuses.get('expert') if self.request.user.is_expert else required_statuses.get('user')
+            required_statuses.get('expert') if user_is_expert else required_statuses.get('user')
         )
         context['backup_url'] = reverse('preparing_relations_create_page')
         return context

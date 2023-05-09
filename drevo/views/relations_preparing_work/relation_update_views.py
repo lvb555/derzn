@@ -20,13 +20,23 @@ class PreparingRelationsUpdateView(LoginRequiredMixin, TemplateView, PreparingRe
     extra_context = {'stage_name': 'Изменение связи', 'related_widgets': 'update delete'}
 
     def get_status_list(self):
+        statuses_data = {
+            'WORK_PRE': 'ПредСвязь в работе',
+            'PRE_FIN': 'Завершенная ПредСвязь',
+        }
         if self.request.user.is_expert:
-            return [(None, '------'), ('WORK', 'Связь в работе'), ('FIN', 'Завершенная Связь')]
-        return [(None, '------'), ('WORK_PRE', 'ПредСвязь в работе'), ('PRE_FIN', 'Завершенная ПредСвязь')]
+            statuses_data.setdefault('WORK', 'Связь в работе')
+            statuses_data.setdefault('FIN', 'Завершенная Связь')
+
+        statuses = self.get_stage_status_list('update', statuses_data, self.request.user)
+        return statuses
 
     def get_form(self):
         selected_status = self.request.GET.get('status')
-        form_data = {'statuses': self.get_status_list()}
+        statuses = self.get_status_list()
+        if not statuses:
+            return None
+        form_data = {'statuses': statuses}
         if selected_status:
             form_data['initial'] = {'status': selected_status}
         return RelationStatusesForm(**form_data)

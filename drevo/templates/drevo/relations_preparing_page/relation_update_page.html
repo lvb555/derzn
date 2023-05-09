@@ -58,7 +58,7 @@
 
             <label for="relation_status">Статус связи</label>
             <input type="text" name="relation_status" id="default_relation_status" value="{{ relation_statuses.0.0 }}" hidden>
-            <select name="relation_status" id="relation_status" class="form-control" {% if is_readonly %}disabled{% endif %}>
+            <select name="relation_status" id="relation_status" class="form-control">
                 {% for value, name in relation_statuses %}
                 <option value="{{ value }}" {% if value == cur_status %} selected {% endif %}>{{ name }}</option>
                 {% endfor %}

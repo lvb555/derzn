@@ -34,7 +34,7 @@ class PreparingRelationsMixin:
     def __get_update_queryset(user, status: str = None):
         statuses = {
             'user': ('WORK_PRE', 'PRE_FIN'),
-            'expert': ('WORK', 'FIN')
+            'expert': ('WORK', 'FIN', 'WORK_PRE', 'PRE_FIN')
         }
 
         user_role = 'expert' if user.is_expert else 'user'
@@ -59,7 +59,7 @@ class PreparingRelationsMixin:
             )
 
     def __get_category_for_knowledge(self, knowledge: Znanie) -> [None, Category]:
-        if knowledge.category and knowledge.category.is_published and knowledge.is_published:
+        if knowledge.category and knowledge.category.is_published:
             return knowledge.category
         if not knowledge.is_published:
             return None
@@ -82,6 +82,13 @@ class PreparingRelationsMixin:
             if category in competence:
                 without_cat_data.append(kn_obj.pk)
         return without_cat_data
+
+    def check_competence(self, user, knowledge: Znanie) -> bool:
+        category = self.__get_category_for_knowledge(knowledge=knowledge)
+        user_competencies = SpecialPermissions.objects.filter(expert=user).first()
+        if not user_competencies:
+            return False
+        return True if category in user_competencies.categories.all() else False
 
     def __get_knowledge_by_competence(self, user, role, base_lookups):
         user_competencies = SpecialPermissions.objects.filter(expert=user).first()
@@ -193,3 +200,50 @@ class PreparingRelationsMixin:
             'publication': ('PUB_PRE', 'PUB',)
         }
         return True if status in statuses_by_stage.get(stage) else False
+
+    @staticmethod
+    def get_stage_status_list(stage: str, require_statuses: dict, user=None, knowledge_queryset=None) -> list:
+        filter_data = {'is_active': True, 'status__in': require_statuses.keys()}
+        if stage == 'update' and user:
+            filter_data.setdefault('user', user)
+        elif stage == 'expertise' and user:
+            statuses_for_my_rel = require_statuses.get('my')
+            statuses_for_competence_rel = require_statuses.get('competence')
+            kn_id_list = [kn.pk for kn in knowledge_queryset]
+            filter_data = reduce(
+                or_, [
+                    (Q(status__in=statuses_for_my_rel.keys()) & Q(user=user)),
+                    (Q(status__in=statuses_for_competence_rel.keys()) & Q(relation__rz_id__in=kn_id_list))
+                ]
+            ) & Q(is_active=True)
+            require_statuses = statuses_for_my_rel
+            require_statuses.update(statuses_for_competence_rel)
+        elif stage == 'publication':
+            filter_data['relation__rz_id__in'] = [kn.pk for kn in knowledge_queryset]
+
+        if type(filter_data) == dict:
+            cur_user_statuses = (
+                RelationStatuses.objects
+                .select_related('relation')
+                .filter(**filter_data)
+                .values_list('status', flat=True)
+                .distinct()
+            )
+        else:
+            cur_user_statuses = (
+                RelationStatuses.objects
+                .select_related('relation')
+                .filter(filter_data)
+                .values_list('status', flat=True)
+                .distinct()
+            )
+
+        if not cur_user_statuses:
+            return []
+        status_list = [(None, '------')]
+
+        for status_value, status_name in require_statuses.items():
+            if status_value not in cur_user_statuses:
+                continue
+            status_list.append((status_value, status_name))
+        return status_list
