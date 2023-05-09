@@ -850,3 +850,7 @@ select#id_tag  option {
 #author-page-drevo {
 	position: relative;
 }
+
+.text-grey {
+    color:#6C757D;
+}

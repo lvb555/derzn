@@ -56,7 +56,7 @@
     {% else %}
     <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
     {% endif %}
-    <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-dark {% else %} text-dark {% endif %} znanie" style="color: #212529;">
+    <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-dark {% else %} text-grey {% endif %} znanie">
         {{ base_knowledge.name }}
     </a>
     {% if base_knowledge.author and base_knowledge.author != hidden_author %}
