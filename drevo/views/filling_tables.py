@@ -539,13 +539,28 @@ def get_form_data(request):
 
     if filling_tables_page:
 
-        # Создание связи "Строка": базовое знание - знание, связанное знание - строка
+        # Удаление связей со знанием/знаниями, которые раньше находились в этой ячейке
+        row_relations = Relation.objects.filter(rz_id=selected_row_pk)
+        column_relations = Relation.objects.filter(rz_id=selected_column_pk)
+        cell_related_knowledges_id = []
+        # Удаление связей "Строка" и "Столбец" с данной ячейкой
+        for row_relation in row_relations:
+            for column_relation in column_relations:
+                if (row_relation.bz_id == column_relation.bz_id) and (str(row_relation.bz_id) != selected_table_pk):
+                    row_relation.delete()
+                    column_relation.delete()
+                    cell_related_knowledges_id.append(row_relation.bz_id)
+        # Удаление связи "Значение" с данной ячейкой
+        for knowledge_id in cell_related_knowledges_id:
+            Relation.objects.filter(bz_id=selected_table_pk, rz_id=knowledge_id).delete()
+
+        # Создание связи "Строка": связанное знание - строка, базовое знание - выбранное знание
         create_relation(row_id, selected_row_pk, selected_znanie_pk)
 
-        # Создание связи "Столбец": базовое знание - знание, связанное знание - столбец
+        # Создание связи "Столбец": связанное знание - столбец, базовое знание - выбранное знание
         create_relation(column_id, selected_column_pk, selected_znanie_pk)
 
-        # Создание связи "Значение" : базовое знание - таблица, связанное знание - знание
+        # Создание связи "Значение" : связанное знание - выбранное знание, базовое знание - таблица
         create_relation(value_id, selected_znanie_pk, selected_table_pk)
 
     else:
