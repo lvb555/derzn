@@ -28,11 +28,6 @@ form.addEventListener('submit', async (event) => {
     const bz_id = data.bz_pk;
     update_knowledge.setAttribute('href', `/drevo/relation/preparing/additional_knowledge/update/${data.value}?bz_id=${bz_id}&tr_id=${selected_tr}`);
 
-    const status_select = document.getElementById('relation_status');
-    const default_relation_status = document.getElementById('default_relation_status');
-    status_select.disabled = false
-    default_relation_status.disabled = true
-
     var modal = document.getElementById('create_addention_knowledge');
     $(modal).modal('hide');
 });

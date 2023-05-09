@@ -7,7 +7,6 @@ $(function(){
     fetch(`/drevo/get_required_tr?bz_id=${selectedValue}`)
     .then(response => response.json())
     .then(data => {
-        const status_select = document.getElementById('relation_status')
 
         const show_knowledge = document.getElementById('show_knowledge')
         const update_knowledge = document.getElementById('update_knowledge')
@@ -27,15 +26,6 @@ $(function(){
                 } else {
                     update_knowledge.style.pointerEvents = 'none'
                     update_knowledge.removeAttribute('href')
-                }
-
-                const default_relation_status = document.getElementById('default_relation_status');
-                if (data.is_pub === true) {
-                    status_select.disabled = false
-                    default_relation_status.disabled = true
-                } else {
-                    status_select.disabled = true
-                    default_relation_status.disabled = false
                 }
         });
     });
