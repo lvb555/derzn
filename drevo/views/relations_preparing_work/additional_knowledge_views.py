@@ -10,12 +10,23 @@ from drevo.relations_tree import get_category_for_knowledge
 
 
 def check_competence(request) -> bool:
+    def check_competence_by_nodes(cat, competencies) -> bool:
+        if not cat.parent:
+            return False
+        if cat.parent in competencies:
+            return True
+        else:
+            return check_competence_by_nodes(cat.parent, competencies)
+
     bz = get_object_or_404(Znanie, pk=request.POST.get('bz_pk'))
     category = get_category_for_knowledge(bz)
     user_competencies = SpecialPermissions.objects.filter(expert=request.user).first()
     if not user_competencies:
         return False
-    return True if category in user_competencies.categories.all() else False
+    if category in user_competencies.categories.all():
+        return True
+    in_competence = check_competence_by_nodes(category, user_competencies.categories.all())
+    return True if in_competence else False
 
 
 @login_required
