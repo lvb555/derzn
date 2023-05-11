@@ -65,22 +65,22 @@ class RelationsExpertisePageView(LoginRequiredMixin, TemplateView, PreparingRela
         required_statuses = {
             'PRE_READY': [
                 ('PRE_EXP', 'Экспертиза ПредСвязи'),
-                ('PRE_REJ', 'Отклонить ПредСвязь'),
-                ('PRE_FIN', 'Завершить экспертизу ПредСвязи')
+                ('PRE_REJ', 'Отклоненная ПредСвязь'),
+                ('PRE_FIN', 'Завершенная ПредСвязь')
             ],
             'PRE_EXP': [
                 ('PRE_EXP', 'Экспертиза ПредСвязи'),
-                ('PRE_READY', 'Отказаться от экспертизы ПредСвязи'),
-                ('PRE_REJ', 'Отклонить ПредСвязь'),
-                ('PRE_FIN', 'Завершить экспертизу ПредСвязи')
+                ('PRE_READY', 'Готовая ПредСвязь'),
+                ('PRE_REJ', 'Отклоненная ПредСвязь'),
+                ('PRE_FIN', 'Завершенная ПредСвязь')
             ],
             'PRE_REJ': [
                 ('PRE_REJ', 'Отклоненная ПредСвязь'),
-                ('PRE_EXP', 'Вернуть Предсвязь на экспертизу'),
+                ('PRE_EXP', 'Экспертиза ПредСвязи'),
             ],
             'PRE_FIN': [
                 ('PRE_FIN', 'Завершенная ПредСвязь'),
-                ('PRE_EXP', 'Вернуть Предсвязь на экспертизу'),
+                ('PRE_EXP', 'Экспертиза ПредСвязи'),
             ]
         }
         context['is_readonly'] = self.is_readonly_status(status=context.get('cur_status'), stage='expertise')
