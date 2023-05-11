@@ -270,8 +270,12 @@
                         <li>
                             <a href="{% url 'preparing_relations_create_page' %}" id="rel_create" class="dropdown-item">Создание связей</a>
                             <a href="{% url 'preparing_relations_update_page' %}" id="rel_update" class="dropdown-item">Изменение связи</a>
+                            {% if user.is_expert %}
                             <a href="{% url 'preparing_relations_expertise_page' %}" id="rel_expertise" class="dropdown-item">Экспертиза ПредСвязи</a>
+                            {% endif %}
+                            {% if user.is_director %}
                             <a href="{% url 'preparing_relations_publication_page' %}" id="rel_pub" class="dropdown-item">Публикация cвязей</a>
+                            {% endif %}
                         </li>
                     </ul>
                 </div>
