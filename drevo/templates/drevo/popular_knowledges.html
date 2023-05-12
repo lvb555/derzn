@@ -1,0 +1,45 @@
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load static %}
+{% load knowledge_tree %}
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/knowledge-feed.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
+{% endblock %}
+
+{% block title %}Популярные знания{% endblock %}
+
+{% block content %}
+
+<div class="container header_info" style="padding-top: 24px; padding-left: 0px;">
+    <h1 class="page-title m-0">Популярные знания</h1>
+    <nav style="--bs-breadcrumb-divider: '-';display: inline-flex; justify-content: space-between; width: 100%; align-items: self-end; margin: 0px;">
+        <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+            <li class="breadcrumb-item opened"><a>Популярные знания</a></li>
+        </ol>
+    </nav>
+</div>
+{% if user.is_authenticated %}
+<form role="search" id="search_popular_form" method="POST" action="{% url 'popular_knowledges' %}" class="d-flex" style="gap: 25px; margin: 10px 0px;">
+    {% csrf_token %}
+    <div>
+        <div>
+            <label for="record_count">Введите количество записей:</label>
+            <input type="number" id="record_count" name="record_count" min="1" value="{{ record_count }}" style="width: 60px; border-radius: 8px; border: none; text-align: center;">
+        </div>
+        <div class="form-group form-check-inline py-1">
+            <input type="checkbox" class="form-check-input" id="already_seen" name="already_seen" {% if already_seen == 1 %}checked{% endif %}>
+            <label class="form-check-label author-description" style="color: #6C757D;" for="already_seen">показывать только не просмотренные</label>
+        </div>
+    </div>
+    <div>
+        <button type="submit" class="btn btn-outline-success btn-header">
+            ОК
+        </button>
+    </div>
+</form>
+{% endif %}
+{% build_knowledge_tree queryset=all_knowledges show_complex=True %}
+{% endblock %}
