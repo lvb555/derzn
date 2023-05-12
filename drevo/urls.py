@@ -106,6 +106,7 @@ from .views.admin_interview_work.views import (
     AdminEditingKnowledgeView,
     NotifyExpertsView,
 )
+from .views.popular_knowledges import get_popular_knowledges
 from .views.special_permissions_for_public import get_special_permission
 from .views.special_permissions_work.view import (
     SpecialPermissionsView,
@@ -193,6 +194,7 @@ urlpatterns = [
     path("search/author", AuthorSearchView.as_view(), name="search_author"),
     path("search/tag", TagSearchView.as_view(), name="search_tag"),
     path("history/<int:id>/", browsing_history, name="history"),
+    path("popular_knowledges/", get_popular_knowledges, name="popular_knowledges"),
     path("subscribe_to_author/<int:id>/", sub_by_author, name="subscribe_to_author"),
     path("subscription_by_tag/<int:id>/", sub_by_tag, name="subscription_by_tag"),
     path("subscription_by_category/<int:id>/", sub_by_category, name="subscription_by_category"),
