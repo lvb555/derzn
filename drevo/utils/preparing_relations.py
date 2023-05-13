@@ -33,8 +33,8 @@ class PreparingRelationsMixin:
     @staticmethod
     def __get_update_queryset(user, status: str = None):
         statuses = {
-            'user': ('WORK_PRE', 'PRE_FIN'),
-            'expert': ('WORK', 'FIN', 'WORK_PRE', 'PRE_FIN')
+            'user': ('WORK_PRE', 'PRE_READY'),
+            'expert': ('WORK', 'FIN', 'WORK_PRE', 'PRE_READY')
         }
 
         user_role = 'expert' if user.is_expert else 'user'
@@ -61,8 +61,8 @@ class PreparingRelationsMixin:
     def __get_category_for_knowledge(self, knowledge: Znanie) -> [None, Category]:
         if knowledge.category and knowledge.category.is_published:
             return knowledge.category
-        if not knowledge.is_published:
-            return None
+        # if not knowledge.is_published:
+        #     return None
         if relation := Relation.objects.filter(rz=knowledge).first():
             base_knowledge = relation.bz
             return self.__get_category_for_knowledge(base_knowledge)
@@ -81,6 +81,12 @@ class PreparingRelationsMixin:
             category = self.__get_category_for_knowledge(kn_obj)
             if category in competence:
                 without_cat_data.append(kn_obj.pk)
+                continue
+
+            # Если категория знания не относится к компетенциям пользователя, то проверяем по дереву компетенций
+            in_competence = self.__check_competence_by_nodes(category, competence)
+            if in_competence:
+                without_cat_data.append(kn_obj.pk)
         return without_cat_data
 
     def check_competence(self, user, knowledge: Znanie) -> bool:
@@ -88,7 +94,19 @@ class PreparingRelationsMixin:
         user_competencies = SpecialPermissions.objects.filter(expert=user).first()
         if not user_competencies:
             return False
-        return True if category in user_competencies.categories.all() else False
+        competencies = user_competencies.categories.all()
+        if category in competencies:
+            return True
+        in_competence = self.__check_competence_by_nodes(category, competencies)
+        return True if in_competence else False
+
+    def __check_competence_by_nodes(self, category: Category, user_competencies) -> bool:
+        if not category.parent:
+            return False
+        if category.parent in user_competencies:
+            return True
+        else:
+            return self.__check_competence_by_nodes(category.parent, user_competencies)
 
     def __get_knowledge_by_competence(self, user, role, base_lookups):
         user_competencies = SpecialPermissions.objects.filter(expert=user).first()
@@ -209,7 +227,7 @@ class PreparingRelationsMixin:
         elif stage == 'expertise' and user:
             statuses_for_my_rel = require_statuses.get('my')
             statuses_for_competence_rel = require_statuses.get('competence')
-            kn_id_list = [kn.pk for kn in knowledge_queryset]
+            kn_id_list = [kn.pk for kn in knowledge_queryset] if knowledge_queryset else []
             filter_data = reduce(
                 or_, [
                     (Q(status__in=statuses_for_my_rel.keys()) & Q(user=user)),
@@ -218,7 +236,7 @@ class PreparingRelationsMixin:
             ) & Q(is_active=True)
             require_statuses = statuses_for_my_rel
             require_statuses.update(statuses_for_competence_rel)
-        elif stage == 'publication':
+        elif stage == 'publication' and knowledge_queryset:
             filter_data['relation__rz_id__in'] = [kn.pk for kn in knowledge_queryset]
 
         if type(filter_data) == dict:
