@@ -6,27 +6,7 @@ from django.views.decorators.http import require_http_methods
 
 from drevo.forms import AdditionalKnowledgeForm, ZnImageFormSet
 from drevo.models import KnowledgeStatuses, Znanie, SpecialPermissions
-from drevo.relations_tree import get_category_for_knowledge
-
-
-def check_competence(request) -> bool:
-    def check_competence_by_nodes(cat, competencies) -> bool:
-        if not cat.parent:
-            return False
-        if cat.parent in competencies:
-            return True
-        else:
-            return check_competence_by_nodes(cat.parent, competencies)
-
-    bz = get_object_or_404(Znanie, pk=request.POST.get('bz_pk'))
-    category = get_category_for_knowledge(bz)
-    user_competencies = SpecialPermissions.objects.filter(expert=request.user).first()
-    if not user_competencies:
-        return False
-    if category in user_competencies.categories.all():
-        return True
-    in_competence = check_competence_by_nodes(category, user_competencies.categories.all())
-    return True if in_competence else False
+from drevo.utils.preparing_relations import PreparingRelationsMixin
 
 
 @login_required
@@ -48,7 +28,9 @@ def create_additional_knowledge(request):
         image_form.instance = new_kn
         image_form.save()
 
-        kn_status = 'PUB' if check_competence(request) else 'PUB_PRE'
+        relation_utils = PreparingRelationsMixin()
+        bz = get_object_or_404(Znanie, pk=request.POST.get('bz_pk'))
+        kn_status = 'PUB' if relation_utils.check_competence(request.user, bz) else 'PUB_PRE'
         KnowledgeStatuses.objects.create(knowledge=new_kn, status=kn_status, user=user)
         return JsonResponse(data={'name': new_kn.name, 'value': new_kn.pk, 'bz_pk': req_data.get('bz_pk')}, status=200)
     return JsonResponse(data={}, status=400)
