@@ -1,0 +1,41 @@
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load filter %}
+{% load static %}
+
+{% block title %}Создание знания для таблицы{% endblock %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="/static/drevo/css/table_constructor/relation_create.css">
+{% endblock %}
+
+{% block jsfiles %}
+    <script src="{% static 'drevo/js/table_constructor/relation_create.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <h1>Выберите знание</h1>
+    <select name="table" id="id_table">
+    {% if new %}
+        <option value="{{ new_znanie_id }}" selected>{{ new_znanie_name }}</option>
+    {% else %}
+        <option value="" selected disabled>Выберите знание</option>
+    {% endif %}
+        {% for zn in heading_knowledges %}
+            <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option>
+        {% endfor %}
+    </select>
+    <div class="button-block">
+        <input onclick="newZnanie()" class="btn btn-primary" readonly value="Создать знание">
+        <input type="submit" class="btn btn-success" id="zn_choose" value="Выбрать">
+    </div>
+    <div class="new-znanie" hidden>
+        <h1>{{ title }}</h1>
+        <form class="form-horizontal" action="{% url 'new_knowledge_for_relation' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.media }}
+            {{ form.as_p }}
+            <input type="submit" class="btn btn-primary" value="Сохранить">
+        </form>
+    </div>
+{% endblock %}

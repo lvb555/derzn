@@ -79,6 +79,7 @@
                     </a>
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <li><a class="dropdown-item from-nav" href="{% url 'knowledge' %}" id="tree_link">Всё дерево</a></li>
+                        <li><a class="dropdown-item from-nav" href="{% url 'popular_knowledges' %}" id="popular_link">Популярные знания</a></li>
                         <li><a class="dropdown-item from-nav" href="{% url 'authors' %}" id="authors_link">Авторы</a></li>
 						<li><a class="dropdown-item from-nav" href="{% url 'labels' %}" id="tags_link">Теги</a></li>
                         <li><a class="dropdown-item from-nav" href="{% url 'new_knowledge'%}" id="new_knowledge_link">Новые знания</a></li>
@@ -145,7 +146,6 @@
                 </nav>
                 <div class="d-flex text-end align-items-center">
                     <a class='btn btn' href="{% url 'help' %}"><img src="{% static 'drevo/img/main_page/help.png' %}"></a>
-					<a class='btn btn' href="{% url 'search_knowledge' %}"><img src="{% static 'drevo/img/main_page/search.png' %}"></a>
                     {% if user.is_authenticated %}
                     <div class="nav-item mx-2 col dropdown">
                         <a href="#" class="dropdown-toggle nav-link header-menu" data-bs-toggle="dropdown" role="button">
@@ -201,7 +201,7 @@
 </div>
 <div class="container">
     <div class="row">
-        <div class="col mt-3">
+        <div class="col mt-3" style="position: relative;">
             {% block content %}
             {% endblock %}
         </div>
@@ -222,9 +222,6 @@
     </footer>
 </div>
 <!-- Footer - end -->
-
-{% block jsfiles %}
-{% endblock jsfiles %}
 
 <script>
     // Для визуализации активных кнопок меню
@@ -288,3 +285,6 @@ function logAndStop(event) {
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js" integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js" integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous"></script>
   -->
+  
+{% block jsfiles %}
+{% endblock jsfiles %}

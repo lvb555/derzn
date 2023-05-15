@@ -1,38 +1,40 @@
-{% include 'drevo/base.html' %}
-
+{% extends 'drevo/base.html' %}
 {% load static %}
 
+{% block title %}Наполнение таблиц{% endblock %}
+
 {% block cssfiles %}
-    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/static/drevo/css/table_constructor/filling_tables.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
 {% endblock %}
 
 {% block jsfiles %}
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-ru_RU.js"></script>
+    <script src="{% static 'drevo/js/table_constructor/filling_tables.js' %}" data-get-form="{% url 'get_form_data' %}"
+            data-show-znanie="{% url 'show_new_znanie' %}"></script>
 {% endblock %}
 
 <div id="page">
 {% block content %}
 
 <form method="POST" class="form" id="form" name="form"> {% csrf_token %}
-    <div style="display: flex; flex-direction: column; margin-bottom: 15px;">
+    <input type="hidden" name="filling_tables" value="True">
+    <div class="table-name">
         <h1>Наполнение таблиц</h1>
         <label for="id_table">Таблица:</label>
 
-        <select name="table" style="appearance: none; width: 600px; height: 30px; padding-left: 9px" id="id_table">
+        <select class="select-table" name="table" id="id_table">
             {% for pk, element in table_dict.items %}
-                <option value="{{ pk }}" id="{{ pk }}"> {{ element }} </option>
+                <option value="{{ pk }}" id="{{ pk }}"> {{ element }}</option>
             {% endfor %}
         </select>
     </div>
 
-    <div style="display: flex; flex-direction: column;">
+    <div class="cell-coordinates">
         <h2>Координаты ячейки</h2>
         <label for="id_row">Строка:</label>
         <select class="form-select" name="row" id="id_row">
@@ -51,19 +53,20 @@
         <label for="id_znanie">Знание:</label>
     </div>
 
-    <select data-live-search="true" class="selectpicker" name="znanie" id="id_znanie" data-dropup-auto="false" disabled style="margin-bottom: 15px;">
-        <option value="" selected disabled>Выберите знание</option>
-        {% for zn in znanie %}
-        <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option> {% endfor %}
-    </select>
-    <span>
-    <input type="button" value="+" class="quiet" id="add_znanie" style="vertical-align: middle; font-size: 30px" onclick="winOpen()">
-    </span>
+    <div>
+        <select data-live-search="true" class="selectpicker znanie-choice" name="znanie" id="id_znanie" data-dropup-auto="false" disabled>
+            <option value="" selected disabled>Выберите знание</option>
+            {% for zn in non_systemic_zn %}
+            <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option> {% endfor %}
+        </select>
 
-    <div id="div-param" style="display: flex; flex-direction: column; margin-bottom: 15px;">
-        <div style="margin-top: 15px">
-            <input style="align-self: flex-start;" id="btn_show" type="button" value="Показать">
-            <input style="align-self: flex-start;" id="btn_save" type="submit" value="Сохранить" name="_save">
+        <input type="button" value="+" class="quiet" id="add_znanie" disabled onclick="winOpen()">
+    </div>
+
+    <div id="div-param" class="button-block">
+        <div class="button-menu">
+            <input class="button-save" id="btn_save" type="submit" value="Сохранить" name="_save">
+            <input class="button-show" id="btn_show" type="button" value="Показать">
         </div>
     </div>
 
@@ -74,219 +77,9 @@
 
 <div class="overlay js-successful">
     <div class="popup js-successful">
-        <h2 style="position: relative; top: 50%; transform: translateY(-50%); text-align: center">Данные были успешно сохранены</h2>
+        <h2 class="success-save">Данные были успешно сохранены</h2>
         <div class="close-popup js-close-successful"></div>
     </div>
 </div>
 
-<style>
-
-    body {
-        margin: 0;
-        --bs-font-sans-serif: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-        font-family: var(--bs-font-sans-serif);;
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #212529;
-        background-color: #fff;
-        -webkit-text-size-adjust: 100%;
-        -webkit-tap-highlight-color: transparent;
-    }
-    label {
-        margin: 0;
-    }
-    .btn_show{
-        display: flex;
-        justify-content: right;
-        border-width: 2px;
-    }
-    .quiet {
-        border: 0;
-        vertical-align: middle;
-        background: 0;
-    }
-    .text-show{
-        width: 500px;
-        height: 150px;
-        resize: none;
-    }
-    .caret{
-        display: none;
-     }
-    .bootstrap-select {
-      width: 600px !important;
-     }
-    .form-select{
-        width: 600px;
-     }
-    .overlay {
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        background-color: rgba(0, 0, 0, .5);
-        display: none;
-        z-index: 1;
-    }
-    .popup {
-        position: absolute;
-        width: 450px;
-        height: 250px;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        padding: 40px;
-        background-color: #FFF;
-        border-radius: 10px;
-    }
-    .close-popup {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        width: 23px;
-        height: 23px;
-        cursor: pointer;
-    }
-    .close-popup:before {
-        content: '';
-        background-color: #000;
-        position: absolute;
-        height: 1px;
-        width: 31px;
-        top: 11px;
-        left: -4px;
-        transform: rotate(-45deg);
-    }
-    .close-popup:after {
-        content: '';
-        background-color: #000;
-        position: absolute;
-        height: 1px;
-        width: 31px;
-        top: 11px;
-        transform: rotate(45deg);
-        left: -4px;
-    }
-
-</style>
-
-<script>
-
-    var element = $('#page').detach();
-    $('body').children().children('div.row').append(element);
-
-    let id_table = $("#id_table")
-    let id_row = $("#id_row")
-    let id_column = $("#id_column")
-    let id_znanie = $("#id_znanie")
-    let btn_show = $("#btn_show")
-    let add_znanie = $("#add_znanie")
-    text_show = $("#text_id")
-
-    const csrftoken = getCookie('csrftoken');
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-          const cookies = document.cookie.split(';');
-          for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i].trim();
-              if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                  break;
-              }
-          }
-      }
-      return cookieValue;
-    }
-
-     function checkSelection() {
-        if (document.form.row.value !== "" && document.form.column.value !== "") {
-            id_znanie.prop('disabled', false);
-            id_znanie.selectpicker('refresh')
-        }
-    }
-
-    id_row.change( function () {
-        checkSelection();
-    });
-
-    id_column.change( function () {
-        checkSelection();
-    });
-
-    function winOpen() {
-        tab = window.open('/admin/drevo/znanie/add/', 'tab', 'Width=1280,Height=650')
-
-        $(tab).ready(function () {
-            $(tab.window).on('click', (event) => {
-                if (event.target.getAttribute("name") == "_save"){
-                    setTimeout(function New() {
-                        $('#div-param').css('display', 'flex')
-                        newZnanie();
-                        tab.close()
-                    }, 2000)
-                }
-            });
-        }, true);
-    }
-
-    function newZnanie() {
-        const data = {};
-        let url = "{% url 'show_new_znanie' %}"
-        return fetch(url, {
-           method: 'POST',
-           headers: {
-               'Content-Type': 'application/json',
-               'X-CSRFToken': csrftoken
-           },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(data => {
-            $('#id_znanie').append(`<option value="${data[0]}" id="${data[0]}" selected> ${data[1]} </option>`)
-            $('#id_znanie').selectpicker('refresh')
-            $('#id_znanie option:last').prop('selected', true)
-            $('#id_znanie').selectpicker('refresh')
-        })
-        .catch((error) => {
-        console.log('Error:', error);
-        });
-    }
-
-     btn_show.on('click', function(){
-      window.open(`/drevo/znanie/${id_table.val()}`);
-     });
-
-    $(document).ready(function () {
-        $('#form').submit(function () {
-            // Если какое-либо поле не заполнено, форма не отправляется
-            if (document.form.table.value === '' || document.form.row.value === '' ||
-                document.form.column.value === '' || document.form.znanie.value === ''){
-                return false;
-             }
-            $.ajax({
-                method: "POST",
-                url: "{% url 'get_form_data' %}",
-                data: $(this).serialize()
-             }).done(function () {
-                $('.js-successful').fadeIn();
-             });
-            return false;
-         });
-    })
-
-    $('.js-close-successful').click(function () {
-        $('.js-successful').fadeOut();
-    })
-
-    $(document).mouseup(function (e) {
-        var popup = $('.popup');
-        if (e.target !== popup[0] && popup.has(e.target).length === 0) {
-            $('.js-successful').fadeOut();
-        }
-    })
-
-</script>
 {% endblock %}
