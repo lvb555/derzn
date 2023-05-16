@@ -16,7 +16,7 @@
         id="search_form"
         method="post"
         action="{% if not is_advance_search %}{% url 'search_by_tree' %}{% else %}{% url 'advance_search_by_tree' %}{% endif %}"
-        class="mb-3 collapse" style="background-color: #FFFFFF; padding: 32px;border-radius: 10px;"
+        class="mb-3 collapse basic"
         {% if not is_advance_search %} target="_blank" {% endif %}
 >
     {% csrf_token %}
