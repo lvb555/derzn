@@ -27,3 +27,4 @@ from .user_parameters import UserParameters
 from .message import Message
 from .interview_sub_answers import SubAnswers
 from .relationship_tz_tr import RelationshipTzTr
+from .relation_statuses import RelationStatuses

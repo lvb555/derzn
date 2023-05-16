@@ -18,6 +18,8 @@ def build_knowledge_tree(context: RequestContext,
                          show_only: Tr = None,
                          hidden_author: Author = None,
                          show_complex: bool = False,
+                         edit_widgets: list[str] = None,
+                         empty_categories: bool = False
                          ):
     """
         Тег для построения дерева знаний \n
@@ -36,10 +38,23 @@ def build_knowledge_tree(context: RequestContext,
 
         show_complex: если данный параметр имеет значение True, то на дереве будут отображаться сложные знания.
         В настоящее время для отображения на дереве существует 2 вида сложных знаний: "Таблица", "Тест"
+
+        edit_widgets: список виджетов для редактирования дерева. Допустимые значения: \n
+        create - создать новую ветвь (связь)
+        delete - удалить ветвь (связь)
+        update - удалить ветвь (связь)
+
+        empty_categories: если данный параметр имеет значение True, то на дереве будут отображаться категории, которые
+        не имеют знаний.
     """
     if not queryset:
         raise EmptyResultSet('Для построения дерева необходим queryset знаний')
-    tree_builder = KnowledgeTreeBuilder(queryset, show_only, show_complex)
+    edit_mode = True if edit_widgets else False
+    builder_kwargs = {
+        'queryset': queryset, 'show_only': show_only, 'show_complex': show_complex, 'edit_mode': edit_mode,
+        'empty_categories': empty_categories
+    }
+    tree_builder = KnowledgeTreeBuilder(**builder_kwargs)
     tree_builder_context = tree_builder.get_nodes_data_for_tree()
     tree_context = dict(
         tree_num=tree_num,
@@ -82,6 +97,8 @@ def build_knowledge_tree(context: RequestContext,
     tree_context['tree_knowledge'] = ','.join(list(map(str, tree_knowledge)))
     tree_context['search_word'] = search_word
     tree_context['is_advance_search'] = True if 'advance_search' in context.request.POST else False
+    tree_context['edit_widgets'] = ''.join(edit_widgets).split(' ') if edit_widgets else []
+    tree_context['user'] = context.request.user
     if tree_context['is_advance_search']:
         tree_context['form'] = AdvanceTreeSearchFrom(data=context.request.POST)
     return tree_context
@@ -93,10 +110,37 @@ def get_data_by_category(tree_data: dict, category) -> list:
 
 
 @register.simple_tag
-def get_relation_name(relations_names: dict, parent: Znanie, child: Znanie) -> str:
+def get_relation_name(relations_data: dict, parent: Znanie, child: Znanie) -> str:
     if not parent:
         return ''
-    return relations_names.get((parent.pk, child.pk))
+    return relations_data.get((parent.pk, child.pk))['name']
+
+
+@register.simple_tag
+def get_relation_status(relations_data: dict, parent: Znanie, child: Znanie) -> str:
+    if not parent:
+        return ''
+    return relations_data.get((parent.pk, child.pk))['status']
+
+
+@register.simple_tag
+def get_relation_author(relations_data: dict, parent: Znanie, child: Znanie) -> str:
+    if not parent:
+        return ''
+    return relations_data.get((parent.pk, child.pk))['author']
+
+
+@register.simple_tag
+def get_require_widgets(widgets: list, status: str = None) -> list:
+    if widgets == ['create', 'delete']:
+        return widgets
+    require_by_status = {
+        'expertise': ('PRE_READY', 'PRE_EXP', 'PRE_REJ', 'PRE_FIN'),
+        'publication': ('PRE_FIN', 'PRE_REJ', 'FIN', 'REJ', 'PUB_PRE', 'PUB'),
+        'delete': ('WORK_PRE', 'WORK'),
+        'update': ('WORK_PRE', 'WORK', 'PRE_READY', 'FIN'),
+    }
+    return [widget for widget in widgets if status in require_by_status.get(widget)]
 
 
 @register.simple_tag

@@ -29,8 +29,15 @@ from .views import (
     filling_tables,
     TableKnowledgeTreeView,
     CreateChangeTableView,
+    TableCreateView,
+    TableEditView,
+    RelationCreateView,
+    RelationEditView,
+    delete_table,
+    delete_row_or_column,
     table_constructor,
     get_form_data,
+    row_and_column_existence,
     show_new_znanie,
     show_filling_tables_page,
     KnowledgeFormView,
@@ -61,6 +68,23 @@ from .views import (
     get_required_rz,
     search_by_tree_view,
     advance_search_by_tree_view,
+    PreparingRelationsCreateView,
+    PreparingRelationsUpdateView,
+    PreparingRelationsExpertiseView,
+    PreparingRelationsPublicationView,
+    RelationCreatePageView,
+    check_related,
+    relation_create_view,
+    relation_delete_view,
+    create_additional_knowledge,
+    get_related_tz,
+    additional_knowledge_update_view,
+    RelationUpdatePageView,
+    relation_update_view,
+    RelationsExpertisePageView,
+    relation_expertise_view,
+    RelationsPublicationPageView,
+    relation_publication_view,
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
@@ -138,11 +162,18 @@ urlpatterns = [
     path("my_knowledge_grade/<int:id>/", my_knowledge_grade, name="my_knowledge_grade"),
     path("filling_tables/<pk>/", filling_tables, name="filling_tables"),
     path("table_constructor/<pk>/", table_constructor, name="table_constructor"),
+    path('table_create/', TableCreateView.as_view(), name="table_create"),
+    path('table_update/<pk>/', TableEditView.as_view(), name="table_update"),
+    path('new_knowledge_for_relation/', RelationCreateView.as_view(), name="new_knowledge_for_relation"),
+    path('edit_knowledge_for_relation/<pk>/<relation>/', RelationEditView.as_view(), name="edit_knowledge_for_relation"),
     path('table_knowledge_tree/', TableKnowledgeTreeView.as_view(), name="table_knowledge_tree"),
     path("table_edit", CreateChangeTableView.as_view(), name="table_edit"),
+    path("delete_table/", delete_table, name="delete_table"),
+    path("delete_row_or_column/", delete_row_or_column, name="delete_row_or_column"),
     path("show_new_znanie/", show_new_znanie, name="show_new_znanie"),
     path("show_filling_tables_page/", show_filling_tables_page, name="show_filling_tables_page"),
     path("get_form_data/", get_form_data, name="get_form_data"),
+    path("row_and_column_existence/", row_and_column_existence, name="row_and_column_existence"),
     path("all_quizzes/", QuizListView.as_view(), name="all_quizzes"),
     path("quiz/<int:pk>", QuizDetailView.as_view(), name="quiz"),
     path("quiz/<int:pk>/quiz_result/", QuizResultAdd.as_view()),
@@ -375,7 +406,93 @@ urlpatterns = [
     path('get_required_tr', get_required_tr, name='get_required_tr'),
     path('get_required_rz', get_required_rz, name='get_required_rz'),
     path('tree/search_results', search_by_tree_view, name='search_by_tree'),
-    path('tree/search_results/advance', advance_search_by_tree_view, name='advance_search_by_tree')
+    path('tree/search_results/advance', advance_search_by_tree_view, name='advance_search_by_tree'),
+    path(
+        'relations/preparing/create_stage',
+        PreparingRelationsCreateView.as_view(),
+        name='preparing_relations_create_page'
+    ),
+    path(
+        'relations/preparing/update_stage',
+        PreparingRelationsUpdateView.as_view(),
+        name='preparing_relations_update_page'
+    ),
+    path(
+        'relations/preparing/expertise_stage',
+        PreparingRelationsExpertiseView.as_view(),
+        name='preparing_relations_expertise_page'
+    ),
+    path(
+        'relations/preparing/expertise_stage/expertise',
+        RelationsExpertisePageView.as_view(),
+        name='relation_expertise_page'
+    ),
+    path(
+        'relation/expertise/<int:relation_pk>',
+        relation_expertise_view,
+        name='expertise_relation'
+    ),
+    path(
+        'relations/preparing/publication_stage',
+        PreparingRelationsPublicationView.as_view(),
+        name='preparing_relations_publication_page'
+    ),
+    path(
+        'relations/preparing/create_stage/new_relation',
+        RelationCreatePageView.as_view(),
+        name='relation_create_page'
+    ),
+    path(
+        'relations/preparing/check_related',
+        check_related,
+        name='check_related'
+    ),
+    path(
+        'relations/preparing/related_tz',
+        get_related_tz,
+        name='get_related_tz'
+    ),
+    path(
+        'relations/create',
+        relation_create_view,
+        name='create_relation'
+    ),
+    path(
+        'relation/delete',
+        relation_delete_view,
+        name='delete_relation'
+    ),
+    path(
+        'relation/preparing/additional_knowledge/create',
+        create_additional_knowledge,
+        name='create_additional_knowledge'
+    ),
+    path(
+        'relation/preparing/additional_knowledge/update/<int:kn_pk>',
+        additional_knowledge_update_view,
+        name='update_additional_knowledge_page'
+    ),
+    path(
+        'relations/preparing/update_stage/update_relation',
+        RelationUpdatePageView.as_view(),
+        name='relation_update_page'
+    ),
+    path(
+        'relations/update/<int:relation_pk>',
+        relation_update_view,
+        name='relation_update'
+    ),
+    path(
+        'relations/preparing/publication_stage/publication_relation',
+        RelationsPublicationPageView.as_view(),
+        name='relation_publication_page'
+    ),
+    path(
+        'relations/publication/<int:relation_pk>',
+        relation_publication_view,
+        name='relation_publication'
+    ),
+
 ]
 
 if settings.DEBUG:

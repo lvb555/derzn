@@ -5,14 +5,14 @@ from users.models import User
 class BrowsingHistory(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         editable=False,
         verbose_name='Пользователь'
     )
 
     znanie = models.ForeignKey(
         'Znanie',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Знание',
         editable=False,
     )
