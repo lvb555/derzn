@@ -18,7 +18,8 @@ def build_knowledge_tree(context: RequestContext,
                          show_only: Tr = None,
                          hidden_author: Author = None,
                          show_complex: bool = False,
-                         edit_widgets: list[str] = None
+                         edit_widgets: list[str] = None,
+                         empty_categories: bool = False
                          ):
     """
         Тег для построения дерева знаний \n
@@ -42,12 +43,16 @@ def build_knowledge_tree(context: RequestContext,
         create - создать новую ветвь (связь)
         delete - удалить ветвь (связь)
         update - удалить ветвь (связь)
+
+        empty_categories: если данный параметр имеет значение True, то на дереве будут отображаться категории, которые
+        не имеют знаний.
     """
     if not queryset:
         raise EmptyResultSet('Для построения дерева необходим queryset знаний')
     edit_mode = True if edit_widgets else False
     builder_kwargs = {
-        'queryset': queryset, 'show_only': show_only, 'show_complex': show_complex, 'edit_mode': edit_mode
+        'queryset': queryset, 'show_only': show_only, 'show_complex': show_complex, 'edit_mode': edit_mode,
+        'empty_categories': empty_categories
     }
     tree_builder = KnowledgeTreeBuilder(**builder_kwargs)
     tree_builder_context = tree_builder.get_nodes_data_for_tree()

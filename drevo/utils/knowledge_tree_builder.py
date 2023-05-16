@@ -11,10 +11,12 @@ class KnowledgeTreeBuilder:
                  queryset: QuerySet[Znanie],
                  show_only: Tr = None,
                  show_complex: bool = False,
-                 edit_mode: bool = False
+                 edit_mode: bool = False,
+                 empty_categories: bool = False
                  ):
         self.queryset = queryset
         self.edit_mode = edit_mode
+        self.empty_categories = empty_categories
         self.building_knowledge = set(kn.id for kn in queryset)  # Множество знаний используемых для построения дерева
         self.categories_data = {}
         self.knowledge = {}
@@ -97,8 +99,10 @@ class KnowledgeTreeBuilder:
             Category.tree_objects
             .exclude(is_published=False)
             .select_related('parent')
-            .filter(pk__in=nodes_pk).distinct()
+            .distinct()
         )
+        if not self.empty_categories:
+            category_nodes = category_nodes.filter(pk__in=nodes_pk)
         category_relations = {cat.id: [] for cat in category_nodes}
         for cat in category_nodes:
             if cat.parent and cat.parent.is_published:

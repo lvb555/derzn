@@ -22,7 +22,7 @@ class PreparingRelationsUpdateView(LoginRequiredMixin, TemplateView, PreparingRe
     def get_status_list(self):
         statuses_data = {
             'WORK_PRE': 'ПредСвязь в работе',
-            'PRE_FIN': 'Завершенная ПредСвязь',
+            'PRE_READY': 'Готовая ПредСвязь',
         }
         if self.request.user.is_expert:
             statuses_data.setdefault('WORK', 'Связь в работе')
