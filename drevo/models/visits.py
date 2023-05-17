@@ -14,5 +14,9 @@ class Visits(models.Model):
         User,
         models.CASCADE
     )
+    date = models.DateField(
+        auto_now_add=True,
+        verbose_name='Дата создания'
+    )
 
     objects = models.Manager()

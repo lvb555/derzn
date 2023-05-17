@@ -803,7 +803,7 @@ div#author-page-drevo > a.btn.btn-success.mb-3 {
     background-color: #DFDFE3;
 }
 
-.advanced-search-form, .advanced-search-form-multiple, .select2-container {
+.advanced-search-form, .advanced-search-form-multiple, .select2-container, input#record_count {
     background: rgba(245, 245, 245, 0.75);
     color: #6C757D;
     font-family: 'Rubik';
@@ -863,4 +863,10 @@ input[type="number"]::-webkit-outer-spin-button {
 
 input[type="number"] {
     -moz-appearance: textfield;
+}
+
+.basic {
+    background-color: rgb(255, 255, 255);
+    padding: 32px;
+    border-radius: 10px;
 }
