@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from drevo.models import Category, Label, Author
-from drevo.relations_tree import get_knowledges_by_categories
 from users.models import User, MenuSections
 from users.views import access_sections
 
@@ -25,13 +24,7 @@ def new_knowledge(request, id):
         tag_sub = Label.objects.filter(subscribers=user)
         author_sub = [i.id for i in Author.objects.filter(subscribers=user)]
         main_knowledges = user.knowledge_to_notification_page.all()
-        context['categories_author'], context['knowledges_author'] = get_knowledges_by_categories(main_knowledges
-                                                                                                  .filter(author__in=author_sub))
-        context['znanie_tree_author'] = context['categories_author'].get_ancestors(include_self=True)
-        context['categories_tag'], context['knowledges_tag'] = get_knowledges_by_categories(main_knowledges
-                                                                                            .filter(labels__in=tag_sub))
-        context['znanie_tree_tag'] = context['categories_tag'].get_ancestors(include_self=True)
-        context['categories_'], context['knowledges_'] = get_knowledges_by_categories(main_knowledges
-                                                                                            .filter(category__in=category_sub))
-        context['znanie_tree_category'] = context['categories_'].get_ancestors(include_self=True)
+        context['knowledges_by_authors'] = main_knowledges.filter(author__in=author_sub)
+        context['knowledges_by_labels'] = main_knowledges.filter(labels__in=tag_sub)
+        context['knowledges_by_categories'] = main_knowledges.filter(category__in=category_sub)
         return render(request, 'drevo/new_knowledge.html', context)

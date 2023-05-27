@@ -33,8 +33,8 @@
 
 {% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections %}
 
-<h4 align="center" class="h4">Подписка по категориям</h4>
-<br>
+<p class="author-title pb-1">Подписка по категориям</p>
+<div class="basic">
 <div style="float: right">
 <br><p style="margin: 0px; padding-left: 45%;">Легенда:</p>
     <ul>
@@ -45,7 +45,7 @@
 </div>
 <div>
  <h5 class='previous' style="display: none">{{categories}}</h5>
- <ul class="items">
+ <ul class="items p-0">
     {% recursetree ztypes %}
         <li {% if not node.get_level %} style="font-weight: 600;" {% else %}
                                         style="font-weight: 400;" {% endif %}
@@ -74,11 +74,12 @@
   </ul>
 </div>
 {% if link == 'users:myprofile' %}
-    <input type="submit" value="Сохранить" class="button btn btn-outline-dark" id="submit" onclick="submit_category({{pub_user.id}})">
+    <input type="submit" value="Сохранить" class="button btn btn-header" id="submit" onclick="submit_category({{pub_user.id}})">
 
     {% csrf_token %}
 {% endif %}
 <div id="result"></div>
+</div>
 </div>
 
 <script>

@@ -1,64 +1,69 @@
 {% extends 'drevo/base.html' %}
 
+{% load static %}
+{% load base_tags %}
+{% load knowledge_tree %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
 {% block title %}Список новых знаний{% endblock %}
 
 {% block content %}
-
-<h2>Новые знания</h2>
-
+<div class="container header_info" style="padding-left: 0px;">
+    <h1 class="page-title">Новые знания</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item opened"><a>Новые знания</a></li>
+        </ol>
+    </nav>
+</div>
 {% comment %}
 Сделано по примеру раздела Автор
 {% endcomment %}
-<div class="row">
-    <div class="col-3">
-        <form action="" id="datepick_form">
-            {{ datepick_form }}
-            <input type="submit" value="Искать">
-        </form>
-    </div>
-</div>
-<div class="row">
-    <div class="col-auto">
-        <table class="table">
-            {% for category, new_knowledge in categorized_new_knowledges.items %}
-            <tr>
-                <td colspan="4">
-                    {% if category is None %}
-                    <strong>Дополнительные знания</strong>
-                    {% else %}
-                    <strong>{{ category.name }}</strong>
-                    {% endif %}
-                </td>
-            </tr>
-            {% for knowledge in new_knowledge %}
-            <tr>
-                <td>
-                    <a href="{{ knowledge.get_absolute_url }}">{{ knowledge.name}}</a>
-                </td>
-                {% if knowledge.author %}
-                <td>{{ knowledge.author }}</td>
-                {% else %}
-                <td>
-                </td>
-                {% endif %}
-                {% if knowledge.tz %}
-                <td>{{ knowledge.tz }}</td>
-                {% else %}
-                <td>
-                </td>
-                {% endif %}
-                <td>{{ knowledge.date }}</td>
-            </tr>
-            {% endfor %}
-        {% empty %}
-        <div class="row">
-            <div class="col">
-                Новых знаний за истекший период не обнаружено
-            </div>
+<div class="basic p-0">
+    <div class="row">
+        <div class="col-3 search-header">
+            <form action="" id="datepick_form" style="padding: 32px 0px 0px 32px;">
+                {{ datepick_form }}<br>
+                <label class="search-header" for="id_knowledge_category" style="margin-top: 15px;">Категория</label>
+                <select name="knowledge_category" class="form-control advanced-search-form" id="id_knowledge_category">
+                    <option value="-1">Все категории</option>
+                    {% for category in categories %}
+                    <option value="{{category.pk}}" {% if selected_category == category.pk %} selected {% endif %}> {{ '-'|repeat_for_times:category.level }}{{category}}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" class="btn-header mt-3" value="Искать">
+            </form>
         </div>
-        {% endfor %}
-        </table>
-
-        {% endblock %}
     </div>
+    {% if categorized_new_knowledges %}
+        {% build_knowledge_tree queryset=categorized_new_knowledges empty_tree_message='На данный момент нет новых знаний по подписке по авторам' show_complex=True %}
+    {% else %}
+    <p class="option basic">К сожалению по вашим параметрам не нашлось знаний</p>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <!--Script for select style-->
+    <script>
+    (function($) {
+      $(function() {
+        $('.advanced-search-form').select2();
+        $('.advanced-search-form.select2').replaceWith(function() {
+            return $('<select>').attr('name', $(this).attr('name')).addClass('select2').html($(this).html());
+        });
+        var select2MainOption = $('#id_knowledge_category.advanced-search-form option:selected').text();
+        $('#select2-id_knowledge_category-container').text(select2MainOption.replace(/\-/g, ''));
+        $('#id_knowledge_category.advanced-search-form').on('change', function() {
+            var selectedOption = $('#id_knowledge_category.advanced-search-form option:selected').text();
+            var trimmedOption = selectedOption.replace(/\-/g, '');
+            $('#select2-id_knowledge_category-container').text(trimmedOption);
+        });
+      });
+    })(jQuery);
+    </script>
+    {% endif %}
 </div>
+{% endblock %}

@@ -22,11 +22,6 @@ def my_favourites(request,id):
                 context['id'] = id
             context['pub_user'] = user
             user_favourites = Favourite.objects.filter(user=user)
-            if user_favourites.exists():
-                categories, knowledges = get_knowledges_by_categories(
-                    user_favourites.first().favourites.filter(is_published=True)
-                )
-                context['knowledges'] = knowledges
-                context['categories'] = categories
-                context['znanie_tree'] = context['categories'].get_ancestors(include_self=True)
+            user_favourites = user_favourites.first().favourites.filter(is_published=True)
+            context['knowledges'] = user_favourites
             return render(request, 'drevo/my_favourites.html', context)

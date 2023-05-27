@@ -7,6 +7,7 @@
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/subscriptions.css' %}">
 <link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -25,10 +26,9 @@
 
 {% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections %}
 
-<h4 align="center" class="h4">Подписка на авторов</h4>
-<br>
-<br>
+<p class="author-title pb-1">Подписка на авторов</p>
 
+<div class="basic">
 <div class="row">
     <div class="col-2">
         <div class="form-check" {% if link != 'users:myprofile' %} style="display: none;" {% endif %}>
@@ -48,14 +48,12 @@
         </svg>
     </div>
     <div class="col-3">
-        <input class="form-control" type="text" placeholder="Найти автора" id="search-text" onkeyup="tableSearch()">
+        <input class="form-control h-auto" type="text" placeholder="Найти автора" id="search-text" onkeyup="tableSearch()">
     </div>
 </div>
 <br>
 
-
 <h4 id="noSubsText" align="center">Вы не подписаны ни на одного автора. Нажмите на "Показать всех авторов" и подпишитесь!</h4>
-
 
 <form method="post" name="tags">
     <div id="checkbox_form">
@@ -76,13 +74,13 @@
     </div>
 {% if link == 'users:myprofile' %}
     <br>
-    <input type="submit" value="Сохранить" class="button btn btn-outline-dark" id="submit" onclick="send_data_to_author({{pub_user.id}})">
-    <button id="reset" name="reset" class="btn btn-outline-dark">Отменить</button>
+    <input type="submit" value="Сохранить" class="button btn tree-btn" id="submit" onclick="send_data_to_author({{pub_user.id}})">
+    <button id="reset" name="reset" class="btn tree-btn">Отменить</button>
 
     {% csrf_token %}
 {% endif %}
 </form>
-
+<div
 </div>
 <br>
 <br>

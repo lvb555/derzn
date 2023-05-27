@@ -11,57 +11,74 @@
 <div class="row container">
     <div class="col">
         {% if cur_help %}
-        <h1 class="h1-drevo">{{ cur_help.name }}</h1>
-        <p>
+        <div class="container header_info" style="padding-left: 0px;">
+            <h1 class="page-title">{{ cur_help.name }}</h1>
+            <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+                  <li class="breadcrumb-item"><a>Помощь</a></li>
+                  <li class="breadcrumb-item opened"><a>{{ cur_help.name }}</a></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="basic">
             {% if cur_help.content %}
             {{ cur_help.content|safe }}
             {% else %}
             Страницы помощи для этой страницы еще нет.
             {% endif %}
-        </p>
+        </div>
         {% else %}
-        <h1 class="h1-drevo">Помощь</h1>
+        <div class="container header_info" style="padding-left: 0px;">
+            <h1 class="page-title">Помощь</h1>
+            <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+                  <li class="breadcrumb-item opened"><a>Помощь</a></li>
+                </ol>
+            </nav>
+        </div>
         <p>
             Страницы помощи для этой страницы еще нет.
         </p>
         {% endif %}
     </div>
     <div class="col-5">
-        <h1 class="h1-drevo">Содержание</h1>
+        <h1 class="page-title">Содержание</h1>
 
-        <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">Развернуть</button>
-        &nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">Свернуть</button>
+        <button type="button" class="btn tree-btn" onclick="showAll();">Развернуть</button>
+        &nbsp;<button type="button" class="btn tree-btn" onclick="hiddenAll();">Свернуть</button>
 
-        <br><br>
+        <div class="basic">
+            <ul class="root ps-0" id="tree_root">
+                {% recursetree nodes %}
+                <li
+                    id="li_{{ node.id }}">
 
-        <ul class="root ps-0" id="tree_root">
-            {% recursetree nodes %}
-            <li
-                id="li_{{ node.id }}">
+                    {% if not node.has_published_children %}
+                    <i class="bi-file-plus-fill lonely"></i>
+                    {% else %}
+                    <i
+                            class="family {% if node in active_nodes and cur_help %} bi-file-minus-fill {% else %}
+                            {% if node not in active_nodes %}bi-file-plus-fill{% else %} bi-file-minus-fill {% endif %} {% endif %}" onclick="toggleHiddenElement(this);">
 
-                {% if not node.has_published_children %}
-                <i class="bi-file-plus-fill lonely"></i>
-                {% else %}
-                <i
-                        class="family {% if node in active_nodes and cur_help %} bi-file-minus-fill {% else %}
-                        {% if node not in active_nodes %}bi-file-plus-fill{% else %} bi-file-minus-fill {% endif %} {% endif %}" onclick="toggleHiddenElement(this);">
+                    </i>
+                    {% endif %}
 
-                </i>
-                {% endif %}
+                    <a href="{{ node.get_absolute_url }}" class="{% if node == cur_help %}text-dark{% endif %} {% if node.is_group %}disabled{% endif %} title">
+                        {{ node.name }}
+                    </a>
 
-                <a href="{{ node.get_absolute_url }}" class="{% if node == cur_help %}text-success{% endif %} {% if node.is_group %}disabled{% endif %}">
-                    {{ node.name }}
-                </a>
+                    {% if not node.is_leaf_node %}
+                    <ul class="children" {% if node not in active_nodes and cur_help %} hidden {% endif %}>
+                        {{ children }}
+                    </ul>
+                    {% endif %}
 
-                {% if not node.is_leaf_node %}
-                <ul class="children" {% if node not in active_nodes and cur_help %} hidden {% endif %}>
-                    {{ children }}
-                </ul>
-                {% endif %}
-
-            </li>
-            {% endrecursetree %}
-        </ul>
+                </li>
+                {% endrecursetree %}
+            </ul>
+        </div>
     </div>
 </div>
 
