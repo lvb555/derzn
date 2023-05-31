@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
 from django.views.generic import ListView
@@ -31,7 +31,7 @@ class ParameterSettingsView(LoginRequiredMixin, ListView):
             ParameterCategories.objects.filter(params__admin=False).values_list('name', flat=True).distinct()
         )
         context['cur_filter'] = self.request.GET.get('filter')
-        user = User.objects.get(id=self.request.user.id)
+        user = get_object_or_404(User, id=self.request.user.id)
         context['sections'] = access_sections(user)
         context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
                                i.startswith('Моя')]
