@@ -82,7 +82,7 @@ a {
     margin: 0px;
 }
 
-.badge {
+.main-badge {
     display: inline-block;
     padding: 4px 8px;
     border-radius: 8px;;
@@ -179,7 +179,7 @@ a {
     position: absolute;
     top: 0;
     left: 0;
-    width: 32px;
+    width: 18px;
     border-left: 1px solid #ccc;
     border-radius: 0px 0px 0px 10px;
     border-bottom: dotted 1px #ccc;
@@ -494,13 +494,13 @@ input.icon {
     absolute;
     top: 0;
     left: 0;
-    width: 32px;
+    width: 18px;
     border-left: 1px solid #ccc;
     border-radius: 0px 0px 0px 10px;
     border-bottom: dotted 1px #ccc;
     border-left: dotted 1px #ccc;
     height: 18px;
-    margin-left: -4.5vh;
+    margin-left: -0.5vh;
     margin-top: -0.05vh;
 }
 
@@ -803,7 +803,7 @@ div#author-page-drevo > a.btn.btn-success.mb-3 {
     background-color: #DFDFE3;
 }
 
-.advanced-search-form, .advanced-search-form-multiple, .select2-container, input#record_count {
+.advanced-search-form, .advanced-search-form-multiple, .select2-container, input#record_count, input#id_date, input[type="number"], select[name='gender'] {
     background: rgba(245, 245, 245, 0.75);
     color: #6C757D;
     font-family: 'Rubik';
@@ -812,6 +812,12 @@ div#author-page-drevo > a.btn.btn-success.mb-3 {
     font-size: 14px;
     line-height: 120%;
     letter-spacing: 0.02em;
+}
+
+input[type="number"], select[name='gender'] {
+    border-radius: 8px;
+    border: none;
+    text-align: center;
 }
 
 .select2-container {
@@ -831,23 +837,32 @@ div#author-page-drevo > a.btn.btn-success.mb-3 {
 	color: #6C757D !important;
 }
 
-.select2-container--default .select2-selection--single {
+.select2-container--default .select2-selection--single, input#id_date {
     border: 1px solid #ced4da !important;
+}
+
+input#id_date {
+    border-radius: 5px;
+    padding: 5px;
 }
 
 select#id_tag  option {
 	padding: 8px 12px;
 }
 
-#author-page-drevo a#search_button {
+#author-page-drevo a#search_button, .sub-drevo a#search_button {
 	top: 0vh !important;
 }
 
-#author-page-drevo form#search_form {
+.sub-drevo a#search_button {
+	right: 0.5vh !important;
+}
+
+#author-page-drevo form#search_form, .sub-drevo form#search_form {
     padding: 16px 32px 0px 32px;
 }
 
-#author-page-drevo {
+#author-page-drevo, .sub-drevo {
 	position: relative;
 }
 

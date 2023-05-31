@@ -2,16 +2,23 @@
 
 {% load static %}
 
-
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
 
 <head><title>{% block title %}Разработчики{% endblock %}</title></head>
 {% block content %}
-
-<h1>Разработчики</h1>
-
+<div class="container header_info" style="padding-left: 0px;">
+    <h1 class="page-title">Разработчики</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item"><a>Команда</a></li>
+          <li class="breadcrumb-item opened"><a>Разработчики</a></li>
+        </ol>
+    </nav>
+</div>
+<div class="basic">
     <li class="nav-item mx-2 dropdown">
         <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Фильтр</a>
         <div class="nav-item mx-2 dropdown-menu">
@@ -38,7 +45,7 @@
     {% endif %}
     {% endfor %}
 </ul>
-
+</div>
 <style>
     .developer {
         display: block;

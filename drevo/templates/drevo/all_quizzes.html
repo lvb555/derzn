@@ -1,13 +1,25 @@
 {% extends 'drevo/base.html' %}
 
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
 {% block title %}Тесты{% endblock %}
 
 {% block content %}
-
-<h2>Тесты</h2>
-
+<div class="container header_info p-0">
+    <h1>Тесты</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item opened"><a>Тесты</a></li>
+        </ol>
+    </nav>
+</div>
+<div class="basic">
 {% for term in all_quizzes %}
-
 <div class="row">
     <div class="col">
         <a href="{{ term.get_absolute_url }}" style="color: black;text-decoration:none;">{{ term.name }}</a>
@@ -21,7 +33,6 @@
         Нет доступных тестов
     </div>
 </div>
-
 {% endfor %}
-
+</div>
 {% endblock %}

@@ -12,13 +12,12 @@
 {% block title %}Популярные знания{% endblock %}
 
 {% block content %}
-
-<div class="container header_info" style="padding-top: 24px; padding-left: 0px;">
-    <h1 class="page-title m-0">Популярные знания</h1>
-    <nav style="--bs-breadcrumb-divider: '-';display: inline-flex; justify-content: space-between; width: 100%; align-items: self-end; margin: 0px;">
-        <ol class="breadcrumb m-0">
-            <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
-            <li class="breadcrumb-item opened"><a>Популярные знания</a></li>
+<div class="container header_info" style="padding-left: 0px;">
+    <h1 class="page-title">Популярные знания</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item opened"><a>Популярные знания</a></li>
         </ol>
     </nav>
 </div>
@@ -66,9 +65,16 @@ QuerySet для создания дерева: {{all_knowledges}}
     (function($) {
       $(function() {
         $('.advanced-search-form').select2();
-          $('.advanced-search-form.select2').replaceWith(function() {
+        $('.advanced-search-form.select2').replaceWith(function() {
             return $('<select>').attr('name', $(this).attr('name')).addClass('select2').html($(this).html());
-          });
+        });
+        var select2MainOption = $('#id_knowledge_category.advanced-search-form option:selected').text();
+        $('#select2-id_knowledge_category-container').text(select2MainOption.replace(/\-/g, ''));
+        $('#id_knowledge_category.advanced-search-form').on('change', function() {
+            var selectedOption = $('#id_knowledge_category.advanced-search-form option:selected').text();
+            var trimmedOption = selectedOption.replace(/\-/g, '');
+            $('#select2-id_knowledge_category-container').text(trimmedOption);
+        });
       });
     })(jQuery);
 </script>

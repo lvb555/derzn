@@ -1,11 +1,23 @@
 {% extends 'drevo/base.html' %}
 
+{% load static %}
+
 {% block title %}Глоссарий{% endblock %}
 
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
 {% block content %}
-
-<h1>Глоссарий</h1>
-
+<div class="container header_info" style="padding-left: 0px;">
+    <h1 class="page-title">Глоссарий</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item opened"><a>Глоссарий</a></li>
+        </ol>
+    </nav>
+</div>
 {% for term in glossary_terms %}
 <button class="container btn navbar bg-opacity-75 navbar-toggler text-white p-3 mt-3 rounded-0" data-bs-toggle="collapse" data-bs-target="#term_info{{ term.id }}" style="outline: none; box-shadow: none; background-color:#083E2F;">
     <div>

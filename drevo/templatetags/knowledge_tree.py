@@ -152,17 +152,17 @@ def get_knowledge_counts(data, knowledge):
     child_count = counts.get('child_count')
 
     if knowledge_count == child_count:
-        html = f'<p class="badge kn_count">' \
+        html = f'<p class="main-badge kn_count">' \
                f'{knowledge_count}' \
                f'<span class="tooltip-text">Общее число знаний</span>' \
                f'</p>'
     elif child_count == 0:
-        html = f'<p class="badge kn_count">' \
+        html = f'<p class="main-badge kn_count">' \
                f'{knowledge_count} ( )' \
                f'<span class="tooltip-text">Общее число знаний (Число дочерних знаний)</span>' \
                f'</p>'
     else:
-        html = f'<p class="badge kn_count">' \
+        html = f'<p class="main-badge kn_count">' \
                f'{knowledge_count} ({child_count})' \
                f'<span class="tooltip-text">Общее число знаний (Число дочерних знаний)</span>' \
                f'</p>'
@@ -178,17 +178,17 @@ def get_category_counts(data, category):
     base_knowledge_count = counts.get('base_knowledge_count')
 
     if knowledge_count == base_knowledge_count:
-        html = f'<p class="badge kn_count">' \
+        html = f'<p class="main-badge kn_count">' \
                f'{knowledge_count}' \
                f'<span class="tooltip-text">Общее число знаний</span>' \
                f'</p>'
     elif base_knowledge_count == 0:
-        html = f'<p class="badge kn_count">' \
+        html = f'<p class="main-badge kn_count">' \
                f'{knowledge_count} ( )' \
                f'<span class="tooltip-text">Общее число знаний (Число основных знаний)</span>' \
                f'</p>'
     else:
-        html = f'<p class="badge kn_count">' \
+        html = f'<p class="main-badge kn_count">' \
                f'{knowledge_count} ({base_knowledge_count})' \
                f'<span class="tooltip-text">Общее число знаний (Число основных знаний)</span>' \
                f'</p>'

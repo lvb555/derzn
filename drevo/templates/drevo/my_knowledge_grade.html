@@ -30,221 +30,220 @@
 
 {% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections %}
 
-<h1 class="h1-drevo my-3">Мои оценки знаний</h1>
+<p class="author-title pb-1">Мои оценки знаний</p>
 
-<button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть дерево</button>
-&nbsp;<button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть дерево</button>
-
-        <div class="my-4">
-            <form action="{{ request.get_full_path }}" method="get" id="modeForm">
-                <div class="d-flex flex-row align-items-center">
-                    <span><strong>Вариант расчета:</strong></span>
-                    <span class="ms-2">
-                    <fieldset id="variant" class="input-group">
-                        <span style="white-space: nowrap">
-                            <input class="ms-2" type="radio" id="var1" name="variant" value="1"
-                                    {% if request.GET.variant != '2' %} checked {% endif %}>
-                            <label for="var1">Оценка знания</label>
-                        </span>
-                        <span style="white-space: nowrap">
-                            <input class="ms-2" type="radio" id="var2" name="variant" value="2"
-                                    {% if request.GET.variant == '2' %} checked {% endif %}>
-                            <label for="var2">Общая оценка знания</label>
-                        </span>
-                    </fieldset>
-                </span>
-                </div>
-            </form>
-        </div>
-
-
-<br><br>
-<ul class="root ps-0" id="tree_root">
-  {% recursetree ztypes %}
-  <li {% if not node.get_level %} style="font-weight: 600;" {% else %} style="font-weight: 400;" {% endif %}
-    id="li_{{ node.id }}">
+<button type="button" class="btn tree-btn w-auto" onclick="showAll();">развернуть дерево</button>
+&nbsp<button type="button" class="btn tree-btn" onclick="hiddenAll();">cвернуть дерево</button>
+<div class="basic">
+    <div class="my-4">
+        <form action="{{ request.get_full_path }}" method="get" id="modeForm">
+            <div class="d-flex flex-row align-items-center">
+                <span><strong>Вариант расчета:</strong></span>
+                <span class="ms-2">
+                <fieldset id="variant" class="input-group">
+                    <span style="white-space: nowrap">
+                        <input class="ms-2" type="radio" id="var1" name="variant" value="1"
+                                {% if request.GET.variant != '2' %} checked {% endif %}>
+                        <label for="var1">Оценка знания</label>
+                    </span>
+                    <span style="white-space: nowrap">
+                        <input class="ms-2" type="radio" id="var2" name="variant" value="2"
+                                {% if request.GET.variant == '2' %} checked {% endif %}>
+                        <label for="var2">Общая оценка знания</label>
+                    </span>
+                </fieldset>
+            </span>
+            </div>
+        </form>
+    </div>
+    <br><br>
+    <ul class="root ps-0" id="tree_root">
+      {% recursetree ztypes %}
+      <li {% if not node.get_level %} style="font-weight: 600;" {% else %} style="font-weight: 400;" {% endif %}
+        id="li_{{ node.id }}">
 
 
-    {% if not node.has_published_children and zn_dict|dict_value:node.name|length_is:"0" %}
-    <i class="bi-file-plus-fill lonely"></i>
-    {% else %}
-    <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-    {% endif %}
-    <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
+        {% if not node.has_published_children and zn_dict|dict_value:node.name|length_is:"0" %}
+        <i class="bi-file-plus-fill lonely"></i>
+        {% else %}
+        <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+        {% endif %}
+        <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
 
-    <ul hidden>
-      {% for zn in zn_dict|dict_value:node.name %}
-        {% if zn|has_children %}
-           <li id="li_00{{ zn.id }}">
-                <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-                <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
-                {% with zn|common_grades:false_request as grades_iter %}
-                <span style="color:black">
-                    {{ zn.name }}
-                </span>
-                </a>
-
-                {% if grades_iter.0 %}
-                <span style="background-color: {{ grades_iter.0|get_color_from_knowledge_grade_value:0 }};
-                      border: 1px solid black">
-                {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
-                        {{ grades_iter.0|grade_name }}
-                </span>
-
-                <span style="background-color: #FFFF00">
-                    {{ grades_iter.0|floatformat:-2 }}
-                </span>
-                {% endwith %}
-                {% with zn|elements_tree:false_request as elements_tree %}
         <ul hidden>
-        {% for element_tree in elements_tree %}
-            {% if element_tree.lvl_up %}
-                <ul hidden>
-                    {% if element_tree.name %}
-                       <li id="li_0{{ node.id }}{{ element_tree.id }}">
+          {% for zn in zn_dict|dict_value:node.name %}
+            {% if zn|has_children %}
+               <li id="li_00{{ zn.id }}">
+                    <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                    <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                    {% with zn|common_grades:false_request as grades_iter %}
+                    <span style="color:black">
+                        {{ zn.name }}
+                    </span>
+                    </a>
+
+                    {% if grades_iter.0 %}
+                    <span style="background-color: {{ grades_iter.0|get_color_from_knowledge_grade_value:0 }};
+                          border: 1px solid black">
+                    {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                            {{ grades_iter.0|grade_name }}
+                    </span>
+
+                    <span style="background-color: #FFFF00">
+                        {{ grades_iter.0|floatformat:-2 }}
+                    </span>
+                    {% endwith %}
+                    {% with zn|elements_tree:false_request as elements_tree %}
+            <ul hidden>
+            {% for element_tree in elements_tree %}
+                {% if element_tree.lvl_up %}
+                    <ul hidden>
+                        {% if element_tree.name %}
+                           <li id="li_0{{ node.id }}{{ element_tree.id }}">
+                                {% if not element_tree.has_childrens %}
+                                    <i class="bi-file-plus-fill lonely"></i>
+                                {% else %}
+                                    <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                                {% endif %}
+
+                                <span style="background-color: #FFFF00">
+                                    {{ element_tree.for_or_against }}
+                                </span>
+                                <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                                <span style="color:black">
+                                    {{ element_tree.name }}
+                                </span>
+                                </a>
+
+                                {% if element_tree.proof_value %}
+                                <span style="background-color: {{ element_tree.bg_color }};
+                                      color: {{ element_tree.font_color }};
+                                      border: 1px solid black">
+                                {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                                        {{ element_tree.proof_grade }}
+                                </span>
+
+                                {% if element_tree.proof_value %}
+                                <span style="background-color: #FFFF00">
+                                    {{ element_tree.proof_value|floatformat:-2 }}
+                                </span>
+                                {% endif %}
                             {% if not element_tree.has_childrens %}
-                                <i class="bi-file-plus-fill lonely"></i>
-                            {% else %}
-                                <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                                </li>
                             {% endif %}
+                        {% endif %}
+                {% else %}
+                    {% if element_tree.lvl_down %}
+                        </ul>
+                        </li>
+                        {% if element_tree.name %}
+                            <li id="li_0{{ node.id }}{{ element_tree.id }}">
+                                {% if not element_tree.has_childrens %}
+                                    <i class="bi-file-plus-fill lonely"></i>
+                                {% else %}
+                                    <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                                {% endif %}
+                                <span style="background-color: #FFFF00">
+                                    {{ element_tree.for_or_against }}
+                                </span>
+                                <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                                <span style="color:black">
+                                    {{ element_tree.name }}
+                                </span>
+                                </a>
 
-                            <span style="background-color: #FFFF00">
-                                {{ element_tree.for_or_against }}
-                            </span>
-                            <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
-                            <span style="color:black">
-                                {{ element_tree.name }}
-                            </span>
-                            </a>
+                                {% if element_tree.proof_value %}
+                                <span style="background-color: {{ element_tree.bg_color }};
+                                      color: {{ element_tree.font_color }};
+                                      border: 1px solid black">
+                                {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                                        {{ element_tree.proof_grade }}
+                                </span>
 
-                            {% if element_tree.proof_value %}
-                            <span style="background-color: {{ element_tree.bg_color }};
-                                  color: {{ element_tree.font_color }};
-                                  border: 1px solid black">
-                            {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
-                                    {{ element_tree.proof_grade }}
-                            </span>
-
-                            {% if element_tree.proof_value %}
-                            <span style="background-color: #FFFF00">
-                                {{ element_tree.proof_value|floatformat:-2 }}
-                            </span>
-                            {% endif %}
-                        {% if not element_tree.has_childrens %}
+                                {% if element_tree.proof_value %}
+                                 <span style="background-color: #FFFF00">
+                                     {{ element_tree.proof_value|floatformat:-2 }}
+                                 </span>
+                                {% endif %}
                             </li>
                         {% endif %}
-                    {% endif %}
-            {% else %}
-                {% if element_tree.lvl_down %}
-                    </ul>
-                    </li>
-                    {% if element_tree.name %}
-                        <li id="li_0{{ node.id }}{{ element_tree.id }}">
-                            {% if not element_tree.has_childrens %}
-                                <i class="bi-file-plus-fill lonely"></i>
-                            {% else %}
-                                <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                    {% else %}
+                        {% if element_tree.name %}
+                            <li id="li_0{{ node.id }}{{ element_tree.id }}">
+                                {% if not element_tree.has_childrens %}
+                                    <i class="bi-file-plus-fill lonely"></i>
+                                {% else %}
+                                    <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
+                                {% endif %}
+                                <span style="background-color: #FFFF00">
+                                    {{ element_tree.for_or_against }}
+                                </span>
+                                <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                                <span style="color:black">
+                                    {{ element_tree.name }}
+                                </span>
+                                </a>
+
+                                {% if element_tree.proof_value %}
+                                <span style="background-color: {{ element_tree.bg_color }};
+                                      color: {{ element_tree.font_color }};
+                                      border: 1px solid black">
+                                {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                                        {{ element_tree.proof_grade }}
+                                </span>
+
+                                {% if element_tree.proof_value %}
+                                <span style="background-color: #FFFF00">
+                                    {{ element_tree.proof_value|floatformat:-2 }}
+                                </span>
+                                {% endif %}
+
+                             {% if not element_tree.has_childrens %}
+                                </li>
                             {% endif %}
-                            <span style="background-color: #FFFF00">
-                                {{ element_tree.for_or_against }}
-                            </span>
-                            <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
-                            <span style="color:black">
-                                {{ element_tree.name }}
-                            </span>
-                            </a>
-
-                            {% if element_tree.proof_value %}
-                            <span style="background-color: {{ element_tree.bg_color }};
-                                  color: {{ element_tree.font_color }};
-                                  border: 1px solid black">
-                            {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
-                                    {{ element_tree.proof_grade }}
-                            </span>
-
-                            {% if element_tree.proof_value %}
-                             <span style="background-color: #FFFF00">
-                                 {{ element_tree.proof_value|floatformat:-2 }}
-                             </span>
-                            {% endif %}
-                        </li>
-                    {% endif %}
-                {% else %}
-                    {% if element_tree.name %}
-                        <li id="li_0{{ node.id }}{{ element_tree.id }}">
-                            {% if not element_tree.has_childrens %}
-                                <i class="bi-file-plus-fill lonely"></i>
-                            {% else %}
-                                <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-                            {% endif %}
-                            <span style="background-color: #FFFF00">
-                                {{ element_tree.for_or_against }}
-                            </span>
-                            <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ element_tree.url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
-                            <span style="color:black">
-                                {{ element_tree.name }}
-                            </span>
-                            </a>
-
-                            {% if element_tree.proof_value %}
-                            <span style="background-color: {{ element_tree.bg_color }};
-                                  color: {{ element_tree.font_color }};
-                                  border: 1px solid black">
-                            {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
-                                    {{ element_tree.proof_grade }}
-                            </span>
-
-                            {% if element_tree.proof_value %}
-                            <span style="background-color: #FFFF00">
-                                {{ element_tree.proof_value|floatformat:-2 }}
-                            </span>
-                            {% endif %}
-
-                         {% if not element_tree.has_childrens %}
-                            </li>
                         {% endif %}
                     {% endif %}
                 {% endif %}
+            {% endfor %}
+            </ul>
+                    {% endwith %}
+               </li>
+            {% else %}
+               <li id="li_00{{ zn.id }}">
+                    <i class="bi-file-plus-fill lonely" onclick="toggleHiddenElement(this);"></i>
+                    <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
+                    {% with zn|common_grades:false_request as grades_iter %}
+                    <span style="color:black">
+                        {{ zn.name }}
+                    </span>
+                    </a>
+
+                    {% if grades_iter.0 %}
+                    <span style="background-color: {{ grades_iter.0|get_color_from_knowledge_grade_value:0 }};
+                          border: 1px solid black">
+                    {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
+                            {{ grades_iter.0|grade_name }}
+                    </span>
+
+                    <span style="background-color: #FFFF00">
+                        {{ grades_iter.0|floatformat:-2 }}
+                    </span>
+                    {% endwith %}
+                </li>
             {% endif %}
-        {% endfor %}
+          {% endfor %}
         </ul>
-                {% endwith %}
-           </li>
-        {% else %}
-           <li id="li_00{{ zn.id }}">
-                <i class="bi-file-plus-fill lonely" onclick="toggleHiddenElement(this);"></i>
-                <a class="text-decoration-none" {% if link == 'users:myprofile' %} href="{{ zn.get_absolute_url }}/grade?variant={{ request.GET.variant }}" {% endif %}>
-                {% with zn|common_grades:false_request as grades_iter %}
-                <span style="color:black">
-                    {{ zn.name }}
-                </span>
-                </a>
 
-                {% if grades_iter.0 %}
-                <span style="background-color: {{ grades_iter.0|get_color_from_knowledge_grade_value:0 }};
-                      border: 1px solid black">
-                {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
-                        {{ grades_iter.0|grade_name }}
-                </span>
-
-                <span style="background-color: #FFFF00">
-                    {{ grades_iter.0|floatformat:-2 }}
-                </span>
-                {% endwith %}
-            </li>
+        {% if not node.is_leaf_node %}
+        <ul class="children" hidden>
+          {{ children }}
+        </ul>
         {% endif %}
-      {% endfor %}
-    </ul>
 
-    {% if not node.is_leaf_node %}
-    <ul class="children" hidden>
-      {{ children }}
+      </li>
+      {% endrecursetree %}
     </ul>
-    {% endif %}
-
-  </li>
-  {% endrecursetree %}
-</ul>
+</div>
 </div>
 {% endblock %}
 

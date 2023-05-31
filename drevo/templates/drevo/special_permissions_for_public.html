@@ -7,6 +7,7 @@
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/subscriptions.css' %}">
 <link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -31,7 +32,7 @@
     {% endif %}
     {% if permissions.categories.all %}
     <div class="border-bottom border-dark">
-        <h3>Эксперт</h3>
+        <p class="author-title">Эксперт</p>
     </div>
     <div class="container mt-3">
         {% include 'drevo/special_permissions_page/expert_user_permissions_tree.html' %}
@@ -39,7 +40,7 @@
     {% endif %}
     {% if permissions.editor %}
     <div class="border-bottom border-dark">
-        <h3>Редактор</h3>
+        <p class="author-title">Редактор</p>
     </div>
     <div class="container mt-3 mb-3">
         <p>Отредактировано: <strong>{{ edit_knowledge_count }}</strong>.</p>
@@ -47,7 +48,7 @@
     {% endif %}
     {% if permissions.admin_competencies.all %}
     <div class="border-bottom border-dark">
-        <h3>Руководитель</h3>
+        <p class="author-title">Руководитель</p>
     </div>
     <div class="container mt-3">
         {% include 'drevo/special_permissions_page/admin_user_permissions_tree.html' %}

@@ -1,5 +1,6 @@
 {% extends 'drevo/base.html' %}
 
+{% load knowledge_tree %}
 {% load static %}
 {% load mptt_tags %}
 {% load filter %}
@@ -25,55 +26,15 @@
     </nav>
 </div>
     {% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections %}
-<h1>Избранные знания</h1>
-<div class="content_tp">
-        <div class="tree">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть древо</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть древо</button>
-            <br><br>
-            <ul class="root ps-0" id="tree_root">
-                {% recursetree znanie_tree %}
-                    <li {% if not node.get_level %} style="font-weight: 600;" {% else %}
-                                                    style="font-weight: 400;" {% endif %}
-                                                    id="li_{{ node.id }}">
-                        {% if not node.has_published_children and knowledges|dict_value:node.name|length_is:"0" %}
-                            <i class="bi-file-plus-fill lonely"></i>
-                        {% elif not node.has_published_children and knowledges|dict_value:node.name is None %}
-                            <i class="bi-file-plus-fill lonely"></i>
-                        {% else %}
-                            <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-                        {% endif %}
-                        <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
-                        <ul hidden>
-                            {% if not knowledges|dict_value:node.name|dict_value:"base"|length_is:"0" %}
-                            {% for zn in knowledges|dict_value:node.name|dict_value:"base" %}
-                                <li style="font-weight: 400;">
-                                        <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
-                                        <a href="{{ zn.get_absolute_url }}">{{ zn }}</a>
-                                    </li>
-                            {% endfor %}
-                            {% endif %}
-                            {% if not knowledges|dict_value:node.name|dict_value:"additional"|length_is:"0" %}
-                            {% for zn in knowledges|dict_value:node.name|dict_value:"additional" %}
-                            <li style="font-weight: 400;">
-                                        <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
-                                        <a href="{{ zn.get_absolute_url }}">{{ zn }}</a>
-                                    </li>
-                            {% endfor %}
-                            {% endif %}
-                        </ul>
+<div class="sub-drevo">
+    <p class="author-title" style="padding-bottom: 5px;">Избранные знания</p>
+    {% if knowledges %}
+        {% build_knowledge_tree queryset=knowledges empty_tree_message='Вы еще не добавили ни одного знания в Избранное' show_complex=True %}
+    {% else %}
+        <p class="option">Вы еще не добавили ни одного знания в избранное</p>
+    {% endif %}
+</div>
 
-                        {% if not node.is_leaf_node %}
-                            <ul class="children" hidden>
-                                {{ children }}
-                            </ul>
-                        {% endif %}
-
-                    </li>
-                {% endrecursetree %}
-            </ul>
-        </div>
-    </div>
 </div>
 {% endblock %}
 

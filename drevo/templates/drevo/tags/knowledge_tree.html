@@ -81,12 +81,12 @@
         {% get_category_counts category_rel_counts node.id %}
 
         {% if not node.is_leaf_node %}
-        <ul class="children" hidden>
+        <ul class="children ps-0" hidden>
             {{ children }}
         </ul>
         {% endif %}
 
-        <ul class="children" hidden>
+        <ul class="children ps-0" hidden>
             {% get_data_by_category tree_data node as category_knowledge %}
             {% for knowledge in category_knowledge %}
             {%for base_knowledge, knowledge_data in knowledge.items %}
@@ -123,9 +123,16 @@
     (function($) {
       $(function() {
         $('.advanced-search-form').select2();
-          $('.advanced-search-form.select2').replaceWith(function() {
+        $('.advanced-search-form.select2').replaceWith(function() {
             return $('<select>').attr('name', $(this).attr('name')).addClass('select2').html($(this).html());
-          });
+        });
+        var select2MainOption = $('#id_knowledge_category.advanced-search-form option:selected').text();
+        $('#select2-id_knowledge_category-container').text(select2MainOption.replace(/\-/g, ''));
+        $('#id_knowledge_category.advanced-search-form').on('change', function() {
+            var selectedOption = $('#id_knowledge_category.advanced-search-form option:selected').text();
+            var trimmedOption = selectedOption.replace(/\-/g, '');
+            $('#select2-id_knowledge_category-container').text(trimmedOption);
+        });
       });
     })(jQuery);
 
