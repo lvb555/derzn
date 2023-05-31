@@ -1,11 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from drevo.models import Category, Label, Author
 from users.models import User, MenuSections
 from users.views import access_sections
 
 
 def new_knowledge(request, id):
-    user = User.objects.filter(id=id).first()
+    user = get_object_or_404(User, id=id)
     context = {}
     if user is not None:
         if user == request.user:

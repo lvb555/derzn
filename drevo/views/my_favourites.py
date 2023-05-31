@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from users.models import User, MenuSections, Favourite
 from users.views import access_sections
 from ..relations_tree import get_knowledges_by_categories
@@ -6,7 +6,7 @@ from ..relations_tree import get_knowledges_by_categories
 
 def my_favourites(request,id):
     if request.method == 'GET':
-        user = User.objects.filter(id=id).first()
+        user = get_object_or_404(User, id=id)
         context = {}
         if user is not None:
             if user == request.user:

@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from drevo.models.feed_messages import FeedMessage
 from drevo.models.message import Message
@@ -14,7 +14,7 @@ def friends_view(request):
     """
     Контроль для страницы "Друзья"
     """
-    user = User.objects.filter(id=request.user.id).first()
+    user = get_object_or_404(User, id=request.user.id)
     context = {}
     context['friends'] = []
     if user is not None:
