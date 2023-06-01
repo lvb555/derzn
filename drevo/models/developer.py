@@ -13,6 +13,12 @@ class Developer(models.Model):
         max_length=128,
         verbose_name='Фамилия'
     )
+    photo = models.ImageField(
+        upload_to='photos/developers/',
+        verbose_name='Фото',
+        blank=True,
+        null=True
+    )
     contribution = models.IntegerField(
         verbose_name='Вклад в проект',
         default=0,

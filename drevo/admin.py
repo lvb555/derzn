@@ -614,7 +614,7 @@ class InterviewAnswerExpertProposalAdmin(admin.ModelAdmin):
 
 class DeveloperAdmin(admin.ModelAdmin):
     list_display = ("name", "surname", "contribution", "comment", "admin")
-    fields = ("name", "surname", "contribution", "comment", "admin")
+    fields = ("name", "surname", "contribution", "comment", "admin", "photo")
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs["form"] = DeveloperForm

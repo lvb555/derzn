@@ -145,11 +145,11 @@ a {
 
 .breadcrumb-item a {
     text-decoration: none;
-    color: #6C757D;
+    color: #6C757D !important;
 }
 
-.header_info .opened, label[for=id_email_address], label[for=id_mes_text] {
-    color: #212529;
+.header_info .opened, label[for=id_email_address], label[for=id_mes_text], .breadcrumb-item.opened a {
+    color: #212529 !important;
     font-family: Rubik;
     font-size: 12px;
     font-weight: 400;
@@ -244,7 +244,7 @@ table.table.align-middle.my-2 th {
     text-align: left;
 }
 
-table.table.align-middle.my-2 td, .search-header {
+table.table.align-middle.my-2 td, .search-header, .small-title {
 	font-family: Rubik;
 	font-size: 14px;
 	font-weight: 400;
@@ -330,6 +330,11 @@ table.table.align-middle.my-2 {
 .select__item:hover {
 	background-color: #E7ECEB;
 	color: #083E2F;
+}
+
+.select__item:hover > a, a.select__item.text-secondary:hover {
+	background-color: #E7ECEB;
+	color: #083E2F !important;
 }
 
 .pages li>a{
@@ -884,4 +889,55 @@ input[type="number"] {
     background-color: rgb(255, 255, 255);
     padding: 32px;
     border-radius: 10px;
+}
+
+.glossary-term {
+    border: 1px solid #DFDFE3;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.small-title > p{
+	margin: 0px;
+}
+
+.bi-play-circle-close::before {
+    content: "\f4f2";
+    color: #DFDFE3;
+    transform: rotate(90deg);
+    background: radial-gradient(0.9vh, #6C757D 100%, #FFFFFF 100% );
+    font-size: x-large;
+    vertical-align: bottom;
+}
+
+.bi-play-circle-open::before {
+    content: "\f4f2";
+    color: #DFDFE3;
+    transform: rotate(-90deg);
+    background: radial-gradient(0.9vh, #BFBFBF 100%, #F5F5F5BF 100% );
+    font-size: x-large;
+    vertical-align: bottom;
+}
+
+.dashed {
+    text-decoration: underline #083E2F;
+    color: #083E2F;
+}
+
+a.disabled{
+    pointer-events: none;
+    cursor: default;
+    color: black;
+}
+
+.centered {
+    vertical-align: 0.5vh;
+}
+
+.current-page {
+    color: #212529;
+    text-decoration: none !important;
+    background: rgba(25, 135, 84, 0.2);
+    border-radius: 8px;
+    padding: 4px 12px;
 }

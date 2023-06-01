@@ -19,37 +19,51 @@
     </nav>
 </div>
 <div class="basic">
-    <li class="nav-item mx-2 dropdown">
-        <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown" role="button">Фильтр</a>
-        <div class="nav-item mx-2 dropdown-menu">
+    <li class="nav-item dropdown">
+        <a href="#" class="nav-link author-page-article" data-bs-toggle="dropdown" style="width: 200px; color: #6C757D; border-radius: 8px; background: rgba(245, 245, 245, 0.75); padding: 12px 16px;" role="button">
             {% if filter %}
-            <a class="dropdown-item filter" href="{% url 'developer_page' %}?filter=name">По имени</a>
-            <a class="dropdown-item" href="{% url 'developer_page' %}?filter=contribution">По вкладу</a>
+            По имени
             {% else %}
-            <a class="dropdown-item" href="{% url 'developer_page' %}?filter=name">По имени</a>
-            <a class="dropdown-item filter" href="{% url 'developer_page' %}?filter=contribution">По вкладу</a>
+            По вкладу
             {% endif %}
+        <img style="height: 6px;weight: 10.5px;opacity: 0.6; margin-left: 50%;" src="{% static 'drevo/img/main_page/arrow-down.png' %}"></a>
+        <div class="nav-item mx-2 dropdown-menu">
+            <a class="dropdown-item select__item text-secondary" href="{% url 'developer_page' %}?filter=name">По имени</a>
+            <a class="dropdown-item select__item text-secondary" href="{% url 'developer_page' %}?filter=contribution">По вкладу</a>
         </div>
     </li>
-
-<ul style="display: inline-block;">
+<div class="d-flex justify-content-between align-items-center">
+    <p class="author-page-article" style="width: 40%;">РАЗРАБОТЧИК</p>
+    <p class="author-page-article ps-2" style="width: 20%;">ГОРОД</p>
+    <p class="author-page-article ps-2" style="width: 40%;">ДЕЯТЕЛЬНОСТЬ</p>
+</div>
+<ul style="display: inline-block; width: 100%; padding: 0; border-top: dashed lightgrey 1px;">
+     <table class="table">
     {% for developer in developers_list %}
-    {% if developer.comment %}
-        <li class="developer comment" style="font-size: 14px;" contribution-data="{{developer.contribution}}" comment-data="{{developer.comment}}">
-            {{developer.name}} {{developer.surname}}
-        </li>
-    {% else %}
-        <li class="developer" style="font-size: 14px;" contribution-data="{{developer.contribution}}">
-            {{developer.name}} {{developer.surname}}
-        </li>
-    {% endif %}
+        <tr style="font-weight: 400;">
+           <td style="width: 40%; padding: 24px 0px;">
+            {% if developer.photo %}
+                    <img src="{% get_media_prefix %}{{ developer.photo }}"
+                    alt="{{ developer.name }}" class="header-avatar" width="50" height="50"
+                    style="z-index: 1; margin-right: 10px;">
+            {% else %}
+                <span class="author-avatar">{{ developer.name }}</span>
+            {% endif %}
+               <span class="developer small-title" contribution-data="{{developer.contribution}}">{{developer.name}}</span>
+            </td>
+            <td style="vertical-align: middle; width: 20%;" class="city small-title">
+                {{ developer.surname }}
+            </td>
+            <td style="vertical-align: middle; width:40%;">
+               <pre class="small-title m-0">{{ developer.comment|safe }}</pre>
+            </td>
+        </tr>
     {% endfor %}
+     </table>
 </ul>
+
 </div>
 <style>
-    .developer {
-        display: block;
-    }
     @media (min-width: 490px){
         .comment:hover::after {
         content: attr(comment-data);
@@ -83,5 +97,26 @@ for (let i = 0; i < developers.length; i++){
     }
     developers[i].style = `font-size: ${size}px`
 }
+
+function makeAvatar(){
+    all_places = document.querySelectorAll('.city')
+    for (var i = 0; i < all_places.length; i++) {
+        var cityName = all_places[i].textContent;
+        var cityNameWithoutPrefix = cityName.replace(/г\.\s*/, '');
+        all_places[i].textContent = cityNameWithoutPrefix;
+    }
+    all_developers_without_picture = document.querySelectorAll('.author-avatar');
+    for(let i=0;i< all_developers_without_picture.length;i++){
+        developer_full_name = all_developers_without_picture[i].textContent.split(' ');
+        developer_initials = ''
+        if(developer_full_name.length > 1){
+            developer_initials += Array.from(developer_full_name[0])[0];
+            developer_initials += Array.from(developer_full_name[1])[0];
+        }
+        all_developers_without_picture[i].innerHTML = developer_initials.toUpperCase();
+    }
+}
+
+makeAvatar()
 </script>
 {% endblock %}
