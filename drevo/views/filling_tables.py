@@ -85,7 +85,7 @@ class TableKnowledgeTreeView(LoginRequiredMixin, TemplateView):
                 zn = zn.exclude(id=z.id)
 
         context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn, rights='expert', user=user)
-        context['title'] = 'Дерево табличных знаний'
+        context['title'] = 'Наполнение таблиц'
 
         return context
 

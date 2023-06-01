@@ -10,12 +10,12 @@
 {% block content %}
 <div>
     <div class="container header_info" style="padding-left: 0px;">
-        <h1 class="page-title">Все связи вида {{ relation_type.name }}</h1>
+        <h1 class="page-title">Все связи вида '{{ relation_type.name }}'</h1>
         <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
               <li class="breadcrumb-item"><a>Виды связей</a></li>
-              <li class="breadcrumb-item opened"><a>Все связи вида {{ relation_type.name }}</a></li>
+              <li class="breadcrumb-item opened"><a>Все связи вида '{{ relation_type.name }}'</a></li>
             </ol>
         </nav>
     </div>

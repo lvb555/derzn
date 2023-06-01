@@ -8,25 +8,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="row container">
-    <div class="col">
         {% if cur_help %}
         <div class="container header_info" style="padding-left: 0px;">
             <h1 class="page-title">{{ cur_help.name }}</h1>
             <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
                 <ol class="breadcrumb">
                   <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
-                  <li class="breadcrumb-item"><a>Помощь</a></li>
+                  <li class="breadcrumb-item"><a href="{% url 'help' %}">Помощь</a></li>
                   <li class="breadcrumb-item opened"><a>{{ cur_help.name }}</a></li>
                 </ol>
             </nav>
-        </div>
-        <div class="basic">
-            {% if cur_help.content %}
-            {{ cur_help.content|safe }}
-            {% else %}
-            Страницы помощи для этой страницы еще нет.
-            {% endif %}
         </div>
         {% else %}
         <div class="container header_info" style="padding-left: 0px;">
@@ -38,39 +29,46 @@
                 </ol>
             </nav>
         </div>
+        {% endif %}
+<div class="row container basic" style="justify-content: space-between;">
+    <div style="width: 50%;">
+        {% if cur_help %}
+        <h1 class="author-title">{{ cur_help.name }}</h1>
+            {% if cur_help.content %}
+            {{ cur_help.content|safe }}
+            {% else %}
+            Страницы помощи для этой страницы еще нет.
+            {% endif %}
+        {% else %}
         <p>
             Страницы помощи для этой страницы еще нет.
         </p>
         {% endif %}
     </div>
     <div class="col-5">
-        <h1 class="page-title">Содержание</h1>
+        <h1 class="author-title">Содержание</h1>
 
         <button type="button" class="btn tree-btn" onclick="showAll();">Развернуть</button>
         &nbsp;<button type="button" class="btn tree-btn" onclick="hiddenAll();">Свернуть</button>
 
-        <div class="basic">
+        <div>
             <ul class="root ps-0" id="tree_root">
                 {% recursetree nodes %}
-                <li
-                    id="li_{{ node.id }}">
-
+                <li id="li_{{ node.id }}" class="title-treeline {% if node.level == 0 %}main-title{% endif %}">
                     {% if not node.has_published_children %}
-                    <i class="bi-file-plus-fill lonely"></i>
+                    <i class="bi-plus-circle-fill lonely circle_icon without_children"></i>
                     {% else %}
-                    <i
-                            class="family {% if node in active_nodes and cur_help %} bi-file-minus-fill {% else %}
-                            {% if node not in active_nodes %}bi-file-plus-fill{% else %} bi-file-minus-fill {% endif %} {% endif %}" onclick="toggleHiddenElement(this);">
-
-                    </i>
+                    <i class="family {% if node in active_nodes and cur_help %} bi-file-minus-fill {% else %}
+                    {% if node not in active_nodes %}bi-file-plus-fill{% else %} bi-file-minus-fill {% endif %} {% endif %} circle_icon"
+                       onclick="toggleHiddenElement(this);"></i>
                     {% endif %}
 
-                    <a href="{{ node.get_absolute_url }}" class="{% if node == cur_help %}text-dark{% endif %} {% if node.is_group %}disabled{% endif %} title">
+                    <a href="{{ node.get_absolute_url }}" class="centered {% if node == cur_help %} current-page {% endif %} {% if node.is_group %} disabled {% else %} dashed {% endif %} small-title">
                         {{ node.name }}
                     </a>
 
                     {% if not node.is_leaf_node %}
-                    <ul class="children" {% if node not in active_nodes and cur_help %} hidden {% endif %}>
+                    <ul class="children ps-0" {% if node not in active_nodes and cur_help %} hidden {% endif %}>
                         {{ children }}
                     </ul>
                     {% endif %}
@@ -81,21 +79,9 @@
         </div>
     </div>
 </div>
-
-<style>
-    a.disabled{
-    pointer-events: none;
-    cursor: default;
-    color: black;
-}
-</style>
-
 {% endblock %}
 
-
-
 {% block jsfiles %}
-
 <script>
 
   function toggleHiddenElement(element) {
@@ -147,8 +133,5 @@
     }
 
   }
-
-
 </script>
-
 {% endblock %}
