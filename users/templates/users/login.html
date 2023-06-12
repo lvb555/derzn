@@ -1,6 +1,9 @@
 {% extends 'users/base.html' %}
-
-
+{% load static %}
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
+{% endblock %}
 
 {% block content %}
     <div class="container">
@@ -25,41 +28,49 @@
                         {% endif %}
                     </div>
                 {% endif %}
-                <div class="card shadow-lg border-0 rounded-lg mt-5">
-                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Авторизация</h3>
+                            <ul class="navbar-nav mb-2 mb-lg-0 ms-auto" style="align-items: center; margin-top: 25px;">
+                <li class="nav-item row">
+                    <div class="logo ps-0 ms-0 me-1 col-auto">
+                        <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
+                            <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height='46px' alt="logo-tree">
+                        </a>
                     </div>
-                    <div class="card-body card">
-                        <form action="{% url 'users:login' %}" method="post">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <label class="small mb-1" for="{{ form.username.id_for_label }}">Имя
-                                    пользователя</label>
-                                {{ form.username }}
-                            </div>
-                            <div class="form-group">
-                                <label class="small mb-1 b4-pass" for="{{ form.password.id_for_label }}">Пароль</label>
-                                <div class="input-group" id="show_hide_password">
-                                    {{ form.password }}
-                                    <a class="btn btn-outline-secondary"><i class="bi bi-eye-slash"></i></a>
-                                </div>
-                            </div>
-                            <div class="form-group d-flex justify-content-between mt-4 mb-0">
-                                <a class="medium text-decoration-none" href="{% url 'users:password-recovery' %}">Забыли
-                                    пароль?</a>
-                                <input class="btn btn-primary" type="submit" value="Авторизоваться">
-                            </div>
-                        </form>
-                    </div>
-                    <div class="card-footer text-center">
-                        <div class="medium my-4">
-                            <a class="text-decoration-none" href="{% url 'users:register' %}">Нужен аккаунт?
-                                Зарегистрируйся!</a>
+                    <div class="col p-0">
+                        <div class="header-bottom-title">
+                            Дерево знаний
+                        </div>
+                        <div class="header-bottom-subtitle">
+                            Научно-образовательный проект
                         </div>
                     </div>
+                </li>
+            </ul>
+            <h2 class="text-center font-weight-light my-4 ps-1">Регистрация</h2>
+            <div class="basic">
+                <div>
+                    <form action="{% url 'users:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="small mb-1" for="{{ form.username.id_for_label }}">Имя
+                                пользователя</label>
+                            {{ form.username }}
+                        </div><br>
+                        <div class="form-group mb-2">
+                            <label class="small mb-1 b4-pass" for="{{ form.password.id_for_label }}">Пароль</label>
+                            <div class="input-group" id="show_hide_password">
+                                {{ form.password }}
+                                <a class="btn btn-outline-secondary"><i class="bi bi-eye-slash"></i></a>
+                            </div>
+                        </div>
+                        <a class="classic" style="color: #6C757D; text-decoration-line: underline;" href="{% url 'users:password-recovery' %}">Забыли пароль?</a>
+                        <div class="form-group d-flex justify-content-between mt-4 mb-0">
+                            <input class="btn btn-header" style="width: 100%; font-size: 14px;" type="submit" value="Войти">
+                        </div>
+                    </form>
                 </div>
-                <div class="small my-4 text-center">
-                    <a class="text-decoration-none" href="{% url 'drevo' %}">Вернуться на главную страницу</a>
-                </div>
+                <p class="classic mt-4" style="color: #6C757D; text-align: center;">Нет аккаунта?
+                <a style="color: #083E2F; text-decoration-line: underline;" href="{% url 'users:register' %}">Зарегистрироваться</a></p>
+            </div>
             </div>
         </div>
     </div>

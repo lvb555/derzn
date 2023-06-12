@@ -54,8 +54,8 @@
             <td style="vertical-align: middle; width: 20%;" class="city small-title">
                 {{ developer.surname }}
             </td>
-            <td style="vertical-align: middle; width:40%;">
-               <pre class="small-title m-0">{{ developer.comment|safe }}</pre>
+            <td style="vertical-align: middle; width:40%;" class="small-title">
+              {{ developer.comment|safe|linebreaks  }}
             </td>
         </tr>
     {% endfor %}
