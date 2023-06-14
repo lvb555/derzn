@@ -88,7 +88,7 @@ from .views import (
 )
 from .views import send_znanie, knowledge_feed_view
 from .views.browsing_history import browsing_history
-
+from .views.cookie_acceptance_process_view import CookieAcceptance
 
 from .views.expert_work.views import (
     propose_answer,
@@ -144,6 +144,7 @@ from .views.knowledge_tp_view import (
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
+    path("cookie_acceptance/", CookieAcceptance.as_view()),
     path("", DrevoView.as_view(), name="drevo"),
     path("znanie/<int:pk>", ZnanieDetailView.as_view(), name="zdetail"),
     path("znanie/<int:pk>/favourite", FavouriteProcessView.as_view()),

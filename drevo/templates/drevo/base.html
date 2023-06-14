@@ -204,6 +204,17 @@
             {% block content %}
             {% endblock %}
         </div>
+        {% if user.is_authenticated %}
+        {% if not user.cookie_acceptance %}
+        <div id="cookie-consent">
+            <div>
+          <p class="title col" style="color: white; font-weight: 400;">Для обеспечения работоспособности этот сайт может хранить файлы cookie. Продолжая пользоваться сайтом,
+              вы принимаете условия обработки персональных данных в соответствии с
+              <a style="text-decoration-line: underline; color: white;" href="{% url 'privacy' %}">Политикой обработки Персональных данных</a>.</p></div>
+          <button onclick="cookieSendClick()" class="col btn open-popup btn-icon" style="background-color: #fff; color: #083E2F; padding: 8px 24px;">Принимаю</button>
+        </div>
+        {% endif %}
+        {% else %}
         <div id="cookie-consent">
             <div>
           <p class="title col" style="color: white; font-weight: 400;">Для обеспечения работоспособности этот сайт может хранить файлы cookie. Продолжая пользоваться сайтом,
@@ -211,6 +222,7 @@
               <a style="text-decoration-line: underline; color: white;" href="{% url 'privacy' %}">Политикой обработки Персональных данных</a>.</p></div>
           <button id="cookie-accept" class="col btn open-popup btn-icon" style="background-color: #fff; color: #083E2F; padding: 8px 24px;">Принимаю</button>
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -250,14 +262,17 @@
         localStorage.setItem('active_link', link.id);
       }
     }
-      // Обработчик события для кнопки "Принимаю"
-  document.getElementById('cookie-accept').addEventListener('click', function() {
-    // Сохранение состояния согласия пользователя, например, с помощью localStorage
-    localStorage.setItem('cookieConsent', 'true');
 
-    // Удаление уведомления о файле cookie
-    document.getElementById('cookie-consent').style.display = 'none';
-  });
+    if(document.getElementById('cookie-accept')){
+      // Обработчик события для кнопки "Принимаю"
+      document.getElementById('cookie-accept').addEventListener('click', function() {
+        // Сохранение состояния согласия пользователя, например, с помощью localStorage
+        localStorage.setItem('cookieConsent', 'true');
+
+        // Удаление уведомления о файле cookie
+        document.getElementById('cookie-consent').style.display = 'none';
+      });
+  }
 
   // Проверка состояния согласия пользователя при загрузке страницы
   window.addEventListener('load', function() {
@@ -267,6 +282,17 @@
       document.getElementById('cookie-consent').style.display = 'none';
     }
   });
+
+  function cookieSendClick(){
+    $.ajax({
+        data: {},
+        url: '/drevo/cookie_acceptance/',
+        success: function (response) {
+        }
+    });
+
+    document.getElementById('cookie-consent').style.display = 'none';
+}
 </script>
 
 <script>

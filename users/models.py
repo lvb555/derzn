@@ -29,6 +29,7 @@ class User(AbstractUser):
     is_public = models.BooleanField(default=False, verbose_name='Публичный человек')
     sections = models.ManyToManyField('MenuSections', verbose_name='Секции, разрешенные к показу', blank=True)
     job = models.CharField(max_length=150, verbose_name='Работа', blank=True)
+    cookie_acceptance = models.BooleanField(default=False, verbose_name='Согласие использования файлов cookie')
 
     date_joined = last_login = None
     user_friends = models.ManyToManyField('User', related_name='users_friends', blank=True, editable = False)
