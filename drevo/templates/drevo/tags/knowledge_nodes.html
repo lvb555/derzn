@@ -40,9 +40,7 @@
         {% endif %}
     </div>
     {% endif %}
-    {% if not knowledge_data %}
-        <i class="bi-plus-circle-fill lonely circle_icon without_children"></i>
-    {% else %}
+    {% if knowledge_data %}
         <i class="family bi bi-dash-circle-fill circle_icon" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
     {% endif %}
     {% if base_knowledge.tz.name == 'Тезис' %}

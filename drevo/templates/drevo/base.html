@@ -83,7 +83,6 @@
                         <li><a class="dropdown-item from-nav" href="{% url 'authors' %}" id="authors_link">Авторы</a></li>
 						<li><a class="dropdown-item from-nav" href="{% url 'labels' %}" id="tags_link">Теги</a></li>
                         <li><a class="dropdown-item from-nav" href="{% url 'new_knowledge'%}" id="new_knowledge_link">Новые знания</a></li>
-
                         <li>
                             <div class="btn-group dropstart">
                                 <a onclick="logAndStop(event)" class="dropdown-item from-nav change-arrow" data-bs-toggle="dropdown" aria-expanded="false">
@@ -205,6 +204,25 @@
             {% block content %}
             {% endblock %}
         </div>
+        {% if user.is_authenticated %}
+        {% if not user.cookie_acceptance %}
+        <div id="cookie-consent">
+            <div>
+          <p class="title col" style="color: white; font-weight: 400;">Для обеспечения работоспособности этот сайт может хранить файлы cookie. Продолжая пользоваться сайтом,
+              вы принимаете условия обработки персональных данных в соответствии с
+              <a style="text-decoration-line: underline; color: white;" href="{% url 'privacy' %}">Политикой обработки Персональных данных</a>.</p></div>
+          <button onclick="cookieSendClick()" class="col btn open-popup btn-icon" style="background-color: #fff; color: #083E2F; padding: 8px 24px;">Принимаю</button>
+        </div>
+        {% endif %}
+        {% else %}
+        <div id="cookie-consent">
+            <div>
+          <p class="title col" style="color: white; font-weight: 400;">Для обеспечения работоспособности этот сайт может хранить файлы cookie. Продолжая пользоваться сайтом,
+              вы принимаете условия обработки персональных данных в соответствии с
+              <a style="text-decoration-line: underline; color: white;" href="{% url 'privacy' %}">Политикой обработки Персональных данных</a>.</p></div>
+          <button id="cookie-accept" class="col btn open-popup btn-icon" style="background-color: #fff; color: #083E2F; padding: 8px 24px;">Принимаю</button>
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -212,12 +230,12 @@
 <div class="container container-fluid mt-auto">
     <footer class="static-bottom d-flex flex-wrap justify-content-between align-items-center py-3 mt-5 border-top">
         <div class="d-flex">
-            <p class="mb-0 text-muted">© 2020–2022 Все права защищены</p>
+            <p class="mb-0 text-muted">© 2020–2023 Все права защищены</p>
             <p class="mb-0 ms-3" style="color: #212529;">Научно-образовательный проект «Дерево знаний»</p>
         </div>
       <ul class="nav col-md-4 justify-content-end">
         <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">О проекте</a></li>
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Контакты</a></li>
+        <li class="nav-item"><a href="{% url 'privacy' %}" class="nav-link px-2 text-muted">Политика обработки Персональных данных</a></li>
       </ul>
     </footer>
 </div>
@@ -244,6 +262,37 @@
         localStorage.setItem('active_link', link.id);
       }
     }
+
+    if(document.getElementById('cookie-accept')){
+      // Обработчик события для кнопки "Принимаю"
+      document.getElementById('cookie-accept').addEventListener('click', function() {
+        // Сохранение состояния согласия пользователя, например, с помощью localStorage
+        localStorage.setItem('cookieConsent', 'true');
+
+        // Удаление уведомления о файле cookie
+        document.getElementById('cookie-consent').style.display = 'none';
+      });
+  }
+
+  // Проверка состояния согласия пользователя при загрузке страницы
+  window.addEventListener('load', function() {
+    var cookieConsent = localStorage.getItem('cookieConsent');
+    if (cookieConsent === 'true') {
+      // Если пользователь уже дал согласие, скрыть уведомление о файле cookie
+      document.getElementById('cookie-consent').style.display = 'none';
+    }
+  });
+
+  function cookieSendClick(){
+    $.ajax({
+        data: {},
+        url: '/drevo/cookie_acceptance/',
+        success: function (response) {
+        }
+    });
+
+    document.getElementById('cookie-consent').style.display = 'none';
+}
 </script>
 
 <script>

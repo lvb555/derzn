@@ -87,9 +87,9 @@ class ZnanieDetailView(DetailView):
         if category:
             categories = category.get_ancestors(
                 ascending=False, include_self=True)
+            context['category_tree'] = categories[0].get_descendants(include_self=True)
         else:
             categories = []
-        context['category_tree'] = categories[0].get_descendants(include_self=True)
         context['relative_znania'] = get_descendants_for_knowledge(knowledge)
         context['category'] = category
         context['categories'] = categories

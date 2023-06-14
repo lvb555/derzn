@@ -190,8 +190,11 @@
                     </div>
                     {% endif %}
                 </div>
+                    <input type="checkbox" name="agreement" id="agreement-checkbox" class="form-check-input" required>
+                    <label for="agreement-checkbox" style="color: #6C757D; display: inline!important;">Даю согласие на обработку персональных в соответствии с
+                    <a style="text-decoration-line: underline; color: #6C757D;" href="{% url 'privacy' %}">Политикой обработки персональных данных</a></label>
                     <div class="col-lg-12" style="margin-top: 32px;margin-bottom: 32px;">
-                        <input class="btn btn-primary" type="submit" value="Сохранить" onclick="SendUserMenu()">
+                        <input class="btn btn-primary" id="registration-button" disabled type="submit" value="Сохранить" onclick="SendUserMenu()">
                     </div>
                 </div>
             </form>
@@ -253,6 +256,17 @@ function ShowFirst(){
 }
 
 ShowFirst()
+
+const agreementCheckbox = document.getElementById('agreement-checkbox');
+const registrationButton = document.getElementById('registration-button');
+
+agreementCheckbox.addEventListener('change', function() {
+    if (agreementCheckbox.checked) {
+      registrationButton.removeAttribute('disabled');
+    } else {
+      registrationButton.setAttribute('disabled', 'disabled');
+    }
+});
 
 function IsAllChecked(name){
     element = document.querySelector("input[name='"+name+"']")

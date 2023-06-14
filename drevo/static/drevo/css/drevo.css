@@ -102,7 +102,7 @@ a {
 .circle_icon {
     color: #DFDFE3;
     width: 24px;
-    background: radial-gradient(0.9vh, #6C757D 100%, #FFFFFF 100% );
+    background: radial-gradient(10px, #6C757D 100%, #FFFFFF 100% );
 }
 
 .without_children{
@@ -235,7 +235,7 @@ table.table.align-middle.my-2 td, table.table th {
     border: 1px solid #BFBFBF;
 }
 
-table.table.align-middle.my-2 th {
+table.table.align-middle.my-2 th, .classic {
 	font-family: Rubik;
     font-size: 14px;
     font-weight: 500;
@@ -940,4 +940,66 @@ a.disabled{
     background: rgba(25, 135, 84, 0.2);
     border-radius: 8px;
     padding: 4px 12px;
+}
+
+#cookie-consent {
+    position: fixed;
+    bottom: 10%;
+    left: 6.5%;
+    width: 87%;
+    background-color: #083E2F;
+    padding: 48px;
+    text-align: center;
+    z-index: 9999;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 48px;
+}
+
+#cookie-accept {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#cookie-accept:hover {
+    background-color: #45a049;
+}
+
+.form-control {
+    background: rgba(245, 245, 245, 0.75);
+    border-radius: 8px;
+	border-color: rgba(245, 245, 245, 0.75);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.02em;
+    text-align: left;
+}
+
+.btn-outline-secondary {
+    background: rgba(245, 245, 245, 0.75);
+	border-color: rgba(245, 245, 245, 0.75);
+}
+
+.errorlist.nonfield, .errorlist {
+	color: #E01F27;
+	font-family: Rubik;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 17px;
+	letter-spacing: 0.02em;
+	text-align: left;
+}
+
+.form-row.form-check-input {
+    background-color: #fff;
+}
+
+.alert  {
+	text-align: center;
 }

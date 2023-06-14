@@ -343,6 +343,7 @@
   <div class='scrollbar' style="width: 23%; margin: 32px;overflow-x: auto;height: fit-content;">
       <p class="choice-header p-0" style="border-block-end: dotted lightgrey 1px;">Дерево</p>
       <div style="width: max-content;">
+            {% if category_tree %}
             <ul class="category-item p-0">
             {% recursetree category_tree %}
                 <li {% if node in categories  %} class="active-node" {% else %} class="nonactive-node" {% endif %}
@@ -365,6 +366,7 @@
                 </li>
             {% endrecursetree %}
             </ul>
+          {% endif %}
       </div>
   </div>
   <div class='p-0' style="margin: 29px 32px 32px 32px; width: 77%;">

@@ -4,8 +4,8 @@ from users.models import User
 
 class UserPasswordRecoveryForm(forms.Form):
     email = forms.CharField(
-        widget=forms.EmailInput(),
-        label='Адрес эл. почты'
+        widget=forms.EmailInput(attrs={'placeholder': 'Введите адрес электронной почты'}),
+        label='E-mail'
     )
 
     class Meta:
