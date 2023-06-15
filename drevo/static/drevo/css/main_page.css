@@ -114,13 +114,14 @@ body {
     color: #212529 !important;
 }
 
-.nav-header {
+.navbar .nav-header {
     font-family: Rubik;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 500 !important;
     line-height: 17px;
     letter-spacing: 0.02em;
     text-align: left;
+    color: black
 }
 
 a.nav-header.show, a.from-nav.show {

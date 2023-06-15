@@ -215,7 +215,7 @@
         </div>
         {% endif %}
         {% else %}
-        <div id="cookie-consent">
+        <div id="cookie-consent" style="display: none;">
             <div>
           <p class="title col" style="color: white; font-weight: 400;">Для обеспечения работоспособности этот сайт может хранить файлы cookie. Продолжая пользоваться сайтом,
               вы принимаете условия обработки персональных данных в соответствии с
@@ -272,16 +272,15 @@
         // Удаление уведомления о файле cookie
         document.getElementById('cookie-consent').style.display = 'none';
       });
+        // Проверка состояния согласия пользователя при загрузке страницы
+      window.addEventListener('load', function() {
+        var cookieConsent = localStorage.getItem('cookieConsent');
+        if (cookieConsent === null) {
+          // Если пользователь еще не дал согласие, показать уведомление о файле cookie
+          document.getElementById('cookie-consent').style.display = 'block';
+        }
+      });
   }
-
-  // Проверка состояния согласия пользователя при загрузке страницы
-  window.addEventListener('load', function() {
-    var cookieConsent = localStorage.getItem('cookieConsent');
-    if (cookieConsent === 'true') {
-      // Если пользователь уже дал согласие, скрыть уведомление о файле cookie
-      document.getElementById('cookie-consent').style.display = 'none';
-    }
-  });
 
   function cookieSendClick(){
     $.ajax({
