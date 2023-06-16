@@ -1,0 +1,35 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load static %}
+
+{% block title %} Обновление дополнительных знаний {% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="text-center border-bottom border-dark">
+        <h1>Обновление дополнительного знания</h1>
+        <h3>{{ knowledge.name }}</h3>
+    </div>
+    <div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            {{ form.media }}
+            {{ image_form.management_form }}
+            {% for frm in image_form %}
+                {{ frm.as_p }}
+            {% endfor %}
+            <input type="submit" class="btn btn-outline-warning mt-3" value="Сохранить">
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block jsfiles %}
+<script src="{% static 'drevo/js/relations_preparing/fill_tz_field.js' %}" data-bz-id="{{ bz_id }}" data-tr-id="{{ tr_id }}" data-selected-tz="{{ tz_id }}"></script>
+<script>
+    window.onload = function() {
+      fill_tz_field();
+    }
+</script>
+{% endblock %}

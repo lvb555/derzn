@@ -1,8 +1,9 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from drevo.models.feed_messages import FeedMessage
 from drevo.models.message import Message
+from users.views import access_sections
 from ..models import FriendsInviteTerm
 from users.models import User
 
@@ -13,7 +14,14 @@ def friends_view(request):
     """
     Контроль для страницы "Друзья"
     """
-    context = {'friends': []}
+    user = get_object_or_404(User, id=request.user.id)
+    context = {}
+    context['friends'] = []
+    if user is not None:
+        context['sections'] = access_sections(user)
+        context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                               i.startswith('Моя')]
+        context['link'] = 'users:myprofile'
 
     # принятие заявки в друзья
     if request.GET.get('accept'):

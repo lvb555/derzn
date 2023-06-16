@@ -1,24 +1,30 @@
 {% extends 'drevo/base.html' %}
 {% load knowledge_tree %}
+{% load static %}
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
 
 {% block title %} Вид знания | {{ type_name }} {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="text-center mt-3 border-bottom border-dark mb-3">
-        <h2>Все знания вида <b>{{ type_name }}</b></h2>
+<div>
+    <div class="container header_info" style="padding-left: 0px;">
+        <h1 class="page-title">Все знания вида '{{ type_name }}'</h1>
+        <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+              <li class="breadcrumb-item"><a>Виды знаний</a></li>
+              <li class="breadcrumb-item opened"><a>Все знания вида '{{ type_name }}'</a></li>
+            </ol>
+        </nav>
     </div>
     {% if knowledge %}
-    {% build_knowledge_tree queryset=knowledge empty_tree_message='Знаний этого вида ещё нет' %}
+    {% build_knowledge_tree queryset=knowledge empty_tree_message='Знаний этого вида ещё нет' show_complex=True %}
     {% else %}
     <div class="text-center mt-3">
         <p class="fs-4">Знаний этого вида ещё нет</p>
     </div>
     {% endif %}
-    <div>
-        <h2>Легенда</h2>
-        <h4 class="text-success">Знания указанного вида</h4>
-        <h4 class="">Знания других видов</h4>
-    </div>
 </div>
 {% endblock %}

@@ -18,13 +18,13 @@ class Relation(models.Model):
     )
     tr = models.ForeignKey(
         'Tr',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Вид связи',
         help_text='укажите вид связи'
     )
     rz = models.ForeignKey(
         'Znanie',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Связанное знание',
         help_text='укажите связанное знание',
         related_name='related'
@@ -45,6 +45,22 @@ class Relation(models.Model):
         editable=False,
         verbose_name='Пользователь'
     )
+    expert = models.ForeignKey(
+        verbose_name='Эксперт',
+        to=User,
+        on_delete=models.PROTECT,
+        related_name='rel_expert',
+        null=True,
+        blank=True
+    )
+    director = models.ForeignKey(
+        verbose_name='Руководитель',
+        to=User,
+        on_delete=models.PROTECT,
+        related_name='rel_director',
+        null=True,
+        blank=True
+    )
     is_published = models.BooleanField(
         default=False,
         verbose_name='Опубликовано?'
@@ -52,7 +68,7 @@ class Relation(models.Model):
     objects = models.Manager()
 
     def __str__(self):
-        return f"{self.title} {self.tr.name}"
+        return f'{self.bz} | {self.rz}'
 
     def get_grouped_relations(self):
         return list(sorted(

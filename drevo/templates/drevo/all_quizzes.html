@@ -1,27 +1,30 @@
 {% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
 
 {% block title %}Тесты{% endblock %}
 
 {% block content %}
-
-<h2>Тесты</h2>
-
-{% for term in all_quizzes %}
-
-<div class="row">
-    <div class="col">
-        <a href="{{ term.get_absolute_url }}" style="color: black;text-decoration:none;">{{ term.name }}</a>
-    </div>
+<div class="container header_info p-0">
+    <h1>Тесты</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item opened"><a>Тесты</a></li>
+        </ol>
+    </nav>
 </div>
-<br>
-<hr>
-{% empty %}
-<div class="row">
-    <div class="col">
-        Нет доступных тестов
-    </div>
+<div>
+    {% if all_quizzes %}
+        {% build_knowledge_tree queryset=all_quizzes empty_tree_message='Нет доступных тестов' show_complex=True %}
+    {% else %}
+        <div class="text-center mt-3 basic">
+            <p class="fs-4">Нет доступных тестов</p>
+        </div>
+    {% endif %}
 </div>
-
-{% endfor %}
-
 {% endblock %}

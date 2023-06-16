@@ -9,11 +9,21 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{{ title }}</h1>
+    <div class="container header_info p-0 mb-1">
+        <h1 class="page-title">{{ title }}</h1>
+        <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+              <li class="breadcrumb-item opened"><a>Подготовка знаний</a></li>
+              <li class="breadcrumb-item opened"><a>{{ title }}</a></li>
+            </ol>
+        </nav>
+    </div>
     <div class="content_tp">
         <div class="tree">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="showAll();">развернуть древо</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="hiddenAll();">cвернуть древо</button>
+            <button type="button" class="btn tree-btn w-auto" onclick="showAll();">развернуть древо</button>
+            <button type="button" class="btn tree-btn" onclick="hiddenAll();">cвернуть древо</button>
 
             <br><br>
 

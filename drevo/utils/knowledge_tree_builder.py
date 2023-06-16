@@ -1,5 +1,5 @@
-from django.db.models import QuerySet
-from drevo.models import Znanie, Relation, Category, Tz, Tr
+from django.db.models import QuerySet, Q
+from drevo.models import Znanie, Relation, Category, Tz, Tr, RelationStatuses
 
 
 class KnowledgeTreeBuilder:
@@ -7,8 +7,16 @@ class KnowledgeTreeBuilder:
         Конструктор дерева знаний.
         Данный класс реализует функционал постройки дерева по знаниям и категориям.
     """
-    def __init__(self, queryset: QuerySet[Znanie], show_only: Tr = None, show_complex: bool = False):
+    def __init__(self,
+                 queryset: QuerySet[Znanie],
+                 show_only: Tr = None,
+                 show_complex: bool = False,
+                 edit_mode: bool = False,
+                 empty_categories: bool = False
+                 ):
         self.queryset = queryset
+        self.edit_mode = edit_mode
+        self.empty_categories = empty_categories
         self.building_knowledge = set(kn.id for kn in queryset)  # Множество знаний используемых для построения дерева
         self.categories_data = {}
         self.knowledge = {}
@@ -16,7 +24,7 @@ class KnowledgeTreeBuilder:
         self.show_complex = show_complex
         complex_tz_names = ('Таблица', 'Тест')
         self.complex_tz = Tz.objects.filter(name__in=complex_tz_names).values_list('pk', flat=True)
-        self.relations_name = {}  # {(<parent_id>, <child_id>): relation_name, }
+        self.relations_info = {}  # {(<parent_id>, <child_id>): {name: <str>, status: <str>, author: <int>}, }
         self.show_only = show_only  # Вид связи, который необходимо отображать на дереве для знаний из queryset
         self.category_rel_counts = dict()  # {category_pk: {'knowledge_count': 0, 'base_knowledge_count': 0}
         self.knowledge_rel_counts = dict()  # {knowledge: {'knowledge_count': 0, 'child_count': 0}
@@ -27,16 +35,28 @@ class KnowledgeTreeBuilder:
             Метод для получения всех связей в следующем виде: \n
             {related_knowledge_id: [base_knowledge_id1, base_knowledge_id2,]}
         """
+        filter_lookups = Q(is_published=True)
+        if self.edit_mode:
+            filter_lookups = filter_lookups | Q(is_published=False)
         relations = (
             Relation.objects
             .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
-            .filter(is_published=True, tr__is_systemic=False)
+            .filter(filter_lookups, tr__is_systemic=False)
         )
+        if self.edit_mode:
+            relations_statuses = RelationStatuses.objects.filter(is_active=True)
+            statuses_data = {rel_status.relation.id: rel_status.status for rel_status in relations_statuses}
+        else:
+            statuses_data = {}
         relations_data = {rel.rz.id: [] for rel in relations}
         for rel in relations:
             if self.show_only and rel.rz.id in self.building_knowledge and rel.tr != self.show_only:
                 continue
-            self.relations_name.update({(rel.bz.id, rel.rz.id): rel.tr.name})
+            self.relations_info[(rel.bz.id, rel.rz.id)] = {'name': '', 'status': '', 'author': ''}
+            if self.edit_mode and rel.id in statuses_data:
+                self.relations_info[(rel.bz.id, rel.rz.id)]['status'] = statuses_data.get(rel.id)
+                self.relations_info[(rel.bz.id, rel.rz.id)]['author'] = rel.user_id
+            self.relations_info[(rel.bz.id, rel.rz.id)]['name'] = rel.tr.name
             relations_data[rel.rz.id].append(rel.bz)
         return relations_data
 
@@ -65,7 +85,7 @@ class KnowledgeTreeBuilder:
             {
                 tree_data: <Вложенный словарь категорий и знаний>,
                 category_nodes: <Узлы для построения дерева категорий>
-                relations_name: <Название вида связи между знаниями дерева>
+                relations_info: <Информация о связях: название, статус, автор>
                 knowledge_rel_counts: <Показатели кол-ва всех и дочерних знаний для каждой ветви знания>
                 category_rel_counts: <Показатели кол-ва всех и основных знаний для каждой ветви категории>
             }
@@ -79,8 +99,10 @@ class KnowledgeTreeBuilder:
             Category.tree_objects
             .exclude(is_published=False)
             .select_related('parent')
-            .filter(pk__in=nodes_pk).distinct()
+            .distinct()
         )
+        if not self.empty_categories:
+            category_nodes = category_nodes.filter(pk__in=nodes_pk)
         category_relations = {cat.id: [] for cat in category_nodes}
         for cat in category_nodes:
             if cat.parent and cat.parent.is_published:
@@ -90,7 +112,7 @@ class KnowledgeTreeBuilder:
         context = {
             'tree_data': tree_data,
             'category_nodes': category_nodes,
-            'relations_name': self.relations_name,
+            'relations_info': self.relations_info,
             'knowledge_rel_counts': self.knowledge_rel_counts,
             'category_rel_counts': self.category_rel_counts
         }

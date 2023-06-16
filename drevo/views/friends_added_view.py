@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 
 from drevo.models.feed_messages import FeedMessage
+from users.views import access_sections
 
 from ..models import Message
 from ..models import FriendsInviteTerm
@@ -64,7 +65,10 @@ def friends_added_view(request):
         context['invite_count'] = invite_count if invite_count else 0
 
         user = User.objects.get(id = request.user.id)
-
+        context['sections'] = access_sections(user)
+        context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                               i.startswith('Моя')]
+        context['link'] = 'users:myprofile'
         my_friends = user.user_friends.all() # те, кто в друзьях у меня
         i_in_friends = user.users_friends.all() # те, у кого я в друзьях
         

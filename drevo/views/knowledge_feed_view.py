@@ -11,6 +11,8 @@ from users.models import User
 
 import math
 
+from users.views import access_sections
+
 
 def knowledge_feed_view(request):
     """
@@ -33,6 +35,11 @@ def knowledge_feed_view(request):
         except: 
             current_page = 1
 
+        user = User.objects.get(id = request.user.id)
+        context['sections'] = access_sections(user)
+        context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                               i.startswith('Моя')]
+        context['link'] = 'users:myprofile'
 
         messages = FeedMessage.objects.filter(recipient = request.user).order_by('-id').prefetch_related("sender__profile")[(current_page-1)*messages_in_page : current_page * messages_in_page]
         context['messages'] = messages

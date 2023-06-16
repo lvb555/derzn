@@ -1,17 +1,10 @@
 import datetime
-
-from django.http import HttpResponseRedirect
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView
-from django.views.generic.edit import FormMixin
-
-from drevo.models import Znanie
-
+from drevo.models import Znanie, Category
+from .popular_knowledges import get_unmarked_children
 from ..forms import DatePickNewForm
 from loguru import logger
 
-# from ..forms.date_pick_form import DatePickNewForm
 
 logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
@@ -27,23 +20,20 @@ class NewKnowledgeListView(ListView):
 
 
     def get_queryset(self):
-        """по запросу из поля даты или за неделю
-        :return Dict[category, List[knowledge]]"""
+        """Возвращает отфильтрованный QuerySet"""
         date_form = DatePickNewForm(self.request.GET)
         date_for_new = datetime.date.today() - datetime.timedelta(days=7)
+        selected_category = self.request.GET.get('knowledge_category')
         if date_form.is_valid():
             date_for_new = date_form.cleaned_data.get('date')
-        last_knldgs = Znanie.objects.filter(updated_at__gte=date_for_new,
+        filtered_knowledges = Znanie.objects.filter(date__gte=date_for_new,
                                             is_published=True, tz__is_systemic=False)
-        # possible to ease hustle by using 'regroup' template kw
-        ctgrs = [knldg.category for knldg in last_knldgs]
-        nstd_l = {}
-        ctgrs = set(ctgrs)
-        for ctgr in ctgrs:
-            nstd_l[ctgr] = []
-        for n_k in last_knldgs:
-            nstd_l[n_k.category].append(n_k)
-        return nstd_l
+        if selected_category != '-1' and selected_category is not None:
+                category_and_descendants = Category.objects.get(pk=selected_category).get_descendants(
+                    include_self=True).filter(is_published=True)
+                filtered_knowledges = filtered_knowledges.filter(category__in=category_and_descendants)
+                filtered_knowledges = get_unmarked_children(filtered_knowledges)
+        return filtered_knowledges
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -51,6 +41,9 @@ class NewKnowledgeListView(ListView):
         form_to_validate = DatePickNewForm(_get)
         if _get and form_to_validate.is_valid():
             context['datepick_form'] = DatePickNewForm(_get)
+            selected_category = _get.get('knowledge_category')
+            context['selected_category'] = int(selected_category)
         else:
             context['datepick_form'] = DatePickNewForm()
+        context['categories'] = Category.tree_objects.filter(is_published=True)
         return context

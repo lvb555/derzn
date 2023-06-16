@@ -5,12 +5,12 @@ from users.models import User
 
 class UserSetPasswordForm(SetPasswordForm):
     new_password1 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'placeholder': 'Введите новый пароль'}),
-        label='Новый пароль'
+        widget=forms.PasswordInput(attrs={'placeholder': 'Придумайте пароль'}),
+        label='Пароль'
     )
     new_password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'Подтвердите пароль'}),
-        label='Подтверждение пароля'
+        label='Повторить пароль'
     )
 
     class Meta:

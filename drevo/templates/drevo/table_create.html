@@ -1,0 +1,34 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block title %}Создание таблицы{% endblock %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block jsfiles %}
+    <script src="{% static 'drevo/js/table_constructor/table_create.js' %}" data-new="{{ new|yesno:"true,false" }}"
+            data-new-znanie-name='{{ new_znanie_name }}' data-new-znanie-id='{{ new_znanie_id }}'></script>
+    <script>
+        window.onload = function() {  
+          tableCreate();
+        }
+    </script>
+{% endblock %}
+
+
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <form class="form-horizontal" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        {{ image_form.management_form }}
+        {% for frm in image_form %}
+            {{ frm.as_p }}
+        {% endfor %}
+        <input type="submit" class="btn btn-success" id="table_save" value="Создать">
+    </form>
+{% endblock %}

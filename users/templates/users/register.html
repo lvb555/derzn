@@ -1,5 +1,9 @@
 {% extends 'users/base.html' %}
-
+{% load static %}
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
+{% endblock %}
 {% block content %}
     <div class="container">
     <div class="row justify-content-center">
@@ -15,49 +19,89 @@
                     </ul>
                 </div>
             {% endif %}
-            <div class="card shadow-lg border-0 rounded-lg mt-5">
-                <div class="card-header"><h3 class="text-center font-weight-light my-4">Регистрация</h3>
-                </div>
-                <div class="card-body card">
-                    <form action="{% url 'users:register' %}" method="post">
+            {% include 'users/include/header_with_logo.html' %}
+            <h2 class="text-center font-weight-light my-4 ps-1">Регистрация</h2>
+            <div class="basic">
+                <div>
+                    <form action="{% url 'users:register' %}" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <div class="form-group">
-                            <p class="form-row mb-2">
+                        <div class="form-group d-grid" style="gap: 10px;">
+                            <p class="form-row mb-2 classic">
                                 {{ form.username.errors }}
-                                <label for="{{ form.username.id_for_label }}">Имя пользователя:</label>
+                                <label for="{{ form.username.id_for_label }}">Имя пользователя</label>
                                 {{ form.username }}
                             </p>
-                            <p class="form-row mb-2">
+                            <p class="form-row mb-2 classic">
+                                {{ form.first_name.errors }}
+                                <label for="{{ form.first_name.id_for_label }}">Имя<span style="color:red;">*</span></label>
+                                {{ form.first_name }}
+                            </p>
+                            <p class="form-row mb-2 classic">
+                                {{ form.last_name.errors }}
+                                <label for="{{ form.last_name.id_for_label }}">Фамилия<span style="color:red;">*</span></label>
+                                {{ form.last_name }}
+                            </p>
+                            <p class="form-row mb-2 classic">
+                                {{ form.patronymic.errors }}
+                                <label for="{{ form.patronymic.id_for_label }}">Отчество <span style="color: #6C757D;">(необязательное)</span></label>
+                                {{ form.patronymic }}
+                            </p>
+                            <div class="form-row classic">
+                                <div class="col mb-3">
+                                    <label class="mb-1" for="{{ form.image.id_for_label }}">Аватар <span style="color: #6C757D;">(необязательное)</span></label>
+                                    {{ form.image }}
+                                </div>
+                                <p class="options m-0" style="text-align: right">Максимальный размер файла - 1 МБ</p>
+                            </div>
+                            <div class="form-row mb-2 classic">
+                                {{ form.gender.errors }}
+                                <label class="mb-1" for="{{ form.gender.id_for_label }}">Пол<span style="color:red;">**</span></label>
+                                {{ form.gender }}
+                            </div>
+                            <p class="form-row mb-4 classic">
+                                {{ form.birthday_at.errors }}
+                                <label for="{{ form.birthday_at.id_for_label }}">Дата рождения<span style="color:red;">**</span></label>
+                                {{ form.birthday_at }}
+                            </p>
+                            <p class="form-row mb-2 classic">
                                 {{ form.email.errors }}
-                                <label for="{{ form.email.id_for_label }}">Адрес эл. почты:</label>
+                                <label for="{{ form.email.id_for_label }}">E-mail</label>
                                 {{ form.email }}
                             </p>
-                            <p class="form-row mb-2">
+                            <div class="form-row mb-2 classic">
                                 {{ form.password1.errors }}
-                                <label for="{{ form.password1.id_for_label }}">Пароль:</label>
+                                <label for="{{ form.password1.id_for_label }}">Пароль</label>
                                 <div class="input-group" id="show_hide_password1">
                                     {{ form.password1 }}
                                     <a class="btn btn-outline-secondary"><i class="bi bi-eye-slash large"></i></a>
                                 </div>
-                            </p>
-                            <p class="form-row mb-2">
+                            </div>
+                            <div class="form-row mb-5 classic">
                                 {{ form.password2.errors }}
-                                <label for="{{ form.password2.id_for_label }}">Подтверждение пароля:</label>
+                                <label for="{{ form.password2.id_for_label }}">Повторите пароль</label>
                                 <div class="input-group" id="show_hide_password2">
                                     {{ form.password2 }}
                                     <a class="btn btn-outline-secondary"><i class="bi bi-eye-slash large"></i></a>
                                 </div>
-                            </p>
+                            </div>
                         </div>
+                        <input type="checkbox" name="agreement" id="agreement-checkbox" class="form-check-input" required>
+                        <label for="agreement-checkbox" style="color: #6C757D; display: inline!important;">Даю согласие на обработку персональных в соответствии с
+                        <a style="text-decoration-line: underline; color: #6C757D;" href="{% url 'privacy' %}">Политикой обработки персональных данных</a></label>
                         <div class="form-group text-center mt-4 mb-4">
-                            <input class="btn btn-primary" type="submit" value="Зарегистрироваться">
+                            <input class="btn btn-header" id="registration-button" disabled style="width: 100%; font-size: 14px;" type="submit" value="Зарегистрироваться">
                         </div>
                     </form>
-                    <div class="card-footer text-center">
+                    <div class="text-center">
                         <div class="medium mt-2 mb-2">
-                            <a class="text-decoration-none" href="{% url 'users:login' %}">Уже есть аккаунт</a>
+                            <p class="classic" style="color: #6C757D; text-align: center;">Уже зарегистрированы?
+                            <a style="color: #083E2F; text-decoration-line: underline;" href="{% url 'users:login' %}">Войти</a></p>
                         </div>
                     </div>
+                    <p class="options"><span style="color:red;">*</span>Эти обязательные поля необходимы для указания автора знания, в комментариях
+                        и ответах.<br>В отличие от традиционного подхода, здесь нельзя оперировать безликим ником</p>
+                    <p class="options"><span style="color:red;">**</span>Эти обязательные данные необходимы только для того, чтобы получать
+                        статистические данные о распределении ответов, оценок пользователей по полу, и по возрастам</p>
                 </div>
             </div>
         </div>
@@ -91,6 +135,25 @@
                     $('#show_hide_password2 i').removeClass("bi-eye-slash");
                 }
             });
+        });
+        function appendingNewClass(){
+            redio_bottoms = document.querySelectorAll('input[type="radio"]');
+            for(i=0;i < redio_bottoms.length; i++){
+                redio_bottoms[i].classList.add("form-check-input");
+            }
+        }
+
+        appendingNewClass()
+
+        const agreementCheckbox = document.getElementById('agreement-checkbox');
+        const registrationButton = document.getElementById('registration-button');
+
+        agreementCheckbox.addEventListener('change', function() {
+            if (agreementCheckbox.checked) {
+              registrationButton.removeAttribute('disabled');
+            } else {
+              registrationButton.setAttribute('disabled', 'disabled');
+            }
         });
     </script>
 {% endblock %}

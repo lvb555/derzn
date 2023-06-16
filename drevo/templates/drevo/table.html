@@ -4,8 +4,8 @@
         border: 2px black solid;
     }
     th {
-        min-width: 300px;
-        max-width: 400px;
+        min-width: 200px;
+        max-width: 300px;
     }
     table a {
         color: black;
@@ -35,7 +35,7 @@
                     {% for col in row %}
                         <td class="table-border">
                             {% if col.show_link %}
-                                <a href="{{ col.get_absolute_url }}">{{ col.name }}</a>
+                                <a>{{ col.name }}</a>
                             {% else %}
                                 {{ col.name }}
                             {% endif %}
@@ -72,7 +72,7 @@
                                 <td class="table-border">
                                     {% if value %}
                                         {% if value.show_link %}
-                                            <a href="{{ value.get_absolute_url }}">{{ value.name }}</a>
+                                            <a>{{ value.name }}</a>
                                         {% else %}
                                             {{ value.name }}
                                         {% endif %}
@@ -110,7 +110,7 @@
                     {% for col in row %}
                         <td class="table-border">
                             {% if col.show_link %}
-                                <a href="{{ col.get_absolute_url }}">{{ col.name }}</a>
+                                <a>{{ col.name }}</a>
                             {% else %}
                                 {{ col.name }}
                             {% endif %}
@@ -161,7 +161,7 @@
                                         <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}"></i>
                                         {% endif %}
                                         {% if value.show_link %}
-                                            <a href="{{ value.get_absolute_url }}">{{ value.name }}</a>
+                                            <a>{{ value.name }}</a>
                                         {% else %}
                                             {{ value.name }}
                                         {% endif %}

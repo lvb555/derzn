@@ -1,0 +1,46 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+{% load knowledge_tree %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block title %} Подготовка связей | {{ stage_name }} {% endblock %}
+
+{% block content %}
+<div>
+    <div class="container header_info p-0 mb-1">
+        <h1 class="page-title">Подготовка связей</h1>
+        <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+              <li class="breadcrumb-item opened"><a>Подготовка связей</a></li>
+            </ol>
+        </nav>
+    </div>
+    <div class="border-bottom border-dark mb-3 border-top pt-1">
+        <div class="row">
+            <div class="col">
+                <h3>Этап: {{ stage_name }}</h3>
+                <h3>Статус связи: {{ selected_status }}</h3>
+            </div>
+            {% if statuses_form %}
+            <div class="col border-start border-dark">
+                <form action="" method="get" id="status_form" onchange='this.submit()'>
+                    {{ statuses_form.as_p }}
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% if knowledge %}
+    {% build_knowledge_tree queryset=knowledge empty_tree_message='Связей для построения дерева не найдено' edit_widgets=related_widgets|make_list show_complex=True empty_categories=True %}
+    {% else %}
+    <div class="basic">
+        <h3>Связей для построения дерева не найдено</h3>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

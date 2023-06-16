@@ -1,12 +1,15 @@
 {% extends 'drevo/base.html' %}
 {% load mptt_tags %}
 {% load static %}
-{% block cssfiles %} <style type="text/css">
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<style type="text/css">
    TD, TH {
     padding: 5px;
     border: 2px solid black;
    }
-  </style>{% endblock %}
+</style>
+{% endblock %}
 
 {% block title %}Знание: {{ znanie.name }}
 {% endblock %}

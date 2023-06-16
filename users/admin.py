@@ -35,6 +35,7 @@ class UserAdmin(BaseUserAdmin):
                            'last_name',
                            'email',
                            'is_public',
+                           'cookie_acceptance',
                            'sections',
                            'job')
             }

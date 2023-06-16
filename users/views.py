@@ -106,6 +106,20 @@ class RegistrationFormView(CreateView):
             UserParameters.objects.bulk_create(user_settings)
 
             profile = user.profile
+            profile.patronymic = form.cleaned_data['patronymic']
+            profile.gender = form.cleaned_data['gender']
+            profile.birthday_at = form.cleaned_data['birthday_at']
+            avatar = form.cleaned_data['image']
+
+            if avatar:
+                image, error = form.validate_avatar_size()
+
+                if image:
+                    if error:
+                        messages.error(self.request, error)
+                    else:
+                        image.name = f'{user.username}.{image.name.split(".")[-1]}'
+                        profile.avatar = avatar
 
             profile.deactivate_user()
             profile.generate_activation_key()
@@ -359,7 +373,7 @@ def my_profile(request):
         return render(request, 'users/profile_header.html', context)
 
 def access_sections(user):
-    #Проверяем какие опции меню будут отображаться ///////Поменять чтобы делать проверку плюс поменять везде блин
+    #Проверяем какие опции меню будут отображаться
     sections = ['Мои оценки знаний','По категориям','По авторам','По тегам']
     interview = InterviewAnswerExpertProposal.objects.filter(expert=user)
     if interview is not None:

@@ -22,11 +22,11 @@ def get_required_tr(request):
         return JsonResponse(data={})
 
     if None in req_relationship:
-        relation_types = Tr.objects.values('id', 'name')
+        relation_types = Tr.objects.values('id', 'name').order_by('name')
         res_data = {'required_tr': [{'id': tr.get('id'), 'name': tr.get('name')} for tr in relation_types]}
         return JsonResponse(data=res_data)
 
-    relation_types = Tr.objects.filter(pk__in=req_relationship).values('id', 'name').distinct()
+    relation_types = Tr.objects.filter(pk__in=req_relationship).values('id', 'name').order_by('name').distinct()
     res_data = {'required_tr': [{'id': tr.get('id'), 'name': tr.get('name')} for tr in relation_types]}
     return JsonResponse(data=res_data)
 

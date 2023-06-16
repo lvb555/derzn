@@ -148,18 +148,17 @@
       </div>
       {% endif %}
       {% endif %}
-
+      {% if button %}
+          {%for i in button%}
+            {%for b in i%}
+              <a href="{{ b.get_absolute_url }}" class="btn btn-header" style="height: fit-content; margin-right: 10px; padding: 8px 24px;">Пройти тест</a>
+            {%endfor%}
+          {%endfor%}
+      {% endif %}
       <div class="d-flex mt-5" style="justify-content: space-between;">
         <div class="d-inline-flex">
         {% if znanie.tz.can_be_rated %}
             <a href="{% url 'grade' znanie.id %}" class="btn btn-header" style="height: fit-content; margin-right: 10px; padding: 8px 24px;">Оценка знания</a>
-            {% if button %}
-              {%for i in button%}
-                {%for b in i%}
-                  <a href="{{ b.get_absolute_url }}" class="btn btn-secondary">Пройти тестирование: {{ b.name }} </a>
-                {%endfor%}
-              {%endfor%}
-            {% endif %}
         {% endif %}
         {% if request.user.is_authenticated %}
           <div>
@@ -344,6 +343,7 @@
   <div class='scrollbar' style="width: 23%; margin: 32px;overflow-x: auto;height: fit-content;">
       <p class="choice-header p-0" style="border-block-end: dotted lightgrey 1px;">Дерево</p>
       <div style="width: max-content;">
+            {% if category_tree %}
             <ul class="category-item p-0">
             {% recursetree category_tree %}
                 <li {% if node in categories  %} class="active-node" {% else %} class="nonactive-node" {% endif %}
@@ -366,6 +366,7 @@
                 </li>
             {% endrecursetree %}
             </ul>
+          {% endif %}
       </div>
   </div>
   <div class='p-0' style="margin: 29px 32px 32px 32px; width: 77%;">
