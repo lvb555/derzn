@@ -1,26 +1,9 @@
 select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 5px 10px;
-  font-size: 16px;
-  font-weight: normal;
-  background-color: #fff;
-  background-image: none;
   cursor: pointer;
-}
-
-.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.required:after {
-  content: '*';
-  color: #ff0000;
-  margin-left: 5px;
 }
 
 .btn_show{
@@ -47,6 +30,7 @@ select {
 .form-select{
     width: 600px;
     height: 40px;
+    margin-bottom: 15px;
  }
 .overlay {
     position: fixed;
@@ -102,11 +86,9 @@ select {
     flex-direction: row;
 }
 .select-table {
-    appearance: none;
     pointer-events: none;
     width: 600px;
     height: 40px;
-    padding-left: 9px;
 }
 .button-edit {
     vertical-align: middle;
@@ -125,9 +107,6 @@ select {
 .select-options {
     display: flex;
     flex-direction: row;
-}
-.row-choice {
-    margin-bottom: 15px;
 }
 .button-block {
     display: flex;
@@ -156,8 +135,11 @@ select {
     text-align: center;
 }
 .modal_choice_but{
-    margin-top: 4px;
+    margin-top: 10px;
     text-align: center;
+}
+.js-delete{
+    margin-top: 10px !important;
 }
 .okay-popup js-okay-successful {
     align-self: flex-start;

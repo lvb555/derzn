@@ -10,32 +10,23 @@
 {% endblock %}
 
 {% block jsfiles %}
-    <script src="{% static 'drevo/js/table_constructor/relation_create.js' %}"></script>
+    <script src="{% static 'drevo/js/table_constructor/relation_create.js' %}" data-new="{{ new|yesno:"true,false" }}"
+            data-name="{{ new_znanie_name }}" data-id="{{ new_znanie_id }}" data-tz-name = "{{ new_znanie_kind }}"></script>
+    <script>
+        window.onload = function() {
+          relationCreate();
+        }
+    </script>
 {% endblock %}
 
 {% block content %}
-    <h1>Выберите знание</h1>
-    <select name="table" id="id_table">
-    {% if new %}
-        <option value="{{ new_znanie_id }}" selected>{{ new_znanie_name }}</option>
-    {% else %}
-        <option value="" selected disabled>Выберите знание</option>
-    {% endif %}
-        {% for zn in heading_knowledges %}
-            <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option>
-        {% endfor %}
-    </select>
-    <div class="button-block">
-        <input onclick="newZnanie()" class="btn btn-primary" readonly value="Создать знание">
-        <input type="submit" class="btn btn-success" id="zn_choose" value="Выбрать">
-    </div>
-    <div class="new-znanie" hidden>
+    <div class="new-znanie">
         <h1>{{ title }}</h1>
-        <form class="form-horizontal" action="{% url 'new_knowledge_for_relation' %}" method="post" enctype="multipart/form-data">
+        <form class="form-horizontal" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.media }}
             {{ form.as_p }}
-            <input type="submit" class="btn btn-primary" value="Сохранить">
+            <input type="submit" class="btn btn-primary" value="Создать знание">
         </form>
     </div>
 {% endblock %}

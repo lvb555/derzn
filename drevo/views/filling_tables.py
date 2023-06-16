@@ -2,12 +2,12 @@ import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
 
-from drevo.forms.knowledge_create_form import RelationCreateForm, TableCreateForm, ZnImageFormSet
+from drevo.forms.knowledge_create_form import RelationCreateEditForm, TableCreateForm, ZnImageFormSet, ElementGroupForm
 from drevo.forms.knowledge_update_form import ZnImageEditFormSet, TableUpdateForm
 from drevo.models import Author, BrowsingHistory, Category, KnowledgeStatuses, Znanie, Tz, Tr, Relation, \
     SpecialPermissions, ZnImage
@@ -80,8 +80,8 @@ class TableKnowledgeTreeView(LoginRequiredMixin, TemplateView):
             row_id = get_object_or_404(Tr, name='Строка').id
             column_id = get_object_or_404(Tr, name='Столбец').id
             # Проверка, существуют ли в таблице опубликованные строка и столбец
-            if not(Relation.objects.filter(tr_id=row_id, bz_id=z.id, is_published=True).exists() and
-                   Relation.objects.filter(tr_id=column_id, bz_id=z.id, is_published=True).exists()):
+            if not (Relation.objects.filter(tr_id=row_id, bz_id=z.id, is_published=True).exists() and
+                    Relation.objects.filter(tr_id=column_id, bz_id=z.id, is_published=True).exists()):
                 zn = zn.exclude(id=z.id)
 
         context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn, rights='expert', user=user)
@@ -265,7 +265,7 @@ class TableEditView(LoginRequiredMixin, UpdateView):
 class RelationCreateView(LoginRequiredMixin, CreateView):
     """Представление создания знаний - строк и столбцов для таблицы"""
     model = Znanie
-    form_class = RelationCreateForm
+    form_class = RelationCreateEditForm
     template_name = 'drevo/relation_create.html'
     success_url = reverse_lazy("table_constructor")
 
@@ -283,13 +283,10 @@ class RelationCreateView(LoginRequiredMixin, CreateView):
 
         # Передаем формы для создания знания
         if self.request.POST:
-            context['form'] = RelationCreateForm(self.request.POST)
+            context['form'] = RelationCreateEditForm(self.request.POST)
         else:
-            context['form'] = RelationCreateForm()
+            context['form'] = RelationCreateEditForm()
 
-        heading_knowledges = Znanie.objects.filter(tz__name='Заголовок')
-        zn_attributes = heading_knowledges.values('id', 'name').order_by('name')
-        context["heading_knowledges"] = zn_attributes
         return context
 
     def get(self, request, *args, **kwargs):
@@ -306,14 +303,12 @@ class RelationCreateView(LoginRequiredMixin, CreateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
-            tz_id = Tz.objects.get(name='Заголовок').id
             # Перед сохранением формы в поле user подставляем текущего пользователя
             knowledge = form.save(commit=False)
             author, created = Author.objects.get_or_create(
                 name=f"{request.user.first_name} {request.user.last_name}",
             )
             knowledge.author_id = author.id
-            knowledge.tz_id = tz_id
             knowledge.is_published = True
             knowledge.user = request.user
             # Сохраняем Знание
@@ -325,14 +320,12 @@ class RelationCreateView(LoginRequiredMixin, CreateView):
                 status='PUB',
                 user=self.request.user
             )
-            heading_knowledges = Znanie.objects.filter(tz__name='Заголовок')
-            zn_attributes = heading_knowledges.values('id', 'name').order_by('name')
             return render(request, 'drevo/relation_create.html', {
                 'form': form,
                 'new': True,
                 'new_znanie_name': knowledge.name,
                 'new_znanie_id': knowledge.id,
-                'heading_knowledges': zn_attributes
+                'new_znanie_kind': knowledge.tz.name,
             })
         return self.form_invalid(form)
 
@@ -343,7 +336,7 @@ class RelationCreateView(LoginRequiredMixin, CreateView):
 class RelationEditView(LoginRequiredMixin, UpdateView):
     """Представление страницы изменения знаний - связей таблицы"""
     model = Znanie
-    form_class = RelationCreateForm
+    form_class = ElementGroupForm
     template_name = 'drevo/relation_edit.html'
     success_url = reverse_lazy("table_constructor")
 
@@ -390,10 +383,81 @@ class RelationEditView(LoginRequiredMixin, UpdateView):
                 'changed_znanie_name': knowledge.name,
                 'changed_znanie_id': knowledge.id,
                 'relation': self.kwargs.get('relation'),
-                'pk': knowledge.id,
                 'new': True
             })
         return self.form_invalid(form)
+
+
+class GroupElementCreate(LoginRequiredMixin, CreateView):
+    """Представление создания знаний - строк и столбцов для таблицы"""
+    model = Znanie
+    form_class = ElementGroupForm
+    template_name = 'drevo/relation_create.html'
+    success_url = reverse_lazy("table_constructor")
+
+    def dispatch(self, request, *args, **kwargs):
+        """Проверка перед открытием страницы, является ли пользователь экспертом"""
+        expert = get_object_or_404(SpecialPermissions, expert=request.user)
+        if not expert:
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """Передает контекст в шаблон"""
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Создание знания'
+
+        # Передаем формы для создания знания
+        if self.request.POST:
+            context['form'] = ElementGroupForm(self.request.POST)
+        else:
+            context['form'] = ElementGroupForm()
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        """Обрабатывает GET запрос"""
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def post(self, request, *args, **kwargs):
+        """Обрабатывает POST запрос"""
+        self.object = None
+        # Получаем форму для заполнения данных Знания
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            tz_id = get_object_or_404(Tz, name='Заголовок').id
+            # Перед сохранением формы в поле user подставляем текущего пользователя
+            knowledge = form.save(commit=False)
+            author, created = Author.objects.get_or_create(
+                name=f"{request.user.first_name} {request.user.last_name}",
+            )
+            knowledge.author_id = author.id
+            knowledge.tz_id = tz_id
+            knowledge.is_published = True
+            knowledge.user = request.user
+            # Сохраняем Знание
+            knowledge.save()
+            form.save_m2m()
+            # Создание записи
+            KnowledgeStatuses.objects.create(
+                knowledge=knowledge,
+                status='PUB',
+                user=self.request.user
+            )
+            return render(request, 'drevo/relation_create.html', {
+                'form': form,
+                'new': True,
+                'new_znanie_name': knowledge.name,
+                'new_znanie_id': knowledge.id,
+            })
+        return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 def filling_tables(request, pk):
@@ -452,6 +516,24 @@ def get_contex_data(pk, table_create=False):
         zn_attributes = non_systemic_zn.values('id', 'name').order_by('name')
         context["non_systemic_zn"] = zn_attributes
 
+    else:
+        group_kind = get_object_or_404(Tz, name='Группа').id
+        structure_kind = get_object_or_404(Tr, name='Состав').id
+        relation_row_group = Relation.objects.filter(bz_id=table_id, rz__tz_id=group_kind, tr__name="Строка").first()
+        if relation_row_group:
+            row_group_structure = Relation.objects.filter(bz_id=relation_row_group.rz_id, tr_id=structure_kind)
+            rows_structure_attributes = row_group_structure.values('rz_id', 'rz__name').order_by('-rz__order')
+            context["rows_structure_attributes"] = rows_structure_attributes
+            context["row_is_group"] = True
+
+        relation_column_group = Relation.objects.filter(bz_id=table_id, rz__tz_id=group_kind,
+                                                        tr__name="Столбец").first()
+        if relation_column_group:
+            column_group_structure = Relation.objects.filter(bz_id=relation_column_group.rz_id, tr_id=structure_kind)
+            columns_structure_attributes = column_group_structure.values('rz_id', 'rz__name').order_by('-rz__order')
+            context["columns_structure_attributes"] = columns_structure_attributes
+            context["column_is_group"] = True
+
     context["table_dict"] = table_attributes
     context["rows_attributes"] = rows_attributes
     context["columns_attributes"] = columns_attributes
@@ -487,7 +569,7 @@ def show_filling_tables_page(request):
         for table, table_id in enumerate(table_dict):
             if Relation.objects.filter(tr_id=row_id, bz_id=table_id,
                                        is_published=True).exists() and Relation.objects.filter(
-                    tr_id=column_id, bz_id=table_id, is_published=True).exists():
+                                       tr_id=column_id, bz_id=table_id, is_published=True).exists():
                 data = True
 
     return JsonResponse([data], safe=False)
@@ -510,8 +592,14 @@ def get_form_data(request):
     # Нахождение id связей с именами "Строка" и "Столбец"
     row_id = get_object_or_404(Tr, name='Строка').id
     column_id = get_object_or_404(Tr, name='Столбец').id
+    structure_id = get_object_or_404(Tr, name='Состав').id
     if filling_tables_page:
         value_id = get_object_or_404(Tr, name='Значение').id
+    else:
+        group_kind = get_object_or_404(Tz, name='Группа').id
+        # Получение значений выбранных элементов в группах "Строка" и "Столбец"
+        selected_row_element_pk = request.POST.get('row_element')
+        selected_column_element_pk = request.POST.get('column_element')
     # Получение значений выбранной таблицы, знания, строки и столбца
     selected_table_pk = request.POST.get('table')
     selected_row_pk = request.POST.get('row')
@@ -519,7 +607,7 @@ def get_form_data(request):
     if filling_tables_page:
         selected_znanie_pk = request.POST.get('znanie')
 
-    def create_relation(tr_id, rz_id, bz_id):
+    def create_relation(bz_id, rz_id, tr_id):
         """Создание опубликованной связи с заданными параметрами"""
 
         # Создание автора с именем и фамилией пользователя, если такого не существует
@@ -527,10 +615,10 @@ def get_form_data(request):
             name=f"{request.user.first_name} {request.user.last_name}",
         )
 
-        # Создание или нахождение опубликованной связи с выбранными значениями
+        # Создание опубликованной связи с выбранными значениями, если оно не было создано
         Relation.objects.get_or_create(
-            tr_id=tr_id,
             bz_id=bz_id,
+            tr_id=tr_id,
             rz_id=rz_id,
             author_id=author.id,
             is_published=True,
@@ -554,25 +642,36 @@ def get_form_data(request):
         for knowledge_id in cell_related_knowledges_id:
             Relation.objects.filter(bz_id=selected_table_pk, rz_id=knowledge_id).delete()
 
-        # Создание связи "Строка": связанное знание - строка, базовое знание - выбранное знание
-        create_relation(row_id, selected_row_pk, selected_znanie_pk)
+        # Создание связи "Строка": базовое знание - выбранное знание, связанное знание - строка
+        create_relation(selected_znanie_pk, selected_row_pk, row_id)
 
-        # Создание связи "Столбец": связанное знание - столбец, базовое знание - выбранное знание
-        create_relation(column_id, selected_column_pk, selected_znanie_pk)
+        # Создание связи "Столбец": базовое знание - выбранное знание, связанное знание - столбец
+        create_relation(selected_znanie_pk, selected_column_pk, column_id)
 
         # Создание связи "Значение" : связанное знание - выбранное знание, базовое знание - таблица
-        create_relation(value_id, selected_znanie_pk, selected_table_pk)
+        create_relation(selected_table_pk, selected_znanie_pk, value_id)
 
     else:
         # Создание связи "Строка": базовое знание - таблица, связанное знание - строка
         if selected_row_pk:
-            create_relation(row_id, selected_row_pk, selected_table_pk)
-
+            create_relation(selected_table_pk, selected_row_pk, row_id)
         # Создание связи "Столбец": базовое знание - таблица, связанное знание - столбец
         if selected_column_pk:
-            create_relation(column_id, selected_column_pk, selected_table_pk)
+            create_relation(selected_table_pk, selected_column_pk, column_id)
+        # Создание связи "Состав": базовое знание - строка таблицы, связанное знание - элемент строки
+        if selected_row_element_pk:
+            create_relation(selected_row_pk, selected_row_element_pk, structure_id)
+        # Создание связи "Состав": базовое знание - столбец таблицы, связанное знание - элемент столбца
+        if selected_column_element_pk:
+            create_relation(selected_column_pk, selected_column_element_pk, structure_id)
 
-    return HttpResponse('Данные были успешно сохранены')
+    response = {
+        'row_is_group': Relation.objects.filter(bz_id=selected_table_pk, rz__tz_id=group_kind,
+                                                tr__name="Строка").exists(),
+        'column_is_group': Relation.objects.filter(bz_id=selected_table_pk, rz__tz_id=group_kind,
+                                                   tr__name="Столбец").exists(),
+    }
+    return JsonResponse(response, safe=False)
 
 
 def delete_table(request):
@@ -582,28 +681,42 @@ def delete_table(request):
     """
     data = json.loads(request.body)
     table_id = data['id']
+    group_in_table = data['group_in_table']
     table = Znanie.objects.get(id=table_id)
-    relations = Relation.objects.filter(bz_id=table_id)
-    related_knowledges = []
 
-    # Удаление просмотра таблицы при его существовании (protect объект)
+    # Удаление просмотра таблицы при его существовании (protect-объект)
     BrowsingHistory.objects.filter(znanie=table).delete()
 
     # Удаление фотографий, связанных со знанием (protect-объект)
     ZnImage.objects.filter(znanie=table).delete()
 
-    for relation in relations:
-        related_knowledges.append(relation.rz)
+    # Удаление связей в случае, если в таблице есть строка/столбец вида "Группа"
+    if group_in_table:
+        tr_row_id = get_object_or_404(Tr, name='Строка').id
+        tr_column_id = get_object_or_404(Tr, name='Столбец').id
+        # Нахождение связей "Строка", "Столбец", "Значений" с таблицей
+        row_column_value_relations = Relation.objects.filter(bz_id=table_id)
+        for row_column_value_relation in row_column_value_relations:
+            if row_column_value_relation.tr_id == tr_row_id or row_column_value_relation.tr_id == tr_column_id:
+                # Нахождение связей "Состав"
+                structure_relations = Relation.objects.filter(bz_id=row_column_value_relation.rz_id)
+                if structure_relations:
+                    for relation in structure_relations:
+                        # Удаление связей "Строка" и "Столбец" с ячейками
+                        Relation.objects.filter(rz_id=relation.rz_id).exclude(bz_id=relation.bz_id).delete()
+                    structure_relations.delete()
+                else:
+                    Relation.objects.filter(rz_id=row_column_value_relation.rz_id).delete()
+        row_column_value_relations.delete()
 
-    # Удаление связей, где базовым знанием является таблица
-    Relation.objects.filter(bz_id=table_id).delete()
-    for knowledge in related_knowledges:
-        # Удаление связей, где базовым знанием является связанное с таблицей знание
-        Relation.objects.filter(bz=knowledge).delete()
-        # Удаление знаний, связанных с таблицей
-        knowledge.delete()
-    # Удаление таблицы
-    table.delete()
+    else:
+        relations = Relation.objects.filter(bz_id=table_id)
+        # Удаление связей, где базовым знанием является таблица
+        relations.delete()
+        for relation in relations:
+            # Удаление связей, где базовым знанием является связанное с таблицей знание
+            Relation.objects.filter(bz_id=relation.rz_id).delete()
+
     dat = True
     return JsonResponse([dat], safe=False)
 
@@ -613,21 +726,71 @@ def delete_row_or_column(request):
     удаляется сама строка/столбец и ячейка (знания)."""
     data = json.loads(request.body)
     znanie_id = data['id']
-    relations = Relation.objects.filter(rz_id=znanie_id)
-    related_knowledges = []
-    for relation in relations:
-        related_knowledges.append(relation.bz)
+    is_group = data['is_group']
     dat = True
-    # Удаление связей, где связанным знанием является выбранное знание
-    Relation.objects.filter(rz_id=znanie_id).delete()
-    table_tz = Tz.objects.get(name="Таблица").id
-    for knowledge in related_knowledges:
-        # Удаление связей, связанных и базовых знаний в случае, если знание не таблица
-        if knowledge.tz_id != table_tz:
-            Relation.objects.filter(rz_id=knowledge.id).delete()
-            Relation.objects.filter(bz_id=knowledge.id).delete()
-            knowledge.delete()
+
+    table_tz_id = get_object_or_404(Tz, name="Таблица").id
+    tr_row_id = get_object_or_404(Tr, name='Строка').id
+    tr_column_id = get_object_or_404(Tr, name='Столбец').id
+
+    if is_group:
+        Relation.objects.filter(rz_id=znanie_id).delete()
+        relations_with_elements = Relation.objects.filter(bz_id=znanie_id)
+        for relation_with_element in relations_with_elements:
+            relations_with_cell = Relation.objects.filter(rz_id=relation_with_element.rz_id)
+            # Удаление связей с элементами строки/столбца
+            relation_with_element.delete()
+            for relation in relations_with_cell:
+                if relation.tr_id == tr_row_id or relation.tr_id == tr_column_id:
+                    cell_related_knowledge = relation.bz
+                    # Удаление связи "Строка"/"Столбец", связывающую элемент строки/столбца и знание в ячейке
+                    relation.delete()
+                    Relation.objects.filter(bz=cell_related_knowledge).delete()
+                    # Удаление знания в ячейке
+                    cell_related_knowledge.delete()
+
+    else:
+        relations_with_table = Relation.objects.filter(rz_id=znanie_id)
+        related_knowledges = []
+        for relation in relations_with_table:
+            related_knowledges.append(relation.bz)
+
+        # Удаление связей, где связанным знанием является выбранное знание
+        Relation.objects.filter(rz_id=znanie_id).delete()
+        for knowledge in related_knowledges:
+            # Удаление связей, связанных и базовых знаний в случае, если знание не таблица
+            if knowledge.tz_id != table_tz_id:
+                Relation.objects.filter(rz_id=knowledge.id).delete()
+                Relation.objects.filter(bz_id=knowledge.id).delete()
+                # Удаление знания в ячейке
+                knowledge.delete()
+
     Znanie.objects.get(id=znanie_id).delete()
+    return JsonResponse([dat], safe=False)
+
+
+def delete_element_of_relation(request):
+    """Удаление элемента строки/столбца. В таком случае удаляются связи со строкой, столбцом, таблицей,
+    и сам элемент"""
+    data = json.loads(request.body)
+    element_id = data['id']
+    relations = Relation.objects.filter(rz_id=element_id)
+    dat = True
+
+    tr_row_id = get_object_or_404(Tr, name='Строка').id
+    tr_column_id = get_object_or_404(Tr, name='Столбец').id
+
+    for relation in relations:
+        if relation.tr_id == tr_row_id or relation.tr_id == tr_column_id:
+            cell_related_knowledge = relation.bz
+            relation.delete()
+            cell_related_knowledge.delete()
+            Relation.objects.filter(bz=cell_related_knowledge).delete()
+        else:
+            relation.delete()
+
+    Znanie.objects.get(id=element_id).delete()
+
     return JsonResponse([dat], safe=False)
 
 
@@ -642,4 +805,33 @@ def row_and_column_existence(request):
                                is_published=True).exists() and Relation.objects.filter(
         tr_id=column_id, bz_id=table_id, is_published=True).exists():
         data = True
+    return JsonResponse(data, safe=False)
+
+
+def cell_in_table_or_relation_existence(request):
+    """1 вариант: Проверка, есть ли в таблице хотя бы одна ячейка
+    2 вариант: Проверка, привязано ли знание к строке или столбцу"""
+    value_id = get_object_or_404(Tr, name='Значение').id
+    structure_kind = get_object_or_404(Tr, name='Состав').id
+    data = json.loads(request.body)
+    znanie_id = data['id']
+    is_table = data['table']
+    is_group = data['is_group']
+    data = False
+    # Если передана таблица, проверка на наличие ячейки
+    if is_table:
+        if Relation.objects.filter(tr_id=value_id, bz_id=znanie_id, is_published=True).exists():
+            data = True
+    # Если передана строка/столбец, проверка, привязано ли знание
+    else:
+        # Если знание - группа, то проверяем привязку к знанию в каждом элементе строки/столбца
+        if is_group:
+            relations = Relation.objects.filter(bz_id=znanie_id, tr_id=structure_kind)
+            for relation in relations:
+                if Relation.objects.filter(rz_id=relation.rz_id, is_published=True).exclude(bz_id=znanie_id).exists():
+                    data = True
+        # В противном случае проверяем, есть ли ячейка, привязанная к данному знанию
+        else:
+            if Relation.objects.filter(tr_id=value_id, rz_id=znanie_id, is_published=True).exists():
+                data = True
     return JsonResponse(data, safe=False)

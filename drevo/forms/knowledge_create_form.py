@@ -1,10 +1,9 @@
 from ckeditor.widgets import CKEditorWidget
 from django import forms
-from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.forms import inlineformset_factory
 from mptt.forms import TreeNodeChoiceField
 
-from drevo.common import variables
 from drevo.models import Znanie, Category, ZnImage, Label, Tz
 from drevo.models.utils import get_model_or_stub
 
@@ -56,8 +55,31 @@ ZnImageFormSet = inlineformset_factory(
 )
 
 
-class RelationCreateForm(forms.ModelForm, ZnanieValidators):
-    """Форма создания Знания вида Строка"""
+class RelationCreateEditForm(forms.ModelForm, ZnanieValidators):
+    """Форма создания и изменения Знания вида Строка"""
+    name = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
+                                                        'rows': 4,
+                                                        }
+                                                 ),
+                           label='Тема'
+                           )
+
+    tz = forms.ModelChoiceField(queryset=Tz.objects.filter(Q(name='Заголовок') | Q(name='Группа')).order_by('name'), label='Вид знания')
+
+    class Meta:
+        model = Znanie
+        exclude = ('id', 'category', 'content', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director', 'is_send',
+                   'is_published', 'labels', 'author', 'href', 'source_com', 'order', 'show_link', 'notification')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if field_name != 'is_send':
+                field.widget.attrs['class'] = 'form-control'
+
+
+class ElementGroupForm(forms.ModelForm, ZnanieValidators):
+    """Форма создания элемента группы"""
     name = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
                                                         'rows': 4,
                                                         }
@@ -67,8 +89,9 @@ class RelationCreateForm(forms.ModelForm, ZnanieValidators):
 
     class Meta:
         model = Znanie
-        exclude = ('id', 'category', 'content', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director', 'is_send',
-                   'is_published', 'labels', 'tz', 'author', 'href', 'source_com', 'order', 'show_link', 'notification')
+        exclude = ('id', 'category', 'content', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director',
+                   'is_send', 'is_published', 'labels', 'author', 'href', 'source_com', 'order', 'show_link',
+                   'tz', 'notification')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

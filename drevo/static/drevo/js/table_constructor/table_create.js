@@ -9,7 +9,7 @@ function tableCreate() {
     const columnAdd = window.opener.document.getElementById('add_column');
     const isNew = document.querySelector('script[data-new]').getAttribute('data-new');
     
-    if (isNew == "true") {
+    if (isNew === "true") {
         const newZnanieName = document.querySelector('script[data-new-znanie-name]').getAttribute('data-new-znanie-name');
         const newZnanieId = document.querySelector('script[data-new-znanie-id]').getAttribute('data-new-znanie-id');
         tableSelect.innerHTML = `<option value="${newZnanieId}" selected> ${newZnanieName}</option>`;
