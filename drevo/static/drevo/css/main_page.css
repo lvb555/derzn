@@ -124,6 +124,16 @@ body {
     color: black
 }
 
+.navbar .nav-header:hover {
+    font-size: 14px;
+    font-weight: 500 !important;
+    line-height: 17px;
+    letter-spacing: 0.02em;
+    text-align: left;
+    padding: 6px 12px;
+    display: block;
+}
+
 a.nav-header.show, a.from-nav.show {
     color: #083E2F;
 }

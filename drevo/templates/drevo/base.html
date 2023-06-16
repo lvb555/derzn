@@ -280,6 +280,13 @@
           document.getElementById('cookie-consent').style.display = 'block';
         }
       });
+  }else{
+        window.addEventListener('load', function() {
+        var cookieConsent = localStorage.getItem('cookieConsent');
+        if (cookieConsent === 'true' && document.getElementById('cookie-consent') !== null) {
+          cookieSendClick();
+        }
+      });
   }
 
   function cookieSendClick(){
