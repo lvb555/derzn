@@ -41,7 +41,10 @@ from .filling_tables import (
     row_and_column_existence,
     show_new_znanie,
     show_filling_tables_page,
-    get_form_data
+    get_form_data,
+    delete_element_of_relation,
+    cell_in_table_or_relation_existence,
+    GroupElementCreate,
 )
 from .friends_added_view import friends_added_view
 from .friends_view import friends_view
@@ -143,6 +146,9 @@ __all__ = [
     "row_and_column_existence",
     "show_new_znanie",
     "show_filling_tables_page",
+    "delete_element_of_relation",
+    "cell_in_table_or_relation_existence",
+    "GroupElementCreate",
     "friends_view",
     "friends_added_view",
     "friends_invite_view",
