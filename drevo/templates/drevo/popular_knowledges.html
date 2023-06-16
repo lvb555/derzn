@@ -52,7 +52,6 @@
         </div>
 </form>
 {% endif %}
-QuerySet для создания дерева: {{all_knowledges}}
 {% if all_knowledges %}
     {% build_knowledge_tree queryset=all_knowledges show_complex=True %}
 {% else %}
