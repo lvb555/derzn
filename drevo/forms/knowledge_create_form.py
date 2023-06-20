@@ -110,7 +110,7 @@ class TableCreateForm(ZnanieCreateForm):
         result_categories = []
         for category in _categories:
             if user:
-                experts = category.get_expert_ancestors_category()
+                experts = category.get_admin_ancestors_category()
                 if user in experts:
                     result_categories.append(category)
             else:
