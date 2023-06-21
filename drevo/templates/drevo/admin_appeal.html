@@ -140,7 +140,7 @@ function toggleHiddenElement(element) {
 }
 
 function TSendClick(ticketId){
-    var message = document.querySelector('#\\3'+ticketId+'').querySelector('textarea[name="message"]').value;
+    var message = document.getElementById(''+ticketId+'').querySelector('textarea[name="message"]').value;
 
     $.ajax({
         data: {'message':message, 'ticket_id': ticketId},
