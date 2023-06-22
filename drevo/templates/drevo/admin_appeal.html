@@ -40,7 +40,7 @@
     <div class="glossary-term">
         <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
         <span class="title" style="padding-left: 21px;">Обращения, на которые еще нет ответа</span>
-        <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>
+        <div class="small-title" style="padding: 0px 48px; margin-top: 1rem;" hidden>
         {% for ticket in unanswered_tickets %}
             <div class="row pt-3 pb-3" style="border-top: 1px grey solid;" name="user" id="user_{{ ticket.user.id }}">
                 <p><b>Причина обращения:</b> {{ ticket.get_subject_display  }}</p>
@@ -48,11 +48,11 @@
                 {% if ticket.topic %}
                     <p><b>Тема:</b> {{ ticket.topic }}</p>
                 {% endif %}
-                <p><b>Описание:</b> {{ ticket.description }}</p>
+                <p style="width: 80%;"><b>Описание:</b> {{ ticket.description }}</p>
                 <p><b>Дата обращения:</b> {{ ticket.created_at }}</p>
                 <div class="reply-form" id="{{ ticket.id }}">
                   <textarea name="message" cols="40" rows="4" class="form-control py-2 mb-2" style="background-color: white;"></textarea>
-                  <button onclick="TSendClick('{{ ticket.id }}')" class="btn btn-header">Ответить</button>
+                  <button id="sendAnswer" onclick="TSendClick('{{ ticket.id }}')" class="btn btn-header" disabled>Ответить</button>
                 </div>
             </div>
         {% endfor %}
@@ -63,7 +63,7 @@
     <div class="glossary-term">
         <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
         <span class="title" style="padding-left: 21px;">Обращения с ответом</span>
-        <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>
+        <div class="small-title" style="padding: 0px 48px; margin-top: 1rem;" hidden>
         {% for ticket in answered_tickets %}
             <div class="row pt-3" style="border-top: 1px grey solid;" name="user" id="user_{{ ticket.user.id }}">
                 <p><b>Причина обращения:</b> {{ ticket.get_subject_display  }}</p>
@@ -71,10 +71,10 @@
                 {% if ticket.topic %}
                     <p><b>Тема:</b> {{ ticket.topic }}</p>
                 {% endif %}
-                <p><b>Описание:</b> {{ ticket.description }}</p>
+                <p style="width: 80%;"><b>Описание:</b> {{ ticket.description }}</p>
                 <p><b>Дата обращения:</b> {{ ticket.created_at }}</p>
                 <p><b>Ответ:</b></p>
-                <p>{{ ticket.message }}</p>
+                <p style="width: 80%;">{{ ticket.message }}</p>
                 <p><b>Дата ответа:</b> {{ ticket.answered_at}}</p>
             </div>
         {% endfor %}

@@ -38,6 +38,19 @@ function fakeSelect() {
 
 fakeSelect();
 
+var textareas = document.querySelectorAll('textarea[name="message"]');
+var sendButtons = document.querySelectorAll('#sendAnswer');
+
+textareas.forEach(function(textarea, index) {
+    textarea.addEventListener('input', function() {
+      if (textarea.value.trim() !== '') {
+        sendButtons[index].disabled = false;
+      } else {
+        sendButtons[index].disabled = true;
+      }
+    });
+});
+
 function TSendClick(ticketId){
     var message = document.getElementById(''+ticketId+'').querySelector('textarea[name="message"]').value;
 

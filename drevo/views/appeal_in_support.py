@@ -32,8 +32,9 @@ def appeal(request):
             form = TicketForm(request.POST)
             if form.is_valid():
                 subject = form.cleaned_data['subject']
+                topic = form.cleaned_data['topic']
                 description = form.cleaned_data['description']
-                Appeal.objects.create(user=request.user, subject=subject, description=description)
+                Appeal.objects.create(user=request.user, subject=subject, topic=topic, description=description)
                 return redirect('appeal')
         else:
             form = TicketForm()
