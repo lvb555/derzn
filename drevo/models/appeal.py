@@ -21,9 +21,8 @@ class Appeal(models.Model):
         verbose_name='Причина обращения'
     )
     topic = models.CharField(
-        max_length=256,
+        max_length=255,
         verbose_name='Тема',
-        null=True,
         blank=True
     )
     description = models.TextField(
@@ -49,7 +48,6 @@ class Appeal(models.Model):
     message = models.TextField(
         max_length=1000,
         verbose_name='Ответ на обращение',
-        null=True,
         blank=True
     )
     answered_at = models.DateTimeField(
