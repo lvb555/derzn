@@ -11,7 +11,7 @@ SUBJECT_CHOICES = [
 class TicketForm(forms.Form):
     subject = forms.ChoiceField(choices=SUBJECT_CHOICES, label='Причина обращения')
     topic = forms.CharField(widget=forms.TextInput(), label='Тема', required=False)
-    description = forms.CharField(widget=forms.TextInput(), label='Описание')
+    description = forms.CharField(widget=forms.Textarea, label='Описание (Не более 1 000 знаков)', max_length=1000)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

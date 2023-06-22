@@ -24,7 +24,7 @@
         <a href="" class="btn btn-success mb-1 btn-header" data-bs-toggle="collapse" data-bs-target="#appeal_form">
             Написать обращение
         </a>
-        <form  id="appeal_form" method="POST" class="mb-3 collapse basic ps-0">
+        <form  id="appeal_form" method="POST" class="mb-3 collapse basic ps-0" style="width: 80%;">
           {% csrf_token %}
           {{ form.as_p }}
           <button class="btn btn-header" type="submit">Отправить</button>
@@ -34,14 +34,14 @@
     <div class="glossary-term">
         <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
         <span class="title" style="padding-left: 21px;">Обращения, на которые еще нет ответа</span>
-        <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>
+        <div class="small-title" style="padding: 0px 48px; margin-top: 1rem;" hidden>
         {% for ticket in unanswered_tickets %}
             <div class="row pt-3" style="border-top: 1px grey solid;">
                 <p><b>Причина обращения:</b> {{ ticket.get_subject_display  }}</p>
                 {% if ticket.topic %}
                     <p><b>Тема:</b> {{ ticket.topic }}</p>
                 {% endif %}
-                <p><b>Описание:</b> {{ ticket.description }}</p>
+                <p style="width: 80%;"><b>Описание:</b> {{ ticket.description }}</p>
                 <p><b>Дата обращения:</b> {{ ticket.created_at }}</p>
             </div>
         {% endfor %}
@@ -52,17 +52,17 @@
     <div class="glossary-term">
         <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
         <span class="title" style="padding-left: 21px;">Обращения с ответом</span>
-        <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>
+        <div class="small-title" style="padding: 0px 48px; margin-top: 1rem;" hidden>
         {% for ticket in answered_tickets %}
             <div class="row pt-3" style="border-top: 1px grey solid;">
                 <p><b>Причина обращения:</b> {{ ticket.get_subject_display  }}</p>
                 {% if ticket.topic %}
                     <p><b>Тема:</b> {{ ticket.topic }}</p>
                 {% endif %}
-                <p><b>Описание:</b> {{ ticket.description }}</p>
+                <p style="width: 80%;"><b>Описание:</b> {{ ticket.description }}</p>
                 <p><b>Дата обращения:</b> {{ ticket.created_at }}</p>
                 <p><b>Ответ:</b></p>
-                <p>{{ ticket.message }}</p>
+                <p style="width: 80%;">{{ ticket.message }}</p>
                 <p><b>Дата ответа:</b> {{ ticket.answered_at}}</p>
             </div>
         {% endfor %}
