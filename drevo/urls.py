@@ -90,6 +90,7 @@ from .views import (
     relation_publication_view,
 )
 from .views import send_znanie, knowledge_feed_view
+from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
 
@@ -175,6 +176,7 @@ urlpatterns = [
     path("table_edit", CreateChangeTableView.as_view(), name="table_edit"),
     path("delete_table/", delete_table, name="delete_table"),
     path("delete_row_or_column/", delete_row_or_column, name="delete_row_or_column"),
+    path('appeal/', appeal, name='appeal'),
     path("show_new_znanie/", show_new_znanie, name="show_new_znanie"),
     path("show_filling_tables_page/", show_filling_tables_page, name="show_filling_tables_page"),
     path("delete_element_of_relation/", delete_element_of_relation, name="delete_element_of_relation"),

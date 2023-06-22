@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
 {% endblock %}
 {% block content %}
-    <div class="container">
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-5">
             {% if messages %}
@@ -88,6 +88,7 @@
                         <input type="checkbox" name="agreement" id="agreement-checkbox" class="form-check-input" required>
                         <label for="agreement-checkbox" style="color: #6C757D; display: inline!important;">Даю согласие на обработку персональных в соответствии с
                         <a style="text-decoration-line: underline; color: #6C757D;" href="{% url 'privacy' %}">Политикой обработки персональных данных</a></label>
+                        <p><b>К сожалению, вы не можете зарегистрироваться сейчас, так как запуск сайта планируется на январь 2023 год</b></p>
                         <div class="form-group text-center mt-4 mb-4">
                             <input class="btn btn-header" id="registration-button" disabled style="width: 100%; font-size: 14px;" type="submit" value="Зарегистрироваться">
                         </div>
@@ -106,6 +107,7 @@
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block jsfiles %}
@@ -147,13 +149,13 @@
 
         const agreementCheckbox = document.getElementById('agreement-checkbox');
         const registrationButton = document.getElementById('registration-button');
-
-        agreementCheckbox.addEventListener('change', function() {
-            if (agreementCheckbox.checked) {
-              registrationButton.removeAttribute('disabled');
-            } else {
-              registrationButton.setAttribute('disabled', 'disabled');
-            }
-        });
+<!--Закомментировала, чтобы нельзя было зарегистрироваться до окончания подачи документов-->
+<!--        agreementCheckbox.addEventListener('change', function() {-->
+<!--            if (agreementCheckbox.checked) {-->
+<!--              registrationButton.removeAttribute('disabled');-->
+<!--            } else {-->
+<!--              registrationButton.setAttribute('disabled', 'disabled');-->
+<!--            }-->
+<!--        });-->
     </script>
 {% endblock %}
