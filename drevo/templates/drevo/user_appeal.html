@@ -1,0 +1,74 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block title %}Обратная связь{% endblock %}
+
+{% block content %}
+<div class="container header_info p-0">
+    <h1>Обратная связь</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item"><a>Наш проект</a></li>
+          <li class="breadcrumb-item opened"><a>Обратная связь</a></li>
+        </ol>
+    </nav>
+</div>
+<div class="d-grid basic" style="gap: 16px; margin-top: 25px;">
+    <div>
+        <a href="" class="btn btn-success mb-1 btn-header" data-bs-toggle="collapse" data-bs-target="#appeal_form">
+            Написать обращение
+        </a>
+        <form  id="appeal_form" method="POST" class="mb-3 collapse basic ps-0" style="width: 80%;">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button class="btn btn-header" type="submit">Отправить</button>
+        </form>
+    </div>
+    {% if unanswered_tickets %}
+    <div class="glossary-term">
+        <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
+        <span class="title" style="padding-left: 21px;">Обращения, на которые еще нет ответа</span>
+        <div class="small-title" style="padding: 0px 48px; margin-top: 1rem;" hidden>
+        {% for ticket in unanswered_tickets %}
+            <div class="row pt-3" style="border-top: 1px grey solid;">
+                <p><b>Причина обращения:</b> {{ ticket.get_subject_display  }}</p>
+                {% if ticket.topic %}
+                    <p><b>Тема:</b> {{ ticket.topic }}</p>
+                {% endif %}
+                <p style="width: 80%;"><b>Описание:</b> {{ ticket.description }}</p>
+                <p><b>Дата обращения:</b> {{ ticket.created_at }}</p>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    {% if answered_tickets %}
+    <div class="glossary-term">
+        <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
+        <span class="title" style="padding-left: 21px;">Обращения с ответом</span>
+        <div class="small-title" style="padding: 0px 48px; margin-top: 1rem;" hidden>
+        {% for ticket in answered_tickets %}
+            <div class="row pt-3" style="border-top: 1px grey solid;">
+                <p><b>Причина обращения:</b> {{ ticket.get_subject_display  }}</p>
+                {% if ticket.topic %}
+                    <p><b>Тема:</b> {{ ticket.topic }}</p>
+                {% endif %}
+                <p style="width: 80%;"><b>Описание:</b> {{ ticket.description }}</p>
+                <p><b>Дата обращения:</b> {{ ticket.created_at }}</p>
+                <p><b>Ответ:</b></p>
+                <p style="width: 80%;">{{ ticket.message }}</p>
+                <p><b>Дата ответа:</b> {{ ticket.answered_at}}</p>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+<script type="application/javascript" src="{% static 'drevo/js/toggle_element.js' %}"></script>
+{% endblock %}

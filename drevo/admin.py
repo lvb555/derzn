@@ -56,6 +56,7 @@ from .models import (
     RelationshipTzTr,
     RelationStatuses,
 )
+from .models.appeal import Appeal
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
 
@@ -694,3 +695,7 @@ class RelationshipTzTrAdmin(admin.ModelAdmin):
     list_display_links = ('pk',)
     save_as = True
 
+@admin.register(Appeal)
+class AppealAdmin(admin.ModelAdmin):
+    list_display = ("user", "subject", "created_at", "admin")
+    readonly_fields = ("created_at", "resolved")
