@@ -15,12 +15,14 @@ function relationCreate() {
         const deleteColumn = window.opener.document.getElementById('delete_column');
         const deleteElementRow = window.opener.document.getElementById('delete_element_row');
         const deleteElementColumn = window.opener.document.getElementById('delete_element_column');
-        const newZnanieName = document.querySelector('script[data-name]').getAttribute('data-name');
-        const newZnanieId = document.querySelector('script[data-id]').getAttribute('data-id');
-        const newZnanieKind = document.querySelector('script[data-tz-name]').getAttribute('data-tz-name');
         const relation = window.opener.document.getElementById('relation_type');
         const rowElements = window.opener.document.getElementById('row_elements');
         const columnElements = window.opener.document.getElementById('column_elements');
+        const newZnanieName = document.querySelector('script[data-name]').getAttribute('data-name');
+        const newZnanieId = document.querySelector('script[data-id]').getAttribute('data-id');
+        const newZnanieKind = document.querySelector('script[data-tz-name]').getAttribute('data-tz-name');
+
+        console.log(newZnanieName, newZnanieId, newZnanieKind)
 
         if (relation.value === 'row') {
            rowSelect.innerHTML += `<option value="${newZnanieId}" selected> ${newZnanieName}</option>`
@@ -29,10 +31,10 @@ function relationCreate() {
            if (newZnanieKind === 'Группа') {
                rowElements.removeAttribute('hidden');
                addRow.hidden = true;
-               rowSelect.css('background-image', 'none');
-               rowSelect.css('appearance', 'none');
-               rowSelect.css('pointer-events', 'none');
-               deleteRow.css('padding-left', 'auto');
+               rowSelect.style.backgroundImage = 'none';
+               rowSelect.style.appearance = 'none';
+               rowSelect.style.pointerEvents = 'none';
+               deleteRow.style.paddingLeft = 'auto';
            }
         }
         else if (relation.value === 'column') {
@@ -42,10 +44,10 @@ function relationCreate() {
                if (newZnanieKind === 'Группа') {
                    columnElements.removeAttribute('hidden');
                    addColumn.hidden = true;
-                   columnSelect.css('background-image', 'none');
-                   columnSelect.css('appearance', 'none');
-                   columnSelect.css('pointer-events', 'none');
-                   deleteColumn.css('padding-left', 'auto');
+                   columnSelect.style.backgroundImage = 'none';
+                   columnSelect.style.appearance = 'none';
+                   columnSelect.style.pointerEvents = 'none';
+                   deleteColumn.style.paddingLeft = 'auto';
                }
         }
         else if (relation.value === 'element_row') {

@@ -4,10 +4,11 @@
 {% block title %}Конструктор таблиц{% endblock %}
 
 {% block cssfiles %}
-    <link rel="stylesheet" href="/static/drevo/css/table_constructor/table_constructor.css">
+    <link rel="stylesheet" href="/static/drevo/css/table_quiz_constructor.css">
 {% endblock %}
 
 {% block jsfiles %}
+    <script src="{% static 'drevo/js/get_cookie.js'%}"></script>
     <script src="{% static 'drevo/js/table_constructor/table_constructor.js'%}" data-delete-relations='{% url "delete_row_or_column" %}'
             data-delete-element='{% url "delete_element_of_relation" %}'
             data-delete-table='{% url "delete_table" %}' data-get-form="{% url 'get_form_data' %}"
@@ -20,13 +21,14 @@
 <div id="page">
 {% block content %}
 
+<a href="{% url 'table_edit' %}" class="btn btn-warning mb-3">Назад</a>
 <form method="POST" class="form" id="form" name="form"> {% csrf_token %}
     <input type="hidden" name="filling_tables" value="">
     <div class="constructor-block">
         <h1>Конструктор таблиц</h1>
         <label for="id_table">Таблица:</label>
-        <div class="block-select-table">
-            <select class="select-table" name="table" id="id_table">
+        <div class="block-select-table-or-test">
+            <select class="select-table-or-test" name="table" id="id_table">
                 {% if new_table %}
                     <option value="" id="" selected disabled> Создайте таблицу </option>
                 {% else %}
@@ -45,7 +47,7 @@
         </div>
     </div>
 
-    <div class="row-column-block">
+    <div class="row-column-question-block">
         <label for="id_row">Строка:</label>
         <div class="select-options">
             <input type="hidden" id="relation_type" value="">
@@ -139,8 +141,8 @@
 
     <div id="div-param" class="button-block">
         <div class="button-menu">
-            <input class="button-save" id="btn_save" type="submit" value="Сохранить" name="_save">
-            <input class="button-show" id="btn_show" type="button" value="Показать">
+            <input class="btn btn-outline-success" id="btn_save" type="submit" value="Сохранить" name="_save">
+            <input class="btn btn-outline-success" id="btn_show" type="button" value="Показать">
         </div>
     </div>
 
