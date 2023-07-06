@@ -8,6 +8,18 @@ from .comment_send_view import CommentSendView
 from .drevo_list_view import DrevoListView
 from .drevo_view import DrevoView
 from .knowledge_view import KnowledgeView
+from .quiz_constructor_view import (
+    AnswerOrQuestionCreateView,
+    AnswerOrQuestionEditView,
+    QuizConstructorView,
+    QuizConstructorTreeView,
+    QuizCreateView,
+    QuizEditView,
+    delete_answers_or_questions_to_quiz,
+    delete_quiz,
+    get_answers_to_selected_question_of_quiz,
+    get_form_data_for_quiz_constructor,
+)
 from .expert_work.views import (
     QuestionExpertWorkPage,
     propose_answer,
@@ -27,7 +39,7 @@ from .admin_interview_work.views import (
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
-from .filling_tables import (
+from .table_constructor_view import (
     TableKnowledgeTreeView,
     CreateChangeTableView,
     TableCreateView,
@@ -161,6 +173,16 @@ __all__ = [
     'QuizResultAdd',
     "GroupKnowledgeView",
     'QuizDetailView',
+    "AnswerOrQuestionCreateView",
+    "AnswerOrQuestionEditView",
+    "QuizConstructorView",
+    "QuizConstructorTreeView",
+    "QuizCreateView",
+    "QuizEditView",
+    "delete_answers_or_questions_to_quiz",
+    "delete_quiz",
+    "get_answers_to_selected_question_of_quiz",
+    "get_form_data_for_quiz_constructor",
     "InfographicsView",
     "my_knowledge_grade",
     "knowledges_grades",

@@ -1,0 +1,140 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block title %}Конструктор тестов{% endblock %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="/static/drevo/css/table_quiz_constructor.css">
+{% endblock %}
+
+{% block jsfiles %}
+    <script src="{% static 'drevo/js/get_cookie.js'%}"></script>
+    <script src="{% static 'drevo/js/quiz_constructor/quiz_constructor.js'%}"
+            data-get-existing-answers='{% url "get_answers_to_selected_question_of_quiz" %}'
+            data-delete-quiz='{% url "delete_quiz" %}'
+            data-delete-answer-or-question-to-quiz='{% url "delete_answers_or_questions_to_quiz" %}'
+            data-get-form-data="{% url 'get_form_data_for_quiz_constructor' %}"
+            >
+
+    </script>
+{% endblock %}
+
+<div id="page">
+{% block content %}
+<a href="{% url 'quiz_constructor_tree' %}" class="btn btn-warning mb-3">Назад</a>
+<form method="POST" class="form" id="form" name="form"> {% csrf_token %}
+    <div class="constructor-block">
+        <h1>{{ title }}</h1>
+        <label for="id_test">Тест:</label>
+        <div class="block-select-table-or-test">
+            <select class="select-table-or-test" name="test" id="id_test">
+                {% if new_test %}
+                    <option value="" id="" selected disabled>Создайте тест</option>
+                {% else %}
+                    {% for pk, element in test_attributes.items %}
+                        <option value="{{ pk }}" id="{{ pk }}"> {{ element }} </option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+           <span>
+               {% if new_test %}
+               <input type="button" value="➕" class="quiet button-edit" id="add_test" onclick="addZnanie('test')">
+               {% endif %}
+               <input type="button" value="❌" class="quiet button-edit" id="delete_test" {% if new_test %} hidden {% endif %}>
+               <input type="button" value="✐" class="quiet button-edit" id="edit_test" style="padding-left: 0px"  {% if new_test %} hidden {% endif %} onclick="editZnanie('test')">
+           </span>
+        </div>
+    </div>
+
+    <div class="row-column-question-block">
+        <label for="id_question">Вопрос:</label>
+        <div class="select-options">
+            <select class="form-select" name="question" id="id_question" {% if new_test %} disabled {% endif %}>
+                    {% if new_test or not questions_attributes %}
+                        <option value="" id="create_question" selected disabled>Создайте вопрос</option>
+                    {% else %}
+                        <option value="" selected disabled>Выберите вопрос</option>
+                        {% for question in questions_attributes %}
+                            <option value="{{ question.rz_id }}" id="{{ question.rz_id }}"> {{ question.rz__name }} </option>
+                        {% endfor %}
+                    {% endif %}
+            </select>
+            <span>
+                <input type="button" value="➕" class="quiet button-edit" id="add_question" {% if new_test %} disabled {% endif %} onclick="addZnanie('question')">
+                <input type="button" value="❌" class="quiet button-edit" id="delete_question"  style="padding-left: 0px" {% if new_test %} hidden {% endif %} onclick="deleteQuestionOrAnswer('question')">
+                <input type="button" value="✐" class="quiet button-edit" id="edit_question" style="padding-left: 0px" {% if new_test %} hidden {% endif %} onclick="editZnanie('question')">
+            </span>
+        </div>
+        <div id="related_answers"></div>
+        <div id="add_new_answers"></div>
+
+        <span id="create_new_answer" style="cursor: pointer" class="new-answer" hidden>Создайте новый ответ</span>
+    </div>
+
+    <div id="div-param" class="button-block">
+        <div class="button-menu">
+            <input class="btn btn-outline-success" id="btn_save" type="submit" value="Сохранить" name="_save">
+            <input class="btn btn-outline-success" id="btn_show" type="button" value="Показать">
+        </div>
+    </div>
+
+</form>
+</div>
+
+<div id="div1"></div>
+
+<div class="overlay js-successful">
+    <div class="popup js-successful">
+        <h2 class="success-save">Данные были успешно сохранены</h2>
+        <div class="close-popup js-close-successful"></div>
+    </div>
+</div>
+
+<div class="overlay js-warning-create-answer">
+    <div class="popup js-warning-create-answer">
+        <h2 class="success-save">Сначала создайте ответ!</h2>
+        <div class="close-popup js-close-successful"></div>
+    </div>
+</div>
+
+<div class="overlay js-delete-test">
+    <div class="popup js-delete-test">
+        <h3 class="delete-confirmation">Вы действительно хотите удалить этот тест? Все связанные вопросы и ответы также удалятся!</h3>
+        <div class="modal_choice_but">
+            <input class="btn btn-success okay-popup js-okay-successful" type="button" value="Ок">
+            <input class="btn btn-danger cancel-popup js-cancel-successful" type="button" value="Отмена">
+        </div>
+    </div>
+</div>
+
+<div class="overlay js-delete-test-warning">
+    <div class="popup js-delete-test-warning">
+        <h2 class="delete-confirmation">Вы уверены?</h2>
+        <div class="modal_choice_but" style="margin-top: 90px">
+            <input class="btn btn-success okay-popup js-okay-delete-successful" type="button" value="Ок">
+            <input class="btn btn-danger cancel-popup js-cancel-successful" type="button" value="Отмена">
+        </div>
+    </div>
+</div>
+
+<div class="overlay js-delete-question">
+    <div class="popup js-delete-question">
+        <h3 class="delete-confirmation">Вы действительно хотите удалить этот вопрос? Ответы вопроса также удалятся.</h3>
+        <div class="modal_choice_but" style="padding-bottom: 25px; position: relative;">
+            <input class="btn btn-success okay-popup js-okay-successful" type="button" value="Ок">
+            <input class="btn btn-danger cancel-popup js-cancel-successful" type="button" value="Отмена">
+        </div>
+    </div>
+</div>
+
+<div class="overlay js-delete-answer">
+    <div class="popup js-delete-answer">
+        <h2 class="delete-confirmation">Вы действительно хотите удалить этот ответ?</h2>
+        <div class="modal_choice_but" style="margin-top: 27px">
+            <input class="btn btn-success okay-popup js-okay-successful" type="button" value="Ок">
+            <input class="btn btn-danger cancel-popup js-cancel-successful" type="button" value="Отмена">
+        </div>
+    </div>
+</div>
+
+{% endblock %}

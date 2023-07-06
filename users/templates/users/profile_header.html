@@ -225,12 +225,6 @@
                     </a>
 
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li>
-                            {% if user.is_expert %}
-                                <a href="{% url 'table_knowledge_tree' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
-                                <a href="{% url 'table_edit' %}" id="table_id" class="dropdown-item">Создание/изменение таблиц</a>
-                            {% endif %}
-                        </li>
                         {% if user.is_staff %}
 						<li>
                             <div class="btn-group text-center">
@@ -261,6 +255,34 @@
 						</div>
 						</li>
                         {% endif %}
+                        {% if user.is_director %}
+						<li>
+                            <div class="btn-group text-center">
+                                <a class="dropdown-item" href="#">Руководитель</a>
+                                <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                     <a href="{% url 'table_edit' %}" class="dropdown-item">Конструктор таблиц</a>
+                                </ul>
+						    </div>
+						</li>
+                        {% endif %}
+                        {% if user.is_expert %}
+						<li>
+                            <div class="btn-group text-center">
+                                <a class="dropdown-item" href="#">Эксперт</a>
+                                <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <a href="{% url 'quiz_constructor_tree' %}" id="" class="dropdown-item">Конструктор тестов</a>
+                                    <a href="{% url 'table_knowledge_tree' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
+                                </ul>
+						    </div>
+						</li>
+                        {% endif %}
+
                     </ul>
                 </div>
                 <div class="btn-group">
@@ -291,25 +313,12 @@ function logAndStop(event) {
 }
 </script>
 
+<script src="{% static 'drevo/js/get_cookie.js'%}"></script>
+
 <script>
     // Проверка перед открытием страницы "Наполнение таблиц"
     let filling_tables = document.getElementById("filling_tables")
     let table_id = document.getElementById("table_id")
-    const csrftoken = getCookie('csrftoken');
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-          const cookies = document.cookie.split(';');
-          for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i].trim();
-              if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                  break;
-              }
-          }
-      }
-      return cookieValue;
-    }
     showFillingTables()
 
     function showFillingTables() {
@@ -327,7 +336,6 @@ function logAndStop(event) {
       .then(data => {
           if (!data[0]) {
               filling_tables.remove()
-              table_id.remove()
           }
       })
       .catch((error) => {
