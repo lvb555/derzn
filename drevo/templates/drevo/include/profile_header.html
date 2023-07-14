@@ -1,36 +1,36 @@
 {% load static %}
 
 <section class="gradient-custom-2 mb-3">
-    <div class="container py-3 h-100">
+    <div class="container pb-3 h-100 px-2">
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col col-lg-12 col-xl-12">
-          <div class="card">
+          <div class="card" style="border-radius: 10px;">
             <div class="rounded-top text-white d-flex flex-row" style="height:200px;">
               <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
                 {% if pub_user.profile.avatar %}
-                    <img src="{{ pub_user.profile.avatar.url }}"
-                    alt="Users photo" class="img-fluid img-thumbnail mt-4 mb-2"
-                    style="width: 150px; z-index: 1">
+                    <img src="{{ user.profile.avatar.url }}"
+                    alt="Users photo" class="img-fluid img-thumbnail mt-5 ms-2"
+                    style="width: 150px; height: 150px; z-index: 1; object-fit: cover;">
                 {% else %}
                     <img src="{% static 'src/default_avatar.jpg' %}"
-                    alt="Users photo" class="img-fluid img-thumbnail mt-4 mb-2"
+                    alt="Users photo" class="img-fluid img-thumbnail mt-5 ms-2"
                     style="width: 150px; z-index: 1">
                 {% endif %}
               </div>
             </div>
-            <div class="p-4" style="background: #FFFFFF; border-radius: 0px 0px 10px 10px;">
-                <p class="user_first_last mt-2">{{pub_user.first_name}} {{pub_user.last_name}}</p>
+            <div style="background: #FFFFFF; border-radius: 0px 0px 10px 10px; padding: 4rem 2rem 2rem 2rem;">
+                <p class="user_first_last m-0">{{pub_user.first_name}} {{pub_user.last_name}}</p>
               <div class="d-flex justify-content-between">
-                <p class="user_small_info mt-1">{{pub_user.profile.get_gender_display}} (пол), {{pub_user.profile.get_user_age}} (возраст)
+                <p class="user_small_info mt-3 mb-0">{{pub_user.profile.get_gender_display}} (пол), {{pub_user.profile.get_user_age}} (возраст)
                 {% if pub_user.job %} {{pub_user.job}} (профессия){% endif %}</p>
                 {% if link == 'users:myprofile' %}
-                <a class="btn edit_btn shadow-none"
-                    style="z-index: 1; margin-left: 35%"
-                    href="{% url 'users:myprofile' %}">
-                    Редактировать профиль
-                </a>
-                <div class="mr-2">
-                    <a class="btn btn-primary btn-lg" href="{% url 'parameter_settings' %}"><i class="bi bi-gear"></i></a>
+                <div class="mr-2 d-flex justify-content-right mt-1" style="height: 30px;">
+                    <a class="btn edit_btn shadow-none me-3"
+                        style="z-index: 1;"
+                        href="{% url 'users:myprofile' %}">
+                        Редактировать профиль
+                    </a>
+                    <a class="btn btn-primary btn-lg" href="{% url 'parameter_settings' %}" style="background-color: #083E2F; border-radius: 8px; font-size: smaller; padding: 5px 8px;"><i class="bi bi-gear-fill"></i></a>
                 </div>
                 {% endif %}
               </div>
@@ -41,7 +41,7 @@
     </div>
 </section>
 
-<div class="container">
+<div class="container px-2">
     <div class="d-flex flex-row">
         <nav class="navbar px-3 mb-3" style="background: #DFDFE3; border-radius: 10px; width: 100%;">
             <div id="nav-dropdown" class="dropdown table-hover">
@@ -96,7 +96,7 @@
                                 </div>
                             </li>
                             {% endif %}
-                            {% if 'Мои знания' in sections or 'Мои связи' in sections or 'Мои экспертизы' in sections %}
+                            {% if 'Мои знания' in sections or 'Мои экспертизы' in sections %}
                             <li>
                                 <div class="btn-group">
                                     <a class="dropdown-item" href="{% url 'znanie_expert_process' %}">Мой вклад, как эксперта</a>
@@ -118,7 +118,7 @@
                                 </div>
                             </li>
                             {% endif %}
-                            {% if 'Мои знания (пользовательский вклад)' in sections or 'Мои предзнания' in sections %}
+                            {% if 'Мои знания (пользовательский вклад)' in sections %}
                             <li>
                                 <div class="btn-group text-center">
                                     <a class="dropdown-item" href="#">Мой вклад, как пользователя</a>
@@ -126,11 +126,9 @@
                                         <span class="visually-hidden"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        {% if 'Мои знания (пользовательский вклад)' in sections %}
                                         <li>
                                             <a class="dropdown-item" href="{% url 'my_preknowledge' pub_user.id %}">Мои знания</a>
                                         </li>
-                                        {% endif %}
                                     </ul>
                                 </div>
                             </li>
@@ -212,6 +210,7 @@
                 </div>
                 {% endif %}
                 {% if link == 'users:myprofile' %}
+                {% if user.is_expert or user.is_staff %}
                 <div class="btn-group">
                     <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                       Подготовка знаний <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
@@ -219,8 +218,17 @@
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         {% if user.is_expert %}
                         <li>
-                            <a href="{% url 'table_knowledge_tree' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
-                            <a href="{% url 'table_edit' %}" id="table_id" class="dropdown-item">Создание/изменение таблиц</a>
+                            <div class="btn-group text-center">
+                                <a class="dropdown-item" href="#">Эксперт</a>
+                                <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url 'table_knowledge_tree' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a></li>
+                                    <li><a href="{% url 'table_edit' %}" id="table_id" class="dropdown-item">Создание/изменение таблиц</a></li>
+                                    <li><a href="{% url 'my_interview' %}" class="dropdown-item">Мои интервью</a></li>
+                                </ul>
+						    </div>
                         </li>
                         {% endif %}
                         {% if user.is_staff %}
@@ -253,6 +261,24 @@
 						</div>
 						</li>
                         {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+                <div class="btn-group">
+                    <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                      Подготовка связей <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a href="{% url 'preparing_relations_create_page' %}" id="rel_create" class="dropdown-item">Создание связей</a>
+                            <a href="{% url 'preparing_relations_update_page' %}" id="rel_update" class="dropdown-item">Изменение связи</a>
+                            {% if user.is_expert %}
+                            <a href="{% url 'preparing_relations_expertise_page' %}" id="rel_expertise" class="dropdown-item">Экспертиза ПредСвязи</a>
+                            {% endif %}
+                            {% if user.is_director %}
+                            <a href="{% url 'preparing_relations_publication_page' %}" id="rel_pub" class="dropdown-item">Публикация cвязей</a>
+                            {% endif %}
+                        </li>
                     </ul>
                 </div>
                 {% endif %}
