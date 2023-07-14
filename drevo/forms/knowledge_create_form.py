@@ -55,8 +55,8 @@ ZnImageFormSet = inlineformset_factory(
 )
 
 
-class RelationCreateEditForm(forms.ModelForm, ZnanieValidators):
-    """Форма создания и изменения Знания вида Строка"""
+class RelationCreateForm(forms.ModelForm, ZnanieValidators):
+    """Форма создания Знания вида Строка"""
     name = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
                                                         'rows': 4,
                                                         }
@@ -64,12 +64,15 @@ class RelationCreateEditForm(forms.ModelForm, ZnanieValidators):
                            label='Тема'
                            )
 
-    tz = forms.ModelChoiceField(queryset=Tz.objects.filter(Q(name='Заголовок') | Q(name='Группа')).order_by('name'), label='Вид знания')
+    tz = forms.ModelChoiceField(queryset=Tz.objects.filter(Q(name='Заголовок') | Q(name='Группа')).order_by('name'),
+                                label='Вид знания',
+                                required=True)
 
     class Meta:
         model = Znanie
-        exclude = ('id', 'category', 'content', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director', 'is_send',
-                   'is_published', 'labels', 'author', 'href', 'source_com', 'order', 'show_link', 'notification')
+        exclude = ('id', 'category', 'content', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director',
+                   'is_send', 'is_published', 'labels', 'author', 'href', 'source_com', 'order', 'show_link',
+                   'notification')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,8 +81,60 @@ class RelationCreateEditForm(forms.ModelForm, ZnanieValidators):
                 field.widget.attrs['class'] = 'form-control'
 
 
-class ElementGroupForm(forms.ModelForm, ZnanieValidators):
-    """Форма создания элемента группы"""
+class QuestionToQuizCreateForm(forms.ModelForm, ZnanieValidators):
+    """Форма создания вопроса теста"""
+    name = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
+                                                        'rows': 4,
+                                                        }
+                                                 ),
+                           label='Тема'
+                           )
+
+    tz = forms.ModelChoiceField(queryset=Tz.objects.filter(Q(name='Вопрос') | Q(name='Вопрос теста')).order_by('name'),
+                                label='Вид знания',
+                                required=True)
+
+    class Meta:
+        model = Znanie
+        exclude = ('id', 'category', 'content', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director',
+                   'is_send', 'is_published', 'labels', 'author', 'href', 'source_com', 'order', 'show_link',
+                   'notification')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if field_name != 'is_send':
+                field.widget.attrs['class'] = 'form-control'
+
+
+class AnswerToQuizCreateForm(forms.ModelForm, ZnanieValidators):
+    """Форма создания ответа теста"""
+    name = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
+                                                        'rows': 4,
+                                                        }
+                                                 ),
+                           label='Тема'
+                           )
+
+    tz = forms.ModelChoiceField(queryset=Tz.objects.all().order_by('name').exclude(Q(name='Вопрос') | Q(name='Вопрос теста')),
+                                label='Вид знания',
+                                required=True)
+
+    class Meta:
+        model = Znanie
+        exclude = ('id', 'category', 'content', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director',
+                   'is_send', 'is_published', 'labels', 'author', 'href', 'source_com', 'order', 'show_link',
+                   'notification')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if field_name != 'is_send':
+                field.widget.attrs['class'] = 'form-control'
+
+
+class NameOfZnanieCreateUpdateForm(forms.ModelForm, ZnanieValidators):
+    """Форма создания и редактирования знания, в которой есть только тема"""
     name = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
                                                         'rows': 4,
                                                         }
@@ -100,17 +155,20 @@ class ElementGroupForm(forms.ModelForm, ZnanieValidators):
                 field.widget.attrs['class'] = 'form-control'
 
 
-class TableCreateForm(ZnanieCreateForm):
-    """Форма создания Знания вида Таблица"""
+class TableOrQuizCreateEditForm(ZnanieCreateForm):
+    """Форма создания и редактирования Знания вида «Таблица» или «Тест»"""
 
     @staticmethod
-    def special_permissions_for_expert(user=None):
-        """Выбор всех категорий в компетенции эксперта"""
+    def special_permissions_for_user(type_of_zn, user=None):
+        """Выбор всех категорий в компетенции руководителя или эксперта"""
         _categories = Category.tree_objects.exclude(is_published=False)
         result_categories = []
         for category in _categories:
             if user:
-                experts = category.get_expert_ancestors_category()
+                if type_of_zn == 'Таблица':
+                    experts = category.get_admin_ancestors_category()
+                else:
+                    experts = category.get_expert_ancestors_category()
                 if user in experts:
                     result_categories.append(category)
             else:
@@ -118,15 +176,20 @@ class TableCreateForm(ZnanieCreateForm):
 
         return result_categories
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, type_of_zn, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Присвоение вида знания "Таблица"
-        self.fields['tz'].initial = Tz.objects.get(name='Таблица')
+        if type_of_zn == 'Таблица':
+            # Присвоение виду знания "Таблица"
+            self.fields['tz'].initial = Tz.objects.get(name='Таблица')
+        else:
+            # Присвоение виду знания "Тест"
+            self.fields['tz'].initial = Tz.objects.get(name='Тест')
+
         self.fields['tz'].widget = forms.HiddenInput()
 
         # Выбор всех категорий в компетенции конкретного пользователя
-        categories = self.special_permissions_for_expert(user)
+        categories = self.special_permissions_for_user(type_of_zn, user)
         queryset = get_model_or_stub(Category).objects.filter(pk__in=[category.pk for category in categories])
 
         self.fields['category'] = TreeNodeChoiceField(queryset=queryset,

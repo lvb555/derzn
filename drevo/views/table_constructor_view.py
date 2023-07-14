@@ -7,8 +7,8 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
 
-from drevo.forms.knowledge_create_form import RelationCreateEditForm, TableCreateForm, ZnImageFormSet, ElementGroupForm
-from drevo.forms.knowledge_update_form import ZnImageEditFormSet, TableUpdateForm
+from drevo.forms.knowledge_create_form import RelationCreateForm, TableOrQuizCreateEditForm, ZnImageFormSet, NameOfZnanieCreateUpdateForm
+from drevo.forms.knowledge_update_form import ZnImageEditFormSet
 from drevo.models import Author, BrowsingHistory, Category, KnowledgeStatuses, Znanie, Tz, Tr, Relation, \
     SpecialPermissions, ZnImage
 
@@ -59,7 +59,7 @@ class TableKnowledgeTreeView(LoginRequiredMixin, TemplateView):
     """
     Представление страницы дерева табличных знаний
     """
-    template_name = 'drevo/table_create_and_update.html'
+    template_name = 'drevo/table_quiz_constructor_tree.html'
 
     def dispatch(self, request, *args, **kwargs):
         expert = get_object_or_404(SpecialPermissions, expert=request.user)
@@ -86,6 +86,7 @@ class TableKnowledgeTreeView(LoginRequiredMixin, TemplateView):
 
         context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn, rights='expert', user=user)
         context['title'] = 'Наполнение таблиц'
+        context['type_of_page'] = 'filling_tables'
 
         return context
 
@@ -94,7 +95,7 @@ class CreateChangeTableView(LoginRequiredMixin, TemplateView):
     """
     Представление страницы создания/изменения таблиц
     """
-    template_name = 'drevo/table_create_and_update.html'
+    template_name = 'drevo/table_quiz_constructor_tree.html'
 
     def dispatch(self, request, *args, **kwargs):
         expert = get_object_or_404(SpecialPermissions, expert=request.user)
@@ -111,8 +112,8 @@ class CreateChangeTableView(LoginRequiredMixin, TemplateView):
             Q(tz__name='Таблица') & Q(knowledge_status__status='PUB')
         )
         context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn, rights='admin', user=user)
-        context['title'] = 'Создание и изменение таблиц'
-        context['table_create'] = True
+        context['title'] = 'Конструктор таблиц'
+        context['type_of_page'] = 'table_constructor'
 
         return context
 
@@ -120,8 +121,8 @@ class CreateChangeTableView(LoginRequiredMixin, TemplateView):
 class TableCreateView(LoginRequiredMixin, CreateView):
     """Представление создания знания вида Таблица"""
     model = Znanie
-    form_class = TableCreateForm
-    template_name = 'drevo/table_create.html'
+    form_class = TableOrQuizCreateEditForm
+    template_name = 'drevo/filling_tables/table_create.html'
     success_url = reverse_lazy("table_constructor")
 
     def dispatch(self, request, *args, **kwargs):
@@ -134,6 +135,7 @@ class TableCreateView(LoginRequiredMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
+        kwargs['type_of_zn'] = 'Таблица'
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -143,10 +145,10 @@ class TableCreateView(LoginRequiredMixin, CreateView):
 
         # Передаем формы для создания знания и добавления фотографий к знанию
         if self.request.POST:
-            context['form'] = TableCreateForm(self.request.POST)
+            context['form'] = TableOrQuizCreateEditForm(self.request.POST)
             context['image_form'] = ZnImageFormSet(self.request.POST)
         else:
-            context['form'] = TableCreateForm(user=self.request.user)
+            context['form'] = TableOrQuizCreateEditForm(user=self.request.user, type_of_zn='Таблица')
             context['image_form'] = ZnImageFormSet()
         return context
 
@@ -183,7 +185,7 @@ class TableCreateView(LoginRequiredMixin, CreateView):
                 status='PUB',
                 user=self.request.user
             )
-            return render(request, 'drevo/table_create.html', {
+            return render(request, 'drevo/filling_tables/table_create.html', {
                 'form': form,
                 'new_znanie_name': knowledge.name,
                 'new_znanie_id': knowledge.id,
@@ -199,8 +201,8 @@ class TableCreateView(LoginRequiredMixin, CreateView):
 class TableEditView(LoginRequiredMixin, UpdateView):
     """Представление редактирования знания вида Таблица"""
     model = Znanie
-    form_class = TableUpdateForm
-    template_name = 'drevo/table_edit.html'
+    form_class = TableOrQuizCreateEditForm
+    template_name = 'drevo/filling_tables/table_edit.html'
     success_url = reverse_lazy("table_constructor")
 
     def dispatch(self, request, *args, **kwargs):
@@ -213,6 +215,7 @@ class TableEditView(LoginRequiredMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
+        kwargs['type_of_zn'] = 'Таблица'
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -249,7 +252,7 @@ class TableEditView(LoginRequiredMixin, UpdateView):
             image_form.instance = knowledge
             image_form.save()
 
-            return render(request, 'drevo/table_edit.html', {
+            return render(request, 'drevo/filling_tables/table_edit.html', {
                 'form': form,
                 'changed_znanie_name': knowledge.name,
                 'changed_znanie_id': knowledge.id,
@@ -265,9 +268,25 @@ class TableEditView(LoginRequiredMixin, UpdateView):
 class RelationCreateView(LoginRequiredMixin, CreateView):
     """Представление создания знаний - строк и столбцов для таблицы"""
     model = Znanie
-    form_class = RelationCreateEditForm
-    template_name = 'drevo/relation_create.html'
+    template_name = 'drevo/filling_tables/relation_create.html'
     success_url = reverse_lazy("table_constructor")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.with_tz = True
+
+    def get_form_class(self, *args, **kwargs):
+        table_id = self.kwargs.get('table_id')
+        if self.kwargs.get('relation') == 'row':
+            if Relation.objects.filter(bz_id=table_id, tr__name='Строка', rz__tz__name='Заголовок').exists():
+                self.with_tz = False
+                return NameOfZnanieCreateUpdateForm
+            return RelationCreateForm
+        else:
+            if Relation.objects.filter(bz_id=table_id, tr__name='Столбец', rz__tz__name='Заголовок').exists():
+                self.with_tz = False
+                return NameOfZnanieCreateUpdateForm
+            return RelationCreateForm
 
     def dispatch(self, request, *args, **kwargs):
         """Проверка перед открытием страницы, является ли пользователь экспертом"""
@@ -279,13 +298,22 @@ class RelationCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Создание знания'
+        if self.kwargs.get('relation') == 'row':
+            context['title'] = 'Создание строки'
+        else:
+            context['title'] = 'Создание столбца'
 
         # Передаем формы для создания знания
         if self.request.POST:
-            context['form'] = RelationCreateEditForm(self.request.POST)
+            if self.with_tz:
+                context['form'] = RelationCreateForm(self.request.POST)
+            else:
+                context['form'] = NameOfZnanieCreateUpdateForm(self.request.POST)
         else:
-            context['form'] = RelationCreateEditForm()
+            if self.with_tz:
+                context['form'] = RelationCreateForm()
+            else:
+                context['form'] = NameOfZnanieCreateUpdateForm()
 
         return context
 
@@ -305,6 +333,9 @@ class RelationCreateView(LoginRequiredMixin, CreateView):
         if form.is_valid():
             # Перед сохранением формы в поле user подставляем текущего пользователя
             knowledge = form.save(commit=False)
+            if form_class.__name__ == 'NameOfZnanieCreateUpdateForm':
+                tz_id = get_object_or_404(Tz, name='Заголовок').id
+                knowledge.tz_id = tz_id
             author, created = Author.objects.get_or_create(
                 name=f"{request.user.first_name} {request.user.last_name}",
             )
@@ -320,7 +351,7 @@ class RelationCreateView(LoginRequiredMixin, CreateView):
                 status='PUB',
                 user=self.request.user
             )
-            return render(request, 'drevo/relation_create.html', {
+            return render(request, 'drevo/filling_tables/relation_create.html', {
                 'form': form,
                 'new': True,
                 'new_znanie_name': knowledge.name,
@@ -336,8 +367,8 @@ class RelationCreateView(LoginRequiredMixin, CreateView):
 class RelationEditView(LoginRequiredMixin, UpdateView):
     """Представление страницы изменения знаний - связей таблицы"""
     model = Znanie
-    form_class = ElementGroupForm
-    template_name = 'drevo/relation_edit.html'
+    form_class = NameOfZnanieCreateUpdateForm
+    template_name = 'drevo/filling_tables/relation_edit.html'
     success_url = reverse_lazy("table_constructor")
 
     def dispatch(self, request, *args, **kwargs):
@@ -378,7 +409,7 @@ class RelationEditView(LoginRequiredMixin, UpdateView):
             # Сохраняем Знание
             knowledge.save()
             form.save_m2m()
-            return render(request, 'drevo/relation_edit.html', {
+            return render(request, 'drevo/filling_tables/relation_edit.html', {
                 'form': form,
                 'changed_znanie_name': knowledge.name,
                 'changed_znanie_id': knowledge.id,
@@ -391,8 +422,8 @@ class RelationEditView(LoginRequiredMixin, UpdateView):
 class GroupElementCreate(LoginRequiredMixin, CreateView):
     """Представление создания знаний - строк и столбцов для таблицы"""
     model = Znanie
-    form_class = ElementGroupForm
-    template_name = 'drevo/relation_create.html'
+    form_class = NameOfZnanieCreateUpdateForm
+    template_name = 'drevo/filling_tables/relation_create.html'
     success_url = reverse_lazy("table_constructor")
 
     def dispatch(self, request, *args, **kwargs):
@@ -409,9 +440,9 @@ class GroupElementCreate(LoginRequiredMixin, CreateView):
 
         # Передаем формы для создания знания
         if self.request.POST:
-            context['form'] = ElementGroupForm(self.request.POST)
+            context['form'] = NameOfZnanieCreateUpdateForm(self.request.POST)
         else:
-            context['form'] = ElementGroupForm()
+            context['form'] = NameOfZnanieCreateUpdateForm()
 
         return context
 
@@ -448,7 +479,7 @@ class GroupElementCreate(LoginRequiredMixin, CreateView):
                 status='PUB',
                 user=self.request.user
             )
-            return render(request, 'drevo/relation_create.html', {
+            return render(request, 'drevo/filling_tables/relation_create.html', {
                 'form': form,
                 'new': True,
                 'new_znanie_name': knowledge.name,
@@ -468,7 +499,7 @@ def filling_tables(request, pk):
 
     if expert:
         context = get_contex_data(pk)
-        template_name = "drevo/filling_tables.html"
+        template_name = "drevo/filling_tables/filling_tables.html"
         return render(request, template_name, context)
 
     return HttpResponseRedirect(reverse('drevo'))
@@ -482,7 +513,7 @@ def table_constructor(request, pk):
 
     if expert:
         context = get_contex_data(pk, table_create=True)
-        template_name = "drevo/table_constructor.html"
+        template_name = "drevo/filling_tables/table_constructor.html"
         return render(request, template_name, context)
 
     return HttpResponseRedirect(reverse('drevo'))
@@ -547,10 +578,11 @@ def show_filling_tables_page(request):
     эксперта и в ней есть хотя бы одна строка и столбец
     """
 
-    expert = SpecialPermissions.objects.filter(expert=request.user)
+    expert = get_object_or_404(SpecialPermissions, expert=request.user)
 
-    if expert.exists():
-        categories_expert = object.categories.all()
+    if expert:
+
+        categories_expert = expert.categories.all()
         row_id = get_object_or_404(Tr, name='Строка').id
         column_id = get_object_or_404(Tr, name='Столбец').id
         categories = search_node_categories(categories_expert)
@@ -583,6 +615,25 @@ def show_new_znanie(request):
     return JsonResponse([new_znanie.id, new_znanie.name], safe=False)
 
 
+def create_relation(bz_id, rz_id, tr_id, request):
+    """Создание опубликованной связи с заданными параметрами"""
+
+    # Создание автора с именем и фамилией пользователя, если такого не существует
+    author, created = Author.objects.get_or_create(
+        name=f"{request.user.first_name} {request.user.last_name}",
+    )
+
+    # Создание опубликованной связи с выбранными значениями, если оно не было создано
+    Relation.objects.get_or_create(
+        bz_id=bz_id,
+        tr_id=tr_id,
+        rz_id=rz_id,
+        author_id=author.id,
+        is_published=True,
+        defaults={'user_id': request.user.id}
+    )
+
+
 def get_form_data(request):
     """
     Создание трех связей таблицы, строки, столбца и значения при условии, что заполнены все поля
@@ -607,24 +658,6 @@ def get_form_data(request):
     if filling_tables_page:
         selected_znanie_pk = request.POST.get('znanie')
 
-    def create_relation(bz_id, rz_id, tr_id):
-        """Создание опубликованной связи с заданными параметрами"""
-
-        # Создание автора с именем и фамилией пользователя, если такого не существует
-        author, created = Author.objects.get_or_create(
-            name=f"{request.user.first_name} {request.user.last_name}",
-        )
-
-        # Создание опубликованной связи с выбранными значениями, если оно не было создано
-        Relation.objects.get_or_create(
-            bz_id=bz_id,
-            tr_id=tr_id,
-            rz_id=rz_id,
-            author_id=author.id,
-            is_published=True,
-            defaults={'user_id': request.user.id}
-        )
-
     if filling_tables_page:
 
         # Удаление связей со знанием/знаниями, которые раньше находились в этой ячейке
@@ -643,27 +676,27 @@ def get_form_data(request):
             Relation.objects.filter(bz_id=selected_table_pk, rz_id=knowledge_id).delete()
 
         # Создание связи "Строка": базовое знание - выбранное знание, связанное знание - строка
-        create_relation(selected_znanie_pk, selected_row_pk, row_id)
+        create_relation(selected_znanie_pk, selected_row_pk, row_id, request)
 
         # Создание связи "Столбец": базовое знание - выбранное знание, связанное знание - столбец
-        create_relation(selected_znanie_pk, selected_column_pk, column_id)
+        create_relation(selected_znanie_pk, selected_column_pk, column_id, request)
 
         # Создание связи "Значение" : связанное знание - выбранное знание, базовое знание - таблица
-        create_relation(selected_table_pk, selected_znanie_pk, value_id)
+        create_relation(selected_table_pk, selected_znanie_pk, value_id, request)
 
     else:
         # Создание связи "Строка": базовое знание - таблица, связанное знание - строка
         if selected_row_pk:
-            create_relation(selected_table_pk, selected_row_pk, row_id)
+            create_relation(selected_table_pk, selected_row_pk, row_id, request)
         # Создание связи "Столбец": базовое знание - таблица, связанное знание - столбец
         if selected_column_pk:
-            create_relation(selected_table_pk, selected_column_pk, column_id)
+            create_relation(selected_table_pk, selected_column_pk, column_id, request)
         # Создание связи "Состав": базовое знание - строка таблицы, связанное знание - элемент строки
         if selected_row_element_pk:
-            create_relation(selected_row_pk, selected_row_element_pk, structure_id)
+            create_relation(selected_row_pk, selected_row_element_pk, structure_id, request)
         # Создание связи "Состав": базовое знание - столбец таблицы, связанное знание - элемент столбца
         if selected_column_element_pk:
-            create_relation(selected_column_pk, selected_column_element_pk, structure_id)
+            create_relation(selected_column_pk, selected_column_element_pk, structure_id, request)
 
     response = {
         'row_is_group': Relation.objects.filter(bz_id=selected_table_pk, rz__tz_id=group_kind,
