@@ -4,145 +4,246 @@
 
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<link rel="stylesheet" href="{% static '/users/css/profile.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-lg-7">
-            <h4 class="mt-3 mb-3">Ваш профиль</h4>
-            {% if messages %}
-            <div class="alert alert-danger alert-dismissible fade show"
-                 role="alert"
-                 style="margin-top: 50px;">
-                <ul>
-                    {% for message in messages %}
-                    <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
-            <div class="col-lg-12 text-center">
-                <img width="200" height="200"
-                     src="{% if user.profile.avatar %} {{ user.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}"
-                     class="img-thumbnail">
-            </div>
-            <form action="{% url 'users:myprofile' %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="form-row">
-                    <div class="col mb-3">
-                        <label class="mb-1" for="{{ form.username.id_for_label }}">Имя пользователя:</label>
-                        {{ form.username }}
+<div class="header_info">
+    <h1>Редактирование профиля</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+            <li class="breadcrumb-item opened"><a>Редактирование профиля</a></li>
+        </ol>
+    </nav>
+</div>
+<div class="d-grid" style="gap: 24px;">
+    <div class="basic p-0">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+        <h3 class="choice-header" style="padding: 32px; height: auto; border-bottom: 1px solid var(--grey-1, #DFDFE3);">Информация о пользователе</h3>
+        <form class="d-grid" style="gap: 24px;" action="{% url 'users:myprofile' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="d-grid" style="gap: 24px; padding: 32px;">
+                <div class="profile-info">
+                    <p>Аватар</p>
+                    <div class="profile-info" style="width: 100%;">
+                        <div>
+                        <img width="100" id="avatar" height="100" class="rounded float-end"
+                        src="{% if user.profile.avatar %} {{ user.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}">
+                        </div>
+                        <div class="d-grid" style="width: 100%; gap: 12px;">
+                            <div>
+                                <input type="button" id="{{user.username}}" class="btn btn-icon me-2" onclick="createImage(this.id)" style="background-color: #E7ECEB; color: #083E2F;" value="Генерировать аватар">
+                                <input type="hidden" id="id_generated_image" name="generated_image">
+                                <input type="button" class="btn btn-icon" style="background-color: var(--danger, rgba(248, 215, 218, 0.50)); color: var(--unnamed, rgba(224, 31, 39, 0.50));" onclick="deleteAvatar()" value="Удалить аватар">
+                            </div>
+                            <div>
+                                <label class="mb-1 options text-dark" for="{{ profile_form.image.id_for_label }}">Загрузить аватар</label>
+                                {{ profile_form.image }}
+                                <p class="options m-0" style="text-align: right; width: 100%; line-height: 120%;">Максимальный размер файла - 1 МБ</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="col mb-3">
-                        <label class="mb-1" for="{{ form.email.id_for_label }}">Адрес эл. почты:</label>
-                        {{ form.email }}
-                    </div>
+                <div class="profile-info">
+                    <p class="regular-text">Имя</p>
+                    {{ form.first_name }}
                 </div>
-                <div class="form-row">
-                    <div class="col mb-3">
-                        <label class="mb-1" for="{{ form.first_name.id_for_label }}">Имя:</label>
-                        {{ form.first_name }}
-                    </div>
+                <div class="profile-info">
+                    <p class="regular-text">Фамилия</p>
+                    {{ form.last_name }}
                 </div>
-                <div class="form-row">
-                    <div class="col mb-3">
-                        <label class="mb-1" for="{{ form.last_name.id_for_label }}">Фамилия:</label>
-                        {{ form.last_name }}
-                    </div>
+                <div class="profile-info">
+                    <p class="regular-text">Отчество</p>
+                    {{ profile_form.patronymic }}
                 </div>
-                <div class="form-row">
-                    <div class="col mb-3">
-                        <label class="mb-1" for="{{ profile_form.patronymic.id_for_label }}">Отчество:</label>
-                        {{ profile_form.patronymic }}
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="col mb-3">
-                        <label class="mb-1" for="{{ profile_form.gender.id_for_label }}">Пол:</label>
+                <div class="profile-info">
+                    <p class="regular-text">Пол</p>
+                    <div style="width: 100%;">
                         {{ profile_form.gender }}
                     </div>
                 </div>
-                <div class="form-row">
-                        <div class="col mb-3">
-                            <label class="mb-1" for="{{ form.job.id_for_label }}">Профессия:</label>
-                            {{ form.job }}
+                <div class="profile-info">
+                    <p class="regular-text">Профессия</p>
+                    {{ form.job }}
+                </div>
+                <div class="profile-info">
+                    <p class="regular-text">Дата рождения:</p>
+                    <input type="date" name="birthday_at" value="{{ profile_form.birthday_at.value|date:"Y-m-d" }}"
+                    class="form-control py-2" id="{{ profile_form.birthday_at.id_for_label }}">
+                </div>
+                <div>
+                    <input type="checkbox" name="agreement" id="agreement-checkbox" class="form-check-input" required>
+                    <label for="agreement-checkbox" style="color: #6C757D; display: inline!important;">Даю согласие на обработку персональных в соответствии с
+                    <a style="text-decoration-line: underline; color: #6C757D;" href="{% url 'privacy' %}">Политикой обработки персональных данных</a></label>
+                </div>
+            </div>
+            <div  class="text-end" style="border-top: 1px solid var(--grey-1, #DFDFE3); padding: 32px;">
+                <input class="btn btn-header" id="agreement-button" style="padding: 8px 24px;" disabled type="submit" value="Сохранить изменения">
+            </div>
+        </form>
+    </div>
+    <div class="basic p-0">
+        <h3 class="choice-header" style="padding: 32px; height: auto; border-bottom: 1px solid var(--grey-1, #DFDFE3);">Регистрационные данные</h3>
+        <div class="d-grid mt-2" style="padding: 32px; gap: 24px;">
+            <div class="profile-info justify-content-between" style="border-bottom: 1px solid var(--grey-1, #DFDFE3); padding-bottom: 20px;">
+                <div class="gap-2" style="display: grid;">
+                    <p class="regular-text m-0">E-mail</p>
+                    <p class="options m-0" style="line-height: 120%;">{{user.email}}</p>
+                </div>
+                <input type="button" class="btn btn-icon" style="background-color: #E7ECEB; color: #083E2F;" onclick="showForm(this)" value="Изменить e-mail">
+                <form method="post" action="{% url 'users:change-username' %}" style="display: none; width: 49%; gap: 12px;">
+                    {% csrf_token %}
+                    <label class="regular-text m-0" for="new_email">Введите новый e-mail</label>
+                    <input class="form-control py-2 text-grey" type="email" placeholder="Введите новый e-mail"
+                           id="new_email" name="new_email">
+                    <p class="options m-0" style="text-align: right; width: 100%; line-height: 120%;">После смены электронной почты, для подтверждения учетной записи перейдите по ссылке,
+                        отправленной на указанный Вами адрес электронной почты.</p>
+                    <div class="mt-2">
+                        <button type="submit" class="btn btn-header me-2">Изменить</button>
+                        <button type="button" name="new_email" onclick="cleanForm(this.name)" class="btn btn-icon" style="background-color: #E7ECEB; color: #083E2F;">Сбросить</button>
+                    </div>
+                </form>
+            </div>
+            <div class="profile-info justify-content-between" style="border-bottom: 1px solid var(--grey-1, #DFDFE3); padding-bottom: 20px;">
+                <div class="gap-2" style="display: grid;">
+                    <p class="regular-text m-0">Имя пользователя</p>
+                    <p class="options m-0" style="line-height: 120%;">{{user.username}}</p>
+                </div>
+                <input type="button" class="btn btn-icon" style="background-color: #E7ECEB; color: #083E2F;" onclick="showForm(this)" value="Изменить имя пользователя">
+                <form method="post" action="{% url 'users:change-username' %}" style="display: none; width: 49%; gap: 12px;">
+                    {% csrf_token %}
+                    <label class="regular-text m-0" for="new_username">Введите новое имя пользователя</label>
+                    <input class="form-control py-2 text-grey" type="text" placeholder="Введите новое имя"
+                           id="new_username" name="new_username">
+                    <div class="mt-2">
+                        <button type="submit" class="btn btn-header me-2">Изменить</button>
+                        <button type="button" name="new_username" onclick="cleanForm(this.name)" class="btn btn-icon" style="background-color: #E7ECEB; color: #083E2F;">Сбросить</button>
+                    </div>
+                </form>
+            </div>
+            <div class="profile-info justify-content-between" style="padding-bottom: 20px;">
+                <div class="gap-2" style="display: grid;">
+                    <p class="regular-text m-0">Пароль</p>
+                    <p class="options m-0" style="line-height: 120%;">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</p>
+                </div>
+                <input type="button" class="btn btn-icon" onclick="showForm(this)" style="background-color: #E7ECEB; color: #083E2F;"  value="Изменить пароль">
+                <form method="post" id="change-password-form" action="{% url 'users:change-username' %}" style="display: none; width: 100%; gap: 12px;">
+                    {% csrf_token %}
+                    <label class="regular-text m-0" for="{{change_password_form.old_password.id_for_label}}">Введите старый пароль</label>
+                    <div class="input-group" id="show_hide_password" style="width: 49%;">
+                            {{change_password_form.old_password}}
+                            <a class="btn btn-outline-secondary" onclick="ShowPassword(this)"><i class="bi bi-eye-slash large"></i></a>
                         </div>
-                </div>
-                <div class="form-row">
-                    <div class="col mb-3">
-                        <label class="mb-1" for="{{ profile_form.birthday_at.id_for_label }}">Дата рождения:</label>
-                        <input type="date"
-                               name="birthday_at"
-                               value="{{ profile_form.birthday_at.value|date:" Y-m-d" }}"
-                        class="form-control py-2" id="{{ profile_form.birthday_at.id_for_label }}">
-                        <span class="validity"></span>
+                    <div style="display: flex; justify-content: space-between">
+                        <div style="width: 49%">
+                            <label for="{{ change_password_form.new_password1.id_for_label }}" style="padding-bottom: 12px;">Новый пароль</label>
+                            <div class="input-group" id="show_hide_password1">
+                                {{change_password_form.new_password1}}
+                                <a class="btn btn-outline-secondary" onclick="ShowPassword(this)"><i class="bi bi-eye-slash large"></i></a>
+                            </div>
+                        </div>
+                        <div style="width: 49%">
+                            <label for="{{ change_password_form.new_password2.id_for_label }}" style="padding-bottom: 12px;">Повторите пароль</label>
+                            <div class="input-group" id="show_hide_password2">
+                                {{change_password_form.new_password2}}
+                                <a class="btn btn-outline-secondary" onclick="ShowPassword(this)"><i class="bi bi-eye-slash large"></i></a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="form-row">
-                    <div class="col mb-3">
-                        <label class="mb-1" for="{{ profile_form.image.id_for_label }}">Аватар (максимальный размер
-                            файла - 1 МБ):</label>
-                        {{ profile_form.image }}
+                    <div class="mt-2">
+                        <button type="submit" class="btn btn-header me-2">Изменить пароль</button>
+                        <button type="button" name="new_password" onclick="cleanForm(this.name)" class="btn btn-icon" style="background-color: #E7ECEB; color: #083E2F;">Сбросить</button>
                     </div>
-                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="basic p-0">
+        <h3 class="choice-header" style="padding: 32px; height: auto; border-bottom: 1px solid var(--grey-1, #DFDFE3);">Настройки приватности</h3>
+        <div>
+            <div class="basic">
+                <span class="checkbox-title">
                 {% if user.is_public %}
-                    <input type = 'checkbox' name = 'is_public' value="True" onclick="ShowSections(this.value)" checked>
+                    <input type='checkbox' name='is_public' style="margin-right: 12px;" value="True" class="form-check-input" checked>
                     Публичный человек
                 {% else %}
-                    <input type = 'checkbox' name = 'is_public' value="True" onclick="ShowSections(this.value)">
+                    <input type='checkbox' name='is_public' value="True" class="form-check-input" style="margin-right: 12px;">
                     Публичный человек
                 {% endif %}
-                <div class="form-row">
-                <div style="display: block;margin-top: 16px;" id="sections">
+                </span>
+                <div class="form-row mt-5">
+                <div style="display: grid; gap: 32px; margin-top: 16px;" id="sections">
                     <div style="display: none" id="previous">{{sections}}</div>
-                    <h5>Страницы, которые будут показаны друзья (публике для публичного человека)</h5>
+                    <p class="title mb-0">Страницы, которые будут показаны друзья (публике для публичного человека)</p>
                     {% if 'Мои экспертизы' in access or 'Мои знания' in access or 'Мои знания (пользовательский вклад)' in access or 'Интервью' in access %}
-                    <div style="padding-bottom: 16px;font-size: 18px;" class="activity">
-                        <input type = 'checkbox' class = 'section_title' id="activity" onclick="SelectAll(this.id)">
-                        Активность
-                        <div style="margin-left: 24px;font-size: 16px;">
+                    <div style="font-size: 18px; border-bottom: 1px solid var(--grey-1, #DFDFE3);"  class="activity">
+                        <span class="checkbox-title">
+                            <input type='checkbox' class="section_title form-check-input" id="activity" onclick="SelectAll(this.id)">
+                            Активность
+                        </span>
+                        <div class="checkbox-node">
                             {% if 'Интервью' in access %}
-                           <div style="padding-bottom: 16px;font-size: 16px;" class="interviews">
-                                <input type = 'checkbox' class = 'section_title' id="interviews" onclick="SelectAll(this.id)">
-                                Мои интервью
-                                <div style="margin-left: 24px;font-size: 14px;">
+                           <div style="font-size: 16px;" class="interviews">
+                               <span class="checkbox-title">
+                                    <input type='checkbox' class="section_title form-check-input" id="interviews" onclick="SelectAll(this.id)">
+                                    Мои интервью
+                               </span>
+                                <div class="checkbox-node" style="font-size: 14px;">
                                     {% if 'Мои интервью' in access %}
-                                    <input type = 'checkbox' class = 'section' name = 'Мои интервью' value="True" checked onclick="IsAllChecked(this.name)">
-                                    Мои ответы
+                                    <span style="line-height: 200%;">
+                                        <input type='checkbox' class="section form-check-input" name='Мои интервью' value="True" checked onclick="IsAllChecked(this.name)">
+                                        Мои ответы
+                                    </span>
                                     {% endif %}
                                     {% if 'Мои предложения' in access %}
-                                    <input type = 'checkbox' class = 'section' name = 'Мои предложения' value="True" checked onclick="IsAllChecked(this.name)">
-                                    Мои предложения
+                                    <span style="line-height: 200%;">
+                                        <input type='checkbox' class="section form-check-input" name='Мои предложения' value="True" checked onclick="IsAllChecked(this.name)">
+                                        Мои предложения
+                                    </span>
                                     {% endif %}
                                 </div>
                             </div>
                             {% endif %}
                             {% if 'Мои знания' in access or 'Мои экспертизы' in access %}
                             <div style="padding-bottom: 16px; padding-top: 16px;font-size: 16px;" class="expert_contribution">
-                                <input type = 'checkbox' class = 'section_title' id="expert_contribution" onclick="SelectAll(this.id)">
-                                Мой вклад, как эксперта
-                                <div style="margin-left: 24px;font-size: 14px;">
+                                <span class="checkbox-title">
+                                    <input type='checkbox' class="section_title form-check-input" id="expert_contribution" onclick="SelectAll(this.id)">
+                                    Мой вклад, как эксперта
+                                </span>
+                                <div class="checkbox-node" style="font-size: 14px;">
                                     {% if 'Мои знания' in access %}
-                                    <input type = 'checkbox' class = 'section' name = 'Мои знания' value="True" checked onclick="IsAllChecked(this.name)">
-                                    Мои знания
+                                    <span style="line-height: 200%;">
+                                        <input type='checkbox' class="section form-check-input" name='Мои знания' value="True" checked onclick="IsAllChecked(this.name)">
+                                        Мои знания
+                                    </span>
                                     {% endif %}
                                     {% if 'Мои экспертизы' in access %}
-                                    <input type = 'checkbox' class = 'section' name = 'Мои экспертизы' value="True" checked onclick="IsAllChecked(this.name)">
-                                    Мои экспертизы
+                                    <span style="line-height: 200%;">
+                                        <input type='checkbox' class="section form-check-input" name='Мои экспертизы' value="True" checked onclick="IsAllChecked(this.name)">
+                                        Мои экспертизы
+                                    </span>
                                     {% endif %}
                                 </div>
                             </div>
                             {% endif %}
                             {% if 'Мои знания (пользовательский вклад)' in access %}
                             <div class="user_contribution" style="font-size: 16px;">
-                                <input type = 'checkbox' class = 'section_title' id="user_contribution" onclick="SelectAll(this.id)">
-                                Мой вклад, как пользователя
-                                <div style="margin-left: 24px;font-size: 14px;">
-                                    <input type = 'checkbox' class = 'section' name = 'Мои знания (пользовательский вклад)' value="True" checked onclick="IsAllChecked(this.name)">
+                                <span class="checkbox-title">
+                                    <input type='checkbox' class="section_title form-check-input" id="user_contribution" onclick="SelectAll(this.id)">
+                                    Мой вклад, как пользователя
+                                </span>
+                                <div class="checkbox-node" style="font-size: 14px;">
+                                <span style="line-height: 200%;">
+                                    <input type='checkbox' class="section form-check-input" name='Мои знания (пользовательский вклад)' value="True" checked onclick="IsAllChecked(this.name)">
                                     Мои знания
+                                </span>
                                 </div>
                             </div>
                             {% endif %}
@@ -150,169 +251,121 @@
                     </div>
                     {% endif %}
                     {% if 'Избранные знания' in access or 'История просмотров' in access or 'Результаты тестов' in access or user.in_klz is True %}
-                    <div style="padding-bottom: 16px;font-size: 18px;" class="learning">
-                        <input type = 'checkbox' class = 'section_title' id="learning" onclick="SelectAll(this.id)">
-                        Изучение знаний
-                        <div style="margin-left: 24px;font-size: 16px;">
+                    <div style="padding-bottom: 16px;font-size: 18px; border-bottom: 1px solid var(--grey-1, #DFDFE3);"  class="learning">
+                        <span class="checkbox-title">
+                            <input type='checkbox' class="section_title form-check-input" id="learning" onclick="SelectAll(this.id)">
+                            Изучение знаний
+                        </span>
+                        <div class="checkbox-node">
                             {% if 'Избранные знания' in access %}
-                            <input type = 'checkbox' class = 'section' name = 'Избранные знания' value="True" checked onclick="IsAllChecked(this.name)">
-                            Избранные знания
+                            <span>
+                                <input type='checkbox' class="section form-check-input" name='Избранные знания' value="True" checked onclick="IsAllChecked(this.name)">
+                                Избранные знания
+                            </span>
                             {% endif %}
                             {% if 'История просмотров' in access %}
-                            <input type = 'checkbox' class = 'section' name = 'История просмотров' value="True" checked onclick="IsAllChecked(this.name)">
-                            История просмотров
+                            <span>
+                                <input type='checkbox' class="section form-check-input" name='История просмотров' value="True" checked onclick="IsAllChecked(this.name)">
+                                История просмотров
+                            </span>
                             {% endif %}
-                            <input type = 'checkbox' class = 'section' name = 'Мои оценки знаний' value="True" checked onclick="IsAllChecked(this.name)">
-                            Мои оценки знаний
+                            <span>
+                                <input type='checkbox' class="section form-check-input" name='Мои оценки знаний' value="True" checked onclick="IsAllChecked(this.name)">
+                                Мои оценки знаний
+                            </span>
                             {% if 'Результаты тестов' in access %}
-                            <input type = 'checkbox' class = 'section' name = 'Результаты тестов' value="True" checked onclick="IsAllChecked(this.name)">
-                            Результаты тестов
+                            <span>
+                                <input type='checkbox' class="section form-check-input" name='Результаты тестов' value="True" checked onclick="IsAllChecked(this.name)">
+                                Результаты тестов
+                            </span>
                             {% endif %}
                         </div>
                     </div>
                     {% endif %}
-                    <div style="padding-bottom: 16px;font-size: 18px;" class="subscriptions">
-                        <input type = 'checkbox' class = 'section_title' id="subscriptions" onclick="SelectAll(this.id)">
-                        Подписки
-                        <div style="margin-left: 24px;font-size: 16px;">
-                            <input type = 'checkbox' class = 'section' name = 'По категориям' value="True" checked onclick="IsAllChecked(this.name)">
-                            По категориям
-                            <input type = 'checkbox' class = 'section' name = 'По авторам' value="True" checked onclick="IsAllChecked(this.name)">
-                            По авторам
-                            <input type = 'checkbox' class = 'section' name = 'По тегам' value="True" checked onclick="IsAllChecked(this.name)">
-                            По тегам
+                    <div style="padding-bottom: 16px;font-size: 18px; border-bottom: 1px solid var(--grey-1, #DFDFE3);"  class="subscriptions">
+                        <span class="checkbox-title">
+                            <input type='checkbox' class="section_title form-check-input" id="subscriptions" onclick="SelectAll(this.id)">
+                            Подписки
+                        </span>
+                        <div class="checkbox-node">
+                            <span>
+                                <input type='checkbox' class="section form-check-input" name='По категориям' value="True" checked onclick="IsAllChecked(this.name)">
+                                По категориям
+                            </span>
+                            <span>
+                                <input type='checkbox' class="section form-check-input" name='По авторам' value="True" checked onclick="IsAllChecked(this.name)">
+                                По авторам
+                            </span>
+                            <span>
+                                <input type='checkbox' class="section form-check-input" name='По тегам' value="True" checked onclick="IsAllChecked(this.name)">
+                                По тегам
+                            </span>
                         </div>
                     </div>
                     {% if 'Компетенции' in access %}
-                    <div style="padding-bottom: 16px;font-size: 18px;">
-                        <input type = 'checkbox' class = 'section' name = 'Компетенции' value="True" checked>
+                    <div style="padding-bottom: 16px;font-size: 18px; border-bottom: 1px solid var(--grey-1, #DFDFE3);" >
+                        <input type='checkbox' class="section form-check-input" name='Компетенции' value="True" checked>
                         Особые права
                     </div>
                     {% endif %}
                 </div>
-                    <input type="checkbox" name="agreement" id="agreement-checkbox" class="form-check-input" required>
-                    <label for="agreement-checkbox" style="color: #6C757D; display: inline!important;">Даю согласие на обработку персональных в соответствии с
-                    <a style="text-decoration-line: underline; color: #6C757D;" href="{% url 'privacy' %}">Политикой обработки персональных данных</a></label>
-                    <div class="col-lg-12" style="margin-top: 32px;margin-bottom: 32px;">
-                        <input class="btn btn-primary" id="registration-button" disabled type="submit" value="Сохранить" onclick="SendUserMenu()">
+                </div>
+            </div>
+            <div  class="p-4 text-end" style="border-top: 1px solid var(--grey-1, #DFDFE3);">
+                <input class="btn btn-header" style="padding: 8px 24px;" type="button" onclick="CleanAll()" value="Сбросить">
+                <input class="btn btn-header" style="padding: 8px 24px;" type="submit" onclick="SendUserMenu()" value="Сохранить изменения">
+            </div>
+        </div>
+    </div>
+    <div class="basic p-0">
+        <h3 class="choice-header" style="padding: 32px; height: auto; border-bottom: 1px solid var(--grey-1, #DFDFE3);">Другие настройки</h3>
+        <div class="d-grid" style="padding: 32px; gap: 24px;">
+            <div class="additional-info" style="justify-content: space-between;">
+                <p style="font-weight: 500; line-height: 120%;">Подписка по авторам</p>
+                <a class="btn btn-header" href="{% url 'subscribe_to_author' user.id %}">Подписка по авторам</a>
+            </div>
+            <div class="additional-info" style="justify-content: space-between;">
+                <p style="font-weight: 500; line-height: 120%;">Подписка по тегам</p>
+                <a class="btn btn-header" href="{% url 'subscription_by_tag' user.id %}">Подписка по тегам</a>
+            </div>
+            <div class="additional-info" style="justify-content: space-between;">
+                <p style="font-weight: 500; line-height: 120%;">Настройки параметров</p>
+                <a class="btn btn-header" href="{% url 'parameter_settings' %}">Настройки параметров</a>
+            </div>
+            <div class="additional-info" style="justify-content: space-between;">
+                <p style="font-weight: 500; line-height: 120%;">Результаты тестирования</p>
+                <a class="btn btn-header" href="{% url 'show_quiz_result' user.id %}">Результаты тестирования</a>
+            </div>
+        </div>
+    </div>
+    <div class="basic p-0">
+        <h3 class="choice-header" style="padding: 32px; height: auto; border-bottom: 1px solid var(--grey-1, #DFDFE3);">Удаление аккаунта</h3>
+        <div class="my-5" style="padding: 0px 32px;">
+            <div class="p-4 d-grid mb-4" style="border-radius: 8px; background: var(--warning, #FFF8DD); gap: 12px;">
+                <p class="m-0" style="font-weight: 500; line-height: 120%;">Ваш аккаунт будет удален безвозвратно</p>
+                <p class="text-grey m-0" style="font-size: 14px; line-height: 120%;">Все данные будут удалены. Знания, оценки, и др. записи останутся на сайте без указания автора.</p>
+            </div>
+            <div>
+                <input type="checkbox" name="delete" id="delete-checkbox" class="form-check-input" required>
+                <label for="delete-checkbox" style="color: #6C757D; display: inline!important;">Я подтверждаю удаление аккаунта</label>
+            </div>
+        </div>
+        <div class="p-4 text-end" style="border-top: 1px solid var(--grey-1, #DFDFE3);">
+            <input id="delete-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" disabled type="button" value="Удалить аккаунт">
+        </div>
+        <div class="popup__bg">
+            <div class="popup p-5">
+                <i class="bi bi-x-lg close-popup"></i>
+                <form method="post" action="{% url 'users:change-username' %}">
+                    {% csrf_token %}
+                    <h3>Уверены, что хотите удалить аккаунт?</h3><br>
+                    <div class="d-flex justify-content-around">
+                      <input type="submit" name="delete-account" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
                     </div>
-                </div>
-            </form>
-            <p class="mt-2 p-2">
-                <div class="mr-2">
-                    <a class="btn btn-primary btn-lg" href="{% url 'subscribe_to_author' user.id %}">Подписка по авторам</a>
-                </div>
-            </p>
-            <p class="mt-2 p-2">
-            <div class="mr-2">
-                <a class="btn btn-primary btn-lg" href="{% url 'subscription_by_tag' user.id %}">Подписка по тегам</a>
-            </div>
-            </p>
-            <p class="mt-2 p-2">
-            <div class="mr-2">
-                <a class="btn btn-primary btn-lg" href="{% url 'parameter_settings' %}"><i class="bi bi-gear"></i></a>
-            </div>
-            </p>
-            {% if user.expert %}
-            <div class="form-row">
-                <div class="col mb-3">
-                    Компетентность:
-                    <ul class="competence">
-                        {% for el in competence %}
-                            <li>{{ el.name }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-            {% endif %}
-            <div class="mr-2">
-                <a class="btn btn-primary btn-lg" href="{% url 'show_quiz_result' user.id %}">Результаты тестирования</a>
+                </form>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block jsfiles %}
-<script>
-
-function ShowFirst(){
-    let section_title = document.querySelectorAll('.section_title')
-    let all_checkboxes = document.querySelectorAll('.section:checked');
-    let previous_checkboxes = document.querySelector('#previous');
-    for(let i = 0; i < all_checkboxes.length; i++){
-        if(!(previous_checkboxes.textContent.includes(all_checkboxes[i].name))){
-            all_checkboxes[i].checked = false;
-        }
-    }
-    for(let c = 0; c < section_title.length; c++){
-        let block = document.querySelector('.'+section_title[c].id);
-        let block_checkboxes_checked = block.querySelectorAll('.section:checked');
-        let block_checkboxes = block.querySelectorAll('.section');
-        if(block_checkboxes.length == block_checkboxes_checked.length){
-            document.querySelector('#'+section_title[c].id).checked = true;
-        }
-    }
-}
-
-ShowFirst()
-
-const agreementCheckbox = document.getElementById('agreement-checkbox');
-const registrationButton = document.getElementById('registration-button');
-
-agreementCheckbox.addEventListener('change', function() {
-    if (agreementCheckbox.checked) {
-      registrationButton.removeAttribute('disabled');
-    } else {
-      registrationButton.setAttribute('disabled', 'disabled');
-    }
-});
-
-function IsAllChecked(name){
-    element = document.querySelector("input[name='"+name+"']")
-    parent = element.parentElement
-    if(parent.querySelectorAll('.section').length == parent.querySelectorAll('.section:checked').length){
-        parent.parentElement.querySelector('.section_title').checked = true;
-    }else if(parent.querySelectorAll('.section:checked').length == 0){
-        parent.parentElement.querySelector('.section_title').checked = false;
-    }
-}
-
-function SelectAll(id){
-    a = document.querySelector('.'+id);
-    b = a.querySelectorAll('input[type="checkbox"]');
-    if(document.querySelector('#'+id).checked == true){
-        for(let i = 0; i < b.length; i++){
-            b[i].checked = true;
-        }
-    }else{
-        for(let i = 0; i < b.length; i++){
-            b[i].checked = false;
-        }
-    }
-}
-
-function ShowSections(value){
-    if(document.querySelector('input[name="is_public"]').checked == true){
-        document.getElementById('sections').style.display = 'block';
-    }else{
-        document.getElementById('sections').style.display = 'none';
-    }
-}
-
-function SendUserMenu(){
-    let added_sections = [];
-    let all_checkboxes = document.querySelectorAll('.section:checked');
-
-    for(let i = 0; i < all_checkboxes.length; i++){
-        added_sections.push(all_checkboxes[i].name);
-    }
-    $.ajax({
-        data: { 'sections' : JSON.stringify(added_sections) },
-        url: '/users/user_menu/',
-        success: function (response) {
-        }
-    });
-}
-</script>
+<script type="application/javascript" src="{% static 'users/js/profile.js' %}"></script>
 {% endblock %}

@@ -67,8 +67,7 @@
 }
 
 .rounded-top {
-    background: url(https://oir.mobi/uploads/posts/2022-08/1661346580_2-oir-mobi-p-abstraktsiya-zelenii-fon-krasivo-2.jpg);
-    border-radius: 10px 10px 0px 0px;
+    background: url('/static/src/profile_background.png')
 }
 
 .rounded-top img {

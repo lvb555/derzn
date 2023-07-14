@@ -168,7 +168,9 @@ a {
 .treeline, .treeline ul, .treeline li {
    margin: 0; line-height: 1.25; list-style: none;
 }
+
 .treeline ul {margin: 0 0 0 12px; /* отступ вертикальной линии */}
+
 .treeline > li, .treeline li li {
    position: relative;
    padding: 3px 0 0 20px; /* отступ текста */
@@ -429,11 +431,15 @@ table.table.align-middle.my-2 {
     margin: 15px 0px;
 }
 
-.author-list {
+.author-list, .param-list {
     padding: 10px 0px;
     border-right: 0px;
     border-left: 0px;
     border-bottom: dashed lightgrey 1px;
+}
+
+ul li.param-list:last-child {
+	border: none;
 }
 
 .author-name {
@@ -516,6 +522,7 @@ input.icon {
 }
 
 .title-treeline ul {margin: 0 0 0 12px; /* отступ вертикальной линии */}
+
 .title-treeline > li, .title-treeline li {
    position: relative;
    padding: 3px 0 0 20px; /* отступ текста */
@@ -1002,4 +1009,25 @@ a.disabled{
 
 .alert  {
 	text-align: center;
+}
+
+.alert-error {
+	color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+.selection-window, .selection-window:hover, .selection-window:focus {
+    font-family: Rubik;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+    text-align: left;
+    margin: 14px 0px;
+    width: 200px;
+    color: #6C757D;
+    border-radius: 8px;
+    background: rgba(245, 245, 245, 0.75);
+    padding: 12px 16px;
 }
