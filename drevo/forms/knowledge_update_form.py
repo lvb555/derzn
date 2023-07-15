@@ -62,39 +62,3 @@ ZnImageEditFormSet = inlineformset_factory(
     extra=1,
     can_delete=False
 )
-
-
-class TableUpdateForm(ZnanieUpdateForm):
-    """Форма создания Знания вида Таблица"""
-
-    @staticmethod
-    def special_permissions_for_expert(user=None):
-        """Выбор всех категорий в компетенции эксперта"""
-        _categories = Category.tree_objects.exclude(is_published=False)
-        result_categories = []
-        for category in _categories:
-            if user:
-                experts = category.get_expert_ancestors_category()
-                if user in experts:
-                    result_categories.append(category)
-            else:
-                result_categories.append(category)
-
-        return result_categories
-
-    def __init__(self, user, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Присвоение вида знания "Таблица"
-        self.fields['tz'].initial = Tz.objects.get(name='Таблица')
-        self.fields['tz'].widget = forms.HiddenInput()
-
-        # Выбор всех категорий в компетенции конкретного пользователя
-        categories = self.special_permissions_for_expert(user)
-        queryset = get_model_or_stub(Category).objects.filter(pk__in=[category.pk for category in categories])
-
-        # Категории в компетенциях конкретного эксперта
-        self.fields['category'] = TreeNodeChoiceField(queryset=queryset,
-                                                      empty_label='Выберите категорию',
-                                                      label='Категория',
-                                                      required=True)

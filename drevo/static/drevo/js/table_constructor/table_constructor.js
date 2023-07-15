@@ -16,30 +16,15 @@ let delete_element_row = $("#delete_element_row")
 let delete_element_column = $("#delete_element_column")
 let btn_show = $("#btn_show")
 
-const csrftoken = getCookie('csrftoken');
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-              break;
-          }
-      }
-  }
-  return cookieValue;
-}
-
 function addZnanie(relation) {
+    let table_id = id_table.val()
     if (relation === 'row') {
         $('#relation_type').val('row');
-        window.open(`/drevo/new_knowledge_for_relation/`, 'modal', 'Width=1280,Height=650');
+        window.open(`/drevo/new_knowledge_for_relation/row/${table_id}/`, 'modal', 'Width=1280,Height=650');
     }
     else if (relation === 'column') {
         $('#relation_type').val('column');
-        window.open(`/drevo/new_knowledge_for_relation/`, 'modal', 'Width=1280,Height=650');
+        window.open(`/drevo/new_knowledge_for_relation/column/${table_id}/`, 'modal', 'Width=1280,Height=650');
     }
     else if (relation === 'element_row') {
         $('#relation_type').val('element_row');
@@ -51,6 +36,7 @@ function addZnanie(relation) {
         let url = document.querySelector('script[data-element-group-add]').getAttribute('data-element-group-add');
         window.open(url, 'modal', 'Width=1280,Height=650');
     }
+    // Если создается таблица
     else {
         window.open(`/drevo/table_create/`, 'modal', 'Width=1280,Height=650');
     }

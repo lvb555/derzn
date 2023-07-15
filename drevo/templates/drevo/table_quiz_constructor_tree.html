@@ -47,14 +47,23 @@
                             {% for zn in zn_dict|dict_value:node.name %}
                                 <li style="font-weight: 400;">
                                     <i class="bi-file-text-fill" style="color: #99CCFF;"></i>
-                                    <a href="{{ zn.get_absolute_url }}" style="color: blue">
+                                    <a {% if type_of_page == 'filling_tables' or type_of_page == 'table_constructor'%}
+                                            id="show_table_{{ zn.id }}"
+                                            href=""
+                                            onclick="clickOnTable('{{ zn.get_absolute_url }}', {{ zn.id }})"
+                                        {% else %}
+                                        href="{{ zn.get_absolute_url }}" style="color: blue"
+                                        {% endif %}
+                                        >
                                         {{ zn.name }}
                                     </a>
 
-                                    <a {% if title == "Дерево табличных знаний" %}
+                                    <a {% if type_of_page == 'filling_tables' %}
                                         href="{% url 'filling_tables' zn.pk %}"
-                                        {% else %}
+                                        {% elif type_of_page == 'table_constructor' %}
                                         href="{% url 'table_constructor' zn.pk %}"
+                                        {% else %}
+                                        href="{% url 'quiz_constructor' zn.pk %}"
                                         {% endif %}>
                                         <img src="{% static '/drevo/img/pencil.png' %}">
                                     </a>
@@ -72,10 +81,14 @@
                 {% endrecursetree %}
             </ul>
         </div>
-        {% if table_create %}
+        {% if type_of_page == 'table_constructor' or type_of_page == 'quiz_constructor' %}
             <div class="btn_legend">
                 <div class="legend">
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='{% url 'table_constructor' 0 %}'">создать таблицу</button>
+                    {% if type_of_page == 'table_constructor' %}
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='{% url 'table_constructor' 0 %}'">создать таблицу</button>
+                    {% else %}
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='{% url 'quiz_constructor' 0 %}'">создать тест</button>
+                    {% endif %}
                 </div>
             </div>
         {% endif %}
@@ -84,6 +97,7 @@
 {% endblock %}
 
 {% block jsfiles %}
+    <script src="{% static 'drevo/js/get_cookie.js'%}"></script>
 
     <script>
 
@@ -133,6 +147,28 @@
                 icon.classList.remove("bi-file-minus-fill")
                 icon.classList.add("bi-file-plus-fill");
             }
+
+        }
+        function clickOnTable (urlf, id) {
+            const data = {id: id};
+            let url = "{% url 'row_and_column_existence' %}"
+            return fetch(url, {
+            method: 'POST',
+            headers: {
+                 'Content-Type': 'application/json',
+                 'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                  window.location.href = urlf;
+            }
+            })
+            .catch((error) => {
+                console.log('Error:', error);
+            });
 
         }
 
