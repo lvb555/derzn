@@ -16,7 +16,7 @@ def show_quiz_result(request,id):
                 context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
                                        i.startswith('Моя')]
                 context['link'] = 'users:myprofile'
-                invite_count = len(FriendsInviteTerm.objects.filter(recipient=request.user.id))
+                invite_count = FriendsInviteTerm.objects.filter(recipient=request.user.id).count()
                 context['invite_count'] = invite_count if invite_count else 0
                 context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient=user, was_read=False).count()
                 context['new_messages'] = Message.objects.filter(recipient=user, was_read=False).count()

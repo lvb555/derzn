@@ -390,7 +390,7 @@ def my_profile(request):
         user = User.objects.get(id=request.user.id)
         context['user'] = user
         context['sections'] = access_sections(user)
-        invite_count = len(FriendsInviteTerm.objects.filter(recipient=request.user.id))
+        invite_count = FriendsInviteTerm.objects.filter(recipient=request.user.id).count()
         context['invite_count'] = invite_count if invite_count else 0
         context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient=user, was_read=False).count()
         context['new_messages'] = Message.objects.filter(recipient=user, was_read=False).count()
@@ -402,14 +402,13 @@ def access_sections(user):
     #Проверяем какие опции меню будут отображаться
     sections = ['Мои оценки знаний','По категориям','По авторам','По тегам']
     interview = InterviewAnswerExpertProposal.objects.filter(expert=user)
-    if interview.exists():
-        sections.append('Интервью')
+    if interview:
         if interview.exclude(Q(new_answer_text=None) | Q(new_answer_text='')).exists():
-            sections.append('Мои предложения')
+            sections.extend(['Мои предложения','Интервью'])
         if interview.filter(Q(new_answer_text=None) | Q(new_answer_text='')).exists():
-            sections.append('Мои интервью')
+            sections.extend(['Мои интервью','Интервью'])
     knowledges = KnowledgeStatuses.objects.filter(user=user)
-    if knowledges.exists():
+    if knowledges:
         if knowledges.filter(status='PUB_PRE').exists():
             sections.append('Мои знания (пользовательский вклад)')
         if knowledges.filter(status='PUB').exists():

@@ -19,7 +19,7 @@ def klz_all(request):
                            i.startswith('Моя')]
     context['link'] = 'users:myprofile'
     context['pub_user'] = request.user
-    invite_count = len(FriendsInviteTerm.objects.filter(recipient=request.user.id))
+    invite_count = FriendsInviteTerm.objects.filter(recipient=request.user.id).count()
     context['invite_count'] = invite_count if invite_count else 0
     context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient=request.user, was_read=False).count()
     context['new_messages'] = Message.objects.filter(recipient=request.user, was_read=False).count()
