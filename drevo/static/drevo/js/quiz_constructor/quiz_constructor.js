@@ -1,19 +1,10 @@
-var element = $('#page').detach();
-$('body').children().children('div.row').append(element);
-
 let id_test = $("#id_test")
 let id_question = $("#id_question")
+let id_answer = $("#id_answer")
 let btn_show = $("#btn_show")
-let create_new_answer = $('#create_new_answer')
 
 $(document).ready(function () {
     $('#form').submit(function () {
-        // Если пользователь не заполнил поле для нового ответа, всплывает модальное окно с предупреждением
-        let unfilled_new_answers = $('#new_answer_div').length
-        if (unfilled_new_answers !== 0) {
-            $('.js-warning-create-answer').fadeIn();
-            return false;
-        }
         // Если тест еще не создан или вопрос не выбран, форма не отправляется
         if (document.form.test.value === '' || document.form.question.value === '') return false;
         $.ajax({
@@ -31,7 +22,6 @@ $(document).ready(function () {
 id_question.change(getAnswersToQuestion)
 
 function getAnswersToQuestion(e) {
-    create_new_answer.removeAttr('hidden');
     const question_id = e.target.value;
     const data = {id: question_id};
     const url = document.querySelector('script[data-get-existing-answers]').getAttribute('data-get-existing-answers');
@@ -45,72 +35,69 @@ function getAnswersToQuestion(e) {
     })
     .then(response => response.json())
     .then(data => {
-         $('#related_answers').empty()
-         $('#add_new_answers').empty()
-            for (let i = 0; i < data.length; i++) {
-                let isCorrect = data[i]['tr__name'] === 'Ответ верный' ? 'checked' : '';
-                $('#related_answers').append(
-                    `<div id="answer_${data[i]['rz_id']}">
-                        <label style="margin-left: 50px">Ответ:</label>
-                        <div class="select-options" style="display: flex; align-items: center;">
-                            <select class="select-without-choice" name="existing_answer_${data[i]['rz_id']}" id=""
-                                    style="margin-left: 50px;">
-                                <option value="${data[i]['rz_id']}" id="" selected>${data[i]['rz__name']}</option>
-                            </select>
-                            <span class="block-with-operations">
-                                <input type="button" value="❌" class="quiet button-edit" id="delete_answer_${data[i]['rz_id']}"
-                                       style="padding-left: 0px"
-                                       onclick="deleteQuestionOrAnswer('answer', ${data[i]['rz_id']})">
-                                <input type="button" value="✐" class="quiet button-edit" id="edit_answer_${data[i]['rz_id']}"
-                                       style="padding-left: 0px" 
-                                       onClick="editZnanie('answer', ${data[i]['rz_id']})">
-                                <label class="is-correct-answer">
-                                    <input type="checkbox" value="true" name="is_correct_answer_${data[i]['rz_id']}"
-                                           style="width: 8mm; height: 8mm; margin-right: 5px" ${isCorrect}>
-                                    Верно
-                                </label>
-                            </span>
-                        </div>
-                    </div>`
-                )
-            }
-
-        // }
+        $('#id_answer').prop('disabled', false);
+        $('#answer_order').empty();
+        $('#is_correct_answer').prop('checked', false);
+        $('#add_answer').prop('disabled', false);
+        $('#delete_question').prop('disabled', false);
+        $('#edit_question').prop('disabled', false);
+        id_answer.empty();
+        if (data.length === 0) id_answer.append(`<option value="" selected disabled>Создайте ответ</option>`);
+        else id_answer.append(`<option value="" selected disabled>Выберите ответ</option>`);
+        for (let i = 0; i < data.length; i++) {
+            id_answer.prop('disabled', false);
+            id_answer.append(`<option value="${data[i]['rz_id']}" id="">${data[i]['rz__name']}</option>`)
+        }
     })
     .catch((error) => {
     console.log('Error:', error);
     });
+    let path = document.querySelector('script[data-get-order-of-question]').getAttribute('data-get-order-of-question');
+    const question_id_for_attr = {id: id_question.val()};
+    fetch(path, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(question_id_for_attr),
+    })
+    .then(response => response.json())
+    .then(data => {
+        $('#question_order').val(data['order']);
+    })
+    .catch((error) => {
+        console.log('Error:', error);
+    });
+
 }
 
-create_new_answer.click(function (e) {
-    e.preventDefault();
-    $('#add_new_answers').append(
-        `<div id="new_answer_div">
-            <label style="margin-left: 50px;">Новый ответ:</label>
-            <div class="select-options">
-                <select class="select-without-choice" name="new_answer" id=""
-                        style="margin-left: 50px;">
-                    <option value="" id="" selected disabled>Создайте ответ</option>
-                </select>
-                <span class="block-with-operations" style="margin-bottom: 14px">
-                    <input type="button" value="➕" class="quiet button-edit" id="add_new_answer"
-                           onClick="addZnanie('answer')" style="padding-left: 0px">
-                    <input type="button" value="❌" class="quiet button-edit" id="delete_new_answer"
-                           style="padding-left: 0px" hidden>
-                    <input type="button" value="✐" class="quiet button-edit" id="edit_new_answer"
-                           style="padding-left: 0px"
-                           hidden>
-                    <label class="is-correct-answer">
-                        <input type="checkbox" name="is_correct_answer_new" style="width: 8mm; height: 8mm; margin-right: 5px">
-                        Верно
-                    </label>
-                </span>
-            </div>
-        </div>`
-    )
-    create_new_answer.css('visibility', 'hidden');
-})
+id_answer.change(getAnswerAttribute)
 
+function getAnswerAttribute(e) {
+    $('#is_correct_answer').prop('disabled', false);
+    $('#answer_order').prop('disabled', false);
+    $('#delete_answer').prop('disabled', false);
+    $('#edit_answer').prop('disabled', false);
+    let url = document.querySelector('script[data-get-answer-in-quiz-attributes]').getAttribute('data-get-answer-in-quiz-attributes');
+    const data = {id: id_answer.val()};
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(data => {
+            $('#answer_order').val(data['order']);
+            $('#is_correct_answer').prop('checked', data['is_correct']);
+        })
+        .catch((error) => {
+            console.log('Error:', error);
+        });
+}
 
 function addZnanie(type_of_zn) {
     if (type_of_zn === 'test') {
@@ -124,7 +111,7 @@ function addZnanie(type_of_zn) {
     }
 }
 
-function editZnanie(type_of_zn, id=null) {
+function editZnanie(type_of_zn) {
     if (type_of_zn ===  'test') {
         let edit_test = id_test.val()
         if (edit_test) {
@@ -138,18 +125,59 @@ function editZnanie(type_of_zn, id=null) {
         }
     }
     if (type_of_zn ===  'answer') {
-        window.open(`/drevo/znanie_for_quiz_edit/${id}/answer/`, 'modal', 'Width=1280,Height=650');
+        let edit_answer = id_answer.val();
+        if (edit_answer) {
+             window.open(`/drevo/znanie_for_quiz_edit/${edit_answer}/answer/`, 'modal', 'Width=1280,Height=650');
+        }
     }
 }
 
-$('#delete_test').on('click', function () {
-    $('.js-delete-test').fadeIn();
-    $('.js-okay-successful').click(function () {
-        $('.js-delete-test').fadeOut();
-        $('.js-delete-test-warning').fadeIn();
-        $('.js-okay-delete-successful').click(function () {
-            let url = document.querySelector('script[data-delete-quiz]').getAttribute('data-delete-quiz');
-            const data = {id: id_test.val()};
+function deleteZnanie(type_of_zn) {
+    if (type_of_zn === 'test') {
+         $('.js-delete-test').fadeIn();
+        $('.js-okay-successful').click(function () {
+            $('.js-delete-test').fadeOut();
+            $('.js-delete-test-warning').fadeIn();
+            $('.js-okay-delete-successful').click(function () {
+                let url = document.querySelector('script[data-delete-quiz]').getAttribute('data-delete-quiz');
+                const data = {id: id_test.val()};
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then(response => response.json())
+                    .then(() => {
+                        $('.row-column-question-block').hide();
+                        let successful_quiz_delete = `Тест «${$('#id_test option:selected').text().trim()}» успешно удален!`;
+                        $('.constructor-block').empty();
+                        $('.constructor-block').append(
+                            `<span>${successful_quiz_delete}</span>`
+                        )
+                        $('#div-param').hide();
+                        $('.js-delete-test-warning').fadeOut();
+                    })
+                    .catch((error) => {
+                        console.log('Error:', error);
+                    });
+            })
+        })
+    }
+    else {
+        let znanie_id = null;
+        if (type_of_zn === 'question') {
+            znanie_id = id_question.val();
+            $('.js-delete-question').fadeIn();
+        } else {
+            znanie_id = id_answer.val();
+            $('.js-delete-answer').fadeIn();
+        }
+        $('.js-okay-successful').click(function () {
+            let url = document.querySelector('script[data-delete-answer-or-question-to-quiz]').getAttribute('data-delete-answer-or-question-to-quiz');
+            const data = {id: znanie_id, type_of_zn: type_of_zn};
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -160,64 +188,27 @@ $('#delete_test').on('click', function () {
             })
                 .then(response => response.json())
                 .then(() => {
-                    $('#related_answers').empty();
-                    $('#add_new_answers').empty();
-                    $('.row-column-question-block').hide();
-                    $('#create_new_answer').hide();
-                    let successful_quiz_delete = `Тест «${$('#id_test option:selected').text().trim()}» успешно удален!`;
-                    $('.constructor-block').empty();
-                    $('.constructor-block').append(
-                        `<span>${successful_quiz_delete}</span>`
-                    )
-                    $('#div-param').hide();
-                    $('.js-delete-test-warning').fadeOut();
+                    if (type_of_zn === 'question') {
+                        $('.js-delete-question').fadeOut();
+                        $('#id_question option:selected').remove();
+                        if ($('option').is('#create_question'))
+                            $('#id_question option#create_question').prop('selected', true);
+                        else
+                            $('#id_question option#choose_question').prop('selected', true);
+                    } else {
+                        $('.js-delete-answer').fadeOut();
+                        $('#id_answer option:selected').remove();
+                        if ($('option').is('#create_answer'))
+                            $('#id_answer option#create_answer').prop('selected', true);
+                        else
+                            $('#id_answer option#choose_answer').prop('selected', true);
+                    }
                 })
                 .catch((error) => {
                     console.log('Error:', error);
                 });
         })
-    })
-})
-
-function deleteQuestionOrAnswer(type_of_zn, id=null) {
-    let znanie_id = null;
-    if (type_of_zn === 'question') {
-        znanie_id = id_question.val();
-        $('.js-delete-question').fadeIn();
-    } else {
-        znanie_id = id;
-        $('.js-delete-answer').fadeIn();
     }
-    $('.js-okay-successful').click(function () {
-        let url = document.querySelector('script[data-delete-answer-or-question-to-quiz]').getAttribute('data-delete-answer-or-question-to-quiz');
-        const data = {id: znanie_id, type_of_zn: type_of_zn};
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify(data),
-        })
-            .then(response => response.json())
-            .then(() => {
-                if (type_of_zn === 'question') {
-                    $('.js-delete-question').fadeOut();
-                    $('#id_question option:selected').remove();
-                    $('#id_row option#create_question').prop('selected', true);
-                    $('#related_answers').empty();
-                    $('#add_new_answers').empty();
-                    create_new_answer.css('visibility', 'hidden');
-                }
-                else {
-                    $('.js-delete-answer').fadeOut();
-                    $(`#answer_${id}`).hide();
-                }
-            })
-            .catch((error) => {
-                console.log('Error:', error);
-            });
-    })
 }
 
 $('.js-close-successful').click(function () {
@@ -238,20 +229,29 @@ $(document).mouseup(function (e) {
 btn_show.on('click', function(){
     let test_id = id_test.val()
     let question_length = $('#id_question option').length
-    // Если тест выбран и в нем есть хотя бы один вопрос, то кнопка "Показать" активна
-    if (test_id && (question_length > 1)) {
-       window.open(`/drevo/quiz/${id_test.val()}`);
-    }
+    // Если в тесте нет ответов, то кнопка "Показать" неактивна
+    const id_of_question = {id: test_id};
+    const url = document.querySelector('script[data-answers-in-quiz-existence]').getAttribute('data-answers-in-quiz-existence');
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(id_of_question),
+    })
+    .then(response => response.json())
+    .then((data) => {
+        if (data) {
+            // Если тест выбран и в нем есть хотя бы один вопрос и хотя бы один ответ, а также нет вопросов без ответов,
+            // то кнопка "Показать" активна
+            if (test_id && (question_length > 1)) {
+                window.open(`/drevo/quiz/${id_test.val()}`);
+            }
+        }
+    })
+    .catch((error) => {
+        console.log('Error:', error);
+    });
+
 });
-
-function addEditListener(id) {
-    $(`#edit_answer_${id}`).on('click', function() {
-        editZnanie('answer', id);
-    })
-}
-
-function addDeleteListener(id) {
-    $(`#delete_answer_${id}`).on('click', function () {
-        deleteQuestionOrAnswer('answer', id);
-    })
-}

@@ -287,7 +287,7 @@ admin.site.register(Tz, TzAdmin)
 
 
 class RelationAdmin(admin.ModelAdmin):
-    list_display = ("id", "bz", "tr", "rz", "author", "date", "user", "expert", "director")
+    list_display = ("id", "bz", "tr", "rz", "author", "date", "user", "expert", "director", "order")
     save_as = True
     autocomplete_fields = ["author"]
     search_fields = ["bz__name", "rz__name"]
