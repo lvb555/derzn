@@ -43,6 +43,7 @@ function relationCreate() {
                editColumn.removeAttribute('hidden');
                if (newZnanieKind === 'Группа') {
                    columnElements.removeAttribute('hidden');
+                   columnSelect.style.display = 'block';
                    addColumn.hidden = true;
                    columnSelect.style.backgroundImage = 'none';
                    columnSelect.style.appearance = 'none';

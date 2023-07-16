@@ -65,6 +65,12 @@ class Relation(models.Model):
         default=False,
         verbose_name='Опубликовано?'
     )
+    order = models.IntegerField(
+        verbose_name='Порядок',
+        help_text='укажите порядковый номер',
+        null=True,
+        blank=True
+    )
     objects = models.Manager()
 
     def __str__(self):

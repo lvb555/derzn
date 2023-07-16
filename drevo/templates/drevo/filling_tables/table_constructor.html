@@ -13,7 +13,7 @@
             data-delete-element='{% url "delete_element_of_relation" %}'
             data-delete-table='{% url "delete_table" %}' data-get-form="{% url 'get_form_data' %}"
             data-relations-exists="{% url 'row_and_column_existence' %}" data-cell-exists="{% url 'cell_in_table_or_relation_existence' %}"
-            data-element-group-add="{% url 'group_of_element_create' %}">
+            >
 
     </script>
 {% endblock %}
@@ -73,27 +73,26 @@
             </span>
         </div>
         <input type="hidden" id="row_is_group" value="{{ row_is_group }}">
-        {% if row_is_group or not rows_attributes or new_table %}
-            <div id="row_elements" {% if new_table or not rows_attributes %} hidden {% endif %}>
-                 <label for="id_column" style="margin-left: 50px">Элемент строки:</label>
-                 <div class="select-options">
-                     <select class="form-select" name="row_element" id="id_element_row" style="margin-left: 50px;">
-                        {% if new_table or not rows_structure_attributes %}
-                            <option value="" id="" selected disabled> Создайте элемент строки</option>
-                        {% else %}
-                            {% for row in rows_structure_attributes %}
-                                <option value="{{ row.rz_id }}" id="{{ row.rz_id }}"> {{ row.rz__name }} </option>
-                            {% endfor %}
-                        {% endif %}
-                    </select>
-                    <span>
-                        <input type="button" value="➕" class="quiet button-edit" id="add_element_row" onclick="addZnanie('element_row')">
-                        <input type="button" value="❌" class="quiet button-edit" id="delete_element_row" style="padding-left: 0px" {% if new_table %} hidden {% endif %}>
-                        <input type="button" value="✐" class="quiet button-edit" id="edit_element_row" style="padding-left: 0px" {% if new_table %} hidden {% endif %} onclick="editZnanie('element_row')">
-                    </span>
-                 </div>
-            </div>
-        {% endif %}
+        <div id="row_elements" {% if not rows_structure_attributes %} hidden {% endif %}>
+             <label for="id_column" style="margin-left: 50px">Элемент строки:</label>
+             <div class="select-options">
+                 <select class="form-select" name="row_element" id="id_element_row" style="margin-left: 50px;">
+                    {% if new_table or not rows_structure_attributes %}
+                        <option value="" id="" selected disabled> Создайте элемент строки</option>
+                    {% else %}
+                         <option value="" id="" selected disabled> Выберите элемент строки</option>
+                        {% for row in rows_structure_attributes %}
+                            <option value="{{ row.rz_id }}" id="{{ row.rz_id }}"> {{ row.rz__name }} </option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+                <span>
+                    <input type="button" value="➕" class="quiet button-edit" id="add_element_row" onclick="addZnanie('element_row')">
+                    <input type="button" value="❌" class="quiet button-edit" id="delete_element_row" style="padding-left: 0px" {% if new_table %} hidden {% endif %}>
+                    <input type="button" value="✐" class="quiet button-edit" id="edit_element_row" style="padding-left: 0px" {% if new_table %} hidden {% endif %} onclick="editZnanie('element_row')">
+                </span>
+             </div>
+        </div>
         <label for="id_column">Столбец:</label>
         <div class="select-options">
             <select class="form-select" name="column" id="id_column" {% if new_table %} disabled {% endif %}
@@ -124,6 +123,7 @@
                          {% if new_table or not columns_structure_attributes %}
                             <option value="" id="" selected disabled> Создайте элемент столбца</option>
                         {% else %}
+                             <option value="" id="" selected disabled> Выберите элемент столбца</option>
                             {% for row in columns_structure_attributes %}
                                 <option value="{{ row.rz_id }}" id="{{ row.rz_id }}"> {{ row.rz__name }} </option>
                             {% endfor %}

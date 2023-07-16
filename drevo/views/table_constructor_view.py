@@ -141,7 +141,7 @@ class TableCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Создание таблицы'
+        context['title'] = 'Ввод названия таблицы'
 
         # Передаем формы для создания знания и добавления фотографий к знанию
         if self.request.POST:
@@ -367,7 +367,7 @@ class RelationCreateView(LoginRequiredMixin, CreateView):
 class RelationEditView(LoginRequiredMixin, UpdateView):
     """Представление страницы изменения знаний - связей таблицы"""
     model = Znanie
-    form_class = NameOfZnanieCreateUpdateForm
+    form_class = RelationCreateForm
     template_name = 'drevo/filling_tables/relation_edit.html'
     success_url = reverse_lazy("table_constructor")
 
@@ -381,7 +381,10 @@ class RelationEditView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Редактирование знания'
+        if self.kwargs.get('relation') == 'row':
+            context['title'] = 'Редактирование строки'
+        else:
+            context['title'] = 'Редактирование столбца'
         context['pk'] = self.kwargs.get('pk')
         return context
 
@@ -436,7 +439,10 @@ class GroupElementCreate(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Создание знания'
+        if self.kwargs.get('relation') == 'row':
+            context['title'] = 'Ввод названия элемента группы строк'
+        else:
+            context['title'] = 'Ввод названия элемента группы столбцов'
 
         # Передаем формы для создания знания
         if self.request.POST:
@@ -615,7 +621,7 @@ def show_new_znanie(request):
     return JsonResponse([new_znanie.id, new_znanie.name], safe=False)
 
 
-def create_relation(bz_id, rz_id, tr_id, request):
+def create_relation(bz_id, rz_id, tr_id, request, type_of_zn='default',):
     """Создание опубликованной связи с заданными параметрами"""
 
     # Создание автора с именем и фамилией пользователя, если такого не существует
@@ -624,7 +630,7 @@ def create_relation(bz_id, rz_id, tr_id, request):
     )
 
     # Создание опубликованной связи с выбранными значениями, если оно не было создано
-    Relation.objects.get_or_create(
+    relation, created = Relation.objects.get_or_create(
         bz_id=bz_id,
         tr_id=tr_id,
         rz_id=rz_id,
@@ -633,11 +639,24 @@ def create_relation(bz_id, rz_id, tr_id, request):
         defaults={'user_id': request.user.id}
     )
 
+    if type_of_zn == 'question':
+        order_of_question = request.POST.get('question_order')
+        if order_of_question:
+            relation.order = order_of_question
+            relation.save()
+
+    elif type_of_zn == 'answer':
+        order_of_answer = request.POST.get('answer_order')
+        if order_of_answer:
+            relation.order = order_of_answer
+            relation.save()
+
 
 def get_form_data(request):
     """
     Создание трех связей таблицы, строки, столбца и значения при условии, что заполнены все поля
     """
+
     # Проверка, открыта ли страница "Наполнение таблиц"
     filling_tables_page = request.POST.get('filling_tables')
     # Нахождение id связей с именами "Строка" и "Столбец"
@@ -648,9 +667,7 @@ def get_form_data(request):
         value_id = get_object_or_404(Tr, name='Значение').id
     else:
         group_kind = get_object_or_404(Tz, name='Группа').id
-        # Получение значений выбранных элементов в группах "Строка" и "Столбец"
-        selected_row_element_pk = request.POST.get('row_element')
-        selected_column_element_pk = request.POST.get('column_element')
+
     # Получение значений выбранной таблицы, знания, строки и столбца
     selected_table_pk = request.POST.get('table')
     selected_row_pk = request.POST.get('row')
@@ -691,12 +708,27 @@ def get_form_data(request):
         # Создание связи "Столбец": базовое знание - таблица, связанное знание - столбец
         if selected_column_pk:
             create_relation(selected_table_pk, selected_column_pk, column_id, request)
-        # Создание связи "Состав": базовое знание - строка таблицы, связанное знание - элемент строки
-        if selected_row_element_pk:
-            create_relation(selected_row_pk, selected_row_element_pk, structure_id, request)
-        # Создание связи "Состав": базовое знание - столбец таблицы, связанное знание - элемент столбца
-        if selected_column_element_pk:
-            create_relation(selected_column_pk, selected_column_element_pk, structure_id, request)
+
+            # Получение значений всех элементов в группах "Строка" и "Столбец"
+            row_elements_pk_values = request.POST.getlist('row_element')
+            column_elements_pk_values = request.POST.getlist('column_element')
+
+            def get_elements_pk_list(pk_values):
+                """Преобразует структуру ['pk1,pk2'] в список всех значений элементов строки/столбца"""
+                pk_of_elements = pk_values[0].split(',')
+                return [int(pk) for pk in pk_of_elements]
+
+            if row_elements_pk_values:
+                row_elements_pk_list = get_elements_pk_list(row_elements_pk_values)
+                # Создание связей "Состав": базовое знание - строка таблицы, связанное знание - элемент строки
+                for row_element_pk in row_elements_pk_list:
+                    create_relation(selected_row_pk, row_element_pk, structure_id, request)
+
+            if column_elements_pk_values:
+                column_elements_pk_list = get_elements_pk_list(column_elements_pk_values)
+                # Создание связей "Состав": базовое знание - столбец таблицы, связанное знание - элемент столбца
+                for column_element_pk in column_elements_pk_list:
+                    create_relation(selected_column_pk, column_element_pk, structure_id, request)
 
     response = {
         'row_is_group': Relation.objects.filter(bz_id=selected_table_pk, rz__tz_id=group_kind,

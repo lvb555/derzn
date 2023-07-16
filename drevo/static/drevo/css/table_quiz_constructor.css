@@ -178,13 +178,7 @@ select {
     width: 100px;
     height: 35px;
 }
-.new-answer{
-    text-decoration: none;
-    color: #0f7afc;
-    border-bottom: 1px solid;
-    border-bottom-color: rgba(15, 122, 252, 0.2);
-    width: 175px;
-    height: 25px;
+.answers-block{
     margin-left: 50px;
 }
 .select-without-choice{
@@ -202,6 +196,28 @@ select {
 }
 .is-correct-answer{
     display: flex;
-    align-items: center;
-    padding-left: 5px;
+
+}
+.input-box {
+  position: relative;
+}
+
+.order-number {
+  background: #fff;
+  padding: 10px;
+  border-radius: 11px;
+  width: 60px;
+  height: 40px;
+}
+
+.order-label {
+  position: absolute;
+  top: -22px;
+  padding: 0 5px;
+}
+.is-correct-label{
+  position: absolute;
+  top: 68%;
+  left: 52%;
+  transform: translate(-50%, -50%);
 }
