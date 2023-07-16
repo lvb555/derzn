@@ -7,7 +7,6 @@ class Appeal(models.Model):
         ('question', 'Задать вопрос'),
         ('proposal', 'Сделать предложение по развитию сайта'),
         ('complaint', 'Заявить претензию'),
-        ('profile_deletion', 'Удалить свой профиль'),
     ]
 
     user = models.ForeignKey(

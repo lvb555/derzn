@@ -1,10 +1,9 @@
 from django.shortcuts import render
 from loguru import logger
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 from users.models import User, MenuSections
 from users.views import access_sections
-from ..models import BrowsingHistory, Comment
+from ..models import BrowsingHistory, Comment, FriendsInviteTerm, Message
+from ..models.feed_messages import FeedMessage
 
 logger.add('logs/main.log',
     format="{time} {level} {message}", rotation='100Kb', level="ERROR")
@@ -19,6 +18,12 @@ def browsing_history(request, id):
             context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
                                    i.startswith('Моя')]
             context['link'] = 'users:myprofile'
+            invite_count = FriendsInviteTerm.objects.filter(recipient=request.user.id).count()
+            context['invite_count'] = invite_count if invite_count else 0
+            context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient=user, was_read=False).count()
+            context['new_messages'] = Message.objects.filter(recipient=user, was_read=False).count()
+            context['new'] = int(context['new_knowledge_feed']) + int(
+                context['invite_count'] + int(context['new_messages']))
         else:
             context['sections'] = [i.name for i in user.sections.all()]
             context['activity'] = [i.name for i in user.sections.all() if
