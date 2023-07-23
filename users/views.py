@@ -291,7 +291,6 @@ class UserPasswordRecoveryFormView(FormView):
         if form.is_valid():
             email = form.cleaned_data.get('email')
             user = User.objects.get(email=email)
-            print(user.username)
             profile = user.profile
             profile.generate_password_recovery_key()
             profile.send_password_recovery_mail()
@@ -482,6 +481,7 @@ def change_username(request):
             user.last_name = '***********'
             user.email = None
             user.is_public = False
+            user.save()
             logout(request)
 
     return redirect('users:myprofile')
