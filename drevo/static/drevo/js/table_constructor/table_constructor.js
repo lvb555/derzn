@@ -16,6 +16,55 @@ let delete_element_row = $("#delete_element_row")
 let delete_element_column = $("#delete_element_column")
 let btn_show = $("#btn_show")
 
+$(document).ready(function () {
+    $('#form').submit(function () {
+        // Если таблица еще не создана, форма не отправляется
+        if ((document.form.table.value === '') || (document.form.row.value === '' && document.form.column.value === '' )){
+            return false;
+        }
+        $('[name="row_element"]').val(null);
+        $('[name="column_element"]').val(null);
+        var formData = $(this).serialize();
+
+        var selectedRowOptions = [];
+       $('#id_element_row').find('option').each(function () {
+            var optionValue = $(this).val();
+            if (optionValue !== null && optionValue !== undefined && optionValue !== '') {
+                selectedRowOptions.push(optionValue);
+            }
+        });
+       if (selectedRowOptions.length > 0) {
+            var selectedOptionsStringRow = selectedRowOptions.join(',');
+            // console.log(selectedOptionsStringColumn)
+            formData += '&' + 'row_element' + '=' + selectedOptionsStringRow;
+       }
+
+       var selectedColumnOptions = [];
+       $('#id_element_column').find('option').each(function () {
+            var optionValue = $(this).val();
+            if (optionValue !== null && optionValue !== undefined && optionValue !== '') {
+                selectedColumnOptions.push(optionValue);
+            }
+        });
+       if (selectedColumnOptions.length > 0) {
+            var selectedOptionsStringColumn = selectedColumnOptions.join(',');
+            console.log(selectedOptionsStringColumn)
+            formData += '&' + 'column_element' + '=' + selectedOptionsStringColumn;
+       }
+
+        $.ajax({
+            method: "POST",
+            url: document.querySelector('script[data-get-form]').getAttribute('data-get-form'),
+            data: formData
+        }).done(function (response) {
+         if (response.row_is_group) row_is_group.val(true);
+         if (response.column_is_group) column_is_group.val(true);
+         $('.js-successful').fadeIn();
+        });
+        return false;
+     });
+})
+
 function addZnanie(relation) {
     let table_id = id_table.val()
     if (relation === 'row') {
@@ -28,13 +77,11 @@ function addZnanie(relation) {
     }
     else if (relation === 'element_row') {
         $('#relation_type').val('element_row');
-        let url = document.querySelector('script[data-element-group-add]').getAttribute('data-element-group-add');
-        window.open(url, 'modal', 'Width=1280,Height=650');
+        window.open(`/drevo/group_of_element_create/row/`, 'modal', 'Width=1280,Height=650');
     }
     else if (relation === 'element_column') {
         $('#relation_type').val('element_column');
-        let url = document.querySelector('script[data-element-group-add]').getAttribute('data-element-group-add');
-        window.open(url, 'modal', 'Width=1280,Height=650');
+        window.open(`/drevo/group_of_element_create/column/`, 'modal', 'Width=1280,Height=650');
     }
     // Если создается таблица
     else {
@@ -288,25 +335,6 @@ delete_element_column.on('click', function(){
             deleteElement('column')
         })
     }
-})
-
-$(document).ready(function () {
-    $('#form').submit(function () {
-        // Если таблица еще не создана, форма не отправляется
-        if ((document.form.table.value === '') || (document.form.row.value === '' && document.form.column.value === '' )){
-            return false;
-         }
-        $.ajax({
-            method: "POST",
-            url: document.querySelector('script[data-get-form]').getAttribute('data-get-form'),
-            data: $(this).serialize()
-         }).done(function (response) {
-             if (response.row_is_group) row_is_group.val(true);
-             if (response.column_is_group) column_is_group.val(true);
-            $('.js-successful').fadeIn();
-         });
-        return false;
-     });
 })
 
 $('.js-close-successful').click(function () {

@@ -1,18 +1,16 @@
 import json
-import re
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
 
 from drevo.forms.knowledge_create_form import NameOfZnanieCreateUpdateForm, TableOrQuizCreateEditForm, ZnImageFormSet, \
-    QuestionToQuizCreateForm, AnswerToQuizCreateForm
+    QuestionToQuizCreateForm
 from drevo.forms.knowledge_update_form import ZnImageEditFormSet
-from drevo.models import Author, BrowsingHistory, Category, KnowledgeStatuses, Znanie, Tz, Tr, Relation, \
-    SpecialPermissions
+from drevo.models import Author, BrowsingHistory, KnowledgeStatuses, Znanie, Tz, Tr, Relation, SpecialPermissions
 
 from .table_constructor_view import create_relation, get_knowledge_dict
 
@@ -101,7 +99,7 @@ class QuizCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Создание теста'
+        context['title'] = 'Создание названия теста'
 
         # Передаем формы для создания знания и добавления фотографий к знанию
         if self.request.POST:
@@ -182,7 +180,7 @@ class QuizEditView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Редактирование теста'
+        context['title'] = 'Редактирование названия теста'
         context['pk'] = self.kwargs.get('pk')
         return context
 
@@ -237,7 +235,7 @@ class AnswerOrQuestionCreateView(LoginRequiredMixin, CreateView):
         if self.kwargs.get('type_of_zn') == 'question':
             return QuestionToQuizCreateForm
         else:
-            return AnswerToQuizCreateForm
+            return NameOfZnanieCreateUpdateForm
 
     def dispatch(self, request, *args, **kwargs):
         """Проверка перед открытием страницы, является ли пользователь экспертом"""
@@ -259,12 +257,12 @@ class AnswerOrQuestionCreateView(LoginRequiredMixin, CreateView):
             if type_of_zn == 'question':
                 context['form'] = QuestionToQuizCreateForm(self.request.POST)
             else:
-                context['form'] = AnswerToQuizCreateForm(self.request.POST)
+                context['form'] = NameOfZnanieCreateUpdateForm(self.request.POST)
         else:
             if type_of_zn == 'question':
                 context['form'] = QuestionToQuizCreateForm()
             else:
-                context['form'] = AnswerToQuizCreateForm()
+                context['form'] = NameOfZnanieCreateUpdateForm()
 
         return context
 
@@ -282,11 +280,14 @@ class AnswerOrQuestionCreateView(LoginRequiredMixin, CreateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
+            answer_of_quiz_id = get_object_or_404(Tz, name='Ответ теста').id
             # Перед сохранением формы в поле user подставляем текущего пользователя
             knowledge = form.save(commit=False)
             author, created = Author.objects.get_or_create(
                 name=f"{request.user.first_name} {request.user.last_name}",
             )
+            if self.kwargs.get('type_of_zn') == 'answer':
+                knowledge.tz_id = answer_of_quiz_id
             knowledge.author_id = author.id
             knowledge.is_published = True
             knowledge.user = request.user
@@ -370,6 +371,36 @@ class AnswerOrQuestionEditView(LoginRequiredMixin, UpdateView):
         return self.form_invalid(form)
 
 
+def get_form_data_for_quiz_constructor(request):
+    """
+    Получение данных формы и создание связей для теста: «Состав», «Ответ верный»/«Ответ неверный»
+    """
+    # Нахождение id связей с именами "Тест" и "Состав", "Ответ верный", "Ответ неверный"
+    structure_relation_id = get_object_or_404(Tr, name='Состав').id
+    correct_answer_id = get_object_or_404(Tr, name='Ответ верный').id
+    incorrect_answer_id = get_object_or_404(Tr, name='Ответ неверный').id
+
+    # Получение значений выбранного теста
+    selected_test_pk = request.POST.get('test')
+    selected_question_pk = request.POST.get('question')
+    selected_answer_pk = request.POST.get('answer')
+    is_correct_answer = request.POST.get('is_correct_answer')
+    if selected_answer_pk:
+        if is_correct_answer:
+            Relation.objects.filter(bz_id=selected_question_pk, rz_id=selected_answer_pk, tr_id=incorrect_answer_id).delete()
+            # Создание связи "Ответ верный": базовое знание - выбранный вопрос, связанное знание - созданный ответ
+            create_relation(selected_question_pk, selected_answer_pk, correct_answer_id, request, type_of_zn='answer')
+        else:
+            Relation.objects.filter(bz_id=selected_question_pk, rz_id=selected_answer_pk, tr_id=correct_answer_id).delete()
+            # Создание связи "Ответ неверный": базовое знание - выбранный вопрос, связанное знание - созданный ответ
+            create_relation(selected_question_pk, selected_answer_pk, incorrect_answer_id, request, type_of_zn='answer')
+
+    # Создание связи "Состав": базовое знание - выбранный тест, связанное знание - выбранный вопрос
+    create_relation(selected_test_pk, selected_question_pk, structure_relation_id, request, type_of_zn='question')
+
+    return JsonResponse({})
+
+
 def delete_answer_in_quiz(answer_id):
     """Удаление ответа в тесте. В таком случае удаляются связь с вопросом и сам ответ"""
     Relation.objects.filter(rz_id=answer_id).delete()
@@ -398,7 +429,7 @@ def delete_answers_or_questions_to_quiz(request):
 
 def delete_quiz(request):
     """Удаление теста. В таком случае удаляются связи вида «Тест», с вопросами и ответами на вопросы теста;
-    знания «Вопрос» и «Ответ»"""
+    знания «Вопрос» и «Ответ», знание «Тест»"""
     data = json.loads(request.body)
     quiz_id = data['id']
 
@@ -413,8 +444,9 @@ def delete_quiz(request):
         relations_with_answers = Relation.objects.filter(bz_id=relation_with_question.rz_id)
         for relation_with_answers in relations_with_answers:
             delete_answer_in_quiz(relation_with_answers.rz_id)
+        question_id = relation_with_question.rz_id
         relation_with_question.delete()
-        get_object_or_404(Znanie, rz_id=relation_with_question.rz_id).delete()
+        get_object_or_404(Znanie, rz_id=question_id).delete()
 
     get_object_or_404(Znanie, id=quiz_id).delete()
 
@@ -430,47 +462,39 @@ def get_answers_to_selected_question_of_quiz(request):
     return JsonResponse(list(answers_attributes), safe=False)
 
 
-def get_form_data_for_quiz_constructor(request):
-    """
-    Получение данных формы и создание трех связей таблицы, строки, столбца и значения при условии,
-    что заполнены все поля
-    """
-    # Нахождение id связей с именами "Тест" и "Состав", "Ответ верный", "Ответ неверный"
-    structure_relation_id = get_object_or_404(Tr, name='Состав').id
+def get_order_of_question_in_quiz(request):
+    """Получение атрибута вопроса - порядок"""
+    data = json.loads(request.body)
+    question_id = data['id']
+    relation_with_question = get_object_or_404(Relation, rz_id=question_id)
+    order = relation_with_question.order
+    return JsonResponse({'order': order})
+
+
+def get_answer_in_quiz_attributes(request):
+    """Получение атрибутов ответа: верный ли он и его порядок"""
+    data = json.loads(request.body)
+    answer_id = data['id']
+    relation_with_answer = get_object_or_404(Relation, rz_id=answer_id)
     correct_answer_id = get_object_or_404(Tr, name='Ответ верный').id
-    incorrect_answer_id = get_object_or_404(Tr, name='Ответ неверный').id
+    is_correct = True if relation_with_answer.tr_id == correct_answer_id else False
+    order = relation_with_answer.order
+    return JsonResponse({'order': order, 'is_correct': is_correct})
 
-    # Получение значений выбранного теста
-    selected_test_pk = request.POST.get('test')
-    selected_question_pk = request.POST.get('question')
 
-    # Создание связи "Состав": базовое знание - выбранный тест, связанное знание - выбранный вопрос
-    create_relation(selected_test_pk, selected_question_pk, structure_relation_id, request)
+def answers_in_quiz_existence(request):
+    """Проверка, есть ли в тесте хотя бы один ответ и есть ли вопросы без ответа"""
+    data = json.loads(request.body)
+    selected_test_pk = data['id']
+    any_answer_in_test = False
+    relations_with_question = Relation.objects.filter(bz_id=selected_test_pk, tr__name='Состав')
+    for relation in relations_with_question:
+        # Если есть хотя бы один вопрос без ответа, то кнопка "Показать" блокируется (False)
+        if not(Relation.objects.filter(bz_id=relation.rz_id, tr__name='Ответ верный').exists() or \
+           Relation.objects.filter(bz_id=relation.rz_id, tr__name='Ответ неверный').exists()):
+            return JsonResponse(False, safe=False)
+        else:
+            any_answer_in_test = True
 
-    for key in request.POST.keys():
-        # Если пользователь изменил ответ как верный или неверный, меняется соответствующий объект
-        if key.startswith('existing_answer_'):
-            answer_id = request.POST.get(key)
-            is_correct_answer = request.POST.get(f"is_correct_answer_{answer_id}")
-            is_correct_answer = True if is_correct_answer else False
-            existing_relation = Relation.objects.get(bz_id=selected_question_pk, rz_id=answer_id)
-            is_correct_existing = True if existing_relation.tr_id == correct_answer_id else False
-            if is_correct_existing != is_correct_answer:
-                if is_correct_answer:
-                    existing_relation.tr_id = correct_answer_id
-                else:
-                    existing_relation.tr_id = incorrect_answer_id
-                existing_relation.save()
-
-        elif key.startswith('created_answer_'):
-            answer_id = request.POST.get(key)
-            is_correct_answer = request.POST.get(f"is_correct_created_answer_{answer_id}")
-            is_correct_answer = True if is_correct_answer else False
-            if is_correct_answer:
-                # Создание связи "Ответ верный": базовое знание - выбранный вопрос, связанное знание - созданный ответ
-                create_relation(selected_question_pk, answer_id, correct_answer_id, request)
-            else:
-                # Создание связи "Ответ неверный": базовое знание - выбранный вопрос, связанное знание - созданный ответ
-                create_relation(selected_question_pk, answer_id, incorrect_answer_id, request)
-
-    return JsonResponse({})
+    # Если есть хотя бы один ответ в тесте, и нет вопросов без ответа, кнопка "Показать" активна (True)
+    return JsonResponse(any_answer_in_test, safe=False)

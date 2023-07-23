@@ -10,6 +10,9 @@
 {% block jsfiles %}
     <script src="{% static 'drevo/js/get_cookie.js'%}"></script>
     <script src="{% static 'drevo/js/quiz_constructor/quiz_constructor.js'%}"
+            data-answers-in-quiz-existence = '{% url "answers_in_quiz_existence" %}'
+            data-get-order-of-question = '{% url "get_order_of_question_in_quiz" %}'
+            data-get-answer-in-quiz-attributes = '{% url "get_answer_in_quiz_attributes" %}'
             data-get-existing-answers='{% url "get_answers_to_selected_question_of_quiz" %}'
             data-delete-quiz='{% url "delete_quiz" %}'
             data-delete-answer-or-question-to-quiz='{% url "delete_answers_or_questions_to_quiz" %}'
@@ -40,7 +43,7 @@
                {% if new_test %}
                <input type="button" value="➕" class="quiet button-edit" id="add_test" onclick="addZnanie('test')">
                {% endif %}
-               <input type="button" value="❌" class="quiet button-edit" id="delete_test" {% if new_test %} hidden {% endif %}>
+               <input type="button" value="❌" class="quiet button-edit" id="delete_test" onclick="deleteZnanie('test')" {% if new_test %} hidden {% endif %}>
                <input type="button" value="✐" class="quiet button-edit" id="edit_test" style="padding-left: 0px"  {% if new_test %} hidden {% endif %} onclick="editZnanie('test')">
            </span>
         </div>
@@ -53,22 +56,51 @@
                     {% if new_test or not questions_attributes %}
                         <option value="" id="create_question" selected disabled>Создайте вопрос</option>
                     {% else %}
-                        <option value="" selected disabled>Выберите вопрос</option>
+                        <option value="" id="choose_question" selected disabled>Выберите вопрос</option>
                         {% for question in questions_attributes %}
                             <option value="{{ question.rz_id }}" id="{{ question.rz_id }}"> {{ question.rz__name }} </option>
                         {% endfor %}
                     {% endif %}
             </select>
-            <span>
+            <span class="block-with-operations">
+                <div class="input-box" style="margin-left: 10px;">
+                  <label class="order-label">Номер</label>
+                  <input class="order-number" name= "question_order" id="question_order" type="number">
+                </div>
                 <input type="button" value="➕" class="quiet button-edit" id="add_question" {% if new_test %} disabled {% endif %} onclick="addZnanie('question')">
-                <input type="button" value="❌" class="quiet button-edit" id="delete_question"  style="padding-left: 0px" {% if new_test %} hidden {% endif %} onclick="deleteQuestionOrAnswer('question')">
-                <input type="button" value="✐" class="quiet button-edit" id="edit_question" style="padding-left: 0px" {% if new_test %} hidden {% endif %} onclick="editZnanie('question')">
+                <input type="button" value="❌" class="quiet button-edit" id="delete_question"  style="padding-left: 0px" disabled onclick="deleteZnanie('question')">
+                <input type="button" value="✐" class="quiet button-edit" id="edit_question" style="padding-left: 0px" disabled onclick="editZnanie('question')">
             </span>
         </div>
-        <div id="related_answers"></div>
-        <div id="add_new_answers"></div>
-
-        <span id="create_new_answer" style="cursor: pointer" class="new-answer" hidden>Создайте новый ответ</span>
+        <div class="answers-block">
+            <label for="id_question">Ответ:</label>
+            <div class="select-options">
+                <select class="form-select" name="answer" id="id_answer" disabled>
+                        {% if new_test %}
+                            <option value="" id="create_answer" selected disabled>Создайте ответ</option>
+                        {% else %}
+                            <option value="" id="choose_answer" selected disabled>Выберите ответ</option>
+                        {% endif %}
+                </select>
+                <span class="block-with-operations">
+                    <div class="is-correct-answer">
+                      <label class="is-correct-label">Верно</label>
+                      <input type="checkbox" name="is_correct_answer" value="true" id="is_correct_answer"
+                               style="width: 10mm; height: 10mm; margin-right: 5px; border-radius: 11px;" ${isCorrect} disabled>
+                    </div>
+                    <div class="input-box">
+                      <label class="order-label">Номер</label>
+                      <input class="order-number" name="answer_order" type="number" id="answer_order" disabled>
+                    </div>
+                    <input type="button" value="➕" class="quiet button-edit" id="add_answer" disabled onclick="addZnanie('answer')">
+                    <input type="button" value="❌" class="quiet button-edit" id="delete_answer"
+                           style="padding-left: 0px" disabled onclick="deleteZnanie('answer')">
+                    <input type="button" value="✐" class="quiet button-edit" id="edit_answer"
+                           style="padding-left: 0px" disabled
+                           onClick="editZnanie('answer')">
+                </span>
+            </div>
+        </div>
     </div>
 
     <div id="div-param" class="button-block">
@@ -86,13 +118,6 @@
 <div class="overlay js-successful">
     <div class="popup js-successful">
         <h2 class="success-save">Данные были успешно сохранены</h2>
-        <div class="close-popup js-close-successful"></div>
-    </div>
-</div>
-
-<div class="overlay js-warning-create-answer">
-    <div class="popup js-warning-create-answer">
-        <h2 class="success-save">Сначала создайте ответ!</h2>
         <div class="close-popup js-close-successful"></div>
     </div>
 </div>

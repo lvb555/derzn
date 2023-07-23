@@ -107,32 +107,6 @@ class QuestionToQuizCreateForm(forms.ModelForm, ZnanieValidators):
                 field.widget.attrs['class'] = 'form-control'
 
 
-class AnswerToQuizCreateForm(forms.ModelForm, ZnanieValidators):
-    """Форма создания ответа теста"""
-    name = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
-                                                        'rows': 4,
-                                                        }
-                                                 ),
-                           label='Тема'
-                           )
-
-    tz = forms.ModelChoiceField(queryset=Tz.objects.all().order_by('name').exclude(Q(name='Вопрос') | Q(name='Вопрос теста')),
-                                label='Вид знания',
-                                required=True)
-
-    class Meta:
-        model = Znanie
-        exclude = ('id', 'category', 'content', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director',
-                   'is_send', 'is_published', 'labels', 'author', 'href', 'source_com', 'order', 'show_link',
-                   'notification')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            if field_name != 'is_send':
-                field.widget.attrs['class'] = 'form-control'
-
-
 class NameOfZnanieCreateUpdateForm(forms.ModelForm, ZnanieValidators):
     """Форма создания и редактирования знания, в которой есть только тема"""
     name = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
