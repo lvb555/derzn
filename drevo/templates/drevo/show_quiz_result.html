@@ -1,5 +1,5 @@
 {% extends 'drevo/base.html' %}
-
+{% load base_tags %}
 {% load static %}
 
 {% block title %}Результаты тестирования{% endblock %}
@@ -7,6 +7,7 @@
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 <link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/quiz.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -24,40 +25,101 @@
 
 {% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections invite_count=invite_count new_knowledge_feed=new_knowledge_feed new_messages=new_messages new=new %}
 
-{% if quiz_result %}
-    <ul style="padding: 0px;margin-top:15px;">
-        <li id="all_info">
-            <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-            <a style="font-size: 24px">Результаты тестирования</a>
+<p class="author-title mb-2">Результаты тестирования</p>
+<form role="search" method="get" class="search-block mb-4" style="background-color: rgb(255, 255, 255);">
+    <input class="form-control icon" type="search" name="quiz_for_search" placeholder="Поиск" aria-label="Search"
+           value="{{ quiz_for_search }}">
+</form>
+{% if page_obj %}
+<ul class="basic">
+    {% for quiz_name, questions_and_answers in page_obj %}
+    <li style="border-bottom: 1px dashed #BFBFBF; padding: 20px 0px; font-weight: 400;" id="quiz_info">
+        <div class="d-flex justify-content-between mb-2 pb-1">
+            <div class="d-flex">
+                <i class="family bi bi-plus-circle-fill" onclick="toggleHiddenElement(this,2)"></i>
+                <div class="ms-2 ps-1 mt-1">
+                    <p class="quiz-title mb-1">Тест: {{quiz_name}}</p>
+                    <div class="d-inline-flex">
+                        <p class="quiz-grade me-3 pe-2 mb-0 text-grey small-title" style="font-size: 12px;">Оценка: </p>
+                        <p class="quiz-date mb-0 text-grey small-title" style="font-size: 12px;">Дата: </p>
+                    </div>
+                </div>
+            </div>
+            <a class="quiz_sumup btn edit_btn shadow-none me-3" style="height: fit-content;">Повторить тест</a>
+        </div>
+    <ul class="children" hidden>
+        {%for question_name, answers in questions_and_answers.items %}
+        <li class="mt-4" style="font-weight: 400;" id="question_info">
+            <i class="family bi circle_icon bi-plus-circle-fill" onclick="toggleHiddenElement(this,0);"></i>
+            <a class="question_sumup title ps-1" style="font-weight: 400; color: black; vertical-align: 0.5vh;">{{question_name}}</a>
+            <p class="question-grade ps-2 ms-4 small-title text-grey mb-2 pb-1" style="font-size: 12px;">Оценка: </p>
             <ul class="children" hidden>
-                {%for quiz_name, questions_and_answers in quiz_result.items %}
-                <li style="font-weight: 400;" id="quiz_info">
-                <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-                <a id="quiz_sumup" style="font-size: 20px;">Тест: {{quiz_name}}</a>
-                <ul class="children" hidden>
-                    {%for question_name, answers in questions_and_answers.items %}
-                    <li style="font-weight: 400;" id="question_info">
-                        <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
-                        <a id="question_sumup" style="font-size: 18px;">{{question_name}}</a>
-                        <ul class="children" hidden>
-                            {%for answer_name in answers %}
-                            <li style="font-weight: 400;">
-                                <p id="answer_type" style="margin: 0;" >Ответ: {{answer_name.0}} - {{answer_name.1}}</p>
-                            </li>
-                            {%endfor%}
-                        </ul>
-                    </li>
-                    {%endfor%}
-                </ul>
+                <p class="classic text-grey mb-2 pb-1">Ответ</p>
+                {%for answer_name in answers %}
+                <li style="font-weight: 400;">
+                    <p class="answer_type small-title" style="margin: 0;" >{{answer_name.0}} - {{answer_name.1}}</p>
                 </li>
                 {%endfor%}
             </ul>
         </li>
+        {%endfor%}
     </ul>
-</div>
+    </li>
+    {% endfor %}
+    <div class="pagination" style="justify-content: space-between;align-items: baseline;margin-top: 15px;">
+        <span class='text-secondary' style="color:#BFBFBF!important; height: 14px;">
+            {% if page_obj.start_index == page_obj.end_index %}
+                {{page_obj.start_index}} из {{page_obj.paginator.count}}
+            {% else %}
+                {{page_obj.start_index}}-{{page_obj.end_index}} из {{page_obj.paginator.count}}
+            {% endif %}
+        </span>
+
+        <span class="page-links d-inline-flex pages">
+            {% if page_obj.has_previous %}
+                <a href="?{% url_replace request 'page' page_obj.previous_page_number %}">
+                    <img style="height: 6px;weight: 10.5px;transform: rotate(90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                </a>
+            {% else %}
+                <a>
+                    <img style="height: 6px;weight: 10.5px;transform: rotate(90deg);opacity:0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                </a>
+            {% endif %}
+                <ul class="d-flex p-0 m-0">
+                    {% for p in page_obj.paginator.page_range %}
+                    <li>
+                        {% if page_obj.number == p %}
+                            <a href="?{% url_replace request 'page' p %}" style="color:#083E2F;">{{ p }}</a>
+                        {% else %}
+                            <a href="?{% url_replace request 'page' p %}">{{ p }}</a>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% if page_obj.has_next %}
+                <a href="?{% url_replace request 'page' page_obj.next_page_number %}">
+                    <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                </a>
+            {% else %}
+                <a>
+                    <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);opacity:0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                </a>
+            {% endif %}
+        </span>
+    </div>
+</ul>
 {% else %}
-    <h4 align="center" style="margin-top: 15px;">Вы не прошли ни один тест, вы можете их пройти <a href="{% url 'all_quizzes' %}">тут</a></h4>
+    {% if filter %}
+        <div class="basic">
+            <h4 align="center">Нет удовлетворяющих запрос результатов</h4>
+        </div>
+    {% else %}
+        <div class="basic">
+            <h4 align="center">Вы не прошли ни один тест, вы можете их пройти <a href="{% url 'all_quizzes' %}">тут</a></h4>
+        </div>
+    {% endif %}
 {% endif %}
+</div>
 
 {% endblock %}
 {% block jsfiles %}
@@ -70,63 +132,61 @@ function showFirst() {
             num_for_id += 1
             let countans = 0;
             let quiz_result = 0;
-            let quiz_full_name = all_quizzes[f].querySelector('#quiz_sumup').textContent.split(' ');
+            let quiz_full_name = all_quizzes[f].querySelector('.quiz-title').textContent.split(' ');
             let quiz_link = quiz_full_name[quiz_full_name.length-1];
-            all_quizzes[f].querySelector('#quiz_sumup').href = '/drevo/znanie/'+ quiz_link;
+            all_quizzes[f].querySelector('.quiz_sumup').href = '/drevo/znanie/'+ quiz_link;
             delete quiz_full_name[quiz_full_name.length-1];
             let quiz_date = quiz_full_name[quiz_full_name.length-2];
             delete quiz_full_name[quiz_full_name.length-2];
-            let quiz_name = quiz_full_name.join(' ');
-            all_quizzes[f].querySelector('#quiz_sumup').innerHTML = quiz_name+' ';
-            all_answers_in_blocks = all_quizzes[f].querySelectorAll('#answer_type');
+            all_quizzes[f].querySelector('.quiz-title').innerHTML = quiz_full_name.join(' ');
+            all_answers_in_blocks = all_quizzes[f].querySelectorAll('.answer_type');
             all_questions = all_quizzes[f].querySelectorAll('#question_info');
             for(let r=0; r<all_questions.length; r++){
                 all_questions[r].id = 'li_'+num_for_id;
                 num_for_id += 1
-                answers = all_questions[r].querySelectorAll('#answer_type');
+                answers = all_questions[r].querySelectorAll('.answer_type');
                 let question_result = 0;
                 for(let o=0; o<answers.length; o++){
                     if(answers[o].textContent.endsWith('Ответ верный')==true){
                         quiz_result += 1;
                         question_result += 1;
-                        answers[o].style.color = 'green';
+                        answers[o].style.color = '#198754';
                     }else{
-                        answers[o].style.color = 'red';
+                        answers[o].style.color = '#E01F27';
                     }
                 }
                 question_grade = (~~((question_result/answers.length)*100));
-                for_question_mark = all_questions[r].querySelector('#question_sumup')
+                for_question_mark = all_questions[r].querySelector('.question_sumup')
                 for_question_mark.innerHTML = 'Вопрос '+(r+1)+': '+for_question_mark.textContent;
-                if(question_grade > 90){
-                    for_question_mark.innerHTML += ' Отлично '+question_result+'/'+answers.length;
-                }else if(90 >= question_grade && question_grade > 60){
-                    for_question_mark.innerHTML += ' Хорошо '+question_result+'/'+answers.length;
-                }else if(60 >= question_grade && question_grade > 30){
-                    for_question_mark.innerHTML += ' Удовлетворительно '+question_result+'/'+answers.length;
-                }else{
-                    for_question_mark.innerHTML += ' Неудовлетворительно '+question_result+'/'+answers.length;
-                }
+                setGrade(all_questions[r].querySelector('.question-grade'), question_grade, question_result, answers.length)
             }
             for_grade = (~~((quiz_result/all_answers_in_blocks.length)*100));
-            for_mark = all_quizzes[f].querySelector('#quiz_sumup')
-            if(for_grade > 90){
-                for_mark.innerHTML += 'Отлично '+quiz_result+'/'+all_answers_in_blocks.length;
-            }else if(90 >= for_grade && for_grade > 60){
-                for_mark.innerHTML += 'Хорошо '+quiz_result+'/'+all_answers_in_blocks.length;
-            }else if(60 >= for_grade && for_grade > 30){
-                for_mark.innerHTML += 'Удовлетворительно '+quiz_result+'/'+all_answers_in_blocks.length;
-            }else{
-                for_mark.innerHTML += 'Неудовлетворительно '+quiz_result+'/'+all_answers_in_blocks.length;
-            }
-            for_mark.innerHTML += ' '+quiz_date;
+            for_mark = all_quizzes[f].querySelector('.quiz-grade')
+            setGrade(for_mark, for_grade, quiz_result, all_answers_in_blocks.length)
+            all_quizzes[f].querySelector('.quiz-date').innerHTML += quiz_date;
         }
 }
 
 showFirst();
 
-function toggleHiddenElement(element) {
-    let li_id = element.parentNode.id;
-    let selector_string = "li#" + li_id + " > ul";
+function setGrade(mark, grade, result, quantity){
+    if(grade > 90){
+        mark.innerHTML += '<span class="grade" style="color: var(--success, #198754);">Отлично ('+result+'/'+quantity+')</span>';
+    }else if(90 >= grade && grade > 60){
+        mark.innerHTML += '<span class="grade" style="color: var(--success, #198754);">Хорошо ('+result+'/'+quantity+')</span>';
+    }else if(60 >= grade && grade > 30){
+        mark.innerHTML += '<span class="grade" style="color: var(--warning, #F7961E);">Удовлетворительно ('+result+'/'+quantity+')</span>';
+    }else{
+        mark.innerHTML += '<span class="grade" style="color: var(--danger, #E01F27);">Неудовлетворительно ('+result+'/'+quantity+')</span>';
+    }
+}
+
+function toggleHiddenElement(element, count) {
+    let li_id = element.parentNode;
+    for(let i=0; i < count; i++){
+        li_id = li_id.parentNode;
+    }
+    let selector_string = "li#" + li_id.id + " > ul";
     let ulToHidden = document.querySelectorAll(selector_string);
     ulToHidden.forEach(function (item) {
       item.hidden = !item.hidden;
@@ -134,10 +194,10 @@ function toggleHiddenElement(element) {
 
     if (element.classList.contains("bi-file-minus-fill")) {
       element.classList.remove("bi-file-minus-fill")
-      element.classList.add("bi-file-plus-fill");
+      element.classList.add("bi-plus-circle-fill");
     }
     else {
-      element.classList.remove("bi-file-plus-fill")
+      element.classList.remove("bi-plus-circle-fill")
       element.classList.add("bi-file-minus-fill");
     }
 }

@@ -210,27 +210,12 @@
                 </div>
                 {% endif %}
                 {% if link == 'users:myprofile' %}
-                {% if user.is_expert or user.is_staff %}
+                {% if user.is_expert or user.is_staff or user.is_director %}
                 <div class="btn-group">
                     <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                       Подготовка знаний <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        {% if user.is_expert %}
-                        <li>
-                            <div class="btn-group text-center">
-                                <a class="dropdown-item" href="#">Эксперт</a>
-                                <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="visually-hidden"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a href="{% url 'table_knowledge_tree' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a></li>
-                                    <li><a href="{% url 'table_edit' %}" id="table_id" class="dropdown-item">Создание/изменение таблиц</a></li>
-                                    <li><a href="{% url 'my_interview' %}" class="dropdown-item">Мои интервью</a></li>
-                                </ul>
-						    </div>
-                        </li>
-                        {% endif %}
                         {% if user.is_staff %}
 						<li>
                             <div class="btn-group text-center">
@@ -261,6 +246,35 @@
 						</div>
 						</li>
                         {% endif %}
+                        {% if user.is_director %}
+						<li>
+                            <div class="btn-group text-center">
+                                <a class="dropdown-item" href="#">Руководитель</a>
+                                <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                     <a href="{% url 'table_edit' %}" class="dropdown-item">Конструктор таблиц</a>
+                                </ul>
+						    </div>
+						</li>
+                        {% endif %}
+                        {% if user.is_expert %}
+						<li>
+                            <div class="btn-group text-center">
+                                <a class="dropdown-item" href="#">Эксперт</a>
+                                <button onclick="logAndStop(event)" class="btn dropdown-toggle dropdown-toggle-split dropdown-item shadow-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <a href="{% url 'quiz_constructor_tree' %}" id="" class="dropdown-item">Конструктор тестов</a>
+                                    <a href="{% url 'table_knowledge_tree' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
+                                    <a href="{% url 'my_interview' %}" class="dropdown-item">Мои интервью</a>
+                                </ul>
+						    </div>
+						</li>
+                        {% endif %}
+
                     </ul>
                 </div>
                 {% endif %}

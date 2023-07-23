@@ -1,0 +1,109 @@
+.quiz-label {
+    border-radius: 8px;
+    display: flex;
+    padding: 12px 24px;
+    align-items: center;
+    gap: 24px;
+    align-self: stretch;
+    border: 1px solid var(--light, rgba(245, 245, 245, 0.75));
+    color: var(--secondary, #6C757D);
+    background: var(--light, rgba(245, 245, 245, 0.75));
+}
+
+.checked-label {
+    border: 1px solid var(--primary, #083E2F);
+}
+
+.checkbox-round:checked + span{
+	color:black;
+}
+
+.right-answer {
+    border: 1px solid var(--success, #198754)!important;
+}
+
+.right-answer .checkbox-round:checked{
+    background-color: #198754;
+}
+
+.wrong-answer {
+    border: 1px solid var(--danger, #E01F27)!important;
+}
+
+.wrong-answer .checkbox-round:checked{
+    background-color: #E01F27;
+}
+
+.unacceptable-answer {
+    border: 1px dashed var(--danger, #E01F27);
+    background: var(--danger, rgba(248, 215, 218, 0.50));
+}
+
+.acceptable-answer {
+    border: 1px dashed var(--warning, #F7961E);
+    background: var(--warning, #FFF8DD);
+}
+
+.good-answer {
+    border: 1px dashed var(--success, #198754);
+    background: var(--success, rgba(25, 135, 84, 0.20));
+}
+
+TD, TH {
+    text-align: start;
+    padding: 24px 12px;
+    border: 1px solid var(--grey-2, #BFBFBF);
+}
+
+TD {
+    font-family: Rubik;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%;
+    letter-spacing: 0.28px;
+}
+
+table {
+    border-spacing: 0;
+    border-collapse: separate;
+    border-radius: 10px;
+    border: 1px solid #BFBFBF;
+    overflow: hidden;
+}
+
+TH {
+    background: #F5F5F5;
+    font-family: Rubik;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 120%;
+    letter-spacing: 0.28px;
+}
+
+.bi-plus-circle-fill::before {
+    content: "\f4f9";
+}
+
+.bi-file-minus-fill::before {
+    content: "\f2e5";
+}
+
+.bi-plus-circle-fill::before, .bi-file-minus-fill::before {
+    color: #DFDFE3;
+    background: radial-gradient(10px, #6C757D 100%, #FFFFFF 100% );
+}
+
+.grade {
+    font-family: Rubik;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 120%;
+    letter-spacing: 0.24px;
+}
+
+TR:last-child TD{
+    font-weight: 700!important;
+}

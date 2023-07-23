@@ -19,6 +19,10 @@
         </ol>
     </nav>
 </div>
+
+{% include 'drevo/include/profile_header.html' with pub_user=user link=link id=id activity=activity sections=sections invite_count=invite_count new_knowledge_feed=new_knowledge_feed new_messages=new_messages new=new %}
+
+<p class="author-title pb-4">Редактирование профиля</p>
 <div class="d-grid" style="gap: 24px;">
     <div class="basic p-0">
         {% if messages %}
@@ -63,9 +67,9 @@
                     <p class="regular-text">Отчество</p>
                     {{ profile_form.patronymic }}
                 </div>
-                <div class="profile-info">
+                <div class="profile-info">so
                     <p class="regular-text">Пол</p>
-                    <div style="width: 100%;">
+                    <div style="width: 100%; font-size: 14px;">
                         {{ profile_form.gender }}
                     </div>
                 </div>
@@ -314,27 +318,6 @@
             <div  class="p-4 text-end" style="border-top: 1px solid var(--grey-1, #DFDFE3);">
                 <input class="btn btn-header" style="padding: 8px 24px;" type="button" onclick="CleanAll()" value="Сбросить">
                 <input class="btn btn-header" style="padding: 8px 24px;" type="submit" onclick="SendUserMenu()" value="Сохранить изменения">
-            </div>
-        </div>
-    </div>
-    <div class="basic p-0">
-        <h3 class="choice-header" style="padding: 32px; height: auto; border-bottom: 1px solid var(--grey-1, #DFDFE3);">Другие настройки</h3>
-        <div class="d-grid" style="padding: 32px; gap: 24px;">
-            <div class="additional-info" style="justify-content: space-between;">
-                <p style="font-weight: 500; line-height: 120%;">Подписка по авторам</p>
-                <a class="btn btn-header" href="{% url 'subscribe_to_author' user.id %}">Подписка по авторам</a>
-            </div>
-            <div class="additional-info" style="justify-content: space-between;">
-                <p style="font-weight: 500; line-height: 120%;">Подписка по тегам</p>
-                <a class="btn btn-header" href="{% url 'subscription_by_tag' user.id %}">Подписка по тегам</a>
-            </div>
-            <div class="additional-info" style="justify-content: space-between;">
-                <p style="font-weight: 500; line-height: 120%;">Настройки параметров</p>
-                <a class="btn btn-header" href="{% url 'parameter_settings' %}">Настройки параметров</a>
-            </div>
-            <div class="additional-info" style="justify-content: space-between;">
-                <p style="font-weight: 500; line-height: 120%;">Результаты тестирования</p>
-                <a class="btn btn-header" href="{% url 'show_quiz_result' user.id %}">Результаты тестирования</a>
             </div>
         </div>
     </div>

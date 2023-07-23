@@ -1,4 +1,4 @@
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db.models import Q
@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404, JsonResponse
 from django.views.generic.edit import ProcessFormView
 import json
+import uuid
 import base64
 from django.core.files.base import ContentFile
 from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory, \
@@ -176,7 +177,16 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
         )
         context['sections'] = [i.name for i in self.object.sections.all()]
         context['access'] = access_sections(self.object)
+        context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or i.startswith('Моя')]
+        context['link'] = 'users:myprofile'
         context['change_password_form'] = MyPasswordChangeForm(user=self.request.user)
+        context['user'] = self.request.user
+        invite_count = FriendsInviteTerm.objects.filter(recipient=self.request.user.id).count()
+        context['invite_count'] = invite_count if invite_count else 0
+        context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient=self.request.user, was_read=False).count()
+        context['new_messages'] = Message.objects.filter(recipient=self.request.user, was_read=False).count()
+        context['new'] = int(context['new_knowledge_feed']) + int(
+            context['invite_count'] + int(context['new_messages']))
         return context
 
     def get_object(self, queryset=None):
@@ -467,6 +477,11 @@ def change_username(request):
 
         elif 'delete-account' in request.POST:
             user = request.user
-            user.delete()
+            user.username = str(uuid.uuid4())
+            user.first_name = '***********'
+            user.last_name = '***********'
+            user.email = None
+            user.is_public = False
+            logout(request)
 
     return redirect('users:myprofile')
