@@ -53,13 +53,13 @@ class QuizDetailView(DetailView):
         context['all_answers_and_questions'] = {}
         context['right_answer'] = {}
 
-        for item in context['children'].order_by('-order'):
+        for item in context['children'].order_by('order'):
             context['all_answers_and_questions'][str(item)] = get_children_for_knowledge(
-                item).order_by('-order')
+                item).order_by('order')
             grandson = get_children_by_relation_type_for_knowledge(
                 item)
             if grandson:
-                for question, answer in grandson.items():
+                for question, answer in reversed(grandson.items()):
                     if question.name == 'Ответ верный':
                         context['right_answer'][str(item) + ' ' + str(item.pk)] = answer
             else:

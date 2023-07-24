@@ -24,4 +24,4 @@ class UserModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control py-2 text-grey'
+            field.widget.attrs['class'] = 'form-control py-2 text-grey h-auto'

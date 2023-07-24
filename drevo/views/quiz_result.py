@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render
 from drevo.models import QuizResult, FriendsInviteTerm, Message
 from drevo.models.feed_messages import FeedMessage
@@ -7,7 +8,6 @@ from users.views import access_sections
 
 def show_quiz_result(request,id):
     if request.method == 'GET':
-        quiz_results = {}
         user = User.objects.filter(id=id).first()
         context = {}
         if user is not None:
@@ -30,18 +30,25 @@ def show_quiz_result(request,id):
                 context['id'] = id
             context['pub_user'] = user
             all_results = QuizResult.objects.filter(user=user)
+            if quiz_for_search := request.GET.get('quiz_for_search'):
+                all_results = all_results.filter(quiz__name__icontains=quiz_for_search)
+                context['filter'] = 1
             all_quizzes_name = all_results.values_list("quiz__name", flat=True).distinct()
+            quiz_results = []
             for quizzes in all_quizzes_name:
                 questions_and_answers = {}
                 all_questions_name = all_results.filter(quiz__name=quizzes).values_list("question__name", flat=True) \
-                    .distinct().order_by('-question__order')
+                    .distinct().order_by('question__order')
                 for questions in all_questions_name:
                     questions_and_answers[questions] = all_results.filter(question__name=questions, quiz__name=quizzes) \
-                        .values_list("answer__name", "answer__related__tr__name").order_by('-answer__order')
+                        .values_list("answer__name", "answer__related__tr__name").order_by('answer__order')
                 date = str(all_results.filter(quiz__name=quizzes).values_list("date_time__day", "date_time__month",
                                                                               "date_time__year").first()).rstrip(')'). \
                     lstrip('(').replace(' ', '')
                 for_link = all_results.filter(quiz__name=quizzes).values_list("quiz__pk", flat=True).first()
-                quiz_results[quizzes + ' ' + date.replace(',', '.') + ' ' + str(for_link)] = questions_and_answers
-                context['quiz_result'] = quiz_results
+                quiz_results.append((f'{quizzes} {date.replace(",", ".")} {str(for_link)}',questions_and_answers))
+            context['quiz_result'] = quiz_results
+            page_number = int(request.GET.get('page')) if request.GET.get('page') else 1
+            paginator = Paginator(quiz_results, 5)
+            context['page_obj'] = paginator.get_page(page_number)
             return render(request, 'drevo/show_quiz_result.html', context)

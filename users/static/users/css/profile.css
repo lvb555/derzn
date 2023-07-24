@@ -30,7 +30,7 @@ a.btn.btn-header {
     vertical-align: sub;
 }
 
-input.btn, a.btn {
+input.btn {
     padding: 4px 24px !important;
 }
 
@@ -133,4 +133,110 @@ div#sections > div:last-child{
 .stop-scrolling {
     height: 100%;
     overflow: hidden;
+}
+
+.rounded-top {
+    background: url('/static/src/profile_background.png')
+}
+
+.rounded-top img {
+    border: 4px solid #FFFFFF;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+.user_first_last {
+    width: 210px;
+    height: 24px;
+
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 500 !important;
+    font-size: 20px;
+    line-height: 120%;
+
+    letter-spacing: 0.03em;
+
+    color: #212529;
+}
+
+.user_small_info {
+    width: 452px;
+    height: 17px;
+
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400 !important;
+    font-size: 14px;
+    line-height: 120%;
+
+    letter-spacing: 0.02em;
+
+    color: #6C757D;
+}
+
+.edit_btn {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 8px 24px;
+    background: #E7ECEB;
+    border-radius: 8px;
+    width: hug(199px);
+    height: hug(30px);
+    color: #083E2F;
+    font-family: 'Rubik';
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em;
+    text-align: center;
+    line-height: 14px;
+}
+
+.group-title {
+    align-items: center;
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400 !important;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #6C757D;
+}
+
+.group-title:active, .group-title:hover {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 16px;
+    gap: 12px;
+    background: #FFFFFF;
+    border-radius: 8px;
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400 !important;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #212529;
+}
+
+.dropdown-menu {
+    align-items: flex-start;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 20px rgba(33, 37, 41, 0.1);
+    border-radius: 8px;
+}
+
+.dropdown-item {
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400 !important;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #212529;
 }
