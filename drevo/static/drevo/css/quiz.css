@@ -10,24 +10,12 @@
     background: var(--light, rgba(245, 245, 245, 0.75));
 }
 
-.checked-label {
-    border: 1px solid var(--primary, #083E2F);
-}
-
 .checkbox-round:checked + span{
 	color:black;
 }
 
-.right-answer {
-    border: 1px solid var(--success, #198754)!important;
-}
-
 .right-answer .checkbox-round:checked{
     background-color: #198754;
-}
-
-.wrong-answer {
-    border: 1px solid var(--danger, #E01F27)!important;
 }
 
 .wrong-answer .checkbox-round:checked{
