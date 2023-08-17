@@ -23,6 +23,12 @@ let gradeC = '<path d="M12 24C18.6274 24 24 18.6274 24 12C24 5.37258 18.6274 0 1
 '<path d="M7.39941 12.24C8.50398 12.24 9.39941 11.3446 9.39941 10.24C9.39941 9.13544 8.50398 8.24001 7.39941 8.24001C6.29484 8.24001 5.39941 9.13544 5.39941 10.24C5.39941 11.3446 6.29484 12.24 7.39941 12.24Z" fill="#664E27"/>'+
 '<path d="M16.5996 12.24C17.7042 12.24 18.5996 11.3446 18.5996 10.24C18.5996 9.13544 17.7042 8.24001 16.5996 8.24001C15.495 8.24001 14.5996 9.13544 14.5996 10.24C14.5996 11.3446 15.495 12.24 16.5996 12.24Z" fill="#664E27"/>'+
 '<path d="M14.7591 18.4H9.23906C8.63906 18.4 8.63906 16.8 9.23906 16.8H14.7191C15.3591 16.8 15.3591 18.4 14.7591 18.4Z" fill="#664E27"/>'
+let gradeE = '<path d="M0 12C0 18.64 5.36 24 12 24C18.64 24 24 18.64 24 12C24 5.36 18.64 0 12 0C5.36 0 0 5.36 0 12Z" fill="#FFDD67"/>'+
+'<path d="M18.5996 5.72C18.5996 9.68 23.9996 9.68 23.9996 5.72C23.9996 2.84 21.3196 0 21.3196 0C21.3196 0 18.5996 2.84 18.5996 5.72Z" fill="#65B1EF"/>'+
+'<path d="M16.5996 15.6C17.7042 15.6 18.5996 14.7046 18.5996 13.6C18.5996 12.4954 17.7042 11.6 16.5996 11.6C15.495 11.6 14.5996 12.4954 14.5996 13.6C14.5996 14.7046 15.495 15.6 16.5996 15.6Z" fill="#664E27"/>'+
+'<path d="M7.39941 15.6C8.50398 15.6 9.39941 14.7046 9.39941 13.6C9.39941 12.4954 8.50398 11.6 7.39941 11.6C6.29484 11.6 5.39941 12.4954 5.39941 13.6C5.39941 14.7046 6.29484 15.6 7.39941 15.6Z" fill="#664E27"/>'+
+'<path d="M9.44034 7.96C8.16034 9.04 6.44034 9.52 4.76034 9.2C4.52034 9.16 4.32034 10 4.60034 10.08C6.52034 10.44 8.52034 9.88 10.0003 8.64C10.2003 8.44 9.60034 7.8 9.44034 7.96ZM19.2403 9.16C17.5603 9.44 15.8403 9 14.5603 7.92C14.4003 7.76 13.7603 8.4 14.0003 8.6C15.4803 9.88 17.4803 10.4 19.4003 10.04C19.6803 9.96 19.4803 9.12 19.2403 9.16Z" fill="#917524"/>'+
+'<path d="M15.1996 20H8.79961C8.19961 20 8.19961 18.4 8.79961 18.4H15.1996C15.7996 18.4 15.7996 20 15.1996 20Z" fill="#664E27"/>'
 
 dict_to_send = new Object();
 
@@ -40,10 +46,6 @@ function showFirst() {
 }
 
 showFirst();
-
-function changeLabelColor(label) {
-    label.classList.toggle("checked-label");
-}
 
 let d = 0;
 let step = 1;
@@ -181,6 +183,7 @@ function get_previous_question(){
         current_question.querySelector('.not_all_answers_showing').innerHTML = '';
     <!--А это если еще не нажимали кнопку результат-->
     }else{
+        getUnchecked(current_question.querySelectorAll('.firstblock label'));
         delete dict_to_send[Object.keys(dict_to_send)[step-2]];
     }
     current_question.parentNode.style.display = "none";
@@ -214,7 +217,6 @@ function getUnchecked(elements){
     elements.forEach((elem) => {
       elem.querySelector('.checkbox-round').checked = false;
       elem.classList.remove("right-answer");
-      elem.classList.remove("checked-label");
       elem.classList.remove("wrong-answer");
     });
 }
@@ -303,8 +305,6 @@ function keyCounter(label, question){
 	}
 	if(b>limit){
 	    return false
-	}else{
-	    changeLabelColor(label.parentNode);
 	}
 }
 
@@ -326,6 +326,11 @@ function makeGrade(sum_of_answers, countans, row){
         '</svg> Удовлетворительно';
         td[1].style.background = 'var(--warning, #FFF8DD);';
         row.style.color = '#F7961E';
+    }else{
+        td[1].innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">'+gradeE+
+        '</svg> Неудовлетворительно';
+        td[1].style.background = 'var(--danger, rgba(248, 215, 218, 0.50))';
+        row.style.color = '#E01F27';
     }
     td[2].innerHTML = sum_of_answers+'/'+countans;
     tabl = document.getElementById(lst2[d]+'2');
