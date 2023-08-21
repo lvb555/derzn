@@ -4,6 +4,7 @@
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 <link rel="stylesheet" href="{% static '/drevo/css/quiz.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/reacting_elem.css' %}"
 {% endblock %}
 
 {% block title %}Знание: {{ znanie.name }}
@@ -196,6 +197,10 @@
         <p class="small-title" style="border-radius: 8px; background: var(--danger, rgba(248, 215, 218, 0.50)); color: var(--danger, #E01F27); padding: 12px 24px;">Неверный ответ</p>
         <p class="small-title" style="border-radius: 8px; background: var(--success, rgba(25, 135, 84, 0.20)); color: var(--success, #198754); padding: 12px 24px;">Верный ответ</p>
     </div>
+</div>
+
+<div class="reacting-elem">
+        {% include "drevo/reacting.html" %}
 </div>
 {% endif %}
 
