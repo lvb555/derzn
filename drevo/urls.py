@@ -102,6 +102,9 @@ from .views import (
     RelationsPublicationPageView,
     relation_publication_view,
 )
+
+from .views.quiz_rating_view import QuizRatingView
+
 from .views import send_znanie, knowledge_feed_view
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
@@ -204,6 +207,8 @@ urlpatterns = [
     path("all_quizzes/", QuizListView.as_view(), name="all_quizzes"),
     path("quiz/<int:pk>", QuizDetailView.as_view(), name="quiz"),
     path("quiz/<int:pk>/quiz_result/", QuizResultAdd.as_view()),
+    path("quiz/<int:pk>/vote/<str:vote>", ZnanieRatingView.as_view()),
+    path('quiz/<int:pk>/favourite', FavouriteProcessView.as_view()),
     path("quiz_results/<int:id>/", show_quiz_result, name="show_quiz_result"),
     path("quiz_constructor/<pk>/", QuizConstructorView.as_view(), name="quiz_constructor"),
     path("quiz_constructor_tree/", QuizConstructorTreeView.as_view(), name="quiz_constructor_tree"),

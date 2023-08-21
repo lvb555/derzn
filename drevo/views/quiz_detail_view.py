@@ -1,9 +1,12 @@
 from django.views.generic import DetailView
 from datetime import datetime
+
+from users.models import Favourite
 from ..models import Znanie, IP, Visits, BrowsingHistory
 from loguru import logger
 from ..relations_tree import (get_children_by_relation_type_for_knowledge, get_children_for_knowledge)
 
+import humanize
 
 logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
@@ -48,7 +51,6 @@ class QuizDetailView(DetailView):
                 browsing_history_obj.date = datetime.now()
                 browsing_history_obj.save()
 
-
         context['children'] = get_children_for_knowledge(knowledge)
         context['all_answers_and_questions'] = {}
         context['right_answer'] = {}
@@ -64,5 +66,18 @@ class QuizDetailView(DetailView):
                         context['right_answer'][str(item) + ' ' + str(item.pk)] = answer
             else:
                 context['right_answer'][str(item) + ' ' + str(item.pk)] = 'На этот вопрос еще нет ответа'
+
+        user = self.request.user
+        if user.is_authenticated:
+            user_favourite = Favourite.objects.filter(user=user)
+            if user_favourite.exists():
+                context['user_favourite'] = user_favourite.first().favourites.filter(id=self.object.id).exists()
+
+            user_vote = knowledge.get_users_vote(user)
+            if user_vote:
+                context['user_vote'] = {user_vote: True}
+
+        context['likes_count'] = humanize.intword(knowledge.get_likes_count())
+        context['dislikes_count'] = humanize.intword(knowledge.get_dislikes_count())
 
         return context
