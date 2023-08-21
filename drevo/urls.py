@@ -103,8 +103,6 @@ from .views import (
     relation_publication_view,
 )
 
-from .views.quiz_rating_view import QuizRatingView
-
 from .views import send_znanie, knowledge_feed_view
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
