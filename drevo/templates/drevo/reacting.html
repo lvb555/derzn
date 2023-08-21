@@ -1,0 +1,34 @@
+{% load static %}
+            <script src="{% static 'drevo/js/rating.js' %}" defer></script>
+            <script src="{% static 'drevo/js/favourite.js' %}" defer></script>
+            <div class="d-flex">
+                <div class="button-block mx-3" style="white-space: nowrap">
+                    <button type="button" id="likeButton" class="btn btn-icon"
+                    {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
+                        <i class="bi {% if user_vote.like %} bi-hand-thumbs-up-fill {% else %} bi-hand-thumbs-up {% endif %} fs-5"
+                            id="likeIcon"
+                            style="color:#BFBFBF">
+                            <img src="{% static 'drevo/img/grey_arm.png' %}" width="14px" style="vertical-align: revert;">
+                            <span id="likesCounter" class="header_info breadcrumb-item">{{ likes_count|default:0 }}</span>
+                        </i>
+                    </button>
+              </div>
+              <div class="mx-3" style="white-space: nowrap">
+                    <button type="button" id="dislikeButton" class="btn btn-icon"
+                    {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
+                        <i class="bi {% if user_vote.dislike %} bi-hand-thumbs-down-fill {% else %} bi-hand-thumbs-down {% endif %} fs-5"
+                            id="dislikeIcon"
+                            style="color:#BFBFBF">
+                            <img src="{% static 'drevo/img/grey_arm.png' %}" width="14px">
+                            <span id="dislikesCounter" class="header_info breadcrumb-item">{{ dislikes_count|default:0 }}</span>
+                        </i>
+                    </button>
+              </div>
+              <div class="mb-lg-0 ms-3" style="white-space: nowrap">
+                <button type="button" id="favouriteButton" class="btn btn-icon"
+                        {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
+                    <i class="bi bi-star{% if user_favourite %}-fill{% endif %} fs-5" style="color: #BFBFBF;"
+                       id="favouriteIcon"><span> В избранное</span></i>
+                </button>
+              </div>
+            </div>
