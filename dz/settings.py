@@ -7,7 +7,7 @@ from environs import Env
 import humanize
 
 env = Env()
-env.read_env()
+env.read_env('.env.sample')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 PYTHONPATH = BASE_DIR.parent/env.str("RELATIVE_PYTHONPATH")
