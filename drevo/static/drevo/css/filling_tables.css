@@ -1,37 +1,9 @@
-body {
-    margin: 0;
-    --bs-font-sans-serif: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-    font-family: var(--bs-font-sans-serif);;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #212529;
-    background-color: #fff;
-    -webkit-text-size-adjust: 100%;
-    -webkit-tap-highlight-color: transparent;
-}
-label {
-    margin: 0;
-}
-.btn_show {
-    display: flex;
-    justify-content: right;
-    border-width: 2px;
-}
 .quiet {
     border: 0;
     vertical-align: middle;
     background: 0;
     font-size: 30px;
 }
-.text-show {
-    width: 500px;
-    height: 150px;
-    resize: none;
-}
-.caret {
-    display: none;
- }
 .bootstrap-select {
   width: 600px !important;
  }
@@ -39,94 +11,26 @@ label {
     max-width: 600px;
     cursor: pointer;
  }
-.overlay {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, .5);
-    display: none;
-    z-index: 1;
-}
-.popup {
-    position: absolute;
-    width: 450px;
-    height: 250px;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    padding: 40px;
-    background-color: #FFF;
-    border-radius: 10px;
-}
-.close-popup {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 23px;
-    height: 23px;
-    cursor: pointer;
-}
-.close-popup:before {
-    content: '';
-    background-color: #000;
-    position: absolute;
-    height: 1px;
-    width: 31px;
-    top: 11px;
-    left: -4px;
-    transform: rotate(-45deg);
-}
-.close-popup:after {
-    content: '';
-    background-color: #000;
-    position: absolute;
-    height: 1px;
-    width: 31px;
-    top: 11px;
-    transform: rotate(45deg);
-    left: -4px;
-}
-.znanie-choice {
-    margin-bottom: 15px;
-}
 .table-name {
     display: flex;
     flex-direction: column;
     margin-bottom: 15px;
 }
-.select-table {
+.select-without-choice {
     appearance: none;
     pointer-events: none;
     width: 600px;
     padding-left: 9px;
     border: 1px solid #ccc;
     border-radius: 4px;
-}
-.cell-coordinates {
-    display: flex;
-    flex-direction: column;
-}
-.button-block {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
+    color: black;
 }
 .button-menu {
+    margin-bottom: 15px;
     margin-top: 15px;
 }
 .button-save {
     align-self: flex-start;
-}
-.button-show {
-    align-self: flex-start;
-}
-.success-save {
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-    text-align: center;
 }
 select {
     display: block;
@@ -143,11 +47,14 @@ select {
     border-radius: .25rem;
     transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
-#add_znanie {
-    vertical-align: initial;
+.row-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-.button-edit {
-    vertical-align: middle;
-    font-size: 24px;
-    font-family: var(--bs-font-sans-serif);
+.new-znanie {
+    margin-top: 15px;
+}
+.button-block {
+    margin-top: 20px;
 }

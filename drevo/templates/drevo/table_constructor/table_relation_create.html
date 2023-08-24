@@ -8,15 +8,15 @@
 {% endblock %}
 
 {% block jsfiles %}
-    <script src="{% static 'drevo/js/quiz_constructor/quiz_question_answer_create.js' %}" data-new="{{ new|yesno:"true,false" }}"
+    <script src="{% static 'drevo/js/get_cookie.js' %}"></script>
+    <script src="{% static 'drevo/js/table_constructor/table_relation_create.js' %}" data-new="{{ new|yesno:"true,false" }}"
             data-new-znanie-name='{{ new_znanie_name }}' data-new-znanie-id='{{ new_znanie_id }}'
-            data-type-of-zn='{{ type_of_zn }}'>
-    </script>
+            data-tz-name='{{ new_znanie_kind }}'></script>
 {% endblock %}
 
 {% block content %}
     <h1>{{ title }}</h1>
-    <form class="form-horizontal" method="post" enctype="multipart/form-data">
+    <form class="form-horizontal" id="zn_create_form" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ zn_create_form.media }}
         {{ zn_create_form.as_p }}
