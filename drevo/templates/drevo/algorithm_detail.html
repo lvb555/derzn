@@ -1,0 +1,55 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load mptt_tags %}
+{% load filter %}
+{% load algorithm_tags %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<link rel="stylesheet" href="{% static '/users/css/profile.css' %}">
+{% endblock %}
+
+{% block title %}{{znanie.name}}{% endblock %}
+
+{% block content %}
+<div class="container header_info p-0">
+    <h1>{{znanie.name}}</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'all_algorithms' %}">Алгоритмы</a></li>
+          <li class="breadcrumb-item opened"><a>{{znanie.name}}</a></li>
+        </ol>
+    </nav>
+</div>
+<div class="basic px-2">
+    <h4 class="px-4">{{znanie.name}}
+        {% if znanie.author %}
+            <i class="d-inline-flex" style="color: #6C757D; font-style: normal;">({{ znanie.author }})</i>
+        {% endif %}
+    </h4>
+    {% recurse_dict algorithm_data previous_knowledge=znanie %}
+    <div class="popup__bg">
+        <div class="popup p-5">
+            <i class="bi bi-x-lg close-popup"></i>
+                <h3 id="condition"></h3><br>
+                <div class="d-flex justify-content-around">
+                  <input type="button" value="Да" class="btn btn-header" onclick="answerCondition('Тогда');" style="background: var(--danger, #E01F27); font-size: 18px;">
+                  <input type="button" value="Нет" class="btn btn-header" onclick="answerCondition('Иначе');" style="background: var(--danger, #E01F27); font-size: 18px;">
+                </div>
+        </div>
+    </div>
+    <h4 class="px-4" id="end" style="display: none;">Вы прошли алгоритм!</h4>
+    <div class="basic legend mt-4 pb-3">
+        <p class="title">Легенда:</p>
+        <div class="d-flex" style="gap: 24px;">
+            <p class="small-title" style="color: green; padding: 12px 24px 12px 0px;">Активное</p>
+            <p class="small-title" style="color: red; padding: 12px 24px;">Доступное</p>
+            <p class="small-title" style="color: blue; padding: 12px 24px;">Завершенное</p>
+            <p class="small-title" style="color: grey; padding: 12px 24px;">Не может быть доступным больше</p>
+        </div>
+    </div>
+</div>
+<script type="application/javascript" src="{% static 'drevo/js/algorithm.js' %}"></script>
+{% endblock %}
