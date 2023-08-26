@@ -47,23 +47,27 @@ class AlgorithmDetailView(DetailView):
 
         # Создание словаря со всеми элементами алгоритма
         start_of_algorithm = Relation.objects.get(bz=knowledge, tr__name='Начало алгоритма').rz
-        context['algorithm_data'] = make_complicated_dict1({'previous_key': []}, start_of_algorithm, 'previous_key')
+        try:
+            next_relation = Tr.objects.get(name='Далее')
+        except Tr.DoesNotExist:
+            next_relation = None
+        context['algorithm_data'] = make_complicated_dict1(
+            {'previous_key': []},
+            start_of_algorithm,
+            'previous_key',
+            next_relation=next_relation
+        )
         context['algorithm_data'] = context['algorithm_data']['previous_key']
 
         return context
 
 
-try:
-    next_relation = Tr.objects.get(name='Далее')
-except Tr.DoesNotExist:
-    next_relation = None
-
-
-def make_complicated_dict1(algorithm_dict, queryset, previous_key, level=1):
+def make_complicated_dict1(algorithm_dict, queryset, previous_key, level=1, next_relation=None):
     """
     Рекурсивно ищет потомков текущего знания до тех пор,
     пока функция get_children_by_relation_type_for_knowledge не вернет None
     """
+
     relations = get_children_by_relation_type_for_knowledge(queryset)
     if relations:
         if next_relation in relations.keys() and len(relations) == 1:
