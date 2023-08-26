@@ -9,7 +9,6 @@ logger.add('logs/main.log',
 
 
 class AlgorithmDetailView(DetailView):
-
     model = Znanie
     context_object_name = 'znanie'
     template_name = "drevo/algorithm_detail.html"
@@ -40,7 +39,8 @@ class AlgorithmDetailView(DetailView):
 
         # добавление историю просмотра
         if self.request.user.is_authenticated:
-            browsing_history_obj, created = BrowsingHistory.objects.get_or_create(znanie=knowledge, user=self.request.user)
+            browsing_history_obj, created = BrowsingHistory.objects.get_or_create(znanie=knowledge,
+                                                                                  user=self.request.user)
             if not created:
                 browsing_history_obj.date = datetime.now()
                 browsing_history_obj.save()
@@ -53,7 +53,10 @@ class AlgorithmDetailView(DetailView):
         return context
 
 
-next_relation = Tr.objects.get(name='Далее')
+try:
+    next_relation = Tr.objects.get(name='Далее')
+except Tr.DoesNotExist:
+    next_relation = None
 
 
 def make_complicated_dict1(algorithm_dict, queryset, previous_key, level=1):
@@ -92,7 +95,8 @@ def make_complicated_dict1(algorithm_dict, queryset, previous_key, level=1):
                         last_direction = elem[0]
                     else:
                         for el in elem:
-                            make_complicated_dict1(algorithm_dict[previous_key][len(algorithm_dict[previous_key]) - 1], el, queryset, level=1)
+                            make_complicated_dict1(algorithm_dict[previous_key][len(algorithm_dict[previous_key]) - 1],
+                                                   el, queryset, level=1)
                 if last_direction:
                     make_complicated_dict1(algorithm_dict[previous_key], last_direction, previous_key, level=0)
     else:
