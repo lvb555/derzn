@@ -3,9 +3,12 @@
 {% load filter %}
 {% load static %}
 
+{% block title %}{{ title }}{% endblock %}
+
 {% block cssfiles %}
     <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
     <link rel="stylesheet" href="{% static '/drevo/css/style.css' %}">
+    <link rel="stylesheet" href="/static/drevo/css/constructors_of_zn.css">
 {% endblock %}
 
 {% block content %}
@@ -24,16 +27,12 @@
         <div class="tree">
             <button type="button" class="btn tree-btn w-auto" onclick="showAll();">развернуть древо</button>
             <button type="button" class="btn tree-btn" onclick="hiddenAll();">cвернуть древо</button>
-
             <br><br>
-
             <ul class="root ps-0" id="tree_root">
                 {% recursetree ztypes %}
                     <li {% if not node.get_level %} style="font-weight: 600;" {% else %}
                                                     style="font-weight: 400;" {% endif %}
                                                     id="li_{{ node.id }}">
-
-
                         {% if not node.has_published_children and zn_dict|dict_value:node.name|length_is:"0" %}
                             <i class="bi-file-plus-fill lonely"></i>
                         {% elif not node.has_published_children and zn_dict|dict_value:node.name is None %}
@@ -42,7 +41,6 @@
                             <i class="family bi-file-plus-fill" onclick="toggleHiddenElement(this);"></i>
                         {% endif %}
                         <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
-
                         <ul hidden>
                             {% for zn in zn_dict|dict_value:node.name %}
                                 <li style="font-weight: 400;">
@@ -57,49 +55,74 @@
                                         >
                                         {{ zn.name }}
                                     </a>
-
                                     <a {% if type_of_page == 'filling_tables' %}
                                         href="{% url 'filling_tables' zn.pk %}"
-                                        {% elif type_of_page == 'table_constructor' %}
+                                        {% elif type_of_page == 'table' %}
                                         href="{% url 'table_constructor' zn.pk %}"
-                                        {% else %}
+                                        {% elif type_of_page == 'test' %}
                                         href="{% url 'quiz_constructor' zn.pk %}"
+                                        {% elif type_of_page == 'algorithm' %}
+                                        href="{% url 'algorithm_constructor' zn.pk %}"
                                         {% endif %}>
                                         <img src="{% static '/drevo/img/pencil.png' %}">
                                     </a>
+                                    {% if type_of_page == 'algorithm' %}
+                                        <input class="quiet button-edit" type="button"
+                                            onclick="deleteAlgorithm(`{{ zn.name }}`)"
+                                            value="❌"
+                                        >
+                                    {% endif %}
                                 </li>
                             {% endfor %}
                         </ul>
-
                         {% if not node.is_leaf_node %}
                             <ul class="children" hidden>
                                 {{ children }}
                             </ul>
                         {% endif %}
-
                     </li>
                 {% endrecursetree %}
             </ul>
         </div>
-        {% if type_of_page == 'table_constructor' or type_of_page == 'quiz_constructor' %}
+        {% if type_of_page == 'table' or type_of_page == 'test' or type_of_page == 'algorithm' %}
             <div class="btn_legend">
                 <div class="legend">
-                    {% if type_of_page == 'table_constructor' %}
+                    {% if type_of_page == 'table' %}
                         <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='{% url 'table_constructor' 0 %}'">создать таблицу</button>
-                    {% else %}
+                    {% elif type_of_page == 'test' %}
                         <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='{% url 'quiz_constructor' 0 %}'">создать тест</button>
+                    {% elif type_of_page == 'algorithm' %}
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='{% url 'main_znanie_in_constructor_create' 'algorithm' %}'">создать алгоритм</button>
                     {% endif %}
                 </div>
             </div>
         {% endif %}
     </div>
-
+    {% if type_of_page == 'algorithm' %}
+        <div class="overlay js-algorithm-delete">
+            <div class="popup js-algorithm-delete">
+                <h2 class="delete-confirmation">Вы действительно хотите удалить алгоритм</h2>
+                <div class="modal_choice_but">
+                    <input class="okay-popup js-okay-successful" type="button" value="Ок">
+                    <input class="cancel-popup js-cancel-successful" type="button" value="Отмена">
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block jsfiles %}
+    <script src="{% static 'drevo/js/modal_window.js'%}"></script>
     <script src="{% static 'drevo/js/get_cookie.js'%}"></script>
 
     <script>
+
+        function deleteAlgorithm(zn_name) {
+            $('.delete-confirmation').text(
+                `Вы действительно хотите удалить алгоритм «${zn_name}»?`)
+            $('.js-algorithm-delete').fadeIn();
+
+        }
 
         function toggleHiddenElement(element) {
             let li_id = element.parentNode.id;

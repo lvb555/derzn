@@ -29,6 +29,10 @@ class RelationshipTzTr(models.Model):
         blank=True,
         null=True
     )
+    is_only_one_rel = models.BooleanField(
+        default=False,
+        verbose_name='Одна связь?'
+    )
 
     class Meta:
         verbose_name = 'Взаимосвязи видов знаний и связей'

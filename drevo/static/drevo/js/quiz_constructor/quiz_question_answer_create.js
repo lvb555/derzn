@@ -15,7 +15,6 @@ if (isNew === "true") {
     const isCorrectAnswer = window.opener.document.getElementById('is_correct_answer');
     const answerOrder = window.opener.document.getElementById('answer_order');
 
-
     const newZnanieId = document.querySelector('script[data-new-znanie-id]').getAttribute('data-new-znanie-id');
     const newZnanieName = document.querySelector('script[data-new-znanie-name]').getAttribute('data-new-znanie-name');
     const typeOfZn = document.querySelector('script[data-type-of-zn]').getAttribute('data-type-of-zn');
