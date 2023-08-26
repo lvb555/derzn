@@ -13,6 +13,8 @@ from .views import (
     AlgorithmConstructorView,
     AuthorDetailView,
     AuthorsListView,
+    AlgorithmDetailView,
+    AlgorithmListView,
     LabelsListView,
     GlossaryListView,
     ZnanieRatingView,
