@@ -1,0 +1,11 @@
+#reacting>div {
+	white-space: nowrap;
+}
+
+#reacting button i {
+	color:#BFBFBF;
+}
+
+#reacting #likeButton img {
+	vertical-align: revert;
+}
