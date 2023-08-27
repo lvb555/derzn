@@ -29,7 +29,7 @@ var closePopupButton = document.querySelector('.close-popup');
 function recurseOpening(element){
     findAncestors(element);
     if(blocks_and_lists_of_variants.includes(element)){
-        element.nextSibling.style.color = 'red';
+        element.nextSibling.style.color = 'green';
         element.parentNode.lastChild.style.display = 'block';
         element.parentNode.lastChild.childNodes.forEach((elem) => {
             elem.querySelector('input[type="checkbox"].start').disabled = false;
@@ -37,6 +37,8 @@ function recurseOpening(element){
         });
     }else if(algorithms_and_chapters.includes(element)){
         first_sub_elem = element.parentNode.lastChild.querySelector('input[type="checkbox"]')
+        element.parentNode.lastChild.style.display = 'block';
+        first_sub_elem.nextSibling.style.color = 'green'
         if(first_sub_elem.parentNode.lastChild.tagName == 'UL'){
             recurseOpening(first_sub_elem);
             if(!(all_conditions.includes(first_sub_elem))){
@@ -141,9 +143,10 @@ function nextAction(action){
             if(action.parentNode.nextSibling.lastChild.tagName == 'UL'){
                 recurseOpening(action.parentNode.nextSibling.firstChild.nextSibling);
             }else{
-                action.parentNode.nextSibling.querySelector('input[type="checkbox"]').disabled = false;
-                action.parentNode.nextSibling.querySelector('input[type="checkbox"]').nextSibling.style.color = 'red';
-                action.parentNode.parentNode.parentNode.querySelector('input[type="checkbox"]').nextSibling.style.color = 'green';
+                findNextAction(action.parentNode.nextSibling);
+                if(action.parentNode.parentNode.parentNode.tagName == 'LI'){
+                    action.parentNode.parentNode.parentNode.querySelector('input[type="checkbox"]').nextSibling.style.color = 'green';
+                }
             }
         }else{
             findAncestors(action);
@@ -183,7 +186,7 @@ function answerCondition(answer){
                 recurseOpening(condition_element.querySelector('input[type="checkbox"]'));
             }else{
                 condition_element.querySelector('input[type="checkbox"]').disabled = false;
-                condition_element.querySelector('input[type="checkbox"].simple-elements').nextSibling.style.color = 'red';
+                condition_element.querySelector('input[type="checkbox"].simple-elements').nextSibling.style.color = 'green';
             }
             if(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == "Иначе").length > 0){
                 while(condition_element){
@@ -213,10 +216,10 @@ function answerCondition(answer){
                     condition_element.style.display = 'block';
                     if(condition_element.querySelector('input[type="checkbox"]')){
                         if(condition_element.querySelector('input[type="checkbox"]').parentNode.lastChild.tagName == 'UL'){
-                            recurseOpening(condition_element.parentNode.querySelector('input[type="checkbox"]'));
+                            recurseOpening(condition_element.querySelector('input[type="checkbox"]'));
                         }else{
                             condition_element.querySelector('input[type="checkbox"]').disabled = false;
-                            condition_element.querySelector('input[type="checkbox"].simple-elements').nextSibling.style.color = 'red';
+                            condition_element.querySelector('input[type="checkbox"].simple-elements').nextSibling.style.color = 'green';
                         }
                         first_checkbox_founded = true;
                     }
@@ -294,7 +297,7 @@ function findAncestors(child){
             if(child.checked == true){
                 if(child.parentNode.nextSibling && child.parentNode.nextSibling.style.display != 'none'){
                     child.parentNode.nextSibling.firstChild.nextSibling.disabled = false;
-                    child.parentNode.nextSibling.firstChild.nextSibling.nextSibling.style.color = 'red';
+                    child.parentNode.nextSibling.firstChild.nextSibling.nextSibling.style.color = 'green';
                 }else{
                     ancestor.checked = true;
                     ancestor.nextSibling.style.color = 'blue';
@@ -318,13 +321,21 @@ function findAncestors(child){
     // если в главном блоке
         if(child.checked == true){
             if(child.parentNode.nextSibling && child.parentNode.nextSibling.style.display != 'none'){
-                if(child.parentNode.nextSibling.querySelector('input[type="checkbox"]')){
-                    child.parentNode.nextSibling.querySelector('input[type="checkbox"]').disabled = false;
-                    child.parentNode.nextSibling.querySelector('input[type="checkbox"]').nextSibling.style.color = 'red';
-                }else{
-                    findAncestors(ancestor);
-                }
+                findNextAction(child.parentNode.nextSibling);
             }
+        }
+    }
+}
+
+
+// находит следующий элемент с чекбоксом
+function findNextAction(next_action){
+    if(next_action.querySelector('input[type="checkbox"]')){
+        next_action.querySelector('input[type="checkbox"]').disabled = false;
+        next_action.querySelector('input[type="checkbox"]').nextSibling.style.color = 'green';
+    }else{
+        if(next_action.nextSibling && next_action.nextSibling.style.display != 'none'){
+            findNextAction(next_action.nextSibling)
         }
     }
 }
@@ -341,19 +352,17 @@ function uncheckAncestors(action){
     ancestor.querySelectorAll('i.bi').forEach((elem) => {
         elem.remove()
     })
-    if(ancestor.lastChild.tagName == 'UL'){
-        recurseOpening(document.querySelector('.basic input[type="checkbox"]'));
-    }else if(action.previousSibling.classList.contains('start')){
+    if(action.previousSibling.classList.contains('start')){
         action.previousSibling.disabled = false;
     }else{
         action.disabled = false;
     }
-    if(ancestor.parentNode.tagName == 'UL'){
+    if(ancestor.parentNode.parentNode.tagName == 'LI'){
         ancestor = ancestor.parentNode.parentNode.querySelector('input[type="checkbox"].simple-elements')
         observed_checkbox = action
         if(ancestor.checked == true){
             while(ancestor.checked == true){
-                if(ancestor.parentNode.lastChild.tagName == 'UL' && ancestor.parentNode.lastChild.querySelector('input[type="checkbox"]:checked')){
+                if(ancestor.parentNode.lastChild.tagName == 'UL' && !(ancestor.parentNode.getAttribute('value') in ['Вариант', 'Состав блока'])){
                     ancestor.nextSibling.style.color = 'green';
                 }else if(ancestor.previousSibling.checked == true){
                     ancestor.nextSibling.style.color = 'green';
@@ -383,29 +392,39 @@ function uncheckAncestors(action){
             }
         }else{
             if(!(ancestor.getAttribute('value') == 'Выбор') && !(ancestor.getAttribute('value') == 'Блок')){
-                uncheckSiblings(action.parentNode.nextSibling)
+                uncheckSiblings(action.parentNode.nextSibling);
             }
-            if(ancestor.parentNode.lastChild.tagName == 'UL' && ancestor.parentNode.lastChild.querySelector('input[type="checkbox"]:checked')){
+            if(ancestor.parentNode.lastChild.tagName == 'UL' && !(ancestor.parentNode.getAttribute('value') in ['Вариант', 'Состав блока'])){
                 ancestor.nextSibling.style.color = 'green';
             }else{
                 ancestor.nextSibling.style.color = 'red';
             }
         }
+    }else{
+        uncheckSiblings(action.parentNode.nextSibling);
     }
 }
 
 
 function uncheckSiblings(closest_sibling){
-    while(closest_sibling && !(closest_sibling.querySelector('input[type="checkbox"].simple-elements').nextSibling.style.color == 'black')){
-        closest_sibling.querySelectorAll('input[type="checkbox"]').forEach((elem) => {
-            elem.checked = false;
-            elem.disabled = true;
-            elem.nextSibling.style.color = 'black';
-        })
-        closest_sibling.querySelectorAll('i.bi').forEach((elem) => {
-            elem.parentNode.lastChild.style.display = 'none';
-            elem.remove()
-        })
-        closest_sibling = closest_sibling.nextSibling
+    while(closest_sibling){
+        if(!(closest_sibling.querySelector('input[type="checkbox"].simple-elements'))){
+            closest_sibling = closest_sibling.nextSibling
+        }else{
+            if(closest_sibling.querySelector('input[type="checkbox"].simple-elements').nextSibling.style.color == 'black') break
+            closest_sibling.querySelectorAll('input[type="checkbox"]').forEach((elem) => {
+                elem.checked = false;
+                elem.disabled = true;
+                elem.nextSibling.style.color = 'black';
+            })
+            closest_sibling.querySelectorAll('i.bi').forEach((elem) => {
+                elem.parentNode.lastChild.style.display = 'none';
+                elem.remove()
+            })
+            if(closest_sibling.lastChild.tagName == 'UL'){
+                closest_sibling.lastChild.style.display = 'none';
+            }
+            closest_sibling = closest_sibling.nextSibling
+        }
     }
 }
