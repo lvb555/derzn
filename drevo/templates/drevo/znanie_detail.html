@@ -101,17 +101,7 @@
         </div>
 
         <p class="author-title" style="padding:20px 0px 20px 0px; border:none; height: auto;line-height: 120%;" id="znanie_name" value="{{ znanie.get_absolute_url }}">
-            {% if znanie.tz.name == 'Тезис' %}
-            <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/green_file.png' %}"></i>
-            {% elif znanie.tz.name == 'Вопрос' %}
-            <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}"></i>
-            {% elif znanie.tz.name == 'Факт' %}
-            <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}"></i>
-            {% elif znanie.tz.name == 'Классификация' %}
-            <i class="kn_type" style="color: #BA7507;"><img src="{% static 'drevo/img/ginger_file.png' %}"></i>
-            {% else %}
-            <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}"></i>
-            {% endif %}
+            {% get_color_by_tz znanie.tz.name flag_only=True %}
             {{ znanie.name }}
           </p>
 
@@ -348,17 +338,7 @@
   <div class='p-0' style="margin: 29px 32px 32px 32px; width: 77%;">
       <div id="tree-part" class='scrollbar' style="overflow-x: auto;width: 110vh;">
           <p class="choice-header" style="padding:0px; border:none; height: auto;">
-            {% if znanie.tz.name == 'Тезис' %}
-            <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/green_file.png' %}"></i>
-            {% elif znanie.tz.name == 'Вопрос' %}
-            <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}"></i>
-            {% elif znanie.tz.name == 'Факт' %}
-            <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}"></i>
-            {% elif znanie.tz.name == 'Классификация' %}
-            <i class="kn_type" style="color: #BA7507;"><img src="{% static 'drevo/img/ginger_file.png' %}"></i>
-            {% else %}
-            <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}"></i>
-            {% endif %}
+            {% get_color_by_tz znanie.tz.name flag_only=True %}
             {{ znanie.name }}
           </p>
           {% if relative_znania %}

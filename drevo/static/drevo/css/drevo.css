@@ -1050,3 +1050,18 @@ a.disabled{
     background-position: top;
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20fill='%23ffffff'%20class='bi%20bi-check-lg'%20viewBox='0%200%2016%2016'%3E%20%3Cpath%20d='M12.736%205.97a.733.733%200%200%201%201.047%200c.286.289.29.756.01%201.05L7.88%2014.01a.733.733%200%200%201-1.065.02L3.217%2010.384a.757.757%200%200%201%200-1.06.733.733%200%200%201%201.047%200l3.052%203.093%205.4-6.425a.247.247%200%200%201%20.02-.022Z'%3E%3C/path%3E%3C/svg%3E");
 }
+
+.notification-field {
+    position: fixed;
+    right: 5vh;
+    bottom: 5vh;
+    width: 20%;
+    z-index: 999;
+}
+
+.notification {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 2px solid black;
+    background: white;
+}

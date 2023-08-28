@@ -267,6 +267,7 @@ admin.site.register(Tr, TrAdmin)
 class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = (
         "name",
+        "tr",
         "order",
         "is_systemic",
         "is_group",
@@ -690,7 +691,7 @@ class SubAnswersAdmin(admin.ModelAdmin):
 
 @admin.register(RelationshipTzTr)
 class RelationshipTzTrAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'base_tz', 'rel_type', 'rel_tz')
+    list_display = ('pk', 'base_tz', 'rel_type', 'rel_tz', 'is_only_one_rel')
     search_fields = ('base_tz__name', 'rel_type__name', 'rel_tz__name')
     list_display_links = ('pk',)
     list_filter = ('base_tz', 'rel_type', 'rel_tz')

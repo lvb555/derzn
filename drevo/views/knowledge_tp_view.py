@@ -11,12 +11,13 @@ from drevo.forms.knowledge_update_form import ZnanieUpdateForm, ZnImageEditFormS
 from drevo.models import Znanie, KnowledgeStatuses, Category
 
 
-def get_knowledge_dict(knowledge, user=None):
+def get_knowledge_dict(knowledge, rights='expert', user=None):
     """
     Возвращает кортеж, который содержит кверисет с категориями и
     словарь, в котором ключи - категории, а значения - знания
     :param knowledge: кверисет со знаниями
-    :param user: ползьзователь
+    :param user: пользователь'
+    :param rights: права пользователя (эксперт/руководитель)
     :return: кортеж: (категории, {категория: знания})
     """
     _knowledge_dict = {}
@@ -25,11 +26,18 @@ def get_knowledge_dict(knowledge, user=None):
 
     for category in _categories:
         if user:
-            experts = category.get_expert_ancestors_category()
+            if rights == 'expert':
+                experts = category.get_expert_ancestors_category()
+            else:
+                experts = category.get_admin_ancestors_category()
+
             if user in experts:
                 zn_in_this_category = knowledge.filter(
                     category=category)
-                _knowledge_dict[category.name] = zn_in_this_category
+                # Проверка, существуют ли в данной категории знания. Категория добавляется только в том
+                # случае, если существует хотя бы одно знание
+                if zn_in_this_category:
+                    _knowledge_dict[category.name] = zn_in_this_category
         else:
             zn_in_this_category = knowledge.filter(
                 category=category)

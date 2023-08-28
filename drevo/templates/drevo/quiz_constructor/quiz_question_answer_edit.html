@@ -1,7 +1,7 @@
 {% extends 'drevo/base.html' %}
 {% load static %}
 
-{% block title %}Редактирование знания для теста{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block cssfiles %}
     <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
@@ -17,13 +17,17 @@
     <h1>{{ title }} </h1>
     <form class="form-horizontal" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.media }}
-        {{ form.as_p }}
+        {{ zn_edit_form.media }}
+        {{ zn_edit_form.as_p }}
         {% if image_form %}
             {{ image_form.management_form }}
             {% for frm in image_form %}
                 {{ frm.as_p }}
             {% endfor %}
+        {% endif %}
+        {% if zn_attr_form %}
+            {{ zn_attr_form.media }}
+            {{ zn_attr_form.as_p }}
         {% endif %}
         <input type="submit" class="btn btn-primary" value="Сохранить">
     </form>
