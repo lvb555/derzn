@@ -114,7 +114,7 @@ a {
     content: "\f4f9";
 }
 
-.title{
+.title, quiz-title {
     font-family: Rubik;
     font-size: 16px;
     font-weight: 500;
@@ -168,7 +168,9 @@ a {
 .treeline, .treeline ul, .treeline li {
    margin: 0; line-height: 1.25; list-style: none;
 }
+
 .treeline ul {margin: 0 0 0 12px; /* отступ вертикальной линии */}
+
 .treeline > li, .treeline li li {
    position: relative;
    padding: 3px 0 0 20px; /* отступ текста */
@@ -429,11 +431,15 @@ table.table.align-middle.my-2 {
     margin: 15px 0px;
 }
 
-.author-list {
+.author-list, .param-list {
     padding: 10px 0px;
     border-right: 0px;
     border-left: 0px;
     border-bottom: dashed lightgrey 1px;
+}
+
+ul li.param-list:last-child {
+	border: none;
 }
 
 .author-name {
@@ -516,6 +522,7 @@ input.icon {
 }
 
 .title-treeline ul {margin: 0 0 0 12px; /* отступ вертикальной линии */}
+
 .title-treeline > li, .title-treeline li {
    position: relative;
    padding: 3px 0 0 20px; /* отступ текста */
@@ -1002,4 +1009,59 @@ a.disabled{
 
 .alert  {
 	text-align: center;
+}
+
+.alert-error {
+	color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+.selection-window, .selection-window:hover, .selection-window:focus {
+    font-family: Rubik;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+    text-align: left;
+    margin: 14px 0px;
+    width: 200px;
+    color: #6C757D;
+    border-radius: 8px;
+    background: rgba(245, 245, 245, 0.75);
+    padding: 12px 16px;
+}
+
+.checkbox-round {
+    width: 1.3em;
+    height: 1.3em;
+    background-color: white;
+    border-radius: 50%;
+    vertical-align: middle;
+    border: 1px solid #ddd;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.checkbox-round:checked {
+    background-color: #083E2F;
+    background-position: top;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20fill='%23ffffff'%20class='bi%20bi-check-lg'%20viewBox='0%200%2016%2016'%3E%20%3Cpath%20d='M12.736%205.97a.733.733%200%200%201%201.047%200c.286.289.29.756.01%201.05L7.88%2014.01a.733.733%200%200%201-1.065.02L3.217%2010.384a.757.757%200%200%201%200-1.06.733.733%200%200%201%201.047%200l3.052%203.093%205.4-6.425a.247.247%200%200%201%20.02-.022Z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.notification-field {
+    position: fixed;
+    right: 5vh;
+    bottom: 5vh;
+    width: 20%;
+    z-index: 999;
+}
+
+.notification {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 2px solid black;
+    background: white;
 }

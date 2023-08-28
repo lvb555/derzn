@@ -42,18 +42,10 @@
     {% endif %}
     {% if knowledge_data %}
         <i class="family bi bi-dash-circle-fill circle_icon" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
-    {% endif %}
-    {% if base_knowledge.tz.name == 'Тезис' %}
-    <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/green_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
-    {% elif base_knowledge.tz.name == 'Вопрос' %}
-    <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
-    {% elif base_knowledge.tz.name == 'Факт' %}
-    <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
-    {% elif base_knowledge.tz.name == 'Классификация' %}
-    <i class="kn_type" style="color: #BA7507;"><img src="{% static 'drevo/img/ginger_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
     {% else %}
-    <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
+        <span style="margin-left: 27.5px;"></span>
     {% endif %}
+    {% get_color_by_tz base_knowledge.tz.name %}
     <a href="{{ base_knowledge.get_absolute_url }}" class="{% if base_knowledge in active_knowledge %} text-dark {% else %} text-grey {% endif %} znanie">
         {{ base_knowledge.name }}
     </a>

@@ -1,6 +1,3 @@
-var element = $('#page').detach();
-$('body').children().children('div.row').append(element);
-
 let id_table = $("#id_table")
 let id_row = $("#id_row")
 let id_column = $("#id_column")
@@ -12,76 +9,64 @@ let column_is_group = $("#column_is_group")
 let delete_table = $("#delete_table")
 let delete_row = $("#delete_row")
 let delete_column = $("#delete_column")
-let delete_element_row = $("#delete_element_row")
-let delete_element_column = $("#delete_element_column")
-let btn_show = $("#btn_show")
 
-const csrftoken = getCookie('csrftoken');
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-              break;
-          }
-      }
-  }
-  return cookieValue;
-}
 
 function addZnanie(relation) {
+    let table_id = id_table.val()
+    let row_id = id_row.val()
+    let column_id = id_column.val()
     if (relation === 'row') {
         $('#relation_type').val('row');
-        window.open(`/drevo/new_knowledge_for_relation/`, 'modal', 'Width=1280,Height=650');
+        window.open(`/drevo/new_knowledge_for_relation/row/${table_id}/`, 'modal', 'Width=1280,Height=650');
     }
     else if (relation === 'column') {
         $('#relation_type').val('column');
-        window.open(`/drevo/new_knowledge_for_relation/`, 'modal', 'Width=1280,Height=650');
+        window.open(`/drevo/new_knowledge_for_relation/column/${table_id}/`, 'modal', 'Width=1280,Height=650');
     }
     else if (relation === 'element_row') {
         $('#relation_type').val('element_row');
-        let url = document.querySelector('script[data-element-group-add]').getAttribute('data-element-group-add');
-        window.open(url, 'modal', 'Width=1280,Height=650');
+        if (row_id)
+            window.open(`/drevo/group_of_element_create/row/${row_id}/`, 'modal', 'Width=1280,Height=650');
     }
     else if (relation === 'element_column') {
         $('#relation_type').val('element_column');
-        let url = document.querySelector('script[data-element-group-add]').getAttribute('data-element-group-add');
-        window.open(url, 'modal', 'Width=1280,Height=650');
+        if (column_id)
+            window.open(`/drevo/group_of_element_create/column/${column_id}/`, 'modal', 'Width=1280,Height=650');
     }
+    // Если создается таблица
     else {
-        window.open(`/drevo/table_create/`, 'modal', 'Width=1280,Height=650');
+        $('#relation_type').val('table');
+        window.open(`/drevo/main_znanie_in_constructor_create/table/`, 'modal', 'Width=1280,Height=650');
     }
 }
 
 
 function editZnanie(relation) {
+    let table_id = id_table.val()
+    let row_id = id_row.val()
+    let column_id = id_column.val()
     if (relation === 'row') {
-        let row_id = id_row.val()
         if (row_id)
-            window.open(`/drevo/edit_knowledge_for_relation/${row_id}/row/`, 'modal', 'Width=1280,Height=650');
+            window.open(`/drevo/edit_knowledge_for_relation/${row_id}/row/${table_id}/`, 'modal', 'Width=1280,Height=650');
     }
     else if (relation === 'column') {
-        let column_id = id_column.val()
         if (column_id)
-            window.open(`/drevo/edit_knowledge_for_relation/${column_id}/column/`, 'modal', 'Width=1280,Height=650');
+            window.open(`/drevo/edit_knowledge_for_relation/${column_id}/column/${table_id}/`, 'modal', 'Width=1280,Height=650');
     }
     else if (relation === 'element_row') {
         let element_row_id = id_element_row.val()
         if (element_row_id)
-            window.open(`/drevo/edit_knowledge_for_relation/${element_row_id}/element_row/`, 'modal', 'Width=1280,Height=650');
+            window.open(`/drevo/edit_knowledge_for_relation/${element_row_id}/element_row/${row_id}/`, 'modal', 'Width=1280,Height=650');
     }
     else if (relation === 'element_column') {
         let element_column_id = id_element_column.val()
         if (element_column_id)
-            window.open(`/drevo/edit_knowledge_for_relation/${element_column_id}/element_column/`, 'modal', 'Width=1280,Height=650');
+            window.open(`/drevo/edit_knowledge_for_relation/${element_column_id}/element_column/${column_id}/`, 'modal', 'Width=1280,Height=650');
     }
     else {
         let table_id = id_table.val()
         if (table_id)
-            window.open(`/drevo/table_update/${table_id}`, 'modal', 'Width=1280,Height=650');
+            window.open(`/drevo/main_znanie_in_constructor_edit/table/${table_id}`, 'modal', 'Width=1280,Height=650');
     }
 }
 
@@ -101,9 +86,10 @@ delete_table.on('click', function(){
             .then(response => response.json())
             .then(data => {
                 if (data)
-                    $('.js-table-delete-if-cell').fadeIn();
+                    $('.delete-confirmation').text(`Для удаления таблицы необходимо сначала очистить её ячейки. Очистить и удалить таблицу?`)
                 else
-                    $('.js-table-delete').fadeIn();
+                    $('.delete-confirmation').text(`Вы действительно хотите удалить данную таблицу?`)
+                $('.js-delete-element').fadeIn();
              })
             .catch((error) => {
             console.log('Error:', error);
@@ -138,7 +124,7 @@ delete_table.on('click', function(){
                 $('#edit_table').hide()
                 $('#edit_row').hide()
                 $('#edit_column').hide()
-                $('.js-table-delete').fadeOut();
+                $('.js-delete-element').fadeOut();
                 if (row_is_group)  $('#row_elements').hide();
                 if (column_is_group)  $('#column_elements').hide();
              })
@@ -167,7 +153,7 @@ function deleteRelation(relation, is_group) {
     .then(data => {
         if (relation === 'row') {
             $('#id_row option:selected').remove();
-            $('.js-row-delete').fadeOut();
+            $('.js-delete-element').fadeOut();
             if (is_group) {
                 $('#add_row').removeAttr('hidden');
                 $('#row_elements').hide();
@@ -177,7 +163,7 @@ function deleteRelation(relation, is_group) {
         }
         else {
             $('#id_column option:selected').remove();
-            $('.js-column-delete').fadeOut();
+            $('.js-delete-element').fadeOut();
             if (is_group) {
                  $('#add_column').removeAttr('hidden');
                 $('#column_elements').hide();
@@ -208,9 +194,10 @@ delete_row.on('click', function(){
         .then(response => response.json())
         .then(data => {
             if (data)
-                $('.js-row-delete-if-cell').fadeIn();
+                $('.delete-confirmation').text(`Для удаления строки необходимо сначала очистить ячейки этой строки. Очистить?`)
             else
-                $('.js-row-delete').fadeIn();
+                $('.delete-confirmation').text(`Вы действительно хотите удалить данную строку?`)
+            $('.js-delete-element').fadeIn();
          })
         .catch((error) => {
         console.log('Error:', error);
@@ -238,9 +225,10 @@ delete_column.on('click', function(){
         .then(response => response.json())
         .then(data => {
             if (data)
-                $('.js-column-delete-if-cell').fadeIn();
+                $('.delete-confirmation').text(`Для удаления столбца необходимо сначала очистить ячейки этого столбца. Очистить?`)
             else
-                $('.js-column-delete').fadeIn();
+                $('.delete-confirmation').text(`Вы действительно хотите удалить данный столбец?`)
+            $('.js-delete-element').fadeIn();
          })
         .catch((error) => {
         console.log('Error:', error);
@@ -270,12 +258,12 @@ function deleteElement(relation) {
         if (relation === 'row') {
             $('#id_element_row option:selected').remove();
             $('#id_element_row option:first').prop('selected', true);
-            $('.js-element-row-delete').fadeOut();
+            $('.js-delete-element').fadeOut();
         }
         else {
             $('#id-element-column option:selected').remove();
             $('#id_element_column option:first').prop('selected', true);
-            $('.js-element-column-delete').fadeOut();
+            $('.js-delete-element').fadeOut();
         }
      })
     .catch((error) => {
@@ -284,61 +272,29 @@ function deleteElement(relation) {
 
 }
 
-delete_element_row.on('click', function(){
+$("#delete_element_row").on('click', function(){
     let element_row_id = id_element_row.val()
     if (element_row_id) {
-        $('.js-element-row-delete').fadeIn();
+        $('.delete-confirmation').text(`Вы действительно хотите удалить элемент строки?`)
+        $('.js-delete-element').fadeIn();
         $('.js-okay-successful').click(function () {
             deleteElement('row')
         })
     }
 })
 
-delete_element_column.on('click', function(){
+$("#delete_element_column").on('click', function(){
     let element_column_id = id_element_column.val()
     if (element_column_id) {
-        $('.js-element-column-delete').fadeIn();
+        $('.delete-confirmation').text(`Вы действительно хотите удалить элемент столбца?`)
+        $('.js-delete-element').fadeIn();
         $('.js-okay-successful').click(function () {
             deleteElement('column')
         })
     }
 })
 
-$(document).ready(function () {
-    $('#form').submit(function () {
-        // Если таблица еще не создана, форма не отправляется
-        if ((document.form.table.value === '') || (document.form.row.value === '' && document.form.column.value === '' )){
-            return false;
-         }
-        $.ajax({
-            method: "POST",
-            url: document.querySelector('script[data-get-form]').getAttribute('data-get-form'),
-            data: $(this).serialize()
-         }).done(function (response) {
-             if (response.row_is_group) row_is_group.val(true);
-             if (response.column_is_group) column_is_group.val(true);
-            $('.js-successful').fadeIn();
-         });
-        return false;
-     });
-})
-
-$('.js-close-successful').click(function () {
-    $('.js-successful').fadeOut();
-})
-
-$('.js-cancel-successful').click(function () {
-    $('.overlay').fadeOut();
-})
-
-$(document).mouseup(function (e) {
-    var popup = $('.popup');
-    if (e.target !== popup[0] && popup.has(e.target).length === 0) {
-        $('.overlay').fadeOut();
-    }
-})
-
-btn_show.on('click', function(){
+$("#btn_show").on('click', function(){
     let table_id = id_table.val()
     if (table_id) {
        const data = { id: table_id};
@@ -353,7 +309,21 @@ btn_show.on('click', function(){
         })
         .then(response => response.json())
         .then(data => {
-            if (data) window.open(`/drevo/znanie/${id_table.val()}`);
+            let relations = data['relations']
+            if (relations === 'all')
+                window.open(`/drevo/znanie/${id_table.val()}`);
+            else if (relations === 'row') {
+                $('.message-open-warning').text(`В таблице нет ни одного столбца!`)
+                $('.js-relations-warning').fadeIn()
+            }
+            else if (relations === 'column') {
+                $('.message-open-warning').text(`В таблице нет ни одной строки!`)
+                $('.js-relations-warning').fadeIn()
+            }
+            else {
+                $('.message-open-warning').text(`В таблице нет ни одного столбца и ни одной строки!`)
+                $('.js-relations-warning').fadeIn()
+            }
         })
         .catch((error) => {
             console.log('Error:', error);

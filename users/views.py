@@ -1,5 +1,8 @@
+from django.contrib.auth import update_session_auth_hash, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.db.models import Q
-from django.shortcuts import HttpResponseRedirect, render
+from django.shortcuts import HttpResponseRedirect, render, redirect
 from django.urls import reverse_lazy, reverse
 from django.contrib import auth, messages
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView
@@ -8,12 +11,17 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404, JsonResponse
 from django.views.generic.edit import ProcessFormView
 import json
-
-from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory
+import uuid
+import base64
+from django.core.files.base import ContentFile
+from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory, \
+    FriendsInviteTerm, Message
+from drevo.models.feed_messages import FeedMessage
 from drevo.models.special_permissions import SpecialPermissions
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
+from users.forms.password_change_form import MyPasswordChangeForm
 from users.models import User, Profile, MenuSections, Favourite
 from drevo.models.settings_options import SettingsOptions
 from drevo.models.user_parameters import UserParameters
@@ -164,16 +172,21 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        expert = SpecialPermissions.objects.filter(expert=self.object)
-        if expert.exists():
-            competence = expert.first().categories.all()
-            context['competence'] = competence
-        context['title'] = 'Ваш профиль'
         context['profile_form'] = ProfileModelForm(
             instance=Profile.objects.get(user=self.object)
         )
         context['sections'] = [i.name for i in self.object.sections.all()]
         context['access'] = access_sections(self.object)
+        context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or i.startswith('Моя')]
+        context['link'] = 'users:myprofile'
+        context['change_password_form'] = MyPasswordChangeForm(user=self.request.user)
+        context['user'] = self.request.user
+        invite_count = FriendsInviteTerm.objects.filter(recipient=self.request.user.id).count()
+        context['invite_count'] = invite_count if invite_count else 0
+        context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient=self.request.user, was_read=False).count()
+        context['new_messages'] = Message.objects.filter(recipient=self.request.user, was_read=False).count()
+        context['new'] = int(context['new_knowledge_feed']) + int(
+            context['invite_count'] + int(context['new_messages']))
         return context
 
     def get_object(self, queryset=None):
@@ -186,6 +199,7 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
 
         if profile_form.is_valid():
             image, error = profile_form.validate_avatar_size()
+            avatar = self.request.POST.get('generated_image')
 
             if image:
                 if error:
@@ -193,6 +207,16 @@ class UserProfileFormView(LoginRequiredMixin, UpdateView):
                 else:
                     image.name = f'{self.request.user.username}.{image.name.split(".")[-1]}'
                     profile_form.instance.avatar = image
+            elif avatar:
+                if avatar == '/static/src/default_avatar.jpg':
+                    profile_form.instance.avatar = None
+                # Убираем название в начале строки и декодируем ее(base64) в бинарные данные изображения
+                # Размер такого изображения не превышает 1мб при любых буквах
+                else:
+                    image_data = avatar.split(',')[1]
+                    decoded_image_data = base64.b64decode(image_data)
+                    image_file = ContentFile(decoded_image_data, name=f'{self.request.user.username}.png')
+                    profile_form.instance.avatar = image_file
 
             profile_form.save()
 
@@ -267,7 +291,6 @@ class UserPasswordRecoveryFormView(FormView):
         if form.is_valid():
             email = form.cleaned_data.get('email')
             user = User.objects.get(email=email)
-            print(user.username)
             profile = user.profile
             profile.generate_password_recovery_key()
             profile.send_password_recovery_mail()
@@ -353,16 +376,22 @@ class MenuSectionsAdd(ProcessFormView):
         if request.is_ajax():
             user = request.user
             sections = json.loads(request.GET.get('sections'))
+            publicity = request.GET.get('publicity')
+            if publicity == 'false':
+                user.is_public = False
+            elif publicity == 'true':
+                user.is_public = True
             user.sections.clear()
             for section in sections:
                 obj = get_object_or_404(MenuSections, name=section)
                 user.sections.add(obj)
-
+            user.save()
             return JsonResponse({}, status=200)
 
         raise Http404
 
 
+@login_required
 def my_profile(request):
     if request.method == 'GET':
         success_url = reverse_lazy('users:my_profile')
@@ -370,20 +399,25 @@ def my_profile(request):
         user = User.objects.get(id=request.user.id)
         context['user'] = user
         context['sections'] = access_sections(user)
-        return render(request, 'users/profile_header.html', context)
+        invite_count = FriendsInviteTerm.objects.filter(recipient=request.user.id).count()
+        context['invite_count'] = invite_count if invite_count else 0
+        context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient=user, was_read=False).count()
+        context['new_messages'] = Message.objects.filter(recipient=user, was_read=False).count()
+        context['new'] = int(context['new_knowledge_feed']) + int(
+            context['invite_count'] + int(context['new_messages']))
+    return render(request, 'users/profile_header.html', context)
 
 def access_sections(user):
     #Проверяем какие опции меню будут отображаться
     sections = ['Мои оценки знаний','По категориям','По авторам','По тегам']
     interview = InterviewAnswerExpertProposal.objects.filter(expert=user)
-    if interview is not None:
-        sections.append('Интервью')
+    if interview:
         if interview.exclude(Q(new_answer_text=None) | Q(new_answer_text='')).exists():
-            sections.append('Мои предложения')
+            sections.extend(['Мои предложения','Интервью'])
         if interview.filter(Q(new_answer_text=None) | Q(new_answer_text='')).exists():
-            sections.append('Мои интервью')
+            sections.extend(['Мои интервью','Интервью'])
     knowledges = KnowledgeStatuses.objects.filter(user=user)
-    if knowledges is not None:
+    if knowledges:
         if knowledges.filter(status='PUB_PRE').exists():
             sections.append('Мои знания (пользовательский вклад)')
         if knowledges.filter(status='PUB').exists():
@@ -399,3 +433,55 @@ def access_sections(user):
     if user.is_expert is True or user.is_redactor is True or user.is_director is True:
         sections.append('Компетенции')
     return sections
+
+@login_required
+def change_username(request):
+    if request.method == 'POST':
+        if 'new_username' in request.POST:
+            new_username = request.POST['new_username']
+            # Проверяем, что новый логин уникален
+            if User.objects.filter(username=new_username).exists():
+                messages.error(request, 'Этот логин уже занят.')
+            else:
+                user = request.user
+                user.username = new_username
+                user.save()
+                messages.success(request, 'Логин успешно изменен.')
+
+        elif 'old_password' in request.POST:
+            form = PasswordChangeForm(request.user, request.POST)
+            if form.is_valid():
+                form.save()
+                update_session_auth_hash(request, form.user)
+                messages.success(request, 'Пароль успешно изменен.')
+            else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{error}')
+
+        elif 'new_email' in request.POST:
+            user = request.user
+            user.email = request.POST['new_email']
+            profile = user.profile
+            profile.deactivate_user()
+            profile.generate_activation_key()
+            profile.send_verify_mail()
+            messages.success(
+                request,
+                'Вы успешно сменили адрес почты! '
+                'Для подтверждения учетной записи перейдите по ссылке, '
+                'отправленной на адрес электронной почты, '
+                'указанный Вами при смене данных.'
+            )
+
+        elif 'delete-account' in request.POST:
+            user = request.user
+            user.username = str(uuid.uuid4())
+            user.first_name = '***********'
+            user.last_name = '***********'
+            user.email = None
+            user.is_public = False
+            user.save()
+            logout(request)
+
+    return redirect('users:myprofile')

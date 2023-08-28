@@ -1,0 +1,242 @@
+.profile-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.profile-info p {
+    width: 40vh;
+}
+
+.header-borders {
+    border-radius: 10px 10px 0px 0px;
+    border-bottom: 1px solid var(--grey-1, #DFDFE3);
+}
+
+.additional-info {
+    display: flex;
+    border-bottom: 1px dotted var(--grey-1, #DFDFE3);
+    padding: 0px 0px 20px 0px;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+a.btn.btn-header {
+    padding: 8px 24px;
+}
+
+.m-0.p-0.text-grey.form-check-input[type='radio']{
+    font-size: large;
+    vertical-align: sub;
+}
+
+input.btn {
+    padding: 4px 24px !important;
+}
+
+input#id_birthday_at{
+	opacity: 0.7;
+}
+
+ul#id_gender {
+	display:flex;
+	gap: 24px;
+}
+
+.regular-text {
+    font-size: 16px;
+    font-family: Rubik;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%;
+    letter-spacing: 0.32px;
+}
+
+.checkbox-node {
+    margin-left: 24px;
+    display: grid;
+    gap: 20px;
+    padding: 20px 0px;
+    color: var(--secondary, #6C757D);
+    font-family: Rubik;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0.32px;
+}
+
+.checkbox-node input, .checkbox-title input {
+    width: 20px;
+    height: 20px;
+}
+
+div#sections input[type="checkbox"]{
+    margin-right: 12px;
+}
+
+.checkbox-title {
+    font-family: Rubik;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 180%;
+    letter-spacing: 0.32px;
+}
+
+div#sections > div:last-child{
+	border: none !important;
+}
+
+.popup__bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.5s all;
+}
+
+.popup__bg.active {
+    opacity: 1;
+    pointer-events: all;
+    transition: 0.5s all;
+    z-index: 999;
+}
+
+.popup {
+    border-radius: 16px;
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: #fff;
+    width: auto;
+    height: auto;
+}
+
+.popup.active {
+    transform: translate(-50%, -50%) scale(1);
+    transition: 0.5s all;
+}
+
+.close-popup {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    cursor: pointer;
+}
+
+.stop-scrolling {
+    height: 100%;
+    overflow: hidden;
+}
+
+.rounded-top {
+    background: url('/static/src/profile_background.png')
+}
+
+.rounded-top img {
+    border: 4px solid #FFFFFF;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+.user_first_last {
+    width: 210px;
+    height: 24px;
+
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 500 !important;
+    font-size: 20px;
+    line-height: 120%;
+
+    letter-spacing: 0.03em;
+
+    color: #212529;
+}
+
+.user_small_info {
+    width: 452px;
+    height: 17px;
+
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400 !important;
+    font-size: 14px;
+    line-height: 120%;
+
+    letter-spacing: 0.02em;
+
+    color: #6C757D;
+}
+
+.edit_btn {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 8px 24px;
+    background: #E7ECEB;
+    border-radius: 8px;
+    width: hug(199px);
+    height: hug(30px);
+    color: #083E2F;
+    font-family: 'Rubik';
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em;
+    text-align: center;
+    line-height: 14px;
+}
+
+.group-title {
+    align-items: center;
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400 !important;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #6C757D;
+}
+
+.group-title:active, .group-title:hover {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 16px;
+    gap: 12px;
+    background: #FFFFFF;
+    border-radius: 8px;
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400 !important;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #212529;
+}
+
+.dropdown-menu {
+    align-items: flex-start;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 20px rgba(33, 37, 41, 0.1);
+    border-radius: 8px;
+}
+
+.dropdown-item {
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400 !important;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0.02em;
+    color: #212529;
+}

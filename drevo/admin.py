@@ -267,6 +267,7 @@ admin.site.register(Tr, TrAdmin)
 class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = (
         "name",
+        "tr",
         "order",
         "is_systemic",
         "is_group",
@@ -287,7 +288,7 @@ admin.site.register(Tz, TzAdmin)
 
 
 class RelationAdmin(admin.ModelAdmin):
-    list_display = ("id", "bz", "tr", "rz", "author", "date", "user", "expert", "director")
+    list_display = ("id", "bz", "tr", "rz", "author", "date", "user", "expert", "director", "order")
     save_as = True
     autocomplete_fields = ["author"]
     search_fields = ["bz__name", "rz__name"]
@@ -690,10 +691,12 @@ class SubAnswersAdmin(admin.ModelAdmin):
 
 @admin.register(RelationshipTzTr)
 class RelationshipTzTrAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'base_tz', 'rel_type', 'rel_tz')
+    list_display = ('pk', 'base_tz', 'rel_type', 'rel_tz', 'is_only_one_rel')
     search_fields = ('base_tz__name', 'rel_type__name', 'rel_tz__name')
     list_display_links = ('pk',)
+    list_filter = ('base_tz', 'rel_type', 'rel_tz')
     save_as = True
+
 
 @admin.register(Appeal)
 class AppealAdmin(admin.ModelAdmin):

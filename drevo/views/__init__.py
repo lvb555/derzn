@@ -1,3 +1,5 @@
+from .algorithm_detail_view import AlgorithmDetailView
+from .algorithm_list_view import AlgorithmListView
 from .author_detail_view import AuthorDetailView
 from drevo.views.quiz_list_view import QuizListView
 from .quiz_detail_view import QuizDetailView
@@ -27,24 +29,38 @@ from .admin_interview_work.views import (
 )
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
-from .filling_tables import (
-    TableKnowledgeTreeView,
-    CreateChangeTableView,
-    TableCreateView,
-    TableEditView,
+from .zn_constructors.algorithm_constructor_view import (
+    AlgorithmConstructorView,
+)
+from .zn_constructors.general_views import (
+    ConstructorTreeView,
+    MainZnInConstructorCreateView,
+    MainZnInConstructorEditView,
+)
+from .zn_constructors.quiz_constructor_view import (
+    AnswerOrQuestionCreateView,
+    AnswerOrQuestionEditView,
+    QuizConstructorView,
+    answers_in_quiz_existence,
+    delete_answers_or_questions_to_quiz,
+    delete_quiz,
+    get_answers_to_selected_question_of_quiz,
+)
+from .zn_constructors.table_constructor_view import (
     RelationCreateView,
     RelationEditView,
+    save_zn_to_cell_in_table,
     delete_table,
     delete_row_or_column,
     filling_tables,
+    get_cell_for_table,
     table_constructor,
     row_and_column_existence,
-    show_new_znanie,
     show_filling_tables_page,
-    get_form_data,
     delete_element_of_relation,
     cell_in_table_or_relation_existence,
     GroupElementCreate,
+    ZnForCellCreateView,
 )
 from .friends_added_view import friends_added_view
 from .friends_view import friends_view
@@ -115,6 +131,8 @@ from .relations_preparing_work import (
 __all__ = [
     "AuthorDetailView",
     "AuthorsListView",
+    "AlgorithmListView",
+    "AlgorithmDetailView",
     "CommentPageView",
     "CommentSendView",
     "DrevoListView",
@@ -132,19 +150,20 @@ __all__ = [
     "KnowledgeFormView",
     "FavouritesView",
     "FavouriteProcessView",
+    "answers_in_quiz_existence",
+    "ConstructorTreeView",
+    "MainZnInConstructorCreateView",
+    "MainZnInConstructorEditView",
     "filling_tables",
-    "TableKnowledgeTreeView",
-    "CreateChangeTableView",
-    "TableCreateView",
-    "TableEditView",
+    "get_cell_for_table",
+    "ZnForCellCreateView",
     "RelationCreateView",
     "RelationEditView",
     "table_constructor",
-    "get_form_data",
+    "save_zn_to_cell_in_table",
     "delete_table",
     "delete_row_or_column",
     "row_and_column_existence",
-    "show_new_znanie",
     "show_filling_tables_page",
     "delete_element_of_relation",
     "cell_in_table_or_relation_existence",
@@ -161,6 +180,12 @@ __all__ = [
     'QuizResultAdd',
     "GroupKnowledgeView",
     'QuizDetailView',
+    "AnswerOrQuestionCreateView",
+    "AnswerOrQuestionEditView",
+    "QuizConstructorView",
+    "delete_answers_or_questions_to_quiz",
+    "delete_quiz",
+    "get_answers_to_selected_question_of_quiz",
     "InfographicsView",
     "my_knowledge_grade",
     "knowledges_grades",

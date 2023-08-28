@@ -1,0 +1,33 @@
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load static %}
+{% load algorithm_tree_tag %}
+
+{% block title %}Конструктор алгоритмов{% endblock %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/constructors_of_zn.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/knowledge-feed.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <a href="{% url 'constructor_tree' type_of_zn='algorithm' %}" class="btn btn-warning mb-3">Назад</a>
+    <h1>{{ title }}</h1>
+    <div>
+
+      {% if relative_znaniya %}
+        {% build_algorithm_tree queryset=relative_znaniya %}
+      {% endif %}
+
+    </div>
+    <div id="div-param" class="button-block">
+        <div class="button-menu">
+            <input class="btn btn-outline-success" id="btn_show" type="button" value="Проверка алгоритма">
+        </div>
+    </div>
+
+
+{% endblock %}

@@ -193,3 +193,41 @@ def get_category_counts(data, category):
                f'<span class="tooltip-text">Общее число знаний (Число основных знаний)</span>' \
                f'</p>'
     return mark_safe(html)
+
+
+@register.simple_tag
+def get_color_by_tz(type, flag_only=False):
+    colors = {'Тезис': ['#1CA053', '#A6F7A0'], 'Факт': ['#FC918F', '#FAD5CA'], 'Цитата': ['#C5CC41', '#E2C231'],
+              'Вопрос': ['#1BA2F1', '#7CBBDB'], 'Группа': ['#231740', '#8B76BF'],
+              'Таблица': ['#8E653C', '#DFD2C5'], 'Классификация': ['#BA7507', '#F2C6AB']}
+    if str(type) in colors.keys():
+        html = f'<i class="kn_type" style="color: {colors[type][0]};">'\
+               f'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="26" viewBox="0 0 20 26" fill="none">'\
+               f'     <g clip-path="url(#clip0_554_2787)">'\
+               f'              <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3333 6.5H20L13.3333 0V6.5Z" fill="{colors[type][0]}"/>'\
+               f'              <path d="M0 3.25C0 1.45742 1.49479 0 3.33333 0H11.6667V6.5C11.6667 7.39883 12.4115 8.125 13.3333 8.125H20V22.75C20 24.5426 18.5052 26 16.6667 26H3.33333C1.49479 26 0 24.5426 0 22.75V3.25Z" fill="{colors[type][1]}"/>'\
+               f'          </g>'\
+               f'          <defs>'\
+               f'              <clipPath id="clip0_554_2787">'\
+               f'              <rect width="20" height="26" fill="white"/>'\
+               f'              </clipPath>'\
+               f'          </defs>'\
+               f'      </svg>'
+    else:
+        html = f'<i class="kn_type" style="color: #00958C;">' \
+               f'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="26" viewBox="0 0 20 26" fill="none">' \
+               f'     <g clip-path="url(#clip0_554_2787)">' \
+               f'              <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3333 6.5H20L13.3333 0V6.5Z" fill="#00958C"/>' \
+               f'              <path d="M0 3.25C0 1.45742 1.49479 0 3.33333 0H11.6667V6.5C11.6667 7.39883 12.4115 8.125 13.3333 8.125H20V22.75C20 24.5426 18.5052 26 16.6667 26H3.33333C1.49479 26 0 24.5426 0 22.75V3.25Z" fill="#7BD2CD"/>' \
+               f'          </g>' \
+               f'          <defs>' \
+               f'              <clipPath id="clip0_554_2787">' \
+               f'              <rect width="20" height="26" fill="white"/>' \
+               f'              </clipPath>' \
+               f'          </defs>' \
+               f'      </svg>'
+    if not flag_only:
+        html += f'&nbsp{type}&nbsp</i>'
+    else:
+        html += f'</i>'
+    return mark_safe(html)

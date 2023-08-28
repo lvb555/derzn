@@ -35,11 +35,9 @@ class QuizDetailView(DetailView):
         if knowledge not in ip_obj.visits.all() and self.request.user.is_anonymous:
             ip_obj.visits.add(knowledge)
 
-
         # добавление просмотра
         if self.request.user.is_authenticated:
             Visits.objects.create(znanie=knowledge, user=self.request.user)
-
 
         # добавление историю просмотра
         if self.request.user.is_authenticated:
@@ -48,18 +46,17 @@ class QuizDetailView(DetailView):
                 browsing_history_obj.date = datetime.now()
                 browsing_history_obj.save()
 
-
-        context['children'] = get_children_for_knowledge(knowledge)
+        context['children'] = get_children_for_knowledge(knowledge).order_by('related__order')
         context['all_answers_and_questions'] = {}
         context['right_answer'] = {}
 
-        for item in context['children'].order_by('-order'):
+        for item in context['children']:
             context['all_answers_and_questions'][str(item)] = get_children_for_knowledge(
-                item).order_by('-order')
+                item).order_by('related__order')
             grandson = get_children_by_relation_type_for_knowledge(
                 item)
             if grandson:
-                for question, answer in grandson.items():
+                for question, answer in reversed(grandson.items()):
                     if question.name == 'Ответ верный':
                         context['right_answer'][str(item) + ' ' + str(item.pk)] = answer
             else:

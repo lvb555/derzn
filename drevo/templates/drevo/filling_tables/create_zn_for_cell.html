@@ -1,0 +1,51 @@
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load filter %}
+{% load static %}
+
+{% block title %}Создание знания для таблицы{% endblock %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="/static/drevo/css/filling_tables.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+{% endblock %}
+
+{% block jsfiles %}
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-ru_RU.js"></script>
+    <script src="{% static 'drevo/js/filling_tables/create_zn_for_cell.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <h1>Выберите знание</h1>
+    <select id="select_zn" data-live-search="true" class="selectpicker znanie-choice" data-dropup-auto="false" >
+        {% if new %}
+            <option value="{{ new_znanie_id }}" selected>{{ new_znanie_name }}</option>
+        {% else %}
+            <option value="" selected disabled>Выберите знание</option>
+        {% endif %}
+            {% for zn in non_systemic_zn %}
+                <option value="{{ zn.id }}" id="{{ zn.id }}"> {{ zn.name }} </option>
+            {% endfor %}
+    </select>
+    <div class="button-block">
+        <input onclick="newZnanie()" class="btn btn-primary" readonly value="Создать знание">
+        <input type="submit" class="btn btn-success" id="zn_choose" value="Выбрать">
+    </div>
+    <div class="new-znanie" hidden>
+        <h1>{{ title }}</h1>
+        <form class="form-horizontal" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.media }}
+            {{ form.as_p }}
+            {{ image_form.management_form }}
+            {% for frm in image_form %}
+                {{ frm.as_p }}
+            {% endfor %}
+            <input type="submit" class="btn btn-primary" value="Сохранить">
+        </form>
+    </div>
+{% endblock %}

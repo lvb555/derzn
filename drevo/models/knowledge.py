@@ -199,7 +199,7 @@ class Znanie(models.Model):
         if cols[0].rz.tz.is_group:
             target_cols = cols[0].get_grouped_relations()
 
-        if not all([rows, cols, values]):
+        if not all([rows, cols]):
             return None
 
         matrix = list()

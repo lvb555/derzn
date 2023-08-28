@@ -65,10 +65,16 @@ class Relation(models.Model):
         default=False,
         verbose_name='Опубликовано?'
     )
+    order = models.IntegerField(
+        verbose_name='Порядок',
+        help_text='укажите порядковый номер',
+        null=True,
+        blank=True
+    )
     objects = models.Manager()
 
     def __str__(self):
-        return f'{self.bz} | {self.rz}'
+        return f'{self.pk} {self.bz} | {self.rz}'
 
     def get_grouped_relations(self):
         return list(sorted(

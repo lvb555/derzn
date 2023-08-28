@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container header_info">
+<div class="container header_info px-2">
     <h1>Избранные знания</h1>
     <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
         <ol class="breadcrumb">
@@ -25,7 +25,9 @@
         </ol>
     </nav>
 </div>
-    {% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections %}
+
+{% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections invite_count=invite_count new_knowledge_feed=new_knowledge_feed new_messages=new_messages new=new %}
+
 <div class="sub-drevo">
     <p class="author-title" style="padding-bottom: 5px;">Избранные знания</p>
     {% if knowledges %}
