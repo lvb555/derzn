@@ -501,6 +501,7 @@ class UserSuggestionView(TemplateView):
         context['form'] = SuggestionCreateForm()
 
         # TODO сделать более корректно
+        # значение скрытого поля, указывающего на родительское знание
         context['form']['parent_knowledge'].field.widget.attrs['value']=self.request.GET['knowledge']
         context['parent_knowledge_name'] = Znanie.objects.get(id=self.request.GET['knowledge'])
 
