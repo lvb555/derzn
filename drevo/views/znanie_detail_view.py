@@ -145,4 +145,6 @@ class ZnanieDetailView(DetailView):
         except User.DoesNotExist:
             pass
 
+        context['suggestion_url'] = f'http://127.0.0.1:8000/users/create_suggestion?knowledge={pk}' # как сделать не хард кодом?
+
         return context
