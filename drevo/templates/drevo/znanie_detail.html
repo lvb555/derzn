@@ -156,6 +156,13 @@
           {%endfor%}
       {% endif %}
       <div class="d-flex mt-5" style="justify-content: space-between;">
+        <div class="suggestion">
+          <a href="{{ suggestion_url }}">
+            <button class="suggestion__btn btn btn-icon">
+                Делаем вместе
+            </button>
+          </a>
+        </div>
         <div class="d-inline-flex">
         {% if znanie.tz.can_be_rated %}
             <a href="{% url 'grade' znanie.id %}" class="btn btn-header" style="height: fit-content; margin-right: 10px; padding: 8px 24px;">Оценка знания</a>
@@ -221,13 +228,6 @@
             </div>
           </div>
         {% endif %}
-        </div>
-        <div class="suggestion">
-          <a href="{{ suggestion_url }}">
-            <button class="suggestion__btn btn btn-icon">
-                Делаем вместе
-            </button>
-          </a>
         </div>
         <div class="row mb-2">
           <div class="col">
@@ -656,5 +656,4 @@
 {% block jsfiles %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'drevo/js/comments.js' %}"></script>
-<script src="{% static 'drevo/js/favourite.js' %}"></script>
 {% endblock %}

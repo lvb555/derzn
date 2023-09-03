@@ -338,3 +338,7 @@ footer {
     letter-spacing: 0.02em !important;
     color: #6C757D;
 }
+
+.suggestion__btn {
+    color: #212529;
+}
