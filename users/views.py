@@ -496,7 +496,8 @@ class UserSuggestionView(TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         
-        context['query_res'] = self.request.GET.get('query_res', None)
+        # результат отправки формы
+        context['query_res'] = self.request.GET.get('query_res', None)  
         context['form'] = SuggestionCreateForm()
 
         # TODO сделать более корректно
