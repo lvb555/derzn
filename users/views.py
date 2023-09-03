@@ -15,14 +15,15 @@ import uuid
 import base64
 from django.core.files.base import ContentFile
 from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory, \
-    FriendsInviteTerm, Message
+    FriendsInviteTerm, Message, Tz, Tr
 from drevo.models.feed_messages import FeedMessage
 from drevo.models.special_permissions import SpecialPermissions
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
+from users.forms.suggestion_create_form import SuggestionCreateForm 
 from users.forms.password_change_form import MyPasswordChangeForm
-from users.models import User, Profile, MenuSections, Favourite
+from users.models import User, Profile, MenuSections, Favourite, UserSuggection
 from drevo.models.settings_options import SettingsOptions
 from drevo.models.user_parameters import UserParameters
 from drevo.models.special_permissions import SpecialPermissions
@@ -485,3 +486,42 @@ def change_username(request):
             logout(request)
 
     return redirect('users:myprofile')
+
+
+class UserSuggestionView(TemplateView):
+    template_name = 'users/create_suggestion.html'
+    context_object_name = 'context'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        context['query_res'] = self.request.GET.get('query_res', None)
+        context['form'] = SuggestionCreateForm()
+
+        # TODO сделать более корректно
+        context['form']['parent_knowledge'].field.widget.attrs['value']=self.request.GET['knowledge']
+        context['parent_knowledge_name'] = Znanie.objects.get(id=self.request.GET['knowledge'])
+
+        if user.is_authenticated:
+            context['auth'] = True
+            context['approved_suggestion'] = UserSuggection.objects.filter(is_approve__exact=True)
+        else:
+            context['auth'] = False
+            # отправить сообщение, что пользователь должен авторизоваться
+        print(context)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = SuggestionCreateForm(request.POST)
+        if form.is_valid():
+            UserSuggection.objects.create(
+                parent_knowlege=Znanie.objects.get(id=int(form.cleaned_data['parent_knowledge'])),
+                knowledge_type=Tz.objects.get(id=int(form.cleaned_data['knowledge_type'])),
+                relation_type=Tr.objects.get(id=int(form.cleaned_data['relation_type'])),
+                name=form.cleaned_data['name'],
+                user=self.request.user
+            )
+            return redirect(self.request.get_full_path() + '&query_res=ok')
+        else:
+            return redirect(self.request.get_full_path() + '&query_res=err')
