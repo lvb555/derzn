@@ -509,7 +509,6 @@ class UserSuggestionView(TemplateView):
         else:
             context['auth'] = False
             # отправить сообщение, что пользователь должен авторизоваться
-        print(context)
         return context
 
     def post(self, request, *args, **kwargs):
