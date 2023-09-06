@@ -27,15 +27,11 @@
 <div class="basic p-0">
     <div style="border-bottom: 1px solid var(--grey-1, #DFDFE3); padding: 32px;">
         <div class="d-flex justify-content-between">
-            <h3 class="choice-header m-0 mt-2 p-0" style="height: auto; border: none;">{{ znanie.name }} <i class="d-inline-flex" style="color: #6C757D; font-style: normal;">({{ znanie.author }})</i></h3>
-            <div id="final_block" style="display:none">
-                {% if user.is_authenticated %}
-                    <button class="btn btn-header" style="padding: 4px 24px;" onclick="onButtonSendClick()">Итоги теста</button>
-                {% else %}
-                    <button class="btn btn-header" style="padding: 4px 24px;" onclick="next_block();">Итоги теста</button>
+            <h3 class="choice-header m-0 mt-2 p-0" style="height: auto; border: none;">{{ znanie.name }}
+                {% if znanie.author %}
+                    <i class="d-inline-flex" style="color: #6C757D; font-style: normal;">({{ znanie.author }})</i>
                 {% endif %}
-            </div>
-            <a id="tryagain" class="btn btn-header" style="display: none; padding: 4px 24px;" href="{{ znanie.get_absolute_url }}">Повторить тест</a>
+            </h3>
         </div>
         <span class="author-description" style="color:#212529;">{{ znanie.content|safe }}</span>
     </div>
@@ -183,6 +179,14 @@
         <div class="d-flex" style="gap: 12px;">
             <button class="btn open-popup btn-icon" id="previous_question" onclick="get_previous_question()" style="display: none; padding: 4px 24px; background-color: #E7ECEB; color: #083E2F;">Назад</button>
             <button class="btn btn-header" id="next_question" onclick="next_block()" style="display: none; padding: 4px 24px;">Далее</button>
+            <div id="final_block" style="display:none">
+                {% if user.is_authenticated %}
+                    <button class="btn btn-header" style="padding: 4px 24px;" onclick="onButtonSendClick()">Итоги теста</button>
+                {% else %}
+                    <button class="btn btn-header" style="padding: 4px 24px;" onclick="next_block();">Итоги теста</button>
+                {% endif %}
+            </div>
+            <a id="tryagain" class="btn btn-header" style="display: none; padding: 4px 24px; margin-bottom: 32px;" href="{{ znanie.get_absolute_url }}">Повторить тест</a>
         </div>
     </div>
     <div style="padding: 32px; display: flex; gap: 32px; justify-content: space-between;">
