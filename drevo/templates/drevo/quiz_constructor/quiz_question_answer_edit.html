@@ -10,7 +10,7 @@
 {% block jsfiles %}
     <script src="{% static 'drevo/js/quiz_constructor/quiz_question_answer_edit.js' %}" data-new='{{ new|yesno:"true,false" }}'
             data-changed-name='{{ changed_znanie_name }}' data-changed-id='{{ changed_znanie_id }}'
-            data-type-of-zn='{{ type_of_zn }}'></script>
+            data-type-of-zn='{{ type_of_zn }}' data-relation='{{ relation }}'></script>
 {% endblock %}
 
 {% block content %}

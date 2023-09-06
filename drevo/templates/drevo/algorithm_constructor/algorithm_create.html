@@ -11,8 +11,9 @@
 {% block content %}
     <a href="{% url 'constructor_tree' type_of_zn='algorithm' %}" class="btn btn-warning mb-3">Назад</a>
     <h1>{{ title }}</h1>
-    <form class="form-horizontal" action="{% url 'main_znanie_in_constructor_create' 'algorithm' %}" method="post" enctype="multipart/form-data">
+    <form class="form-horizontal" method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        {{ rel_attr_form.as_p }}
         {{ zn_create_form.media }}
         {{ zn_create_form.as_p }}
         {{ image_form.management_form }}

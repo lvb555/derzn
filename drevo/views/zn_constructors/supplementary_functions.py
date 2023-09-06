@@ -8,7 +8,7 @@ def create_relation(bz_id, rz_id, tr_id, request, order_of_relation=None, is_ans
     author, created = Author.objects.get_or_create(
         name=f"{request.user.first_name} {request.user.last_name}",
     )
-
+    relation = None
     if is_answer:
         # Проверка на уже существующую связь и изменение ее вида связи
         # (например, изменить "Ответ верный" на "Ответ неверный")

@@ -29,6 +29,8 @@ from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
 from .zn_constructors.algorithm_constructor_view import (
     AlgorithmConstructorView,
+    RelationForAlgorithmCreateEditView,
+    get_tz_for_zn_in_algorithm,
 )
 from .zn_constructors.general_views import (
     ConstructorTreeView,
@@ -234,4 +236,7 @@ __all__ = [
     'relation_expertise_view',
     'RelationsPublicationPageView',
     'relation_publication_view',
+    'AlgorithmConstructorView',
+    'RelationForAlgorithmCreateEditView',
+    'get_tz_for_zn_in_algorithm',
 ]

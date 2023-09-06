@@ -5,8 +5,8 @@ from mptt.forms import TreeNodeChoiceField
 from drevo.models import Znanie, Category, Tz, Tr, RelationshipTzTr
 from drevo.models.utils import get_model_or_stub
 
-from .knowledge_form import ZnanieValidators
 from .knowledge_create_form import ZnanieCreateForm
+from .knowledge_form import ZnanieValidators
 
 
 def add_css_class_form_control(items):
@@ -38,9 +38,10 @@ def special_permissions_for_user(type_of_zn, user=None):
 
 
 class MainZnInConstructorCreateEditForm(ZnanieCreateForm):
-    """Форма создания и редактирования главного Знания для конструкторов (вид «Таблица», «Тест», «Алгоритм»)"""
+    """Форма создания и редактирования главного Знания для конструкторов (вид «Таблица», «Тест», «Алгоритм») и всех
+    знаний конструктора алгоритмов"""
 
-    def __init__(self, user, type_of_zn, *args, **kwargs):
+    def __init__(self, user, type_of_zn='default', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Присвоение виду знания значения в зависимости от вида конструктора
@@ -48,8 +49,10 @@ class MainZnInConstructorCreateEditForm(ZnanieCreateForm):
             self.fields['tz'].initial = Tz.objects.get(name='Таблица')
         elif type_of_zn == 'test':
             self.fields['tz'].initial = Tz.objects.get(name='Тест')
-        elif type_of_zn == 'algorithm':
+        else:
             self.fields['tz'].initial = Tz.objects.get(name='Алгоритм')
+
+        print(self.fields['tz'].initial)
 
         self.fields['tz'].widget = forms.HiddenInput()
 
@@ -73,7 +76,7 @@ class NameOfZnCreateUpdateForm(forms.ModelForm, ZnanieValidators):
         model = Znanie
         exclude = ('id', 'category', 'content', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director',
                    'is_send', 'is_published', 'labels', 'author', 'href', 'source_com', 'order', 'show_link',
-                    'notification')
+                   'notification')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -82,17 +85,35 @@ class NameOfZnCreateUpdateForm(forms.ModelForm, ZnanieValidators):
         add_css_class_form_control(self.fields.items())
 
 
-class RelationAndKindForZnInAlgorithm:
-    rz = forms.ModelChoiceField(queryset=Tz.objects.all().order_by('name'), label='Вид связанного знания')
-    tr = forms.ModelChoiceField(queryset=Tr.objects.all().order_by('name'), label='Вид связи')
+class ZnForAlgorithmCreateUpdateForm(ZnanieCreateForm):
+    """Форма для создания дочернего знания на странице «Конструктор алгоритмов»"""
 
-    def __init__(self, parent_zn_tz, *args, **kwargs):
+    def __init__(self, user=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        rel_type_with_parent_zn = []
-        relationships_with_parent_zn = RelationshipTzTr.objects.filter(bz=parent_zn_tz).order_by(parent_zn_tz.name)
-        for relation in relationships_with_parent_zn:
-            rel_type_with_parent_zn.append(relation.rel_type)
-        self.fields['tr'] = forms.ModelChoiceField(queryset=rel_type_with_parent_zn, label='Вид связи')
+
+        self.fields['tz'].widget.attrs.update({'disabled': 'disabled'})
+
+        # Выбор всех категорий в компетенции конкретного пользователя
+        self.fields['category'] = TreeNodeChoiceField(queryset=special_permissions_for_user('algorithm', user),
+                                                      empty_label='Выберите категорию',
+                                                      label='Категория',
+                                                      required=False)
+        add_css_class_form_control(self.fields.items())
+
+
+class RelationForZnInAlgorithm(forms.Form):
+    """Форма для выбора вида связи на странице «Конструктор алгоритмов»"""
+    def __init__(self, parent_zn_tz='default', *args, **kwargs):
+        super(RelationForZnInAlgorithm, self).__init__(*args, **kwargs)
+        # parent_zn_tz = kwargs.get('type_oz_zn')
+        print(parent_zn_tz)
+        relationships_with_parent_zn = RelationshipTzTr.objects.filter(base_tz=parent_zn_tz)
+        rel_type_with_parent_zn = Tr.objects.filter(pk__in=[rel.rel_type_id for rel in relationships_with_parent_zn])
+        self.fields['tr'] = forms.ModelChoiceField(queryset=rel_type_with_parent_zn,
+                                                   empty_label='Выберите вид связи',
+                                                   label='Вид связи',
+                                                   required=True)
+        add_css_class_form_control(self.fields.items())
 
 
 class ZnanieForCellCreateForm(ZnanieCreateForm):
@@ -124,16 +145,16 @@ class AttributesOfZnForm(forms.Form):
 
 
 class AttributesOfAnswerForm(AttributesOfZnForm):
-
     is_correct = forms.BooleanField(label='Верно', required=False)
+
     def __init__(self, *args, **kwargs):
         super(AttributesOfZnForm, self).__init__(*args, **kwargs)
-        # self.fields['is_correct'] =
         add_css_class_form_control(self.fields.items())
 
 
 class RelationCreateEditForm(NameOfZnCreateUpdateForm):
     """Форма создания Знания вида Строка или Столбец для конструктора таблиц"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['tz'] = forms.ModelChoiceField(
@@ -146,6 +167,7 @@ class RelationCreateEditForm(NameOfZnCreateUpdateForm):
 
 class QuestionToQuizCreateForm(NameOfZnCreateUpdateForm):
     """Форма создания вопроса теста для конструктора тестов"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['tz'] = forms.ModelChoiceField(
@@ -158,6 +180,7 @@ class QuestionToQuizCreateForm(NameOfZnCreateUpdateForm):
 
 class AnswerToQuizCreateForm(NameOfZnCreateUpdateForm):
     """Форма создания ответа теста для конструктора тестов"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['tz'].initial = Tz.objects.get(name='Ответ теста')

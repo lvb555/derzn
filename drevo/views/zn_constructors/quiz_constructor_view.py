@@ -147,6 +147,7 @@ class AnswerOrQuestionEditView(LoginRequiredMixin, UpdateView, DispatchMixin):
         self.zn_create_form = None
         self.zn_attr_form = None
         self.type_of_zn = None
+        self.parent_id = None
 
     def get_form_class(self):
         self.type_of_zn = self.kwargs.get('type_of_zn')
@@ -195,6 +196,7 @@ class AnswerOrQuestionEditView(LoginRequiredMixin, UpdateView, DispatchMixin):
         else:
             zn_attr_form = AttributesOfZnForm(self.request.POST)
         if form.is_valid() and zn_attr_form.is_valid():
+            self.parent_id = self.kwargs.get('parent_id')
             order_of_relation = zn_attr_form.cleaned_data['order_of_relation']
             knowledge = form.save(commit=False)
             create_zn_for_constructor(knowledge, form, request)

@@ -5,17 +5,7 @@
     <div class="text-secondary d-flex align-items-center" style="margin-left: 30px; flex-wrap: nowrap;">
         <span>{% get_relation_name relations_info parent base_knowledge %}</span>
     </div>
-    {% if base_knowledge.tz.name == 'Тезис' %}
-    <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/green_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
-    {% elif base_knowledge.tz.name == 'Вопрос' %}
-    <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
-    {% elif base_knowledge.tz.name == 'Факт' %}
-    <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
-    {% elif base_knowledge.tz.name == 'Классификация' %}
-    <i class="kn_type" style="color: #BA7507;"><img src="{% static 'drevo/img/ginger_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
-    {% else %}
-    <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}">&nbsp{{ base_knowledge.tz.name }}&nbsp</i>
-    {% endif %}
+    {% get_color_by_tz base_knowledge.tz.name %}
     <a href="{{ base_knowledge.get_absolute_url }}" class=" text-blue znanie">
         {{ base_knowledge.name }}
     </a>
@@ -23,7 +13,7 @@
     {% if children %}
     <input type="button" value="❌" class="quiet button-edit" style="padding-left: 0px" onclick="deleteZnanieAndRelation({{ base_knowledge.pk }})">
     {% endif %}
-    <input type="button" value="✐" class="quiet button-edit" style="padding-left: 0px" onclick="editZnanieAndRelation('element_column')">
+    <input type="button" value="✐" class="quiet button-edit" style="padding-left: 0px" onclick="editZnanieAndRelation({{ base_knowledge.pk }})">
 
     <ul class="children treeline p-0">
         {% for b_zn, zn_data in knowledge_data.items %}
