@@ -38,6 +38,15 @@ class ZnanieDetailView(DetailView):
         """
         Передает в шаблон данные через контекст
         """
+
+        def built_url(url_path_name, **kwargs):
+            url = reverse(url_path_name)
+            params = ''.join([f'{k}={v}&' for k, v in zip(kwargs.keys(), kwargs.values())])
+            if len(params):
+                return url + '?' + params[:-1]
+            else:
+                return url
+
         context = super().get_context_data(**kwargs)
 
         # первичный ключ текущей записи
@@ -145,6 +154,6 @@ class ZnanieDetailView(DetailView):
         except User.DoesNotExist:
             pass
 
-        context['suggestion_url'] = f'http://127.0.0.1:8000/users/create_suggestion?knowledge={pk}' # как сделать не хард кодом?
+        context['suggestion_url'] = built_url('users:create-suggestion', knowledge=pk)
 
         return context
