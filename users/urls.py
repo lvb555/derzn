@@ -21,5 +21,5 @@ urlpatterns = [
          name='password-recovery'),
     path('password-recovery-link/<str:email>/<str:password_recovery_key>/',
          UserSetPasswordFormView.as_view(), name='password-recovery-link'),
-    path('create_suggestion', UserSuggestionView.as_view()),
+    path('create_suggestion/', UserSuggestionView.as_view(), name='create-suggestion'),
 ]
