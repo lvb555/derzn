@@ -488,7 +488,7 @@ def change_username(request):
     return redirect('users:myprofile')
 
 
-class UserSuggestionView(TemplateView):
+class UserSuggestionView(LoginRequiredMixin, TemplateView):
     template_name = 'users/create_suggestion.html'
     context_object_name = 'context'
 
@@ -505,15 +505,20 @@ class UserSuggestionView(TemplateView):
         context['form']['parent_knowledge'].field.widget.attrs['value']=self.request.GET['knowledge']
         context['parent_knowledge_name'] = Znanie.objects.get(id=self.request.GET['knowledge'])
 
-        if user.is_authenticated:
-            context['auth'] = True
-            context['approved_suggestion'] = UserSuggection.objects.filter(is_approve__exact=True)
-        else:
-            context['auth'] = False
-            # отправить сообщение, что пользователь должен авторизоваться
+        context['approved_suggestion'] = UserSuggection.objects.filter(is_approve__exact=True)
+
         return context
 
     def post(self, request, *args, **kwargs):
+
+        def built_url(url_path_name, **kwargs):
+            url = reverse(url_path_name)
+            params = ''.join([f'{k}={v}&' for k, v in zip(kwargs.keys(), kwargs.values())])
+            if len(params):
+                return url + '?' + params[:-1]
+            else:
+                return url
+
         form = SuggestionCreateForm(request.POST)
         if form.is_valid():
             UserSuggection.objects.create(
@@ -523,6 +528,11 @@ class UserSuggestionView(TemplateView):
                 name=form.cleaned_data['name'],
                 user=self.request.user
             )
-            return redirect(self.request.get_full_path() + '&query_res=ok')
+
+            return HttpResponseRedirect(built_url('users:create-suggestion', 
+                query_res='ok', 
+                knowledge=form.cleaned_data['parent_knowledge'])) #redirect(self.request.get_full_path() + '&query_res=ok')
         else:
-            return redirect(self.request.get_full_path() + '&query_res=err')
+            return HttpResponseRedirect(built_url('users:create-suggestion', 
+                query_res='err', 
+                knowledge=form.cleaned_data['parent_knowledge']))
