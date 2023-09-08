@@ -98,6 +98,8 @@ from .views import (
     relation_expertise_view,
     RelationsPublicationPageView,
     relation_publication_view,
+    RelationForAlgorithmCreateEditView,
+    get_tz_for_zn_in_algorithm,
 )
 
 from .views import send_znanie, knowledge_feed_view
@@ -544,6 +546,12 @@ urlpatterns = [
         delete_answers_or_questions_to_quiz,
         name="delete_answers_or_questions_to_quiz"
     ),
+    path(
+        'rel_for_algorithm/<action>/',
+        RelationForAlgorithmCreateEditView.as_view(),
+        name="rel_for_algorithm"
+    ),
+    path("get_tz_for_zn_in_algorithm/", get_tz_for_zn_in_algorithm, name="get_tz_for_zn_in_algorithm"),
 
 ]
 

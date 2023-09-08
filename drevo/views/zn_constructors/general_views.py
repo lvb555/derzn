@@ -77,13 +77,11 @@ class MainZnInConstructorCreateView(FormKwargsMixin, DispatchMixin, LoginRequire
     def get_template_names(self):
         self.type_of_zn = self.kwargs.get('type_of_zn')
         if self.type_of_zn == 'table':
-            template_name = 'drevo/table_constructor/table_relation_create.html'
+            return ['drevo/table_constructor/table_relation_create.html']
         elif self.type_of_zn == 'test':
-            template_name = 'drevo/quiz_constructor/quiz_question_answer_create.html'
+            return ['drevo/quiz_constructor/quiz_question_answer_create.html']
         elif self.type_of_zn == 'algorithm':
-            template_name = 'drevo/algorithm_constructor/algorithm_create.html'
-
-        return template_name
+            return ['drevo/algorithm_constructor/algorithm_create.html']
 
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
@@ -116,6 +114,7 @@ class MainZnInConstructorCreateView(FormKwargsMixin, DispatchMixin, LoginRequire
     def post(self, request, *args, **kwargs):
         """Обрабатывает POST запрос"""
         self.object = None
+        self.type_of_zn = self.kwargs.get('type_of_zn')
         # Получаем форму для заполнения данных Знания
         form_class = self.get_form_class()
         form = self.get_form(form_class)
@@ -176,9 +175,9 @@ class MainZnInConstructorEditView(FormKwargsMixin, DispatchMixin, LoginRequiredM
         """Обрабатывает GET запрос"""
         self.object = self.get_object()
         form_class = self.get_form_class()
-        form = self.get_form(form_class)
+        zn_edit_form = self.get_form(form_class)
         image_form = ZnImageFormSet()
-        return self.render_to_response(self.get_context_data(form=form, image_form=image_form))
+        return self.render_to_response(self.get_context_data(zn_edit_form=zn_edit_form, image_form=image_form))
 
     def post(self, request, *args, **kwargs):
         """Обрабатывает POST запрос"""
