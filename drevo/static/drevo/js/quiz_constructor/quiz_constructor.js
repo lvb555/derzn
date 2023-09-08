@@ -141,11 +141,11 @@ function deleteZnanie(type_of_zn) {
                 .then(() => {
                     if (type_of_zn === 'question') {
                         $('.js-delete-element').fadeOut();
-                        $('#question option:selected').remove();
+                        $('#id_question option:selected').remove();
                         if ($('option').is('#create_question'))
-                            $('#question option#create_question').prop('selected', true);
+                            $('#id_question option#create_question').prop('selected', true);
                         else
-                            $('#question option#choose_question').prop('selected', true);
+                            $('#id_question option#choose_question').prop('selected', true);
                     } else {
                         $('.js-delete-element').fadeOut();
                         $('#answer option:selected').remove();
