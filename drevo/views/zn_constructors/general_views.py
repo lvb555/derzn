@@ -144,7 +144,6 @@ class MainZnInConstructorCreateView(FormKwargsMixin, DispatchMixin, LoginRequire
             elif self.type_of_zn == 'test':
                 return render(request, 'drevo/quiz_constructor/quiz_question_answer_create.html', context)
             elif self.type_of_zn == 'algorithm':
-                print('2')
                 return HttpResponseRedirect(reverse('algorithm_constructor', kwargs={'pk': knowledge.pk}))
 
         return self.form_invalid(form, image_form)

@@ -52,8 +52,6 @@ class MainZnInConstructorCreateEditForm(ZnanieCreateForm):
         else:
             self.fields['tz'].initial = Tz.objects.get(name='Алгоритм')
 
-        print(self.fields['tz'].initial)
-
         self.fields['tz'].widget = forms.HiddenInput()
 
         # Выбор всех категорий в компетенции конкретного пользователя
@@ -105,8 +103,6 @@ class RelationForZnInAlgorithm(forms.Form):
     """Форма для выбора вида связи на странице «Конструктор алгоритмов»"""
     def __init__(self, parent_zn_tz='default', *args, **kwargs):
         super(RelationForZnInAlgorithm, self).__init__(*args, **kwargs)
-        # parent_zn_tz = kwargs.get('type_oz_zn')
-        print(parent_zn_tz)
         relationships_with_parent_zn = RelationshipTzTr.objects.filter(base_tz=parent_zn_tz)
         rel_type_with_parent_zn = Tr.objects.filter(pk__in=[rel.rel_type_id for rel in relationships_with_parent_zn])
         self.fields['tr'] = forms.ModelChoiceField(queryset=rel_type_with_parent_zn,

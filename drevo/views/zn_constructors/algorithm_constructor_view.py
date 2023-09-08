@@ -66,7 +66,6 @@ class RelationForAlgorithmCreateEditView(LoginRequiredMixin, TemplateView, Dispa
         context['action'] = 'create'
 
         context['base_kn'] = {parent_id: get_object_or_404(Znanie, id=parent_id)}
-        print(context['base_kn'])
 
         # Передаем формы для создания знания
         if self.request.POST:
@@ -84,11 +83,8 @@ class RelationForAlgorithmCreateEditView(LoginRequiredMixin, TemplateView, Dispa
         # Получаем форму для заполнения данных Знания
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        print(self.request.POST)
         rel_attr_form = RelationForZnInAlgorithm(data=self.request.POST, parent_zn_tz=self.request.POST.get('tr'))
-        print(rel_attr_form)
         if form.is_valid() and rel_attr_form.is_valid():
-            print('mekroe')
             # tr = rel_attr_form.cleaned_data['tr']
             # knowledge = form.save(commit=False)
             # create_zn_for_constructor(knowledge, form, request)
