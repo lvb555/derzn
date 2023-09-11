@@ -21,12 +21,12 @@ from drevo.models.special_permissions import SpecialPermissions
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
-from users.forms.suggestion_create_form import SuggestionCreateForm 
 from users.forms.password_change_form import MyPasswordChangeForm
 from users.models import User, Profile, MenuSections, Favourite, UserSuggection
 from drevo.models.settings_options import SettingsOptions
 from drevo.models.user_parameters import UserParameters
 from drevo.models.special_permissions import SpecialPermissions
+from users.forms.suggestion_create_form import SuggestionCreateForm 
 
 
 class LoginFormView(FormView):
@@ -523,8 +523,8 @@ class UserSuggestionView(LoginRequiredMixin, TemplateView):
         if form.is_valid():
             UserSuggection.objects.create(
                 parent_knowlege=Znanie.objects.get(id=int(form.cleaned_data['parent_knowledge'])),
-                knowledge_type=Tz.objects.get(id=int(form.cleaned_data['knowledge_type'])),
-                relation_type=Tr.objects.get(id=int(form.cleaned_data['relation_type'])),
+                knowledge_type=form.cleaned_data['knowledge_type'],
+                relation_type=form.cleaned_data['relation_type'],
                 name=form.cleaned_data['name'],
                 user=self.request.user
             )
