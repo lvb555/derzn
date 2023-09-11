@@ -3,7 +3,7 @@ from drevo.models import Tz, Tr
 from django.core.exceptions import ValidationError
 
 def types_validator(value):
-    if int(value) == -1:
+    if value is None:
         raise ValidationError('Не все поля заполнены')
 
 class SuggestionCreateForm(forms.Form):
@@ -18,11 +18,13 @@ class SuggestionCreateForm(forms.Form):
     knowledge_type = forms.ModelChoiceField(
         queryset=Tz.objects.filter(is_systemic=False), 
         label='Тип знания',
+        empty_label='Выберите тип знания',
         widget=select_widget, 
         validators=[types_validator])
     relation_type = forms.ModelChoiceField(
         queryset=Tr.objects.filter(is_systemic=False), 
         label='Отношение к старшему знанию', 
+        empty_label='Укажите отношение к родительскому знанию',
         widget=select_widget, 
         validators=[types_validator])
     name = forms.CharField(max_length=255, 
