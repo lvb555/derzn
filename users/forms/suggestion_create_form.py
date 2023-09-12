@@ -3,16 +3,10 @@ from drevo.models import Tz, Tr
 from django.core.exceptions import ValidationError
 
 def types_validator(value):
-    if int(value) == -1:
+    if value is None:
         raise ValidationError('Не все поля заполнены')
 
 class SuggestionCreateForm(forms.Form):
-    tz = [(i.id, i.name) for i in Tz.objects.filter(is_systemic=False)]
-    tr = [(i.id, i.name) for i in Tr.objects.filter(is_systemic=False)]
-
-    tz = tuple([(-1, 'Выберите подходящий тип знания')] + tz)
-    tr = tuple([(-1, 'Укажите отношение к текущему знанию')] + tr)
-
     select_widget = forms.Select(attrs={'class': 'form-control'})
     text_widget = forms.TextInput(attrs={
         'class': 'form-control',
@@ -21,12 +15,16 @@ class SuggestionCreateForm(forms.Form):
     parent_knowledge = forms.CharField(
         max_length=100,
         widget=forms.HiddenInput())
-    knowledge_type = forms.ChoiceField(choices=tz, 
-        label='Тип знания', 
+    knowledge_type = forms.ModelChoiceField(
+        queryset=Tz.objects.filter(is_systemic=False), 
+        label='Тип знания',
+        empty_label='Выберите тип знания',
         widget=select_widget, 
         validators=[types_validator])
-    relation_type = forms.ChoiceField(choices=tr, 
+    relation_type = forms.ModelChoiceField(
+        queryset=Tr.objects.filter(is_systemic=False), 
         label='Отношение к старшему знанию', 
+        empty_label='Укажите отношение к родительскому знанию',
         widget=select_widget, 
         validators=[types_validator])
     name = forms.CharField(max_length=255, 
