@@ -132,13 +132,13 @@ option {
 
 .popup__content {
 	background-color: white;
-	min-width: 70vw;
+	width: 70vw;
 	padding: 3rem;
 	position: relative;
 	transition: all 0.8s ease 0s;
 	opacity: 0;
 	border-radius: 1rem;
-	transform: perspective(600px) translate(0px, -100%) rotateX(45deg);
+	transform: perspective(600px) translate(0px, -300%) rotateX(45deg);
 }
 
 .popup__close {

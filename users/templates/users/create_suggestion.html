@@ -10,15 +10,6 @@
 {% block title %} Развиваем вместе {% endblock %}
 
 {% block precontent %}
-	{% if query_res != None %}
-		<div class="alert request-res_{{ query_res }}">
-			{% if query_res == "ok" %}
-				Предложение сохранено
-			{% elif query_res == "err" %}
-				Произошла ошибка
-			{% endif %}
-		</div>
-	{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -30,6 +21,7 @@
 
 	<div class="popup" id="popup">
 		<a class="popup__area" href="#"></a>
+		<div class="popup__body">
 		<div class="popup__content">
 			<a class="popup__close" href="#">x</a>
 			<form action="{{ request.get_full_path }}" method="post" class="suggestion-from__form">
@@ -51,6 +43,7 @@
 					<button class="btn btn-header" class type="submit">Сохранить</button>
 				</div>
 			</form>
+		</div>
 		</div>
 	</div>	
 	<table class="align-middle suggestiond-table">

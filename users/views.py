@@ -531,9 +531,7 @@ class UserSuggestionView(LoginRequiredMixin, TemplateView):
             )
 
             return HttpResponseRedirect(built_url('users:create-suggestion', 
-                query_res='ok', 
-                knowledge=form.cleaned_data['parent_knowledge'])) #redirect(self.request.get_full_path() + '&query_res=ok')
+                knowledge=form.cleaned_data['parent_knowledge']))
         else:
             return HttpResponseRedirect(built_url('users:create-suggestion', 
-                query_res='err', 
                 knowledge=form.cleaned_data['parent_knowledge']))
