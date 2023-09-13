@@ -99,12 +99,10 @@
                 <p class="options m-0 d-inline" style="padding-left: 20px; color: #BFBFBF;"><i class="bi bi-eye-fill"></i> {{ visits }}</p>
             </div>
         </div>
-
-        <p class="author-title" style="padding:20px 0px 20px 0px; border:none; height: auto;line-height: 120%;" id="znanie_name" value="{{ znanie.get_absolute_url }}">
+          <p class="author-title" style="padding:20px 0px 20px 0px; border:none; height: auto;line-height: 120%;" id="znanie_name" value="{{ znanie.get_absolute_url }}">
             {% get_color_by_tz znanie.tz.name flag_only=True %}
             {{ znanie.name }}
           </p>
-
       {% if znanie.content %}
         <p class="author-description" style="color:#6C757D;">Содержание</p>
         <p class="author-description" style="color:#212529; margin-top:5px;">{{ znanie.content|safe }}</p>
@@ -146,18 +144,16 @@
           {%endfor%}
       {% endif %}
       <div class="d-flex mt-5" style="justify-content: space-between;">
-        <div class="suggestion">
-          <a href="{{ suggestion_url }}">
-            <button class="suggestion__btn btn btn-icon">
-                Делаем вместе
-            </button>
-          </a>
-        </div>
         <div class="d-inline-flex">
         {% if znanie.tz.can_be_rated %}
             <a href="{% url 'grade' znanie.id %}" class="btn btn-header" style="height: fit-content; margin-right: 10px; padding: 8px 24px;">Оценка знания</a>
         {% endif %}
         {% if request.user.is_authenticated %}
+          <div class="suggestion">
+            <a style="color: #212529;" class="suggestion__btn btn btn-icon" href="{{ suggestion_url }}">
+              Делаем вместе
+            </a>
+          </div>
           <div>
             <a class="btn open-popup btn-icon" style="background-color: #E7ECEB; color: #083E2F; padding: 8px 24px;">Отправить в Ленту знаний</a>
             <div class="popup__bg">
