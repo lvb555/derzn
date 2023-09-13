@@ -37,19 +37,13 @@ TH {
 	text-align: center;
 }
 
-
-
-.suggestion-from {
-	margin: 25px 0;
-}
-
-.suggestion-from__title {
+.suggestion-from-title {
 	font-size: 1.5rem;
 	margin: 0 0 30px 0;
 }
 
 .suggestion-from__form {
-	width: 50%;
+	width: 80%;
 	margin: 0 auto;
 	border-radius: 0.5rem;
 
@@ -82,6 +76,9 @@ option {
 	font-family: 'Rubik', sans-serif;
 }
 
+.popup-show-btn {
+	margin: 0 0 20px 0;
+}
 
 .alert {
 	border-radius: 0.5rem;
@@ -110,4 +107,63 @@ option {
 .request-res_err {
 	background-color: #FF8080;
 	color: #990000;
+}
+
+.popup {
+	opacity: 0;
+	visibility: hidden;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.8);
+	top: 0;
+	left: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	transition: all 0.8s ease 0s;
+}
+
+.popup__body {
+	min-height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.popup__content {
+	background-color: white;
+	min-width: 70vw;
+	padding: 3rem;
+	position: relative;
+	transition: all 0.8s ease 0s;
+	opacity: 0;
+	border-radius: 1rem;
+	transform: perspective(600px) translate(0px, -100%) rotateX(45deg);
+}
+
+.popup__close {
+	position: absolute;
+	right: 40px;
+	top: 20px;
+	font-size: 1.3rem;
+	color: black;
+}
+
+.popup:target {
+	visibility: visible;
+	opacity: 1;
+}
+
+.popup:target .popup__content {
+	visibility: visible;
+	opacity: 1;
+	transform: perspective(600px) translate(0px, 0%) rotateX(0deg);
+}
+
+.popup__area {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 }

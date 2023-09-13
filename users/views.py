@@ -502,7 +502,7 @@ class UserSuggestionView(LoginRequiredMixin, TemplateView):
         context['form'] = SuggestionCreateForm()
 
         context['form']['parent_knowledge'].field.widget.attrs['value']=parent_knowlege
-        context['parent_knowledge_name'] = Znanie.objects.get(id=parent_knowlege)
+        context['knowledge'] = Znanie.objects.get(id=parent_knowlege)
 
         context['approved_suggestion'] = UserSuggection.objects.filter(
             is_approve__exact=True, 
