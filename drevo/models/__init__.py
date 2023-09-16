@@ -28,3 +28,5 @@ from .message import Message
 from .interview_sub_answers import SubAnswers
 from .relationship_tz_tr import RelationshipTzTr
 from .relation_statuses import RelationStatuses
+from .questions import QuestionToKnowledge
+from .answers import UserAnswerToQuestion

@@ -24,6 +24,8 @@ from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
 from drevo.models.developer import Developer
 from drevo.models.quiz_results import QuizResult
 from drevo.models.message import Message
+from drevo.models import QuestionToKnowledge
+from drevo.models import UserAnswerToQuestion
 
 from .forms.developer_form import DeveloperForm
 from .forms import (
@@ -702,3 +704,26 @@ class RelationshipTzTrAdmin(admin.ModelAdmin):
 class AppealAdmin(admin.ModelAdmin):
     list_display = ("user", "subject", "created_at", "admin")
     readonly_fields = ("created_at", "resolved")
+
+
+@admin.register(QuestionToKnowledge)
+class QuestionToKnowledgeAdmin(admin.ModelAdmin):
+    list_display = (
+        "knowledge",
+        "question",
+    )
+    autocomplete_fields = ["knowledge"]
+
+
+@admin.register(UserAnswerToQuestion)
+class UserAnswerToQuestionAdmin(admin.ModelAdmin):
+    list_display = (
+        "knowledge",
+        "question",
+        "answer",
+        "date",
+        "user",
+        "answer_file",
+        "accepted",
+    )
+    raw_id_fields = ["knowledge", "question"]
