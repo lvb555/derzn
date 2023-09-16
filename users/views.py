@@ -495,17 +495,18 @@ class UserSuggestionView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
+        parent_knowlege = self.request.GET['knowledge']
         
         # результат отправки формы
         context['query_res'] = self.request.GET.get('query_res', None)  
         context['form'] = SuggestionCreateForm()
 
-        # TODO сделать более корректно
-        # значение скрытого поля, указывающего на родительское знание
-        context['form']['parent_knowledge'].field.widget.attrs['value']=self.request.GET['knowledge']
-        context['parent_knowledge_name'] = Znanie.objects.get(id=self.request.GET['knowledge'])
+        context['form']['parent_knowledge'].field.widget.attrs['value']=parent_knowlege
+        context['knowledge'] = Znanie.objects.get(id=parent_knowlege)
 
-        context['approved_suggestion'] = UserSuggection.objects.filter(is_approve__exact=True)
+        context['approved_suggestion'] = UserSuggection.objects.filter(
+            is_approve__exact=True, 
+            parent_knowlege=parent_knowlege)
 
         return context
 
@@ -530,9 +531,7 @@ class UserSuggestionView(LoginRequiredMixin, TemplateView):
             )
 
             return HttpResponseRedirect(built_url('users:create-suggestion', 
-                query_res='ok', 
-                knowledge=form.cleaned_data['parent_knowledge'])) #redirect(self.request.get_full_path() + '&query_res=ok')
+                knowledge=form.cleaned_data['parent_knowledge']))
         else:
             return HttpResponseRedirect(built_url('users:create-suggestion', 
-                query_res='err', 
                 knowledge=form.cleaned_data['parent_knowledge']))
