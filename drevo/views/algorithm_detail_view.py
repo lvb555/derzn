@@ -15,7 +15,6 @@ logger.add('logs/main.log',
 
 
 class AlgorithmDetailView(DetailView):
-
     model = Znanie
     context_object_name = 'znanie'
     template_name = "drevo/algorithm_detail.html"
@@ -46,7 +45,8 @@ class AlgorithmDetailView(DetailView):
 
         # добавление историю просмотра
         if self.request.user.is_authenticated:
-            browsing_history_obj, created = BrowsingHistory.objects.get_or_create(znanie=knowledge, user=self.request.user)
+            browsing_history_obj, created = BrowsingHistory.objects.get_or_create(znanie=knowledge,
+                                                                                  user=self.request.user)
             if not created:
                 browsing_history_obj.date = datetime.now()
                 browsing_history_obj.save()
@@ -81,6 +81,7 @@ def make_complicated_dict1(algorithm_dict, queryset, previous_key, level=1, next
     Рекурсивно ищет потомков текущего знания до тех пор,
     пока функция get_children_by_relation_type_for_knowledge не вернет None
     """
+
     relations = get_children_by_relation_type_for_knowledge(queryset)
     if relations:
         if next_relation in relations.keys() and len(relations) == 1:

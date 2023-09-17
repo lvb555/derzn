@@ -12,9 +12,6 @@ if (isNew === "true") {
     const addAnswer = window.opener.document.getElementById('add_answer');
     const editAnswer = window.opener.document.getElementById('edit_answer');
     const deleteAnswer = window.opener.document.getElementById('delete_answer');
-    const isCorrectAnswer = window.opener.document.getElementById('is_correct_answer');
-    const answerOrder = window.opener.document.getElementById('answer_order');
-
 
     const newZnanieId = document.querySelector('script[data-new-znanie-id]').getAttribute('data-new-znanie-id');
     const newZnanieName = document.querySelector('script[data-new-znanie-name]').getAttribute('data-new-znanie-name');
@@ -35,17 +32,11 @@ if (isNew === "true") {
         answerSelect.disabled = false;
         answerSelect.innerHTML = "";
         answerSelect.innerHTML += `<option value="" selected disabled>Создайте ответ</option>`;
-        isCorrectAnswer.checked = false;
-        answerOrder.value = "";
     }
     else if (typeOfZn === 'answer') {
         answerSelect.innerHTML += `<option value="${newZnanieId}" selected> ${newZnanieName}</option>`;
         editAnswer.disabled = false;
         deleteAnswer.disabled = false;
-        isCorrectAnswer.disabled = false;
-        answerOrder.disabled = false;
-        isCorrectAnswer.checked = false;
-        answerOrder.value = "";
     }
     window.close()
 }

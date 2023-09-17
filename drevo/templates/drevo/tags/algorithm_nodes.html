@@ -1,0 +1,25 @@
+{% load knowledge_tree %}
+{% load static %}
+
+<li id="tree{{ tree_num }}_li_{{ base_knowledge.pk }}{{ parent.id }}" class="treeline mb-2">
+    <div class="text-secondary d-flex align-items-center" style="margin-left: 30px; flex-wrap: nowrap;">
+        <span>{% get_relation_name relations_info parent base_knowledge %}</span>
+    </div>
+    {% get_color_by_tz base_knowledge.tz.name %}
+    <a href="{{ base_knowledge.get_absolute_url }}" class=" text-blue znanie">
+        {{ base_knowledge.name }}
+    </a>
+    <input type="button" value="➕" class="quiet button-edit" onclick="addZnanieAndRelation({{ base_knowledge.pk }})">
+    {% if children %}
+    <input type="button" value="❌" class="quiet button-edit" style="padding-left: 0px" onclick="deleteZnanieAndRelation({{ base_knowledge.pk }})">
+    {% endif %}
+    <input type="button" value="✐" class="quiet button-edit" style="padding-left: 0px" onclick="editZnanieAndRelation({{ base_knowledge.pk }})">
+
+    <ul class="children treeline p-0">
+        {% for b_zn, zn_data in knowledge_data.items %}
+            {% with base_knowledge=b_zn knowledge_data=zn_data parent=base_knowledge template_name="drevo/tags/algorithm_nodes.html" children=True %}
+                {% include template_name %}
+            {% endwith %}
+        {% endfor %}
+    </ul>
+</li>

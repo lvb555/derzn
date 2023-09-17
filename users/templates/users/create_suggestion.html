@@ -1,0 +1,75 @@
+{% extends 'drevo/base.html'%}
+{% load static %}
+{% csrf_token %}
+
+{% block cssfiles %}
+	<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+	<link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
+	<link rel="stylesheet" href="{% static '/users/css/create_suggestion.css' %}">
+{% endblock %}
+{% block title %} Развиваем вместе {% endblock %}
+
+{% block precontent %}
+{% endblock %}
+
+{% block content %}
+	<div class="basic">
+	<p class="suggestion-from-title"> Знание:&nbsp;<a href="{% url 'zdetail' knowledge.id %}">{{ knowledge.name }}</a></p>
+	{% if request.user.is_authenticated %}
+			<a href="#popup" style="color:#313537;" class="popup-show-btn btn btn-icon">Внести предложение</a>
+	{% endif %}
+
+	<div class="popup" id="popup">
+		<a class="popup__area" href="#"></a>
+		<div class="popup__body">
+		<div class="popup__content">
+			<a class="popup__close" href="#">x</a>
+			<form action="{{ request.get_full_path }}" method="post" class="suggestion-from__form">
+				{% csrf_token %}
+				{% for h_field in form.hidden_fields%}
+					{{ field }}
+				{% endfor %}
+				{% for field in form %}
+					{% if not field.is_hidden %}
+						<div class="suggestion-form__field">
+							{{ field.label_tag}}<br>
+							{{ field }}
+						</div>
+					{% else%}
+						{{field}}
+					{% endif %}
+				{% endfor %}
+				<div class="suggestion-form__btn">
+					<button class="btn btn-header" class type="submit">Сохранить</button>
+				</div>
+			</form>
+		</div>
+		</div>
+	</div>	
+	<table class="align-middle suggestiond-table">
+		{% if approved_suggestion|length != 0 %}
+			<thead>
+				<tr>
+					<th>Вид знания</th>
+					<th>Назначение знания</th>
+					<th>Текст знания</th>
+					<th>Пользователь</th>
+				</tr>
+			</thead>
+			{% for str in approved_suggestion %}
+				<tr>
+					<td> {{ str.knowledge_type }} </td>
+					<td> {{ str.relation_type }} </td>
+					<td> {{ str.name }} </td>
+					<td> {{ str.user.first_name }} </td>
+				</tr>
+			{% endfor %}
+		{% else %}
+			<p>Еще нет знаний, одобренных экспертами</p>
+		{% endif %}
+	</table>
+	</div>
+{% endblock %}
+
+{% block jsfiles %}
+{% endblock %}

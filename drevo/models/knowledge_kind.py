@@ -12,6 +12,13 @@ class Tz(models.Model):
         unique=True,
         verbose_name='Название'
     )
+    tr = models.ForeignKey(
+        'Tr',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name='Обязательный вид связи'
+    )
     order = models.PositiveSmallIntegerField(
         verbose_name='Порядок',
         help_text='укажите порядковый номер',

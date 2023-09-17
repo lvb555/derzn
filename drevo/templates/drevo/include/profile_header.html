@@ -254,7 +254,7 @@
                                     <span class="visually-hidden"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                     <a href="{% url 'table_edit' %}" class="dropdown-item">Конструктор таблиц</a>
+                                     <a href="{% url 'constructor_tree' 'table' %}" class="dropdown-item">Конструктор таблиц</a>
                                 </ul>
 						    </div>
 						</li>
@@ -267,8 +267,9 @@
                                     <span class="visually-hidden"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <a href="{% url 'quiz_constructor_tree' %}" id="" class="dropdown-item">Конструктор тестов</a>
-                                    <a href="{% url 'table_knowledge_tree' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
+                                    <a href="{% url 'constructor_tree' 'algorithm' %}" id="" class="dropdown-item">Конструктор алгоритмов</a>
+                                    <a href="{% url 'constructor_tree' 'test' %}" id="" class="dropdown-item">Конструктор тестов</a>
+                                    <a href="{% url 'constructor_tree' 'filling_tables' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
                                     <a href="{% url 'my_interview' %}" class="dropdown-item">Мои интервью</a>
                                 </ul>
 						    </div>

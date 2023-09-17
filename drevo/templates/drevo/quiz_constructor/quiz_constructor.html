@@ -4,28 +4,24 @@
 {% block title %}Конструктор тестов{% endblock %}
 
 {% block cssfiles %}
-    <link rel="stylesheet" href="/static/drevo/css/table_quiz_constructor.css">
+    <link rel="stylesheet" href="/static/drevo/css/constructors_of_zn.css">
 {% endblock %}
 
 {% block jsfiles %}
     <script src="{% static 'drevo/js/get_cookie.js'%}"></script>
+    <script src="{% static 'drevo/js/modal_window.js'%}"></script>
     <script src="{% static 'drevo/js/quiz_constructor/quiz_constructor.js'%}"
             data-answers-in-quiz-existence = '{% url "answers_in_quiz_existence" %}'
-            data-get-order-of-question = '{% url "get_order_of_question_in_quiz" %}'
-            data-get-answer-in-quiz-attributes = '{% url "get_answer_in_quiz_attributes" %}'
             data-get-existing-answers='{% url "get_answers_to_selected_question_of_quiz" %}'
             data-delete-quiz='{% url "delete_quiz" %}'
             data-delete-answer-or-question-to-quiz='{% url "delete_answers_or_questions_to_quiz" %}'
-            data-get-form-data="{% url 'get_form_data_for_quiz_constructor' %}"
             >
 
     </script>
 {% endblock %}
 
-<div id="page">
 {% block content %}
-<a href="{% url 'quiz_constructor_tree' %}" class="btn btn-warning mb-3">Назад</a>
-<form method="POST" class="form" id="form" name="form"> {% csrf_token %}
+    <a href="{% url 'constructor_tree' 'test' %}" class="btn btn-warning mb-3">Назад</a>
     <div class="constructor-block">
         <h1>{{ title }}</h1>
         <label for="id_test">Тест:</label>
@@ -63,10 +59,6 @@
                     {% endif %}
             </select>
             <span class="block-with-operations">
-                <div class="input-box" style="margin-left: 10px;">
-                  <label class="order-label">Номер</label>
-                  <input class="order-number" name= "question_order" id="question_order" type="number">
-                </div>
                 <input type="button" value="➕" class="quiet button-edit" id="add_question" {% if new_test %} disabled {% endif %} onclick="addZnanie('question')">
                 <input type="button" value="❌" class="quiet button-edit" id="delete_question"  style="padding-left: 0px" disabled onclick="deleteZnanie('question')">
                 <input type="button" value="✐" class="quiet button-edit" id="edit_question" style="padding-left: 0px" disabled onclick="editZnanie('question')">
@@ -83,15 +75,6 @@
                         {% endif %}
                 </select>
                 <span class="block-with-operations">
-                    <div class="is-correct-answer">
-                      <label class="is-correct-label">Верно</label>
-                      <input type="checkbox" name="is_correct_answer" value="true" id="is_correct_answer"
-                               style="width: 10mm; height: 10mm; margin-right: 5px; border-radius: 11px;" ${isCorrect} disabled>
-                    </div>
-                    <div class="input-box">
-                      <label class="order-label">Номер</label>
-                      <input class="order-number" name="answer_order" type="number" id="answer_order" disabled>
-                    </div>
                     <input type="button" value="➕" class="quiet button-edit" id="add_answer" disabled onclick="addZnanie('answer')">
                     <input type="button" value="❌" class="quiet button-edit" id="delete_answer"
                            style="padding-left: 0px" disabled onclick="deleteZnanie('answer')">
@@ -105,61 +88,36 @@
 
     <div id="div-param" class="button-block">
         <div class="button-menu">
-            <input class="btn btn-outline-success" id="btn_save" type="submit" value="Сохранить" name="_save">
             <input class="btn btn-outline-success" id="btn_show" type="button" value="Показать">
         </div>
     </div>
 
-</form>
-</div>
-
-<div id="div1"></div>
-
-<div class="overlay js-successful">
-    <div class="popup js-successful">
-        <h2 class="success-save">Данные были успешно сохранены</h2>
-        <div class="close-popup js-close-successful"></div>
-    </div>
-</div>
-
-<div class="overlay js-delete-test">
-    <div class="popup js-delete-test">
-        <h3 class="delete-confirmation">Вы действительно хотите удалить этот тест? Все связанные вопросы и ответы также удалятся!</h3>
-        <div class="modal_choice_but">
-            <input class="btn btn-success okay-popup js-okay-successful" type="button" value="Ок">
-            <input class="btn btn-danger cancel-popup js-cancel-successful" type="button" value="Отмена">
+    <div class="overlay js-open-warning">
+        <div class="popup js-open-warning">
+            <h2 class="message-open-warning"></h2>
+            <h2 id="heading-error" hidden>Ошибка!</h2>
+            <div class="questions-lists">
+                <h5 id="heading_questions_without_answer_list" hidden>Вопросы без единого ответа:</h5>
+                <ul id="questions_without_answer_list"></ul>
+                <h5 id="heading_questions_less_two_answers_list" hidden>Вопросы с менее чем двумя ответами:</h5>
+                <ul id="questions_less_two_answers_list"></ul>
+                <h5 id="heading_questions_without_correct_answer_list" hidden>Вопросы без верных ответов:</h5>
+                <ul id="questions_without_correct_answer_list"></ul>
+            </div>
+            <div class="close-popup js-close-successful"></div>
         </div>
     </div>
-</div>
 
-<div class="overlay js-delete-test-warning">
-    <div class="popup js-delete-test-warning">
-        <h2 class="delete-confirmation">Вы уверены?</h2>
-        <div class="modal_choice_but" style="margin-top: 90px">
-            <input class="btn btn-success okay-popup js-okay-delete-successful" type="button" value="Ок">
-            <input class="btn btn-danger cancel-popup js-cancel-successful" type="button" value="Отмена">
+    <div class="overlay js-delete-element">
+        <div class="popup js-delete-element">
+            <h2 class="delete-confirmation"></h2>
+            <div class="modal_choice_but">
+                <input class="btn btn-success okay-popup js-okay-successful" type="button" value="Ок">
+                <input class="btn btn-danger cancel-popup js-cancel-successful" type="button" value="Отмена">
+            </div>
         </div>
     </div>
-</div>
 
-<div class="overlay js-delete-question">
-    <div class="popup js-delete-question">
-        <h3 class="delete-confirmation">Вы действительно хотите удалить этот вопрос? Ответы вопроса также удалятся.</h3>
-        <div class="modal_choice_but" style="padding-bottom: 25px; position: relative;">
-            <input class="btn btn-success okay-popup js-okay-successful" type="button" value="Ок">
-            <input class="btn btn-danger cancel-popup js-cancel-successful" type="button" value="Отмена">
-        </div>
-    </div>
-</div>
 
-<div class="overlay js-delete-answer">
-    <div class="popup js-delete-answer">
-        <h2 class="delete-confirmation">Вы действительно хотите удалить этот ответ?</h2>
-        <div class="modal_choice_but" style="margin-top: 27px">
-            <input class="btn btn-success okay-popup js-okay-successful" type="button" value="Ок">
-            <input class="btn btn-danger cancel-popup js-cancel-successful" type="button" value="Отмена">
-        </div>
-    </div>
-</div>
 
 {% endblock %}

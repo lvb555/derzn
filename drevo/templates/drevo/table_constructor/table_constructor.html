@@ -1,31 +1,29 @@
 {% extends 'drevo/base.html' %}
 {% load static %}
 
-{% block title %}Конструктор таблиц{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block cssfiles %}
-    <link rel="stylesheet" href="/static/drevo/css/table_quiz_constructor.css">
+    <link rel="stylesheet" href="/static/drevo/css/constructors_of_zn.css">
 {% endblock %}
 
 {% block jsfiles %}
     <script src="{% static 'drevo/js/get_cookie.js'%}"></script>
+    <script src="{% static 'drevo/js/modal_window.js'%}"></script>
     <script src="{% static 'drevo/js/table_constructor/table_constructor.js'%}" data-delete-relations='{% url "delete_row_or_column" %}'
             data-delete-element='{% url "delete_element_of_relation" %}'
-            data-delete-table='{% url "delete_table" %}' data-get-form="{% url 'get_form_data' %}"
-            data-relations-exists="{% url 'row_and_column_existence' %}" data-cell-exists="{% url 'cell_in_table_or_relation_existence' %}"
-            >
-
+            data-delete-table='{% url "delete_table" %}'
+            data-relations-exists="{% url 'row_and_column_existence' %}" data-cell-exists="{% url 'cell_in_table_or_relation_existence' %}">
     </script>
 {% endblock %}
 
-<div id="page">
 {% block content %}
 
-<a href="{% url 'table_edit' %}" class="btn btn-warning mb-3">Назад</a>
-<form method="POST" class="form" id="form" name="form"> {% csrf_token %}
+    <a href="{% url 'constructor_tree' type_of_zn='table' %}" class="btn btn-warning mb-3">Назад</a>
+
     <input type="hidden" name="filling_tables" value="">
     <div class="constructor-block">
-        <h1>Конструктор таблиц</h1>
+        <h1>{{ title }}</h1>
         <label for="id_table">Таблица:</label>
         <div class="block-select-table-or-test">
             <select class="select-table-or-test" name="table" id="id_table">
@@ -141,101 +139,25 @@
 
     <div id="div-param" class="button-block">
         <div class="button-menu">
-            <input class="btn btn-outline-success" id="btn_save" type="submit" value="Сохранить" name="_save">
             <input class="btn btn-outline-success" id="btn_show" type="button" value="Показать">
         </div>
     </div>
 
-</form>
-</div>
-
-<div id="div1"></div>
-
-<div class="overlay js-successful">
-    <div class="popup js-successful">
-        <h2 class="success-save">Данные были успешно сохранены</h2>
-        <div class="close-popup js-close-successful"></div>
-    </div>
-</div>
-
-<div class="overlay js-table-delete-if-cell">
-    <div class="popup js-table-delete-if-cell">
-        <h2 class="delete-confirmation">Для удаления таблицы необходимо сначала очистить ячейки таблицы. Очистить?</h2>
-        <div class="modal_choice_but">
-            <input class="okay-popup js-okay-successful" type="button" value="Ок">
-            <input class="cancel-popup js-cancel-successful" type="button" value="Отмена">
+     <div class="overlay js-relations-warning">
+        <div class="popup js-relations-warning">
+            <h2 class="message-open-warning"></h2>
+            <div class="close-popup js-close-successful"></div>
         </div>
     </div>
-</div>
 
-<div class="overlay js-table-delete">
-    <div class="popup js-table-delete">
-        <h2 class="delete-confirmation">Вы действительно хотите удалить данную таблицу?</h2>
-        <div class="modal_choice_but">
-            <input class="okay-popup js-okay-successful" type="button" value="Ок">
-            <input class="cancel-popup js-cancel-successful" type="button" value="Отмена">
+    <div class="overlay js-delete-element">
+        <div class="popup js-delete-element">
+            <h2 class="delete-confirmation"></h2>
+            <div class="modal_choice_but">
+                <input class="btn btn-success okay-popup js-okay-successful" type="button" value="Ок">
+                <input class="btn btn-danger cancel-popup js-cancel-successful" type="button" value="Отмена">
+            </div>
         </div>
     </div>
-</div>
-
-<div class="overlay js-row-delete-if-cell">
-    <div class="popup js-row-delete-if-cell">
-        <h2 class="delete-confirmation">Для удаления строки необходимо сначала очистить ячейки этой строка. Очистить?</h2>
-        <div class="modal_choice_but">
-            <input class="okay-popup js-okay-successful" type="button" value="Ок">
-            <input class="cancel-popup js-cancel-successful" type="button" value="Отмена">
-        </div>
-    </div>
-</div>
-
-<div class="overlay js-row-delete">
-    <div class="popup js-row-delete">
-        <h2 class="delete-confirmation">Вы действительно хотите удалить данную строку?</h2>
-        <div class="modal_choice_but">
-            <input class="okay-popup js-okay-successful" type="button" value="Ок">
-            <input class="cancel-popup js-cancel-successful" type="button" value="Отмена">
-        </div>
-    </div>
-</div>
-
-<div class="overlay js-column-delete-if-cell">
-    <div class="popup js-column-delete-if-cell">
-        <h2 class="delete-confirmation">Для удаления столбца необходимо сначала очистить ячейки этого столбца. Очистить?</h2>
-        <div class="modal_choice_but">
-            <input class="okay-popup js-okay-successful" type="button" value="Ок">
-            <input class="cancel-popup js-cancel-successful" type="button" value="Отмена">
-        </div>
-    </div>
-</div>
-
-<div class="overlay js-column-delete">
-    <div class="popup js-column-delete">
-        <h2 class="delete-confirmation">Вы действительно хотите удалить данную строку?</h2>
-        <div class="modal_choice_but ">
-            <input class="okay-popup js-okay-successful" type="button" value="Ок">
-            <input class="cancel-popup js-cancel-successful" type="button" value="Отмена">
-        </div>
-    </div>
-</div>
-
-<div class="overlay js-element-row-delete">
-    <div class="popup js-element-row-delete">
-        <h2 class="delete-confirmation">Вы действительно хотите удалить элемент строки?</h2>
-        <div class="modal_choice_but">
-            <input class="okay-popup js-okay-successful" type="button" value="Ок">
-            <input class="cancel-popup js-cancel-successful" type="button" value="Отмена">
-        </div>
-    </div>
-</div>
-
-<div class="overlay js-element-column-delete">
-    <div class="popup js-element-column-delete">
-        <h2 class="delete-confirmation">Вы действительно хотите удалить элемент столбца?</h2>
-        <div class="modal_choice_but">
-            <input class="okay-popup js-okay-successful" type="button" value="Ок">
-            <input class="cancel-popup js-cancel-successful" type="button" value="Отмена">
-        </div>
-    </div>
-</div>
 
 {% endblock %}

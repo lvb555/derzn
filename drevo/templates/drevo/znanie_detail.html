@@ -101,12 +101,10 @@
                 <p class="options m-0 d-inline" style="padding-left: 20px; color: #BFBFBF;"><i class="bi bi-eye-fill"></i> {{ visits }}</p>
             </div>
         </div>
-
-        <p class="author-title" style="padding:20px 0px 20px 0px; border:none; height: auto;line-height: 120%;" id="znanie_name" value="{{ znanie.get_absolute_url }}">
+          <p class="author-title" style="padding:20px 0px 20px 0px; border:none; height: auto;line-height: 120%;" id="znanie_name" value="{{ znanie.get_absolute_url }}">
             {% get_color_by_tz znanie.tz.name flag_only=True %}
             {{ znanie.name }}
           </p>
-
       {% if znanie.content %}
         <p class="author-description" style="color:#6C757D;">Содержание</p>
         <p class="author-description" style="color:#212529; margin-top:5px;">{{ znanie.content|safe }}</p>
@@ -171,6 +169,11 @@
             <a href="{% url 'grade' znanie.id %}" class="btn btn-header" style="height: fit-content; margin-right: 10px; padding: 8px 24px;">Оценка знания</a>
         {% endif %}
         {% if request.user.is_authenticated %}
+          <div class="suggestion">
+            <a style="color: #212529;" class="suggestion__btn btn btn-icon" href="{{ suggestion_url }}">
+              Делаем вместе
+            </a>
+          </div>
           <div>
             <a class="btn open-popup btn-icon" style="background-color: #E7ECEB; color: #083E2F; padding: 8px 24px;">Отправить в Ленту знаний</a>
             <div class="popup__bg">
@@ -234,31 +237,7 @@
         </div>
         <div class="row mb-2">
           <div class="col">
-            <div class="d-flex">
-              <div class="button-block mx-3" style="white-space: nowrap">
-                <button type="button" id="likeButton" class="btn btn-icon"
-                {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
-                  <i class="bi {% if user_vote.like %} bi-hand-thumbs-up-fill {% else %} bi-hand-thumbs-up {% endif %} fs-5"
-                    id="likeIcon" style="color:#BFBFBF"><img src="{% static 'drevo/img/grey_arm.png' %}" width="14px" style="vertical-align: revert;">
-                      <span id="likesCounter" class="header_info breadcrumb-item">{{ likes_count }}</span></i>
-                </button>
-              </div>
-              <div class="mx-3" style="white-space: nowrap">
-                <button type="button" id="dislikeButton" class="btn btn-icon"
-                {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
-                  <i class="bi {% if user_vote.dislike %} bi-hand-thumbs-down-fill {% else %} bi-hand-thumbs-down {% endif %} fs-5"
-                    id="dislikeIcon" style="color:#BFBFBF"><img src="{% static 'drevo/img/grey_arm.png' %}" width="14px">
-                      <span id="dislikesCounter" class="header_info breadcrumb-item">{{ dislikes_count }}</span></i>
-                </button>
-              </div>
-              <div class="mb-lg-0 ms-3" style="white-space: nowrap">
-                <button type="button" id="favouriteButton" class="btn btn-icon"
-                        {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
-                    <i class="bi bi-star{% if user_favourite %}-fill{% endif %} fs-5" style="color: #BFBFBF;"
-                       id="favouriteIcon"><span> В избранное</span></i>
-                </button>
-              </div>
-            </div>
+              {% include "drevo/reacting.html" %}
           </div>
         </div>
       </div>
@@ -682,7 +661,5 @@
 
 {% block jsfiles %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{% static 'drevo/js/rating.js' %}"></script>
 <script src="{% static 'drevo/js/comments.js' %}"></script>
-<script src="{% static 'drevo/js/favourite.js' %}"></script>
 {% endblock %}
