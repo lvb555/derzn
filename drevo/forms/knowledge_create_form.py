@@ -3,8 +3,7 @@ from django import forms
 from django.db.models import Q
 from django.forms import inlineformset_factory
 from mptt.forms import TreeNodeChoiceField
-
-from drevo.models import Znanie, Category, ZnImage, Label, Tz
+from drevo.models import Znanie, Category, ZnImage, Label, Tz, ZnFile
 from drevo.models.utils import get_model_or_stub
 
 from .knowledge_form import ZnanieValidators
@@ -51,6 +50,15 @@ ZnImageFormSet = inlineformset_factory(
     ZnImage,
     fields=('photo',),
     extra=3,
+    can_delete=False
+)
+
+
+ZnFilesFormSet = inlineformset_factory(
+    Znanie,
+    ZnFile,
+    fields=('file',),
+    extra=1,
     can_delete=False
 )
 

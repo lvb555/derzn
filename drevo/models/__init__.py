@@ -5,6 +5,7 @@ from .comment import Comment  # noqa
 from .glossary import GlossaryTerm  # noqa
 from .ip import IP  # noqa
 from .knowledge_image import ZnImage  # noqa
+from .knowledge_file import ZnFile
 from .knowledge_kind import Tz  # noqa
 from .knowledge_rating import ZnRating  # noqa
 from .knowledge import Znanie  # noqa
