@@ -57,6 +57,8 @@ from .models import (
     SubAnswers,
     RelationshipTzTr,
     RelationStatuses,
+    QuestionToKnowledge,
+    UserAnswerToQuestion
 )
 from .models.appeal import Appeal
 from .services import send_notify_interview
@@ -712,6 +714,8 @@ class QuestionToKnowledgeAdmin(admin.ModelAdmin):
         "knowledge",
         "question",
     )
+    search_fields = ["knowledge__name"]
+    list_filter = ["knowledge"]
     autocomplete_fields = ["knowledge"]
 
 
@@ -726,4 +730,7 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
         "answer_file",
         "accepted",
     )
+    search_fields = ["knowledge__name"]
+    list_filter = ["knowledge"]
+    list_display_links = ("knowledge", "question")
     raw_id_fields = ["knowledge", "question"]

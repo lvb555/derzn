@@ -12,15 +12,13 @@ class UserAnswerToQuestion(models.Model):
     title = 'Ответы'
     knowledge = models.ForeignKey(
         Znanie,
-        on_delete=models.PROTECT,
-        verbose_name="Знание",
-        related_name="answer"
+        on_delete=models.CASCADE,
+        verbose_name="Знание"
     )
     question = models.ForeignKey(
         QuestionToKnowledge,
         on_delete=models.CASCADE,
-        verbose_name="Вопрос",
-        related_name="answer"
+        verbose_name="Вопрос"
     )
     answer = models.TextField(
         max_length=2048,
@@ -34,8 +32,7 @@ class UserAnswerToQuestion(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
-        verbose_name="Пользователь",
-        related_name="answer"
+        verbose_name="Пользователь"
     )
     accepted = models.BooleanField(
         default=False,

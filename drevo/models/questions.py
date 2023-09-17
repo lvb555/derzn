@@ -12,8 +12,7 @@ class QuestionToKnowledge(models.Model):
     knowledge = models.ForeignKey(
         Znanie,
         on_delete=models.PROTECT,
-        verbose_name="Знание",
-        related_name="question"
+        verbose_name="Знание"
         )
     question = models.CharField(
         max_length=256,
