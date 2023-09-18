@@ -1,7 +1,8 @@
 from django.urls import path
 from users.views import LoginFormView, RegistrationFormView, \
     LogoutFormView, UserProfileTemplateView, UserProfileFormView, UserVerifyView, \
-    UserPasswordRecoveryFormView, UserSetPasswordFormView, MenuSectionsAdd, my_profile, change_username
+    UserPasswordRecoveryFormView, UserSetPasswordFormView, MenuSectionsAdd, my_profile, change_username, \
+    UserSuggestionView
 
 app_name = 'users'
 
@@ -20,4 +21,5 @@ urlpatterns = [
          name='password-recovery'),
     path('password-recovery-link/<str:email>/<str:password_recovery_key>/',
          UserSetPasswordFormView.as_view(), name='password-recovery-link'),
+    path('create_suggestion/', UserSuggestionView.as_view(), name='create-suggestion'),
 ]
