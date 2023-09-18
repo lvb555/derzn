@@ -380,7 +380,7 @@ function nextAction(action){
                 }
             }
         }else if(action.parentNode.nextSibling && !(action.parentNode.nextSibling.querySelector('span').classList.contains('text-secondary'))){
-            showNotification(next_action.querySelector('span'), 'comment');
+            showNotification(action.parentNode.nextSibling.querySelector('span'), 'comment');
         }else{
             findAncestors(action);
         }
@@ -555,7 +555,7 @@ function findAncestors(child){
                 if(child.parentNode.nextSibling && child.parentNode.nextSibling.style.display != 'none'){
                     findNextAction(child.parentNode.nextSibling)
                 }else if(child.parentNode.nextSibling && !(child.parentNode.nextSibling.querySelector('span').classList.contains('text-secondary'))){
-                    showNotification(next_action.querySelector('span'), 'comment');
+                    showNotification(child.parentNode.nextSibling.querySelector('span'), 'comment');
                 }else{
                     ancestor.checked = true;
                     ancestor.disabled = false;
@@ -577,7 +577,7 @@ function findAncestors(child){
             if(child.parentNode.nextSibling && child.parentNode.nextSibling.style.display != 'none'){
                 findNextAction(child.parentNode.nextSibling);
             }else if(child.parentNode.nextSibling && !(child.parentNode.nextSibling.querySelector('span').classList.contains('text-secondary'))){
-            showNotification(next_action.querySelector('span'), 'comment');
+            showNotification(child.parentNode.nextSibling.querySelector('span'), 'comment');
             }
         }
     }
