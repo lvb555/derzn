@@ -379,7 +379,8 @@ function nextAction(action){
                     findNextAction(action.parentNode.nextSibling);
                 }
             }
-        }else if(action.parentNode.nextSibling && !(action.parentNode.nextSibling.querySelector('span').classList.contains('text-secondary'))){
+        }else if(action.parentNode.nextSibling && !(action.parentNode.nextSibling.querySelector('span').classList.contains('text-secondary'))
+        && !(action.parentNode.nextSibling.getAttribute('value') == 'Иначе')){
             showNotification(action.parentNode.nextSibling.querySelector('span'), 'comment');
         }else{
             findAncestors(action);
@@ -450,6 +451,12 @@ function answerCondition(answer){
                         condition_element.style.display = 'none';
                     }else{
                         condition_element.style.display = 'block';
+                        if(!condition_element.querySelector('span').classList.contains('text-secondary')){
+                            showNotification(condition_element.querySelector('span'), 'comment');
+                            if(!condition_element.nextSibling){
+                                findAncestors(condition_element.querySelector('span'));
+                            }
+                        }
                     }
                     if(!condition_element.nextSibling) break;
                     condition_element = condition_element.nextSibling
@@ -467,6 +474,12 @@ function answerCondition(answer){
                     condition_element.style.display = 'none';
                 }else if(flag==1 && !first_checkbox_founded){
                     condition_element.style.display = 'block';
+                    if(!condition_element.querySelector('span').classList.contains('text-secondary')){
+                        showNotification(condition_element.querySelector('span'), 'comment');
+                        if(!condition_element.nextSibling){
+                            findAncestors(condition_element.querySelector('span'));
+                        }
+                    }
                     if(condition_element.querySelector('input[type="checkbox"]')){
                         if(condition_element.querySelector('input[type="checkbox"]').parentNode.lastChild.tagName == 'UL' && condition_element.querySelector('input[type="checkbox"]').parentNode.lastChild.getElementsByTagName('li').length > 0){
                             recurseOpening(condition_element.querySelector('input[type="checkbox"]'));
@@ -551,10 +564,11 @@ function findAncestors(child){
         if(ancestor.value == 'Блок'){
             actionInBlock(ancestor, 'block');
         }else if(ancestor.value == 'Алгоритм' || ancestor.value == 'Раздел' || ancestor.value == 'Условие'){
-            if(child.checked == true){
+            if(child.checked == true || child.tagName == 'SPAN'){
                 if(child.parentNode.nextSibling && child.parentNode.nextSibling.style.display != 'none'){
                     findNextAction(child.parentNode.nextSibling)
-                }else if(child.parentNode.nextSibling && !(child.parentNode.nextSibling.querySelector('span').classList.contains('text-secondary'))){
+                }else if(child.parentNode.nextSibling && !(child.parentNode.nextSibling.querySelector('span').classList.contains('text-secondary'))
+                && !(child.parentNode.nextSibling.getAttribute('value') == 'Иначе')){
                     showNotification(child.parentNode.nextSibling.querySelector('span'), 'comment');
                 }else{
                     ancestor.checked = true;
