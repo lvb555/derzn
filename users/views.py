@@ -488,17 +488,16 @@ def change_username(request):
     return redirect('users:myprofile')
 
 
-class UserSuggestionView(LoginRequiredMixin, TemplateView):
+class UserSuggestionView(TemplateView):
     template_name = 'users/create_suggestion.html'
     context_object_name = 'context'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        parent_knowlege = self.request.GET['knowledge']
+        parent_knowlege = context['knowledge_id']
         
         # результат отправки формы
-        context['query_res'] = self.request.GET.get('query_res', None)  
         context['form'] = SuggestionCreateForm()
 
         context['form']['parent_knowledge'].field.widget.attrs['value']=parent_knowlege
@@ -530,8 +529,6 @@ class UserSuggestionView(LoginRequiredMixin, TemplateView):
                 user=self.request.user
             )
 
-            return HttpResponseRedirect(built_url('users:create-suggestion', 
-                knowledge=form.cleaned_data['parent_knowledge']))
+            return HttpResponseRedirect(reverse('users:create-suggestion',  args=[form.cleaned_data['parent_knowledge']]))
         else:
-            return HttpResponseRedirect(built_url('users:create-suggestion', 
-                knowledge=form.cleaned_data['parent_knowledge']))
+            return HttpResponseRedirect(reverse('users:create-suggestion',  args=[form.cleaned_data['parent_knowledge']]))
