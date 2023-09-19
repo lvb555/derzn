@@ -247,6 +247,9 @@ class SuggestionType(models.Model):
         verbose_name="Является ли тип частным")
     weight = models.IntegerField(verbose_name='Вес для сортировки', primary_key=True)
 
+    def __str__(self):
+        return self.type_name
+
     class Meta:
         verbose_name = 'Вид предложения'
         verbose_name_plural = 'Виды предложений'
