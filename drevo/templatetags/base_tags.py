@@ -1,3 +1,4 @@
+import os
 from django.db.models import QuerySet
 from django.template import Library
 from drevo.models import Tr, Tz
@@ -22,6 +23,12 @@ def url_replace(request, field, value):
     dict_[field] = value
     return dict_.urlencode()
 
+
 @register.filter
 def repeat_for_times(value, count):
     return value * count
+
+
+@register.filter
+def get_extension_or_filename(file_name, part):
+    return os.path.splitext(os.path.basename(file_name))[int(part)][int(part):]

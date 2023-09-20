@@ -44,6 +44,7 @@ from .models import (
     Relation,
     Category,
     ZnImage,
+    ZnFile,
     AuthorType,
     GlossaryTerm,
     ZnRating,
@@ -60,6 +61,7 @@ from .models import (
     QuestionToKnowledge,
     UserAnswerToQuestion
 )
+from .models.algorithms_data import AlgorithmData
 from .models.appeal import Appeal
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -126,6 +128,25 @@ class ZnImageInline(admin.StackedInline):
     photo_out.short_description = "Миниатюра"
 
 
+class ZnFileInline(admin.StackedInline):
+    """
+    Класс для "встраивания" формы добавления файлов в форму создания Знания
+    """
+
+    model = ZnFile
+    extra = 1
+    verbose_name_plural = "Файлы"
+    verbose_name = "Файл"
+
+    def files_out(self, obj):
+        """
+        Выводит фото вместо текста ссылки
+        """
+        return mark_safe(f'<a href="{obj.href}">источник</a>')
+
+    files_out.short_description = "Файл"
+
+
 class ZnanieAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -153,6 +174,7 @@ class ZnanieAdmin(admin.ModelAdmin):
     list_per_page = 30
     inlines = [
         ZnImageInline,
+        ZnFileInline
     ]
     exclude = ("visits",)
     change_list_template = "admin/drevo/knowledge/change_list.html"
@@ -706,6 +728,11 @@ class RelationshipTzTrAdmin(admin.ModelAdmin):
 class AppealAdmin(admin.ModelAdmin):
     list_display = ("user", "subject", "created_at", "admin")
     readonly_fields = ("created_at", "resolved")
+
+
+@admin.register(AlgorithmData)
+class AlgorithmDataAdmin(admin.ModelAdmin):
+    list_display = ("user", "algorithm", "work_name")
 
 
 @admin.register(QuestionToKnowledge)
