@@ -728,10 +728,9 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
         "answer",
         "date",
         "user",
-        "answer_file",
         "accepted",
     )
     search_fields = ["knowledge__name"]
     list_filter = ["knowledge"]
-    list_display_links = ("knowledge", "question")
+    list_display_links = ("knowledge", "answer")
     raw_id_fields = ["knowledge", "question"]
