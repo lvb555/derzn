@@ -11,7 +11,7 @@ class QuestionToKnowledge(models.Model):
     title = 'Вопросы'
     knowledge = models.ForeignKey(
         Znanie,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name="Знание"
         )
     question = models.CharField(

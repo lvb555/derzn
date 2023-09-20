@@ -1,0 +1,17 @@
+{% extends 'drevo/base.html' %}
+{% block content %}
+    <h1>Знание: {{ znanie }}</h1>
+    {% if user.is_authenticated %}
+        {% for question in questions %}
+        <div>
+            <form action="questions" enctype="multipart/form-data" method="post">
+                {{ question }}
+                {% csrf_token %}
+                {{ answer }}
+                <input type="hidden" name="question_id" value="{{ question.id }}">
+                <input type="submit">
+            </form>
+        </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

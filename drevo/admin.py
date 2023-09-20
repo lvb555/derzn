@@ -716,6 +716,7 @@ class QuestionToKnowledgeAdmin(admin.ModelAdmin):
     )
     search_fields = ["knowledge__name"]
     list_filter = ["knowledge"]
+    list_display_links = ["question"]
     autocomplete_fields = ["knowledge"]
 
 
