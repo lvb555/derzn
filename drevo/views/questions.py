@@ -24,10 +24,10 @@ def save_answer(request, pk):
                 answer_file = file,
                 user = request.user
             ).save()
-            return HttpResponseRedirect("questions")
+            return HttpResponseRedirect("questions_user")
     knowledge = Znanie.objects.get(id=pk).name
     questions = QuestionToKnowledge.objects.filter(knowledge=pk)
-    return render(request, "drevo/questions.html",{
+    return render(request, "drevo/questions_user.html",{
         "pk": pk,
         "znanie": knowledge,
         "questions": questions,
