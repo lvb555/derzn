@@ -14,7 +14,6 @@ def save_answer(request, pk):
     if request.method == "POST":
         form = FormAnswer(request.POST, request.FILES)
         question_id = request.POST.get("question_id")
-        print(question_id)
         if form.is_valid():
             answer = form.cleaned_data["answer"]
             file = request.FILES["file"]

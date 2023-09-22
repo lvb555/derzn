@@ -15,7 +15,7 @@ class QuestionToKnowledge(models.Model):
         verbose_name="Знание"
         )
     question = models.CharField(
-        max_length=256,
+        max_length=255,
         blank=False,
         verbose_name="Вопрос"
     )
