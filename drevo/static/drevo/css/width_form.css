@@ -7,3 +7,6 @@
 #id_question {
     width: 70vw;
 }
+.nowrap {
+    white-space: normal;
+}
