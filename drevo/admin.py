@@ -740,9 +740,10 @@ class QuestionToKnowledgeAdmin(admin.ModelAdmin):
     list_display = (
         "knowledge",
         "question",
+        "publication"
     )
     search_fields = ["knowledge__name"]
-    list_filter = ["knowledge"]
+    list_filter = ["publication"]
     list_display_links = ["question"]
     autocomplete_fields = ["knowledge"]
 
@@ -761,7 +762,6 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
         "accepted",
     )
     search_fields = ["knowledge__name"]
-    list_filter = ["knowledge"]
     list_display_links = ("knowledge", "answer")
     
     class Media:

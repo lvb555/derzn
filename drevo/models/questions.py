@@ -19,6 +19,10 @@ class QuestionToKnowledge(models.Model):
         blank=False,
         verbose_name="Вопрос"
     )
+    publication = models.BooleanField(
+        default=False,
+        verbose_name="Опубликовано?"
+    )
 
     def __str__(self):
         return self.question

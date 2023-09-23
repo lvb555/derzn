@@ -4,7 +4,6 @@ textarea {
     height: 86px;
     background: rgba(245, 245, 245, 0.75);
     border-radius: 8px;
-    color: #BFBFBF;
 }
 
 label {
@@ -32,6 +31,7 @@ label {
     font-size: 12px;
     line-height: 200%;
     letter-spacing: 0.02em;
+    margin: 10px;
 }
 
 .button {
@@ -47,5 +47,5 @@ label {
 
 .question {
     margin: 10px;
-
+    /* text-align: center; */
 }
