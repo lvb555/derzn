@@ -2,5 +2,5 @@ from django import forms
 
 
 class FormAnswer(forms.Form):
-    answer = forms.CharField(label="Answer", widget=forms.Textarea)
+    answer = forms.CharField(widget=forms.Textarea)
     file = forms.FileField()

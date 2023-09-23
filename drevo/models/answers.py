@@ -49,4 +49,4 @@ class UserAnswerToQuestion(models.Model):
 
     class Meta:
         verbose_name = 'Ответ на вопрос'
-        verbose_name_plural = 'Ответы на вопросы пользователя'  
+        verbose_name_plural = 'Ответы на вопросы'  

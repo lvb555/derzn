@@ -746,6 +746,9 @@ class QuestionToKnowledgeAdmin(admin.ModelAdmin):
     list_display_links = ["question"]
     autocomplete_fields = ["knowledge"]
 
+    class Media:
+        css = {"all": ("drevo/css/width_form.css",)}
+
 
 @admin.register(UserAnswerToQuestion)
 class UserAnswerToQuestionAdmin(admin.ModelAdmin):
@@ -760,4 +763,6 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
     search_fields = ["knowledge__name"]
     list_filter = ["knowledge"]
     list_display_links = ("knowledge", "answer")
-    raw_id_fields = ["knowledge", "question"]
+    
+    class Media:
+        css = {"all": ("drevo/css/width_form.css",)}

@@ -166,7 +166,7 @@ urlpatterns = [
     path("cookie_acceptance/", CookieAcceptance.as_view()),
     path("", DrevoView.as_view(), name="drevo"),
     path("znanie/<int:pk>", ZnanieDetailView.as_view(), name="zdetail"),
-    path("znanie/<int:pk>/questions", save_answer, name="questions"),
+    path("znanie/<int:pk>/questions_user", save_answer, name="questions"),
     path("znanie/<int:pk>/favourite", FavouriteProcessView.as_view()),
     path("znanie/<int:pk>/comments/", CommentPageView.as_view()),
     path("znanie/<int:pk>/comments/send/", CommentSendView.as_view()),

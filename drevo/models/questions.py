@@ -25,4 +25,4 @@ class QuestionToKnowledge(models.Model):
 
     class Meta:
         verbose_name = 'Вопрос'
-        verbose_name_plural = 'Вопросы пользователя'
+        verbose_name_plural = 'Вопросы пользователям'
