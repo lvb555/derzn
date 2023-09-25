@@ -504,7 +504,7 @@ class UserSuggestionView(TemplateView):
         context['knowledge'] = Znanie.objects.get(id=parent_knowlege)
 
         context['approved_suggestion'] = UserSuggection.objects.filter(
-            is_approve__exact=True, 
+            user=user,
             parent_knowlege=parent_knowlege)
 
         return context
@@ -523,8 +523,6 @@ class UserSuggestionView(TemplateView):
         if form.is_valid():
             UserSuggection.objects.create(
                 parent_knowlege=Znanie.objects.get(id=int(form.cleaned_data['parent_knowledge'])),
-                knowledge_type=form.cleaned_data['knowledge_type'],
-                relation_type=form.cleaned_data['relation_type'],
                 name=form.cleaned_data['name'],
                 user=self.request.user
             )
