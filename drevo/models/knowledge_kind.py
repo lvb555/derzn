@@ -1,5 +1,6 @@
 from django.db import models
 from .knowledge import Znanie
+from users.models import SuggestionType
 
 
 class Tz(models.Model):
@@ -52,6 +53,10 @@ class Tz(models.Model):
         verbose_name='Источник обязателен для заполнения'
     )
     objects = models.Manager()
+
+    available_suggestion_types = models.ManyToManyField(to=SuggestionType,
+        verbose_name='Типы предложений',
+        blank=True)
 
     def __str__(self):
         return self.name
