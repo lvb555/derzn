@@ -242,9 +242,6 @@ class UserSuggection(models.Model):
 
 class SuggestionType(models.Model):
     type_name = models.CharField(max_length=256, verbose_name='Название типа')
-    is_private = models.BooleanField(blank=True, 
-        default=False, 
-        verbose_name="Является ли тип частным")
     weight = models.IntegerField(verbose_name='Вес для сортировки', primary_key=True)
 
     def __str__(self):

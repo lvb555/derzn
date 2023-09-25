@@ -84,5 +84,5 @@ class UserSuggestionAdmin(admin.ModelAdmin):
 
 @admin.register(SuggestionType)
 class SuggestionTypeAdmin(admin.ModelAdmin):
-    list_display = ('type_name', 'is_private', 'weight')
+    list_display = ('type_name', 'weight')
     list_filter = ('type_name', 'weight')
