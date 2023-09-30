@@ -487,46 +487,47 @@ def change_username(request):
 
     return redirect('users:myprofile')
 
-
 class UserSuggestionView(TemplateView):
     template_name = 'users/create_suggestion.html'
     context_object_name = 'context'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         user = self.request.user
         parent_knowlege = context['knowledge_id']
-        
-        # результат отправки формы
-        context['form'] = SuggestionCreateForm()
 
-        context['form']['parent_knowledge'].field.widget.attrs['value']=parent_knowlege
+        # результат отправки формы
         context['knowledge'] = Znanie.objects.get(id=parent_knowlege)
 
-        context['approved_suggestion'] = UserSuggection.objects.filter(
-            user=user,
-            parent_knowlege=parent_knowlege)
+        # предложения, отправленные пользователем
+        if user.is_authenticated:
+            context['user_suggestions'] = UserSuggection.objects.filter(
+                user=user,
+                parent_knowlege=parent_knowlege)
 
         return context
 
     def post(self, request, *args, **kwargs):
 
-        def built_url(url_path_name, **kwargs):
-            url = reverse(url_path_name)
-            params = ''.join([f'{k}={v}&' for k, v in zip(kwargs.keys(), kwargs.values())])
-            if len(params):
-                return url + '?' + params[:-1]
-            else:
-                return url
-
-        form = SuggestionCreateForm(request.POST)
-        if form.is_valid():
-            UserSuggection.objects.create(
-                parent_knowlege=Znanie.objects.get(id=int(form.cleaned_data['parent_knowledge'])),
-                name=form.cleaned_data['name'],
-                user=self.request.user
-            )
-
-            return HttpResponseRedirect(reverse('users:create-suggestion',  args=[form.cleaned_data['parent_knowledge']]))
-        else:
-            return HttpResponseRedirect(reverse('users:create-suggestion',  args=[form.cleaned_data['parent_knowledge']]))
+        # получение родительского знания
+        try:
+            knowledge = Znanie.objects.get(pk=int(request.POST['parent-knowledge-id']))
+        except: 
+            # переадресация на исходную страницу
+            return HttpResponseRedirect(request.get_full_path(), 
+                content='Не определено родительское знание', 
+                content_type='text/plain')
+        # создание предложений, вписанных пользователем в форму
+        for t in knowledge.tz.available_suggestion_types.all():
+            for sugg in request.POST.getlist(f'field-of-type-{t.pk}'):
+                if len(sugg.replace(' ', '')) > 0:
+                    UserSuggection.objects.create(
+                        parent_knowlege=knowledge,
+                        name=sugg,
+                        suggestions_type=t,
+                        user=self.request.user
+                    )
+        # переадресация на страницу с предложениями пользователя
+        return HttpResponseRedirect(reverse('users:create-suggestion',  args=[knowledge.pk]))
+        
