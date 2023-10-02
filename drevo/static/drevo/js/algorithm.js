@@ -422,25 +422,25 @@ function answerCondition(answer){
     if(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == ''+answer+'').length > 0){
         condition_element = current_condition.parentNode.lastChild.firstChild;
         if(answer == 'Тогда'){
-            findNextAction(condition_element);
             if(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
              == "Иначе").length > 0){
                  Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
                  == "Иначе")[0].style.display = 'none';
              }
+             findNextAction(condition_element);
              if(condition_element.firstChild.nextSibling){
                 findAncestors(condition_element.firstChild.nextSibling);
              }else{
                 findAncestors(condition_element.firstChild);
              }
         }else{
-            findNextAction(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
-            == "Иначе")[0])
             if(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
             == "Тогда").length > 0){
                 Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
                 == "Тогда")[0].style.display = 'none';
             }
+            findNextAction(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
+            == "Иначе")[0])
             if(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
                 == "Иначе")[0].firstChild.nextSibling){
                 findAncestors(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
@@ -477,11 +477,7 @@ function actionInBlock(examined_block, type){
         });
     }else{
         examined_block.parentNode.lastChild.querySelectorAll('input[type="checkbox"]').forEach((elem) => {
-            if(popup.classList.contains('active') || (elem.previousSibling.checked == true && elem.checked == false)){
-                is_all = 1;
-            }
-            if(elem.checked == false && elem.disabled == false && elem.parentNode.parentNode.style.display != 'none'
-            && elem.parentNode.style.display != 'none'){
+            if(elem.nextSibling.style.color != 'blue' && elem.parentNode.style.display != 'none' && elem.parentNode.parentNode.style.display != 'none'){
                 is_all = 1;
             }
         });
@@ -492,9 +488,9 @@ function actionInBlock(examined_block, type){
         examined_block.disabled = false;
         if(add_comment > 0){
             if(add_comment > 1){
-                showNotification('В этом блоке остались невыполненные необязательные элементы', 'block_notification');
+                showNotification(String('В блоке '+examined_block.nextSibling.firstChild.textContent+' остались невыполненные необязательные элементы'), 'block_notification');
             }else{
-                showNotification('В этом блоке остался невыполненный необязательный элемент', 'block_notification');
+                showNotification(String('В блоке '+examined_block.nextSibling.firstChild.textContent+' остался невыполненный необязательный элемент'), 'block_notification');
             }
         }
         findAncestors(examined_block);
