@@ -1,0 +1,50 @@
+textarea {
+    overflow: hidden;
+    resize: none;
+    height: 86px;
+    background: rgba(245, 245, 245, 0.75);
+    border-radius: 8px;
+}
+
+label {
+    display: none;
+}
+
+.question_text {
+    font-family: Rubik;
+    font-size: 24px;
+    position: inherit;
+    margin-top: 20px;    
+}
+
+.grid {
+    display: grid;
+    margin-top: 30px;
+    grid-template-columns: 30vw auto 80px;
+}
+
+#id_answer {
+    vertical-align: middle;
+}
+
+#id_file {
+    font-size: 12px;
+    line-height: 200%;
+    letter-spacing: 0.02em;
+    margin: 10px;
+}
+
+.button {
+    margin-top: 20px;
+    margin-left: 20px;
+    font-size: 14px;
+    line-height: 200%;
+    letter-spacing: 0.02em;
+    background-color: #083E2F;
+    color: #f8f9fa;
+    border-radius: 8px !important;    
+}
+
+.question {
+    margin: 10px;
+}

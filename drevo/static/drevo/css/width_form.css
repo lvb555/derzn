@@ -1,0 +1,12 @@
+/* Длины полей форм */
+
+#id_knowledge {
+    width: 70vw;
+}
+
+#id_question {
+    width: 70vw;
+}
+.nowrap {
+    white-space: normal;
+}

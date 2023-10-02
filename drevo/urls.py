@@ -138,6 +138,7 @@ from .views.special_permissions_work.view import (
     ExpertCandidateKnowledgeView,
     AdminCandidateKnowledgeView,
 )
+from .views.questions import save_answer
 from .views.interview_and_proposal import my_interview, my_proposal
 from .views.klz_all_knowledges import klz_all
 from .views.my_favourites import my_favourites
@@ -165,6 +166,7 @@ urlpatterns = [
     path("cookie_acceptance/", CookieAcceptance.as_view()),
     path("", DrevoView.as_view(), name="drevo"),
     path("znanie/<int:pk>", ZnanieDetailView.as_view(), name="zdetail"),
+    path("znanie/<int:pk>/questions_user", save_answer, name="questions"),
     path("znanie/<int:pk>/favourite", FavouriteProcessView.as_view()),
     path("znanie/<int:pk>/comments/", CommentPageView.as_view()),
     path("znanie/<int:pk>/comments/send/", CommentSendView.as_view()),

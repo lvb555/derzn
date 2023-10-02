@@ -72,8 +72,15 @@
             <h3 id="end_of_algorithm"></h3>
         </div>
     </div>
-    <div class="p-4" style="border-top: 1px solid var(--grey-1, #DFDFE3);">
-        <input id="save-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить результат">
+    <div class="d-flex" style="border-top: 1px solid var(--grey-1, #DFDFE3);">
+        {% if current_work %}
+        <div class="p-4">
+            <input onclick="onButtonSendClick('same');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить результат">
+        </div>
+        {% endif %}
+        <div class="p-4">
+            <input id="save-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить как новую работу">
+        </div>
     </div>
     <div class="save-form popup__bg">
         <div class="popup p-5">
@@ -83,7 +90,7 @@
             <label class="regular-text m-0" for="work_name">Введите название</label>
             <input class="form-control py-2 text-grey" type="text" placeholder="Введите название" id="work_name" name="work_name">
             <div class="mt-4 d-flex justify-content-around">
-              <input type="button" onclick="onButtonSendClick();" name="save-data" value="Сохранить" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
+              <input type="button" onclick="onButtonSendClick('new');" name="save-data" value="Сохранить" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
             </div>
         </div>
     </div>
