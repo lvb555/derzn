@@ -204,21 +204,7 @@ class UserSuggection(models.Model):
     parent_knowlege = models.ForeignKey(
         to='drevo.Znanie',
         on_delete=models.DO_NOTHING,
-        blank=True,
-        null=True,
         verbose_name='Родительское знание')
-    knowledge_type = models.ForeignKey(
-        to='drevo.Tz',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True,
-        verbose_name='Вид знания')
-    relation_type = models.ForeignKey(
-        to='drevo.Tr',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True,
-        verbose_name='Вид связи')
     name = models.CharField(
         max_length=255,
         verbose_name='Заглавние знание')
@@ -226,9 +212,11 @@ class UserSuggection(models.Model):
         to='User',
         on_delete=models.CASCADE,
         related_name='suggestions',
-        blank=True,
-        null=True,
         verbose_name='Пользователь, предложивший знание')
+    suggestions_type = models.ForeignKey(
+        to='SuggestionType',
+        on_delete=models.CASCADE,
+        verbose_name='Вид предложения')
     expert = models.ForeignKey(
         to='User',
         on_delete=models.SET_NULL,
@@ -251,3 +239,14 @@ class UserSuggection(models.Model):
     class Meta:
         verbose_name = 'Пользовательское предложение'
         verbose_name_plural = 'Пользовательские предложения'
+
+class SuggestionType(models.Model):
+    type_name = models.CharField(max_length=255, verbose_name='Название типа')
+    weight = models.IntegerField(verbose_name='Вес для сортировки', primary_key=True)
+
+    def __str__(self):
+        return self.type_name
+
+    class Meta:
+        verbose_name = 'Вид предложения'
+        verbose_name_plural = 'Виды предложений'
