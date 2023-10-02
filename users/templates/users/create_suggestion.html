@@ -18,7 +18,7 @@
 		{% if request.user.is_authenticated %}
 
 		<table class="align-middle suggestions-table">
-			{% if approved_suggestion|length != 0 %}
+			{% if user_suggestions|length != 0 %}
 				<thead>
 					<tr>
 						<th>Вид предложения</th>
