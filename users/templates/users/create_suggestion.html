@@ -14,79 +14,72 @@
 
 {% block content %}
 	<div class="basic">
-	<p class="suggestion-from-title"> Знание:&nbsp;<a href="{% url 'zdetail' knowledge.id %}">{{ knowledge.name }}</a></p>
-	{% if request.user.is_authenticated %}
-			<a href="#popup" style="color:#313537;" class="popup-show-btn btn btn-icon">Внести предложение</a>
-				<table class="align-middle suggestiond-table">
-		{% if users_suggestions|length != 0 %}
-			<thead>
-				<tr>
-					<th>Вид предложения</th>
-					<th>Текст знания</th>
-					<th>Статус</th>
-				</tr>
-			</thead>
-			{% for str in users_suggestions %}
-				<tr>
-					<td> {{ str.suggestions_type }} </td>
-					<td> {{ str.name }} </td>
-					<td> 
-						{% if str.is_approve is None %}
-							<span style="color:#A1A1A1">Ожидает проверки</span>
-						{% elif str.is_approve is False %}
-							<span style="color:#EA2F2F">Отклонено</span>
-						{% elif str.is_approve is True %}
-							<span style="color:#52E359">Одобрено</span>
-						{% endif %}
-					</td>
-				</tr>
-			{% endfor %}
-		{% else %}
-			<p>Еще нет знаний, одобренных экспертами</p>
-		{% endif %}
-	</table>
-	{% else %}
-	<div class="card alert-warning">
-		<div class="card-body">
-			<span class="card-text">
-			<a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
-                  или
-			<a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
-                  чтобы внести предложение.
-			</span>
-		</div>
-	</div>
-	{% endif %}
+		<p class="suggestion-form-title"> Знание:&nbsp;<a href="{% url 'zdetail' knowledge.id %}">{{ knowledge.name }}</a></p>
+		{% if request.user.is_authenticated %}
 
-	<div class="popup" id="popup">
-		<a class="popup__area" href="#"></a>
-		<div class="popup__body">
-		<div class="popup__content">
-			<a class="popup__close" href="#">x</a>
-			<form action="{{ request.get_full_path }}" method="post" class="suggestion-from__form">
-				{% csrf_token %}
-				{% for h_field in form.hidden_fields%}
-					{{ field }}
+		<table class="align-middle suggestions-table">
+			{% if user_suggestions|length != 0 %}
+				<thead>
+					<tr>
+						<th>Вид предложения</th>
+						<th>Текст знания</th>
+						<th>Статус</th>
+					</tr>
+				</thead>
+				{% for str in user_suggestions %}
+					<tr>
+						<td> {{ str.suggestions_type }} </td>
+						<td> {{ str.name }} </td>
+						<td> 
+							{% if str.is_approve is None %}
+								<span style="color:#A1A1A1">Ожидает проверки</span>
+							{% elif str.is_approve is False %}
+								<span style="color:#EA2F2F">Отклонено</span>
+							{% elif str.is_approve is True %}
+								<span style="color:#52E359">Одобрено</span>
+							{% endif %}
+						</td>
+					</tr>
 				{% endfor %}
-				{% for field in form %}
-					{% if not field.is_hidden %}
-						<div class="suggestion-form__field">
-							{{ field.label_tag}}<br>
-							{{ field }}
-						</div>
-					{% else%}
-						{{field}}
-					{% endif %}
-				{% endfor %}
-				<div class="suggestion-form__btn">
-					<button class="btn btn-header" class type="submit">Сохранить</button>
+			{% else %}
+				<p>Вы еще ничего не предложили</p>
+			{% endif %}
+		</table>
+		<h3>Внести свое предложение</h3>
+		<form action="{{ request.get_full_path }}" method="post" class="suggestion-from">
+			{% csrf_token %}
+
+			<input type="text" hidden value="{{knowledge.pk}}" name="parent-knowledge-id">
+
+			{% for suggestion_type in knowledge.tz.available_suggestion_types.all %}
+				<div class="same-type-suggestions">
+					<p class="same-type-suggestions__type-name">{{ suggestion_type.type_name }}</p>
+					<div class="same-type-suggestions__fields" id="fields-of-type-{{ suggestion_type.pk }}">
+						<input class="form-control	" type="text" name="field-of-type-{{ suggestion_type.pk }}" id="field-of-type-{{ suggestion_type.pk }}">
+					</div>
+					<button id="type-{{ suggestion_type.pk }}" class="same_type_suggestions__add btn btn-header" type="button">+</button>
+					<button id="type-{{ suggestion_type.pk }}" class="same_type_suggestions__remove btn btn-header" type="button">-</button>
 				</div>
-			</form>
-		</div>
-		</div>
-	</div>	
+			{% endfor%}
+			<div class="suggestion-form__btn">
+				<button class="btn btn-header" class type="submit">Сохранить</button>
+			</div>
+		</form>
+		{% else %}
+			<div class="card alert-warning">
+				<div class="card-body">
+					<span class="card-text">
+						<a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
+                  		или
+						<a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                  		чтобы внести предложение.
+					</span>
+				</div>
+			</div>
+		{% endif %}
 	</div>
 {% endblock %}
 
 {% block jsfiles %}
+	<script type="text/javascript" src="{% static 'users/js/suggestion_form_fields.js' %}"></script>
 {% endblock %}

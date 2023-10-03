@@ -118,7 +118,7 @@ export EMAIL_USE_SSL=false
 ## инициализировать БД
 
 ```
-./manage.py makemigration && ./manage.py migrate
+./manage.py makemigrations && ./manage.py migrate
 ```
 
 ## загрузить начальные данные

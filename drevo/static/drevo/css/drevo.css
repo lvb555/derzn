@@ -1076,3 +1076,9 @@ a.disabled{
     border: 2px solid black;
     background: white;
 }
+
+a.question {
+    padding: 0;
+    margin-left: 0.5rem;
+    background-color: deeppink;
+}

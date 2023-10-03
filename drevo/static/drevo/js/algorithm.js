@@ -16,8 +16,6 @@ var closeNotificationButton = notificationPopup.querySelector('i');
 var saveBg = document.querySelector('.save-form.popup__bg');
 var savePopup = saveBg.querySelector('.popup');
 var saveClosePopupButton = saveBg.querySelector('.close-popup');
-list_to_send = [];
-let regex = /\s*\([^)]*\)(?![^(]*\))/g;
 var iconElement = document.createElement("i");
 iconElement.className = "bi bi-play-circle-close";
 iconElement.setAttribute("onclick", "toggleHiddenElement(this);");
@@ -28,7 +26,7 @@ var urlParams = new URLSearchParams(window.location.search);
 
 function ShowFirst(){
     if (typeof getPreviousProgress() === 'undefined') {
-        document.querySelector('.basic input[type="checkbox"]').nextSibling.style.color = 'red'
+        document.querySelector('.basic input[type="checkbox"]').nextSibling.style.color = 'red';
         if(!(document.querySelector('.basic div#algorithm_tree span').classList.contains('text-secondary'))){
             showNotification(document.querySelector('.basic div#algorithm_tree span'), 'comment');
         }
@@ -37,6 +35,9 @@ function ShowFirst(){
         }else{
             document.querySelector('.basic input[type="checkbox"]').disabled = false;
         }
+        document.querySelectorAll('#algorithm_tree li[value="Далее"]').forEach((elem) => {
+            elem.style.display = 'none';
+        });
     }else{
         rebuildResult(getPreviousProgress())
     }
@@ -46,12 +47,7 @@ ShowFirst();
 
 
 openPopupButton.addEventListener('click', (e) => {
-    if(urlParams.has('previous_works')){
-        document.querySelector('#title').textContent += ' (Ваш алгоритм будет обновлен, '+
-        'можете ввести новое название или ввести то же)';
-    }
     if (!isAuthenticated) {
-    console.log(window.location.hostname)
     // Если пользователь не авторизован, перенаправляем его на страницу авторизации
         window.location.href = window.location.origin + '/users/login/?next=/drevo/algorithm/'
         + window.location.href.split('/').pop();
@@ -90,12 +86,16 @@ function rebuildResult(list_of_elements){
     }
     previous_element = document.querySelector('.basic input[type="checkbox"]')
     for(let pair in list_of_elements){
-        let [new_level, founded_checkbox]  = findCheckbox(level,list_of_elements[pair]['element__name'], previous_element)
+        let [new_level, founded_checkbox] = findCheckbox(level,list_of_elements[pair]['element__name'], previous_element)
         level = new_level;
         previous_element = founded_checkbox;
         changeCondition(founded_checkbox,list_of_elements[pair]['element_type'])
     }
-
+    document.querySelectorAll('#algorithm_tree li[value="Далее"]').forEach((elem) => {
+        if(elem.firstChild.nextSibling && !(elem.firstChild.nextSibling.nextSibling.style.color)){
+            elem.style.display = 'none';
+        }
+    });
 }
 
 
@@ -104,7 +104,7 @@ function findCheckbox(lay, name, previous_element){
     founded_checkbox = '';
     if(previous_element.parentNode.lastChild.tagName == 'UL'){
         previous_element.parentNode.lastChild.childNodes.forEach((child) => {
-            if(!(child.firstChild && child.firstChild.style.display == 'none') && child.querySelector('.algorithm-element').firstChild.innerText.replace(regex, '') == name){
+            if(!(child.firstChild && child.firstChild.style.display == 'none') && child.querySelector('.algorithm-element a').innerText == name){
                 if(child.lastChild.tagName == 'UL' && child.lastChild.getElementsByTagName('li').length > 0){
                     lay = child.lastChild.childNodes;
                 }
@@ -115,7 +115,7 @@ function findCheckbox(lay, name, previous_element){
     if(founded_checkbox == ''){
         while(founded_checkbox == ''){
             lay[0].parentNode.childNodes.forEach((child) => {
-                if(!(child.firstChild && child.firstChild.style.display == 'none') && child.querySelector('.algorithm-element').firstChild.innerText.replace(regex, '') == name){
+            if(!(child.style.display == 'none') && !(child.firstChild && child.firstChild.style.display == 'none') && child.querySelector('.algorithm-element a').innerText == name){
                     if(child.lastChild.tagName == 'UL' && child.lastChild.getElementsByTagName('li').length > 0){
                         lay = child.lastChild.childNodes;
                     }
@@ -146,37 +146,29 @@ function findIsExceptionType(previous_item, current_item){
                     extra_text.innerText = 'Выбран ответ "Да"'
                     flag = 0;
                     if(Array.from(current_item.parentNode.parentNode.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == "Иначе").length > 0){
-                        while(condition_element){
-                            if(condition_element.getAttribute('value').includes('Иначе')){
-                                flag = 1;
-                            }
-                            if(flag == 1){
-                                condition_element.style.display = 'none';
-                            }
-                            if(!condition_element.nextSibling) break;
-                            condition_element = condition_element.nextSibling
-                        }
+                        Array.from(current_item.parentNode.parentNode.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == "Иначе")[0].style.display = 'none';
                     }
                 }else{
                     extra_text.innerText = 'Выбран ответ "Нет"'
                     if(Array.from(current_item.parentNode.parentNode.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == "Тогда").length > 0){
-                        if(condition_element.previousSibling){
-                            condition_element = condition_element.previousSibling;
-                            while(condition_element){
-                                condition_element.style.display = 'none';
-                                if(!condition_element.previousSibling) break;
-                                condition_element = condition_element.previousSibling;
-                            }
-                        }
+                        Array.from(current_item.parentNode.parentNode.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == "Тогда")[0].style.display = 'none';
                     }
                 }
             }else{
                 if(previous_item.parentNode.lastChild.firstChild.getAttribute('value') == 'Тогда'){
-                    extra_text.innerText = 'Выбран ответ "Нет"'
+                    extra_text.innerText = 'Выбран ответ "Нет"';
+                    if(Array.from(previous_item.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == "Тогда").length > 0){
+                        Array.from(previous_item.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == "Тогда")[0].style.display = 'none';
+                    }
                 }else{
-                    extra_text.innerText = 'Выбран ответ "Да"'
+                    extra_text.innerText = 'Выбран ответ "Да"';
+                    if(Array.from(previous_item.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == "Иначе").length > 0){
+                        Array.from(previous_item.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == "Иначе")[0].style.display = 'none';
+                    }
                 }
-                previous_item.parentNode.lastChild.previousSibling.remove();
+                if(previous_item.parentNode.lastChild.previousSibling.tagName == 'I'){
+                    previous_item.parentNode.lastChild.previousSibling.remove();
+                }
             }
             previous_item.nextSibling.after(extra_text);
         }else{
@@ -189,7 +181,8 @@ function findIsExceptionType(previous_item, current_item){
             }, 1500);
         }
     }else if(previous_item.getAttribute('value') == 'Выбор'){
-        if(current_item.parentNode.getAttribute('value') == 'Вариант' && current_item.parentNode.parentNode == previous_item.parentNode.lastChild){
+        if(current_item.parentNode.getAttribute('value') == 'Вариант' && current_item.parentNode.parentNode == previous_item.parentNode.lastChild
+        && previous_item.checked == true){
             makeDisableOrAvailableAllSiblings(current_item.parentNode, true);
         }
     }
@@ -199,10 +192,6 @@ function findIsExceptionType(previous_item, current_item){
 // Раскрывает подэлемент и окрашивает знание в зависимости от его состояния
 function changeCondition(element, condition){
     if(condition == 'active'){
-        if(element.previousSibling.classList.contains('start')){
-            element.previousSibling.checked = true;
-            element.previousSibling.disabled = false;
-        }
         element.nextSibling.style.color = 'green';
         if(element.getAttribute('value') == 'Действие'){
             element.disabled = false;
@@ -213,17 +202,9 @@ function changeCondition(element, condition){
         element.nextSibling.style.fontWeight  = 'normal';
     }else if(condition == 'available'){
         element.nextSibling.style.color = 'red';
-        if(element.previousSibling.classList.contains('start')){
-            element.previousSibling.disabled = false;
-        }else{
-            element.disabled = false;
-        }
+        element.disabled = false;
         element.nextSibling.style.fontWeight  = 'bold';
     }else{
-        if(element.previousSibling.classList.contains('start')){
-            element.previousSibling.checked = true;
-            element.previousSibling.disabled = false;
-        }
         if(element.parentNode.lastChild.tagName == 'UL'){
             element.parentNode.lastChild.previousSibling.after(iconElement.cloneNode(true));
         }
@@ -231,38 +212,45 @@ function changeCondition(element, condition){
         element.nextSibling.style.fontWeight  = 'normal';
         element.checked = true;
         element.disabled = false;
-
     }
 }
 
 
 function recurseOpening(element){
-    findAncestors(element);
+    element.parentNode.style.display = 'block';
     element.nextSibling.style.color = 'green';
     if(blocks_and_lists_of_variants.includes(element)){
         element.parentNode.lastChild.style.display = 'block';
         element.parentNode.lastChild.childNodes.forEach((elem) => {
-            elem.querySelector('input[type="checkbox"].start').disabled = false;
-            elem.firstChild.nextSibling.nextSibling.nextSibling.style.color = 'red';
-            elem.firstChild.nextSibling.nextSibling.nextSibling.style.fontWeight  = 'bold';
+            elem.querySelector('input[type="checkbox"]').disabled = false;
+            elem.firstChild.nextSibling.nextSibling.style.color = 'red';
+            elem.firstChild.nextSibling.nextSibling.style.fontWeight  = 'bold';
         });
+        findAncestors(element);
     }else if(algorithms_and_chapters.includes(element)){
-        first_sub_elem = element.parentNode.lastChild.querySelector('input[type="checkbox"]')
+        first_sub_elem = element.parentNode.lastChild.querySelector('input[type="checkbox"]');
         element.parentNode.lastChild.style.display = 'block';
-        first_sub_elem.nextSibling.style.color = 'green'
-        if(first_sub_elem.parentNode.lastChild.tagName == 'UL' && first_sub_elem.parentNode.lastChild.getElementsByTagName('li').length > 0){
-            recurseOpening(first_sub_elem);
-            if(!(all_conditions.includes(first_sub_elem))){
-                first_sub_elem.parentNode.lastChild.style.display = 'block';
-            }
+        if(!(element.parentNode.lastChild.querySelector('span').classList.contains('text-secondary'))){
+            findNextAction(element.parentNode.lastChild.firstChild)
         }else{
-            first_sub_elem.disabled = false;
-            if(first_sub_elem.value == 'Конец алгоритма'){
-                first_sub_elem.checked = true;
-                first_sub_elem.disabled = true;
-                nextAction(first_sub_elem);
+            first_sub_elem.nextSibling.style.color = 'green';
+            if(first_sub_elem.parentNode.lastChild.tagName == 'UL' && first_sub_elem.parentNode.lastChild.getElementsByTagName('li').length > 0){
+                recurseOpening(first_sub_elem);
+                if(!(all_conditions.includes(first_sub_elem))){
+                    first_sub_elem.parentNode.lastChild.style.display = 'block';
+                }
+            }else{
+                first_sub_elem.disabled = false;
+                first_sub_elem.nextSibling.style.color = 'red';
+                first_sub_elem.nextSibling.style.fontWeight  = 'bold';
+                if(first_sub_elem.value == 'Конец алгоритма'){
+                    first_sub_elem.checked = true;
+                    first_sub_elem.disabled = true;
+                    nextAction(first_sub_elem);
+                }
             }
         }
+        findAncestors(element);
     }else if(all_conditions.includes(element)){
         document.querySelector('#condition').textContent = element.nextSibling.firstChild.innerText;
         current_condition = element;
@@ -277,13 +265,16 @@ function recurseOpening(element){
 
 function startAction(action){
     if(action.checked == true){
-        action.nextSibling.nextSibling.style.color = 'green';
-        action.nextSibling.nextSibling.style.fontWeight = 'normal';
+        action.nextSibling.style.color = 'green';
+        action.nextSibling.style.fontWeight = 'normal';
         if(action.parentNode.getAttribute('value').includes('Вариант')){
             makeDisableOrAvailableAllSiblings(action.parentNode, true);
-        }else if(action.parentNode.getAttribute('value').includes('Состав блока')){
-            if(!(action.parentNode.parentNode.querySelector('input[type="checkbox"].simple-elements') in blocks_out)){
-                blocks_out.add(action.parentNode.parentNode.parentNode.querySelector('input[type="checkbox"].simple-elements'))
+        }else if(/Можно сделать|Нужно сделать/.test(action.parentNode.getAttribute('value'))){
+            if(!(action.parentNode.parentNode.querySelector('input[type="checkbox"].simple-elements') in blocks_out )){
+                if(!(action.parentNode.getAttribute('value').includes('Можно сделать') &&
+                action.parentNode.parentNode.parentNode.firstChild.nextSibling.checked == true)){
+                    blocks_out.add(action.parentNode.parentNode.parentNode.querySelector('input[type="checkbox"].simple-elements'))
+                }
             }
         }
         if(action.parentNode.lastChild.tagName == 'UL' && action.parentNode.lastChild.getElementsByTagName('li').length > 0){
@@ -292,8 +283,11 @@ function startAction(action){
             }
             recurseOpening(action.parentNode.querySelector('input[type="checkbox"].simple-elements'));
         }else{
-            action.parentNode.querySelector('input[type="checkbox"].simple-elements').disabled = false;
-            findAncestors(action.parentNode.querySelector('input[type="checkbox"].simple-elements'));
+            action.nextSibling.style.color = 'blue';
+            if(!(action.parentNode.getAttribute('value').includes('Можно сделать') &&
+            action.parentNode.parentNode.parentNode.firstChild.nextSibling.checked == true)){
+                findAncestors(action);
+            }
             if(action.nextSibling.value == 'Конец алгоритма'){
                 action.nextSibling.checked = true;
                 action.nextSibling.disabled = true;
@@ -306,12 +300,16 @@ function startAction(action){
         }
         if(action.parentNode.lastChild.tagName == 'UL' && action.parentNode.lastChild.getElementsByTagName('li').length > 0){
             action.parentNode.lastChild.style.display = 'none';
+            action.parentNode.lastChild.childNodes.forEach((elem) => {
+                if(elem.getAttribute('value') == 'Далее'){
+                    elem.style.display = 'none';
+                }
+            });
         }
         action.parentNode.querySelector('input[type="checkbox"].simple-elements').checked = false;
-        action.parentNode.querySelector('input[type="checkbox"].simple-elements').disabled = true;
-        uncheckAncestors(action.parentNode.querySelector('input[type="checkbox"].simple-elements'));
-        action.nextSibling.nextSibling.style.color = 'red';
-        action.nextSibling.nextSibling.style.fontWeight  = 'bold';
+        uncheckAncestors(action);
+        action.nextSibling.style.color = 'red';
+        action.nextSibling.style.fontWeight  = 'bold';
         action.disabled = false;
     }
 }
@@ -331,15 +329,14 @@ function makeDisableOrAvailableAllSiblings(elem, ability){
         next_one = elem.nextSibling
         while(next_one) {
             if(ability == true){
-                next_one.firstChild.nextSibling.nextSibling.nextSibling.style.color = 'grey';
-                next_one.firstChild.nextSibling.nextSibling.nextSibling.style.fontWeight  = 'normal';
+                next_one.style.display = 'none';
+                next_one.firstChild.nextSibling.nextSibling.style.color = 'grey';
+                next_one.firstChild.nextSibling.nextSibling.style.fontWeight  = 'normal';
             }else{
-                next_one.firstChild.nextSibling.nextSibling.nextSibling.style.color = 'red';
-                next_one.firstChild.nextSibling.nextSibling.nextSibling.style.fontWeight  = 'bold';
+                next_one.style.display = 'block';
+                next_one.firstChild.nextSibling.nextSibling.style.color = 'red';
+                next_one.firstChild.nextSibling.nextSibling.style.fontWeight  = 'bold';
             }
-            next_one.querySelectorAll('input[type="checkbox"].start').forEach((elem) => {
-                elem.disabled = ability;
-            });
             if(!next_one.nextSibling) break;
             next_one = next_one.nextSibling
         }
@@ -348,15 +345,14 @@ function makeDisableOrAvailableAllSiblings(elem, ability){
         next_one = elem.previousSibling
         while(next_one) {
             if(ability == true){
-                next_one.firstChild.nextSibling.nextSibling.nextSibling.style.color = 'grey';
-                next_one.firstChild.nextSibling.nextSibling.nextSibling.style.fontWeight  = 'normal';
+                next_one.style.display = 'none';
+                next_one.firstChild.nextSibling.nextSibling.style.color = 'grey';
+                next_one.firstChild.nextSibling.nextSibling.style.fontWeight  = 'normal';
             }else{
-                next_one.firstChild.nextSibling.nextSibling.nextSibling.style.color = 'red';
-                next_one.firstChild.nextSibling.nextSibling.nextSibling.style.fontWeight  = 'bold';
+                next_one.style.display = 'block';
+                next_one.firstChild.nextSibling.nextSibling.style.color = 'red';
+                next_one.firstChild.nextSibling.nextSibling.style.fontWeight  = 'bold';
             }
-            next_one.querySelectorAll('input[type="checkbox"].start').forEach((elem) => {
-                elem.disabled = ability;
-            });
             if(!next_one.previousSibling) break;
             next_one = next_one.previousSibling
         }
@@ -365,43 +361,42 @@ function makeDisableOrAvailableAllSiblings(elem, ability){
 
 
 function nextAction(action){
-    if(action.checked == true){
-        action.nextSibling.style.color = 'blue';
-        action.nextSibling.style.fontWeight  = 'normal';
-        if(action.parentNode.nextSibling && action.parentNode.nextSibling.style.display != 'none' && !(action.parentNode.getAttribute('value').includes('Вариант'))){
-            if(action.parentNode.nextSibling.lastChild.tagName == 'UL' && action.parentNode.nextSibling.lastChild.getElementsByTagName('li').length > 0){
-                recurseOpening(action.parentNode.nextSibling.firstChild.nextSibling);
-            }else{
-                if(action.parentNode.parentNode.parentNode.tagName == 'LI'){
-                    action.parentNode.parentNode.parentNode.querySelector('input[type="checkbox"]').nextSibling.style.color = 'green';
-                }
-                if(!(action.parentNode.getAttribute('value').includes('Состав блока'))){
-                    findNextAction(action.parentNode.nextSibling);
-                }
-            }
-        }else if(action.parentNode.nextSibling && !(action.parentNode.nextSibling.querySelector('span').classList.contains('text-secondary'))
-        && !(action.parentNode.nextSibling.getAttribute('value') == 'Иначе')){
-            showNotification(action.parentNode.nextSibling.querySelector('span'), 'comment');
-        }else{
-            findAncestors(action);
-        }
-        if(action.value == 'Конец алгоритма'){
-            showNotification(action, 'ending');
-        }
-        if(blocks_out.size > 0){
-            actionInBlock([...blocks_out].pop(), 'block');
-        }
+    if(/Можно сделать|Нужно сделать|Вариант/.test(action.parentNode.getAttribute('value'))){
+        startAction(action);
     }else{
-        removeNotification(notificationPopup.querySelector('i'));
-        action.nextSibling.style.fontWeight = 'normal';
-        uncheckAncestors(action);
-        if(!(action.value == 'Действие')){
-            action.disabled = true;
-            recurseOpening(action);
+        if(action.checked == true){
+            action.nextSibling.style.color = 'blue';
+            action.nextSibling.style.fontWeight  = 'normal';
+            if(action.parentNode.nextSibling && action.parentNode.nextSibling.getAttribute('value') == 'Далее' && !(action.parentNode.getAttribute('value').includes('Вариант'))){
+                if(action.parentNode.nextSibling.lastChild.tagName == 'UL' && action.parentNode.nextSibling.lastChild.getElementsByTagName('li').length > 0){
+                    recurseOpening(action.parentNode.nextSibling.firstChild.nextSibling);
+                }else{
+                    if(action.parentNode.parentNode.parentNode.tagName == 'LI'){
+                        action.parentNode.parentNode.parentNode.querySelector('input[type="checkbox"]').nextSibling.style.color = 'green';
+                    }
+                    if(!(/Можно сделать|Нужно сделать/.test(action.parentNode.getAttribute('value')))){
+                        findNextAction(action.parentNode.nextSibling);
+                    }
+                }
+            }else if(action.parentNode.nextSibling && !(action.parentNode.nextSibling.querySelector('span').classList.contains('text-secondary'))
+            && !(action.parentNode.nextSibling.getAttribute('value') == 'Иначе')){
+                showNotification(action.parentNode.nextSibling.querySelector('span'), 'comment');
+            }else{
+                findAncestors(action);
+            }
+            if(action.value == 'Конец алгоритма'){
+                showNotification(action, 'ending');
+            }
+            if(blocks_out.size > 0){
+                actionInBlock([...blocks_out].pop(), 'block');
+            }
         }else{
-            if(action.previousSibling.classList.contains('start')){
-                action.nextSibling.style.color = 'green';
-                action.previousSibling.checked = true;
+            removeNotification(notificationPopup.querySelector('i'));
+            action.nextSibling.style.fontWeight = 'normal';
+            uncheckAncestors(action);
+            if(!(action.value == 'Действие')){
+                action.disabled = true;
+                recurseOpening(action);
             }else{
                 action.nextSibling.style.color = 'red';
                 action.nextSibling.style.fontWeight  = 'bold';
@@ -425,84 +420,37 @@ function answerCondition(answer){
     }
     current_condition.nextSibling.after(extra_text);
     if(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == ''+answer+'').length > 0){
-        flag = 0;
+        condition_element = current_condition.parentNode.lastChild.firstChild;
         if(answer == 'Тогда'){
-            condition_element = current_condition.parentNode.lastChild.firstChild
-            if(condition_element.parentNode.querySelector('input[type="checkbox"]').parentNode.lastChild.tagName == 'UL'
-             && condition_element.parentNode.querySelector('input[type="checkbox"]').parentNode.lastChild.getElementsByTagName('li').length > 0){
-                recurseOpening(condition_element.querySelector('input[type="checkbox"]'));
-            }else{
-                condition_element.querySelector('input[type="checkbox"]').disabled = false;
-                condition_element.querySelector('input[type="checkbox"].simple-elements').nextSibling.style.color = 'red';
-                condition_element.querySelector('input[type="checkbox"].simple-elements').nextSibling.style.fontWeight = 'bold';
-                if(condition_element.querySelector('input[type="checkbox"]').value == 'Конец алгоритма'){
-                    condition_element.querySelector('input[type="checkbox"]').checked = true;
-                    condition_element.querySelector('input[type="checkbox"]').disabled = true;
-                    nextAction(condition_element.querySelector('input[type="checkbox"]'));
-                }
-            }
             if(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
              == "Иначе").length > 0){
-                while(condition_element){
-                    if(condition_element.getAttribute('value').includes('Иначе')){
-                        flag = 1;
-                    }
-                    if(flag == 1){
-                        condition_element.style.display = 'none';
-                    }else{
-                        condition_element.style.display = 'block';
-                        if(!condition_element.querySelector('span').classList.contains('text-secondary')){
-                            showNotification(condition_element.querySelector('span'), 'comment');
-                            if(!condition_element.nextSibling){
-                                findAncestors(condition_element.querySelector('span'));
-                            }
-                        }
-                    }
-                    if(!condition_element.nextSibling) break;
-                    condition_element = condition_element.nextSibling
-                }
-            }
-            condition_element.parentNode.style.display = 'block';
+                 Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
+                 == "Иначе")[0].style.display = 'none';
+             }
+             findNextAction(condition_element);
+             if(condition_element.firstChild.nextSibling){
+                findAncestors(condition_element.firstChild.nextSibling);
+             }else{
+                findAncestors(condition_element.firstChild);
+             }
         }else{
-            first_checkbox_founded = false;
-            condition_element = current_condition.parentNode.lastChild.firstChild
-            while(condition_element){
-                if(condition_element.getAttribute('value').includes('Иначе')){
-                    flag = 1;
-                }
-                if(flag == 0){
-                    condition_element.style.display = 'none';
-                }else if(flag==1 && !first_checkbox_founded){
-                    condition_element.style.display = 'block';
-                    if(!condition_element.querySelector('span').classList.contains('text-secondary')){
-                        showNotification(condition_element.querySelector('span'), 'comment');
-                        if(!condition_element.nextSibling){
-                            findAncestors(condition_element.querySelector('span'));
-                        }
-                    }
-                    if(condition_element.querySelector('input[type="checkbox"]')){
-                        if(condition_element.querySelector('input[type="checkbox"]').parentNode.lastChild.tagName == 'UL' && condition_element.querySelector('input[type="checkbox"]').parentNode.lastChild.getElementsByTagName('li').length > 0){
-                            recurseOpening(condition_element.querySelector('input[type="checkbox"]'));
-                        }else{
-                            condition_element.querySelector('input[type="checkbox"]').disabled = false;
-                            condition_element.querySelector('input[type="checkbox"].simple-elements').nextSibling.style.color = 'red';
-                            condition_element.querySelector('input[type="checkbox"].simple-elements').nextSibling.style.fontWeight = 'bold';
-                            if(condition_element.querySelector('input[type="checkbox"]').value == 'Конец алгоритма'){
-                                condition_element.querySelector('input[type="checkbox"]').checked = true;
-                                condition_element.querySelector('input[type="checkbox"]').disabled = true;
-                                nextAction(condition_element.querySelector('input[type="checkbox"]'));
-                            }
-                        }
-                        first_checkbox_founded = true;
-                    }
-                }else{
-                    condition_element.style.display = 'block';
-                }
-                if(!condition_element.nextSibling) break;
-                condition_element = condition_element.nextSibling
+            if(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
+            == "Тогда").length > 0){
+                Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
+                == "Тогда")[0].style.display = 'none';
             }
-            condition_element.parentNode.style.display = 'block';
+            findNextAction(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
+            == "Иначе")[0])
+            if(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
+                == "Иначе")[0].firstChild.nextSibling){
+                findAncestors(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
+                == "Иначе")[0].firstChild.nextSibling);
+            }else{
+                findAncestors(Array.from(current_condition.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value')
+                == "Иначе")[0].firstChild);
+            }
         }
+        condition_element.parentNode.style.display = 'block';
     }else{
         current_condition.checked = true;
         current_condition.disabled = false;
@@ -515,20 +463,36 @@ function answerCondition(answer){
 // Проверяет все ли элементы в блоке отмечены
 function actionInBlock(examined_block, type){
     examined_block.nextSibling.style.color = 'green';
-    is_all = 0
-    examined_block.parentNode.lastChild.querySelectorAll('input[type="checkbox"]').forEach((elem) => {
-        if(popup.classList.contains('active') || (elem.previousSibling.checked == true && elem.checked == false)){
-            is_all = 1;
-        }
-        if(elem.checked == false && elem.disabled == false && elem.parentNode.parentNode.style.display != 'none'
-        && elem.parentNode.style.display != 'none'){
-            is_all = 1;
-        }
-    });
+    is_all = 0;
+    add_comment = 0;
+    if(type == 'block'){
+        examined_block.parentNode.lastChild.childNodes.forEach((elem) => {
+            if(elem.firstChild.nextSibling.nextSibling.style.color !== 'blue'){
+                if(elem.getAttribute('value').includes('Можно сделать')){
+                    add_comment += 1;
+                }else if(elem.getAttribute('value').includes('Нужно сделать')){
+                    is_all = 1;
+                }
+            }
+        });
+    }else{
+        examined_block.parentNode.lastChild.querySelectorAll('input[type="checkbox"]').forEach((elem) => {
+            if(elem.nextSibling.style.color != 'blue' && elem.parentNode.style.display != 'none' && elem.parentNode.parentNode.style.display != 'none'){
+                is_all = 1;
+            }
+        });
+    }
     if(is_all == 0){
         examined_block.nextSibling.style.color = 'blue';
         examined_block.checked = true;
         examined_block.disabled = false;
+        if(add_comment > 0){
+            if(add_comment > 1){
+                showNotification(String('В блоке '+examined_block.nextSibling.firstChild.textContent+' остались невыполненные необязательные элементы'), 'block_notification');
+            }else{
+                showNotification(String('В блоке '+examined_block.nextSibling.firstChild.textContent+' остался невыполненный необязательный элемент'), 'block_notification');
+            }
+        }
         findAncestors(examined_block);
         if(!(examined_block.parentNode.lastChild.previousSibling.classList.contains('bi'))){
             examined_block.parentNode.lastChild.previousSibling.after(iconElement.cloneNode(true));
@@ -565,7 +529,7 @@ function findAncestors(child){
             actionInBlock(ancestor, 'block');
         }else if(ancestor.value == 'Алгоритм' || ancestor.value == 'Раздел' || ancestor.value == 'Условие'){
             if(child.checked == true || child.tagName == 'SPAN'){
-                if(child.parentNode.nextSibling && child.parentNode.nextSibling.style.display != 'none'){
+                if(child.parentNode.nextSibling && child.parentNode.nextSibling.getAttribute('value') == 'Далее'){
                     findNextAction(child.parentNode.nextSibling)
                 }else if(child.parentNode.nextSibling && !(child.parentNode.nextSibling.querySelector('span').classList.contains('text-secondary'))
                 && !(child.parentNode.nextSibling.getAttribute('value') == 'Иначе')){
@@ -588,10 +552,8 @@ function findAncestors(child){
     }else{
     // Если в главном блоке
         if(child.checked == true){
-            if(child.parentNode.nextSibling && child.parentNode.nextSibling.style.display != 'none'){
+            if(child.parentNode.nextSibling && child.parentNode.nextSibling.getAttribute('value') == 'Далее'){
                 findNextAction(child.parentNode.nextSibling);
-            }else if(child.parentNode.nextSibling && !(child.parentNode.nextSibling.querySelector('span').classList.contains('text-secondary'))){
-            showNotification(child.parentNode.nextSibling.querySelector('span'), 'comment');
             }
         }
     }
@@ -601,6 +563,7 @@ function findAncestors(child){
 // Находит следующий элемент с чекбоксом
 function findNextAction(next_action){
     if(next_action.querySelector('input[type="checkbox"]')){
+        next_action.style.display = 'block';
         if(next_action.querySelector('input[type="checkbox"]').parentNode.lastChild.tagName == 'UL' && next_action.querySelector('input[type="checkbox"]').parentNode.lastChild.getElementsByTagName('li').length > 0){
             recurseOpening(next_action.querySelector('input[type="checkbox"].simple-elements'));
         }else{
@@ -617,7 +580,7 @@ function findNextAction(next_action){
         if(!(next_action.querySelector('span').classList.contains('text-secondary'))){
             showNotification(next_action.querySelector('span'), 'comment');
         }
-        if(next_action.nextSibling && next_action.nextSibling.style.display != 'none'){
+        if(next_action.nextSibling && next_action.nextSibling.getAttribute('value') == 'Далее'){
             findNextAction(next_action.nextSibling)
         }
     }
@@ -632,26 +595,31 @@ function uncheckAncestors(action){
         elem.disabled = true;
         elem.nextSibling.style.color = 'black';
         elem.nextSibling.style.fontWeight = 'normal';
+        if(elem.parentNode.getAttribute('value') == 'Далее' && !(elem == action)){
+            elem.parentNode.style.display = 'none';
+        }else{
+            elem.parentNode.style.display = 'block';
+        }
     })
-    ancestor.querySelectorAll('i').forEach((elem) => {
+    ancestor.querySelectorAll('li > i').forEach((elem) => {
         elem.remove()
     })
-    if(action.previousSibling.classList.contains('start')){
-        action.previousSibling.disabled = false;
-    }else{
-        action.disabled = false;
-    }
+    action.disabled = false;
     if(ancestor.parentNode.parentNode.tagName == 'LI'){
         ancestor = ancestor.parentNode.parentNode.querySelector('input[type="checkbox"].simple-elements')
         observed_checkbox = action
         if(ancestor.checked == true){
             while(ancestor.checked == true){
-                if(ancestor.parentNode.lastChild.tagName == 'UL' && !(ancestor.parentNode.getAttribute('value') in ['Вариант', 'Состав блока'])
+                ancestor.checked = false;
+                ancestor.disabled = true;
+                if(ancestor.parentNode.lastChild.tagName == 'UL' && !(/Можно сделать|Нужно сделать|Вариант/.test(ancestor.parentNode.getAttribute('value')))
                 && ancestor.parentNode.lastChild.getElementsByTagName('li').length > 0){
                     ancestor.nextSibling.style.color = 'green';
-                }else if(ancestor.previousSibling.checked == true){
+                }else if(/Можно сделать|Нужно сделать|Вариант/.test(ancestor.parentNode.getAttribute('value'))){
                     ancestor.nextSibling.style.color = 'green';
                     ancestor.nextSibling.style.fontWeight = 'normal';
+                    ancestor.checked = true;
+                    ancestor.disabled = false;
                 }else{
                     ancestor.nextSibling.style.color = 'red';
                     ancestor.nextSibling.style.fontWeight = 'bold';
@@ -659,8 +627,6 @@ function uncheckAncestors(action){
                 if(!(ancestor.getAttribute('value') == 'Выбор') && !(ancestor.getAttribute('value') == 'Блок')){
                     uncheckSiblings(observed_checkbox.parentNode.nextSibling)
                 }
-                ancestor.checked = false;
-                ancestor.disabled = true;
                 if(!(ancestor.parentNode.parentNode.parentNode.tagName == 'LI')){
                     uncheckSiblings(ancestor.parentNode.nextSibling)
                     break;
@@ -669,9 +635,9 @@ function uncheckAncestors(action){
                 ancestor = ancestor.parentNode.parentNode.parentNode.querySelector('input[type="checkbox"].simple-elements');
                 if(ancestor.checked == false){
                     if(!(ancestor.getAttribute('value') == 'Выбор') && !(ancestor.getAttribute('value') == 'Блок')){
-                        uncheckSiblings(observed_checkbox.parentNode.nextSibling)
+                        uncheckSiblings(observed_checkbox.parentNode.nextSibling);
                     }
-                    if(ancestor.parentNode.lastChild.tagName == 'UL' && ancestor.parentNode.lastChild.querySelector('input[type="checkbox"]:checked')
+                    if(ancestor.parentNode.lastChild.tagName == 'UL' && !(/Можно сделать|Нужно сделать|Вариант/.test(ancestor.parentNode.getAttribute('value')))
                     && ancestor.parentNode.lastChild.getElementsByTagName('li').length > 0){
                         ancestor.nextSibling.style.color = 'green';
                         ancestor.nextSibling.style.fontWeight = 'normal';
@@ -685,7 +651,7 @@ function uncheckAncestors(action){
             if(!(ancestor.getAttribute('value') == 'Выбор') && !(ancestor.getAttribute('value') == 'Блок')){
                 uncheckSiblings(action.parentNode.nextSibling);
             }
-            if(ancestor.parentNode.lastChild.tagName == 'UL' && !(ancestor.parentNode.getAttribute('value') in ['Вариант', 'Состав блока'])
+            if(ancestor.parentNode.lastChild.tagName == 'UL' && !(/Можно сделать|Нужно сделать|Вариант/.test(ancestor.parentNode.getAttribute('value')))
             && ancestor.parentNode.lastChild.getElementsByTagName('li').length > 0){
                 ancestor.nextSibling.style.color = 'green';
                 ancestor.nextSibling.style.fontWeight = 'normal';
@@ -711,8 +677,13 @@ function uncheckSiblings(closest_sibling){
                 elem.disabled = true;
                 elem.nextSibling.style.color = 'black';
                 elem.nextSibling.style.fontWeight = 'normal';
+                if(elem.parentNode.getAttribute('value') == 'Далее'){
+                    elem.parentNode.style.display = 'none';
+                }else{
+                    elem.parentNode.style.display = 'block';
+                }
             })
-            closest_sibling.querySelectorAll('i').forEach((elem) => {
+            closest_sibling.querySelectorAll('li > i').forEach((elem) => {
                 elem.parentNode.lastChild.style.display = 'none';
                 elem.remove()
             })
@@ -744,7 +715,7 @@ function showNotification(elem, type){
         document.querySelector('#end_of_algorithm').innerHTML = name_of_completed_algorithm;
         notificationPopup.style.display = 'block';
         setTimeout(()=>{removeNotification(closeNotificationButton)}, 10000);
-    }else if(type == 'comment'){
+    }else{
         comment = document.createElement("div");
         comment.classList.add('notification');
         inner_title = document.createElement("h3");
@@ -752,7 +723,11 @@ function showNotification(elem, type){
         closeIcon.className = "bi bi-x-lg";
         closeIcon.style.cssFloat = 'right';
         closeIcon.setAttribute("onclick", "removeNotification(this);");
-        inner_title.innerText = elem.textContent.slice(0, elem.textContent.length-13)
+        if(type == 'comment'){
+            inner_title.innerText = elem.textContent.slice(0, elem.textContent.length-13);
+        }else{
+            inner_title.innerText = elem;
+        }
         comment.append(closeIcon);
         comment.append(inner_title);
         document.querySelector('#end_of_algorithm').parentNode.before(comment);
@@ -769,45 +744,58 @@ function removeNotification(notification){
 }
 
 
-function onButtonSendClick(){
-    current_name = document.querySelector('#work_name').value
-    if(current_name){
-        previous_result = '';
+function onButtonSendClick(status){
+    previous_result = '';
+    flag = true;
+    if(status == 'same'){
         if (urlParams.has('previous_works')) {
             previous_result = urlParams.get('previous_works');
         }
-        if(Array.from(document.querySelectorAll('.select__item')).filter(item => item.textContent.trim() == current_name).length
-        > 0 && !(previous_result == current_name)){
-            document.querySelector('#warning').style.display = 'block';
-            document.querySelector('#warning').textContent = 'Недопустимое название';
-        }else{
-            document.querySelector('#warning').style.display = 'none';
-            all_elements = document.querySelectorAll('span.algorithm-element')
-            all_elements.forEach((elem)=>{
-                knowledge_name = elem.firstChild.innerText;
-                if(elem.style.color == 'blue'){
-                    list_to_send.push([knowledge_name, 'completed'])
-                }else if(elem.style.color == 'green'){
-                    list_to_send.push([knowledge_name, 'active'])
-                }else if(elem.style.color == 'red'){
-                    list_to_send.push([knowledge_name, 'available'])
-                }
-            });
-            $.ajax({
-                data: { 'values' : JSON.stringify(list_to_send), 'work' : current_name, 'previous_result' : previous_result},
-                url: document.location.pathname + '/algorithm_result/',
-                success: function (response) {
-                    document.querySelector('#work_name').parentNode.innerHTML = 'Сохранение прошло успешно, через '+
-                    'несколько секунд вас перенаправит на страницу с сохраненным алгоритмом';
-                    setTimeout(()=>{
-                        if(document.location.pathname.includes("previous_work")){
-                            window.location.href = document.location.pathname.split('?')[0] + '?previous_works='+current_name;
-                        }else{
-                            window.location.href = document.location.pathname + '?previous_works='+current_name;
-                        }
-                    }, 1500);
-                }
-            });
+        current_name = previous_result;
+    }else{
+        current_name = document.querySelector('#work_name').value
+        if(current_name){
+            if(Array.from(document.querySelectorAll('.select__item')).filter(item => item.textContent.trim() == current_name).length
+            > 0 && !(previous_result == current_name)){
+                document.querySelector('#warning').style.display = 'block';
+                document.querySelector('#warning').textContent = 'Недопустимое название';
+                flag = false;
+            }else{
+                document.querySelector('#warning').style.display = 'none';
+                flag = true;
+            }
         }
+    }
+    if(flag){
+        list_to_send = [];
+        all_elements = document.querySelectorAll('span.algorithm-element')
+        all_elements.forEach((elem)=>{
+            knowledge_name = elem.firstChild.innerText;
+            if(elem.style.color == 'blue'){
+                list_to_send.push([knowledge_name, 'completed'])
+            }else if(elem.style.color == 'green'){
+                list_to_send.push([knowledge_name, 'active'])
+            }else if(elem.style.color == 'red'){
+                list_to_send.push([knowledge_name, 'available'])
+            }
+        });
+        $.ajax({
+            data: { 'values' : JSON.stringify(list_to_send), 'work' : current_name, 'previous_result' : previous_result},
+            url: document.location.pathname + '/algorithm_result/',
+            success: function (response) {
+                    saveBg.classList.add('active');
+                    savePopup.classList.add('active');
+                    document.body.classList.add("stop-scrolling");
+                document.querySelector('#work_name').parentNode.innerHTML = 'Сохранение прошло успешно, через '+
+                'несколько секунд вас перенаправит на страницу с сохраненным алгоритмом';
+                setTimeout(()=>{
+                    if(document.location.pathname.includes("previous_work")){
+                        window.location.href = document.location.pathname.split('?')[0] + '?previous_works='+current_name;
+                    }else{
+                        window.location.href = document.location.pathname + '?previous_works='+current_name;
+                    }
+                }, 1500);
+            }
+        });
     }
 }

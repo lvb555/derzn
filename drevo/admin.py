@@ -24,6 +24,8 @@ from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
 from drevo.models.developer import Developer
 from drevo.models.quiz_results import QuizResult
 from drevo.models.message import Message
+from drevo.models import QuestionToKnowledge
+from drevo.models import UserAnswerToQuestion
 
 from .forms.developer_form import DeveloperForm
 from .forms import (
@@ -56,6 +58,8 @@ from .models import (
     SubAnswers,
     RelationshipTzTr,
     RelationStatuses,
+    QuestionToKnowledge,
+    UserAnswerToQuestion
 )
 from .models.algorithms_data import AlgorithmData
 from .models.appeal import Appeal
@@ -725,6 +729,40 @@ class AppealAdmin(admin.ModelAdmin):
     list_display = ("user", "subject", "created_at", "admin")
     readonly_fields = ("created_at", "resolved")
 
+
 @admin.register(AlgorithmData)
 class AlgorithmDataAdmin(admin.ModelAdmin):
     list_display = ("user", "algorithm", "work_name")
+
+
+@admin.register(QuestionToKnowledge)
+class QuestionToKnowledgeAdmin(admin.ModelAdmin):
+    list_display = (
+        "knowledge",
+        "question",
+        "publication"
+    )
+    search_fields = ["knowledge__name"]
+    list_filter = ["publication"]
+    list_display_links = ["question"]
+    autocomplete_fields = ["knowledge"]
+
+    class Media:
+        css = {"all": ("drevo/css/width_form.css",)}
+
+
+@admin.register(UserAnswerToQuestion)
+class UserAnswerToQuestionAdmin(admin.ModelAdmin):
+    list_display = (
+        "knowledge",
+        "question",
+        "answer",
+        "date",
+        "user",
+        "accepted",
+    )
+    search_fields = ["knowledge__name"]
+    list_display_links = ("knowledge", "answer")
+    
+    class Media:
+        css = {"all": ("drevo/css/width_form.css",)}

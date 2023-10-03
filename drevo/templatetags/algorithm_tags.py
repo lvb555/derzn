@@ -1,6 +1,6 @@
 from django.template import Library
 from django.utils.safestring import mark_safe
-from drevo.models import Znanie, Relation
+from drevo.models import Znanie, Relation, QuestionToKnowledge
 
 register = Library()
 
@@ -18,8 +18,6 @@ def recurse_dict(data, previous_knowledge, html='', display='block', complicated
             html += f'<li value="{rel}">'
             if child.tz.name != 'Комментарий':
                 html += f'<span class="text-secondary d-flex">{rel}</span>'
-            if rel in ['Вариант', 'Состав блока']:
-                html += f'<input disabled type="checkbox" class="start" onclick="startAction(this)">'
             if child.tz.name != 'Комментарий':
                 html += f'<input disabled type="checkbox" class="simple-elements" value="{child.tz}" onclick="nextAction(this)">'
                 extra_span = ''
@@ -36,6 +34,8 @@ def recurse_dict(data, previous_knowledge, html='', display='block', complicated
                         f'({child.tz}){extra_span}</span>'
             else:
                 html += f'<span style="display: none;">{child.name} ({child.tz})</span>'
+            if QuestionToKnowledge.objects.filter(knowledge=child, publication=True).count() > 0:
+                html += f'<a class="btn question" href="{child.get_absolute_url()}/questions_user"><i class="bi bi-question-lg"></i></a>'
             html += f'</li>'
             previous_knowledge = child
         elif isinstance(child, dict):
@@ -46,8 +46,6 @@ def recurse_dict(data, previous_knowledge, html='', display='block', complicated
             html += f'<li value="{rel}">'
             if list(child.keys())[0].tz.name != 'Комментарий':
                 html += f'<span class="text-secondary d-flex">{rel}</span>'
-            if rel in ['Вариант', 'Состав блока']:
-                html += f'<input disabled type="checkbox" class="start" onclick="startAction(this)">'
             if list(child.keys())[0].tz.name != 'Комментарий':
                 html += f'<input disabled type="checkbox" class="simple-elements" value="{list(child.keys())[0].tz}" onclick="nextAction(this)">'
                 extra_span = ''
@@ -66,6 +64,8 @@ def recurse_dict(data, previous_knowledge, html='', display='block', complicated
                 html += f'<span style="display: none;">{list(child.keys())[0].name} ({list(child.keys())[0].tz})</span>'
             if list(child.values())[0]:
                 html = recurse_dict(list(child.values())[0], list(child.keys())[0], html=html, display='none', complicated_knowledge=list(child.keys())[0])
+            if QuestionToKnowledge.objects.filter(knowledge=list(child.keys())[0], publication=True).count() > 0:
+                html += f'<a class="btn question" href="{list(child.keys())[0].get_absolute_url()}/questions_user"><i class="bi bi-question-lg"></i></a>'
             html += f'</li>'
             previous_knowledge = list(child.keys())[0]
     html += f'</ul>'
