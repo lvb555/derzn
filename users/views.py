@@ -509,7 +509,6 @@ class UserSuggestionView(TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
-
         # получение родительского знания
         try:
             knowledge = Znanie.objects.get(pk=int(request.POST['parent-knowledge-id']))
@@ -530,4 +529,3 @@ class UserSuggestionView(TemplateView):
                     )
         # переадресация на страницу с предложениями пользователя
         return HttpResponseRedirect(reverse('users:create-suggestion',  args=[knowledge.pk]))
-        
