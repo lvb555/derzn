@@ -201,13 +201,27 @@ class MenuSections(models.Model):
 
 
 class UserSuggection(models.Model):
+    relation_type = models.ForeignKey(
+        on_delete=models.PROTECT,
+        to='drevo.tr',
+        verbose_name='Вид связи',
+        null=True,
+        blank=True,
+        default=None),
+    knowledge_type = models.ForeignKey(
+        on_delete=models.PROTECT,
+        to='drevo.tz', 
+        verbose_name='Вид знания',
+        null=True,
+        blank=True,
+        default=None,),
     parent_knowlege = models.ForeignKey(
         to='drevo.Znanie',
         on_delete=models.DO_NOTHING,
         verbose_name='Родительское знание')
     name = models.CharField(
         max_length=255,
-        verbose_name='Заглавние знание')
+        verbose_name='Заглавие предложения')
     user = models.ForeignKey(
         to='User',
         on_delete=models.CASCADE,
