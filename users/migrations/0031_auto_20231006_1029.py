@@ -6,17 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0030_5_intermediate_migration'),
+        ('users', '0030_auto_20231006_0933'),
     ]
 
     operations = [
         migrations.RemoveField(
             model_name='usersuggection',
             name='knowledge_type',
-        ),
-        migrations.RemoveField(
-            model_name='usersuggection',
-            name='knowledge_type_id',
         ),
         migrations.RemoveField(
             model_name='usersuggection',
