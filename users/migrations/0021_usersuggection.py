@@ -23,7 +23,6 @@ class Migration(migrations.Migration):
                 ('create_date', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
                 ('expert', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='checked_suggestions', to=settings.AUTH_USER_MODEL, verbose_name='Эксперт, вынесший вердикт')),
                 ('parent_knowlege', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='drevo.znanie', verbose_name='Родительское знание')),
-                ('relation_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='drevo.tr', verbose_name='Вид связи')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='suggestions', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь, предложивший знание')),
             ],
         ),

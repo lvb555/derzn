@@ -20,11 +20,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='usersuggection',
-            name='relation_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='drevo.tr', verbose_name='Вид связи'),
-        ),
-        migrations.AlterField(
-            model_name='usersuggection',
             name='user',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='suggestions', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь, предложивший знание'),
         ),
