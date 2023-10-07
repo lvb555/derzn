@@ -15,11 +15,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterField(
             model_name='usersuggection',
-            name='knowledge_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='drevo.tz', verbose_name='Вид знания'),
-        ),
-        migrations.AlterField(
-            model_name='usersuggection',
             name='parent_knowlege',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='drevo.znanie', verbose_name='Родительское знание'),
         ),

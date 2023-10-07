@@ -12,10 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveField(
             model_name='usersuggection',
-            name='knowledge_type',
-        ),
-        migrations.RemoveField(
-            model_name='usersuggection',
             name='relation_type',
         ),
     ]
