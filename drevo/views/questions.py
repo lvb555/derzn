@@ -33,3 +33,27 @@ def save_answer(request, pk):
         "questions": questions,
         "answer": FormAnswer
     })
+
+
+def show_questions(request, pk):
+    knowledge = Znanie.objects.get(id=pk).name
+    questions = QuestionToKnowledge.objects.filter(knowledge=pk)
+    return render(request, "drevo/show_questions.html",{
+        "pk": pk,
+        "znanie": knowledge,
+        "questions": questions
+    })
+
+
+def acceptance(request, pk, question_id):
+    if request.method == "POST":
+        print("hello")
+        return HttpResponseRedirect('answers_from_users')
+
+    question = QuestionToKnowledge.objects.get(id=question_id)
+    answers = UserAnswerToQuestion.objects.filter(question_id=question_id)
+    return render(request, "drevo/answers_from_users.html",{
+        "question": question,
+        "answers": answers
+    })
+    

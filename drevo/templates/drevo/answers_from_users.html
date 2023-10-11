@@ -1,0 +1,37 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block content %}
+    <h2>Знание: {{ question.knowledge }}</h2>
+    <hr>
+    <h3>Вопрос: {{ question }}</h3>
+    <hr>
+    <h4>Ответы:</h4>
+    <form action="answers_from_users" method="post">
+    {% csrf_token %}
+    {% for answer in answers %}
+    <div>
+        {{ answer.answer }}
+        <a href="{{ answer.answer_file.url }}">Доказательство</a>
+            <select>
+                {% if answer.inspector and answer.accepted == True %}
+                <option selected value="accepted">Принято</option>
+                <option value="not_accepted">Не принято</option>
+                <option value="not_checked">-------</option>
+                {% elif answer.inspector and answer.accepted == False %}
+                <option value="accepted">Принято</option>
+                <option selected value="not_accepted">Не принято</option>
+                <option value="not_checked">-------</option>
+                {% else%}
+                <option value="accepted">Принято</option>
+                <option value="not_accepted">Не принято</option>
+                <option selected value="not_checked">-------</option>
+                {% endif %}
+            </select>          
+    </div>
+    {% endfor %}
+    <input type="submit" value="Отправить">
+    </form>
+
+
+{% endblock %}

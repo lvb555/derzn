@@ -1,0 +1,14 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block content %}
+    <h2>Знание: {{ znanie }}</h2>
+    <hr>
+    <h3>Вопросы:</h3>
+    <hr>
+    <ul>
+        {% for question in questions %}
+        <a href="show_questions/{{ question.id }}/answers_from_users"><li>{{ question.question }}</li></a>
+        {% endfor%}
+    </ul>
+{% endblock %}

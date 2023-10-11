@@ -39,6 +39,14 @@ class UserAnswerToQuestion(models.Model):
         default=False,
         verbose_name="Ответ принят"
     )
+    inspector = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        default=None,
+        null=True,
+        verbose_name="Проверил эксперт",
+        related_name="inspector"
+    )
     date = models.DateTimeField(
         auto_now=True,
         verbose_name="Дата создания"
