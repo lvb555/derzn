@@ -204,15 +204,15 @@ class UserSuggection(models.Model):
     parent_knowlege = models.ForeignKey(
         to='drevo.Znanie',
         on_delete=models.DO_NOTHING,
-        verbose_name='Родительское знание')
+        verbose_name='Знание')
     name = models.CharField(
         max_length=255,
-        verbose_name='Заглавие предложения')
+        verbose_name='Предложение')
     user = models.ForeignKey(
         to='User',
         on_delete=models.CASCADE,
         related_name='suggestions',
-        verbose_name='Пользователь, предложивший знание')
+        verbose_name='Пользователь')
     suggestions_type = models.ForeignKey(
         to='SuggestionType',
         on_delete=models.CASCADE,
@@ -224,12 +224,12 @@ class UserSuggection(models.Model):
         blank=True,
         default=None,
         related_name='checked_suggestions',
-        verbose_name='Эксперт, вынесший вердикт')
+        verbose_name='Эксперт')
     is_approve = models.BooleanField(
         null=True,
         blank=True,
         default=None,
-        verbose_name='Результат проверки предложения')
+        verbose_name='Результат проверки')
     check_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата проверки')
     create_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
 
@@ -237,8 +237,8 @@ class UserSuggection(models.Model):
         return f'Suggestion from {self.user}'
 
     class Meta:
-        verbose_name = 'Пользовательское предложение'
-        verbose_name_plural = 'Пользовательские предложения'
+        verbose_name = 'Предложение пользователя'
+        verbose_name_plural = 'Предложения пользователей'
 
 class SuggestionType(models.Model):
     type_name = models.CharField(max_length=255, verbose_name='Название типа')
