@@ -44,6 +44,7 @@ class UserAnswerToQuestion(models.Model):
         on_delete=models.PROTECT,
         default=None,
         null=True,
+        blank=True,
         verbose_name="Проверил эксперт",
         related_name="inspector"
     )

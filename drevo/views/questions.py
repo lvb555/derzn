@@ -46,12 +46,29 @@ def show_questions(request, pk):
 
 
 def acceptance(request, pk, question_id):
+    answers = UserAnswerToQuestion.objects.filter(question_id=question_id)
+
     if request.method == "POST":
-        print("hello")
+        data = request.POST
+        for answer in answers:
+            for every_object in data:
+                if str(answer.id) == every_object:
+                    check_answer = UserAnswerToQuestion.objects.get(id=answer.id)
+                    if data[every_object] == "accepted":
+                        check_answer.accepted = True
+                        check_answer.inspector = request.user
+                        check_answer.save()
+                    elif data[every_object] == "not_accepted":
+                        check_answer.accepted = False
+                        check_answer.inspector = request.user
+                        check_answer.save()  
+                    else:
+                        check_answer.accepted = False
+                        check_answer.inspector = None
+                        check_answer.save() 
         return HttpResponseRedirect('answers_from_users')
 
     question = QuestionToKnowledge.objects.get(id=question_id)
-    answers = UserAnswerToQuestion.objects.filter(question_id=question_id)
     return render(request, "drevo/answers_from_users.html",{
         "question": question,
         "answers": answers
