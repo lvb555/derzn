@@ -56,7 +56,7 @@ class UserAnswerToQuestion(models.Model):
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        verbose_name="Причина"
+        verbose_name="Причина отказа"
     )
     date = models.DateTimeField(
         auto_now=True,
