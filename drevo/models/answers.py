@@ -2,6 +2,7 @@ from django.db import models
 from users.models import User
 from .knowledge import Znanie
 from .questions import QuestionToKnowledge
+from .refuse_reason import RefuseReason
 
 
 class UserAnswerToQuestion(models.Model):
@@ -28,7 +29,9 @@ class UserAnswerToQuestion(models.Model):
     )
     answer_file = models.FileField(
         upload_to="proof/",
-        verbose_name="Файл"
+        verbose_name="Файл",
+        null=True,
+        blank=True
     )
     user = models.ForeignKey(
         User,
@@ -47,6 +50,13 @@ class UserAnswerToQuestion(models.Model):
         blank=True,
         verbose_name="Проверил эксперт",
         related_name="inspector"
+    )
+    refuse_reason = models.ForeignKey(
+        RefuseReason,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name="Причина"
     )
     date = models.DateTimeField(
         auto_now=True,

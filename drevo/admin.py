@@ -26,6 +26,7 @@ from drevo.models.quiz_results import QuizResult
 from drevo.models.message import Message
 from drevo.models import QuestionToKnowledge
 from drevo.models import UserAnswerToQuestion
+from drevo.models.refuse_reason import RefuseReason
 
 from .forms.developer_form import DeveloperForm
 from .forms import (
@@ -766,3 +767,9 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
     
     class Media:
         css = {"all": ("drevo/css/width_form.css",)}
+
+
+@admin.register(RefuseReason)
+class RefuseReasonAdmin(admin.ModelAdmin):
+    pass
+    

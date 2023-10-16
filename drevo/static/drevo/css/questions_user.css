@@ -6,10 +6,6 @@ textarea {
     border-radius: 8px;
 }
 
-label {
-    display: none;
-}
-
 .question_text {
     font-family: Rubik;
     font-size: 24px;
@@ -23,11 +19,12 @@ label {
     grid-template-columns: 30vw auto 80px;
 }
 
-#id_answer {
+.id_answer {
     vertical-align: middle;
+    padding:5px;
 }
 
-#id_file {
+.id_file {
     font-size: 12px;
     line-height: 200%;
     letter-spacing: 0.02em;
@@ -58,7 +55,7 @@ label {
 
 .answers {
     display: grid;
-    grid-template-columns: 30vw auto auto;
+    grid-template-columns: 20vw 10vw auto 20vw;
     text-align: left;
     font-family: Rubik;
     font-size: 22px;
