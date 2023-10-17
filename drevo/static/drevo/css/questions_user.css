@@ -6,10 +6,6 @@ textarea {
     border-radius: 8px;
 }
 
-label {
-    display: none;
-}
-
 .question_text {
     font-family: Rubik;
     font-size: 24px;
@@ -23,11 +19,12 @@ label {
     grid-template-columns: 30vw auto 80px;
 }
 
-#id_answer {
+.id_answer {
     vertical-align: middle;
+    padding:5px;
 }
 
-#id_file {
+.id_file {
     font-size: 12px;
     line-height: 200%;
     letter-spacing: 0.02em;
@@ -47,4 +44,41 @@ label {
 
 .question {
     margin: 10px;
+}
+
+.list_questions {
+    font-family: Rubik;
+    font-size: 22px;
+    position: inherit;
+    margin-top: 20px; 
+}
+
+.answers {
+    display: grid;
+    grid-template-columns: 20vw 10vw auto 20vw;
+    text-align: left;
+    font-family: Rubik;
+    font-size: 22px;
+    position: inherit;
+    margin-top: 20px; 
+}
+.accepted {
+    float: right;
+    margin-right: 26%;
+    margin-top: 20px;
+    margin-left: 20px;
+    font-size: 14px;
+    line-height: 200%;
+    letter-spacing: 0.02em;
+    background-color: #083E2F;
+    color: #f8f9fa;
+    border-radius: 8px !important; 
+}
+
+select {
+    padding: 5px;
+    border-radius: 8px !important; 
+    appearance: none;
+    text-align: center;
+    font-size: 18px;
 }
