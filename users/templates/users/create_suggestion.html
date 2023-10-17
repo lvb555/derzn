@@ -45,7 +45,7 @@
 				<p>Вы еще ничего не предложили</p>
 			{% endif %}
 		</table>
-		<h3>Внести свое предложение</h3>
+		<h3>Создание своих предложений</h3>
 		<form action="{{ request.get_full_path }}" method="post" class="suggestion-from">
 			{% csrf_token %}
 
@@ -55,10 +55,12 @@
 				<div class="same-type-suggestions">
 					<p class="same-type-suggestions__type-name">{{ suggestion_type.type_name }}</p>
 					<div class="same-type-suggestions__fields" id="fields-of-type-{{ suggestion_type.pk }}">
-						<input class="form-control	" type="text" name="field-of-type-{{ suggestion_type.pk }}" id="field-of-type-{{ suggestion_type.pk }}">
+						<div class="field">
+							<textarea rows="2" maxlength="250" placeholder="Введите текст предложения" class="form-control field__area" name="field-of-type-{{ suggestion_type.pk }}" id="field-of-type-{{ suggestion_type.pk }}"></textarea>
+							<button class="field__remove btn btn-header" type="button">-</button>
+						</div>
 					</div>
 					<button id="type-{{ suggestion_type.pk }}" class="same_type_suggestions__add btn btn-header" type="button">+</button>
-					<button id="type-{{ suggestion_type.pk }}" class="same_type_suggestions__remove btn btn-header" type="button">-</button>
 				</div>
 			{% endfor%}
 			<div class="suggestion-form__btn">

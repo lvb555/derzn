@@ -12,6 +12,7 @@ TD {
     font-weight: 400;
     line-height: 120%;
     letter-spacing: 0.28px;
+    word-wrap: break-word;
 }
 
 table {
@@ -40,6 +41,10 @@ TH {
 	margin-bottom: 1rem;
 }
 
+.suggestions-table td {
+	max-width: 40vh;
+}
+
 /*заглавие*/
 
 .suggestion-form-title {
@@ -47,7 +52,7 @@ TH {
 	margin: 0 0 30px 0;
 }
 
-/*поля формы*/
+/*группы полей формы*/
 
 .same-type-suggestions {
 	position: relative;
@@ -58,14 +63,7 @@ TH {
 
 .same-type-suggestions__fields {
 	width: 60%;
-}
-
-.same-type-suggestions__fields input {
-	width: 100%;
-	margin-bottom: 10px;
-	padding: 6px 12px;
-	font-size: 12px;
-	line-height: 200%;
+	position: relative;
 }
 
 .same-type-suggestions__type-name {
@@ -75,19 +73,35 @@ TH {
 	font-weight: 500;
 }
 
-.same_type_suggestions__add, .same_type_suggestions__remove {
-	position: absolute;
-	top: 0;
+/*поле формы*/
+
+.field {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	position: relative;
+}
+
+.same-type-suggestions__fields textarea {
+	width: 100%;
+	margin-bottom: 10px;
+	padding: 6px 12px;
+	font-size: 0.9rem;
+	line-height: 200%;
+	resize: none;
 }
 
 /*кнопки создания и удаления полей формы*/
 
 .same_type_suggestions__add {
-	right: -5%;
+	position: absolute;
+	right: -11%;
 }
 
-.same_type_suggestions__remove {
-	right: -10%
+.field__remove {
+	position: absolute;
+	right: -10%;
+	top: 0;
 }
 
 /*положение и форма формы*/
