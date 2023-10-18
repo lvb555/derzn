@@ -741,10 +741,11 @@ class QuestionToKnowledgeAdmin(admin.ModelAdmin):
     list_display = (
         "knowledge",
         "question",
-        "publication"
+        "publication",
+        "need_file"
     )
     search_fields = ["knowledge__name"]
-    list_filter = ["publication"]
+    list_filter = ["publication", "need_file"]
     list_display_links = ["question"]
     autocomplete_fields = ["knowledge"]
 
