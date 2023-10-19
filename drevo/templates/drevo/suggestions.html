@@ -51,7 +51,7 @@
 
 			<input type="text" hidden value="{{knowledge.pk}}" name="parent-knowledge-id">
 
-			{% for suggestion_type in knowledge.tz.available_suggestion_types.all.order_by() %}
+			{% for suggestion_type in knowledge.tz.sorted_suggestion_types %}
 				<div class="same-type-suggestions">
 					<p class="same-type-suggestions__type-name">{{ suggestion_type.type_name }}</p>
 					<div class="same-type-suggestions__fields" id="fields-of-type-{{ suggestion_type.pk }}">

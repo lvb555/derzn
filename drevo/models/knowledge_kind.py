@@ -67,6 +67,9 @@ class Tz(models.Model):
         Znanie.objects.bulk_update(znaniya, ['is_send'])
         super(Tz, self).save(*args, **kwargs)
 
+    def sorted_suggestion_types(self):
+        return self.available_suggestion_types.all().order_by('weight')
+
     class Meta:
         verbose_name = 'Вид знания'
         verbose_name_plural = 'Виды знания'
