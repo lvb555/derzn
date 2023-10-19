@@ -5,7 +5,7 @@
 {% block cssfiles %}
 	<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 	<link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
-	<link rel="stylesheet" href="{% static '/users/css/create_suggestion.css' %}">
+	<link rel="stylesheet" href="{% static '/drevo/css/suggestions.css' %}">
 {% endblock %}
 {% block title %} Развиваем вместе {% endblock %}
 
@@ -51,7 +51,7 @@
 
 			<input type="text" hidden value="{{knowledge.pk}}" name="parent-knowledge-id">
 
-			{% for suggestion_type in knowledge.tz.available_suggestion_types.all %}
+			{% for suggestion_type in knowledge.tz.available_suggestion_types.all.order_by() %}
 				<div class="same-type-suggestions">
 					<p class="same-type-suggestions__type-name">{{ suggestion_type.type_name }}</p>
 					<div class="same-type-suggestions__fields" id="fields-of-type-{{ suggestion_type.pk }}">
@@ -83,5 +83,5 @@
 {% endblock %}
 
 {% block jsfiles %}
-	<script type="text/javascript" src="{% static 'users/js/suggestion_form_fields.js' %}"></script>
+	<script type="text/javascript" src="{% static 'drevo/js/suggestion_form_fields.js' %}"></script>
 {% endblock %}

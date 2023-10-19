@@ -1,6 +1,5 @@
 from django.db import models
 from .knowledge import Znanie
-from users.models import SuggestionType
 
 
 class Tz(models.Model):
@@ -54,7 +53,7 @@ class Tz(models.Model):
     )
     objects = models.Manager()
 
-    available_suggestion_types = models.ManyToManyField(to=SuggestionType,
+    available_suggestion_types = models.ManyToManyField(to='drevo.SuggestionType',
         verbose_name='Типы предложений',
         blank=True)
 
