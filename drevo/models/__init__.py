@@ -31,3 +31,5 @@ from .relationship_tz_tr import RelationshipTzTr
 from .relation_statuses import RelationStatuses
 from .questions import QuestionToKnowledge
 from .answers import UserAnswerToQuestion
+from .suggestion import Suggestion
+from .suggestion_type import SuggestionType
