@@ -3,6 +3,8 @@ from ..models.knowledge import Znanie
 from ..models.suggestion import Suggestion
 from django.shortcuts import HttpResponseRedirect
 from django.urls import reverse
+from django.db.models import Model
+
 
 class UserSuggestionView(TemplateView):
     template_name = 'drevo/suggestions.html'
@@ -29,11 +31,11 @@ class UserSuggestionView(TemplateView):
         # получение родительского знания
         try:
             knowledge = Znanie.objects.get(pk=int(request.POST['parent-knowledge-id']))
-        except: 
+        except Model.DoesNotExist:
             # переадресация на исходную страницу
-            return HttpResponseRedirect(request.get_full_path(), 
-                content='Не определено родительское знание', 
-                content_type='text/plain')
+            return HttpResponseRedirect(request.get_full_path(),
+                                        content='Не определено родительское знание',
+                                        content_type='text/plain')
         # создание предложений, вписанных пользователем в форму
         for t in knowledge.tz.available_suggestion_types.all():
             for sugg in request.POST.getlist(f'field-of-type-{t.pk}'):
@@ -45,4 +47,4 @@ class UserSuggestionView(TemplateView):
                         user=self.request.user
                     )
         # переадресация на страницу с предложениями пользователя
-        return HttpResponseRedirect(reverse('create-suggestion',  args=[knowledge.pk]))
+        return HttpResponseRedirect(reverse('create-suggestion', args=[knowledge.pk]))
