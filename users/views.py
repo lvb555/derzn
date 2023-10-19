@@ -22,11 +22,10 @@ from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
 from users.forms.password_change_form import MyPasswordChangeForm
-from users.models import User, Profile, MenuSections, Favourite, UserSuggection
+from users.models import User, Profile, MenuSections, Favourite
 from drevo.models.settings_options import SettingsOptions
 from drevo.models.user_parameters import UserParameters
 from drevo.models.special_permissions import SpecialPermissions
-from users.forms.suggestion_create_form import SuggestionCreateForm 
 
 
 class LoginFormView(FormView):
@@ -486,46 +485,3 @@ def change_username(request):
             logout(request)
 
     return redirect('users:myprofile')
-
-class UserSuggestionView(TemplateView):
-    template_name = 'users/create_suggestion.html'
-    context_object_name = 'context'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        user = self.request.user
-        parent_knowlege = context['knowledge_id']
-
-        # результат отправки формы
-        context['knowledge'] = Znanie.objects.get(id=parent_knowlege)
-
-        # предложения, отправленные пользователем
-        if user.is_authenticated:
-            context['user_suggestions'] = UserSuggection.objects.filter(
-                user=user,
-                parent_knowlege=parent_knowlege)
-
-        return context
-
-    def post(self, request, *args, **kwargs):
-        # получение родительского знания
-        try:
-            knowledge = Znanie.objects.get(pk=int(request.POST['parent-knowledge-id']))
-        except: 
-            # переадресация на исходную страницу
-            return HttpResponseRedirect(request.get_full_path(), 
-                content='Не определено родительское знание', 
-                content_type='text/plain')
-        # создание предложений, вписанных пользователем в форму
-        for t in knowledge.tz.available_suggestion_types.all():
-            for sugg in request.POST.getlist(f'field-of-type-{t.pk}'):
-                if len(sugg.replace(' ', '')) > 0:
-                    UserSuggection.objects.create(
-                        parent_knowlege=knowledge,
-                        name=sugg,
-                        suggestions_type=t,
-                        user=self.request.user
-                    )
-        # переадресация на страницу с предложениями пользователя
-        return HttpResponseRedirect(reverse('users:create-suggestion',  args=[knowledge.pk]))

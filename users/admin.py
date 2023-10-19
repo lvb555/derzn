@@ -1,9 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from users.forms.admin_user_suggestion_form import UserSuggestionAdminForm
-
-from users.models import User, Profile, MenuSections, UserSuggection, SuggestionType
+from users.models import User, Profile, MenuSections
 
 
 class ProfileInlined(admin.StackedInline):
@@ -81,16 +79,3 @@ class ProfileAdmin(admin.ModelAdmin):
 class MenuSectionsAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ["name"]
-
-
-@admin.register(UserSuggection)
-class UserSuggestionAdmin(admin.ModelAdmin):
-    list_display = ('parent_knowlege', 'name', 'user', 'expert', 'is_approve', 'suggestions_type')
-    list_filter = ('suggestions_type', 'user', 'parent_knowlege')
-    form = UserSuggestionAdminForm
-
-
-@admin.register(SuggestionType)
-class SuggestionTypeAdmin(admin.ModelAdmin):
-    list_display = ('type_name', 'weight')
-    list_filter = ('type_name', 'weight')
