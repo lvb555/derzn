@@ -19,6 +19,10 @@ class QuestionToKnowledge(models.Model):
         blank=False,
         verbose_name="Вопрос"
     )
+    need_file = models.BooleanField(
+        default=False,
+        verbose_name='Файл'
+    )
     publication = models.BooleanField(
         default=False,
         verbose_name="Опубликовано?"
