@@ -1,0 +1,124 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/questions_user.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h2>Знание: {{ znanie }}</h2>
+    <hr>
+    {% if questions|length > 1 %}
+    <span class="answer_head">Вопросы:</span>
+    <select class="question_title" >
+        {% for question in questions %}
+        <option value="question{{ question.id }}">{{ question.question }}</option>
+        {% endfor %}
+    </select>
+    <hr>
+    {% elif questions|length == 1 %}
+    <div><span class="answer_head">Вопрос:</span> <span id="one_question">{{ questions.first.question }}</span></div> 
+    <hr>
+    {% endif %}
+
+    
+    {% for question in questions %}
+    
+    <div style="display: none;" class="block_answers" id="question{{ question.id}}">
+        <h4>Ответы:</h4>
+            <form action="questions_and_check_answers" class="question{{ question.id }}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="question_id" value="{{ question.id }}">
+                {% for answer in answers %}
+                    {% if answer.question == question %}
+                    <div class="answers">
+                        {% if answer.answer %}
+                            <div>{{ answer.answer }}</div>
+                            {% else%}
+                            <div></div>
+                            {% endif%}
+                            
+                            {% if answer.answer_file %}
+                            <div><a href="{{ answer.answer_file.url }}">Файл</a></div>
+                            {% else%}
+                            <div></div>
+                            {% endif%}
+                    
+                            <div>
+                                <select name="{{ answer.id }}" class="acceptance">
+                                    {% if answer.inspector and answer.accepted == True %}
+                                    <option selected value="accepted">Принято</option>
+                                    <option value="not_accepted">Не принято</option>
+                                    <option value="not_checked">-------</option>
+                                    {% elif answer.inspector and answer.accepted == False %}
+                                    <option value="accepted">Принято</option>
+                                    <option selected value="not_accepted">Не принято</option>
+                                    <option value="not_checked">-------</option>
+                                    {% else%}
+                                    <option value="accepted">Принято</option>
+                                    <option value="not_accepted">Не принято</option>
+                                    <option selected value="not_checked">-------</option>
+                                    {% endif %}
+                                </select>  
+                                <select name="reason{{answer.id}}" id="{{ answer.id }}" style="visibility: hidden;">
+                                    <option value="">--Выберите причину--</option>
+                                    <option value="less">Без объяснений</option>
+                                    {% for reason in reasons %}
+                                    <option value="{{ reason.id }}">{{ reason }}</option>
+                                    {% endfor%}
+                                </select>        
+                            </div>
+                            {% if answer.refuse_reason %}
+                            <div>Причина: {{ answer.refuse_reason}}</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                {% endfor %}   
+                <input class="accepted" type="submit" value="Сохранить">
+            </form>
+
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block jsfiles %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('click', function(e) {
+                if (e.target.className === 'acceptance' && e.target.value === 'not_accepted') {
+                    document.getElementById(e.target.name).style.visibility = 'visible'
+                    console.log(e.target.name)
+                    
+                }
+                else if (e.target.className === 'acceptance' && e.target.value !== 'not_accepted') {
+                    document.getElementById(e.target.name).style.visibility = 'hidden'
+                    console.log(e.target.name)
+                    
+                }
+            })
+            const one_question = document.querySelector('#one_question')
+            if (one_question) {
+                document.querySelector('.block_answers').style.display = 'block'
+            }
+            const selected = document.querySelector('.question_title').value
+            let block = document.getElementById(selected)
+            let form = block.querySelector(`.${selected}`)
+            if (form.querySelector('.answers') === null) {
+                block.innerHTML = '<h4>Ответы отсутствуют</h4>'
+            }
+            document.getElementById(selected).style.display = 'block'
+            document.querySelector('.question_title').addEventListener('change', function() {
+                document.querySelectorAll('.block_answers').forEach((block)=> {
+                    block.style.display = 'none'
+                    document.getElementById(this.value).style.display = 'block'
+                })  
+                let block = document.getElementById(this.value)
+                let form = block.querySelector(`.${this.value}`)
+                if (form.querySelector('.answers') === null) {
+                    block.innerHTML = '<h4>Ответы отсутствуют</h4>'
+                }
+            })
+        })
+    </script>
+{% endblock %}
