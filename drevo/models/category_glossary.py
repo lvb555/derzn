@@ -24,4 +24,4 @@ class GlossaryCategories(models.Model):
     class Meta:
         verbose_name = 'Категорий терминов глоссария',
         verbose_name_plural = 'Категорий терминов глоссария'
-        ordering = ('-order', )
+        ordering = ('order', )

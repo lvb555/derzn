@@ -32,14 +32,16 @@ class GlossaryListView(ListView):
                  .filter(is_published=True, name__icontains=search_data).order_by(way_of_sorting)
             }]
         
-        """Лист для вывода назыания категорий и терминов в категорий"""
+        """Лист для вывода названия категорий и терминов в категорий"""
         set_categories_terms = [
             {
                 'name_category': value.name,
                 'set_terms': GlossaryTerm.objects.filter(is_published=True, category=value).order_by(way_of_sorting)
             }
-            for value in GlossaryCategories.objects.all()
+            for value in GlossaryCategories.objects.all() if bool(GlossaryTerm.objects.filter(category=value)) != False
         ]
+
+        
 
         """Для терминов без категорий"""
         set_categories_terms.append(

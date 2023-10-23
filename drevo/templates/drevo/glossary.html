@@ -62,13 +62,6 @@
                     <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
                     <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
                 </div>
-
-            {% empty %}
-                <div class="row">
-                    <div class="col">
-                        Нет терминов
-                    </div>
-                </div>
             {% endfor %}
         </div>
     </div>
