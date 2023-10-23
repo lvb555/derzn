@@ -278,6 +278,7 @@ class AuthorTypeAdmin(admin.ModelAdmin):
 
 admin.site.register(AuthorType, AuthorTypeAdmin)
 
+
 @admin.register(Tr)
 class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = (
