@@ -269,7 +269,7 @@ class AuthorTypeAdmin(admin.ModelAdmin):
 
 admin.site.register(AuthorType, AuthorTypeAdmin)
 
-
+@admin.register(Tr)
 class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = (
         "name",
@@ -277,6 +277,7 @@ class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
         "is_systemic",
         "is_argument",
         "argument_type",
+        "is_invert",
     )
     sortable_by = (
         "name",
@@ -286,9 +287,6 @@ class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
         "order",
         "name",
     ]
-
-
-admin.site.register(Tr, TrAdmin)
 
 
 class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
@@ -313,7 +311,7 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 admin.site.register(Tz, TzAdmin)
 
-
+@admin.register(Relation)
 class RelationAdmin(admin.ModelAdmin):
     list_display = ("id", "bz", "tr", "rz", "author", "date", "user", "expert", "director", "order")
     save_as = True
@@ -329,10 +327,22 @@ class RelationAdmin(admin.ModelAdmin):
     form = RelationAdminForm
 
     def save_model(self, request, obj, form, change):
+        data = form.cleaned_data
         obj.user = request.user
-        send_flag = form.cleaned_data.get("send_flag")
-        name = form.cleaned_data.get("bz")
+        send_flag = data.get("send_flag")
+        name = data.get("bz")
         super().save_model(request, obj, form, change)
+
+        if obj.tr.is_invert and not data['tr'] == obj.tr.invert_tr:
+            """
+            Если у объекта Tr указано поле 'invert_relation',
+            тогда меняем местами значения полей 'bz' и 'rz',
+            а поле 'tr' меняем на инверсную модель Tr и сохраняем
+            дополнительную инверсную связь.
+            """
+            data['bz'], data['rz'], data['tr'] = data['rz'], data['bz'], obj.tr.invert_tr
+            data.pop('send_flag')
+            Relation.objects.create(**data, user=request.user)
 
         if send_flag:
             interview = get_object_or_404(Znanie, name=name)
@@ -345,11 +355,8 @@ class RelationAdmin(admin.ModelAdmin):
                 result = send_notify_interview(interview, period_relation)
 
     class Media:
-        #css = {"all": ("drevo/css/style.css",)}
+        # css = {"all": ("drevo/css/style.css",)}
         js = ("drevo/js/notify_interview.js",)
-
-
-admin.site.register(Relation, RelationAdmin)
 
 
 class GlossaryTermAdmin(admin.ModelAdmin):
@@ -773,4 +780,3 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
 @admin.register(RefuseReason)
 class RefuseReasonAdmin(admin.ModelAdmin):
     pass
-    
