@@ -311,6 +311,9 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 admin.site.register(Tz, TzAdmin)
 
+from django.db import IntegrityError
+from django.core.exceptions import ValidationError
+
 @admin.register(Relation)
 class RelationAdmin(admin.ModelAdmin):
     list_display = ("id", "bz", "tr", "rz", "author", "date", "user", "expert", "director", "order")
@@ -325,6 +328,7 @@ class RelationAdmin(admin.ModelAdmin):
     )
     ordering = ("-date",)
     form = RelationAdminForm
+
 
     def save_model(self, request, obj, form, change):
         data = form.cleaned_data
@@ -342,7 +346,10 @@ class RelationAdmin(admin.ModelAdmin):
             """
             data['bz'], data['rz'], data['tr'] = data['rz'], data['bz'], obj.tr.invert_tr
             data.pop('send_flag')
-            Relation.objects.create(**data, user=request.user)
+            try:
+                Relation.objects.get_or_create(**data, user=request.user)
+            except IntegrityError:
+                pass
 
         if send_flag:
             interview = get_object_or_404(Znanie, name=name)
