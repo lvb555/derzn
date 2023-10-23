@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 from users.models import User
 from drevo.models.relation_grade_scale import RelationGradeScale
 
@@ -83,10 +84,22 @@ class Relation(models.Model):
             reverse=True
         ))
 
+    def clean(self):
+        if self.bz == self.rz:
+            raise ValidationError(
+                'Нельзя связать одиннаковые знания.'
+            )
+
     class Meta:
         verbose_name = 'Связь'
         verbose_name_plural = 'Связи'
         ordering = ('-date',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('bz', 'tr', 'rz'),
+                name='bz_tr_rz_unique_constraint',
+            ),
+        )
 
     def get_proof_grade(self, request, variant):
         """ Значение оценки довода (ЗОД) """
