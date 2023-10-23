@@ -82,24 +82,3 @@ select {
     text-align: center;
     font-size: 18px;
 }
-
-.answer_head {
-    font-family: Rubik;
-    font-size: 24px;
-    font-weight: bold;
-    position: inherit;
-    padding-right: 10px;
-}
-
-.question_title {
-    width: 70vw;
-    appearance: auto;
-}
-
-#one_question {
-    font-family: Rubik;
-    font-size: 24px;
-    font-weight: bold;
-    position: inherit;
-    padding-right: 10px;
-}

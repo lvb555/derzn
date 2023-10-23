@@ -48,6 +48,7 @@ from .models import (
     ZnFile,
     AuthorType,
     GlossaryTerm,
+    GlossaryCategories,
     ZnRating,
     Comment,
     KnowledgeStatuses,
@@ -361,8 +362,14 @@ class GlossaryTermAdmin(admin.ModelAdmin):
         kwargs["form"] = GlossaryTermForm
         return super().get_form(request, obj, **kwargs)
 
-
 admin.site.register(GlossaryTerm, GlossaryTermAdmin)
+
+class GlossaryCategoryAdmin(admin.ModelAdmin):
+    list_display = ('order', 'name')
+    list_display_links = ('name', )
+    ordering = ('order', 'name', )
+
+admin.site.register(GlossaryCategories, GlossaryCategoryAdmin)
 
 
 class ZnRatingAdmin(admin.ModelAdmin):
@@ -741,11 +748,10 @@ class QuestionToKnowledgeAdmin(admin.ModelAdmin):
     list_display = (
         "knowledge",
         "question",
-        "publication",
-        "need_file"
+        "publication"
     )
     search_fields = ["knowledge__name"]
-    list_filter = ["publication", "need_file"]
+    list_filter = ["publication"]
     list_display_links = ["question"]
     autocomplete_fields = ["knowledge"]
 
@@ -774,3 +780,4 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
 class RefuseReasonAdmin(admin.ModelAdmin):
     pass
     
+

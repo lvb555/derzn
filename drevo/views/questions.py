@@ -54,10 +54,20 @@ def save_answer(request, pk):
     })
 
 
-def questions_and_check_answers(request, pk):
+def show_questions(request, pk):
+    knowledge_name = Znanie.objects.get(id=pk).name
+    questions = QuestionToKnowledge.objects.filter(knowledge=pk)
+    return render(request, "drevo/show_questions.html",{
+        "pk": pk,
+        "znanie": knowledge_name,
+        "questions": questions
+    })
+
+
+def acceptance(request, pk, question_id):
+    answers = UserAnswerToQuestion.objects.filter(question_id=question_id)
 
     if request.method == "POST":
-        answers = UserAnswerToQuestion.objects.filter(question_id=request.POST.get("question_id"))
         data = request.POST
         for answer in answers:
             for every_object in data:
@@ -81,16 +91,13 @@ def questions_and_check_answers(request, pk):
                         check_answer.inspector = None
                         check_answer.refuse_reason = None
                         check_answer.save() 
-        return HttpResponseRedirect('questions_and_check_answers')
+        return HttpResponseRedirect('answers_from_users')
 
-    answers = UserAnswerToQuestion.objects.filter(knowledge=pk)
+    question = QuestionToKnowledge.objects.get(id=question_id)
     reasons = RefuseReason.objects.all()
-    knowledge_name = Znanie.objects.get(id=pk).name
-    questions = QuestionToKnowledge.objects.filter(knowledge=pk)
-    return render(request, "drevo/questions_and_check_answers.html",{
-        "pk": pk,
-        "znanie": knowledge_name,
-        "questions": questions,
+    return render(request, "drevo/answers_from_users.html",{
+        "question": question,
         "answers": answers,
         "reasons": reasons
     })
+    

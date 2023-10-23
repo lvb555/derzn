@@ -38,21 +38,64 @@
         <input class="form-control icon" type="search" name="glossary_term_for_search" placeholder="Поиск" aria-label="Search"
                value="{{ glossary_term_for_search }}">
     </form>
+
 <div class="d-grid" style="gap: 16px; margin-top: 25px;">
-    {% for term in glossary_terms %}
-        <div class="glossary-term">
-            <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
-            <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
-            <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
+
+
+    {% for categori in glossary_categories_and_terms %}
+    {% if categori.name_category != None %}
+
+    <div class="glossary-category">
+
+        <!-- <i class="bi bi-play-circle-close" onclick="toggleHiddenCategories(this);"></i> -->
+        <div class="circle-close" onclick="toggleHiddenCategories(this);">
+            <span></span>
+            <span></span>
         </div>
-    {% empty %}
-    <div class="row">
-        <div class="col">
-            Глоссарий пуст
+
+        <span class="title" style="padding-left: 21px;">{{categori.name_category}}</span>
+
+        <div class="glossary-set-terms" hidden>
+            {% for term in categori.set_terms %}
+                <div class="glossary-term">
+                    <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
+                    <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
+                    <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
+                </div>
+
+            {% empty %}
+                <div class="row">
+                    <div class="col">
+                        Нет терминов
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
+    {% else %}
+
+        {% for term in categori.set_terms %}
+            <div class="glossary-term">
+                <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
+                <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
+                <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
+            </div>
+
+        {% empty %}
+            <div class="row">
+                <div class="col">
+                    Нет терминов
+                </div>
+            </div>
+        {% endfor %}
+
+    {% endif %}
     {% endfor %}
+
+
 </div>
+
+
 {% if is_paginated %}
     <br>
     <div class="pagination" style="justify-content: space-between;align-items: baseline;margin-top: 15px;">
@@ -110,18 +153,33 @@
 
     fakeSelect();
 
-function toggleHiddenElement(element) {
-    element.parentNode.querySelector('.small-title').hidden = !element.parentNode.querySelector('.small-title').hidden;
+    function toggleHiddenElement(element) {
+        element.parentNode.querySelector('.small-title').hidden = !element.parentNode.querySelector('.small-title').hidden;
 
-    if (element.classList.contains("bi-play-circle-open")) {
-        element.classList.remove("bi-play-circle-open")
-        element.classList.add("bi-play-circle-close");
-        element.parentNode.style.background = 'white';
-    } else {
-        element.classList.remove("bi-play-circle-close")
-        element.classList.add("bi-play-circle-open");
-        element.parentNode.style.background = 'rgba(245, 245, 245, 0.75)';
+        if (element.classList.contains("bi-play-circle-open")) {
+            element.classList.remove("bi-play-circle-open")
+            element.classList.add("bi-play-circle-close");
+            element.parentNode.style.background = 'white';
+        } else {
+            element.classList.remove("bi-play-circle-close")
+            element.classList.add("bi-play-circle-open");
+            element.parentNode.style.background = 'rgba(245, 245, 245, 0.75)';
+        }
     }
-}
+
+    function toggleHiddenCategories(element) {
+        element.parentNode.querySelector('.glossary-set-terms').hidden = !element.parentNode.querySelector('.glossary-set-terms').hidden;
+
+        if (element.classList.contains("circle-open")) {
+            element.classList.remove("circle-open")
+            element.classList.add("circle-close");
+
+        } else {
+            element.classList.remove("circle-close")
+            element.classList.add("circle-open");
+        }
+    };
+
+
 </script>
 {% endblock %}
