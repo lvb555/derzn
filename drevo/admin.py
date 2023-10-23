@@ -335,7 +335,7 @@ class RelationAdmin(admin.ModelAdmin):
         name = data.get("bz")
         super().save_model(request, obj, form, change)
 
-        if obj.tr.is_invert and not data['tr'] == obj.tr.invert_tr:
+        if obj.tr.is_invert:
             """
             Если у объекта Tr указано поле 'invert_relation',
             тогда меняем местами значения полей 'bz' и 'rz',
