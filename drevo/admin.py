@@ -1,6 +1,7 @@
 from adminsortable2.admin import SortableAdminMixin
 from django.conf.urls import url
 from django.contrib import admin
+from django.db import IntegrityError
 from django.db.models import Q, F
 from django.db.models.functions import Lower
 from django.http import HttpResponseRedirect
@@ -316,8 +317,6 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 admin.site.register(Tz, TzAdmin)
 
-from django.db import IntegrityError
-from django.core.exceptions import ValidationError
 
 @admin.register(Relation)
 class RelationAdmin(admin.ModelAdmin):
@@ -333,7 +332,6 @@ class RelationAdmin(admin.ModelAdmin):
     )
     ordering = ("-date",)
     form = RelationAdminForm
-
 
     def save_model(self, request, obj, form, change):
         data = form.cleaned_data
