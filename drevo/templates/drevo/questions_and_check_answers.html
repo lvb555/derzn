@@ -1,6 +1,10 @@
 {% extends 'drevo/base.html' %}
 {% load static %}
 
+{% block meta_tags %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
+
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/questions_user.css' %}">
 {% endblock %}
@@ -12,12 +16,12 @@
     <span class="answer_head">Вопросы:</span>
     <select class="question_title" >
         {% for question in questions %}
-        <option value="question{{ question.id }}">{{ question.question }}</option>
+        <option class="question_value" value="question{{ question.id }}">{{ question.question }}</option>
         {% endfor %}
     </select>
     <hr>
     {% elif questions|length == 1 %}
-    <div><span class="answer_head">Вопрос:</span> <span id="one_question">{{ questions.first.question }}</span></div> 
+    <div><span class="answer_head">Вопрос:</span> <span class="one_question" name="question{{ questions.first.id }}">{{ questions.first.question }}</span></div> 
     <hr>
     {% endif %}
 
@@ -33,16 +37,21 @@
                     {% if answer.question == question %}
                     <div class="answers">
                         {% if answer.answer %}
-                            <div>{{ answer.answer }}</div>
+                            <div>{{ answer.answer }}
+                                
+                                {% if answer.answer_file %}
+                                    <a class="file" href="{{ answer.answer_file.url }}">Файл</a>
+                                {% endif%}
+                            </div>
                             {% else%}
                             <div></div>
-                            {% endif%}
-                            
-                            {% if answer.answer_file %}
-                            <div><a href="{{ answer.answer_file.url }}">Файл</a></div>
-                            {% else%}
+                            {% endif%}                           
+
+                            {% if answer.inspector %}
+                            <div style="margin-right: 5px;"><span class="expert">Эксперт: {{ answer.inspector }}</span></div>
+                            {% else %}
                             <div></div>
-                            {% endif%}
+                            {% endif %}
                     
                             <div>
                                 <select name="{{ answer.id }}" class="acceptance">
@@ -60,22 +69,36 @@
                                     <option selected value="not_checked">-------</option>
                                     {% endif %}
                                 </select>  
-                                <select name="reason{{answer.id}}" id="{{ answer.id }}" style="visibility: hidden;">
+                            </div>
+                            {% if answer.refuse_reason %}
+                            <div>
+                                <select name="reason{{ answer.id }}" id="{{ answer.id }}" class="reason" style="visibility: hidden;">
                                     <option value="">--Выберите причину--</option>
                                     <option value="less">Без объяснений</option>
                                     {% for reason in reasons %}
                                     <option value="{{ reason.id }}">{{ reason }}</option>
                                     {% endfor%}
                                 </select>        
+                                <span id="text_reason{{ answer.id }}">Причина: {{ answer.refuse_reason}}</span>
                             </div>
-                            {% if answer.refuse_reason %}
-                            <div>Причина: {{ answer.refuse_reason}}</div>
+                            {% else %}
+                            <div>
+                                <select name="reason{{answer.id}}" id="{{ answer.id }}" class="reason" style="visibility: hidden;">
+                                    <option value="">--Выберите причину--</option>
+                                    <option value="less">Без объяснений</option>
+                                    {% for reason in reasons %}
+                                    <option value="{{ reason.id }}">{{ reason }}</option>
+                                    {% endfor%}
+                                </select>        
+
+                            </div>
                             {% endif %}
                         </div>
+                        <hr>
                     {% endif %}
 
                 {% endfor %}   
-                <input class="accepted" type="submit" value="Сохранить">
+                <input id="accepted" type="submit" value="Сохранить">
             </form>
 
         </div>
@@ -85,29 +108,27 @@
 {% block jsfiles %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            last_submited_question()
+
             document.addEventListener('click', function(e) {
-                if (e.target.className === 'acceptance' && e.target.value === 'not_accepted') {
-                    document.getElementById(e.target.name).style.visibility = 'visible'
-                    console.log(e.target.name)
-                    
-                }
-                else if (e.target.className === 'acceptance' && e.target.value !== 'not_accepted') {
-                    document.getElementById(e.target.name).style.visibility = 'hidden'
-                    console.log(e.target.name)
-                    
-                }
+                show_refuse_reason(e)
             })
-            const one_question = document.querySelector('#one_question')
-            if (one_question) {
-                document.querySelector('.block_answers').style.display = 'block'
+
+            let selected;
+            if (document.querySelector('.one_question')) {
+                selected = document.querySelector('.one_question').getAttribute('name')
             }
-            const selected = document.querySelector('.question_title').value
-            let block = document.getElementById(selected)
+            else {               
+                selected = document.querySelector('.question_title').value
+            }
+            const block = document.getElementById(selected)
             let form = block.querySelector(`.${selected}`)
             if (form.querySelector('.answers') === null) {
                 block.innerHTML = '<h4>Ответы отсутствуют</h4>'
             }
             document.getElementById(selected).style.display = 'block'
+
             document.querySelector('.question_title').addEventListener('change', function() {
                 document.querySelectorAll('.block_answers').forEach((block)=> {
                     block.style.display = 'none'
@@ -119,6 +140,44 @@
                     block.innerHTML = '<h4>Ответы отсутствуют</h4>'
                 }
             })
-        })
+
+            document.addEventListener('submit', () => {
+                 const title_question = document.querySelector('.question_title').value
+                 window.localStorage.setItem('title', title_question)
+                })
+
+            })
+
+
+        function show_refuse_reason(e) {
+            if (e.target.className === 'acceptance' && e.target.value === 'not_accepted') {
+                document.getElementById(e.target.name).style.visibility = 'visible'  
+                document.getElementById(`text_reason${e.target.name}`).style.visibility = 'hidden'  
+            }
+            else if (e.target.className === 'acceptance' && e.target.value !== 'not_accepted') {
+                document.getElementById(e.target.name).style.visibility = 'hidden'        
+                document.getElementById(`text_reason${e.target.name}`).style.visibility = 'visible'
+            }
+        }
+
+        
+        function last_submited_question() {
+            if (window.localStorage.getItem('title')) {
+                let saved = window.localStorage.getItem('title')
+                const menu_select = document.querySelectorAll('.question_value')
+                menu_select.forEach((element) => {
+                    if (saved === element.value) {
+                        element.setAttribute('selected', '')
+                        window.localStorage.removeItem('title')
+                    }
+                })
+            }
+            else {
+                const menu_select = document.querySelectorAll('.question_value')
+                menu_select.forEach((element) => {
+                        element.removeAttribute('selected')                           
+                })
+            }
+        }
     </script>
 {% endblock %}

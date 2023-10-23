@@ -740,11 +740,13 @@ class AlgorithmDataAdmin(admin.ModelAdmin):
 class QuestionToKnowledgeAdmin(admin.ModelAdmin):
     list_display = (
         "knowledge",
+        "order",
         "question",
         "publication",
         "need_file"
     )
-    search_fields = ["knowledge__name"]
+    ordering = ["order"]
+    search_fields = ["knowledge__name", "question"]
     list_filter = ["publication", "need_file"]
     list_display_links = ["question"]
     autocomplete_fields = ["knowledge"]
@@ -763,7 +765,7 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
         "user",
         "accepted",
     )
-    search_fields = ["knowledge__name"]
+    search_fields = ["knowledge__name", "answer", "question__question"]
     list_display_links = ("knowledge", "answer")
     
     class Media:
