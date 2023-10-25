@@ -2,6 +2,7 @@ from django.db import models
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 from drevo.models.refuse_reason import RefuseReason
 from drevo.models import (
     UserAnswerToQuestion, 
@@ -9,7 +10,7 @@ from drevo.models import (
     Znanie
 )
 
-
+@login_required
 def save_answer(request, pk):
     if request.method == "POST":
         if request.POST.get("answer") and request.FILES:
@@ -54,6 +55,7 @@ def save_answer(request, pk):
     })
 
 
+@login_required
 def questions_and_check_answers(request, pk):
 
     if request.method == "POST":
