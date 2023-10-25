@@ -10,6 +10,7 @@ from drevo.models import (
     Znanie
 )
 
+
 @login_required
 def save_answer(request, pk):
     if request.method == "POST":
