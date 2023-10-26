@@ -13,7 +13,7 @@ class GlossaryCategories(models.Model):
     )
     order = models.PositiveIntegerField(
         verbose_name='Порядок',
-        null=True,
+        default=0,
         blank=True
     )
     objects = models.Manager()

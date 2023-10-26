@@ -332,6 +332,7 @@ table.table.align-middle.my-2 {
     background: #FFFFFF;
     box-shadow: 0px 0px 20px rgb(33 37 41 / 10%);
     border-radius: 8px;
+    z-index: 999999;
 }
 
 .select__item {
@@ -1100,7 +1101,6 @@ a.question {
     width: 25px;
     height: 25px;
     position: relative;
-    z-index:2;
     overflow: hidden;
     border-radius: 50%;
     background: #DFDFE3;

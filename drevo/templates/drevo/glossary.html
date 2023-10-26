@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        <div class="select__body">
+        <div class="select__body" style="z-index: 2;">
             <div class="select__item"><a href="?{% url_replace request 'order' 'name' %}" class="text-secondary">По алфавиту (А-Я)</a></div>
             <div class="select__item"><a href="?{% url_replace request 'order' '-name' %}" class="text-secondary">По алфавиту (Я-А)</a></div>
         </div>
