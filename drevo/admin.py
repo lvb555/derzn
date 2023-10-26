@@ -1,10 +1,13 @@
+from django.db.models.query import QuerySet
+from django.http.request import HttpRequest
 from adminsortable2.admin import SortableAdminMixin
 from django.conf.urls import url
 from django.contrib import admin
 from django.db import IntegrityError
 from django.db.models import Q, F
 from django.db.models.functions import Lower
-from django.http import HttpResponseRedirect
+from django.forms.models import model_to_dict
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
@@ -283,7 +286,7 @@ class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
         "is_systemic",
         "is_argument",
         "argument_type",
-        "is_invert",
+        "has_invert",
     )
     sortable_by = (
         "name",
@@ -333,6 +336,40 @@ class RelationAdmin(admin.ModelAdmin):
     ordering = ("-date",)
     form = RelationAdminForm
 
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            if obj.tr.has_invert:
+                Relation.objects.filter(bz=obj.rz, rz=obj.bz, tr=obj.tr.invert_tr).delete()
+                obj.delete()
+            else:
+                obj.delete()
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        response = super().change_view(request, object_id, form_url, extra_context)
+        obj = self.get_object(request, object_id)
+        if obj.tr.has_invert:
+            """
+            При изменении объекта, у которого есть инверсная модель,
+            изменения сохраняются и в объект, и в инверсной модели.
+            """
+            fields = model_to_dict(obj, exclude=('id', 'bz', 'rz', 'tr'))
+            invert_obj = get_object_or_404(Relation, bz=obj.rz, rz=obj.bz, tr=obj.tr.invert_tr)
+            for f_name in fields:
+                setattr(invert_obj, f_name, getattr(obj, f_name))
+            invert_obj.save()
+
+        return response
+
+    def delete_view(self, request, object_id, extra_context=None):
+        """
+        Если у объекта есть инвертная модель, удаляется сам объект,
+        и его инверсная модель.
+        """
+        obj = self.get_object(request, object_id)
+        if obj.tr.has_invert:
+            Relation.objects.filter(bz=obj.rz, rz=obj.bz, tr=obj.tr.invert_tr).delete()
+        return super().delete_view(request, object_id, extra_context)
+
     def save_model(self, request, obj, form, change):
         data = form.cleaned_data
         obj.user = request.user
@@ -340,7 +377,7 @@ class RelationAdmin(admin.ModelAdmin):
         name = data.get("bz")
         super().save_model(request, obj, form, change)
 
-        if obj.tr.is_invert:
+        if obj.tr.has_invert:
             """
             Если у объекта Tr указано поле 'invert_relation',
             тогда меняем местами значения полей 'bz' и 'rz',
@@ -362,7 +399,7 @@ class RelationAdmin(admin.ModelAdmin):
             if period:
                 period_relation = period.rz.name
                 # Передаем параметры в функцию send_notify_interview, которая формирует текст сообщения
-                result = send_notify_interview(interview, period_relation)
+                result = send_notify_interview(interview, period_relation)    
 
     class Media:
         # css = {"all": ("drevo/css/style.css",)}
