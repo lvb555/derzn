@@ -273,6 +273,7 @@ class AuthorTypeAdmin(admin.ModelAdmin):
 
 admin.site.register(AuthorType, AuthorTypeAdmin)
 
+
 @admin.register(Tr)
 class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = (
@@ -498,6 +499,7 @@ class KnowledgeGradeColorAdmin(admin.ModelAdmin):
         "low_light",
         "knowledge_type",
     )
+
 
 admin.site.register(KnowledgeGradeColor, KnowledgeGradeColorAdmin)
 
@@ -816,7 +818,7 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
     )
     search_fields = ["knowledge__name", "answer", "question__question"]
     list_display_links = ("knowledge", "answer")
-    
+
     class Media:
         css = {"all": ("drevo/css/width_form.css",)}
 
