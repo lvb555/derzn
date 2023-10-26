@@ -31,8 +31,8 @@ class Tr(models.Model):
     argument_type = models.BooleanField(choices=ARGUMENT_TYPES,
                                         default=FOR,
                                         verbose_name='Тип довода')
-    is_invert = models.BooleanField(editable=False,
-                                    verbose_name='Доступна инверсия')
+    has_invert = models.BooleanField(editable=False,
+                                     verbose_name='Доступна инверсия')
     invert_tr = models.ForeignKey('self',
                                   blank=True,
                                   null=True,
@@ -44,9 +44,9 @@ class Tr(models.Model):
     objects = models.Manager()
 
     def clean(self):
-        self.is_invert = False
+        self.has_invert = False
         if self.invert_tr is not None:
-            self.is_invert = True
+            self.has_invert = True
 
     class Meta:
         verbose_name = 'Вид связи'

@@ -10,7 +10,7 @@ env = Env()
 env.read_env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-PYTHONPATH = BASE_DIR.parent/env.str("RELATIVE_PYTHONPATH")
+PYTHONPATH = BASE_DIR.parent / env.str("RELATIVE_PYTHONPATH")
 
 SECRET_KEY = env.str('SECRET_KEY')
 
@@ -77,15 +77,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'dz.wsgi.application'
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-else:
-    DATABASES = {"default": env.dj_db_url("DB_URL")}
+DATABASES = {"default": env.dj_db_url("DB_URL")}
 
 
 # Password validation
