@@ -27,6 +27,11 @@ class QuestionToKnowledge(models.Model):
         default=False,
         verbose_name="Опубликовано?"
     )
+    order = models.IntegerField(
+        verbose_name='Порядок',
+        blank=True,
+        default=10
+    )
 
     def __str__(self):
         return self.question
