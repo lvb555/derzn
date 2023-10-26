@@ -17,7 +17,7 @@ def migrate_data(apps, schema_editor):
 
     # Перенос данных из users.SuggestionType в drevo.SuggestionType
     for i in users_type.objects.all():
-        drevo_type.objects.create(type_name=i.type_name, weight=i.type_name)
+        drevo_type.objects.create(type_name=i.type_name, weight=i.weight)
 
     # Перенос данных из users.UserSuggestion в drevo.Suggestion
     for i in users_suggestion.objects.all():
@@ -25,7 +25,7 @@ def migrate_data(apps, schema_editor):
             parent_knowlege=i.parent_knowlege,
             name=i.name,
             user=i.user,
-            suggestion_type=drevo_type.objects.get(weight=i.suggestion_type.weight),  # weight - поле уникальное
+            suggestions_type=drevo_type.objects.get(weight=i.suggestions_type.weight),  # weight - поле уникальное
             expert=i.expert,
             is_approve=i.is_approve,
             check_date=i.check_date,
