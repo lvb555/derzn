@@ -29,9 +29,8 @@ class QuestionToKnowledge(models.Model):
     )
     order = models.IntegerField(
         verbose_name='Порядок',
-        null=True,
         blank=True,
-        default=0
+        default=10
     )
 
     def __str__(self):
