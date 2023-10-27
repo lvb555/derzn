@@ -40,53 +40,75 @@
     </form>
 
 <div class="d-grid" style="gap: 16px; margin-top: 25px;">
+{% for info in glossary_categories_and_terms %}
+{% if info.name_category != None %}
+    {% for category in info.name_category %}
 
+        <div class="glossary-category">
+            <div class="circle-close" onclick="toggleHiddenCategories(this);">
+                <span></span>
+                <span></span>
+            </div>
+        
+            <span class="title" style="padding-left: 21px;">{{category.name}}</span>
 
-    {% for categori in glossary_categories_and_terms %}
-    {% if categori.name_category != None %}
+            <div class="glossary-set-terms" hidden>
+                {% for term in info.set_terms %}
+                    {% if category == term.category %}
+                        <div class="glossary-term">
+                            <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
+                            <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
+                            <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
 
     <div class="glossary-category">
-
-        <!-- <i class="bi bi-play-circle-close" onclick="toggleHiddenCategories(this);"></i> -->
         <div class="circle-close" onclick="toggleHiddenCategories(this);">
             <span></span>
             <span></span>
         </div>
-
-        <span class="title" style="padding-left: 21px;">{{categori.name_category}}</span>
+    
+        <span class="title" style="padding-left: 21px;">Без категорий</span>
 
         <div class="glossary-set-terms" hidden>
-            {% for term in categori.set_terms %}
-                <div class="glossary-term">
-                    <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
-                    <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
-                    <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
-                </div>
+            {% for term in info.set_terms %}
+                {% if term.category == None %}
+                    <div class="glossary-term">
+                        <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
+                        <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
+                        <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
+                    </div>
+                {% endif %}
             {% endfor %}
         </div>
     </div>
-    {% else %}
 
-        {% for term in categori.set_terms %}
-            <div class="glossary-term">
-                <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
-                <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
-                <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
+
+{% else %}
+
+    {% for term in info.set_terms %}
+        <div class="glossary-term">
+            <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
+            <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
+            <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
+        </div>
+
+    {% empty %}
+        <div class="row">
+            <div class="col">
+                Нет терминов
             </div>
-
-        {% empty %}
-            <div class="row">
-                <div class="col">
-                    Нет терминов
-                </div>
-            </div>
-        {% endfor %}
-
-    {% endif %}
+        </div>
     {% endfor %}
 
-
 </div>
+
+{% endif %}
+{% endfor %}
 
 
 {% if is_paginated %}

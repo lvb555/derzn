@@ -31,28 +31,11 @@ class GlossaryListView(ListView):
                 'set_terms': GlossaryTerm.objects
                  .filter(is_published=True, name__icontains=search_data).order_by(way_of_sorting)
             }]
-        
-        """Лист для вывода названия категорий и терминов в категорий"""
-        categories = GlossaryCategories.objects.all()
-        terms = GlossaryTerm.objects.filter(is_published=True)
 
-        set_categories_terms = [
-            {
-                'name_category': value.name,
-                'set_terms': terms.filter(category=value).order_by(way_of_sorting)
-            }
-            for value in categories if bool(terms.filter(category=value)) != False
-        ]
-
-        """термины без категорий"""
-        set_categories_terms.append(
-            {
-                'name_category': 'Без категорий',
-                'set_terms': terms.filter(category=None).order_by(way_of_sorting)
-            }
-        )
-
-        return set_categories_terms
+        return [{
+            'name_category': GlossaryCategories.objects.filter(glossaryterm__isnull=False).distinct(),
+            'set_terms': GlossaryTerm.objects.filter(is_published=True).order_by(way_of_sorting)
+        }]
 
 
     def get_context_data(self, *, object_list=None, **kwargs):
