@@ -107,6 +107,7 @@ from .views import send_znanie, knowledge_feed_view
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
+from .views.user_suggestion_view import UserSuggestionView
 
 from .views.expert_work.views import (
     propose_answer,
@@ -166,6 +167,7 @@ urlpatterns = [
     path("cookie_acceptance/", CookieAcceptance.as_view()),
     path("", DrevoView.as_view(), name="drevo"),
     path("znanie/<int:pk>", ZnanieDetailView.as_view(), name="zdetail"),
+    path("znanie/<int:pk>/suggestions", UserSuggestionView.as_view(), name="create-suggestion"),
     path("znanie/<int:pk>/questions_user", save_answer, name="questions"),
     path("znanie/<int:pk>/show_questions", show_questions, name="show_questions"),
     path("znanie/<int:pk>/show_questions/<int:question_id>/answers_from_users", acceptance, name="answers_from_users"),

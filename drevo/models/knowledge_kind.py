@@ -1,6 +1,5 @@
 from django.db import models
 from .knowledge import Znanie
-from users.models import SuggestionType
 
 
 class Tz(models.Model):
@@ -54,7 +53,7 @@ class Tz(models.Model):
     )
     objects = models.Manager()
 
-    available_suggestion_types = models.ManyToManyField(to=SuggestionType,
+    available_suggestion_types = models.ManyToManyField(to='drevo.SuggestionType',
         verbose_name='Типы предложений',
         blank=True)
 
@@ -67,6 +66,9 @@ class Tz(models.Model):
             znanie.is_send = self.is_send
         Znanie.objects.bulk_update(znaniya, ['is_send'])
         super(Tz, self).save(*args, **kwargs)
+
+    def sorted_suggestion_types(self):
+        return self.available_suggestion_types.all().order_by('weight')
 
     class Meta:
         verbose_name = 'Вид знания'

@@ -53,20 +53,34 @@ textarea {
     margin-top: 20px; 
 }
 
-.answers {
-    display: grid;
-    grid-template-columns: 20vw 10vw auto 20vw;
-    text-align: left;
-    font-family: Rubik;
-    font-size: 22px;
-    position: inherit;
-    margin-top: 20px; 
+@media (max-width: 899px) {
+    .answers {
+        display: block; 
+        text-align: left;
+        font-family: Rubik;
+        font-size: 22px;
+        position: inherit;
+        margin-top: 20px; 
+    }
+
 }
-.accepted {
-    float: right;
-    margin-right: 26%;
+@media (min-width: 900px) {
+    .answers {
+        display: grid;
+        grid-template-columns: 30vw 15vw auto 20vw;
+        text-align: left;
+        font-family: Rubik;
+        font-size: 22px;
+        position: inherit;
+        margin-top: 20px; 
+    }
+
+}
+
+#accepted {
     margin-top: 20px;
-    margin-left: 20px;
+    margin: 20px auto;
+    display: block;
     font-size: 14px;
     line-height: 200%;
     letter-spacing: 0.02em;
@@ -81,4 +95,46 @@ select {
     appearance: none;
     text-align: center;
     font-size: 18px;
+<<<<<<< HEAD
+=======
+}
+
+.answer_head {
+    font-family: Rubik;
+    font-size: 24px;
+    font-weight: bold;
+    position: inherit;
+    padding-right: 10px;
+}
+
+.question_title {
+    text-align: left;
+    width: 70vw;
+    appearance: auto;
+}
+
+.one_question {
+    font-family: Rubik;
+    font-size: 24px;
+    font-weight: 100;
+    position: inherit;
+    padding-right: 10px;
+}
+
+.answers > div {
+    padding: 10px;
+}
+
+.file {
+    font-family: Rubik;
+    font-size: 18px;
+}
+
+.expert {
+    padding-right: 5px;
+}
+
+.reason {
+    position: absolute;
+>>>>>>> 63a7750a00dd4036fd352efc5f510bc021172fa6
 }

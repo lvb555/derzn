@@ -26,9 +26,14 @@ from drevo.models.quiz_results import QuizResult
 from drevo.models.message import Message
 from drevo.models import QuestionToKnowledge
 from drevo.models import UserAnswerToQuestion
+
+from drevo.models.suggestion import Suggestion
+from drevo.models.suggestion_type import SuggestionType
 from drevo.models.refuse_reason import RefuseReason
 
+
 from .forms.developer_form import DeveloperForm
+from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
 from .forms import (
     ZnanieForm,
     AuthorForm,
@@ -747,11 +752,18 @@ class AlgorithmDataAdmin(admin.ModelAdmin):
 class QuestionToKnowledgeAdmin(admin.ModelAdmin):
     list_display = (
         "knowledge",
+        "order",
         "question",
         "publication"
     )
+<<<<<<< HEAD
     search_fields = ["knowledge__name"]
     list_filter = ["publication"]
+=======
+    ordering = ["order"]
+    search_fields = ["knowledge__name", "question"]
+    list_filter = ["publication", "need_file"]
+>>>>>>> 63a7750a00dd4036fd352efc5f510bc021172fa6
     list_display_links = ["question"]
     autocomplete_fields = ["knowledge"]
 
@@ -769,15 +781,32 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
         "user",
         "accepted",
     )
-    search_fields = ["knowledge__name"]
+    search_fields = ["knowledge__name", "answer", "question__question"]
     list_display_links = ("knowledge", "answer")
     
     class Media:
         css = {"all": ("drevo/css/width_form.css",)}
 
 
+
+@admin.register(Suggestion)
+class UserSuggestionAdmin(admin.ModelAdmin):
+    list_display = ('parent_knowlege', 'name', 'user', 'expert', 'is_approve', 'suggestions_type')
+    list_filter = ('suggestions_type', 'user', 'parent_knowlege')
+    form = AdminSuggestionUserForm
+
+
+@admin.register(SuggestionType)
+class SuggestionTypeAdmin(admin.ModelAdmin):
+    list_display = ('type_name', 'weight')
+    list_filter = ('type_name', 'weight')
+
+
 @admin.register(RefuseReason)
 class RefuseReasonAdmin(admin.ModelAdmin):
     pass
+<<<<<<< HEAD
     
 
+=======
+>>>>>>> 63a7750a00dd4036fd352efc5f510bc021172fa6

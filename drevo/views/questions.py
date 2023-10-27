@@ -2,6 +2,7 @@ from django.db import models
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 from drevo.models.refuse_reason import RefuseReason
 from drevo.models import (
     UserAnswerToQuestion, 
@@ -10,6 +11,7 @@ from drevo.models import (
 )
 
 
+@login_required
 def save_answer(request, pk):
     if request.method == "POST":
         if request.POST.get("answer") and request.FILES:
@@ -54,6 +56,7 @@ def save_answer(request, pk):
     })
 
 
+<<<<<<< HEAD
 def show_questions(request, pk):
     knowledge_name = Znanie.objects.get(id=pk).name
     questions = QuestionToKnowledge.objects.filter(knowledge=pk)
@@ -66,6 +69,10 @@ def show_questions(request, pk):
 
 def acceptance(request, pk, question_id):
     answers = UserAnswerToQuestion.objects.filter(question_id=question_id)
+=======
+@login_required
+def questions_and_check_answers(request, pk):
+>>>>>>> 63a7750a00dd4036fd352efc5f510bc021172fa6
 
     if request.method == "POST":
         data = request.POST
@@ -95,8 +102,17 @@ def acceptance(request, pk, question_id):
 
     question = QuestionToKnowledge.objects.get(id=question_id)
     reasons = RefuseReason.objects.all()
+<<<<<<< HEAD
     return render(request, "drevo/answers_from_users.html",{
         "question": question,
+=======
+    knowledge_name = Znanie.objects.get(id=pk).name
+    questions = QuestionToKnowledge.objects.filter(knowledge=pk).order_by('order')
+    return render(request, "drevo/questions_and_check_answers.html",{
+        "pk": pk,
+        "znanie": knowledge_name,
+        "questions": questions,
+>>>>>>> 63a7750a00dd4036fd352efc5f510bc021172fa6
         "answers": answers,
         "reasons": reasons
     })
