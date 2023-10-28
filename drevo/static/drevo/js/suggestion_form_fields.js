@@ -37,7 +37,7 @@ function createNewField(event) {
 		textarea.classList.add('field__area')
 		textarea.rows = 2
 		textarea.setAttribute('maxlength', 255)
-		textarea.addEventListener('keyup', changeSendButtonMode)
+		textarea.addEventListener('keyup', changeButtonsMode)
 		textarea.placeholder = "Введите текст предложения"
 
 		let rm_btn = document.createElement('button')
@@ -56,6 +56,7 @@ function createNewField(event) {
 		block.append(field)
 
 		event.target.style.top = `${100 - 100 / getCountOfFields(block)}%`
+		event.target.disabled = true
 	}
 }
 
@@ -77,9 +78,13 @@ function deleteLastField(event) {
 
 }
 
-function changeSendButtonMode(event) {
-	let arr = Array.from(document.querySelectorAll('.field textarea'))
-	getSendButton().disabled = arr.every((elem) => {return elem.value.length == 0})
+function changeButtonsMode(event) {
+	let fields_list = Array.from(document.querySelectorAll('.field'))
+	getSendButton().disabled = fields_list.every((elem) => {isFieldEmpty(elem)})
+
+	add_btn = event.target.parentElement.parentElement.parentElement.querySelector('.same_type_suggestions__add')
+	block_fields = Array.from(getFiedlsBlock(getButtonType(add_btn)).querySelectorAll('.field'))
+	add_btn.disabled = block_fields.some((elem) => {return isFieldEmpty(elem)})
 }
 
 function addEventListeners(elems, foo, event='click') {
@@ -92,4 +97,4 @@ addEventListeners(getAddButtons(), createNewField)
 addEventListeners(getRemoveButtons(), deleteLastField)
 
 let all_fields_list = document.querySelectorAll('.field textarea')
-addEventListeners(all_fields_list, changeSendButtonMode, 'keyup')
+addEventListeners(all_fields_list, changeButtonsMode, 'keyup')
