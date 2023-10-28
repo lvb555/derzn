@@ -6,6 +6,10 @@ function getRemoveButtons() {
 	return document.querySelectorAll('.field__remove')	
 }
 
+function getSendButton() {
+	return document.querySelector('.suggestion-form__btn button')
+}
+
 function getButtonType(btn) {
 	return Number(btn.getAttribute('id').split('-')[1])
 }
@@ -33,6 +37,7 @@ function createNewField(event) {
 		textarea.classList.add('field__area')
 		textarea.rows = 2
 		textarea.setAttribute('maxlength', 255)
+		textarea.addEventListener('keyup', changeSendButtonMode)
 		textarea.placeholder = "Введите текст предложения"
 
 		let rm_btn = document.createElement('button')
@@ -72,11 +77,19 @@ function deleteLastField(event) {
 
 }
 
-function setEventListeners(buttons, foo, event='click') {
-	buttons.forEach((btn) => {
-		btn.addEventListener(event, foo)
+function changeSendButtonMode(event) {
+	let arr = Array.from(document.querySelectorAll('.field textarea'))
+	getSendButton().disabled = arr.every((elem) => {return elem.value.length == 0})
+}
+
+function addEventListeners(elems, foo, event='click') {
+	elems.forEach((elem) => {
+		elem.addEventListener(event, foo)
 	})
 }
 
-setEventListeners(getAddButtons(), createNewField)
-setEventListeners(getRemoveButtons(), deleteLastField)
+addEventListeners(getAddButtons(), createNewField)
+addEventListeners(getRemoveButtons(), deleteLastField)
+
+let all_fields_list = document.querySelectorAll('.field textarea')
+addEventListeners(all_fields_list, changeSendButtonMode, 'keyup')
