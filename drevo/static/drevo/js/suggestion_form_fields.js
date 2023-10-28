@@ -46,7 +46,7 @@ function createNewField(event) {
 		rm_btn.classList.add('btn')
 		rm_btn.classList.add('btn-header')
 		rm_btn.type = 'button'
-		rm_btn.addEventListener('click', deleteLastField)
+		rm_btn.addEventListener('click', deleteField)
 
 		let field = document.createElement('div')
 		field.classList.add('field')
@@ -60,11 +60,14 @@ function createNewField(event) {
 	}
 }
 
-function deleteLastField(event) {
+function deleteField(event) {
 	field_block = event.target.parentElement
 	if (!isFieldEmpty(field_block) || getCountOfFields(field_block.parentElement) === 1){
 		return
 	}
+
+	add_btn = field_block.parentElement.parentElement.querySelector('.same_type_suggestions__add')
+
 	let block = null
 
 	if (field_block !== null) {
@@ -72,19 +75,29 @@ function deleteLastField(event) {
 		field_block.remove()
 	}
 
+	block_fields = Array.from(getFiedlsBlock(getButtonType(add_btn)).querySelectorAll('.field'))
+	add_btn.disabled = block_fields.some((elem) => {return isFieldEmpty(elem)})
+
 	if (block !== null) {
 		block.querySelector('.same_type_suggestions__add').style.top = `${100 - 100 / getCountOfFields(block)}%`
 	}
 
+	if (block.querySelectorAll('.field').length == 1){
+		block.querySelector('.field__remove').disabled = true
+	}
 }
 
 function changeButtonsMode(event) {
 	let fields_list = Array.from(document.querySelectorAll('.field'))
-	getSendButton().disabled = fields_list.every((elem) => {isFieldEmpty(elem)})
+	getSendButton().disabled = fields_list.every((elem) => {return isFieldEmpty(elem)})
 
 	add_btn = event.target.parentElement.parentElement.parentElement.querySelector('.same_type_suggestions__add')
-	block_fields = Array.from(getFiedlsBlock(getButtonType(add_btn)).querySelectorAll('.field'))
-	add_btn.disabled = block_fields.some((elem) => {return isFieldEmpty(elem)})
+	fields_block = getFiedlsBlock(getButtonType(add_btn))
+	rm_btn = event.target.parentElement.querySelector('.field__remove')
+
+	fields_in_block = Array.from(fields_block.querySelectorAll('.field'))
+	add_btn.disabled = fields_in_block.some((elem) => {return isFieldEmpty(elem)}) || fields_block.querySelectorAll('.field').length === 5
+	rm_btn.disabled = event.target.value.length !== 0 || fields_block.querySelectorAll('.field').length === 1
 }
 
 function addEventListeners(elems, foo, event='click') {
@@ -94,7 +107,7 @@ function addEventListeners(elems, foo, event='click') {
 }
 
 addEventListeners(getAddButtons(), createNewField)
-addEventListeners(getRemoveButtons(), deleteLastField)
+addEventListeners(getRemoveButtons(), deleteField)
 
 let all_fields_list = document.querySelectorAll('.field textarea')
 addEventListeners(all_fields_list, changeButtonsMode, 'keyup')
