@@ -24,13 +24,21 @@
     <div><span class="answer_head">Вопрос:</span> <span class="one_question" name="question{{ questions.first.id }}">{{ questions.first.question }}</span></div> 
     <hr>
     {% endif %}
+    <div>
+        <label for="not_checked">Необработанные ответы</label>
+        <input id="not_checked" type="checkbox">
+    </div>
+    <hr>
 
-    
+    {% if questions|length == 0 %}
+    <h2>Вопросы отсутствуют</h2>
+    {% endif %}
     {% for question in questions %}
     
-    <div style="display: none;" class="block_answers" id="question{{ question.id}}">
-        <h4>Ответы:</h4>
-            <form action="questions_and_check_answers" class="question{{ question.id }}" method="post">
+    <div class="block_answers" id="question{{ question.id}}">
+        <div class="not_checked_div"><h4>Необработанные ответы отсутствуют</h4></div>
+        <form action="questions_and_check_answers" class="question{{ question.id }}" method="post">
+                <h4>Ответы:</h4>
                 {% csrf_token %}
                 <input type="hidden" name="question_id" value="{{ question.id }}">
                 {% for answer in answers %}
@@ -48,7 +56,7 @@
                             {% endif%}                           
 
                             {% if answer.inspector %}
-                            <div><span class="expert">Эксперт: {{ answer.inspector }}</span></div>
+                            <div class="expert">Эксперт: {{ answer.inspector }}</div>
                             {% else %}
                             <div></div>
                             {% endif %}
@@ -72,7 +80,7 @@
                             </div>
                             {% if answer.refuse_reason %}
                             <div>
-                                <select name="reason{{ answer.id }}" id="{{ answer.id }}" class="reason" style="visibility: hidden;">
+                                <select name="reason{{ answer.id }}" id="{{ answer.id }}" class="reason">
                                     <option value="">--Выберите причину--</option>
                                     <option value="less">Без объяснений</option>
                                     {% for reason in reasons %}
@@ -83,7 +91,7 @@
                             </div>
                             {% else %}
                             <div>
-                                <select name="reason{{answer.id}}" id="{{ answer.id }}" class="reason" style="visibility: hidden;">
+                                <select name="reason{{answer.id}}" id="{{ answer.id }}" class="reason">
                                     <option value="">--Выберите причину--</option>
                                     <option value="less">Без объяснений</option>
                                     {% for reason in reasons %}
@@ -93,42 +101,52 @@
 
                             </div>
                             {% endif %}
+                            <hr class="line">
                         </div>
-                        <hr>
                     {% endif %}
-
-                {% endfor %}   
+                {% if forloop.last %}
                 <input id="accepted" type="submit" value="Сохранить">
+                {% endif %}
+                {% endfor %}   
             </form>
-
         </div>
     {% endfor %}
 {% endblock %}
 
 {% block jsfiles %}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        show_last_submited_question()
 
-            last_submited_question()
-
-            document.addEventListener('click', function(e) {
-                show_refuse_reason(e)
-            })
-
-            let selected;
+        document.getElementById('not_checked').onclick = () => {
             if (document.querySelector('.one_question')) {
-                selected = document.querySelector('.one_question').getAttribute('name')
+                show_unchecked_answers()
             }
             else {               
-                selected = document.querySelector('.question_title').value
+                document.querySelectorAll('.question_title').forEach(() => {
+                    show_unchecked_answers()
+                })
             }
-            const block = document.getElementById(selected)
-            let form = block.querySelector(`.${selected}`)
-            if (form.querySelector('.answers') === null) {
-                block.innerHTML = '<h4>Ответы отсутствуют</h4>'
-            }
-            document.getElementById(selected).style.display = 'block'
+        }
 
+        document.addEventListener('click', (e) => {
+            show_refuse_reason(e)
+        })
+
+        let selected;
+        if (document.querySelector('.one_question')) {
+            selected = document.querySelector('.one_question').getAttribute('name')
+        }
+        else {               
+            selected = document.querySelector('.question_title').value
+        }
+        const block = document.getElementById(selected)
+        let form = block.querySelector(`.${selected}`)
+        if (form.querySelector('.answers') === null) {
+            block.innerHTML = '<h4>Ответы отсутствуют</h4>'
+        }
+        document.getElementById(selected).style.display = 'block'
+        
+        if (document.querySelector('.question_title')) {
             document.querySelector('.question_title').addEventListener('change', function() {
                 document.querySelectorAll('.block_answers').forEach((block)=> {
                     block.style.display = 'none'
@@ -140,28 +158,33 @@
                     block.innerHTML = '<h4>Ответы отсутствуют</h4>'
                 }
             })
+        }
 
-            document.addEventListener('submit', () => {
-                 const title_question = document.querySelector('.question_title').value
-                 window.localStorage.setItem('title', title_question)
-                })
-
+        document.addEventListener('submit', () => {
+                const title_question = document.querySelector('.question_title').value
+                window.localStorage.setItem('title', title_question)
             })
 
 
         function show_refuse_reason(e) {
             if (e.target.className === 'acceptance' && e.target.value === 'not_accepted') {
                 document.getElementById(e.target.name).style.visibility = 'visible'  
-                document.getElementById(`text_reason${e.target.name}`).style.visibility = 'hidden'  
+                if (document.getElementById(`text_reason${e.target.name}`)) {
+                    
+                    document.getElementById(`text_reason${e.target.name}`).style.visibility = 'hidden'  
+                }
             }
             else if (e.target.className === 'acceptance' && e.target.value !== 'not_accepted') {
-                document.getElementById(e.target.name).style.visibility = 'hidden'        
-                document.getElementById(`text_reason${e.target.name}`).style.visibility = 'visible'
+                document.getElementById(e.target.name).style.visibility = 'hidden'  
+                if (document.getElementById(`text_reason${e.target.name}`)) {
+
+                    document.getElementById(`text_reason${e.target.name}`).style.visibility = 'visible'
+                }     
             }
         }
 
         
-        function last_submited_question() {
+        function show_last_submited_question() {
             if (window.localStorage.getItem('title')) {
                 let saved = window.localStorage.getItem('title')
                 const menu_select = document.querySelectorAll('.question_value')
@@ -178,6 +201,54 @@
                         element.removeAttribute('selected')                           
                 })
             }
+        }
+
+
+        function show_unchecked_answers() {
+            let list_answers =  document.querySelectorAll('.answers')
+                if (document.getElementById('not_checked').checked === true) {
+                        
+                    list_answers.forEach((answer) => {
+                        let expert = answer.querySelector('.expert')
+                        if (expert) {
+                            answer.style.display = 'none'
+                        }
+                    })
+
+                    document.querySelectorAll('.block_answers').forEach((e) => {
+                        let answers = e.querySelectorAll('.answers')
+                        let counter = 0;
+                        answers.forEach((answer) => {
+                            if (answer.style.display === 'none') {
+                                counter++
+                            }
+                            if (counter === answers.length) {
+                                e.querySelector('.not_checked_div').style.display = 'block'
+                                answer.parentElement.style.display ='none'                        
+                            }
+                        })
+
+                        
+                    })
+                }
+                else {
+                    document.querySelectorAll('.block_answers').forEach((e) => {
+                        let answers = e.querySelectorAll('.answers')
+                        answers.forEach((answer) => {
+                            answer.parentElement.style.display ='block'                        
+                        })                            
+                    })
+                    document.querySelectorAll('.not_checked_div').forEach((e) => {
+                        e.style.display = 'none'
+                    })
+                    list_answers.forEach((answer) => {
+                        let expert = answer.querySelector('.expert')
+                        answer.removeAttribute('style')
+                        if (list_answers.length === 1) {
+                            document.querySelector('.block_answers').style.display = 'block'                                
+                        }       
+                    })
+                }
         }
     </script>
 {% endblock %}
