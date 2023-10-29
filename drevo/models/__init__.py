@@ -3,6 +3,7 @@ from .author import Author  # noqa
 from .category import Category  # noqa
 from .comment import Comment  # noqa
 from .glossary import GlossaryTerm  # noqa
+from .category_glossary import GlossaryCategories
 from .ip import IP  # noqa
 from .knowledge_image import ZnImage  # noqa
 from .knowledge_file import ZnFile
