@@ -5,6 +5,7 @@ from .comment import Comment  # noqa
 from .glossary import GlossaryTerm  # noqa
 from .ip import IP  # noqa
 from .knowledge_image import ZnImage  # noqa
+from .knowledge_file import ZnFile
 from .knowledge_kind import Tz  # noqa
 from .knowledge_rating import ZnRating  # noqa
 from .knowledge import Znanie  # noqa
@@ -28,3 +29,7 @@ from .message import Message
 from .interview_sub_answers import SubAnswers
 from .relationship_tz_tr import RelationshipTzTr
 from .relation_statuses import RelationStatuses
+from .questions import QuestionToKnowledge
+from .answers import UserAnswerToQuestion
+from .suggestion import Suggestion
+from .suggestion_type import SuggestionType

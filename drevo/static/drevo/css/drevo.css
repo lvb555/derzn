@@ -65,6 +65,16 @@ a {
     margin-top: -3vh;
 }
 
+.algorithm-element:hover .tooltip-text {
+    visibility: visible;
+    margin-top: 0;
+}
+
+span.algorithm-element a {
+    color: inherit;
+    text-decoration: none;
+}
+
 .kn_count:hover .tooltip-text {
   visibility: visible;
 }
@@ -678,7 +688,7 @@ textarea#id_mes_text::-webkit-scrollbar, .select2-results__options::-webkit-scro
 }
 
 .bi-hand-thumbs-down::before, .bi-hand-thumbs-down-fill::before, .bi-hand-thumbs-up::before, .bi-hand-thumbs-up-fill::before {
-	content: "";
+    content: "" !important;
 }
 
 .bi-star-fill::before, .bi-star::before {
@@ -1053,15 +1063,22 @@ a.disabled{
 
 .notification-field {
     position: fixed;
-    right: 5vh;
-    bottom: 5vh;
+    right: 2vh;
+    bottom: 0;
     width: 20%;
-    z-index: 999;
+    z-index: 9999;
 }
 
 .notification {
     padding: 5px 10px;
     border-radius: 6px;
+    margin: 10px 0px;
     border: 2px solid black;
     background: white;
+}
+
+a.question {
+    padding: 0;
+    margin-left: 0.5rem;
+    background-color: deeppink;
 }

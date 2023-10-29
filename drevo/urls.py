@@ -15,6 +15,7 @@ from .views import (
     AuthorsListView,
     AlgorithmDetailView,
     AlgorithmListView,
+    AlgorithmResultAdd,
     LabelsListView,
     GlossaryListView,
     ZnanieRatingView,
@@ -106,6 +107,7 @@ from .views import send_znanie, knowledge_feed_view
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
+from .views.user_suggestion_view import UserSuggestionView
 
 from .views.expert_work.views import (
     propose_answer,
@@ -137,6 +139,7 @@ from .views.special_permissions_work.view import (
     ExpertCandidateKnowledgeView,
     AdminCandidateKnowledgeView,
 )
+from .views.questions import save_answer, questions_and_check_answers
 from .views.interview_and_proposal import my_interview, my_proposal
 from .views.klz_all_knowledges import klz_all
 from .views.my_favourites import my_favourites
@@ -164,6 +167,9 @@ urlpatterns = [
     path("cookie_acceptance/", CookieAcceptance.as_view()),
     path("", DrevoView.as_view(), name="drevo"),
     path("znanie/<int:pk>", ZnanieDetailView.as_view(), name="zdetail"),
+    path("znanie/<int:pk>/suggestions", UserSuggestionView.as_view(), name="create-suggestion"),
+    path("znanie/<int:pk>/questions_user", save_answer, name="questions"),
+    path("znanie/<int:pk>/questions_and_check_answers", questions_and_check_answers, name="questions_and_check_answers"),
     path("znanie/<int:pk>/favourite", FavouriteProcessView.as_view()),
     path("znanie/<int:pk>/comments/", CommentPageView.as_view()),
     path("znanie/<int:pk>/comments/send/", CommentSendView.as_view()),
@@ -204,6 +210,7 @@ urlpatterns = [
     path('relations/types/<int:type_pk>', RelationTypesView.as_view(), name='relation_type'),
     path("all_algorithms/", AlgorithmListView.as_view(), name="all_algorithms"),
     path("algorithm/<int:pk>", AlgorithmDetailView.as_view(), name="algorithm"),
+    path("algorithm/<int:pk>/algorithm_result/", AlgorithmResultAdd.as_view()),
     path("search/knowledge", KnowledgeSearchView.as_view(), name="search_knowledge"),
     path("new_knowledge/", NewKnowledgeListView.as_view(), name="new_knowledge"),
     path("search/author", AuthorSearchView.as_view(), name="search_author"),

@@ -55,6 +55,8 @@ class UserAdmin(BaseUserAdmin):
             }
         )
     )
+
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'user_first_name', 'user_last_name', 'user_email', 'gender', 'birthday_at')
@@ -71,6 +73,7 @@ class ProfileAdmin(admin.ModelAdmin):
     def user_email(self, obj):
         return obj.user.email
     user_email.short_description = "Email"
+
 
 @admin.register(MenuSections)
 class MenuSectionsAdmin(admin.ModelAdmin):

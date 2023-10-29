@@ -1,5 +1,6 @@
 {% extends 'drevo/base.html' %}
 {% load mptt_tags %}
+{% load base_tags %}
 {% load static %}
 {% load knowledge_tree %}
 
@@ -11,6 +12,7 @@
     <link rel="stylesheet" href="{% static '/drevo/css/knowledge-feed.css' %}">
     <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
     <link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 {% endblock %}
 <div style="display:none" id="success-alert" class="alert alert-success">
   Сообщение отправлено!
@@ -99,12 +101,10 @@
                 <p class="options m-0 d-inline" style="padding-left: 20px; color: #BFBFBF;"><i class="bi bi-eye-fill"></i> {{ visits }}</p>
             </div>
         </div>
-
-        <p class="author-title" style="padding:20px 0px 20px 0px; border:none; height: auto;line-height: 120%;" id="znanie_name" value="{{ znanie.get_absolute_url }}">
+          <p class="author-title" style="padding:20px 0px 20px 0px; border:none; height: auto;line-height: 120%;" id="znanie_name" value="{{ znanie.get_absolute_url }}">
             {% get_color_by_tz znanie.tz.name flag_only=True %}
             {{ znanie.name }}
           </p>
-
       {% if znanie.content %}
         <p class="author-description" style="color:#6C757D;">Содержание</p>
         <p class="author-description" style="color:#212529; margin-top:5px;">{{ znanie.content|safe }}</p>
@@ -138,6 +138,24 @@
       </div>
       {% endif %}
       {% endif %}
+
+      {% if znanie.files.all %}
+        <div class="mt-5 d-flex flex-column align-items-start align-self-stretch" style="gap: 12px">
+            <p class="m-0 author-description" style="color:#6C757D;margin-top: 30px;">Файлы</p>
+            {% for file in znanie.files.all %}
+            <div class="d-flex align-items-center align-self-stretch" style="gap: 12px">
+                <i class="bi bi-filetype-{{ file.file.name|get_extension_or_filename:'1' }}" style="font-size: xx-large;"></i>
+                <div class="d-flex flex-column align-items-start" style="gap: 2px; flex: 1 0 0">
+                    <a href="{{ file.file.url }}" target="_blank">
+                    <p class="mb-0 author-count" style="color: #212529; width: auto;">{{ file.file.name|get_extension_or_filename:"0" }}</p>
+                    </a>
+                    <span class="options">{{ file.file.size|filesizeformat }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+      {% endif %}
+
       {% if button %}
           {%for i in button%}
             {%for b in i%}
@@ -150,8 +168,21 @@
         {% if znanie.tz.can_be_rated %}
             <a href="{% url 'grade' znanie.id %}" class="btn btn-header" style="height: fit-content; margin-right: 10px; padding: 8px 24px;">Оценка знания</a>
         {% endif %}
-        {% if request.user.is_authenticated %}
+        <div class="suggestion" {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
+            {% if znanie.tz.available_suggestion_types.all|length != 0%}
+              {% if request.user.is_authenticated%}
+                <a href="{{ suggestion_url }}" style="color: #212529;" class="suggestion__btn btn btn-icon">
+                  Делаем вместе
+                </a>
+              {% else %}
+                <button style="color: #212529;" class="suggestion__btn btn btn-icon">
+                  Делаем вместе
+                </button>
+              {% endif %}
+              {% endif %}
+          </div>
           <div>
+        {% if request.user.is_authenticated %}
             <a class="btn open-popup btn-icon" style="background-color: #E7ECEB; color: #083E2F; padding: 8px 24px;">Отправить в Ленту знаний</a>
             <div class="popup__bg">
               <form class="popup" method="post" id="feedmessage_form" novalidate onsubmit="return false;">
@@ -351,7 +382,17 @@
         <ul class="children treeline p-0">
         {% for sibling in siblings %}
           <li class="treeline mb-2">
-            <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/blue_file.png' %}"></i>
+            <i class="kn_type" style="color: #1CA053;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="26" viewBox="0 0 20 26" fill="none">
+                    <g clip-path="url(#clip0_762_3956)">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3333 6.5H20L13.3333 0V6.5Z" fill="#1BA2F1"/>
+                        <path d="M0 3.25C0 1.45742 1.49479 0 3.33333 0H11.6667V6.5C11.6667 7.39883 12.4115 8.125 13.3333 8.125H20V22.75C20 24.5426 18.5052 26 16.6667 26H3.33333C1.49479 26 0 24.5426 0 22.75V3.25Z" fill="#7CBBDB"/>
+                    </g>
+                    <defs>
+                        <clipPath id="clip0_762_3956"><rect width="20" height="26" fill="white"/></clipPath>
+                    </defs>
+                </svg>
+            </i>
             <a href="{{ sibling.get_absolute_url }}" class="znanie" style="color: #212529;">
                 {{sibling.name}}
             </a>
@@ -628,7 +669,5 @@
 
 {% block jsfiles %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{% static 'drevo/js/rating.js' %}"></script>
 <script src="{% static 'drevo/js/comments.js' %}"></script>
-<script src="{% static 'drevo/js/favourite.js' %}"></script>
 {% endblock %}

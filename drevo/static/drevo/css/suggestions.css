@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap');
+
+TD, TH {
+    padding: 24px 12px;
+    border: 1px solid #BFBFBF;
+}
+
+TD {
+    font-family: Rubik;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%;
+    letter-spacing: 0.28px;
+    word-wrap: break-word;
+}
+
+table {
+    border-spacing: 0;
+    border-collapse: separate;
+    border-radius: 10px;
+    border: 1px solid #BFBFBF;
+    overflow: hidden;
+}
+
+TH {
+    background: #F5F5F5;
+    font-family: Rubik;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 120%;
+    letter-spacing: 0.28px;
+}
+
+/*таблица*/
+
+.suggestions-table {
+	width: 100%;
+	text-align: center;
+	margin-bottom: 1rem;
+}
+
+.suggestions-table td {
+	max-width: 40vh;
+}
+
+/*заглавие*/
+
+.suggestion-form-title {
+	font-size: 1.5rem;
+	margin: 0 0 30px 0;
+}
+
+/*группы полей формы*/
+
+.same-type-suggestions {
+	position: relative;
+	margin: 0 0 1rem 0;
+	display: flex;
+	justify-content: space-between;
+}
+
+.same-type-suggestions__fields {
+	width: 60%;
+	position: relative;
+}
+
+.same-type-suggestions__type-name {
+	margin-bottom: 10px;
+	width: 30%;
+	font-size: 1.2rem;
+	font-weight: 500;
+}
+
+/*поле формы*/
+
+.field {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	position: relative;
+}
+
+.same-type-suggestions__fields textarea {
+	width: 100%;
+	margin-bottom: 10px;
+	padding: 6px 12px;
+	font-size: 0.9rem;
+	line-height: 200%;
+	resize: none;
+}
+
+/*кнопки создания и удаления полей формы*/
+
+.same_type_suggestions__add {
+	position: absolute;
+	right: -11%;
+}
+
+.field__remove {
+	position: absolute;
+	right: -10%;
+	top: 0;
+}
+
+/*положение и форма формы*/
+
+.suggestion-from{
+	width: 80%;
+	margin: 30px auto;
+	border-radius: 0.5rem;
+}
+
+/*кнопка отправки формы*/
+
+.suggestion-form__btn button {
+	border: 2px solid black;
+	border-radius: 0.5rem;
+}

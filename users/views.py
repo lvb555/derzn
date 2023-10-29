@@ -15,7 +15,7 @@ import uuid
 import base64
 from django.core.files.base import ContentFile
 from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory, \
-    FriendsInviteTerm, Message
+    FriendsInviteTerm, Message, Tz, Tr
 from drevo.models.feed_messages import FeedMessage
 from drevo.models.special_permissions import SpecialPermissions
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm

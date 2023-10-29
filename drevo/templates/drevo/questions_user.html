@@ -1,0 +1,35 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/questions_user.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h2>Знание: {{ znanie }}</h2>
+    <hr>
+    {% if user.is_authenticated %}
+        {% for question in questions %}
+        {% if question.publication%}
+        <form action="questions_user" enctype="multipart/form-data" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="question_id" value="{{ question.id }}">
+                <div class="grid">
+                    <div class="question">
+                        <span class="question_text">{{ question }}</span>
+                    </div>
+                    <div>
+                        <textarea name="answer" id="" cols="40" rows="10" class="id_answer" placeholder="Ваш ответ"></textarea>
+                        {% if question.need_file %}
+                        <input type="file" name="file" class="id_file">
+                        {% endif %}  
+                    </div>
+                    <div>
+                        <input type="submit" class="button" value="Сохранить"> 
+                    </div>
+                </div>
+            </form>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}

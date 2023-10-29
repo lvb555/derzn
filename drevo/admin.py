@@ -24,8 +24,16 @@ from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
 from drevo.models.developer import Developer
 from drevo.models.quiz_results import QuizResult
 from drevo.models.message import Message
+from drevo.models import QuestionToKnowledge
+from drevo.models import UserAnswerToQuestion
+
+from drevo.models.suggestion import Suggestion
+from drevo.models.suggestion_type import SuggestionType
+from drevo.models.refuse_reason import RefuseReason
+
 
 from .forms.developer_form import DeveloperForm
+from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
 from .forms import (
     ZnanieForm,
     AuthorForm,
@@ -42,6 +50,7 @@ from .models import (
     Relation,
     Category,
     ZnImage,
+    ZnFile,
     AuthorType,
     GlossaryTerm,
     ZnRating,
@@ -55,7 +64,10 @@ from .models import (
     SubAnswers,
     RelationshipTzTr,
     RelationStatuses,
+    QuestionToKnowledge,
+    UserAnswerToQuestion
 )
+from .models.algorithms_data import AlgorithmData
 from .models.appeal import Appeal
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -122,6 +134,25 @@ class ZnImageInline(admin.StackedInline):
     photo_out.short_description = "Миниатюра"
 
 
+class ZnFileInline(admin.StackedInline):
+    """
+    Класс для "встраивания" формы добавления файлов в форму создания Знания
+    """
+
+    model = ZnFile
+    extra = 1
+    verbose_name_plural = "Файлы"
+    verbose_name = "Файл"
+
+    def files_out(self, obj):
+        """
+        Выводит фото вместо текста ссылки
+        """
+        return mark_safe(f'<a href="{obj.href}">источник</a>')
+
+    files_out.short_description = "Файл"
+
+
 class ZnanieAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -149,6 +180,7 @@ class ZnanieAdmin(admin.ModelAdmin):
     list_per_page = 30
     inlines = [
         ZnImageInline,
+        ZnFileInline
     ]
     exclude = ("visits",)
     change_list_template = "admin/drevo/knowledge/change_list.html"
@@ -702,3 +734,63 @@ class RelationshipTzTrAdmin(admin.ModelAdmin):
 class AppealAdmin(admin.ModelAdmin):
     list_display = ("user", "subject", "created_at", "admin")
     readonly_fields = ("created_at", "resolved")
+
+
+@admin.register(AlgorithmData)
+class AlgorithmDataAdmin(admin.ModelAdmin):
+    list_display = ("user", "algorithm", "work_name")
+
+
+@admin.register(QuestionToKnowledge)
+class QuestionToKnowledgeAdmin(admin.ModelAdmin):
+    list_display = (
+        "knowledge",
+        "order",
+        "question",
+        "publication",
+        "need_file"
+    )
+    ordering = ["order"]
+    search_fields = ["knowledge__name", "question"]
+    list_filter = ["publication", "need_file"]
+    list_display_links = ["question"]
+    autocomplete_fields = ["knowledge"]
+
+    class Media:
+        css = {"all": ("drevo/css/width_form.css",)}
+
+
+@admin.register(UserAnswerToQuestion)
+class UserAnswerToQuestionAdmin(admin.ModelAdmin):
+    list_display = (
+        "knowledge",
+        "question",
+        "answer",
+        "date",
+        "user",
+        "accepted",
+    )
+    search_fields = ["knowledge__name", "answer", "question__question"]
+    list_display_links = ("knowledge", "answer")
+    
+    class Media:
+        css = {"all": ("drevo/css/width_form.css",)}
+
+
+
+@admin.register(Suggestion)
+class UserSuggestionAdmin(admin.ModelAdmin):
+    list_display = ('parent_knowlege', 'name', 'user', 'expert', 'is_approve', 'suggestions_type')
+    list_filter = ('suggestions_type', 'user', 'parent_knowlege')
+    form = AdminSuggestionUserForm
+
+
+@admin.register(SuggestionType)
+class SuggestionTypeAdmin(admin.ModelAdmin):
+    list_display = ('type_name', 'weight')
+    list_filter = ('type_name', 'weight')
+
+
+@admin.register(RefuseReason)
+class RefuseReasonAdmin(admin.ModelAdmin):
+    pass
