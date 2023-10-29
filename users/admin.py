@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from users.models import User, Profile, MenuSections, UserSuggection, SuggestionType
+from users.models import User, Profile, MenuSections
 
 
 class ProfileInlined(admin.StackedInline):
@@ -55,6 +55,8 @@ class UserAdmin(BaseUserAdmin):
             }
         )
     )
+
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'user_first_name', 'user_last_name', 'user_email', 'gender', 'birthday_at')
@@ -72,17 +74,8 @@ class ProfileAdmin(admin.ModelAdmin):
         return obj.user.email
     user_email.short_description = "Email"
 
+
 @admin.register(MenuSections)
 class MenuSectionsAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ["name"]
-
-@admin.register(UserSuggection)
-class UserSuggestionAdmin(admin.ModelAdmin):
-    list_display = ('parent_knowlege', 'name', 'user', 'expert', 'is_approve', 'suggestions_type')
-    list_filter = ('suggestions_type', 'user', 'parent_knowlege')
-
-@admin.register(SuggestionType)
-class SuggestionTypeAdmin(admin.ModelAdmin):
-    list_display = ('type_name', 'weight')
-    list_filter = ('type_name', 'weight')

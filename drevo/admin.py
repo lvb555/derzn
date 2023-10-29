@@ -26,9 +26,14 @@ from drevo.models.quiz_results import QuizResult
 from drevo.models.message import Message
 from drevo.models import QuestionToKnowledge
 from drevo.models import UserAnswerToQuestion
+
+from drevo.models.suggestion import Suggestion
+from drevo.models.suggestion_type import SuggestionType
 from drevo.models.refuse_reason import RefuseReason
 
+
 from .forms.developer_form import DeveloperForm
+from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
 from .forms import (
     ZnanieForm,
     AuthorForm,
@@ -772,7 +777,20 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
         css = {"all": ("drevo/css/width_form.css",)}
 
 
+
+@admin.register(Suggestion)
+class UserSuggestionAdmin(admin.ModelAdmin):
+    list_display = ('parent_knowlege', 'name', 'user', 'expert', 'is_approve', 'suggestions_type')
+    list_filter = ('suggestions_type', 'user', 'parent_knowlege')
+    form = AdminSuggestionUserForm
+
+
+@admin.register(SuggestionType)
+class SuggestionTypeAdmin(admin.ModelAdmin):
+    list_display = ('type_name', 'weight')
+    list_filter = ('type_name', 'weight')
+
+
 @admin.register(RefuseReason)
 class RefuseReasonAdmin(admin.ModelAdmin):
     pass
-    
