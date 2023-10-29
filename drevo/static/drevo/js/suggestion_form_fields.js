@@ -46,6 +46,7 @@ function createNewField(event) {
 		rm_btn.classList.add('btn')
 		rm_btn.classList.add('btn-header')
 		rm_btn.type = 'button'
+		rm_btn.style.visibility = 'visible'
 		rm_btn.addEventListener('click', deleteField)
 
 		let field = document.createElement('div')
@@ -56,7 +57,7 @@ function createNewField(event) {
 		block.append(field)
 
 		event.target.style.top = `${100 - 100 / getCountOfFields(block)}%`
-		event.target.disabled = true
+		event.target.style.visibility = "hidden"
 	}
 }
 
@@ -76,14 +77,14 @@ function deleteField(event) {
 	}
 
 	block_fields = Array.from(getFiedlsBlock(getButtonType(add_btn)).querySelectorAll('.field'))
-	add_btn.disabled = block_fields.some((elem) => {return isFieldEmpty(elem)})
+	add_btn.style.visibility = block_fields.some((elem) => {return isFieldEmpty(elem)}) ? "hidden" : "visible"
 
 	if (block !== null) {
 		block.querySelector('.same_type_suggestions__add').style.top = `${100 - 100 / getCountOfFields(block)}%`
 	}
 
 	if (block.querySelectorAll('.field').length == 1){
-		block.querySelector('.field__remove').disabled = true
+		block.querySelector('.field__remove').style.visibility = "hidden"
 	}
 }
 
@@ -96,8 +97,15 @@ function changeButtonsMode(event) {
 	rm_btn = event.target.parentElement.querySelector('.field__remove')
 
 	fields_in_block = Array.from(fields_block.querySelectorAll('.field'))
-	add_btn.disabled = fields_in_block.some((elem) => {return isFieldEmpty(elem)}) || fields_block.querySelectorAll('.field').length === 5
-	rm_btn.disabled = event.target.value.length !== 0 || fields_block.querySelectorAll('.field').length === 1
+	if (fields_in_block.some((elem) => {return isFieldEmpty(elem)}) || fields_block.querySelectorAll('.field').length === 5)
+		add_btn.style.visibility = "hidden"
+	else
+		add_btn.style.visibility = "visible"
+
+	if (event.target.value.length !== 0 || fields_block.querySelectorAll('.field').length === 1)
+		rm_btn.style.visibility = "hidden"
+	else
+		rm_btn.style.visibility = "visible"
 }
 
 function addEventListeners(elems, foo, event='click') {
