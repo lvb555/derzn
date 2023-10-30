@@ -62,7 +62,11 @@ textarea {
         position: inherit;
         margin-top: 20px; 
     }
-
+    
+    .line {
+        margin-top: 50px;
+    }
+    
 }
 @media (min-width: 900px) {
     .answers {
@@ -74,7 +78,11 @@ textarea {
         position: inherit;
         margin-top: 20px; 
     }
-
+    
+    .line {
+        grid-column-start: 1;
+        grid-column-end: 5;
+    }
 }
 
 #accepted {
@@ -134,4 +142,13 @@ select {
 
 .reason {
     position: absolute;
+    visibility: hidden;
+}
+
+.block_answers {
+    display: none;
+}
+
+.not_checked_div {
+    display: none;
 }
