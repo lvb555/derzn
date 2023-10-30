@@ -69,9 +69,10 @@ from .models import (
     RelationshipTzTr,
     RelationStatuses,
     QuestionToKnowledge,
-    UserAnswerToQuestion
+    UserAnswerToQuestion,
+    AlgorithmAdditionalElements
 )
-from .models.algorithms_data import AlgorithmData
+from .models.algorithms_data import AlgorithmData, AlgorithmWork
 from .models.appeal import Appeal
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -787,9 +788,19 @@ class AppealAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "resolved")
 
 
+@admin.register(AlgorithmWork)
+class AlgorithmWorkAdmin(admin.ModelAdmin):
+    list_display = ("user", "algorithm", "work_name")
+
+
 @admin.register(AlgorithmData)
 class AlgorithmDataAdmin(admin.ModelAdmin):
-    list_display = ("user", "algorithm", "work_name")
+    list_display = ("user", "algorithm", "work")
+
+
+@admin.register(AlgorithmAdditionalElements)
+class AlgorithmAdditionalElementsAdmin(admin.ModelAdmin):
+    list_display = ("user", "algorithm", "work", "parent_element")
 
 
 @admin.register(QuestionToKnowledge)

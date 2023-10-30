@@ -24,13 +24,21 @@
     <div><span class="answer_head">Вопрос:</span> <span class="one_question" name="question{{ questions.first.id }}">{{ questions.first.question }}</span></div> 
     <hr>
     {% endif %}
+    <div>
+        <label for="not_checked">Необработанные ответы</label>
+        <input id="not_checked" type="checkbox">
+    </div>
+    <hr>
 
-    
+    {% if questions|length == 0 %}
+    <h2>Вопросы отсутствуют</h2>
+    {% endif %}
     {% for question in questions %}
     
-    <div style="display: none;" class="block_answers" id="question{{ question.id}}">
-        <h4>Ответы:</h4>
-            <form action="questions_and_check_answers" class="question{{ question.id }}" method="post">
+    <div class="block_answers" id="question{{ question.id}}">
+        <div class="not_checked_div"><h4>Необработанные ответы отсутствуют</h4></div>
+        <form action="questions_and_check_answers" class="question{{ question.id }}" method="post">
+                <h4>Ответы:</h4>
                 {% csrf_token %}
                 <input type="hidden" name="question_id" value="{{ question.id }}">
                 {% for answer in answers %}
@@ -48,7 +56,7 @@
                             {% endif%}                           
 
                             {% if answer.inspector %}
-                            <div><span class="expert">Эксперт: {{ answer.inspector }}</span></div>
+                            <div class="expert">Эксперт: {{ answer.inspector }}</div>
                             {% else %}
                             <div></div>
                             {% endif %}
@@ -72,7 +80,7 @@
                             </div>
                             {% if answer.refuse_reason %}
                             <div>
-                                <select name="reason{{ answer.id }}" id="{{ answer.id }}" class="reason" style="visibility: hidden;">
+                                <select name="reason{{ answer.id }}" id="{{ answer.id }}" class="reason">
                                     <option value="">--Выберите причину--</option>
                                     <option value="less">Без объяснений</option>
                                     {% for reason in reasons %}
@@ -83,7 +91,7 @@
                             </div>
                             {% else %}
                             <div>
-                                <select name="reason{{answer.id}}" id="{{ answer.id }}" class="reason" style="visibility: hidden;">
+                                <select name="reason{{answer.id}}" id="{{ answer.id }}" class="reason">
                                     <option value="">--Выберите причину--</option>
                                     <option value="less">Без объяснений</option>
                                     {% for reason in reasons %}
@@ -93,91 +101,18 @@
 
                             </div>
                             {% endif %}
+                            <hr class="line">
                         </div>
-                        <hr>
                     {% endif %}
-
-                {% endfor %}   
+                {% if forloop.last %}
                 <input id="accepted" type="submit" value="Сохранить">
+                {% endif %}
+                {% endfor %}   
             </form>
-
         </div>
     {% endfor %}
 {% endblock %}
 
 {% block jsfiles %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            last_submited_question()
-
-            document.addEventListener('click', function(e) {
-                show_refuse_reason(e)
-            })
-
-            let selected;
-            if (document.querySelector('.one_question')) {
-                selected = document.querySelector('.one_question').getAttribute('name')
-            }
-            else {               
-                selected = document.querySelector('.question_title').value
-            }
-            const block = document.getElementById(selected)
-            let form = block.querySelector(`.${selected}`)
-            if (form.querySelector('.answers') === null) {
-                block.innerHTML = '<h4>Ответы отсутствуют</h4>'
-            }
-            document.getElementById(selected).style.display = 'block'
-
-            document.querySelector('.question_title').addEventListener('change', function() {
-                document.querySelectorAll('.block_answers').forEach((block)=> {
-                    block.style.display = 'none'
-                    document.getElementById(this.value).style.display = 'block'
-                })  
-                let block = document.getElementById(this.value)
-                let form = block.querySelector(`.${this.value}`)
-                if (form.querySelector('.answers') === null) {
-                    block.innerHTML = '<h4>Ответы отсутствуют</h4>'
-                }
-            })
-
-            document.addEventListener('submit', () => {
-                 const title_question = document.querySelector('.question_title').value
-                 window.localStorage.setItem('title', title_question)
-                })
-
-            })
-
-
-        function show_refuse_reason(e) {
-            if (e.target.className === 'acceptance' && e.target.value === 'not_accepted') {
-                document.getElementById(e.target.name).style.visibility = 'visible'  
-                document.getElementById(`text_reason${e.target.name}`).style.visibility = 'hidden'  
-            }
-            else if (e.target.className === 'acceptance' && e.target.value !== 'not_accepted') {
-                document.getElementById(e.target.name).style.visibility = 'hidden'        
-                document.getElementById(`text_reason${e.target.name}`).style.visibility = 'visible'
-            }
-        }
-
-        
-        function last_submited_question() {
-            if (window.localStorage.getItem('title')) {
-                let saved = window.localStorage.getItem('title')
-                const menu_select = document.querySelectorAll('.question_value')
-                menu_select.forEach((element) => {
-                    if (saved === element.value) {
-                        element.setAttribute('selected', '')
-                        window.localStorage.removeItem('title')
-                    }
-                })
-            }
-            else {
-                const menu_select = document.querySelectorAll('.question_value')
-                menu_select.forEach((element) => {
-                        element.removeAttribute('selected')                           
-                })
-            }
-        }
-    </script>
+    <script src="{% static '/drevo/js/questions_and_check_answers.js' %}"></script>
 {% endblock %}
