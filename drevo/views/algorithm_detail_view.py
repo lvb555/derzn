@@ -1,13 +1,12 @@
 import json
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView
 from datetime import datetime
 from django.views.generic.edit import ProcessFormView
-from ..models import Znanie, IP, Visits, BrowsingHistory, Relation, Tr
+from ..models import Znanie, IP, Visits, BrowsingHistory, Relation, Tr , AlgorithmAdditionalElements
 from loguru import logger
-from ..models.algorithms_data import AlgorithmData
+from ..models.algorithms_data import AlgorithmData, AlgorithmWork
 from ..relations_tree import get_children_by_relation_type_for_knowledge
 
 logger.add('logs/main.log',
@@ -50,14 +49,25 @@ class AlgorithmDetailView(DetailView):
             if not created:
                 browsing_history_obj.date = datetime.now()
                 browsing_history_obj.save()
-            context['previous_works'] = AlgorithmData.objects.filter(user=self.request.user, algorithm=knowledge)\
-                .values_list('work_name', flat=True).distinct()
+
+            context['previous_works'] = AlgorithmWork.objects.filter(user=self.request.user, algorithm=knowledge)\
+                .values_list('work_name', flat=True)
+
             if previous_works := self.request.GET.get('previous_works'):
                 context['progress'] = list(AlgorithmData.objects.filter(user=self.request.user, algorithm=knowledge,
-                                                                      work_name=previous_works).values(
-                                                                        'element__name', 'element_type'))
+                                                                      work__work_name=previous_works).values(
+                                                                        'element', 'element_type'))
                 if self.request.GET.get('previous_works'):
                     context['current_work'] = self.request.GET.get('previous_works')
+
+            if self.request.GET.get('mode'):
+                context['modification'] = 'on'
+
+            # В случае, если у знания может быть лишь одна работа - сразу загружаем пользовательский прогресс
+            if not knowledge.several_works:
+                context['progress'] = list(AlgorithmData.objects.filter(user=self.request.user, algorithm=knowledge,
+                                                                        work__work_name='Данные по алгоритму').values(
+                                                                        'element', 'element_type'))
 
         # Создание словаря со всеми элементами алгоритма
         start_of_algorithm = Relation.objects.get(bz=knowledge, tr__name='Начало алгоритма').rz
@@ -117,7 +127,8 @@ def make_complicated_dict1(algorithm_dict, queryset, previous_key, level=1, next
                             make_complicated_dict1(algorithm_dict[previous_key][len(algorithm_dict[previous_key]) - 1],
                                                    el, queryset, level=1, next_relation=next_relation)
                 if last_direction:
-                    make_complicated_dict1(algorithm_dict[previous_key], last_direction, previous_key, level=0, next_relation=next_relation)
+                    make_complicated_dict1(algorithm_dict[previous_key], last_direction, previous_key, level=0,
+                                           next_relation=next_relation)
     else:
         if level == 0:
             algorithm_dict.append(queryset)
@@ -137,20 +148,41 @@ class AlgorithmResultAdd(ProcessFormView):
 
             if pk:
                 algorithm = get_object_or_404(Znanie, id=pk)
-                list_ = json.loads(request.GET.get('values'))
+                saved_progress = json.loads(request.GET.get('values'))
+                new_elements = json.loads(request.GET.get('new_elements'))
                 work_name = request.GET.get('work')
                 previous_result = request.GET.get('previous_result')
-                if previous_result != '':
-                    results_for_delete = AlgorithmData.objects.filter(algorithm=algorithm, user=user,
-                                                                      work_name=str(previous_result))
+                previous_work = AlgorithmWork.objects.filter(algorithm=algorithm, user=user, 
+                                                             work_name=str(previous_result)).first()
+
+                if previous_result != '' and previous_work:
+                    results_for_delete = AlgorithmData.objects.filter(work=previous_work)
                     results_for_delete.delete()
-                for item in list_:
+                else:
+                    previous_work = AlgorithmWork.objects.create(
+                                        algorithm=algorithm,
+                                        user=user,
+                                        work_name=work_name,
+                                    )
+
+                for algorithm_element in saved_progress:
                     AlgorithmData.objects.create(
                         algorithm=algorithm,
                         user=user,
-                        element=get_object_or_404(Znanie, name=str(item[0])),
-                        element_type=item[1],
-                        work_name=work_name,
+                        element=str(algorithm_element[0]),
+                        element_type=algorithm_element[1],
+                        work=previous_work,
+                    )
+
+                for new_element in new_elements:
+                    AlgorithmAdditionalElements.objects.create(
+                        user=user,
+                        algorithm=algorithm,
+                        work=previous_work,
+                        parent_element=get_object_or_404(Znanie, name=str(new_element['parent_element'])),
+                        element_name=new_element['element_name'],
+                        relation_type=new_element['relation_type'],
+                        insertion_type=new_element['insertion_type'],
                     )
 
                 return JsonResponse({}, status=200)
