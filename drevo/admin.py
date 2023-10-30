@@ -505,6 +505,7 @@ class KnowledgeGradeColorAdmin(admin.ModelAdmin):
         "knowledge_type",
     )
 
+
 admin.site.register(KnowledgeGradeColor, KnowledgeGradeColorAdmin)
 
 
@@ -822,7 +823,7 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
     )
     search_fields = ["knowledge__name", "answer", "question__question"]
     list_display_links = ("knowledge", "answer")
-    
+
     class Media:
         css = {"all": ("drevo/css/width_form.css",)}
 
