@@ -2,6 +2,7 @@ from django.db import models
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 from drevo.models.refuse_reason import RefuseReason
 from drevo.models import (
     UserAnswerToQuestion, 
@@ -10,6 +11,7 @@ from drevo.models import (
 )
 
 
+@login_required
 def save_answer(request, pk):
     if request.method == "POST":
         if request.POST.get("answer") and request.FILES:
@@ -54,20 +56,11 @@ def save_answer(request, pk):
     })
 
 
-def show_questions(request, pk):
-    knowledge_name = Znanie.objects.get(id=pk).name
-    questions = QuestionToKnowledge.objects.filter(knowledge=pk)
-    return render(request, "drevo/show_questions.html",{
-        "pk": pk,
-        "znanie": knowledge_name,
-        "questions": questions
-    })
-
-
-def acceptance(request, pk, question_id):
-    answers = UserAnswerToQuestion.objects.filter(question_id=question_id)
+@login_required
+def questions_and_check_answers(request, pk):
 
     if request.method == "POST":
+        answers = UserAnswerToQuestion.objects.filter(question_id=request.POST.get("question_id"))
         data = request.POST
         for answer in answers:
             for every_object in data:
@@ -91,13 +84,16 @@ def acceptance(request, pk, question_id):
                         check_answer.inspector = None
                         check_answer.refuse_reason = None
                         check_answer.save() 
-        return HttpResponseRedirect('answers_from_users')
+        return HttpResponseRedirect('questions_and_check_answers')
 
-    question = QuestionToKnowledge.objects.get(id=question_id)
+    answers = UserAnswerToQuestion.objects.filter(knowledge=pk)
     reasons = RefuseReason.objects.all()
-    return render(request, "drevo/answers_from_users.html",{
-        "question": question,
+    knowledge_name = Znanie.objects.get(id=pk).name
+    questions = QuestionToKnowledge.objects.filter(knowledge=pk).order_by('order')
+    return render(request, "drevo/questions_and_check_answers.html",{
+        "pk": pk,
+        "znanie": knowledge_name,
+        "questions": questions,
         "answers": answers,
         "reasons": reasons
     })
-    
