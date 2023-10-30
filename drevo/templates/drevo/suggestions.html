@@ -44,11 +44,11 @@
 							<td> {{ str.name }} </td>
 							<td> 
 								{% if str.is_approve is None %}
-									<span style="color:#A1A1A1">Ожидает проверки</span>
+									Ожидает проверки
 								{% elif str.is_approve is False %}
-									<span style="color:#EA2F2F">Не принято</span>
+									Не принято
 								{% elif str.is_approve is True %}
-									<span style="color:#52E359">Принято</span>
+									Принято
 								{% endif %}
 							</td>
 						</tr>
