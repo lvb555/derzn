@@ -160,17 +160,18 @@ function ShowFirst(){
 
 ShowFirst();
 
-
-openPopupButton.addEventListener('click', (e) => {
-    if (!isAuthenticated) {
-    // Если пользователь не авторизован, перенаправляем его на страницу авторизации
-        window.location.href = window.location.origin + '/users/login/?next=/drevo/algorithm/'
-        + window.location.href.split('/').pop();
-    }
-    saveBg.classList.add('active');
-    savePopup.classList.add('active');
-    document.body.classList.add("stop-scrolling");
-});
+if(openPopupButton){
+    openPopupButton.addEventListener('click', (e) => {
+        if (!isAuthenticated) {
+        // Если пользователь не авторизован, перенаправляем его на страницу авторизации
+            window.location.href = window.location.origin + '/users/login/?next=/drevo/algorithm/'
+            + window.location.href.split('/').pop();
+        }
+        saveBg.classList.add('active');
+        savePopup.classList.add('active');
+        document.body.classList.add("stop-scrolling");
+    });
+}
 
 
 saveClosePopupButton.addEventListener('click', (e) => {

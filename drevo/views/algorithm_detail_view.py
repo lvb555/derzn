@@ -155,7 +155,7 @@ class AlgorithmResultAdd(ProcessFormView):
                 previous_work = AlgorithmWork.objects.filter(algorithm=algorithm, user=user, 
                                                              work_name=str(previous_result)).first()
 
-                if previous_result != '':
+                if previous_result != '' and previous_work:
                     results_for_delete = AlgorithmData.objects.filter(work=previous_work)
                     results_for_delete.delete()
                 else:
