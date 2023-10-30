@@ -32,6 +32,7 @@ class Tr(models.Model):
                                         default=FOR,
                                         verbose_name='Тип довода')
     has_invert = models.BooleanField(editable=False,
+                                     default=False,
                                      verbose_name='Доступна инверсия')
     invert_tr = models.ForeignKey('self',
                                   blank=True,
@@ -44,7 +45,6 @@ class Tr(models.Model):
     objects = models.Manager()
 
     def clean(self):
-        self.has_invert = False
         if self.invert_tr is not None:
             self.has_invert = True
 
