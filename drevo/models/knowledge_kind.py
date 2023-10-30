@@ -68,7 +68,7 @@ class Tz(models.Model):
         super(Tz, self).save(*args, **kwargs)
 
     def sorted_suggestion_types(self):
-        return self.available_suggestion_types.all().order_by('weight')
+        return self.available_suggestion_types.all().order_by('-weight')
 
     class Meta:
         verbose_name = 'Вид знания'

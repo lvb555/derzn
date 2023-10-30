@@ -23,7 +23,7 @@ class UserSuggestionView(TemplateView):
         if user.is_authenticated:
             context['user_suggestions'] = Suggestion.objects.filter(
                 user=user,
-                parent_knowlege=parent_knowlege).order_by('-create_date')
+                parent_knowlege=parent_knowlege).order_by('-suggestions_type', '-create_date')
 
         return context
 
