@@ -27,7 +27,13 @@ from drevo.models.message import Message
 from drevo.models import QuestionToKnowledge
 from drevo.models import UserAnswerToQuestion
 
+from drevo.models.suggestion import Suggestion
+from drevo.models.suggestion_type import SuggestionType
+from drevo.models.refuse_reason import RefuseReason
+
+
 from .forms.developer_form import DeveloperForm
+from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
 from .forms import (
     ZnanieForm,
     AuthorForm,
@@ -59,9 +65,10 @@ from .models import (
     RelationshipTzTr,
     RelationStatuses,
     QuestionToKnowledge,
-    UserAnswerToQuestion
+    UserAnswerToQuestion,
+    AlgorithmAdditionalElements
 )
-from .models.algorithms_data import AlgorithmData
+from .models.algorithms_data import AlgorithmData, AlgorithmWork
 from .models.appeal import Appeal
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -730,20 +737,33 @@ class AppealAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "resolved")
 
 
+@admin.register(AlgorithmWork)
+class AlgorithmWorkAdmin(admin.ModelAdmin):
+    list_display = ("user", "algorithm", "work_name")
+
+
 @admin.register(AlgorithmData)
 class AlgorithmDataAdmin(admin.ModelAdmin):
-    list_display = ("user", "algorithm", "work_name")
+    list_display = ("user", "algorithm", "work")
+
+
+@admin.register(AlgorithmAdditionalElements)
+class AlgorithmAdditionalElementsAdmin(admin.ModelAdmin):
+    list_display = ("user", "algorithm", "work", "parent_element")
 
 
 @admin.register(QuestionToKnowledge)
 class QuestionToKnowledgeAdmin(admin.ModelAdmin):
     list_display = (
         "knowledge",
+        "order",
         "question",
-        "publication"
+        "publication",
+        "need_file"
     )
-    search_fields = ["knowledge__name"]
-    list_filter = ["publication"]
+    ordering = ["order"]
+    search_fields = ["knowledge__name", "question"]
+    list_filter = ["publication", "need_file"]
     list_display_links = ["question"]
     autocomplete_fields = ["knowledge"]
 
@@ -761,8 +781,27 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
         "user",
         "accepted",
     )
-    search_fields = ["knowledge__name"]
+    search_fields = ["knowledge__name", "answer", "question__question"]
     list_display_links = ("knowledge", "answer")
     
     class Media:
         css = {"all": ("drevo/css/width_form.css",)}
+
+
+
+@admin.register(Suggestion)
+class UserSuggestionAdmin(admin.ModelAdmin):
+    list_display = ('parent_knowlege', 'name', 'user', 'expert', 'is_approve', 'suggestions_type')
+    list_filter = ('suggestions_type', 'user', 'parent_knowlege')
+    form = AdminSuggestionUserForm
+
+
+@admin.register(SuggestionType)
+class SuggestionTypeAdmin(admin.ModelAdmin):
+    list_display = ('type_name', 'weight')
+    list_filter = ('type_name', 'weight')
+
+
+@admin.register(RefuseReason)
+class RefuseReasonAdmin(admin.ModelAdmin):
+    pass

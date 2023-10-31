@@ -156,6 +156,6 @@ class ZnanieDetailView(DetailView):
         except User.DoesNotExist:
             pass
 
-        context['suggestion_url'] = built_url('users:create-suggestion', knowledge=pk)
+        context['suggestion_url'] = reverse('create-suggestion', args=[pk])
 
         return context

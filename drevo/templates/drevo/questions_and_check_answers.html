@@ -1,0 +1,118 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block meta_tags %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/questions_user.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h2>Знание: {{ znanie }}</h2>
+    <hr>
+    {% if questions|length > 1 %}
+    <span class="answer_head">Вопросы:</span>
+    <select class="question_title" >
+        {% for question in questions %}
+        <option class="question_value" value="question{{ question.id }}">{{ question.question }}</option>
+        {% endfor %}
+    </select>
+    <hr>
+    {% elif questions|length == 1 %}
+    <div><span class="answer_head">Вопрос:</span> <span class="one_question" name="question{{ questions.first.id }}">{{ questions.first.question }}</span></div> 
+    <hr>
+    {% endif %}
+    <div>
+        <label for="not_checked">Необработанные ответы</label>
+        <input id="not_checked" type="checkbox">
+    </div>
+    <hr>
+
+    {% if questions|length == 0 %}
+    <h2>Вопросы отсутствуют</h2>
+    {% endif %}
+    {% for question in questions %}
+    
+    <div class="block_answers" id="question{{ question.id}}">
+        <div class="not_checked_div"><h4>Необработанные ответы отсутствуют</h4></div>
+        <form action="questions_and_check_answers" class="question{{ question.id }}" method="post">
+                <h4>Ответы:</h4>
+                {% csrf_token %}
+                <input type="hidden" name="question_id" value="{{ question.id }}">
+                {% for answer in answers %}
+                    {% if answer.question == question %}
+                    <div class="answers">
+                        {% if answer.answer %}
+                            <div>{{ answer.answer }}
+                                
+                                {% if answer.answer_file %}
+                                    <a class="file" href="{{ answer.answer_file.url }}">Файл</a>
+                                {% endif%}
+                            </div>
+                            {% else%}
+                            <div></div>
+                            {% endif%}                           
+
+                            {% if answer.inspector %}
+                            <div class="expert">Эксперт: {{ answer.inspector }}</div>
+                            {% else %}
+                            <div></div>
+                            {% endif %}
+                    
+                            <div>
+                                <select name="{{ answer.id }}" class="acceptance">
+                                    {% if answer.inspector and answer.accepted == True %}
+                                    <option selected value="accepted">Принято</option>
+                                    <option value="not_accepted">Не принято</option>
+                                    <option value="not_checked">-------</option>
+                                    {% elif answer.inspector and answer.accepted == False %}
+                                    <option value="accepted">Принято</option>
+                                    <option selected value="not_accepted">Не принято</option>
+                                    <option value="not_checked">-------</option>
+                                    {% else%}
+                                    <option value="accepted">Принято</option>
+                                    <option value="not_accepted">Не принято</option>
+                                    <option selected value="not_checked">-------</option>
+                                    {% endif %}
+                                </select>  
+                            </div>
+                            {% if answer.refuse_reason %}
+                            <div>
+                                <select name="reason{{ answer.id }}" id="{{ answer.id }}" class="reason">
+                                    <option value="">--Выберите причину--</option>
+                                    <option value="less">Без объяснений</option>
+                                    {% for reason in reasons %}
+                                    <option value="{{ reason.id }}">{{ reason }}</option>
+                                    {% endfor%}
+                                </select>        
+                                <span id="text_reason{{ answer.id }}">Причина: {{ answer.refuse_reason}}</span>
+                            </div>
+                            {% else %}
+                            <div>
+                                <select name="reason{{answer.id}}" id="{{ answer.id }}" class="reason">
+                                    <option value="">--Выберите причину--</option>
+                                    <option value="less">Без объяснений</option>
+                                    {% for reason in reasons %}
+                                    <option value="{{ reason.id }}">{{ reason }}</option>
+                                    {% endfor%}
+                                </select>        
+
+                            </div>
+                            {% endif %}
+                            <hr class="line">
+                        </div>
+                    {% endif %}
+                {% if forloop.last %}
+                <input id="accepted" type="submit" value="Сохранить">
+                {% endif %}
+                {% endfor %}   
+            </form>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block jsfiles %}
+    <script src="{% static '/drevo/js/questions_and_check_answers.js' %}"></script>
+{% endblock %}

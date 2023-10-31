@@ -6,10 +6,6 @@ textarea {
     border-radius: 8px;
 }
 
-label {
-    display: none;
-}
-
 .question_text {
     font-family: Rubik;
     font-size: 24px;
@@ -23,11 +19,12 @@ label {
     grid-template-columns: 30vw auto 80px;
 }
 
-#id_answer {
+.id_answer {
     vertical-align: middle;
+    padding:5px;
 }
 
-#id_file {
+.id_file {
     font-size: 12px;
     line-height: 200%;
     letter-spacing: 0.02em;
@@ -47,4 +44,111 @@ label {
 
 .question {
     margin: 10px;
+}
+
+.list_questions {
+    font-family: Rubik;
+    font-size: 22px;
+    position: inherit;
+    margin-top: 20px; 
+}
+
+@media (max-width: 899px) {
+    .answers {
+        display: block; 
+        text-align: left;
+        font-family: Rubik;
+        font-size: 22px;
+        position: inherit;
+        margin-top: 20px; 
+    }
+    
+    .line {
+        margin-top: 50px;
+    }
+    
+}
+@media (min-width: 900px) {
+    .answers {
+        display: grid;
+        grid-template-columns: 30vw 15vw auto 20vw;
+        text-align: left;
+        font-family: Rubik;
+        font-size: 22px;
+        position: inherit;
+        margin-top: 20px; 
+    }
+    
+    .line {
+        grid-column-start: 1;
+        grid-column-end: 5;
+    }
+}
+
+#accepted {
+    margin-top: 20px;
+    margin: 20px auto;
+    display: block;
+    font-size: 14px;
+    line-height: 200%;
+    letter-spacing: 0.02em;
+    background-color: #083E2F;
+    color: #f8f9fa;
+    border-radius: 8px !important; 
+}
+
+select {
+    padding: 5px;
+    border-radius: 8px !important; 
+    appearance: none;
+    text-align: center;
+    font-size: 18px;
+}
+
+.answer_head {
+    font-family: Rubik;
+    font-size: 24px;
+    font-weight: bold;
+    position: inherit;
+    padding-right: 10px;
+}
+
+.question_title {
+    text-align: left;
+    width: 70vw;
+    appearance: auto;
+}
+
+.one_question {
+    font-family: Rubik;
+    font-size: 24px;
+    font-weight: 100;
+    position: inherit;
+    padding-right: 10px;
+}
+
+.answers > div {
+    padding: 10px;
+}
+
+.file {
+    font-family: Rubik;
+    font-size: 18px;
+}
+
+.expert {
+    padding-right: 5px;
+}
+
+.reason {
+    position: absolute;
+    visibility: hidden;
+}
+
+.block_answers {
+    display: none;
+}
+
+.not_checked_div {
+    display: none;
 }
