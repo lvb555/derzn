@@ -23,7 +23,7 @@ class UserSuggestionView(TemplateView):
         if user.is_authenticated:
             context['user_suggestions'] = Suggestion.objects.filter(
                 user=user,
-                parent_knowlege=parent_knowlege).order_by('-create_date')
+                parent_knowlege=parent_knowlege).order_by('-suggestions_type', '-create_date')
 
         return context
 
@@ -39,7 +39,12 @@ class UserSuggestionView(TemplateView):
         # создание предложений, вписанных пользователем в форму
         for t in knowledge.tz.available_suggestion_types.all():
             for sugg in request.POST.getlist(f'field-of-type-{t.pk}'):
-                if len(sugg.replace(' ', '')) > 0:
+
+                simplified_string = sugg
+                for char in ['\n', '\r', '\t', ' ']:
+                    simplified_string = simplified_string.replace(char, '')
+
+                if len(simplified_string) > 0 and len(sugg) < 256:
                     Suggestion.objects.create(
                         parent_knowlege=knowledge,
                         name=sugg,
