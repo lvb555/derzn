@@ -10,7 +10,7 @@ env = Env()
 env.read_env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-PYTHONPATH = BASE_DIR.parent/env.str("RELATIVE_PYTHONPATH")
+PYTHONPATH = BASE_DIR.parent / env.str("RELATIVE_PYTHONPATH")
 
 SECRET_KEY = env.str('SECRET_KEY')
 
