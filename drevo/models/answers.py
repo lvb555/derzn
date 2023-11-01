@@ -28,6 +28,7 @@ class UserAnswerToQuestion(models.Model):
         verbose_name='Ответ'
     )
     answer_file = models.FileField(
+        max_length=255,
         upload_to="proof/",
         verbose_name="Файл",
         null=True,

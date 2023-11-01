@@ -32,5 +32,6 @@ from .relationship_tz_tr import RelationshipTzTr
 from .relation_statuses import RelationStatuses
 from .questions import QuestionToKnowledge
 from .answers import UserAnswerToQuestion
+from .users_algorithm_elements import AlgorithmAdditionalElements
 from .suggestion import Suggestion
 from .suggestion_type import SuggestionType
