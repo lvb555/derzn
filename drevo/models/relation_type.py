@@ -31,13 +31,29 @@ class Tr(models.Model):
     argument_type = models.BooleanField(choices=ARGUMENT_TYPES,
                                         default=FOR,
                                         verbose_name='Тип довода')
+    has_invert = models.BooleanField(editable=False,
+                                     default=False,
+                                     verbose_name='Доступна инверсия')
+    invert_tr = models.ForeignKey('self',
+                                  blank=True,
+                                  null=True,
+                                  on_delete=models.CASCADE,
+                                  related_name='invert_rel_type',
+                                  verbose_name='Инверсия',
+                                  help_text='Только для инверсивных связей')
 
     objects = models.Manager()
 
-    def __str__(self):
-        return self.name
+    def clean(self):
+        if self.invert_tr is not None:
+            self.has_invert = True
+        else:
+            self.has_invert = False
 
     class Meta:
         verbose_name = 'Вид связи'
         verbose_name_plural = 'Виды связи'
         ordering = ('order', 'name',)
+
+    def __str__(self):
+        return self.name

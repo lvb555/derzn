@@ -1082,3 +1082,52 @@ a.question {
     margin-left: 0.5rem;
     background-color: deeppink;
 }
+
+.glossary-category {
+    border: 1px solid #DFDFE3;
+    border-radius: 8px;
+    padding: 24px;
+    
+}
+
+.glossary-set-terms {
+    margin-top: 21px;
+}
+
+.circle-close, 
+.circle-open {
+    width: 25px;
+    height: 25px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+    background: #DFDFE3;
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+.circle-close span {
+    width: 10px;
+    height: 2px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #6C757D;
+}
+
+.circle-close span:nth-of-type(2) {
+    top: 46%;
+    width: 10.5px;
+    transform: translate(-50%, 0%) rotate(90deg);
+}
+
+.circle-open span {
+    width: 10px;
+    height: 2px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #6C757D;   
+}
