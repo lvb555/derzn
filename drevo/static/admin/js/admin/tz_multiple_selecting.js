@@ -19,6 +19,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
 		})
 	})
 
+	if (countOfSelected > 0 && !selectObject.classList.contains("blocked") && !isCtrlPressed)
+				selectObject.classList.add("blocked")
+
 	console.log(selectObject)
 	document.addEventListener("keydown", (e) => {
 		console.log(e.code)
