@@ -12,31 +12,44 @@
 {% block content %}
     <h2>Знание: {{ znanie }}</h2>
     <hr>
+    <div class="not_checked_div">
+        <span class="answer_head">Вопросы с необработанными ответами отсутствуют</span>
+    </div>
+    <div id="if_one_question_not_checked">
+        <span class="answer_head">Вопрос:</span>
+        <span id="if_one_question"></span>
+    </div>
     {% if questions|length > 1 %}
-    <span class="answer_head">Вопросы:</span>
-    <select class="question_title" >
-        {% for question in questions %}
-        <option class="question_value" value="question{{ question.id }}">{{ question.question }}</option>
-        {% endfor %}
-    </select>
+    <div id="select_question">
+        <span class="answer_head">Вопросы:</span>
+        <select class="question_title" >
+            {% for question in questions %}
+            <option class="question_value" id="option_question{{ question.id }}" value="question{{ question.id }}">{{ question.question }}</option>
+            {% endfor %}
+        </select>
+    </div>
     <hr>
     {% elif questions|length == 1 %}
-    <div><span class="answer_head">Вопрос:</span> <span class="one_question" name="question{{ questions.first.id }}">{{ questions.first.question }}</span></div> 
+    {% for question in questions %}
+    <div id="one_question">
+        <span class="answer_head">Вопрос:</span>
+        <span class="one_question" name="question{{ question.id }}">{{ question.question }}</span>
+    </div> 
+    {% endfor%}
     <hr>
     {% endif %}
     <div>
         <label for="not_checked">Необработанные ответы</label>
         <input id="not_checked" type="checkbox">
+        <hr>
     </div>
-    <hr>
 
     {% if questions|length == 0 %}
-    <h2>Вопросы отсутствуют</h2>
+    <h2 id="no_questions">Вопросы отсутствуют</h2>
     {% endif %}
     {% for question in questions %}
     
     <div class="block_answers" id="question{{ question.id}}">
-        <div class="not_checked_div"><h4>Необработанные ответы отсутствуют</h4></div>
         <form action="questions_and_check_answers" class="question{{ question.id }}" method="post">
                 <h4>Ответы:</h4>
                 {% csrf_token %}
