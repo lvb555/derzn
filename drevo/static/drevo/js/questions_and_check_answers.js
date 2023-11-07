@@ -108,6 +108,20 @@ function show_unchecked_answers() {
                     document.getElementById('select_question').style.display = 'none'
                 }
             }
+            else if (counter_hidden_blocks === (document.querySelectorAll('.block_answers').length - 1) && document.querySelector('.question_title')) {
+                let menu = document.querySelector('.question_title')
+                menu.querySelectorAll('option').forEach((e) => {
+                    if (e.style.display !== 'none') {
+                        document.querySelector('.question_title').value = e.value
+                        let event_change = new Event('change')
+                        document.querySelector('.question_title').dispatchEvent(event_change)
+                        document.querySelector('#select_question').style.display ='none'
+                        document.querySelector('#if_one_question').innerHTML = e.innerHTML
+                        document.querySelector('#if_one_question_not_checked').style.display = 'block'
+
+                    }
+                })
+            }
             else {
                 if (document.querySelector('.question_title')) {
 
@@ -129,6 +143,7 @@ function show_unchecked_answers() {
             }            
         }
         else {
+            document.querySelector('#if_one_question_not_checked').style.display = 'none'
             if (document.querySelector('.question_title')) {
                 document.getElementById('select_question').style.display = 'block'
                 document.getElementById(document.querySelector('.question_title').value).style.display = 'block'
