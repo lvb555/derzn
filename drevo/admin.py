@@ -36,6 +36,7 @@ from drevo.models.refuse_reason import RefuseReason
 
 from .forms.developer_form import DeveloperForm
 from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
+from .forms.admin_knowledge_kind_form import AdminKnowledgeKindForm
 from .forms import (
     ZnanieForm,
     AuthorForm,
@@ -317,6 +318,8 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
         "order",
         "name",
     ]
+
+    form = AdminKnowledgeKindForm
 
 
 admin.site.register(Tz, TzAdmin)
