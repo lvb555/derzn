@@ -119,7 +119,7 @@ select {
     appearance: auto;
 }
 
-.one_question {
+.one_question, #if_one_question {
     font-family: Rubik;
     font-size: 24px;
     font-weight: 100;
@@ -150,5 +150,9 @@ select {
 }
 
 .not_checked_div {
+    display: none;
+}
+
+#if_one_question_not_checked {
     display: none;
 }

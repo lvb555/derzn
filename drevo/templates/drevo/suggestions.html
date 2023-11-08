@@ -26,7 +26,7 @@
 					</span>
 				</div>
 			</div>
-		{% elif knowledge.tz.available_suggestion_types|length == 0}
+		{% elif knowledge.tz.available_suggestion_types.all|length == 0 %}
 			<p>Текущее знание не разрешено дополнять</p>
 		{% else %}
 			<table class="align-middle suggestions-table">
