@@ -1,5 +1,8 @@
 from django.db import models
 
+from drevo.common.file_storage import ASCIIFileSystemStorage
+
+
 class Developer(models.Model):
     """
     Класс для описания таблицы разработчиков
@@ -17,7 +20,8 @@ class Developer(models.Model):
         upload_to='photos/developers/',
         verbose_name='Фото',
         blank=True,
-        null=True
+        null=True,
+        storage=ASCIIFileSystemStorage()
     )
     contribution = models.IntegerField(
         verbose_name='Вклад в проект',
