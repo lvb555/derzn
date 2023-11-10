@@ -39,8 +39,8 @@
     <hr>
     {% endif %}
     <div>
-        <label for="not_checked">Необработанные ответы</label>
         <input id="not_checked" type="checkbox">
+        <label for="not_checked">Необработанные ответы</label>
         <hr>
     </div>
 
@@ -58,8 +58,7 @@
                     {% if answer.question == question %}
                     <div class="answers">
                         {% if answer.answer %}
-                            <div>{{ answer.answer }}
-                                
+                            <div>{{ answer.answer }}                               
                                 {% if answer.answer_file %}
                                     <a class="file" href="{{ answer.answer_file.url }}">Файл</a>
                                 {% endif%}
@@ -111,7 +110,6 @@
                                     <option value="{{ reason.id }}">{{ reason }}</option>
                                     {% endfor%}
                                 </select>        
-
                             </div>
                             {% endif %}
                             <hr class="line">

@@ -24,25 +24,26 @@ else {
     })
     
     document.addEventListener('submit', () => {
+        if (document.querySelector('.question_title')) {
             let title_question = document.querySelector('.question_title').value
             window.localStorage.setItem('title', title_question)
-        })
+        }
+        let check_button = document.getElementById('not_checked').checked
+        window.localStorage.setItem('checked', check_button)
+    })
 }
-
 
 
 function show_refuse_reason(e) {
     if (e.target.className === 'acceptance' && e.target.value === 'not_accepted') {
         document.getElementById(e.target.name).style.visibility = 'visible'  
-        if (document.getElementById(`text_reason${e.target.name}`)) {
-            
+        if (document.getElementById(`text_reason${e.target.name}`)) {           
             document.getElementById(`text_reason${e.target.name}`).style.visibility = 'hidden'  
         }
     }
     else if (e.target.className === 'acceptance' && e.target.value !== 'not_accepted') {
         document.getElementById(e.target.name).style.visibility = 'hidden'  
         if (document.getElementById(`text_reason${e.target.name}`)) {
-
             document.getElementById(`text_reason${e.target.name}`).style.visibility = 'visible'
         }     
     }
@@ -63,8 +64,13 @@ function show_last_submited_question() {
     else {
         let menu_select = document.querySelectorAll('.question_value')
         menu_select.forEach((element) => {
-                element.removeAttribute('selected')                           
+            element.removeAttribute('selected')                           
         })
+    }
+    if (window.localStorage.getItem('checked') === 'true') {
+        document.querySelector('#not_checked').checked = true
+        show_unchecked_answers()
+        window.localStorage.removeItem('checked')
     }
 }
 
