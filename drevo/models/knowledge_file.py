@@ -1,5 +1,7 @@
 from django.db import models
 
+from drevo.common.file_storage import ASCIIFileSystemStorage
+
 
 class ZnFile(models.Model):
     znanie = models.ForeignKey(
@@ -10,7 +12,8 @@ class ZnFile(models.Model):
     file = models.FileField(
         upload_to='files/%Y/%m/%d/',
         verbose_name='Файл',
-        blank=True
+        blank=True,
+        storage=ASCIIFileSystemStorage()
     )
     objects = models.Manager()
 
