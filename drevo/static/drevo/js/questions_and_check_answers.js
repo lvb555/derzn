@@ -3,6 +3,7 @@ if(document.querySelector('#no_questions')) {
 }
 
 else {
+    remove_button()
 
     show_last_submited_question()
     
@@ -197,4 +198,23 @@ function show_questions_and_answers() {
             })  
         })
     }
+}
+
+
+function remove_button() {
+    let blocks = document.querySelectorAll('.block_answers')
+    blocks.forEach((block) => {
+        let answers_in_block = block.querySelectorAll('.answers')
+        let counter_checked_answers = 0
+        answers_in_block.forEach((answer) => {
+            if (answer.querySelector('.expert')) {
+                counter_checked_answers++
+                console.log(counter_checked_answers)
+            }
+
+        })
+        if (counter_checked_answers === answers_in_block.length) {
+            block.querySelector(".accepted").remove()
+        }
+    })
 }
