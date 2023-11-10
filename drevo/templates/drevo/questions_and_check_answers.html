@@ -39,8 +39,8 @@
     <hr>
     {% endif %}
     <div>
-        <label for="not_checked">Необработанные ответы</label>
         <input id="not_checked" type="checkbox">
+        <label for="not_checked">Необработанные ответы</label>
         <hr>
     </div>
 
@@ -58,71 +58,69 @@
                     {% if answer.question == question %}
                     <div class="answers">
                         {% if answer.answer %}
-                            <div>{{ answer.answer }}
-                                
+                            <div>{{ answer.answer }}                               
                                 {% if answer.answer_file %}
                                     <a class="file" href="{{ answer.answer_file.url }}">Файл</a>
                                 {% endif%}
                             </div>
                             {% else%}
                             <div></div>
-                            {% endif%}                           
+                        {% endif%}                           
 
                             {% if answer.inspector %}
-                            <div class="expert">Эксперт: {{ answer.inspector }}</div>
-                            {% else %}
-                            <div></div>
-                            {% endif %}
-                    
-                            <div>
-                                <select name="{{ answer.id }}" class="acceptance">
-                                    {% if answer.inspector and answer.accepted == True %}
-                                    <option selected value="accepted">Принято</option>
-                                    <option value="not_accepted">Не принято</option>
-                                    <option value="not_checked">-------</option>
-                                    {% elif answer.inspector and answer.accepted == False %}
-                                    <option value="accepted">Принято</option>
-                                    <option selected value="not_accepted">Не принято</option>
-                                    <option value="not_checked">-------</option>
-                                    {% else%}
-                                    <option value="accepted">Принято</option>
-                                    <option value="not_accepted">Не принято</option>
-                                    <option selected value="not_checked">-------</option>
-                                    {% endif %}
-                                </select>  
-                            </div>
-                            {% if answer.refuse_reason %}
-                            <div>
-                                <select name="reason{{ answer.id }}" id="{{ answer.id }}" class="reason">
-                                    <option value="">--Выберите причину--</option>
-                                    <option value="less">Без объяснений</option>
-                                    {% for reason in reasons %}
-                                    <option value="{{ reason.id }}">{{ reason }}</option>
-                                    {% endfor%}
-                                </select>        
-                                <span id="text_reason{{ answer.id }}">Причина: {{ answer.refuse_reason}}</span>
-                            </div>
-                            {% else %}
-                            <div>
-                                <select name="reason{{answer.id}}" id="{{ answer.id }}" class="reason">
-                                    <option value="">--Выберите причину--</option>
-                                    <option value="less">Без объяснений</option>
-                                    {% for reason in reasons %}
-                                    <option value="{{ reason.id }}">{{ reason }}</option>
-                                    {% endfor%}
-                                </select>        
+                                <div class="expert">Эксперт: {{ answer.inspector }}</div>
+                                {% if answer.accepted == True %}
+                                <div>Принято</div>
+                                {% else %}
+                                <div>Не принято</div>
+                                {% endif %}
+                                {% if answer.refuse_reason %}
+                                    <div>{{ answer.refuse_reason }}</div>
+                                {% else%}
+                                    <div></div>
+                                {% endif %}
+                                <hr class="line">
 
-                            </div>
+                            {% elif answer.inspector == None %}
+                                <div></div>                           
+                                <div>
+                                    <select name="{{ answer.id }}" class="acceptance">
+                                        {% if answer.inspector and answer.accepted == True %}
+                                            <option selected value="accepted">Принято</option>
+                                            <option value="not_accepted">Не принято</option>
+                                            <option value="not_checked">-------</option>
+                                        {% elif answer.inspector and answer.accepted == False %}
+                                            <option value="accepted">Принято</option>
+                                            <option selected value="not_accepted">Не принято</option>
+                                            <option value="not_checked">-------</option>
+                                        {% else%}
+                                            <option value="accepted">Принято</option>
+                                            <option value="not_accepted">Не принято</option>
+                                            <option selected value="not_checked">-------</option>
+                                        {% endif %}
+                                    </select>  
+                                </div>
+
+                                <div>
+                                    <select name="reason{{answer.id}}" id="{{ answer.id }}" class="reason">
+                                        <option value="">--Выберите причину--</option>
+                                        <option value="less">Без объяснений</option>
+                                        {% for reason in reasons %}
+                                            <option value="{{ reason.id }}">{{ reason }}</option>
+                                        {% endfor%}
+                                    </select>        
+                                </div>
+
+                                <hr class="line">
                             {% endif %}
-                            <hr class="line">
-                        </div>
+                    </div>
                     {% endif %}
-                {% if forloop.last %}
-                <input id="accepted" type="submit" value="Сохранить">
-                {% endif %}
+                    {% if forloop.last %}
+                    <input class="accepted" type="submit" value="Сохранить">
+                    {% endif %}
                 {% endfor %}   
             </form>
-        </div>
+    </div>
     {% endfor %}
 {% endblock %}
 
