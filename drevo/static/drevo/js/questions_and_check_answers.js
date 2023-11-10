@@ -49,11 +49,6 @@ function show_refuse_reason(e) {
 
 
 function show_last_submited_question() {
-    if (window.localStorage.getItem('checked') === 'true') {
-        document.querySelector('#not_checked').checked = true
-        show_unchecked_answers()
-        window.localStorage.removeItem('checked')
-    }
     if (window.localStorage.getItem('title')) {
         let saved = window.localStorage.getItem('title')
         let menu_select = document.querySelectorAll('.question_value')
@@ -67,8 +62,13 @@ function show_last_submited_question() {
     else {
         let menu_select = document.querySelectorAll('.question_value')
         menu_select.forEach((element) => {
-                element.removeAttribute('selected')                           
+            element.removeAttribute('selected')                           
         })
+    }
+    if (window.localStorage.getItem('checked') === 'true') {
+        document.querySelector('#not_checked').checked = true
+        show_unchecked_answers()
+        window.localStorage.removeItem('checked')
     }
 }
 
