@@ -24,11 +24,13 @@ else {
     })
     
     document.addEventListener('submit', () => {
+        if (document.querySelector('.question_title')) {
             let title_question = document.querySelector('.question_title').value
             window.localStorage.setItem('title', title_question)
-            let check_button = document.getElementById('not_checked').checked
-            window.localStorage.setItem('checked', check_button)
-        })
+        }
+        let check_button = document.getElementById('not_checked').checked
+        window.localStorage.setItem('checked', check_button)
+    })
 }
 
 
