@@ -16,8 +16,6 @@ class GlossaryListView(ListView):
     template_name = 'drevo/glossary.html'
     model = GlossaryTerm
     context_object_name = 'glossary_categories_and_terms'
-    paginate_by = 20
-
 
     def get_queryset(self):
         way_of_sorting = self.request.GET.get('order')

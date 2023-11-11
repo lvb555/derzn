@@ -111,47 +111,6 @@
 {% endfor %}
 
 
-{% if is_paginated %}
-    <br>
-    <div class="pagination" style="justify-content: space-between;align-items: baseline;margin-top: 15px;">
-        <span class='text-secondary' style="color:#BFBFBF!important; height: 14px;">
-            {{page_obj.start_index}}-{{page_obj.end_index}} из {{paginator.count}}
-        </span>
-
-        <span class="page-links d-inline-flex pages">
-            {% if page_obj.has_previous %}
-                <a href="?{% url_replace request 'page' page_obj.previous_page_number %}">
-                    <img style="height: 6px;weight: 10.5px;transform: rotate(90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                </a>
-            {% else %}
-                <a>
-                    <img style="height: 6px;weight: 10.5px;transform: rotate(90deg);opacity:0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                </a>
-            {% endif %}
-                <ul class="d-flex p-0 m-0">
-                    {% for p in page_obj.paginator.page_range %}
-                    <li>
-                        {% if page_obj.number == p %}
-                            <a href="?{% url_replace request 'page' p %}" style="color:#083E2F;">{{ p }}</a>
-                        {% else %}
-                            <a href="?{% url_replace request 'page' p %}">{{ p }}</a>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
-            {% if page_obj.has_next %}
-                <a href="?{% url_replace request 'page' page_obj.next_page_number %}">
-                    <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                </a>
-            {% else %}
-                <a>
-                    <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);opacity:0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                </a>
-            {% endif %}
-        </span>
-    </div>
-{% endif %}
-</div>
 <script>
     function fakeSelect() {
         let selectHeader = document.querySelectorAll('.select__header');
