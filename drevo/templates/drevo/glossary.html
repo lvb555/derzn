@@ -19,20 +19,6 @@
     </nav>
 </div>
 <div class="basic">
-    <div class="select w-auto me-3">
-        <div class="select__header">
-            <span value="all" class="select__current" id="select">{{ordering.0}}</span>
-            <div class="select__icon">
-                <img style="height: 6px;weight: 10.5px;opacity: 0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-            </div>
-        </div>
-
-        <div class="select__body" style="z-index: 2;">
-            <div class="select__item"><a href="?{% url_replace request 'order' 'name' %}" class="text-secondary">По алфавиту (А-Я)</a></div>
-            <div class="select__item"><a href="?{% url_replace request 'order' '-name' %}" class="text-secondary">По алфавиту (Я-А)</a></div>
-        </div>
-    </div>
-
     <form role="search" method="get" class="search-block">
         <input type="hidden" name="order" value="{{ ordering.1 }}">
         <input class="form-control icon" type="search" name="glossary_term_for_search" placeholder="Поиск" aria-label="Search"
@@ -65,8 +51,8 @@
             </div>
         </div>
     {% endfor %}
-
-    <div class="glossary-category">
+    
+    <div class="glossary-category none_category">
         <div class="circle-close" onclick="toggleHiddenCategories(this);">
             <span></span>
             <span></span>
@@ -112,6 +98,12 @@
 
 
 <script>
+    //если не будет терминов без категорий то display=none
+    let none_category = document.querySelector('.glossary-category.none_category');
+    if (!none_category.querySelector('.glossary-set-terms').querySelectorAll(".glossary-term").length) {
+        none_category.style.display = "none";
+    };
+
     function fakeSelect() {
         let selectHeader = document.querySelectorAll('.select__header');
         let selectItem = document.querySelectorAll('.select__item');
@@ -145,15 +137,20 @@
         element.parentNode.querySelector('.glossary-set-terms').hidden = !element.parentNode.querySelector('.glossary-set-terms').hidden;
 
         if (element.classList.contains("circle-open")) {
-            element.classList.remove("circle-open")
+            element.classList.remove("circle-open");
             element.classList.add("circle-close");
 
+            // чтобы открытые термины закрывались по закрытию категорий
+            let playCircleOpenElements = element.parentNode.querySelectorAll(".bi-play-circle-open");
+            playCircleOpenElements.forEach(element_open => {
+                toggleHiddenElement(element_open);
+            });
+            
         } else {
             element.classList.remove("circle-close")
             element.classList.add("circle-open");
         }
     };
-
 
 </script>
 {% endblock %}

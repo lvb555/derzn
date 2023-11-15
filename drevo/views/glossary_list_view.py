@@ -18,21 +18,17 @@ class GlossaryListView(ListView):
     context_object_name = 'glossary_categories_and_terms'
 
     def get_queryset(self):
-        way_of_sorting = self.request.GET.get('order')
-
-        if not way_of_sorting:
-            way_of_sorting = 'name'
 
         if search_data := self.request.GET.get('glossary_term_for_search'):
             return [{
                 'name_category': None,
                 'set_terms': GlossaryTerm.objects
-                 .filter(is_published=True, name__icontains=search_data).order_by(way_of_sorting)
+                 .filter(is_published=True, name__icontains=search_data)
             }]
 
         return [{
             'name_category': GlossaryCategories.objects.filter(glossaryterm__isnull=False).distinct(),
-            'set_terms': GlossaryTerm.objects.filter(is_published=True).order_by(way_of_sorting)
+            'set_terms': GlossaryTerm.objects.filter(is_published=True)
         }]
 
 
@@ -41,12 +37,6 @@ class GlossaryListView(ListView):
         Контекст, передаваемый в шаблон
         """
         context = super().get_context_data(**kwargs)
-
-
-        if self.request.GET.get('order') == '-name':
-            context['ordering'] = ['По алфавиту (Я-А)', '-name']
-        else:
-            context['ordering'] = ['По алфавиту (А-Я)', 'name']
 
         if glossary_term_for_search := self.request.GET.get('glossary_term_for_search'):
             context['glossary_term_for_search'] = glossary_term_for_search

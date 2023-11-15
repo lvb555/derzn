@@ -411,9 +411,9 @@ class RelationAdmin(admin.ModelAdmin):
 
 
 class GlossaryTermAdmin(admin.ModelAdmin):
-    list_display = ("order", "name", "description")
-    ordering = ("order", "name",)
-    list_display_links = ('name',)
+    list_display = ("order", "name", "description", "category")
+    ordering = ("order", "name", )
+    list_display_links = ('name', )
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs["form"] = GlossaryTermForm
