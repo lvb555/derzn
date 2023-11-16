@@ -52,4 +52,4 @@ class GlossaryTerm(models.Model):
     class Meta:
         verbose_name = 'Термин глоссария'
         verbose_name_plural = 'Термины глоссария'
-        ordering = ('order', 'name', )
+        ordering = ('order',)
