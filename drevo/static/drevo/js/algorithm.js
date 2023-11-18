@@ -34,24 +34,30 @@ var list_with_new_elements = [];
 
 
 function openNext(type){
-    if(type == 'block'){
+    if(type == 'block' && (addBg.querySelector('#transformation').style.display == 'none' || document.getElementById('change-checkbox').checked)){
         document.querySelector('#conditionalChoice').style.display = 'block';
     }else{
         document.querySelector('#conditionalChoice').style.display = 'none';
     }
 }
 
+
 function addNewElement(elem){
     if(elem.previousSibling.previousSibling.getAttribute('value') == 'Блок'){
-        addBg.querySelector('#block-questions').style.display = 'block';
+        addBg.querySelector('#block-questions div').style.display = 'flex';
+        addBg.querySelector('#transformation').style.display = 'none';
     }else{
-        addBg.querySelector('#block-questions').style.display = 'none';
+        addBg.querySelector('#block-questions div').style.display = 'none';
+        if(elem.parentNode.querySelector('input').value == 'Действие'){
+            addBg.querySelector('#transformation').style.display = 'block';
+        }
     }
     addBg.classList.add('active');
     addPopup.classList.add('active');
     document.body.classList.add("stop-scrolling");
     additionalElement = elem.parentNode;
 }
+
 
 function saveNewElement(){
     var elementName = document.getElementById('elem').value;
@@ -76,7 +82,7 @@ function saveNewElement(){
         var spanAlgorithm = document.createElement('span');
         var relation = 'necessary';
         var insertion = true;
-        if(insertionType && insertionType.value === "Block"){
+        if((insertionType && insertionType.value === "Block") || document.getElementById('change-checkbox').checked){
             document.getElementById('blockRadio').checked = false;
             document.getElementById('actionRadio').checked = false;
             insertion = false;
@@ -94,16 +100,27 @@ function saveNewElement(){
             spanText.appendChild(document.createTextNode('Далее'));
         }
         inputElement.setAttribute('value', 'Действие');
-        var textNode = document.createTextNode('(Действие)');
+        var textNode = document.createTextNode(' (Действие)');
         aElement.appendChild(document.createTextNode(elementName));
-        spanAlgorithm.setAttribute('class', 'algorithm-element');
+        spanAlgorithm.setAttribute('class', 'algorithm-element ms-2');
         spanAlgorithm.appendChild(aElement);
         spanAlgorithm.appendChild(textNode);
         newLi.appendChild(spanText);
         newLi.appendChild(checkbox);
         newLi.appendChild(spanAlgorithm);
-        if(insertionType && insertionType.value === "Block"){
-            additionalElement.lastChild.lastChild.after(newLi);
+        if(document.getElementById('change-checkbox').checked){
+            var newUl = document.createElement('ul');
+            newUl.appendChild(newLi);
+            additionalElement.lastChild.after(newUl);
+            additionalElement.firstChild.nextSibling.nextSibling.style.fontWeight = 'normal';
+            additionalElement.firstChild.nextSibling.value = 'Блок';
+            previousAElement = additionalElement.firstChild.nextSibling.nextSibling.firstChild
+            additionalElement.firstChild.nextSibling.nextSibling.innerHTML = previousAElement.outerHTML + ' (Блок)';
+        }
+        if((insertionType && insertionType.value === "Block") || document.getElementById('change-checkbox').checked){
+            if(!document.getElementById('change-checkbox').checked){
+                additionalElement.lastChild.lastChild.after(newLi);
+            }
             spanAlgorithm.style.color = 'red';
             spanAlgorithm.style.fontWeight = 'bold';
         }else{
@@ -123,7 +140,6 @@ function saveNewElement(){
             spanAlgorithm.style.color = 'red';
             spanAlgorithm.style.fontWeight = 'bold';
         }else{
-            additionalElement.firstChild.nextSibling.nextSibling.style.color = 'green';
             additionalElement.firstChild.nextSibling.checked = false;
         }
         addBg.classList.remove('active');
@@ -131,6 +147,7 @@ function saveNewElement(){
         document.body.classList.remove("stop-scrolling");
         document.querySelector('#conditionalChoice').style.display = 'none';
         document.getElementById('elem').value = '';
+        document.getElementById('change-checkbox').checked = false;
         document.querySelector('.add-form .warning').textContent = '';
         list_with_new_elements.push({ 'element_name': elementName, 'parent_element':
         additionalElement.firstChild.nextSibling.nextSibling.firstChild.textContent, 'relation_type': relation, 'insertion_type': insertion})
