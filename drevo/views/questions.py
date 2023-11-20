@@ -89,11 +89,17 @@ def questions_and_check_answers(request, pk):
     answers = UserAnswerToQuestion.objects.filter(knowledge=pk)
     reasons = RefuseReason.objects.all()
     knowledge_name = Znanie.objects.get(id=pk).name
-    questions = QuestionToKnowledge.objects.filter(knowledge=pk).order_by('order')
+    questions_from_base = QuestionToKnowledge.objects.filter(knowledge=pk, publication=True).order_by('order')
+    questions_for_page = []
+    for question in questions_from_base:
+        for answer in answers:
+            if answer.question == question:
+                questions_for_page.append(question)
+                break
     return render(request, "drevo/questions_and_check_answers.html",{
         "pk": pk,
         "znanie": knowledge_name,
-        "questions": questions,
+        "questions": questions_for_page,
         "answers": answers,
         "reasons": reasons
     })

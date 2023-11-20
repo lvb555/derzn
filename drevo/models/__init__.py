@@ -3,6 +3,7 @@ from .author import Author  # noqa
 from .category import Category  # noqa
 from .comment import Comment  # noqa
 from .glossary import GlossaryTerm  # noqa
+from .category_glossary import GlossaryCategories
 from .ip import IP  # noqa
 from .knowledge_image import ZnImage  # noqa
 from .knowledge_file import ZnFile
@@ -31,5 +32,6 @@ from .relationship_tz_tr import RelationshipTzTr
 from .relation_statuses import RelationStatuses
 from .questions import QuestionToKnowledge
 from .answers import UserAnswerToQuestion
+from .users_algorithm_elements import AlgorithmAdditionalElements
 from .suggestion import Suggestion
 from .suggestion_type import SuggestionType

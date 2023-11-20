@@ -1,8 +1,10 @@
 from adminsortable2.admin import SortableAdminMixin
 from django.conf.urls import url
 from django.contrib import admin
+from django.db import IntegrityError
 from django.db.models import Q, F
 from django.db.models.functions import Lower
+from django.forms.models import model_to_dict
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -34,6 +36,7 @@ from drevo.models.refuse_reason import RefuseReason
 
 from .forms.developer_form import DeveloperForm
 from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
+from .forms.admin_knowledge_kind_form import AdminKnowledgeKindForm
 from .forms import (
     ZnanieForm,
     AuthorForm,
@@ -53,6 +56,7 @@ from .models import (
     ZnFile,
     AuthorType,
     GlossaryTerm,
+    GlossaryCategories,
     ZnRating,
     Comment,
     KnowledgeStatuses,
@@ -65,9 +69,10 @@ from .models import (
     RelationshipTzTr,
     RelationStatuses,
     QuestionToKnowledge,
-    UserAnswerToQuestion
+    UserAnswerToQuestion,
+    AlgorithmAdditionalElements
 )
-from .models.algorithms_data import AlgorithmData
+from .models.algorithms_data import AlgorithmData, AlgorithmWork
 from .models.appeal import Appeal
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -275,6 +280,7 @@ class AuthorTypeAdmin(admin.ModelAdmin):
 admin.site.register(AuthorType, AuthorTypeAdmin)
 
 
+@admin.register(Tr)
 class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = (
         "name",
@@ -282,6 +288,7 @@ class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
         "is_systemic",
         "is_argument",
         "argument_type",
+        "has_invert",
     )
     sortable_by = (
         "name",
@@ -291,9 +298,6 @@ class TrAdmin(SortableAdminMixin, admin.ModelAdmin):
         "order",
         "name",
     ]
-
-
-admin.site.register(Tr, TrAdmin)
 
 
 class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
@@ -315,10 +319,13 @@ class TzAdmin(SortableAdminMixin, admin.ModelAdmin):
         "name",
     ]
 
+    form = AdminKnowledgeKindForm
+
 
 admin.site.register(Tz, TzAdmin)
 
 
+@admin.register(Relation)
 class RelationAdmin(admin.ModelAdmin):
     list_display = ("id", "bz", "tr", "rz", "author", "date", "user", "expert", "director", "order")
     save_as = True
@@ -333,11 +340,60 @@ class RelationAdmin(admin.ModelAdmin):
     ordering = ("-date",)
     form = RelationAdminForm
 
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            if obj.tr.has_invert:
+                Relation.objects.filter(bz=obj.rz, rz=obj.bz, tr=obj.tr.invert_tr).delete()
+                obj.delete()
+            else:
+                obj.delete()
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        response = super().change_view(request, object_id, form_url, extra_context)
+        obj = self.get_object(request, object_id)
+        if obj.tr.has_invert:
+            """
+            При изменении объекта, у которого есть инверсная модель,
+            изменения сохраняются и в объект, и в инверсной модели.
+            """
+            fields = model_to_dict(obj, exclude=('id', 'bz', 'rz', 'tr'))
+            invert_obj = get_object_or_404(Relation, bz=obj.rz, rz=obj.bz, tr=obj.tr.invert_tr)
+            for f_name in fields:
+                setattr(invert_obj, f_name, getattr(obj, f_name))
+            invert_obj.save()
+
+        return response
+
+    def delete_view(self, request, object_id, extra_context=None):
+        """
+        Если у объекта есть инвертная модель, удаляется сам объект,
+        и его инверсная модель.
+        """
+        obj = self.get_object(request, object_id)
+        if obj.tr.has_invert:
+            Relation.objects.filter(bz=obj.rz, rz=obj.bz, tr=obj.tr.invert_tr).delete()
+        return super().delete_view(request, object_id, extra_context)
+
     def save_model(self, request, obj, form, change):
+        data = form.cleaned_data
         obj.user = request.user
-        send_flag = form.cleaned_data.get("send_flag")
-        name = form.cleaned_data.get("bz")
+        send_flag = data.get("send_flag")
+        name = data.get("bz")
         super().save_model(request, obj, form, change)
+
+        if obj.tr.has_invert:
+            """
+            Если у объекта Tr указано поле 'invert_tr',
+            тогда меняем местами значения полей 'bz' и 'rz',
+            а поле 'tr' меняем на инверсную модель Tr и сохраняем
+            дополнительную инверсную связь.
+            """
+            data['bz'], data['rz'], data['tr'] = data['rz'], data['bz'], obj.tr.invert_tr
+            data.pop('send_flag')
+            try:
+                Relation.objects.get_or_create(**data, user=request.user)
+            except IntegrityError:
+                pass
 
         if send_flag:
             interview = get_object_or_404(Znanie, name=name)
@@ -347,20 +403,17 @@ class RelationAdmin(admin.ModelAdmin):
             if period:
                 period_relation = period.rz.name
                 # Передаем параметры в функцию send_notify_interview, которая формирует текст сообщения
-                result = send_notify_interview(interview, period_relation)
+                result = send_notify_interview(interview, period_relation)    
 
     class Media:
-        #css = {"all": ("drevo/css/style.css",)}
+        # css = {"all": ("drevo/css/style.css",)}
         js = ("drevo/js/notify_interview.js",)
 
 
-admin.site.register(Relation, RelationAdmin)
-
-
 class GlossaryTermAdmin(admin.ModelAdmin):
-    list_display = ("order", "name", "description")
-    ordering = ("order", "name",)
-    list_display_links = ('name',)
+    list_display = ("order", "name", "description", "category")
+    ordering = ("order", "name", )
+    list_display_links = ('name', )
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs["form"] = GlossaryTermForm
@@ -368,6 +421,14 @@ class GlossaryTermAdmin(admin.ModelAdmin):
 
 
 admin.site.register(GlossaryTerm, GlossaryTermAdmin)
+
+
+class GlossaryCategoryAdmin(admin.ModelAdmin):
+    list_display = ('order', 'name')
+    list_display_links = ('name', )
+    ordering = ('order', 'name', )
+
+admin.site.register(GlossaryCategories, GlossaryCategoryAdmin)
 
 
 class ZnRatingAdmin(admin.ModelAdmin):
@@ -736,9 +797,19 @@ class AppealAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "resolved")
 
 
+@admin.register(AlgorithmWork)
+class AlgorithmWorkAdmin(admin.ModelAdmin):
+    list_display = ("user", "algorithm", "work_name")
+
+
 @admin.register(AlgorithmData)
 class AlgorithmDataAdmin(admin.ModelAdmin):
-    list_display = ("user", "algorithm", "work_name")
+    list_display = ("user", "algorithm", "work")
+
+
+@admin.register(AlgorithmAdditionalElements)
+class AlgorithmAdditionalElementsAdmin(admin.ModelAdmin):
+    list_display = ("user", "algorithm", "work", "parent_element")
 
 
 @admin.register(QuestionToKnowledge)

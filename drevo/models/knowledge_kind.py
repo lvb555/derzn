@@ -54,7 +54,7 @@ class Tz(models.Model):
     objects = models.Manager()
 
     available_suggestion_types = models.ManyToManyField(to='drevo.SuggestionType',
-        verbose_name='Типы предложений',
+        verbose_name='Виды предложений',
         blank=True)
 
     def __str__(self):
@@ -68,7 +68,7 @@ class Tz(models.Model):
         super(Tz, self).save(*args, **kwargs)
 
     def sorted_suggestion_types(self):
-        return self.available_suggestion_types.all().order_by('weight')
+        return self.available_suggestion_types.all().order_by('-weight')
 
     class Meta:
         verbose_name = 'Вид знания'

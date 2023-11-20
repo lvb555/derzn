@@ -62,7 +62,11 @@ textarea {
         position: inherit;
         margin-top: 20px; 
     }
-
+    
+    .line {
+        margin-top: 50px;
+    }
+    
 }
 @media (min-width: 900px) {
     .answers {
@@ -74,10 +78,14 @@ textarea {
         position: inherit;
         margin-top: 20px; 
     }
-
+    
+    .line {
+        grid-column-start: 1;
+        grid-column-end: 5;
+    }
 }
 
-#accepted {
+.accepted {
     margin-top: 20px;
     margin: 20px auto;
     display: block;
@@ -111,7 +119,7 @@ select {
     appearance: auto;
 }
 
-.one_question {
+.one_question, #if_one_question {
     font-family: Rubik;
     font-size: 24px;
     font-weight: 100;
@@ -134,4 +142,17 @@ select {
 
 .reason {
     position: absolute;
+    visibility: hidden;
+}
+
+.block_answers {
+    display: none;
+}
+
+.not_checked_div {
+    display: none;
+}
+
+#if_one_question_not_checked {
+    display: none;
 }

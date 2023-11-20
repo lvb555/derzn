@@ -3,6 +3,7 @@ from users.models import User
 from .knowledge import Znanie
 from .questions import QuestionToKnowledge
 from .refuse_reason import RefuseReason
+from ..common.file_storage import ASCIIFileSystemStorage
 
 
 class UserAnswerToQuestion(models.Model):
@@ -28,10 +29,12 @@ class UserAnswerToQuestion(models.Model):
         verbose_name='Ответ'
     )
     answer_file = models.FileField(
+        max_length=255,
         upload_to="proof/",
         verbose_name="Файл",
         null=True,
-        blank=True
+        blank=True,
+        storage=ASCIIFileSystemStorage()
     )
     user = models.ForeignKey(
         User,

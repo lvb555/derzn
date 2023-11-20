@@ -25,7 +25,7 @@
     </nav>
 </div>
 <div class="basic px-2">
-    {% if previous_works %}
+    {% if previous_works and znanie.several_works %}
     <div class="select mx-4 mb-4">
         <div class="select__header">
             <span value="all" class="select__current" id="select">
@@ -48,13 +48,13 @@
         </div>
     </div>
     {% endif %}
-    <p class="px-4">{{znanie.name}}
+    <p class="px-4 mb-0">{{znanie.name}}
         {% if znanie.author %}
             <i class="d-inline-flex" style="color: #6C757D; font-style: normal;">({{ znanie.author }})</i>
         {% endif %}
     </p>
     <div id="algorithm_tree">
-        {% recurse_dict algorithm_data previous_knowledge=znanie %}
+        {% recurse_dict algorithm_data previous_knowledge=znanie algorithm=znanie user=request.user work=current_work mode=modification %}
     </div>
     <div class="popup__bg">
         <div class="popup p-5">
@@ -73,14 +73,28 @@
         </div>
     </div>
     <div class="d-flex" style="border-top: 1px solid var(--grey-1, #DFDFE3);">
-        {% if current_work %}
+        {% if current_work and znanie.several_works %}
         <div class="p-4">
             <input onclick="onButtonSendClick('same');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить результат">
         </div>
         {% endif %}
+        {% if znanie.several_works %}
+            <div class="p-4">
+                <input id="save-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить как новую работу">
+            </div>
+        {% else %}
+            <div class="p-4">
+                <input onclick="onButtonSendClick('static_name');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить результат">
+            </div>
+        {% endif %}
+        {% if user.is_authenticated %}
         <div class="p-4">
-            <input id="save-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить как новую работу">
+            <a class="btn btn btn-light btn-header py-1"
+               href="?{% url_replace request 'mode' 'modify' %}">
+                <span>Добавить свои элементы</span>
+            </a>
         </div>
+        {% endif %}
     </div>
     <div class="save-form popup__bg">
         <div class="popup p-5">
@@ -94,6 +108,36 @@
             </div>
         </div>
     </div>
+    {% if modification %}
+    <div class="add-form popup__bg">
+        <div class="popup p-5">
+            <i class="bi bi-x-lg close-popup"></i>
+            <span class="warning"></span>
+            <div id="transformation">
+                <input type="checkbox" id="change-checkbox" class="form-check-input" onclick="openNext('block');">
+                <label for="change-checkbox" style="color: #6C757D; display: inline!important;">Преобразовать родительский элемент в "Блок"?</label>
+            </div>
+            <h5 class="title">Введите название элемента</h5><br>
+            <label class="regular-text m-0" for="elem">Введите название элемента</label>
+            <input class="form-control py-2 text-grey" type="text" placeholder="Введите название элемента" id="elem" name="elem">
+            <div id="block-questions">
+                <div class="mt-4 justify-content-around" style="display: flex;">
+                    <label>Вид связи: </label><br>
+                    <input type="radio" class="m-0 p-0 text-grey form-check-input" name="insertion_type" value="Block" id="blockRadio" onclick="openNext('block');">В блок
+                    <input type="radio" class="m-0 p-0 text-grey form-check-input" name="insertion_type" value="Action" id="actionRadio" onclick="openNext('action');">В цепочку
+                </div>
+                <div id="conditionalChoice" style="display: none;">
+                    <label>Состав связи: </label><br>
+                    <input type="radio" class="m-0 p-0 text-grey form-check-input" name="connection" value="Нужно сделать" checked>Обязательный
+                    <input type="radio" class="m-0 p-0 text-grey form-check-input" name="connection" value="Можно сделать">Необязательный
+                </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-around">
+              <input type="button" onclick="saveNewElement();" name="add-data" value="Добавить" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
+            </div>
+        </div>
+    </div>
+    {% endif %}
     <div class="basic legend mt-4 pb-3">
         <p class="title">Легенда:</p>
         <div class="d-flex" style="gap: 24px;">

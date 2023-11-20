@@ -12,172 +12,118 @@
 {% block content %}
     <h2>Знание: {{ znanie }}</h2>
     <hr>
+    <div class="not_checked_div">
+        <span class="answer_head">Вопросы с необработанными ответами отсутствуют</span>
+    </div>
+    <div id="if_one_question_not_checked">
+        <span class="answer_head">Вопрос:</span>
+        <span id="if_one_question"></span>
+    </div>
     {% if questions|length > 1 %}
-    <span class="answer_head">Вопросы:</span>
-    <select class="question_title" >
-        {% for question in questions %}
-        <option class="question_value" value="question{{ question.id }}">{{ question.question }}</option>
-        {% endfor %}
-    </select>
+    <div id="select_question">
+        <span class="answer_head">Вопросы:</span>
+        <select class="question_title" >
+            {% for question in questions %}
+            <option class="question_value" id="option_question{{ question.id }}" value="question{{ question.id }}">{{ question.question }}</option>
+            {% endfor %}
+        </select>
+    </div>
     <hr>
     {% elif questions|length == 1 %}
-    <div><span class="answer_head">Вопрос:</span> <span class="one_question" name="question{{ questions.first.id }}">{{ questions.first.question }}</span></div> 
+    {% for question in questions %}
+    <div id="one_question">
+        <span class="answer_head">Вопрос:</span>
+        <span class="one_question" name="question{{ question.id }}">{{ question.question }}</span>
+    </div> 
+    {% endfor%}
     <hr>
     {% endif %}
+    <div>
+        <input id="not_checked" type="checkbox">
+        <label for="not_checked">Необработанные ответы</label>
+        <hr>
+    </div>
 
-    
+    {% if questions|length == 0 %}
+    <h2 id="no_questions">Вопросы отсутствуют</h2>
+    {% endif %}
     {% for question in questions %}
     
-    <div style="display: none;" class="block_answers" id="question{{ question.id}}">
-        <h4>Ответы:</h4>
-            <form action="questions_and_check_answers" class="question{{ question.id }}" method="post">
+    <div class="block_answers" id="question{{ question.id}}">
+        <form action="questions_and_check_answers" class="question{{ question.id }}" method="post">
+                <h4>Ответы:</h4>
                 {% csrf_token %}
                 <input type="hidden" name="question_id" value="{{ question.id }}">
                 {% for answer in answers %}
                     {% if answer.question == question %}
                     <div class="answers">
                         {% if answer.answer %}
-                            <div>{{ answer.answer }}
-                                
+                            <div>{{ answer.answer }}                               
                                 {% if answer.answer_file %}
                                     <a class="file" href="{{ answer.answer_file.url }}">Файл</a>
                                 {% endif%}
                             </div>
                             {% else%}
                             <div></div>
-                            {% endif%}                           
+                        {% endif%}                           
 
                             {% if answer.inspector %}
-                            <div><span class="expert">Эксперт: {{ answer.inspector }}</span></div>
-                            {% else %}
-                            <div></div>
-                            {% endif %}
-                    
-                            <div>
-                                <select name="{{ answer.id }}" class="acceptance">
-                                    {% if answer.inspector and answer.accepted == True %}
-                                    <option selected value="accepted">Принято</option>
-                                    <option value="not_accepted">Не принято</option>
-                                    <option value="not_checked">-------</option>
-                                    {% elif answer.inspector and answer.accepted == False %}
-                                    <option value="accepted">Принято</option>
-                                    <option selected value="not_accepted">Не принято</option>
-                                    <option value="not_checked">-------</option>
-                                    {% else%}
-                                    <option value="accepted">Принято</option>
-                                    <option value="not_accepted">Не принято</option>
-                                    <option selected value="not_checked">-------</option>
-                                    {% endif %}
-                                </select>  
-                            </div>
-                            {% if answer.refuse_reason %}
-                            <div>
-                                <select name="reason{{ answer.id }}" id="{{ answer.id }}" class="reason" style="visibility: hidden;">
-                                    <option value="">--Выберите причину--</option>
-                                    <option value="less">Без объяснений</option>
-                                    {% for reason in reasons %}
-                                    <option value="{{ reason.id }}">{{ reason }}</option>
-                                    {% endfor%}
-                                </select>        
-                                <span id="text_reason{{ answer.id }}">Причина: {{ answer.refuse_reason}}</span>
-                            </div>
-                            {% else %}
-                            <div>
-                                <select name="reason{{answer.id}}" id="{{ answer.id }}" class="reason" style="visibility: hidden;">
-                                    <option value="">--Выберите причину--</option>
-                                    <option value="less">Без объяснений</option>
-                                    {% for reason in reasons %}
-                                    <option value="{{ reason.id }}">{{ reason }}</option>
-                                    {% endfor%}
-                                </select>        
+                                <div class="expert">Эксперт: {{ answer.inspector }}</div>
+                                {% if answer.accepted == True %}
+                                <div>Принято</div>
+                                {% else %}
+                                <div>Не принято</div>
+                                {% endif %}
+                                {% if answer.refuse_reason %}
+                                    <div>{{ answer.refuse_reason }}</div>
+                                {% else%}
+                                    <div></div>
+                                {% endif %}
+                                <hr class="line">
 
-                            </div>
+                            {% elif answer.inspector == None %}
+                                <div></div>                           
+                                <div>
+                                    <select name="{{ answer.id }}" class="acceptance">
+                                        {% if answer.inspector and answer.accepted == True %}
+                                            <option selected value="accepted">Принято</option>
+                                            <option value="not_accepted">Не принято</option>
+                                            <option value="not_checked">-------</option>
+                                        {% elif answer.inspector and answer.accepted == False %}
+                                            <option value="accepted">Принято</option>
+                                            <option selected value="not_accepted">Не принято</option>
+                                            <option value="not_checked">-------</option>
+                                        {% else%}
+                                            <option value="accepted">Принято</option>
+                                            <option value="not_accepted">Не принято</option>
+                                            <option selected value="not_checked">-------</option>
+                                        {% endif %}
+                                    </select>  
+                                </div>
+
+                                <div>
+                                    <select name="reason{{answer.id}}" id="{{ answer.id }}" class="reason">
+                                        <option value="">--Выберите причину--</option>
+                                        <option value="less">Без объяснений</option>
+                                        {% for reason in reasons %}
+                                            <option value="{{ reason.id }}">{{ reason }}</option>
+                                        {% endfor%}
+                                    </select>        
+                                </div>
+
+                                <hr class="line">
                             {% endif %}
-                        </div>
-                        <hr>
+                    </div>
                     {% endif %}
-
+                    {% if forloop.last %}
+                    <input class="accepted" type="submit" value="Сохранить">
+                    {% endif %}
                 {% endfor %}   
-                <input id="accepted" type="submit" value="Сохранить">
             </form>
-
-        </div>
+    </div>
     {% endfor %}
 {% endblock %}
 
 {% block jsfiles %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            last_submited_question()
-
-            document.addEventListener('click', function(e) {
-                show_refuse_reason(e)
-            })
-
-            let selected;
-            if (document.querySelector('.one_question')) {
-                selected = document.querySelector('.one_question').getAttribute('name')
-            }
-            else {               
-                selected = document.querySelector('.question_title').value
-            }
-            const block = document.getElementById(selected)
-            let form = block.querySelector(`.${selected}`)
-            if (form.querySelector('.answers') === null) {
-                block.innerHTML = '<h4>Ответы отсутствуют</h4>'
-            }
-            document.getElementById(selected).style.display = 'block'
-
-            document.querySelector('.question_title').addEventListener('change', function() {
-                document.querySelectorAll('.block_answers').forEach((block)=> {
-                    block.style.display = 'none'
-                    document.getElementById(this.value).style.display = 'block'
-                })  
-                let block = document.getElementById(this.value)
-                let form = block.querySelector(`.${this.value}`)
-                if (form.querySelector('.answers') === null) {
-                    block.innerHTML = '<h4>Ответы отсутствуют</h4>'
-                }
-            })
-
-            document.addEventListener('submit', () => {
-                 const title_question = document.querySelector('.question_title').value
-                 window.localStorage.setItem('title', title_question)
-                })
-
-            })
-
-
-        function show_refuse_reason(e) {
-            if (e.target.className === 'acceptance' && e.target.value === 'not_accepted') {
-                document.getElementById(e.target.name).style.visibility = 'visible'  
-                document.getElementById(`text_reason${e.target.name}`).style.visibility = 'hidden'  
-            }
-            else if (e.target.className === 'acceptance' && e.target.value !== 'not_accepted') {
-                document.getElementById(e.target.name).style.visibility = 'hidden'        
-                document.getElementById(`text_reason${e.target.name}`).style.visibility = 'visible'
-            }
-        }
-
-        
-        function last_submited_question() {
-            if (window.localStorage.getItem('title')) {
-                let saved = window.localStorage.getItem('title')
-                const menu_select = document.querySelectorAll('.question_value')
-                menu_select.forEach((element) => {
-                    if (saved === element.value) {
-                        element.setAttribute('selected', '')
-                        window.localStorage.removeItem('title')
-                    }
-                })
-            }
-            else {
-                const menu_select = document.querySelectorAll('.question_value')
-                menu_select.forEach((element) => {
-                        element.removeAttribute('selected')                           
-                })
-            }
-        }
-    </script>
+    <script src="{% static '/drevo/js/questions_and_check_answers.js' %}"></script>
 {% endblock %}
