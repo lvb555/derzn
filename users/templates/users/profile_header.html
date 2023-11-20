@@ -257,7 +257,7 @@
                                     <span class="visually-hidden"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                     <a href="{% url 'constructor_tree' type_of_zn='table' %}" class="dropdown-item">Конструктор таблиц</a>
+                                     <a href="{% url 'constructor_tree'%}?type_of_zn=table" class="dropdown-item">Конструктор таблиц</a>
                                 </ul>
 						    </div>
 						</li>
@@ -270,9 +270,9 @@
                                     <span class="visually-hidden"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <a href="{% url 'constructor_tree' 'algorithm' %}" id="" class="dropdown-item">Конструктор алгоритмов</a>
-                                    <a href="{% url 'constructor_tree' 'test' %}" id="" class="dropdown-item">Конструктор тестов</a>
-                                    <a href="{% url 'constructor_tree' 'filling_tables' %}" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
+                                    <a href="{% url 'constructor_tree'%}?type_of_zn=algorithm" id="" class="dropdown-item">Конструктор алгоритмов</a>
+                                    <a href="{% url 'constructor_tree'%}?type_of_zn=test" id="" class="dropdown-item">Конструктор тестов</a>
+                                    <a href="{% url 'constructor_tree'%}?type_of_zn=filling_tables" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
                                     <a href="{% url 'my_interview' %}" class="dropdown-item">Мои интервью</a>
                                 </ul>
 						    </div>
@@ -318,19 +318,10 @@ function logAndStop(event) {
     showFillingTables()
 
     function showFillingTables() {
-      const data = {};
-      let url = "{% url 'show_filling_tables_page' %}"
-      return fetch(url, {
-         method: 'POST',
-         headers: {
-             'Content-Type': 'application/json',
-             'X-CSRFToken': csrftoken
-         },
-          body: JSON.stringify(data),
-      })
+      return fetch("{% url 'show_filling_tables_page' %}")
       .then(response => response.json())
       .then(data => {
-          if (!data[0]) {
+          if (!data.show) {
               filling_tables.remove()
           }
       })
