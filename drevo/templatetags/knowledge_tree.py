@@ -19,7 +19,8 @@ def build_knowledge_tree(context: RequestContext,
                          hidden_author: Author = None,
                          show_complex: bool = False,
                          edit_widgets: list[str] = None,
-                         empty_categories: bool = False
+                         empty_categories: bool = False,
+                         is_constructor_type: str = None
                          ):
     """
         Тег для построения дерева знаний \n
@@ -46,6 +47,8 @@ def build_knowledge_tree(context: RequestContext,
 
         empty_categories: если данный параметр имеет значение True, то на дереве будут отображаться категории, которые
         не имеют знаний.
+
+        is_constructor_type: является ли данное дерево конструктором
     """
     if not queryset:
         raise EmptyResultSet('Для построения дерева необходим queryset знаний')
@@ -91,6 +94,10 @@ def build_knowledge_tree(context: RequestContext,
         show_struct_param = True if user_search_param.get('Учитывать структурные знания') else False
         user_search_param = {(fields_by_param.get(name), name): value for name, value in user_search_param.items()}
 
+    if is_constructor_type:
+        tree_context['is_constructor_type'] = is_constructor_type
+
+
     tree_context['user_search_param'] = user_search_param
     tree_knowledge = tree_builder.get_tree_knowledge_list(with_struct_knowledge=show_struct_param)
     tree_context['empty_result'] = context.request.GET.get('empty_result', '')
@@ -107,6 +114,13 @@ def build_knowledge_tree(context: RequestContext,
 @register.simple_tag
 def get_data_by_category(tree_data: dict, category) -> list:
     return tree_data.get(category.pk)
+
+
+@register.simple_tag
+def get_relation_id(relations_data: dict, parent: Znanie, child: Znanie) -> str:
+    if not parent:
+        return ''
+    return relations_data.get((parent.pk, child.pk))['id']
 
 
 @register.simple_tag

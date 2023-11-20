@@ -1,0 +1,55 @@
+{% load mptt_tags %}
+{% load static %}
+{% load knowledge_tree %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% if category_nodes %}
+<div style="background-color: #FFFFFF; padding: 32px;border-radius: 10px;">
+<ul class="root ps-0" id="tree{{ tree_num }}_root">
+    {% recursetree category_nodes %}
+        {% if not node.is_leaf_node %}
+        <ul class="children ps-0">
+            {{ children }}
+        </ul>
+        {% endif %}
+
+        <ul class="children ps-0">
+            {% get_data_by_category tree_data node as category_knowledge %}
+            {% for knowledge in category_knowledge %}
+                {% for base_knowledge, knowledge_data in knowledge.items %}
+                    {% include 'drevo/tags/constructors_nodes.html' %}
+                {% endfor   %}
+            {% endfor %}
+        </ul>
+    {% endrecursetree %}
+</ul>
+</div>
+{% else %}
+<div class="text-center mt-3">
+    <p class="fs-4">{{ empty_tree_message }}</p>
+</div>
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<!-- Search empty result notify script-->
+<script type="text/javascript">
+if ("{{ empty_result }}") {
+  $(window).on('load', function() {
+        $('#search_message').modal('show');
+    });
+}
+</script>
+
+<script>
+    function deleteMainZm(zn_name) {
+        $('.delete-confirmation').text(
+            `Вы действительно хотите удалить алгоритм «${zn_name}»? Все связанные знания также удалятся!`)
+        $('#algorithm_delete').modal("show");
+    }
+</script>

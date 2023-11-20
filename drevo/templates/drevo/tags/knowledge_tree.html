@@ -6,6 +6,12 @@
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
 
+{% if is_constructor_type and is_constructor_type != 'filling_tables' %}
+    <a href="{% url 'main_znanie_in_constructor_create' type_of_zn=is_constructor_type %}" class="btn btn-success mb-1 btn-header" style="position: absolute; top: 35px; right: 160px; padding: 4px 12px;">
+        Создать {% if is_constructor_type == 'algorithm' %}алгоритм{% elif is_constructor_type == 'table' %}таблицу
+        {% elif is_constructor_type == 'test' %}тест{% endif %}
+    </a>
+{% endif %}
 {% if show_searchbar %}
 <a href="" class="btn btn-success mb-1 btn-header" onclick="changeText(this)" id="search_button" data-bs-toggle="collapse" data-bs-target="#search_form" style="position: absolute; top: 5vh; right: 2.5vh; padding: 4px 12px;">
     {% if not is_advance_search %} Поиск знания {% else %} Расширенный поиск {% endif %}
@@ -114,6 +120,44 @@
         </div>
     </div>
 </div>
+
+<!-- Модальное окно для удаления знания конструктора -->
+ {% if is_constructor_type and not is_constructor_type == 'filling_tables' %}
+     <div class="modal fade" id="algorithm_delete" tabindex="-1" aria-labelledby="delete_element" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteElementModalLabel">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h3 class="confirmation-of-delete">Вы действительно хотите удалить данную связь?</h3>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success okay-delete">Ок</button>
+                    <button class="btn btn-danger" data-bs-dismiss="modal">Отмена</button>
+                </div>
+            </div>
+        </div>
+     </div>
+ {% endif %}
+
+ {% if is_constructor_type == 'table' %}
+     <!-- Модальное окно для сообщения об ошибке при открытии таблицы в случае открытия конструктора таблиц-->
+     <div class="modal fade" id="table_open_error_modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ошибка!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h3 class="">Для открытия таблицы в ней должны быть хотя бы одна строка и столбец!</h3>
+                </div>
+            </div>
+        </div>
+     </div>
+ {% endif %}
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
@@ -270,4 +314,38 @@ if ("{{ empty_result }}") {
       element.classList.add("bi-dash-circle-fill");
     }
   }
+</script>
+
+<!-- Удаление сложного знания в конструкторе-->
+<script>
+    function deleteZn(zn_id, name) {
+        console.log()
+        $('.confirmation-of-delete').text(`Вы действительно хотите удалить знание <${name}>?`);
+        $('#algorithm_delete').modal("show");
+        $('.okay-delete').click(function () {
+            fetch(`/drevo/delete_algorithm/?id=${zn_id}`)
+                .then(response => response.json())
+                .then(data => {
+                     window.location.href = data.redirect_url;
+                });
+        })
+    }
+</script>
+<!--Если в таблице нет хотя бы одной строки или столбца, её нельзя открыть-->
+<script>
+    function clickOnTable (urlf, id) {
+        fetch(`/drevo/row_and_column_existence/?id=${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.is_row_and_column_exist) {
+                  window.location.href = urlf;
+                }
+                else {
+                    $('#table_open_error_modal').modal("show");
+                }
+            })
+            .catch((error) => {
+                console.log('Error:', error);
+            });
+    }
 </script>
