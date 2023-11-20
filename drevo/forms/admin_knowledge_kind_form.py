@@ -13,7 +13,6 @@ class AdminKnowledgeKindForm(forms.ModelForm):
         model = Tz
         fields = [
             "name",
-            "tr",
             "order",
             "is_systemic",
             "is_group",
