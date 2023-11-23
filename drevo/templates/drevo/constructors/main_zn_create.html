@@ -1,4 +1,4 @@
-{% extends 'drevo/base.html' %}
+ {% extends 'drevo/base.html' %}
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
@@ -7,15 +7,14 @@
     <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
 
-
 {% block content %}
-    <a href="{% url 'constructor_tree' type_of_zn='algorithm' %}" class="btn btn-warning mb-3">Назад</a>
+    <a href="{% url 'constructor_tree' %}?type_of_zn={{ type_of_zn }}" class="btn btn-outline-dark mb-3">Назад</a>
     <h1>{{ title }}</h1>
     <form class="form-horizontal" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ rel_attr_form.as_p }}
-        {{ zn_create_form.media }}
-        {{ zn_create_form.as_p }}
+        {{ zn_form.media }}
+        {{ zn_form.as_p }}
         {{ image_form.management_form }}
         {% for frm in image_form %}
             {{ frm.as_p }}

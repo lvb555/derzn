@@ -52,10 +52,11 @@ class KnowledgeTreeBuilder:
         for rel in relations:
             if self.show_only and rel.rz.id in self.building_knowledge and rel.tr != self.show_only:
                 continue
-            self.relations_info[(rel.bz.id, rel.rz.id)] = {'name': '', 'status': '', 'author': ''}
+            self.relations_info[(rel.bz.id, rel.rz.id)] = {'id': '', 'name': '', 'status': '', 'author': ''}
             if self.edit_mode and rel.id in statuses_data:
                 self.relations_info[(rel.bz.id, rel.rz.id)]['status'] = statuses_data.get(rel.id)
                 self.relations_info[(rel.bz.id, rel.rz.id)]['author'] = rel.user_id
+            self.relations_info[(rel.bz.id, rel.rz.id)]['id'] = rel.id
             self.relations_info[(rel.bz.id, rel.rz.id)]['name'] = rel.tr.name
             relations_data[rel.rz.id].append(rel.bz)
         return relations_data
@@ -132,7 +133,7 @@ class KnowledgeTreeBuilder:
             }
         """
         self._gather_knowledge_relations()
-
+        
         for base_knowledge, related_knowledge in self.knowledge.items():
             if not base_knowledge.category_id:
                 continue
@@ -150,7 +151,7 @@ class KnowledgeTreeBuilder:
         ancestors_knowledge = self._get_ancestors_for_knowledge_list()
         for ancestors in ancestors_knowledge:
             self._build_tree_data(ancestors)
-
+    
     def _build_tree_data(self, knowledge_list: list) -> None:
         """
             Метод, который рекурсивно обходит текущие данные для дерева, следуя цепочке связей знаний,
