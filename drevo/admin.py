@@ -33,6 +33,7 @@ from drevo.models.suggestion import Suggestion
 from drevo.models.suggestion_type import SuggestionType
 from drevo.models.refuse_reason import RefuseReason
 
+from drevo.models import Var
 
 from .forms.developer_form import DeveloperForm
 from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
@@ -865,3 +866,9 @@ class SuggestionTypeAdmin(admin.ModelAdmin):
 @admin.register(RefuseReason)
 class RefuseReasonAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(Var)
+class VarAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'knowledge')
+    list_filter = ('knowledge',)
