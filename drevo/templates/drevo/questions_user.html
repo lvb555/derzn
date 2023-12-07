@@ -14,12 +14,52 @@
         <form action="questions_user" enctype="multipart/form-data" method="post">
             {% csrf_token %}
             <input type="hidden" name="question_id" value="{{ question.id }}">
-                <div class="grid">
-                    <div class="question">
-                        <span class="question_text">{{ question }}</span>
-                    </div>
-                    <div>
+            <div class="grid">
+                <div class="question">
+                    <span class="question_text">{{ question }}</span>
+                </div>
+                <div>
+                        {% for answer in answers %}
+                            {% if answer.question == question and answer.inspector == None %}
+                            <div>
+                                <textarea name="answer" id="" cols="40" rows="10" class="id_answer" placeholder="Ваш ответ">{{ answer.answer}}</textarea>
+                            </div>
+                            {% if answer.answer_file %}
+                            <div>
+                                <span>Прикрепленный файл: </span><a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
+                            </div>
+                            <br>
+                            {% endif %}
+                            {% elif answer.question == question and answer.inspector %}
+                            <div>
+                                <div><span>Ответ: </span>{{ answer.answer }}</div>
+                                
+                                {% if answer.answer_file %}
+                                <div>
+                                    <span>Прикрепленный файл: </span><a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
+                                </div>
+                                {% endif %}
+                                {% if answer.acepted == True %}
+                                <div><span>Результат: </span>Принято</div>
+                                {% else %}
+                                <div><span>Результат: </span>Не принято</div>
+                                {% if answer.refuse_reason %}
+                                <div><span>Причина:</span>{{ answer.refuse_reason }}</div>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                            <br>
+                            {% endif %}
+                            {% if forloop.last %}
+                            <div>
+                                <span class="plus">&#43</span>
+
+                            </div>
+                            <textarea name="answer" id="" cols="40" rows="10" class="id_answer" placeholder="Ваш ответ"></textarea>
+                            {% endif %}
+                        {% empty %}
                         <textarea name="answer" id="" cols="40" rows="10" class="id_answer" placeholder="Ваш ответ"></textarea>
+                        {% endfor %}
                         {% if question.need_file %}
                         <input type="file" name="file" class="id_file">
                         {% endif %}  
@@ -28,8 +68,9 @@
                         <input type="submit" class="button" value="Сохранить"> 
                     </div>
                 </div>
-            </form>
-            {% endif %}
+        </form>
+        <hr>
+        {% endif %}
         {% endfor %}
     {% endif %}
 {% endblock %}

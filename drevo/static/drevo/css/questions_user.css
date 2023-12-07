@@ -156,3 +156,10 @@ select {
 #if_one_question_not_checked {
     display: none;
 }
+
+.plus {
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 900;
+    color: green;
+}

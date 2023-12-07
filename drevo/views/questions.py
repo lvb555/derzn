@@ -49,10 +49,12 @@ def save_answer(request, pk):
 
     knowledge_name = Znanie.objects.get(id=pk).name
     questions = QuestionToKnowledge.objects.filter(knowledge=pk)
+    answers = UserAnswerToQuestion.objects.filter(knowledge=pk)
     return render(request, "drevo/questions_user.html",{
         "pk": pk,
         "znanie": knowledge_name,
-        "questions": questions
+        "questions": questions,
+        "answers": answers
     })
 
 
