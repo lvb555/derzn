@@ -1,9 +1,11 @@
+/* css для страницы questions_user */
 textarea {
     overflow: hidden;
     resize: none;
     height: 86px;
     background: rgba(245, 245, 245, 0.75);
     border-radius: 8px;
+    padding:5px;
 }
 
 .question_text {
@@ -16,24 +18,27 @@ textarea {
 .grid {
     display: grid;
     margin-top: 30px;
-    grid-template-columns: 30vw auto 80px;
+    grid-template-columns: 30vw auto;
 }
 
-.id_answer {
+.new_answer, .edit_answer {
     vertical-align: middle;
-    padding:5px;
+    /* padding:5px; */
+    width: 40vw;
 }
 
 .id_file {
     font-size: 12px;
     line-height: 200%;
     letter-spacing: 0.02em;
-    margin: 10px;
+    margin-top: 10px;
+    /* margin: 10px; */
 }
 
 .button {
+    width: 100px;
     margin-top: 20px;
-    margin-left: 20px;
+    /* margin-left: 20px; */
     font-size: 14px;
     line-height: 200%;
     letter-spacing: 0.02em;
@@ -46,6 +51,25 @@ textarea {
     margin: 10px;
 }
 
+.plus {
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 900;
+    color: green;
+}
+
+.minus {
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 900;
+    color: red;  
+}
+
+.new_form {
+    display: none;
+}
+
+/* css для страницы questions_and_check_answers */
 .list_questions {
     font-family: Rubik;
     font-size: 22px;
@@ -155,11 +179,4 @@ select {
 
 #if_one_question_not_checked {
     display: none;
-}
-
-.plus {
-    cursor: pointer;
-    font-size: 22px;
-    font-weight: 900;
-    color: green;
 }

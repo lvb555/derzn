@@ -8,69 +8,119 @@
 {% block content %}
     <h2>Знание: {{ znanie }}</h2>
     <hr>
+    <h2>Вопросы:</h2>
     {% if user.is_authenticated %}
         {% for question in questions %}
         {% if question.publication%}
-        <form action="questions_user" enctype="multipart/form-data" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="question_id" value="{{ question.id }}">
-            <div class="grid">
-                <div class="question">
-                    <span class="question_text">{{ question }}</span>
-                </div>
-                <div>
-                        {% for answer in answers %}
-                            {% if answer.question == question and answer.inspector == None %}
-                            <div>
-                                <textarea name="answer" id="" cols="40" rows="10" class="id_answer" placeholder="Ваш ответ">{{ answer.answer}}</textarea>
-                            </div>
-                            {% if answer.answer_file %}
-                            <div>
-                                <span>Прикрепленный файл: </span><a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
-                            </div>
-                            <br>
-                            {% endif %}
-                            {% elif answer.question == question and answer.inspector %}
-                            <div>
-                                <div><span>Ответ: </span>{{ answer.answer }}</div>
-                                
-                                {% if answer.answer_file %}
-                                <div>
-                                    <span>Прикрепленный файл: </span><a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
-                                </div>
-                                {% endif %}
-                                {% if answer.acepted == True %}
-                                <div><span>Результат: </span>Принято</div>
-                                {% else %}
-                                <div><span>Результат: </span>Не принято</div>
-                                {% if answer.refuse_reason %}
-                                <div><span>Причина:</span>{{ answer.refuse_reason }}</div>
-                                {% endif %}
-                                {% endif %}
-                            </div>
-                            <br>
-                            {% endif %}
-                            {% if forloop.last %}
-                            <div>
-                                <span class="plus">&#43</span>
-
-                            </div>
-                            <textarea name="answer" id="" cols="40" rows="10" class="id_answer" placeholder="Ваш ответ"></textarea>
-                            {% endif %}
-                        {% empty %}
-                        <textarea name="answer" id="" cols="40" rows="10" class="id_answer" placeholder="Ваш ответ"></textarea>
-                        {% endfor %}
+        <div class="grid">
+            <div class="question">
+                <span class="question_text">{{ question }}</span>
+            </div>
+            <div>
+                {% for answer in answers %}
+                {% if answer.question == question and answer.inspector == None %}
+                    <div class="edit">
+                        <input type="hidden" name="answers_id" value="{{ answer.id }}">
+                        <textarea name="edit_answer" id="" cols="40" rows="10" class="edit_answer" placeholder="Ваш ответ">{{ answer.answer}}</textarea>
                         {% if question.need_file %}
                         <input type="file" name="file" class="id_file">
-                        {% endif %}  
+                        {% endif %} 
+                        {% if answer.answer_file %}
+                        <div>
+                            <span>Прикрепленный файл: </span>
+                            <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
+                            <span class="minus">&#8722</span>
+                            <span>удалить</span>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <button class="button">Сохранить</button> 
+                        </div>
+                        <br>
                     </div>
-                    <div>
-                        <input type="submit" class="button" value="Сохранить"> 
+                    {% elif answer.question == question and answer.inspector %}
+                    <div class="checked_answers">
+                        <div><span>Ответ: </span>{{ answer.answer }}</div>                               
+                        {% if answer.answer_file %}
+                        <div>
+                            <span>Прикрепленный файл: </span><a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
+                        </div>
+                        {% endif %}
+                        {% if answer.acepted == True %}
+                        <div><span>Результат: </span>Принято</div>
+                        {% else %}
+                        <div><span>Результат: </span>Не принято</div>
+                        {% if answer.refuse_reason %}
+                        <div><span>Причина: </span>{{ answer.refuse_reason }}</div>
+                        {% endif %}
+                        {% endif %}
                     </div>
-                </div>
-        </form>
+                    <hr>
+                    {% endif %}
+                {% endfor %}
+                    <form action="questions_user" enctype="multipart/form-data" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="question_id" value="{{ question.id }}">
+                        <div class="new_answer">
+                            <span class="plus">&#43</span>
+                            <div class="new_form">
+                                <textarea name="answer" id="" cols="40" rows="10" class="new_answer" placeholder="Ваш ответ"></textarea>
+                                {% if question.need_file %}
+                                <input type="file" name="file" class="id_file">
+                                {% endif %}  
+                                <div>
+                                    <input type="submit" class="button" value="Сохранить"> 
+                                </div>
+                            </div>                               
+                        </div>
+                    </form>
+            </div>
+        </div>
         <hr>
         {% endif %}
         {% endfor %}
     {% endif %}
+{% endblock %}
+
+{% block jsfiles %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        if (document.querySelector('.edit_answer')) {
+            document.querySelectorAll('.edit').forEach( (e) => {
+                e.parentElement.querySelector('.new_answer').remove()
+                if (e.parentElement.querySelector('.file')) {
+                    e.parentElement.querySelector('.id_file').style.display = 'none'
+                }
+            })
+        }
+
+        if (document.querySelector('.file')) {
+            document.querySelectorAll('.file').forEach((e) => {
+                const part = 'proof/'
+                let name_file = e.innerHTML
+                name_file = name_file.replace(part, '')
+                e.innerHTML = name_file
+            })
+        }
+
+        document.addEventListener('click', ()=> {
+            if (event.target.className === 'plus') {
+                let block = event.target.parentElement
+                block.querySelector('.new_form').style.display = 'block'
+                block.querySelector('.plus').remove()
+
+            }
+        })
+
+        document.addEventListener('click', ()=> {
+            if (event.target.className === 'minus') {
+                let block = event.target.parentElement
+                block.style.display = 'none'
+                block.parentElement.querySelector('.id_file').style.display = 'block'
+
+            }
+        })
+    })
+</script>
 {% endblock %}
