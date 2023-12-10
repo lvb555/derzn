@@ -8,7 +8,7 @@
 {% block content %}
     <h2>Знание: {{ znanie }}</h2>
     <hr>
-    <h2>Вопросы:</h2>
+    <h3>Вопросы:</h3>
     {% if user.is_authenticated %}
         {% for question in questions %}
         {% if question.publication%}
@@ -16,42 +16,59 @@
             <div class="question">
                 <span class="question_text">{{ question }}</span>
             </div>
-            <div>
+            <div class="block">
                 {% for answer in answers %}
                 {% if answer.question == question and answer.inspector == None %}
                     <div class="edit">
-                        <input type="hidden" name="answers_id" value="{{ answer.id }}">
-                        <textarea name="edit_answer" id="" cols="40" rows="10" class="edit_answer" placeholder="Ваш ответ">{{ answer.answer}}</textarea>
-                        {% if question.need_file %}
-                        <input type="file" name="file" class="id_file">
-                        {% endif %} 
-                        {% if answer.answer_file %}
-                        <div>
-                            <span>Прикрепленный файл: </span>
-                            <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
-                            <span class="minus">&#8722</span>
-                            <span>удалить</span>
-                        </div>
-                        {% endif %}
-                        <div>
-                            <button class="button">Сохранить</button> 
-                        </div>
-                        <br>
+                        <form enctype="multipart/form-data" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="answer_id" value="{{ answer.id }}">
+                            <textarea name="edit_answer" id="" cols="40" rows="10" class="edit_answer" placeholder="Ваш ответ">{{ answer.answer}}</textarea>
+                            {% if question.need_file %}
+                            <input type="file" name="edit_file" class="id_file">
+                            {% endif %} 
+                            {% if answer.answer_file %}
+                            <div>
+                                <span class="point">Прикрепленный файл: </span>
+                                <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
+                                <span class="minus">&#8722</span>
+                                <span>удалить</span>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <button class="button">Сохранить</button> 
+                            </div>
+                        </form>
                     </div>
                     {% elif answer.question == question and answer.inspector %}
                     <div class="checked_answers">
-                        <div><span>Ответ: </span>{{ answer.answer }}</div>                               
+                        {% if answer.answer != '-' %}
+                        <div>
+                            <span class="point">Ответ: </span>
+                            <span class="answer_text">{{ answer.answer }}</span>                            
+                        </div>  
+                        {% endif %}                             
                         {% if answer.answer_file %}
                         <div>
-                            <span>Прикрепленный файл: </span><a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
+                            <span class="point">Прикрепленный файл: </span>
+                            <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
                         </div>
                         {% endif %}
-                        {% if answer.acepted == True %}
-                        <div><span>Результат: </span>Принято</div>
+                        {% if answer.accepted == True %}
+                        <div>
+                            <span class="point">Результат: </span>
+                            <span class="yes">Принято</span>
+                        </div>
                         {% else %}
-                        <div><span>Результат: </span>Не принято</div>
+                        <div>
+                            <span class="point">Результат: </span>
+                            <span class="no">Не принято</span>                           
+                        </div>
                         {% if answer.refuse_reason %}
-                        <div><span>Причина: </span>{{ answer.refuse_reason }}</div>
+                        <div>
+                            <span class="point">Причина: </span>
+                            <span>{{ answer.refuse_reason }}</span>                           
+                        </div>
                         {% endif %}
                         {% endif %}
                     </div>
@@ -86,11 +103,17 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 
-        if (document.querySelector('.edit_answer')) {
+        if (document.querySelector('.edit')) {
             document.querySelectorAll('.edit').forEach( (e) => {
                 e.parentElement.querySelector('.new_answer').remove()
-                if (e.parentElement.querySelector('.file')) {
-                    e.parentElement.querySelector('.id_file').style.display = 'none'
+                if (e.querySelector('.id_file')) {
+                    if (e.querySelector('.minus')) {
+                        e.parentElement.querySelector('.id_file').style.display = 'none'
+
+                    }
+                    if (e.querySelector('.edit_answer').innerHTML === '-') {
+                        e.querySelector('.edit_answer').innerHTML = ''
+                    }
                 }
             })
         }
@@ -104,21 +127,27 @@
             })
         }
 
-        document.addEventListener('click', ()=> {
+        const block_of_ans = document.querySelectorAll('.block')
+        block_of_ans.forEach((e) => {
+            if (e.querySelector('.new_answer') && !e.querySelector('.checked_answers')) {
+                e.querySelector('.new_form').style.display = 'block'
+                e.querySelector('.plus').remove()
+            }
+        })
+
+        document.addEventListener('click', () => {
             if (event.target.className === 'plus') {
                 let block = event.target.parentElement
                 block.querySelector('.new_form').style.display = 'block'
                 block.querySelector('.plus').remove()
-
             }
         })
 
-        document.addEventListener('click', ()=> {
+        document.addEventListener('click', () => {
             if (event.target.className === 'minus') {
                 let block = event.target.parentElement
                 block.style.display = 'none'
                 block.parentElement.querySelector('.id_file').style.display = 'block'
-
             }
         })
     })

@@ -23,8 +23,7 @@ textarea {
 
 .new_answer, .edit_answer {
     vertical-align: middle;
-    /* padding:5px; */
-    width: 40vw;
+    width: 54vw;
 }
 
 .id_file {
@@ -67,6 +66,23 @@ textarea {
 
 .new_form {
     display: none;
+}
+
+.yes {
+    color: green;
+}
+
+.no {
+    color: red;
+}
+
+.point {
+    font-weight: bold;
+}
+
+.answer_text {
+    font-style: italic;
+    font-size: 18px;
 }
 
 /* css для страницы questions_and_check_answers */
