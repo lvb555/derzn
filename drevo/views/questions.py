@@ -14,45 +14,77 @@ from drevo.models import (
 @login_required
 def save_answer(request, pk):
     if request.method == "POST":
-        if request.POST.get("answer") and request.FILES:
-            question_id = request.POST.get("question_id")
-            answer = request.POST.get("answer")
-            file = request.FILES["file"]
-            UserAnswerToQuestion(
-                knowledge = Znanie.objects.get(id=pk),
-                question = QuestionToKnowledge.objects.get(id=question_id),
-                answer = answer,
-                answer_file = file,
-                user = request.user
-            ).save()
-        elif request.FILES and not request.POST.get("answer"):
-            question_id = request.POST.get("question_id")
-            file = request.FILES["file"]
-            UserAnswerToQuestion(
-                knowledge = Znanie.objects.get(id=pk),
-                question = QuestionToKnowledge.objects.get(id=question_id),
-                answer = "-",
-                answer_file = file,
-                user = request.user
-            ).save()
-        elif request.POST.get("answer") and not request.FILES:
-            question_id = request.POST.get("question_id")
-            answer = request.POST.get("answer")
-            UserAnswerToQuestion(
-                knowledge = Znanie.objects.get(id=pk),
-                question = QuestionToKnowledge.objects.get(id=question_id),
-                answer = answer,
-                user = request.user
-            ).save()
-     
+        if request.FILES:
+            if request.POST.get("answer"):
+                # если есть фаил и текст ответ
+                question_id = request.POST.get("question_id")
+                answer = request.POST.get("answer")
+                file = request.FILES["file"]
+                UserAnswerToQuestion(
+                    knowledge = Znanie.objects.get(id=pk),
+                    question = QuestionToKnowledge.objects.get(id=question_id),
+                    answer = answer,
+                    answer_file = file,
+                    user = request.user
+                ).save()
+            elif request.POST.get("edit_answer"):
+                # если редактируют фаил и текст ответа
+                answer_id = request.POST.get("answer_id")
+                editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
+                new_text_answer = request.POST.get("edit_answer")
+                file = request.FILES["edit_file"]
+                editable_answer.answer = new_text_answer
+                editable_answer.answer_file = file
+                editable_answer.save()
+            else:
+                if "edit_file" in request.FILES.keys():
+                    # если редактируют только фаил
+                    answer_id = request.POST.get("answer_id")
+                    editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
+                    file = request.FILES["edit_file"]
+                    editable_answer.answer_file = file
+                    editable_answer.save()
+                else:
+                    # если в ответе только файл
+                    question_id = request.POST.get("question_id")
+                    file = request.FILES["file"]
+                    UserAnswerToQuestion(
+                        knowledge = Znanie.objects.get(id=pk),
+                        question = QuestionToKnowledge.objects.get(id=question_id),
+                        answer = "-",
+                        answer_file = file,
+                        user = request.user
+                    ).save()
+        else:
+            if request.POST.get("answer"):
+                # если в ответе только текст
+                question_id = request.POST.get("question_id")
+                answer = request.POST.get("answer")
+                UserAnswerToQuestion(
+                    knowledge = Znanie.objects.get(id=pk),
+                    question = QuestionToKnowledge.objects.get(id=question_id),
+                    answer = answer,
+                    user = request.user
+                ).save()
+            elif request.POST.get("edit_answer"):
+                # если редактирут только текст ответа
+                answer_id = request.POST.get("answer_id")
+                editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
+                new_text_answer = request.POST.get("edit_answer")
+                if editable_answer.answer != new_text_answer:
+                    editable_answer.answer = new_text_answer
+                    editable_answer.save()
+                    
         return HttpResponseRedirect("questions_user")
 
     knowledge_name = Znanie.objects.get(id=pk).name
     questions = QuestionToKnowledge.objects.filter(knowledge=pk)
+    answers = UserAnswerToQuestion.objects.filter(knowledge=pk, user=request.user)
     return render(request, "drevo/questions_user.html",{
         "pk": pk,
         "znanie": knowledge_name,
-        "questions": questions
+        "questions": questions,
+        "answers": answers
     })
 
 
