@@ -158,6 +158,30 @@ class ZnFileInline(admin.StackedInline):
     files_out.short_description = "Файл"
 
 
+class ExtraKnowledgeFilter(admin.SimpleListFilter):
+    title = 'Дополнительные знания'
+    parameter_name = 'empty_category'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('extra_knowledge', 'Дополнительные знания'),
+            ('incoherent_knowledge', 'Несвязные знания'),
+        )
+
+    def queryset(self, request, queryset):
+        extra = Znanie.objects.filter(category__isnull=True)
+
+        if self.value() == 'extra_knowledge':
+            return extra
+        
+        if self.value() == 'incoherent_knowledge':
+            relation = Relation.objects.exclude(Q(bz=None) | Q(rz=None))
+            incoherent = extra.exclude(
+                Q(id__in=relation.values_list('bz', flat=True)) | Q(id__in=relation.values_list('rz', flat=True))
+            )
+            return incoherent
+
+
 class ZnanieAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -176,6 +200,7 @@ class ZnanieAdmin(admin.ModelAdmin):
     autocomplete_fields = ["labels", "category", "author"]
     search_fields = ["name"]
     list_filter = (
+        ExtraKnowledgeFilter,
         "tz",
         "author",
         "updated_at",
