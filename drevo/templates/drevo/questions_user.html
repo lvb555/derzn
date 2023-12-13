@@ -27,14 +27,14 @@
                             {% if question.need_file %}
                             <input type="file" name="edit_file" class="id_file">
                             {% endif %} 
-                            {% if answer.answer_file %}
                             <div>
+                            {% if answer.answer_file %}
                                 <span class="point">Прикрепленный файл: </span>
                                 <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
-                                <span class="minus">&#8722</span>
-                                <span>удалить</span>
+                                <span class="cross">&#10006</span>                               
+                                {% endif %}
+                                <span class="delete"><input class="checkbox" type="checkbox" name="delete"> удалить ответ</span>
                             </div>
-                            {% endif %}
                             <div>
                                 <button class="button">Сохранить</button> 
                             </div>
@@ -79,7 +79,7 @@
                         {% csrf_token %}
                         <input type="hidden" name="question_id" value="{{ question.id }}">
                         <div class="new_answer">
-                            <span class="plus">&#43</span>
+                            <span class="plus">&#10010</span>
                             <div class="new_form">
                                 <textarea name="answer" id="" cols="40" rows="10" class="new_answer" placeholder="Ваш ответ"></textarea>
                                 {% if question.need_file %}
@@ -100,56 +100,5 @@
 {% endblock %}
 
 {% block jsfiles %}
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-
-        if (document.querySelector('.edit')) {
-            document.querySelectorAll('.edit').forEach( (e) => {
-                e.parentElement.querySelector('.new_answer').remove()
-                if (e.querySelector('.id_file')) {
-                    if (e.querySelector('.minus')) {
-                        e.parentElement.querySelector('.id_file').style.display = 'none'
-
-                    }
-                    if (e.querySelector('.edit_answer').innerHTML === '-') {
-                        e.querySelector('.edit_answer').innerHTML = ''
-                    }
-                }
-            })
-        }
-
-        if (document.querySelector('.file')) {
-            document.querySelectorAll('.file').forEach((e) => {
-                const part = 'proof/'
-                let name_file = e.innerHTML
-                name_file = name_file.replace(part, '')
-                e.innerHTML = name_file
-            })
-        }
-
-        const block_of_ans = document.querySelectorAll('.block')
-        block_of_ans.forEach((e) => {
-            if (e.querySelector('.new_answer') && !e.querySelector('.checked_answers')) {
-                e.querySelector('.new_form').style.display = 'block'
-                e.querySelector('.plus').remove()
-            }
-        })
-
-        document.addEventListener('click', () => {
-            if (event.target.className === 'plus') {
-                let block = event.target.parentElement
-                block.querySelector('.new_form').style.display = 'block'
-                block.querySelector('.plus').remove()
-            }
-        })
-
-        document.addEventListener('click', () => {
-            if (event.target.className === 'minus') {
-                let block = event.target.parentElement
-                block.style.display = 'none'
-                block.parentElement.querySelector('.id_file').style.display = 'block'
-            }
-        })
-    })
-</script>
+<script src="{% static '/drevo/js/questions_user.js' %}"></script>
 {% endblock %}

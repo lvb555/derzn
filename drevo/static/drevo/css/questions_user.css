@@ -16,14 +16,15 @@ textarea {
 }
 
 .grid {
+    font-family: Rubik;
     display: grid;
     margin-top: 30px;
-    grid-template-columns: 30vw auto;
+    grid-template-columns: 30vw 50vw;
 }
 
 .new_answer, .edit_answer {
     vertical-align: middle;
-    width: 54vw;
+    width: 100%;
 }
 
 .id_file {
@@ -52,14 +53,14 @@ textarea {
 
 .plus {
     cursor: pointer;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 900;
     color: green;
 }
 
-.minus {
+.cross {
     cursor: pointer;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 900;
     color: red;  
 }
@@ -85,6 +86,17 @@ textarea {
     font-size: 18px;
 }
 
+.block {
+    margin: 10px;
+}
+
+.admin_cross {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+
+
 /* css для страницы questions_and_check_answers */
 .list_questions {
     font-family: Rubik;
@@ -106,9 +118,20 @@ textarea {
     .line {
         margin-top: 50px;
     }
+    .delete {
+        float: left;
+        color: red;
+        cursor: pointer;
+    }
     
 }
 @media (min-width: 900px) {
+    .delete {
+        float: right;
+        color: red;
+        cursor: pointer;
+    }
+
     .answers {
         display: grid;
         grid-template-columns: 30vw 15vw auto 20vw;
