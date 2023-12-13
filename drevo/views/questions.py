@@ -14,9 +14,15 @@ from drevo.models import (
 @login_required
 def save_answer(request, pk):
     if request.method == "POST":
+        # удаление ответа
+        if request.POST.get("delete") == 'on':
+            answer_id = request.POST.get("answer_id")
+            UserAnswerToQuestion.objects.get(id=answer_id).answer_file.delete(save=True)
+            UserAnswerToQuestion.objects.get(id=answer_id).delete()
+            return HttpResponseRedirect("questions_user")
         if request.FILES:
+            # если есть фаил и текст ответ
             if request.POST.get("answer"):
-                # если есть фаил и текст ответ
                 question_id = request.POST.get("question_id")
                 answer = request.POST.get("answer")
                 file = request.FILES["file"]
@@ -27,25 +33,27 @@ def save_answer(request, pk):
                     answer_file = file,
                     user = request.user
                 ).save()
+            # если редактируют фаил и текст ответа
             elif request.POST.get("edit_answer"):
-                # если редактируют фаил и текст ответа
                 answer_id = request.POST.get("answer_id")
                 editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
+                editable_answer.answer_file.delete(save=True)
                 new_text_answer = request.POST.get("edit_answer")
                 file = request.FILES["edit_file"]
                 editable_answer.answer = new_text_answer
                 editable_answer.answer_file = file
                 editable_answer.save()
             else:
+                # если редактируют только фаил
                 if "edit_file" in request.FILES.keys():
-                    # если редактируют только фаил
                     answer_id = request.POST.get("answer_id")
                     editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
+                    editable_answer.answer_file.delete(save=True)
                     file = request.FILES["edit_file"]
                     editable_answer.answer_file = file
                     editable_answer.save()
+                # если в ответе только файл
                 else:
-                    # если в ответе только файл
                     question_id = request.POST.get("question_id")
                     file = request.FILES["file"]
                     UserAnswerToQuestion(
@@ -56,8 +64,8 @@ def save_answer(request, pk):
                         user = request.user
                     ).save()
         else:
+            # если в ответе только текст
             if request.POST.get("answer"):
-                # если в ответе только текст
                 question_id = request.POST.get("question_id")
                 answer = request.POST.get("answer")
                 UserAnswerToQuestion(
@@ -66,8 +74,8 @@ def save_answer(request, pk):
                     answer = answer,
                     user = request.user
                 ).save()
+            # если редактирут только текст ответа
             elif request.POST.get("edit_answer"):
-                # если редактирут только текст ответа
                 answer_id = request.POST.get("answer_id")
                 editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
                 new_text_answer = request.POST.get("edit_answer")
