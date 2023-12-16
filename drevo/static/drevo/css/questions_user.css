@@ -32,13 +32,15 @@ textarea {
     line-height: 200%;
     letter-spacing: 0.02em;
     margin-top: 10px;
-    /* margin: 10px; */
+}
+
+.file_inform {
+    margin-top: 10px;
 }
 
 .button {
     width: 100px;
     margin-top: 20px;
-    /* margin-left: 20px; */
     font-size: 14px;
     line-height: 200%;
     letter-spacing: 0.02em;
@@ -96,6 +98,25 @@ textarea {
     height: 20px;
 }
 
+@media (max-width: 1200px) {
+
+    .delete {
+        margin-top: 10px;
+        color: red;
+        cursor: pointer;
+    }
+    
+}
+@media (min-width: 1199px) {
+
+    .delete {
+        margin-top: 10px;
+        float: right;
+        color: red;
+        cursor: pointer;
+    }
+}
+
 
 /* css для страницы questions_and_check_answers */
 .list_questions {
@@ -118,19 +139,10 @@ textarea {
     .line {
         margin-top: 50px;
     }
-    .delete {
-        float: left;
-        color: red;
-        cursor: pointer;
-    }
     
 }
+
 @media (min-width: 900px) {
-    .delete {
-        float: right;
-        color: red;
-        cursor: pointer;
-    }
 
     .answers {
         display: grid;

@@ -27,13 +27,13 @@
                             {% if question.need_file %}
                             <input type="file" name="edit_file" class="id_file">
                             {% endif %} 
-                            <div>
+                            <span class="delete"><input class="checkbox" type="checkbox" name="delete"> удалить ответ</span>
+                            <div class="file_inform">
                             {% if answer.answer_file %}
                                 <span class="point">Прикрепленный файл: </span>
                                 <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
                                 <span class="cross">&#10006</span>                               
-                                {% endif %}
-                                <span class="delete"><input class="checkbox" type="checkbox" name="delete"> удалить ответ</span>
+                            {% endif %}
                             </div>
                             <div>
                                 <button class="button">Сохранить</button> 

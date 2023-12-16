@@ -14,6 +14,11 @@ from drevo.models import (
 @login_required
 def save_answer(request, pk):
     if request.method == "POST":
+        # удаление только файла из ответа с текстом
+        if request.POST.get("delete_file") and request.POST.get("edit_answer") != "":
+            answer_id = request.POST.get("answer_id")
+            UserAnswerToQuestion.objects.get(id=answer_id).answer_file.delete(save=True)
+            return HttpResponseRedirect("questions_user")           
         # удаление ответа
         if request.POST.get("delete") == 'on':
             answer_id = request.POST.get("answer_id")
@@ -74,6 +79,13 @@ def save_answer(request, pk):
                     answer = answer,
                     user = request.user
                 ).save()
+            # возможность удалить текст у ответа с файлом
+            elif request.POST.get("edit_answer") == "" and request.POST.get("answer_id"):
+                answer_id = request.POST.get("answer_id")
+                editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
+                if editable_answer.answer_file:
+                    editable_answer.answer = "-"
+                    editable_answer.save()
             # если редактирут только текст ответа
             elif request.POST.get("edit_answer"):
                 answer_id = request.POST.get("answer_id")
