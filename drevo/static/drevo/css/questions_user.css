@@ -16,14 +16,15 @@ textarea {
 }
 
 .grid {
+    font-family: Rubik;
     display: grid;
     margin-top: 30px;
-    grid-template-columns: 30vw auto;
+    grid-template-columns: 30vw 50vw;
 }
 
 .new_answer, .edit_answer {
     vertical-align: middle;
-    width: 54vw;
+    width: 100%;
 }
 
 .id_file {
@@ -31,13 +32,15 @@ textarea {
     line-height: 200%;
     letter-spacing: 0.02em;
     margin-top: 10px;
-    /* margin: 10px; */
+}
+
+.file_inform {
+    margin-top: 10px;
 }
 
 .button {
     width: 100px;
     margin-top: 20px;
-    /* margin-left: 20px; */
     font-size: 14px;
     line-height: 200%;
     letter-spacing: 0.02em;
@@ -52,14 +55,14 @@ textarea {
 
 .plus {
     cursor: pointer;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 900;
     color: green;
 }
 
-.minus {
+.cross {
     cursor: pointer;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 900;
     color: red;  
 }
@@ -85,6 +88,36 @@ textarea {
     font-size: 18px;
 }
 
+.block {
+    margin: 10px;
+}
+
+.admin_cross {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+
+@media (max-width: 1200px) {
+
+    .delete {
+        margin-top: 10px;
+        color: red;
+        cursor: pointer;
+    }
+    
+}
+@media (min-width: 1199px) {
+
+    .delete {
+        margin-top: 10px;
+        float: right;
+        color: red;
+        cursor: pointer;
+    }
+}
+
+
 /* css для страницы questions_and_check_answers */
 .list_questions {
     font-family: Rubik;
@@ -108,7 +141,9 @@ textarea {
     }
     
 }
+
 @media (min-width: 900px) {
+
     .answers {
         display: grid;
         grid-template-columns: 30vw 15vw auto 20vw;

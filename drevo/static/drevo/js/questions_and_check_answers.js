@@ -209,7 +209,6 @@ function remove_button() {
         answers_in_block.forEach((answer) => {
             if (answer.querySelector('.expert')) {
                 counter_checked_answers++
-                console.log(counter_checked_answers)
             }
 
         })
