@@ -49,6 +49,18 @@ textarea {
     border-radius: 8px !important;    
 }
 
+.button-cancel {
+    width: 100px;
+    margin-top: 20px;
+    font-size: 14px;
+    line-height: 200%;
+    letter-spacing: 0.02em;
+    background-color: #a0a8a6;
+    border-color: #66736f;
+    color: #f8f9fa;
+    border-radius: 8px !important;    
+}
+
 .question {
     margin: 10px;
 }
@@ -58,6 +70,42 @@ textarea {
     font-size: 18px;
     font-weight: 900;
     color: green;
+}
+
+.edit_menu {
+    position: relative;
+}
+
+.menu {
+    display: none;
+    z-index: 2;
+    position: absolute;
+    float: right;
+    min-width: 150px;
+    padding: 5px;
+    right: 0px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow:1px 1px 1px black;
+}
+
+.menu > div:hover {
+    background-color: rgb(200, 199, 199);
+    cursor: pointer;
+}
+
+.menu > div {
+    padding: 2px;
+}
+
+.dots {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.not_checked_answers {
+    display: grid;
+    grid-template-columns: auto 20px;
 }
 
 .cross {

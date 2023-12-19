@@ -34,14 +34,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // отображение кнопки +
     const block_of_ans = document.querySelectorAll('.block')
     block_of_ans.forEach((e) => {
-        if (e.querySelector('.new_answer') && !e.querySelector('.checked_answers')) {
-            e.querySelector('.new_form').style.display = 'block'
+        if (e.querySelector('.edit_menu')) {
+            // e.querySelector('.new_form').style.display = 'block'
             e.querySelector('.plus').remove()
         }
     })
 
     
-    document.addEventListener('click', () => {
+    document.addEventListener('click', event => {
+
+        // кнопка ...
+        if (event.target.className === 'dots') {
+            let menu = event.target.parentElement.querySelector('.menu')
+            if (menu.style.display === 'block') {
+                event.target.parentElement.querySelector('.menu').style.display = 'none'
+            }
+            else{
+                menu.style.display = 'block'
+            }
+        }
+        else if (event.target.className !== 'dots') {
+            document.querySelectorAll('.menu').forEach((e) => {
+                e.style.display = 'none'
+            })
+        }
+
+        // разделы меню
+        if (event.target.parentElement.className === 'menu') {
+            let id_ans = event.target.parentElement.id
+            let option = event.target.className
+            menu(option, id_ans)
+        }
+
+        // функция кнопки отмена
+        if(event.target.value === 'cancel') {
+            event.target.parentElement.parentElement.parentElement.querySelector('.answer_text').style.display = 'inline'
+            event.target.parentElement.parentElement.innerHTML =''
+        }
 
         // функционал кнопки +
         if (event.target.className === 'plus') {
@@ -51,61 +80,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // функционал кнопки х
-        if (event.target.className === 'cross') {
-            let block = event.target.parentElement
-            if (block.parentElement.querySelector('.id_file').style.display === 'inline'){
-                block.querySelector('.point').style.filter = 'blur(0px)'
-                block.querySelector('.file').style.filter = 'blur(0px)'
-                block.parentElement.querySelector('.id_file').style.display = 'none'
-                block.parentElement.querySelector('.button').innerHTML = 'Сохранить'
-                block.parentElement.querySelector('.button').style.backgroundColor = '#083E2F'
-                block.parentElement.querySelector('.delete').style.display = 'inline'
-                if (block.parentElement.delete_file) {
-                    block.parentElement.delete_file.remove()       
-                }
-                block.parentElement.edit_file.value = ''
-            }
-            else {
-                block.querySelector('.point').style.filter = 'blur(3px)'
-                block.querySelector('.file').style.filter = 'blur(3px)'
-                block.parentElement.querySelector('.id_file').style.display = 'inline'
-                block.parentElement.querySelector('.button').innerHTML = 'Удалить'
-                block.parentElement.querySelector('.button').style.backgroundColor = 'Red'
-                block.parentElement.querySelector('.delete').style.display = 'none'
-                let input = document.createElement('input')
-                input.type = 'hidden'
-                input.name = 'delete_file'
-                input.value = 'ok'
-                block.parentElement.querySelector('.file_inform').appendChild(input)
-            }
-        }
+        // if (event.target.className === 'cross') {
+        //     let block = event.target.parentElement
+        //     if (block.parentElement.querySelector('.id_file').style.display === 'inline'){
+        //         block.querySelector('.point').style.filter = 'blur(0px)'
+        //         block.querySelector('.file').style.filter = 'blur(0px)'
+        //         block.parentElement.querySelector('.id_file').style.display = 'none'
+        //         block.parentElement.querySelector('.button').innerHTML = 'Сохранить'
+        //         block.parentElement.querySelector('.button').style.backgroundColor = '#083E2F'
+        //         block.parentElement.querySelector('.delete').style.display = 'inline'
+        //         if (block.parentElement.delete_file) {
+        //             block.parentElement.delete_file.remove()       
+        //         }
+        //         block.parentElement.edit_file.value = ''
+        //     }
+        //     else {
+        //         block.querySelector('.point').style.filter = 'blur(3px)'
+        //         block.querySelector('.file').style.filter = 'blur(3px)'
+        //         block.parentElement.querySelector('.id_file').style.display = 'inline'
+        //         block.parentElement.querySelector('.button').innerHTML = 'Удалить'
+        //         block.parentElement.querySelector('.button').style.backgroundColor = 'Red'
+        //         block.parentElement.querySelector('.delete').style.display = 'none'
+        //         let input = document.createElement('input')
+        //         input.type = 'hidden'
+        //         input.name = 'delete_file'
+        //         input.value = 'ok'
+        //         block.parentElement.querySelector('.file_inform').appendChild(input)
+        //     }
+        // }
 
-        // чекбокс "удалить ответ"
-        if (event.target.className === 'checkbox' && event.target.checked) {
-            let del_element = (event.target.parentElement).parentElement
-            if (del_element.querySelector('.point')) {
-                del_element.querySelector('.point').style.filter = 'blur(3px)'
-                del_element.querySelector('.file').style.filter = 'blur(3px)'
-                del_element.querySelector('.cross').style.filter = 'blur(3px)'
-                del_element.querySelector('.id_file').style.filter = 'blur(3px)'
-            }
-            del_element.parentElement.querySelector('textarea').style.filter = 'blur(3px)'
-            del_element.parentElement.querySelector('.button').innerHTML = 'Удалить'
-            del_element.parentElement.querySelector('.button').style.backgroundColor = 'red'
+        // // чекбокс "удалить ответ"
+        // if (event.target.className === 'checkbox' && event.target.checked) {
+        //     let del_element = (event.target.parentElement).parentElement
+        //     if (del_element.querySelector('.point')) {
+        //         del_element.querySelector('.point').style.filter = 'blur(3px)'
+        //         del_element.querySelector('.file').style.filter = 'blur(3px)'
+        //         del_element.querySelector('.cross').style.filter = 'blur(3px)'
+        //         del_element.querySelector('.id_file').style.filter = 'blur(3px)'
+        //     }
+        //     del_element.parentElement.querySelector('textarea').style.filter = 'blur(3px)'
+        //     del_element.parentElement.querySelector('.button').innerHTML = 'Удалить'
+        //     del_element.parentElement.querySelector('.button').style.backgroundColor = 'red'
             
-        }
-        else if (event.target.className === 'checkbox' && !event.target.checked) {
-            let del_element = (event.target.parentElement).parentElement
-            del_element.parentElement.querySelector('textarea').style.filter = 'blur(0px)'
-            if (del_element.querySelector('.point')) {
-                del_element.querySelector('.point').style.filter = 'blur(0px)'
-                del_element.querySelector('.file').style.filter = 'blur(0px)'
-                del_element.querySelector('.cross').style.filter = 'blur(0px)'
-                del_element.querySelector('.id_file').style.filter = 'blur(0px)'
-            }
-            del_element.parentElement.querySelector('.button').innerHTML = 'Сохранить'
-            del_element.parentElement.querySelector('.button').style.backgroundColor = '#083E2F'
-        }
+        // }
+        // else if (event.target.className === 'checkbox' && !event.target.checked) {
+        //     let del_element = (event.target.parentElement).parentElement
+        //     del_element.parentElement.querySelector('textarea').style.filter = 'blur(0px)'
+        //     if (del_element.querySelector('.point')) {
+        //         del_element.querySelector('.point').style.filter = 'blur(0px)'
+        //         del_element.querySelector('.file').style.filter = 'blur(0px)'
+        //         del_element.querySelector('.cross').style.filter = 'blur(0px)'
+        //         del_element.querySelector('.id_file').style.filter = 'blur(0px)'
+        //     }
+        //     del_element.parentElement.querySelector('.button').innerHTML = 'Сохранить'
+        //     del_element.parentElement.querySelector('.button').style.backgroundColor = '#083E2F'
+        // }
     })
 
     // отбражение кнопки при редактировании в зависимости от наличия файла
@@ -123,4 +152,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('submit', () => {
         window.localStorage.setItem('scroll_place', window.scrollY)
     })
+
+    function menu(option, id_answer) {
+        if (option === 'edit_text') {
+            document.getElementById(id_answer).style.display = 'none'
+            let content = document.getElementById(id_answer).parentElement.parentElement.querySelector('.content')
+            let new_content = document.getElementById(id_answer).parentElement.parentElement.querySelector('.new_content')
+            const old_text = content.querySelector('.answer_text')
+            old_text.style.display = 'none'
+            new_content.innerHTML = 
+            `<textarea name="answer" id="" cols="40" rows="10" class="edit_answer" placeholder="Ваш ответ">${old_text.innerHTML}</textarea>
+             <div>
+                <button class="button-cancel" value="cancel">Отмена</button>
+                <button class="button" value="save">Сохранить</button>
+             </div>`
+
+        }
+        
+        if (option === 'add_file') {
+            alert('add_file')
+        }
+    }
 })

@@ -19,28 +19,51 @@
             <div class="block">
                 {% for answer in answers %}
                 {% if answer.question == question and answer.inspector == None %}
-                    <div class="edit">
-                        <form enctype="multipart/form-data" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="answer_id" value="{{ answer.id }}">
-                            <textarea name="edit_answer" id="" cols="40" rows="10" class="edit_answer" placeholder="Ваш ответ">{{ answer.answer}}</textarea>
-                            {% if question.need_file %}
-                            <input type="file" name="edit_file" class="id_file">
-                            {% endif %} 
-                            <span class="delete"><input class="checkbox" type="checkbox" name="delete"> удалить ответ</span>
-                            <div class="file_inform">
+                    <div class="not_checked_answers">
+                        <div class="content">
+                            {% if answer.answer != '-' %}
+                            <div>
+                                <span class="point">Ответ: </span>
+                                <span class="answer_text">{{ answer.answer }}</span>
+                                <div class="new_content"></div>                            
+                            </div>  
+                            {% endif %}                             
                             {% if answer.answer_file %}
+                            <div>
                                 <span class="point">Прикрепленный файл: </span>
                                 <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
-                                <span class="cross">&#10006</span>                               
+                            </div>
                             {% endif %}
-                            </div>
                             <div>
-                                <button class="button">Сохранить</button> 
+                                <span class="point">Статус: </span>
+                                <span class="">Не обработано</span>                           
                             </div>
-                        </form>
+                            
+                        </div>
+                        <div class="edit_menu">
+                            <span class="dots">
+                                &middot;&middot;&middot;
+                            </span>
+                            <div class="menu" id="{{ answer.id }}">
+                                {% if answer.answer == "-" %}
+                                <div class="add_text">Добавить текст</div>
+                                {% else %}
+                                <div class="edit_text">Изменить текст</div>
+                                {% endif %}
+                                {% if answer.answer != "-" and answer.answer_file %}
+                                <div class="delete_text">Удалить текст</div>
+                                {% endif %}
+                                {% if answer.answer_file and answer.answer != "-" %}
+                                <div class="delete_file">Удалить файл</div>
+                                {% endif %}
+                                {% if answer.answer != "-" and question.need_file %}
+                                <div class="add_file">Добавить файл</div>
+                                {% endif %}
+                                <div class="delete_answer">Удалить ответ</div>
+                            </div>
+                        </div>
                     </div>
-                    {% elif answer.question == question and answer.inspector %}
+                {% elif answer.question == question and answer.inspector %}
                     <div class="checked_answers">
                         {% if answer.answer != '-' %}
                         <div>
@@ -73,12 +96,12 @@
                         {% endif %}
                     </div>
                     <hr>
-                    {% endif %}
+                {% endif %}
                 {% endfor %}
                     <form action="questions_user" enctype="multipart/form-data" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="question_id" value="{{ question.id }}">
-                        <div class="new_answer">
+                        <div>
                             <span class="plus">&#10010</span>
                             <div class="new_form">
                                 <textarea name="answer" id="" cols="40" rows="10" class="new_answer" placeholder="Ваш ответ"></textarea>
