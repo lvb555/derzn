@@ -1,7 +1,8 @@
+import json
 from django.db import models
 from django.shortcuts import render
 from django.urls import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from drevo.models.refuse_reason import RefuseReason
 from drevo.models import (
@@ -13,15 +14,29 @@ from drevo.models import (
 
 @login_required
 def save_answer(request, pk):
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        if data.get("operation") == "delete_answer":
+            answer_id = data.get("answer")
+            print(data.get("operation"))
+            print(data.get("answer"))
+            UserAnswerToQuestion.objects.get(id=answer_id).answer_file.delete(save=True)
+            UserAnswerToQuestion.objects.get(id=answer_id).delete()
+        elif data.get("operation") == "delete_file":
+            answer_id = data.get("answer")
+            UserAnswerToQuestion.objects.get(id=answer_id).answer_file.delete(save=True)
+
+        
+            
     if request.method == "POST":
         # удаление только файла из ответа с текстом
-        if request.POST.get("delete_file") and request.POST.get("edit_answer") != "":
-            answer_id = request.POST.get("answer_id")
+        if request.POST.get("delete_file"):
+            answer_id = request.POST.get("delete_file")
             UserAnswerToQuestion.objects.get(id=answer_id).answer_file.delete(save=True)
             return HttpResponseRedirect("questions_user")           
         # удаление ответа
-        if request.POST.get("delete") == 'on':
-            answer_id = request.POST.get("answer_id")
+        if request.POST.get("delete_answer"):
+            answer_id = request.POST.get("delete_answer")
             UserAnswerToQuestion.objects.get(id=answer_id).answer_file.delete(save=True)
             UserAnswerToQuestion.objects.get(id=answer_id).delete()
             return HttpResponseRedirect("questions_user")
@@ -97,12 +112,12 @@ def save_answer(request, pk):
                     
         return HttpResponseRedirect("questions_user")
 
-    knowledge_name = Znanie.objects.get(id=pk).name
+    knowledge = Znanie.objects.get(id=pk)
     questions = QuestionToKnowledge.objects.filter(knowledge=pk)
     answers = UserAnswerToQuestion.objects.filter(knowledge=pk, user=request.user)
     return render(request, "drevo/questions_user.html",{
         "pk": pk,
-        "znanie": knowledge_name,
+        "znanie": knowledge,
         "questions": questions,
         "answers": answers
     })
