@@ -6,7 +6,21 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Знание: {{ znanie }}</h2>
+
+    <div class="popup_bg">
+        <div class="popup">
+            {% csrf_token %}
+            <div class="popup_content">
+                <p id="label_for_popup">Удалить</p>
+                <div>
+                    <button class="button-cancel" type="submit" id="submit_delete">Да</button>
+                    <button class="button-cancel" id="cancel_delete" type="reset">Нет</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Знание: {{ znanie.name }}</h2>
     <hr>
     <h3>Вопросы:</h3>
     {% if user.is_authenticated %}
@@ -37,10 +51,9 @@
                             <div>
                                 <span class="point">Статус: </span>
                                 <span class="">Не обработано</span>                           
-                            </div>
-                            
+                            </div>            
                         </div>
-                        <div class="edit_menu">
+                        <div class="edit_menu">                  
                             <span class="dots">
                                 &middot;&middot;&middot;
                             </span>
@@ -124,4 +137,25 @@
 
 {% block jsfiles %}
 <script src="{% static '/drevo/js/questions_user.js' %}"></script>
+<script>
+    function async_edit(operation, id_answer) {
+        fetch('/drevo/znanie/{{ znanie.id }}/questions_user', {
+            method: 'PUT',
+            headers: {
+                'X-CSRFTOKEN': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                'operation': operation,
+                'answer': id_answer
+            })
+        })
+        .then (response => response.status)
+        .then (status => {
+            if (status === 200) {
+                location.reload()
+            }
+        })
+
+    }
+</script>
 {% endblock %}

@@ -103,16 +103,63 @@ textarea {
     cursor: pointer;
 }
 
+.popup_bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.popup_bg.active {
+    opacity: 1;
+    pointer-events: all;
+    transition: 0.5s all ;
+}
+
+.popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #083E2F;
+    border-radius: 8px;
+    height: 200px;
+    width: 400px;
+    padding-top: 30px;
+}
+
+.popup.active {
+    opacity: 1;
+    pointer-events: all;
+    transition: 0.5s all ;
+}
+
+#label_for_popup {
+    color: white;
+    font-size: 20px;
+}
+
+.popup_content>div, .popup_content>p {
+    text-align: center;    
+}
+
+.popup_content>div>button {
+    margin: 20px;
+}
+
+.popup_content>div>button:hover {
+    margin: 20px;
+    background-color: gray;
+    color: #083E2F;
+}
+
 .not_checked_answers {
     display: grid;
     grid-template-columns: auto 20px;
-}
-
-.cross {
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: 900;
-    color: red;  
 }
 
 .new_form {
