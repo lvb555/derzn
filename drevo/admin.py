@@ -1,6 +1,7 @@
 from adminsortable2.admin import SortableAdminMixin
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.db import IntegrityError
 from django.db.models import Q, F
 from django.db.models.functions import Lower
@@ -351,11 +352,29 @@ admin.site.register(Tz, TzAdmin)
 
 @admin.register(Relation)
 class RelationAdmin(admin.ModelAdmin):
+    class RelationFilter(SimpleListFilter):
+        title = 'Дополнительный фильтр'
+        parameter_name = 'filter'
+
+        def lookups(self, request, model_admin):
+            return [('NoRelation', 'Разрывы в цепочках')]
+
+        def queryset(self, request, queryset):
+            if self.value() == 'NoRelation':
+                rel_obj = Relation.objects.all()
+                list_rz = [item.rz for item in rel_obj]
+                list_pk = []
+                for item in rel_obj:
+                    if item.bz not in list_rz and item.bz.category is None:
+                        list_pk.append(item.pk)
+                return queryset.filter(pk__in=list_pk)
+
     list_display = ("id", "bz", "tr", "rz", "author", "date", "user", "expert", "director", "order")
     save_as = True
     autocomplete_fields = ["author"]
     search_fields = ["bz__name", "rz__name"]
     list_filter = (
+        RelationFilter,
         "tr",
         "author",
         "date",
