@@ -1,0 +1,29 @@
+<!-- Модальное окно для редактирования главного знания в конструкторе-->
+<div class="modal fade" id="main_zn_edit_modal">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-white text-dark">
+             <div class="modal-header" style="justify-content: center;">
+                <h3 class="modal-title text-center">Редактирование знания</h3>
+                <button type="button" class="btn-close" style="position: absolute; right: 1rem;" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="edit_main_zn_form">
+                    {% csrf_token %}
+                    <input type="hidden" name="main_zn_id" id="main_zn_id" value="{{ main_zn_id }}">
+                    <input type="hidden" name="main_zn_edit_form_uuid" id="main_zn_edit_form_uuid" value="{{ main_zn_edit_form_uuid }}">
+                    {{ main_zn_edit_form.media }}
+                    {{ main_zn_edit_form.as_p }}
+                    {{ images_form_for_main_zn.management_form }}
+                    {% for frm in images_form_for_main_zn %}
+                        {{ frm.as_p }}
+                    {% endfor %}
+                    {{ file_form_for_main_zn.management_form }}
+                    {% for frm in file_form_for_main_zn %}
+                        {{ frm.as_p }}
+                    {% endfor %}
+                    <input type="submit" class="btn btn-success" value="Сохранить">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

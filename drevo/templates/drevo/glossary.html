@@ -19,82 +19,91 @@
     </nav>
 </div>
 <div class="basic">
-    <div class="select w-auto me-3">
-        <div class="select__header">
-            <span value="all" class="select__current" id="select">{{ordering.0}}</span>
-            <div class="select__icon">
-                <img style="height: 6px;weight: 10.5px;opacity: 0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-            </div>
-        </div>
-
-        <div class="select__body">
-            <div class="select__item"><a href="?{% url_replace request 'order' 'name' %}" class="text-secondary">По алфавиту (А-Я)</a></div>
-            <div class="select__item"><a href="?{% url_replace request 'order' '-name' %}" class="text-secondary">По алфавиту (Я-А)</a></div>
-        </div>
-    </div>
-
     <form role="search" method="get" class="search-block">
         <input type="hidden" name="order" value="{{ ordering.1 }}">
         <input class="form-control icon" type="search" name="glossary_term_for_search" placeholder="Поиск" aria-label="Search"
                value="{{ glossary_term_for_search }}">
     </form>
+
 <div class="d-grid" style="gap: 16px; margin-top: 25px;">
-    {% for term in glossary_terms %}
+{% for info in glossary_categories_and_terms %}
+{% if info.name_category != None %}
+    {% for category in info.name_category %}
+
+        <div class="glossary-category">
+            <div class="circle-close" onclick="toggleHiddenCategories(this);">
+                <span></span>
+                <span></span>
+            </div>
+        
+            <span class="title" style="padding-left: 21px;">{{category.name}}</span>
+
+            <div class="glossary-set-terms" hidden>
+                {% for term in info.set_terms %}
+                    {% if category == term.category %}
+                        <div class="glossary-term">
+                            <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
+                            <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
+                            <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+    
+    <div class="glossary-category none_category">
+        <div class="circle-close" onclick="toggleHiddenCategories(this);">
+            <span></span>
+            <span></span>
+        </div>
+    
+        <span class="title" style="padding-left: 21px;">Без категорий</span>
+
+        <div class="glossary-set-terms" hidden>
+            {% for term in info.set_terms %}
+                {% if term.category == None %}
+                    <div class="glossary-term">
+                        <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
+                        <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
+                        <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+
+{% else %}
+
+    {% for term in info.set_terms %}
         <div class="glossary-term">
             <i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>
             <span class="title" style="padding-left: 21px;">{{ term.name }}</span>
             <div class="small-title" style="padding-left: 48px; margin-top: 1rem;" hidden>{{ term.description|safe }}</div>
         </div>
-    {% empty %}
-    <div class="row">
-        <div class="col">
-            Глоссарий пуст
-        </div>
-    </div>
-    {% endfor %}
-</div>
-{% if is_paginated %}
-    <br>
-    <div class="pagination" style="justify-content: space-between;align-items: baseline;margin-top: 15px;">
-        <span class='text-secondary' style="color:#BFBFBF!important; height: 14px;">
-            {{page_obj.start_index}}-{{page_obj.end_index}} из {{paginator.count}}
-        </span>
 
-        <span class="page-links d-inline-flex pages">
-            {% if page_obj.has_previous %}
-                <a href="?{% url_replace request 'page' page_obj.previous_page_number %}">
-                    <img style="height: 6px;weight: 10.5px;transform: rotate(90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                </a>
-            {% else %}
-                <a>
-                    <img style="height: 6px;weight: 10.5px;transform: rotate(90deg);opacity:0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                </a>
-            {% endif %}
-                <ul class="d-flex p-0 m-0">
-                    {% for p in page_obj.paginator.page_range %}
-                    <li>
-                        {% if page_obj.number == p %}
-                            <a href="?{% url_replace request 'page' p %}" style="color:#083E2F;">{{ p }}</a>
-                        {% else %}
-                            <a href="?{% url_replace request 'page' p %}">{{ p }}</a>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
-            {% if page_obj.has_next %}
-                <a href="?{% url_replace request 'page' page_obj.next_page_number %}">
-                    <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                </a>
-            {% else %}
-                <a>
-                    <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);opacity:0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                </a>
-            {% endif %}
-        </span>
-    </div>
-{% endif %}
+    {% empty %}
+        <div class="row">
+            <div class="col">
+                Нет терминов
+            </div>
+        </div>
+    {% endfor %}
+
 </div>
+
+{% endif %}
+{% endfor %}
+
+
 <script>
+    //если не будет терминов без категорий то display=none
+    let none_category = document.querySelector('.glossary-category.none_category');
+    if (!none_category.querySelector('.glossary-set-terms').querySelectorAll(".glossary-term").length) {
+        none_category.style.display = "none";
+    };
+
     function fakeSelect() {
         let selectHeader = document.querySelectorAll('.select__header');
         let selectItem = document.querySelectorAll('.select__item');
@@ -110,18 +119,38 @@
 
     fakeSelect();
 
-function toggleHiddenElement(element) {
-    element.parentNode.querySelector('.small-title').hidden = !element.parentNode.querySelector('.small-title').hidden;
+    function toggleHiddenElement(element) {
+        element.parentNode.querySelector('.small-title').hidden = !element.parentNode.querySelector('.small-title').hidden;
 
-    if (element.classList.contains("bi-play-circle-open")) {
-        element.classList.remove("bi-play-circle-open")
-        element.classList.add("bi-play-circle-close");
-        element.parentNode.style.background = 'white';
-    } else {
-        element.classList.remove("bi-play-circle-close")
-        element.classList.add("bi-play-circle-open");
-        element.parentNode.style.background = 'rgba(245, 245, 245, 0.75)';
+        if (element.classList.contains("bi-play-circle-open")) {
+            element.classList.remove("bi-play-circle-open")
+            element.classList.add("bi-play-circle-close");
+            element.parentNode.style.background = 'white';
+        } else {
+            element.classList.remove("bi-play-circle-close")
+            element.classList.add("bi-play-circle-open");
+            element.parentNode.style.background = 'rgba(245, 245, 245, 0.75)';
+        }
     }
-}
+
+    function toggleHiddenCategories(element) {
+        element.parentNode.querySelector('.glossary-set-terms').hidden = !element.parentNode.querySelector('.glossary-set-terms').hidden;
+
+        if (element.classList.contains("circle-open")) {
+            element.classList.remove("circle-open");
+            element.classList.add("circle-close");
+
+            // чтобы открытые термины закрывались по закрытию категорий
+            let playCircleOpenElements = element.parentNode.querySelectorAll(".bi-play-circle-open");
+            playCircleOpenElements.forEach(element_open => {
+                toggleHiddenElement(element_open);
+            });
+            
+        } else {
+            element.classList.remove("circle-close")
+            element.classList.add("circle-open");
+        }
+    };
+
 </script>
 {% endblock %}

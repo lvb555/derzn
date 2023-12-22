@@ -15,59 +15,7 @@
 {% block content %}
 	<div class="basic">
 		<p class="suggestion-form-title"> Знание:&nbsp;<a href="{% url 'zdetail' knowledge.id %}">{{ knowledge.name }}</a></p>
-		{% if request.user.is_authenticated %}
-
-		<table class="align-middle suggestions-table">
-			{% if user_suggestions|length != 0 %}
-				<thead>
-					<tr>
-						<th>Вид предложения</th>
-						<th>Текст знания</th>
-						<th>Статус</th>
-					</tr>
-				</thead>
-				{% for str in user_suggestions %}
-					<tr>
-						<td> {{ str.suggestions_type }} </td>
-						<td> {{ str.name }} </td>
-						<td> 
-							{% if str.is_approve is None %}
-								<span style="color:#A1A1A1">Ожидает проверки</span>
-							{% elif str.is_approve is False %}
-								<span style="color:#EA2F2F">Отклонено</span>
-							{% elif str.is_approve is True %}
-								<span style="color:#52E359">Одобрено</span>
-							{% endif %}
-						</td>
-					</tr>
-				{% endfor %}
-			{% else %}
-				<p>Вы еще ничего не предложили</p>
-			{% endif %}
-		</table>
-		<h3>Создание своих предложений</h3>
-		<form action="{{ request.get_full_path }}" method="post" class="suggestion-from">
-			{% csrf_token %}
-
-			<input type="text" hidden value="{{knowledge.pk}}" name="parent-knowledge-id">
-
-			{% for suggestion_type in knowledge.tz.sorted_suggestion_types %}
-				<div class="same-type-suggestions">
-					<p class="same-type-suggestions__type-name">{{ suggestion_type.type_name }}</p>
-					<div class="same-type-suggestions__fields" id="fields-of-type-{{ suggestion_type.pk }}">
-						<div class="field">
-							<textarea rows="2" maxlength="250" placeholder="Введите текст предложения" class="form-control field__area" name="field-of-type-{{ suggestion_type.pk }}" id="field-of-type-{{ suggestion_type.pk }}"></textarea>
-							<button class="field__remove btn btn-header" type="button">-</button>
-						</div>
-					</div>
-					<button id="type-{{ suggestion_type.pk }}" class="same_type_suggestions__add btn btn-header" type="button">+</button>
-				</div>
-			{% endfor%}
-			<div class="suggestion-form__btn">
-				<button class="btn btn-header" class type="submit">Сохранить</button>
-			</div>
-		</form>
-		{% else %}
+		{% if not request.user.is_authenticated %}
 			<div class="card alert-warning">
 				<div class="card-body">
 					<span class="card-text">
@@ -78,6 +26,59 @@
 					</span>
 				</div>
 			</div>
+		{% elif knowledge.tz.available_suggestion_types.all|length == 0 %}
+			<p>Текущее знание не разрешено дополнять</p>
+		{% else %}
+			<table class="align-middle suggestions-table">
+				{% if user_suggestions|length != 0 %}
+					<thead>
+						<tr>
+							<th>Вид предложения</th>
+							<th>Текст знания</th>
+							<th>Статус</th>
+						</tr>
+					</thead>
+					{% for str in user_suggestions %}
+						<tr>
+							<td> {{ str.suggestions_type }} </td>
+							<td> {{ str.name }} </td>
+							<td> 
+								{% if str.is_approve is None %}
+									Ожидает проверки
+								{% elif str.is_approve is False %}
+									Не принято
+								{% elif str.is_approve is True %}
+									Принято
+								{% endif %}
+							</td>
+						</tr>
+					{% endfor %}
+				{% else %}
+					<p>Вы еще ничего не предложили</p>
+				{% endif %}
+			</table>
+			<h3>Создание своих предложений</h3>
+			<form action="{{ request.get_full_path }}" method="post" class="suggestion-from">
+				{% csrf_token %}
+	
+				<input type="text" hidden value="{{knowledge.pk}}" name="parent-knowledge-id">
+	
+				{% for suggestion_type in knowledge.tz.sorted_suggestion_types %}
+					<div class="same-type-suggestions">
+						<p class="same-type-suggestions__type-name">{{ suggestion_type.type_name }}</p>
+						<div class="same-type-suggestions__fields" id="fields-of-type-{{ suggestion_type.pk }}">
+							<div class="field">
+								<textarea rows="2" maxlength="250" placeholder="Введите текст предложения" class="form-control field__area" name="field-of-type-{{ suggestion_type.pk }}" id="	field-of-type-{{ suggestion_type.pk }}"></textarea>
+								<button class="field__remove btn btn-header" type="button">-</button>
+							</div>
+						</div>
+						<button id="type-{{ suggestion_type.pk }}" class="same_type_suggestions__add btn btn-header" type="button">+</button>
+					</div>
+				{% endfor%}
+				<div class="suggestion-form__btn">
+					<button class="btn btn-header" disabled type="submit">Отправить</button>
+				</div>
+			</form>
 		{% endif %}
 	</div>
 {% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load filter %}
+{% load static %}
+{% load knowledge_tree %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/style.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/constructors_of_zn.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container header_info p-0 mb-1">
+        <h1 class="page-title">{{ title }}</h1>
+        <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+              <li class="breadcrumb-item opened"><a>Подготовка знаний</a></li>
+              <li class="breadcrumb-item opened"><a>{{ title }}</a></li>
+            </ol>
+        </nav>
+    </div>
+    {% if knowledge %}
+        {% build_knowledge_tree queryset=knowledge empty_tree_message='Знаний для построения дерева не найдено' show_complex=True is_constructor_type=type_of_page %}
+    {% endif %}
+{% endblock %}

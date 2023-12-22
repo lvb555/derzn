@@ -1,9 +1,11 @@
+/* css для страницы questions_user */
 textarea {
     overflow: hidden;
     resize: none;
     height: 86px;
     background: rgba(245, 245, 245, 0.75);
     border-radius: 8px;
+    padding:5px;
 }
 
 .question_text {
@@ -14,26 +16,31 @@ textarea {
 }
 
 .grid {
+    font-family: Rubik;
     display: grid;
     margin-top: 30px;
-    grid-template-columns: 30vw auto 80px;
+    grid-template-columns: 30vw 50vw;
 }
 
-.id_answer {
+.new_answer, .edit_answer {
     vertical-align: middle;
-    padding:5px;
+    width: 100%;
 }
 
 .id_file {
     font-size: 12px;
     line-height: 200%;
     letter-spacing: 0.02em;
-    margin: 10px;
+    margin-top: 10px;
+}
+
+.file_inform {
+    margin-top: 10px;
 }
 
 .button {
+    width: 100px;
     margin-top: 20px;
-    margin-left: 20px;
     font-size: 14px;
     line-height: 200%;
     letter-spacing: 0.02em;
@@ -46,6 +53,72 @@ textarea {
     margin: 10px;
 }
 
+.plus {
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 900;
+    color: green;
+}
+
+.cross {
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 900;
+    color: red;  
+}
+
+.new_form {
+    display: none;
+}
+
+.yes {
+    color: green;
+}
+
+.no {
+    color: red;
+}
+
+.point {
+    font-weight: bold;
+}
+
+.answer_text {
+    font-style: italic;
+    font-size: 18px;
+}
+
+.block {
+    margin: 10px;
+}
+
+.admin_cross {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+
+@media (max-width: 1200px) {
+
+    .delete {
+        margin-top: 10px;
+        color: red;
+        cursor: pointer;
+    }
+    
+}
+@media (min-width: 1199px) {
+
+    .delete {
+        margin-top: 10px;
+        float: right;
+        color: red;
+        cursor: pointer;
+    }
+}
+
+
+/* css для страницы questions_and_check_answers */
 .list_questions {
     font-family: Rubik;
     font-size: 22px;
@@ -68,7 +141,9 @@ textarea {
     }
     
 }
+
 @media (min-width: 900px) {
+
     .answers {
         display: grid;
         grid-template-columns: 30vw 15vw auto 20vw;
@@ -85,7 +160,7 @@ textarea {
     }
 }
 
-#accepted {
+.accepted {
     margin-top: 20px;
     margin: 20px auto;
     display: block;
@@ -119,7 +194,7 @@ select {
     appearance: auto;
 }
 
-.one_question {
+.one_question, #if_one_question {
     font-family: Rubik;
     font-size: 24px;
     font-weight: 100;
@@ -150,5 +225,9 @@ select {
 }
 
 .not_checked_div {
+    display: none;
+}
+
+#if_one_question_not_checked {
     display: none;
 }

@@ -96,12 +96,14 @@ TH {
 .same_type_suggestions__add {
 	position: absolute;
 	right: -11%;
+	visibility: hidden;
 }
 
 .field__remove {
 	position: absolute;
 	right: -10%;
 	top: 0;
+	visibility: hidden;
 }
 
 /*положение и форма формы*/
