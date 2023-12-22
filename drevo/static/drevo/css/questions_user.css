@@ -103,6 +103,12 @@ textarea {
     cursor: pointer;
 }
 
+.dots:hover {
+    color: blue;
+    font-size: 22px;
+    transition: 0.3s all ;
+}
+
 .popup_bg {
     position: fixed;
     top: 0;
@@ -118,6 +124,10 @@ textarea {
     opacity: 1;
     pointer-events: all;
     transition: 0.5s all ;
+}
+
+hr {
+    opacity: unset;
 }
 
 .popup {

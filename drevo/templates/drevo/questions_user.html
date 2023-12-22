@@ -10,6 +10,7 @@
     <div class="popup_bg">
         <div class="popup">
             {% csrf_token %}
+            <input type="hidden" name="knowledge" value="{{ znanie.id }}">
             <div class="popup_content">
                 <p id="label_for_popup">Удалить</p>
                 <div>
@@ -39,9 +40,9 @@
                             <div>
                                 <span class="point">Ответ: </span>
                                 <span class="answer_text">{{ answer.answer }}</span>
-                                <div class="new_content"></div>                            
                             </div>  
                             {% endif %}                             
+                            <div class="new_content"></div>                            
                             {% if answer.answer_file %}
                             <div>
                                 <span class="point">Прикрепленный файл: </span>
@@ -69,7 +70,7 @@
                                 {% if answer.answer_file and answer.answer != "-" %}
                                 <div class="delete_file">Удалить файл</div>
                                 {% endif %}
-                                {% if answer.answer != "-" and question.need_file %}
+                                {% if answer.answer != "-" and question.need_file and answer.answer_file == "" %}
                                 <div class="add_file">Добавить файл</div>
                                 {% endif %}
                                 <div class="delete_answer">Удалить ответ</div>
@@ -111,22 +112,21 @@
                     <hr>
                 {% endif %}
                 {% endfor %}
-                    <form action="questions_user" enctype="multipart/form-data" method="post">
+                    <div>
                         {% csrf_token %}
-                        <input type="hidden" name="question_id" value="{{ question.id }}">
                         <div>
                             <span class="plus">&#10010</span>
                             <div class="new_form">
                                 <textarea name="answer" id="" cols="40" rows="10" class="new_answer" placeholder="Ваш ответ"></textarea>
                                 {% if question.need_file %}
-                                <input type="file" name="file" class="id_file">
+                                <input type="file" name="file" class="id_file" multiple>
                                 {% endif %}  
                                 <div>
-                                    <input type="submit" class="button" value="Сохранить"> 
+                                    <button type="submit" class="button" name="save_new_answer" value="{{ question.id}}">Сохранить</button>
                                 </div>
                             </div>                               
                         </div>
-                    </form>
+                    </div>
             </div>
         </div>
         <hr>
@@ -137,25 +137,4 @@
 
 {% block jsfiles %}
 <script src="{% static '/drevo/js/questions_user.js' %}"></script>
-<script>
-    function async_edit(operation, id_answer) {
-        fetch('/drevo/znanie/{{ znanie.id }}/questions_user', {
-            method: 'PUT',
-            headers: {
-                'X-CSRFTOKEN': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({
-                'operation': operation,
-                'answer': id_answer
-            })
-        })
-        .then (response => response.status)
-        .then (status => {
-            if (status === 200) {
-                location.reload()
-            }
-        })
-
-    }
-</script>
 {% endblock %}
