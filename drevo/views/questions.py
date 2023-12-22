@@ -14,103 +14,59 @@ from drevo.models import (
 
 @login_required
 def save_answer(request, pk):
+
     if request.method == "PUT":
         data = json.loads(request.body)
+        answer_id = data.get("answer")
+        editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
         if data.get("operation") == "delete_answer":
-            answer_id = data.get("answer")
-            print(data.get("operation"))
-            print(data.get("answer"))
-            UserAnswerToQuestion.objects.get(id=answer_id).answer_file.delete(save=True)
-            UserAnswerToQuestion.objects.get(id=answer_id).delete()
+            editable_answer.answer_file.delete(save=True)
+            editable_answer.delete()
+            return HttpResponse(status=200)
         elif data.get("operation") == "delete_file":
-            answer_id = data.get("answer")
-            UserAnswerToQuestion.objects.get(id=answer_id).answer_file.delete(save=True)
+            editable_answer.answer_file.delete(save=True)
+            return HttpResponse(status=200)
+        elif data.get("operation") == "delete_text":
+            editable_answer.answer = '-'
+            editable_answer.save()           
+            return HttpResponse(status=200)
+        elif data.get("operation") == "edit_text":
+            new_text_answer = data.get("new_text")
+            editable_answer.answer = new_text_answer
+            editable_answer.save()
+            return HttpResponse(status=200)
+        elif data.get("operation") == "add_text":
+            text_answer = data.get("text_answer")
+            editable_answer.answer = text_answer
+            editable_answer.save()
+            return HttpResponse(status=200)
+                 
+    elif request.method == "POST":
+        # добавление файла
+        if  request.POST.get("operation") == "add_file":
+            answer_id = request.POST.get("answer_id")
+            file = request.FILES["new_file"]
+            editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
+            editable_answer.answer_file.delete(save=True)
+            editable_answer.answer_file = file
+            editable_answer.save()
+            return HttpResponse(status=200)
+        # новый ответ
+        elif request.POST.get("question_id"):
+            question_id = request.POST.get("question_id")
+            answer_to_question = UserAnswerToQuestion()
 
-        
-            
-    if request.method == "POST":
-        # удаление только файла из ответа с текстом
-        if request.POST.get("delete_file"):
-            answer_id = request.POST.get("delete_file")
-            UserAnswerToQuestion.objects.get(id=answer_id).answer_file.delete(save=True)
-            return HttpResponseRedirect("questions_user")           
-        # удаление ответа
-        if request.POST.get("delete_answer"):
-            answer_id = request.POST.get("delete_answer")
-            UserAnswerToQuestion.objects.get(id=answer_id).answer_file.delete(save=True)
-            UserAnswerToQuestion.objects.get(id=answer_id).delete()
-            return HttpResponseRedirect("questions_user")
-        if request.FILES:
-            # если есть фаил и текст ответ
-            if request.POST.get("answer"):
-                question_id = request.POST.get("question_id")
-                answer = request.POST.get("answer")
-                file = request.FILES["file"]
-                UserAnswerToQuestion(
-                    knowledge = Znanie.objects.get(id=pk),
-                    question = QuestionToKnowledge.objects.get(id=question_id),
-                    answer = answer,
-                    answer_file = file,
-                    user = request.user
-                ).save()
-            # если редактируют фаил и текст ответа
-            elif request.POST.get("edit_answer"):
-                answer_id = request.POST.get("answer_id")
-                editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
-                editable_answer.answer_file.delete(save=True)
-                new_text_answer = request.POST.get("edit_answer")
-                file = request.FILES["edit_file"]
-                editable_answer.answer = new_text_answer
-                editable_answer.answer_file = file
-                editable_answer.save()
+            answer_to_question.user = request.user
+            answer_to_question.knowledge = Znanie.objects.get(id=pk)
+            answer_to_question.question = QuestionToKnowledge.objects.get(id=question_id)
+            if request.POST.get("text"):
+                answer_to_question.answer = request.POST.get("text")
             else:
-                # если редактируют только фаил
-                if "edit_file" in request.FILES.keys():
-                    answer_id = request.POST.get("answer_id")
-                    editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
-                    editable_answer.answer_file.delete(save=True)
-                    file = request.FILES["edit_file"]
-                    editable_answer.answer_file = file
-                    editable_answer.save()
-                # если в ответе только файл
-                else:
-                    question_id = request.POST.get("question_id")
-                    file = request.FILES["file"]
-                    UserAnswerToQuestion(
-                        knowledge = Znanie.objects.get(id=pk),
-                        question = QuestionToKnowledge.objects.get(id=question_id),
-                        answer = "-",
-                        answer_file = file,
-                        user = request.user
-                    ).save()
-        else:
-            # если в ответе только текст
-            if request.POST.get("answer"):
-                question_id = request.POST.get("question_id")
-                answer = request.POST.get("answer")
-                UserAnswerToQuestion(
-                    knowledge = Znanie.objects.get(id=pk),
-                    question = QuestionToKnowledge.objects.get(id=question_id),
-                    answer = answer,
-                    user = request.user
-                ).save()
-            # возможность удалить текст у ответа с файлом
-            elif request.POST.get("edit_answer") == "" and request.POST.get("answer_id"):
-                answer_id = request.POST.get("answer_id")
-                editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
-                if editable_answer.answer_file:
-                    editable_answer.answer = "-"
-                    editable_answer.save()
-            # если редактирут только текст ответа
-            elif request.POST.get("edit_answer"):
-                answer_id = request.POST.get("answer_id")
-                editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
-                new_text_answer = request.POST.get("edit_answer")
-                if editable_answer.answer != new_text_answer:
-                    editable_answer.answer = new_text_answer
-                    editable_answer.save()
-                    
-        return HttpResponseRedirect("questions_user")
+                answer_to_question.answer = "-"
+            if request.FILES:
+                answer_to_question.answer_file = request.FILES["file"]
+            answer_to_question.save()
+            return HttpResponse(status=200)
 
     knowledge = Znanie.objects.get(id=pk)
     questions = QuestionToKnowledge.objects.filter(knowledge=pk)
@@ -121,7 +77,7 @@ def save_answer(request, pk):
         "questions": questions,
         "answers": answers
     })
-
+                  
 
 @login_required
 def questions_and_check_answers(request, pk):
