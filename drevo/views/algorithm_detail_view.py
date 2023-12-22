@@ -150,14 +150,17 @@ class AlgorithmResultAdd(ProcessFormView):
                 algorithm = get_object_or_404(Znanie, id=pk)
                 saved_progress = json.loads(request.GET.get('values'))
                 new_elements = json.loads(request.GET.get('new_elements'))
+                deleted_elements = json.loads(request.GET.get('deleted'))
+                redacted_elements = json.loads(request.GET.get('redacted'))
                 work_name = request.GET.get('work')
                 previous_result = request.GET.get('previous_result')
                 previous_work = AlgorithmWork.objects.filter(algorithm=algorithm, user=user, 
                                                              work_name=str(previous_result)).first()
 
                 if previous_result != '' and previous_work:
-                    results_for_delete = AlgorithmData.objects.filter(work=previous_work)
-                    results_for_delete.delete()
+                    if not new_elements and not deleted_elements and not redacted_elements:
+                        results_for_delete = AlgorithmData.objects.filter(work=previous_work)
+                        results_for_delete.delete()
                 else:
                     previous_work = AlgorithmWork.objects.create(
                                         algorithm=algorithm,
@@ -174,6 +177,17 @@ class AlgorithmResultAdd(ProcessFormView):
                         work=previous_work,
                     )
 
+                for deleted_element in deleted_elements:
+                    elem = get_object_or_404(AlgorithmAdditionalElements, user=user, algorithm=algorithm,
+                                             work=previous_work, element_name=str(deleted_element))
+                    elem.delete()
+                    try:
+                        saved_in_progress_element = get_object_or_404(AlgorithmData, user=user, algorithm=algorithm,
+                                                                      work=previous_work, element=str(deleted_element))
+                        saved_in_progress_element.delete()
+                    except Http404:
+                        pass
+
                 for new_element in new_elements:
                     AlgorithmAdditionalElements.objects.create(
                         user=user,
@@ -184,6 +198,12 @@ class AlgorithmResultAdd(ProcessFormView):
                         relation_type=new_element['relation_type'],
                         insertion_type=new_element['insertion_type'],
                     )
+
+                for renamed_element in redacted_elements:
+                    elem = get_object_or_404(AlgorithmAdditionalElements, user=user, algorithm=algorithm,
+                                             work=previous_work, element_name=str(renamed_element[0]))
+                    elem.element_name = renamed_element[1]
+                    elem.save()
 
                 return JsonResponse({}, status=200)
 

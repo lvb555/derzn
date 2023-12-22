@@ -44,8 +44,8 @@ def recurse_dict(data, previous_knowledge, algorithm, user=None, work=None, html
                     extra_span += f'</span>'
                 html += f'<span class="algorithm-element ms-2"><a href="{child.get_absolute_url()}">{child.name}</a> ' \
                         f'({element_type}){extra_span}</span>'
-                if mode and rel not in ['Вариант', 'Можно сделать', 'Нужно сделать']:
-                    html += f'<button onclick="addNewElement(this);"><i class="bi bi-pencil-fill"></i></button>'
+                if mode and rel != 'Вариант' and not (element_type != 'Блок' and rel in ['Можно сделать', 'Нужно сделать']):
+                    html += f'<i class="bi bi-plus-lg text-success p-2" onclick="addNewElement(this);"></i>'
             else:
                 html += f'<span style="display: none;">{child.name} ({element_type})</span>'
             if QuestionToKnowledge.objects.filter(knowledge=child, publication=True).count() > 0:
@@ -57,7 +57,7 @@ def recurse_dict(data, previous_knowledge, algorithm, user=None, work=None, html
                 additional_elements = AlgorithmAdditionalElements.objects.filter(user=user, work__work_name=work, algorithm=algorithm,
                                                                                  parent_element=child).order_by('insertion_type')
                 if additional_elements:
-                    html = add_user_elements(additional_elements, html)
+                    html = add_user_elements(additional_elements, html, mode)
             previous_knowledge = child
         elif isinstance(child, dict):
             rel = ','.join(list(Relation.objects.filter(bz=complicated_knowledge, rz=list(child.keys())[0]).values_list('tr__name', flat=True)))
@@ -81,15 +81,15 @@ def recurse_dict(data, previous_knowledge, algorithm, user=None, work=None, html
                     extra_span += f'</span>'
                 html += f'<span class="algorithm-element ms-2"><a href="{list(child.keys())[0].get_absolute_url()}">' \
                         f'{list(child.keys())[0]}</a> ({list(child.keys())[0].tz}){extra_span}</span>'
-                if mode and rel not in ['Вариант', 'Можно сделать', 'Нужно сделать']:
-                    html += f'<button onclick="addNewElement(this);"><i class="bi bi-pencil-fill"></i></button>'
+                if mode and rel != 'Вариант' and not (list(child.keys())[0].tz.name != 'Блок' and rel in ['Можно сделать', 'Нужно сделать']):
+                    html += f'<i class="bi bi-plus-lg text-success p-2" onclick="addNewElement(this);"></i>'
             else:
                 html += f'<span style="display: none;">{list(child.keys())[0].name} ({list(child.keys())[0].tz})</span>'
             if QuestionToKnowledge.objects.filter(knowledge=list(child.keys())[0], publication=True).count() > 0:
                 html += f'<a class="btn question" href="{list(child.keys())[0].get_absolute_url()}/questions_user"><i class="bi bi-question-lg"></i></a>'
             if list(child.values())[0]:
                 html = recurse_dict(list(child.values())[0], list(child.keys())[0], algorithm, user=user, work=work,
-                                    html=html, display='none', complicated_knowledge=list(child.keys())[0], mode=mode)
+                                    html=html, display='none' if not mode else 'block', complicated_knowledge=list(child.keys())[0], mode=mode)
             html += f'</li>'
             if algorithm.several_works is False:
                 work = 'Данные по алгоритму'
@@ -97,20 +97,27 @@ def recurse_dict(data, previous_knowledge, algorithm, user=None, work=None, html
                 additional_elements = AlgorithmAdditionalElements.objects.filter(user=user, work__work_name=work, algorithm=algorithm,
                                                                                  parent_element=list(child.keys())[0]).order_by('insertion_type')
                 if additional_elements:
-                    html = add_user_elements(additional_elements, html)
+                    html = add_user_elements(additional_elements, html, mode)
             previous_knowledge = list(child.keys())[0]
     html += f'</ul>'
     return mark_safe(html)
 
 
-def add_user_elements(queryset, html):
+def add_user_elements(queryset, html, mode):
     flag = False
     if queryset.filter(insertion_type=0):
         html = html[:-10]
         flag = True
     for new_elem in queryset:
         common_part = f'<input disabled type="checkbox" class="simple-elements" value="Действие" onclick="nextAction(this)">' \
-                      f'<span class="algorithm-element ms-2"><a class="new-element">{new_elem.element_name}</a> (Действие)</span></li>'
+                      f'<span class="algorithm-element ms-2"><a class="new-element">{new_elem.element_name}</a> (Действие)</span>'
+        if mode:
+            if new_elem.insertion_type == 1:
+                common_part += f'''<i class="bi bi-plus-lg text-success p-2" onclick="addNewElement(this);"></i>'''
+            common_part += f'''<i class="bi bi-pencil-fill text-warning p-2" onclick="redactOrDelete(this, 'same', 'redact');"></i>''' \
+                           f'''<i class="bi bi-x-lg text-danger p-2" onclick="redactOrDelete(this, 'same', 'delete');"></i>'''
+        else:
+            common_part += f'</li>'
         if new_elem.insertion_type == 0:
             rel = 'Можно сделать'
             if new_elem.relation_type == 'necessary':

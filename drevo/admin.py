@@ -739,17 +739,44 @@ class AppealAdmin(admin.ModelAdmin):
 
 @admin.register(AlgorithmWork)
 class AlgorithmWorkAdmin(admin.ModelAdmin):
-    list_display = ("user", "algorithm", "work_name")
+    list_display = ("id", "user", "work_name", "display_algorithm")
+    list_display_links = ("id", "work_name")
+    autocomplete_fields = ["algorithm", "user"]
+    search_fields = ["work_name"]
+    list_filter = ("algorithm", "work_name", "user")
+    def display_algorithm(self, obj):
+        return str(obj.algorithm)
+    display_algorithm.short_description = "Алгоритм"
 
 
 @admin.register(AlgorithmData)
 class AlgorithmDataAdmin(admin.ModelAdmin):
-    list_display = ("user", "algorithm", "work")
+    list_display = ("id", "user", "display_algorithm", "display_work", "element")
+    autocomplete_fields = ["algorithm", "user"]
+    search_fields = ["algorithm", "work"]
+    list_filter = ("algorithm", "work", "user")
+    def display_algorithm(self, obj):
+        return str(obj.algorithm)
+    display_algorithm.short_description = "Алгоритм"
+
+    def display_work(self, obj):
+        return str(obj.work)
+    display_work.short_description = "Работа"
 
 
 @admin.register(AlgorithmAdditionalElements)
 class AlgorithmAdditionalElementsAdmin(admin.ModelAdmin):
-    list_display = ("user", "algorithm", "work", "parent_element")
+    list_display = ("user", "display_algorithm", "display_work", "parent_element", "element_name")
+    autocomplete_fields = ["algorithm", "user"]
+    search_fields = ["parent_element", "element_name"]
+    list_filter = ("algorithm", "work", "relation_type", "insertion_type", "user")
+    def display_algorithm(self, obj):
+        return str(obj.algorithm)
+    display_algorithm.short_description = "Алгоритм"
+
+    def display_work(self, obj):
+        return str(obj.work)
+    display_work.short_description = "Работа"
 
 
 @admin.register(QuestionToKnowledge)
