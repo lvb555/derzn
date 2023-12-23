@@ -1,10 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // скролл к последнему месту отправки формы
-    if (window.localStorage.getItem('scroll_place')) {
-        window.scrollTo(0,window.localStorage.getItem('scroll_place'))
-        window.localStorage.removeItem('scroll_place')
-    }
     
     // отображение имени файла
     if (document.querySelector('.file')) {
@@ -99,11 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
             block.querySelector('.plus').remove()
         }
     })
-
-    // запись скролла при отправке формы
-    document.addEventListener('submit', () => {
-        window.localStorage.setItem('scroll_place', window.scrollY)
-    })   
 })
 
 

@@ -15,7 +15,18 @@ from drevo.models import (
 @login_required
 def save_answer(request, pk):
 
-    if request.method == "PUT":
+    if request.method == "GET":
+        knowledge = Znanie.objects.get(id=pk)
+        questions = QuestionToKnowledge.objects.filter(knowledge=pk)
+        answers = UserAnswerToQuestion.objects.filter(knowledge=pk, user=request.user)
+        return render(request, "drevo/questions_user.html",{
+            "pk": pk,
+            "znanie": knowledge,
+            "questions": questions,
+            "answers": answers
+        })
+
+    elif request.method == "PUT":
         data = json.loads(request.body)
         answer_id = data.get("answer")
         editable_answer = UserAnswerToQuestion.objects.get(id=answer_id)
@@ -67,17 +78,7 @@ def save_answer(request, pk):
                 answer_to_question.answer_file = request.FILES["file"]
             answer_to_question.save()
             return HttpResponse(status=200)
-
-    knowledge = Znanie.objects.get(id=pk)
-    questions = QuestionToKnowledge.objects.filter(knowledge=pk)
-    answers = UserAnswerToQuestion.objects.filter(knowledge=pk, user=request.user)
-    return render(request, "drevo/questions_user.html",{
-        "pk": pk,
-        "znanie": knowledge,
-        "questions": questions,
-        "answers": answers
-    })
-                  
+                
 
 @login_required
 def questions_and_check_answers(request, pk):
