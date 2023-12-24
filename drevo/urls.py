@@ -176,7 +176,7 @@ urlpatterns = [
     path("", DrevoView.as_view(), name="drevo"),
     path("znanie/<int:pk>", ZnanieDetailView.as_view(), name="zdetail"),
     path("znanie/<int:pk>/suggestions", UserSuggestionView.as_view(), name="create-suggestion"),
-    path("znanie/<int:pk>/questions_user", save_answer, name="questions"),
+    path("znanie/<int:pk>/questions_user", save_answer, name="questions_user"),
     path("znanie/<int:pk>/questions_and_check_answers", questions_and_check_answers, name="questions_and_check_answers"),
     path("znanie/<int:pk>/favourite", FavouriteProcessView.as_view()),
     path("znanie/<int:pk>/comments/", CommentPageView.as_view()),

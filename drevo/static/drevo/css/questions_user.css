@@ -49,6 +49,18 @@ textarea {
     border-radius: 8px !important;    
 }
 
+.button-cancel {
+    width: 100px;
+    margin-top: 20px;
+    font-size: 14px;
+    line-height: 200%;
+    letter-spacing: 0.02em;
+    background-color: #a0a8a6;
+    border-color: #66736f;
+    color: #f8f9fa;
+    border-radius: 8px !important;    
+}
+
 .question {
     margin: 10px;
 }
@@ -60,11 +72,104 @@ textarea {
     color: green;
 }
 
-.cross {
+.edit_menu {
+    position: relative;
+}
+
+.menu {
+    display: none;
+    z-index: 2;
+    position: absolute;
+    float: right;
+    min-width: 150px;
+    padding: 5px;
+    right: 0px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow:1px 1px 1px black;
+}
+
+.menu > div:hover {
+    background-color: rgb(200, 199, 199);
     cursor: pointer;
-    font-size: 18px;
-    font-weight: 900;
-    color: red;  
+}
+
+.menu > div {
+    padding: 2px;
+}
+
+.dots {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.dots:hover {
+    color: blue;
+    font-size: 22px;
+    transition: 0.3s all ;
+}
+
+.popup_bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.popup_bg.active {
+    opacity: 1;
+    pointer-events: all;
+    transition: 0.5s all ;
+}
+
+hr {
+    opacity: unset;
+}
+
+.popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #083E2F;
+    border-radius: 8px;
+    height: 200px;
+    width: 400px;
+    padding-top: 30px;
+}
+
+.popup.active {
+    opacity: 1;
+    pointer-events: all;
+    transition: 0.5s all ;
+}
+
+#label_for_popup {
+    color: white;
+    font-size: 20px;
+}
+
+.popup_content>div, .popup_content>p {
+    text-align: center;    
+}
+
+.popup_content>div>button {
+    margin: 20px;
+}
+
+.popup_content>div>button:hover {
+    margin: 20px;
+    background-color: gray;
+    color: #083E2F;
+}
+
+.not_checked_answers {
+    display: grid;
+    grid-template-columns: auto 20px;
 }
 
 .new_form {
