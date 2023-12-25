@@ -19,18 +19,42 @@ var saveClosePopupButton = saveBg.querySelector('.close-popup');
 var iconElement = document.createElement("i");
 iconElement.className = "bi bi-play-circle-close";
 iconElement.setAttribute("onclick", "toggleHiddenElement(this);");
-var openPopupButton = document.querySelector('#save-button');
+var openPopupButton = document.querySelector('[name="save-button"]');
 let selectHeader = document.querySelectorAll('.select__header');
 var urlParams = new URLSearchParams(window.location.search);
 var addBg = document.querySelector('.add-form.popup__bg');
 var addPopup = document.querySelector('.add-form.popup__bg .popup');
 var addClosePopupButton = document.querySelector('.add-form.popup__bg .close-popup');
+var redactBg = document.querySelector('.redact-form.popup__bg');
+var redactPopup = document.querySelector('.redact-form.popup__bg .popup');
+var redactClosePopupButton = document.querySelector('.redact-form.popup__bg .close-popup');
+var deleteBg = document.querySelector('.delete-form.popup__bg');
+var deletePopup = document.querySelector('.delete-form.popup__bg .popup');
+var deleteClosePopupButton = document.querySelector('.delete-form.popup__bg .close-popup');
+var backBg = document.querySelector('.go-back-form.popup__bg');
+var backPopup = document.querySelector('.go-back-form.popup__bg .popup');
+var backClosePopupButton = document.querySelector('.go-back-form.popup__bg .close-popup');
 var additionalElement = '';
+var elementInProcess = '';
+var elementStatus = '';
+var users_elements = [];
 var inputElement = document.createElement('input');
 inputElement.setAttribute('type', 'checkbox');
 inputElement.setAttribute('class', 'simple-elements');
 inputElement.setAttribute("onclick", "nextAction(this);");
 var list_with_new_elements = [];
+var new_elements = [];
+var redacted_elements = [];
+var elements_for_delete = [];
+var deleteElementIcon = document.createElement("i");
+deleteElementIcon.setAttribute('class', 'bi bi-x-lg text-danger p-2');
+deleteElementIcon.setAttribute("onclick", "redactOrDelete(this, 'new', 'delete');");
+var redactElementIcon = document.createElement("i");
+redactElementIcon.setAttribute('class', 'bi bi-pencil-fill text-warning p-2');
+redactElementIcon.setAttribute("onclick", "redactOrDelete(this, 'new', 'redact');");
+var addElementIcon = document.createElement("i");
+addElementIcon.setAttribute('class', 'bi bi-plus-lg text-success p-2');
+addElementIcon.setAttribute("onclick", "addNewElement(this);");
 
 
 function openNext(type){
@@ -44,12 +68,21 @@ function openNext(type){
 
 function addNewElement(elem){
     if(elem.previousSibling.previousSibling.getAttribute('value') == 'Блок'){
-        addBg.querySelector('#block-questions div').style.display = 'flex';
         addBg.querySelector('#transformation').style.display = 'none';
+        if(/Можно сделать|Нужно сделать/.test(elem.parentNode.getAttribute('value'))){
+            addBg.querySelector('#block-questions div').style.display = 'none';
+            addBg.querySelector('#conditionalChoice').style.display = 'block';
+            document.getElementById('blockRadio').checked = true;
+        }else{
+            addBg.querySelector('#block-questions div').style.display = 'flex';
+        }
     }else{
         addBg.querySelector('#block-questions div').style.display = 'none';
-        if(elem.parentNode.querySelector('input').value == 'Действие'){
+        if(elem.parentNode.querySelector('input').value == 'Действие' && !(elem.nextSibling)){
             addBg.querySelector('#transformation').style.display = 'block';
+            addBg.querySelector('#transformation label').textContent = 'Преобразовать элемент '+elem.parentNode.querySelector('a').textContent+' в "Блок"?';
+        }else{
+            addBg.querySelector('#transformation').style.display = 'none';
         }
     }
     addBg.classList.add('active');
@@ -59,12 +92,100 @@ function addNewElement(elem){
 }
 
 
+function redactOrDelete(elem, status, action){
+    document.body.classList.add("stop-scrolling");
+    elementInProcess = elem.parentNode;
+    if(action == 'delete'){
+        deleteBg.classList.add('active');
+        deletePopup.classList.add('active');
+    }else{
+        redactBg.classList.add('active');
+        redactPopup.classList.add('active');
+    }
+    elementStatus = status;
+}
+
+
+function deleteElement(){
+    if(elementStatus == 'new'){
+        for_delete = new_elements.indexOf(elementInProcess.querySelector('a').textContent);
+        if(for_delete > -1){
+            list_with_new_elements.splice(for_delete, 1);
+            new_elements.splice(for_delete, 1);
+        }
+    }else{
+        elements_for_delete.push(elementInProcess.querySelector('a').textContent)
+    }
+    users_elements.forEach((elem) => {
+        if(elementInProcess.querySelector('a').textContent == elem.querySelector('a').textContent && elem != elementInProcess){
+            elem.parentNode.removeChild(elem);
+        }
+    });
+    if(redacted_elements.includes(elementInProcess.querySelector('a').textContent)){
+        changed_element = redacted_elements.indexOf(elementInProcess.querySelector('a').textContent);
+            if(changed_element > -1){
+                redacted_elements.splice(changed_element, 2);
+            }
+    }
+    if(/Можно сделать|Нужно сделать/.test(elementInProcess.getAttribute('value')) && elementInProcess.parentNode.childNodes.length == 1){
+        elementInProcess.parentNode.parentNode.firstChild.nextSibling.value = 'Действие';
+        previousAElement = elementInProcess.parentNode.parentNode.firstChild.nextSibling.nextSibling.firstChild;
+        elementInProcess.parentNode.parentNode.firstChild.nextSibling.nextSibling.innerHTML = previousAElement.outerHTML + ' (Действие)';
+        elementInProcess.parentNode.parentNode.removeChild(elementInProcess.parentNode);
+    }else{
+        elementInProcess.parentNode.removeChild(elementInProcess);
+    }
+    deleteBg.classList.remove('active');
+    deletePopup.classList.remove('active');
+    document.body.classList.remove("stop-scrolling");
+}
+
+
+function saveNewName(){
+    var elementName = document.getElementById('rename').value;
+    if(elementName == ''){
+        document.querySelector('.redact-form .warning').textContent = 'Недопустимое название';
+    }else{
+        if(elementStatus == 'new'){
+            changed_element = new_elements.indexOf(elementInProcess.querySelector('a').textContent);
+            if(changed_element > -1){
+                list_with_new_elements[changed_element]['element_name'] = elementName;
+                new_elements[changed_element] = elementName;
+            }
+        }else{
+            if(!(redacted_elements.includes(elementInProcess.querySelector('a').textContent))){
+                redacted_elements.push(elementName);
+                redacted_elements.push([elementInProcess.querySelector('a').textContent, elementName]);
+            }else{
+                changed_element = redacted_elements.indexOf(elementInProcess.querySelector('a').textContent);
+                if(changed_element > -1){
+                    redacted_elements[changed_element] = elementName;
+                    redacted_elements[changed_element+1][1] = elementName;
+                }
+            }
+            users_elements.forEach((elem) => {
+                if(elementInProcess.querySelector('a').textContent == elem.querySelector('a').textContent && elem != elementInProcess){
+                    elem.querySelector('a').textContent = elementName;
+                }
+            });
+        }
+        elementInProcess.querySelector('a').textContent = elementName;
+        redactBg.classList.remove('active');
+        redactPopup.classList.remove('active');
+        document.body.classList.remove("stop-scrolling");
+        document.getElementById('rename').value = '';
+        document.querySelector('.redact-form .warning').textContent = '';
+    }
+}
+
+
 function saveNewElement(){
     var elementName = document.getElementById('elem').value;
     var insertionType = document.querySelector('input[name="insertion_type"]:checked');
     var connectionType = document.querySelector('input[name="connection"]:checked');
-    // Проверяем заполнены ли поля
-    if(elementName == ''){
+    // Проверяем заполнены ли поля и повторяется ли название пользовательских элементов
+    if(elementName == '' || new_elements.includes(elementName) ||
+    users_elements.filter(item => item.querySelector('a').textContent.trim() == elementName).length > 0){
         document.querySelector('.add-form .warning').textContent = 'Недопустимое название';
     }else if(addBg.querySelector('#block-questions').style.display == 'block' && !connectionType){
         if(!insertionType){
@@ -78,6 +199,7 @@ function saveNewElement(){
         var spanText = document.createElement('span');
         spanText.setAttribute('class', 'text-secondary d-flex');
         var checkbox = inputElement.cloneNode(true);
+        checkbox.setAttribute("disabled", "true");
         var aElement = document.createElement('a');
         var spanAlgorithm = document.createElement('span');
         var relation = 'necessary';
@@ -108,39 +230,27 @@ function saveNewElement(){
         newLi.appendChild(spanText);
         newLi.appendChild(checkbox);
         newLi.appendChild(spanAlgorithm);
+        newLi.appendChild(redactElementIcon.cloneNode(true));
+        newLi.appendChild(deleteElementIcon.cloneNode(true));
         if(document.getElementById('change-checkbox').checked){
             var newUl = document.createElement('ul');
             newUl.appendChild(newLi);
             additionalElement.lastChild.after(newUl);
-            additionalElement.firstChild.nextSibling.nextSibling.style.fontWeight = 'normal';
             additionalElement.firstChild.nextSibling.value = 'Блок';
             previousAElement = additionalElement.firstChild.nextSibling.nextSibling.firstChild
             additionalElement.firstChild.nextSibling.nextSibling.innerHTML = previousAElement.outerHTML + ' (Блок)';
         }
         if((insertionType && insertionType.value === "Block") || document.getElementById('change-checkbox').checked){
             if(!document.getElementById('change-checkbox').checked){
-                additionalElement.lastChild.lastChild.after(newLi);
-            }
-            spanAlgorithm.style.color = 'red';
-            spanAlgorithm.style.fontWeight = 'bold';
-        }else{
-            additionalElement.after(newLi);
-            if(additionalElement.firstChild.nextSibling.nextSibling.style.color == 'blue'){
-                spanAlgorithm.style.color = 'red';
-                spanAlgorithm.style.fontWeight = 'bold';
-                if(newLi.nextSibling){
-                    uncheckSiblings(newLi.nextSibling)
+                if(relation == 'necessary'){
+                    additionalElement.lastChild.firstChild.before(newLi);
+                }else{
+                    additionalElement.lastChild.lastChild.after(newLi);
                 }
-            }else{
-                newLi.style.display = 'none';
             }
-        }
-        if(additionalElement.firstChild.nextSibling.nextSibling.style.color == 'blue'){
-            uncheckAncestors(checkbox);
-            spanAlgorithm.style.color = 'red';
-            spanAlgorithm.style.fontWeight = 'bold';
         }else{
-            additionalElement.firstChild.nextSibling.checked = false;
+            newLi.lastChild.previousSibling.before(addElementIcon.cloneNode(true));
+            additionalElement.after(newLi);
         }
         addBg.classList.remove('active');
         addPopup.classList.remove('active');
@@ -149,15 +259,21 @@ function saveNewElement(){
         document.getElementById('elem').value = '';
         document.getElementById('change-checkbox').checked = false;
         document.querySelector('.add-form .warning').textContent = '';
+        parent_element = additionalElement
+        while(parent_element.lastChild.previousSibling.classList.contains('text-warning') ||
+        parent_element.lastChild.previousSibling.classList.contains('text-danger')){
+            parent_element = parent_element.previousSibling;
+        }
         list_with_new_elements.push({ 'element_name': elementName, 'parent_element':
-        additionalElement.firstChild.nextSibling.nextSibling.firstChild.textContent, 'relation_type': relation, 'insertion_type': insertion})
+        parent_element.firstChild.nextSibling.nextSibling.firstChild.textContent, 'relation_type': relation, 'insertion_type': insertion})
+        new_elements.push(elementName);
         showNotification(String('Действие '+elementName+' добавлено в дерево'), 'new_element_notification');
     }
 }
 
 
 function ShowFirst(){
-    if (typeof getPreviousProgress() === 'undefined' || getPreviousProgress().length === 0) {
+    if(typeof getPreviousProgress() === 'undefined' || getPreviousProgress().length === 0){
         document.querySelector('.basic input[type="checkbox"]').nextSibling.style.color = 'red';
         if(!(document.querySelector('.basic div#algorithm_tree span').classList.contains('text-secondary'))){
             showNotification(document.querySelector('.basic div#algorithm_tree span'), 'comment');
@@ -175,19 +291,49 @@ function ShowFirst(){
     }
 }
 
-ShowFirst();
+
+if(!urlParams.has('mode') || urlParams.get('mode') == ''){
+    ShowFirst();
+}else{
+    document.querySelectorAll('i[onclick="redactOrDelete(this, \'same\', \'redact\');"').forEach((elem) => {
+        users_elements.push(elem.parentNode);
+        if(elem.parentNode.getAttribute('value') == 'Нужно сделать'){
+            elem.parentNode.parentNode.firstChild.before(elem.parentNode);
+        }
+    });
+    document.querySelector('[name="go-back"]').addEventListener('click', (e) => {
+        backBg.classList.add('active');
+        backPopup.classList.add('active');
+        document.body.classList.add("stop-scrolling");
+    });
+
+}
+
 
 if(openPopupButton){
-    openPopupButton.addEventListener('click', (e) => {
+    function openSaveForm(){
         if (!isAuthenticated) {
         // Если пользователь не авторизован, перенаправляем его на страницу авторизации
             window.location.href = window.location.origin + '/users/login/?next=/drevo/algorithm/'
             + window.location.href.split('/').pop();
         }
+        defolt_name = 1;
+        while(Array.from(document.querySelectorAll('.select__item')).filter(item => item.textContent.trim() == 'Работа по алгоритму '+String(defolt_name)).length
+        > 0){
+            defolt_name += 1;
+        }
+        document.querySelector('#work_name').value = 'Работа по алгоритму '+String(defolt_name);
         saveBg.classList.add('active');
         savePopup.classList.add('active');
         document.body.classList.add("stop-scrolling");
-    });
+    };
+    openPopupButton.addEventListener('click', () => openSaveForm());
+    if(backBg && backBg.querySelector('input[name="save-button"]')){
+        backBg.querySelector('input[name="save-button"]').addEventListener('click', () => {
+            closePopup(backClosePopupButton);
+            openSaveForm();
+        });
+    }
 }
 
 
@@ -199,11 +345,16 @@ saveClosePopupButton.addEventListener('click', (e) => {
 
 
 if(addClosePopupButton){
-    addClosePopupButton.addEventListener('click', (e) => {
-        addBg.classList.remove('active');
-        addPopup.classList.remove('active');
+    function closePopup(elem) {
+        elem.parentNode.parentNode.classList.remove('active');
+        elem.parentNode.parentNode.classList.remove('active');
         document.body.classList.remove("stop-scrolling");
-    });
+    }
+    addClosePopupButton.addEventListener('click', () => closePopup(addClosePopupButton));
+    deleteClosePopupButton.addEventListener('click', () => closePopup(deleteClosePopupButton));
+    redactClosePopupButton.addEventListener('click', () => closePopup(redactClosePopupButton));
+    backClosePopupButton.addEventListener('click', () => closePopup(backClosePopupButton));
+    document.getElementsByName("rejection")[0].addEventListener('click', () => closePopup(deleteClosePopupButton));
 }
 
 
@@ -286,8 +437,7 @@ function findIsExceptionType(previous_item, current_item){
             condition_element = current_item.parentNode;
             if(current_item.parentNode.getAttribute('value') == 'Тогда' || current_item.parentNode.getAttribute('value') == 'Иначе'){
                 if(current_item.parentNode.getAttribute('value') == 'Тогда'){
-                    extra_text.innerText = 'Выбран ответ "Да"'
-                    flag = 0;
+                    extra_text.innerText = 'Выбран ответ "Да"';
                     if(Array.from(current_item.parentNode.parentNode.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == "Иначе").length > 0){
                         Array.from(current_item.parentNode.parentNode.parentNode.lastChild.childNodes).filter(item => item.getAttribute('value') == "Иначе")[0].style.display = 'none';
                     }
@@ -342,7 +492,7 @@ function changeCondition(element, condition){
         if(element.getAttribute('value') == 'Действие'){
             element.disabled = false;
         }
-        if(/Можно сделать|Нужно сделать/.test(element.parentNode.getAttribute('value'))){
+        if(/Можно сделать|Нужно сделать|Вариант/.test(element.parentNode.getAttribute('value'))){
             element.checked = true;
             element.disabled = false;
         }
@@ -950,6 +1100,11 @@ function endTheAlgorithm(action){
 function onButtonSendClick(status){
     previous_result = '';
     flag = true;
+    if(backBg && backBg.classList.contains('active')){
+        backBg.classList.remove('active');
+        backPopup.classList.remove('active');
+        document.body.classList.remove("stop-scrolling");
+    }
     if(status == 'same'){
         if(urlParams.has('previous_works')){
             previous_result = urlParams.get('previous_works');
@@ -1012,22 +1167,28 @@ function onButtonSendClick(status){
                 }
             }
         });
+        redacted_elements = redacted_elements.filter((n) => {return typeof n != "string"});
         $.ajax({
             data: { 'values' : JSON.stringify(list_to_send), 'work' : current_name, 'previous_result' : previous_result,
-            'new_elements': JSON.stringify(list_with_new_elements)},
+            'new_elements': JSON.stringify(list_with_new_elements), 'redacted' : JSON.stringify(redacted_elements),
+            'deleted' : JSON.stringify(elements_for_delete)},
             url: document.location.pathname + '/algorithm_result/',
             success: function (response) {
-                if(previous_result !== 'Данные по алгоритму'){
+                if(previous_result !== 'Данные по алгоритму' || (urlParams.has('mode') && urlParams.get('mode') != '')){
                     saveBg.classList.add('active');
                     savePopup.classList.add('active');
                     document.body.classList.add("stop-scrolling");
                     document.querySelector('#work_name').parentNode.innerHTML = 'Сохранение прошло успешно, через '+
                     'несколько секунд вас перенаправит на страницу с сохраненным алгоритмом';
                     setTimeout(()=>{
-                        if(document.location.pathname.includes("previous_work")){
-                            window.location.href = document.location.pathname.split('?')[0] + '?previous_works='+current_name;
+                        if(previous_result !== 'Данные по алгоритму'){
+                            if(document.location.pathname.includes("previous_work")){
+                                window.location.href = document.location.pathname.split('?')[0] + '?previous_works='+current_name;
+                            }else{
+                                window.location.href = document.location.pathname + '?previous_works='+current_name;
+                            }
                         }else{
-                            window.location.href = document.location.pathname + '?previous_works='+current_name;
+                            window.location.href = document.location.pathname;
                         }
                     }, 1500);
                 }else{
