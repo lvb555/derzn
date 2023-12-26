@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const block_of_ans = document.querySelectorAll('.block')
     block_of_ans.forEach((e) => {
         if (e.querySelector('.edit_menu')) {
-            e.querySelector('.plus').remove()
+            e.querySelector('.plus').parentElement.remove()
         }
     })
 
@@ -60,9 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // функция кнопки отмена
         if (event.target.value === 'cancel') {
             let content_block = event.target.parentElement.parentElement.parentElement
-            if (content_block.parentElement.querySelector('.answer_text')) {
-                event.target.parentElement.parentElement.parentElement.querySelector('.answer_text').style.display = 'inline'
-            }
+            event.target.parentElement.parentElement.parentElement.querySelector('.block_text').style.display = 'inline'
+            event.target.parentElement.parentElement.parentElement.querySelector('.block_file').style.display = 'inline'
+            // if (content_block.parentElement.querySelector('.block_text')) {
+            // }
             event.target.parentElement.parentElement.innerHTML =''
         }
 
@@ -88,9 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // функционал кнопки +
         if (event.target.className === 'plus') {
-            let block = event.target.parentElement
+            let block = event.target.parentElement.parentElement
             block.querySelector('.new_form').style.display = 'block'
-            block.querySelector('.plus').remove()
+            block.querySelector('.plus').parentElement.remove()
         }
     })
 })
@@ -105,27 +106,31 @@ function menu(option, id_answer) {
 
         if (option === 'edit_text') {
             const old_text = content.querySelector('.answer_text')
-            old_text.style.display = 'none'
+            old_text.parentElement.style.display = 'none'
             new_content.innerHTML = `
             <textarea name="edit_text" id="" cols="40" rows="10" class="edit_answer" placeholder="Ваш ответ">${old_text.innerHTML}</textarea>
             <div>
-                <button class="button-cancel" value="cancel">Отмена</button>
-                <button class="button" name="save" value="${id_answer}">Сохранить</button>
+            <button class="button-cancel" value="cancel">Отмена</button>
+            <button class="button" name="save" value="${id_answer}">Сохранить</button>
             </div>
             `
         }
         
         else if (option === 'add_file') {
+            const old_text = content.querySelector('.block_file')
+            old_text.style.display = 'none'
             new_content.innerHTML = `
             <input type="file" name="add_file" class="id_file" multiple>
             <div>
-                <button class="button-cancel" value="cancel">Отмена</button>
-                <button class="button" name="save" value="${id_answer}">Сохранить</button>
+            <button class="button-cancel" value="cancel">Отмена</button>
+            <button class="button" name="save" value="${id_answer}">Сохранить</button>
             </div>
             `
         }  
         
         else {
+            const old_text = content.querySelector('.block_text')
+            old_text.style.display = 'none'
             new_content.innerHTML = `
             <textarea name="add_text" id="" cols="40" rows="10" class="edit_answer" placeholder="Ваш ответ"></textarea>
             <div>

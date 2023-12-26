@@ -114,7 +114,7 @@ textarea {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     background: rgba(0, 0, 0, 0.5);
     opacity: 0;
     pointer-events: none;
@@ -201,6 +201,13 @@ hr {
     cursor: pointer;
     width: 20px;
     height: 20px;
+}
+
+.no_text, .no_file {
+    font-size: 18px;
+    font-style: italic;
+    color: brown;
+
 }
 
 @media (max-width: 1200px) {
