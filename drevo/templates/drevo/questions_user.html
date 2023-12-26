@@ -25,11 +25,12 @@
     <hr>
     <h3>Вопросы:</h3>
     {% if user.is_authenticated %}
-        {% for question in questions %}
-        {% if question.publication%}
-        <div class="grid">
+    {% for question in questions %}
+    {% if question.publication%}
+    <div class="grid">           
             <div class="question">
                 <span class="question_text">{{ question }}</span>
+                <hr class="question_line">
             </div>
             <div class="block">
                 {% for answer in answers %}
@@ -50,8 +51,7 @@
                                     <span class="point">Прикрепленный файл: </span>
                                     <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
                                 {% elif question.need_file and answer.answer_file == "" %}
-                                    <span class="point">Прикрепленный файл: </span>
-                                    <span class="no_file">Файл ответа отсутствует</span>
+                                    <span class="no_file">Можно добавить файл</span>
                                 {% endif %}
                             </div>
                             <div>
