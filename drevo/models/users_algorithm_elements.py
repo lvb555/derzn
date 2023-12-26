@@ -16,7 +16,7 @@ class AlgorithmAdditionalElements(models.Model):
 
     user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE)
     algorithm = models.ForeignKey(Znanie, verbose_name='Алгоритм', related_name='changed_algorithm',
-                                  on_delete=models.CASCADE)
+                                  on_delete=models.CASCADE, limit_choices_to={'tz__name': 'Алгоритм'})
     work = models.ForeignKey(AlgorithmWork, verbose_name='Работа', on_delete=models.CASCADE)
     parent_element = models.ForeignKey(Znanie, verbose_name='Базовое знание', related_name='bz_element',
                                        on_delete=models.CASCADE)
