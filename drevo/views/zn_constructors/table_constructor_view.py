@@ -17,6 +17,10 @@ from .supplementary_functions import create_relation, create_zn_for_constructor,
     get_file_from_request
 from drevo.views.my_interview_view import search_node_categories
 
+# --------------------------------------------------------------
+# Views для конструктора таблиц и страницы "Наполнение таблицы"
+# --------------------------------------------------------------
+
 
 def show_filling_tables_page(request):
     """
