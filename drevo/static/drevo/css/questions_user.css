@@ -134,7 +134,7 @@ textarea {
 }
 
 hr {
-    opacity: unset;
+    pointer-events: none;
 }
 
 .popup {
