@@ -25,30 +25,35 @@
     <hr>
     <h3>Вопросы:</h3>
     {% if user.is_authenticated %}
-        {% for question in questions %}
-        {% if question.publication%}
-        <div class="grid">
+    {% for question in questions %}
+    {% if question.publication%}
+    <div class="grid">           
             <div class="question">
                 <span class="question_text">{{ question }}</span>
+                <hr class="question_line">
             </div>
             <div class="block">
                 {% for answer in answers %}
                 {% if answer.question == question and answer.inspector == None %}
                     <div class="not_checked_answers">
                         <div class="content">
-                            {% if answer.answer != '-' %}
-                            <div>
+                            <div class="block_text">
                                 <span class="point">Ответ: </span>
+                                {% if answer.answer != '-' %}
                                 <span class="answer_text">{{ answer.answer }}</span>
-                            </div>  
-                            {% endif %}                             
+                                {% else %}
+                                <span class="no_text">Текст ответа отсутствует</span>
+                                {% endif %}                             
+                            </div>                              
                             <div class="new_content"></div>                            
-                            {% if answer.answer_file %}
-                            <div>
-                                <span class="point">Прикрепленный файл: </span>
-                                <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
+                            <div class="block_file">
+                                {% if answer.answer_file %}
+                                    <span class="point">Прикрепленный файл: </span>
+                                    <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
+                                {% elif question.need_file and answer.answer_file == "" %}
+                                    <span class="no_file">Можно добавить файл</span>
+                                {% endif %}
                             </div>
-                            {% endif %}
                             <div>
                                 <span class="point">Статус: </span>
                                 <span class="">Не обработано</span>                           
@@ -93,12 +98,12 @@
                         {% endif %}
                         {% if answer.accepted == True %}
                         <div>
-                            <span class="point">Результат: </span>
+                            <span class="point">Статус: </span>
                             <span class="yes">Принято</span>
                         </div>
                         {% else %}
                         <div>
-                            <span class="point">Результат: </span>
+                            <span class="point">Статус: </span>
                             <span class="no">Не принято</span>                           
                         </div>
                         {% if answer.refuse_reason %}
@@ -108,14 +113,17 @@
                         </div>
                         {% endif %}
                         {% endif %}
+                        <hr>
                     </div>
-                    <hr>
                 {% endif %}
                 {% endfor %}
                     <div>
                         {% csrf_token %}
                         <div>
-                            <span class="plus">&#10010</span>
+                            <div>
+                                <span class="no_text">Добавить ответ</span>
+                                <span class="plus">&#10010</span>
+                            </div>
                             <div class="new_form">
                                 <textarea name="answer" id="" cols="40" rows="10" class="new_answer" placeholder="Ваш ответ"></textarea>
                                 {% if question.need_file %}
@@ -129,7 +137,6 @@
                     </div>
             </div>
         </div>
-        <hr>
         {% endif %}
         {% endfor %}
     {% endif %}
