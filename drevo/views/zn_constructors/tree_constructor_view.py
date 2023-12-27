@@ -30,9 +30,8 @@ class TreeConstructorView(DispatchMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         type_of_zn = self.kwargs.get('type')
         selected_zn = Znanie.objects.filter(id=self.kwargs.get('pk')).first()
-        if type_of_zn == 'algorithm' and selected_zn.tz.name != 'Алгоритм':
-            return HttpResponseRedirect(reverse('drevo'))
-        elif type_of_zn == 'document' and selected_zn.tz.name != 'Документ':
+        if (type_of_zn == 'algorithm' and selected_zn.tz.name != 'Алгоритм') or (type_of_zn == 'document' and
+                                                                                 selected_zn.tz.name != 'Документ'):
             return HttpResponseRedirect(reverse('drevo'))
 
         return super().get(request, *args, **kwargs)
