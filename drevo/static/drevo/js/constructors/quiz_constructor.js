@@ -3,6 +3,7 @@ let question = $("#question")
 let answer = $("#answer")
 
 let create_edit_zn_form = $('#create_edit_zn_form');
+let edit_main_zn_form = $('#main_zn_edit_form');
 let type_of_tr = $('#type_of_tr');
 let action = $('#action');
 let edited_zn_id = $('#edited_zn_id');
@@ -40,10 +41,12 @@ function addZnanie(type_of_current_tr) {
         fetch(`/drevo/question_create_update_in_quiz/?action=create`)
             .then(response => response.json())
             .then(data => {
+                $('#info_about_question').prop('hidden', true);
                 $('#create_edit_zn_title').text(`Создание вопроса теста`);
                 $('#zn_form').empty().html(`${data.zn_form}`);
                 $('#order_of_rel_form').html(`${data.order_of_rel_form}`);
                 $('#answer_attrs_form').empty();
+                $('#create_edit_zn_modal').modal('show');
              })
     }
     else if (type_of_current_tr === 'answer') {
@@ -52,12 +55,14 @@ function addZnanie(type_of_current_tr) {
             .then(response => response.json())
             .then(data => {
                 $('#create_edit_zn_title').text(`Создание ответа теста`);
+                $('#info_about_question').removeAttr('hidden');
+                $('#name_of_question').text($('#question option:selected').text());
                 $('#zn_form').html(`${data.zn_form}`);
                 $('#order_of_rel_form').html(`${data.order_of_rel_form}`);
                 $('#answer_attrs_form').html(`${data.answer_correct_form}`);
+                $('#create_edit_zn_modal').modal('show');
              })
     }
-    $('#create_edit_zn_modal').modal('show');
 }
 
 // Отправка созданного/модифицированного знания
@@ -71,7 +76,7 @@ create_edit_zn_form.on('submit', (event) => {
         })
         .then(response => response.json())
         .then(data => {
-            if (action == 'create') {
+            if (action.val() === 'create') {
                 answer.empty().append(`<option value="" selected disabled>Создайте ответ</option>`).prop('disabled', false);
                 question.append(`<option id="${data.zn_id}" value="${data.zn_id}" selected>${data.zn_name}</option>`);
             }
@@ -80,6 +85,7 @@ create_edit_zn_form.on('submit', (event) => {
             }
             $('#add_answer').css('cursor', 'pointer').attr("class", "text-success");
             allow_actions($('#edit_question'), $('#delete_question'));
+            $('#create_edit_zn_modal').modal('hide');
         });
     }
     else if (type_of_tr.val() === 'answer') {
@@ -89,14 +95,14 @@ create_edit_zn_form.on('submit', (event) => {
         })
             .then(response => response.json())
             .then(data => {
-                if (action === 'create')
+                if (action.val() === 'create')
                     answer.append(`<option id="${data.zn_id}" value="${data.zn_id}" selected>${data.zn_name}</option>`);
                 else
                     $(`#answer option[id="${data.zn_id}"]`).text(data.zn_name);
                 allow_actions($('#edit_answer'), $('#delete_answer'));
+                $('#create_edit_zn_modal').modal('hide');
             });
     }
-    $('#create_edit_zn_modal').modal('hide');
 })
 
 
@@ -113,13 +119,14 @@ function editZnanie(type_of_current_tr) {
         fetch(`/drevo/question_create_update_in_quiz/?action=edit&zn_id=${question_id}`)
             .then(response => response.json())
             .then(data => {
+                $('#info_about_question').prop('hidden', true);
                 $('#create_edit_zn_title').text(`Редактирование вопроса теста`);
                 $('#zn_form').empty().html(`${data.zn_form}`);
                 $('#order_of_rel_form').empty().html(`${data.order_of_rel_form}`);
                 $('#answer_attrs_form').empty();
                 $('#type_of_tr').val('question');
+                $('#create_edit_zn_modal').modal('show');
              })
-        $('#create_edit_zn_modal').modal('show');
     }
     else if (type_of_current_tr === 'answer') {
         let answer_id = answer.val();
@@ -128,13 +135,15 @@ function editZnanie(type_of_current_tr) {
         fetch(`/drevo/answer_create_update_in_quiz/?action=edit&zn_id=${answer_id}`)
             .then(response => response.json())
             .then(data => {
+                $('#info_about_question').removeAttr('hidden');
+                $('#name_of_question').text($('#question option:selected').text());
                 $('#create_edit_zn_title').text(`Редактирование ответа на вопрос теста`);
                 $('#zn_form').empty().html(`${data.zn_form}`);
                 $('#order_of_rel_form').empty().html(`${data.order_of_rel_form}`);
                 $('#answer_attrs_form').empty().html(`${data.answer_correct_form}`);
                 $('#type_of_tr').val('answer');
+                $('#create_edit_zn_modal').modal('show');
              })
-        $('#create_edit_zn_modal').modal('show');
     }
     
 }

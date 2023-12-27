@@ -30,23 +30,24 @@ from .admin_interview_work.views import (
 from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
 from .algorithm_check_correctness_view import check_algorithm_correctness_from_request
-from .zn_constructors.algorithm_constructor_view import (
-    AlgorithmConstructorView,
-    get_tr_for_create_relation_in_algorithm,
-    get_rel_zn_in_algorithm,
-    save_rel_in_algorithm,
-    make_copy_of_algorithm,
-    delete_relation_in_algorithm,
-    get_tr_for_edit_relation_in_algorithm,
-    edit_znanie_in_algorithm,
-    create_zn_in_algorithm,
+from .zn_constructors.supplementary_functions import make_copy_of_algorithm
+from .zn_constructors.tree_constructor_view import (
+    TreeConstructorView,
+    get_tr_for_create_relation_in_tree_constructor,
+    get_rel_zn_in_tree_constructor,
+    save_rel_in_tree_constructor,
+    delete_relation_in_tree_constructor,
+    get_tr_for_edit_relation_in_tree_constructor,
+    edit_znanie_in_tree_constructor,
+    create_zn_in_tree_constructor,
     is_current_user_creator_of_zn,
-    delete_algorithm,
+    get_order_of_relation,
 )
 from .zn_constructors.general_views import (
-    ConstructorTreeView,
+    ZnaniyaForConstructorView,
     MainZnInConstructorCreateView,
     edit_main_zn_in_constructor,
+    delete_complex_zn
 )
 from .zn_constructors.quiz_constructor_view import (
     QuizConstructorView,
@@ -161,7 +162,7 @@ __all__ = [
     "FavouritesView",
     "FavouriteProcessView",
     "answers_in_quiz_existence",
-    "ConstructorTreeView",
+    "ZnaniyaForConstructorView",
     "MainZnInConstructorCreateView",
     "FillingTablesView",
     "get_cell_for_table",
@@ -240,23 +241,24 @@ __all__ = [
     'relation_expertise_view',
     'RelationsPublicationPageView',
     'relation_publication_view',
-    'get_tr_for_create_relation_in_algorithm',
-    'get_rel_zn_in_algorithm',
-    'AlgorithmConstructorView',
+    'get_tr_for_create_relation_in_tree_constructor',
+    'get_rel_zn_in_tree_constructor',
+    'TreeConstructorView',
     'TableConstructorView',
     'QuizConstructorView',
-    'save_rel_in_algorithm',
+    'save_rel_in_tree_constructor',
     'make_copy_of_algorithm',
-    'delete_relation_in_algorithm',
-    'get_tr_for_edit_relation_in_algorithm',
-    'edit_znanie_in_algorithm',
-    'create_zn_in_algorithm',
+    'delete_relation_in_tree_constructor',
+    'get_tr_for_edit_relation_in_tree_constructor',
+    'edit_znanie_in_tree_constructor',
+    'create_zn_in_tree_constructor',
     'is_current_user_creator_of_zn',
-    'delete_algorithm',
+    'delete_complex_zn',
     'create_zn_for_cell',
     'check_algorithm_correctness_from_request',
     'relation_in_table_create_update_view',
     'element_of_group_in_table_create_update_view',
     'edit_main_zn_in_constructor',
+    'get_order_of_relation',
 
 ]

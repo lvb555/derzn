@@ -12,11 +12,13 @@ from drevo.models import Znanie, SpecialPermissions
 from .supplementary_functions import create_zn_for_constructor, get_images_from_request, \
     get_file_from_request, delete_tables_without_row_and_columns
 from .mixins import DispatchMixin
+from ...relations_tree import get_descendants_for_knowledge
 
 
-class ConstructorTreeView(DispatchMixin, TemplateView):
+class ZnaniyaForConstructorView(DispatchMixin, TemplateView):
     """
-    Представление страницы дерева знаний конструкторов в компетенциях эксперта/руководителя
+    Представление страницы, в которой знания в компетенциях эксперта/руководителя строятся в виде дерева
+    для последующего открытия конструктора
     """
     template_name = 'drevo/constructors/constructor_start_page.html'
 
@@ -29,6 +31,7 @@ class ConstructorTreeView(DispatchMixin, TemplateView):
         """Метод для получения опубликованных сложных знаний конкретного вида в компетенции эксперта"""
         tz_name_mapping = {
             'algorithm': 'Алгоритм',
+            'document': 'Документ',
             'filling_tables': 'Таблица',
             'table': 'Таблица',
             'test': 'Тест',
@@ -65,6 +68,7 @@ class ConstructorTreeView(DispatchMixin, TemplateView):
             'table': 'Конструктор таблиц',
             'test': 'Конструктор тестов',
             'algorithm': 'Конструктор алгоритмов',
+            'document': 'Конструктор документов'
         }
         context['title'] = title_mapping.get(self.type_of_zn)
         context['type_of_page'] = self.type_of_zn
@@ -73,7 +77,7 @@ class ConstructorTreeView(DispatchMixin, TemplateView):
 
 
 class MainZnInConstructorCreateView(DispatchMixin, CreateView):
-    """Представление создания главного для конструктора знания (виды Тест, Таблица, Алгоритм)"""
+    """Представление создания главного знания для конструктора знания (виды Тест, Таблица, Алгоритм)"""
     model = Znanie
     form_class = MainZnInConstructorCreateEditForm
     template_name = 'drevo/constructors/main_zn_create.html'
@@ -95,6 +99,7 @@ class MainZnInConstructorCreateView(DispatchMixin, CreateView):
         context['action'] = 'create'
         title_mapping = {
             'algorithm': 'Создание алгоритма',
+            'document': 'Создание документа',
             'table': 'Создание таблицы',
             'test': 'Создание теста',
         }
@@ -133,13 +138,13 @@ class MainZnInConstructorCreateView(DispatchMixin, CreateView):
             knowledge = form.save(commit=False)
             create_zn_for_constructor(knowledge, form, request, author=True, image_form=image_form)
             self.object = knowledge
-            kwargs = {'pk': knowledge.pk}
-            if self.type_of_zn == 'algorithm':
-                return HttpResponseRedirect(reverse('algorithm_constructor', kwargs=kwargs))
+
+            if self.type_of_zn == 'algorithm' or self.type_of_zn == 'document':
+                return HttpResponseRedirect(reverse('tree_constructor', kwargs={'type': self.type_of_zn, 'pk': knowledge.pk}))
             elif self.type_of_zn == 'test':
-                return HttpResponseRedirect(reverse('quiz_constructor', kwargs=kwargs))
+                return HttpResponseRedirect(reverse('quiz_constructor', kwargs={'pk': knowledge.pk}))
             elif self.type_of_zn == 'table':
-                return HttpResponseRedirect(reverse('table_constructor', kwargs=kwargs))
+                return HttpResponseRedirect(reverse('table_constructor', kwargs={'pk': knowledge.pk}))
 
         return self.form_invalid(form, image_form)
 
@@ -162,3 +167,13 @@ def edit_main_zn_in_constructor(request):
         create_zn_for_constructor(knowledge, form, request, image_form=images_form, file_form=file_form)
         return JsonResponse(data={'zn_id': knowledge.id, 'zn_name': knowledge.name}, status=200)
     return JsonResponse(data={}, status=400)
+
+
+def delete_complex_zn(request):
+    """Удаление сложного знания: главного знания и всех связанных знаний"""
+    main_zn = get_object_or_404(Znanie, id=request.GET.get('id'))
+    rel_znaniya = get_descendants_for_knowledge(main_zn)
+    for zn in rel_znaniya:
+        zn.delete()
+    main_zn.delete()
+    return JsonResponse({'redirect_url': request.META['HTTP_REFERER']})

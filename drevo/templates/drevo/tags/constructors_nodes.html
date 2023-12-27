@@ -20,6 +20,11 @@
             {% endif %}
         </span>
     </div>
+    {% if knowledge_data %}
+        <i class="family bi bi-dash-circle-fill circle_icon" onclick="toggleHiddenElementTree{{ tree_num }}(this);"></i>
+    {% else %}
+        <span style="margin-left: 27.5px;"></span>
+    {% endif %}
     {% get_color_by_tz base_knowledge.tz.name %}
     <a href="{{ base_knowledge.get_absolute_url }}" id="znanie_id_{{ base_knowledge.id }}" class="text-blue znanie">
         {{ base_knowledge.name }}
