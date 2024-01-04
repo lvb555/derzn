@@ -26,6 +26,7 @@ from drevo.models.feed_messages import FeedMessage, LabelFeedMessage
 from drevo.models.developer import Developer
 from drevo.models.quiz_results import QuizResult
 from drevo.models.message import Message
+from drevo.models.chapter import ChapterDescriptions
 from drevo.models import QuestionToKnowledge
 from drevo.models import UserAnswerToQuestion
 
@@ -37,6 +38,7 @@ from drevo.models.refuse_reason import RefuseReason
 from .forms.developer_form import DeveloperForm
 from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
 from .forms.admin_knowledge_kind_form import AdminKnowledgeKindForm
+from .forms.chapter_form import ChapterForm
 from .forms import (
     ZnanieForm,
     AuthorForm,
@@ -453,6 +455,23 @@ class GlossaryCategoryAdmin(admin.ModelAdmin):
     ordering = ('order', 'name', )
 
 admin.site.register(GlossaryCategories, GlossaryCategoryAdmin)
+
+
+class ChapterDescriptionsAdmin(admin.ModelAdmin):
+    """
+    Класс для определения модели Глав описания в админке
+    """
+
+    list_display = ('id', 'order', 'name')
+    list_display_links = ('id', 'name', )
+    ordering = ('order', )
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs["form"] = ChapterForm
+        return super().get_form(request, obj, **kwargs)
+
+
+admin.site.register(ChapterDescriptions, ChapterDescriptionsAdmin)
 
 
 class ZnRatingAdmin(admin.ModelAdmin):

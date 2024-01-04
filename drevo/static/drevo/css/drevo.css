@@ -393,6 +393,15 @@ table.table.align-middle.my-2 {
     margin: 0px;
 }
 
+.chapter-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.chapter-link:hover {
+    text-decoration: underline;
+}
+
 .choice-header {
     padding: 22px 22px 22px 32px;
     border-block-end: solid lightgrey 1px;

@@ -55,7 +55,7 @@
                               Наш проект <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
                             </a>
                               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item from-nav" href="{% url 'drevo' %}">О проекте</a></li>
+                                <li><a class="dropdown-item from-nav" href="{% url 'about_proj' %}">О проекте</a></li>
                                 <li><a class="dropdown-item from-nav" href="{% url 'appeal' %}">Обратная связь</a></li>
                                 <li><a class="dropdown-item from-nav" href="{% url 'glossary' %}">Глоссарий</a></li>
                                 <li>
@@ -236,7 +236,7 @@
             <p class="mb-0 ms-3" style="color: #212529;">Научно-образовательный проект «Дерево знаний»</p>
         </div>
       <ul class="nav col-md-4 justify-content-end">
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">О проекте</a></li>
+        <li class="nav-item"><a href="{% url 'about_proj' %}" class="nav-link px-2 text-muted">О проекте</a></li>
         <li class="nav-item"><a href="{% url 'privacy' %}" class="nav-link px-2 text-muted">Политика обработки Персональных данных</a></li>
       </ul>
     </footer>
