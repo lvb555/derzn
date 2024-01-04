@@ -55,7 +55,7 @@ def build_knowledge_tree(context: RequestContext,
     edit_mode = True if edit_widgets else False
     builder_kwargs = {
         'queryset': queryset, 'show_only': show_only, 'show_complex': show_complex, 'edit_mode': edit_mode,
-        'empty_categories': empty_categories
+        'empty_categories': empty_categories, 'is_constructor_type': is_constructor_type
     }
     tree_builder = KnowledgeTreeBuilder(**builder_kwargs)
     tree_builder_context = tree_builder.get_nodes_data_for_tree()

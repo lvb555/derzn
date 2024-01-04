@@ -61,6 +61,8 @@ class MainZnInConstructorCreateEditForm(ZnanieCreateForm):
             self.fields['tz'].initial = Tz.objects.get(name='Тест')
         elif type_of_zn == 'algorithm':
             self.fields['tz'].initial = Tz.objects.get(name='Алгоритм')
+        elif type_of_zn == 'document':
+            self.fields['tz'].initial = Tz.objects.get(name='Документ')
 
         self.fields['tz'].widget = forms.HiddenInput()
 

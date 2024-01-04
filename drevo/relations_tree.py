@@ -134,7 +134,7 @@ def get_children_for_knowledge(knowledge):
     if knowledge.is_published:
         return Znanie.published.filter(related__bz=knowledge,
                                        related__is_published=True
-                                       )
+                                       ).order_by('related__order')
     else:
         return None
 

@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-    <a href="{% url 'constructor_tree'%}?type_of_zn=test" class="btn btn-outline-secondary mb-3">Назад</a>
+    <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=test" class="btn btn-outline-secondary mb-3">Назад</a>
     <!-- Блок с тестом и действиями с ним -->
     <div class="constructor-block d-flex flex-column mb-3">
         <h1>{{ title }}</h1>
@@ -87,7 +87,7 @@
         </div>
     </div>
 
-    <input class="btn btn-outline-success mt-3" id="open_quiz" type="button" value="Открыть тест">
+    <input class="btn btn-outline-success mt-3" id="open_quiz" type="button" value="Показать">
 
 
     <!-- Модальное окно для редактирования главного знания - теста-->
@@ -118,13 +118,17 @@
             <div class="modal-content bg-white text-dark">
                 <div class="modal-header" style="justify-content: center;">
                     <h3 class="modal-title text-center" id="create_edit_zn_title"></h3>
-                    <button type="button" class="btn-close" style="position: absolute; right: 1rem;" aria-label="Close"></button>
+                    <button type="button" class="btn-close" style="position: absolute; right: 1rem;" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form method="post" id="create_edit_zn_form">
                         {% csrf_token %}
                         <input type="hidden" id="type_of_tr">
                         <input id="action" name="action" type="hidden">
+                        <div id="info_about_question" hidden>
+                            <span>Вопрос:</span>
+                            <span id="name_of_question"></span>
+                        </div>
                         <input id="edited_zn_id" name="edited_zn_id" type="hidden">
                         <input id="quiz_id" name="quiz_id" value="{{ main_zn_id }}" type="hidden">
                         <input id="question_id" name="question_id" type="hidden">

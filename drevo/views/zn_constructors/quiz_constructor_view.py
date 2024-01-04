@@ -46,7 +46,7 @@ class QuizConstructorView(DispatchMixin, TemplateView):
 
 @require_http_methods(['GET', 'POST'])
 def question_create_update_in_quiz(request):
-    """Представление для создания/вопроса теста"""
+    """Представление для создания/редактирования вопроса теста"""
     if request.method == 'GET':
         # Получение форм для создания знания
         if request.GET.get('action') == 'create':
@@ -83,6 +83,7 @@ def question_create_update_in_quiz(request):
 
 @require_http_methods(['GET', 'POST'])
 def answer_create_update_in_quiz(request):
+    """Представление для создания/редактирования ответа теста"""
     is_correct_answer_tr_id = get_object_or_404(Tr, name='Ответ верный').id
     if request.method == 'GET':
         # Получение форм для создания знания

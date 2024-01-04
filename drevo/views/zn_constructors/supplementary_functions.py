@@ -1,7 +1,16 @@
+import copy
+import json
+
 from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 
-from drevo.models import Author, Relation, KnowledgeStatuses, Tr
+from django.db import IntegrityError
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+
+from drevo.models import Znanie, Relation, Author, KnowledgeStatuses, Tr
+from drevo.relations_tree import get_descendants_for_knowledge
+from drevo.utils.knowledge_tree_builder import KnowledgeTreeBuilder
 
 
 def create_relation(bz_id, rz_id, tr_id, request, order_of_relation=None, is_answer=False):
@@ -97,3 +106,85 @@ def delete_tables_without_row_and_columns(queryset: QuerySet) -> QuerySet:
                 Relation.objects.filter(tr_id=column_id, bz_id=znanie.id, is_published=True).exists()):
             queryset = queryset.exclude(id=znanie.id)
     return queryset
+
+
+@require_http_methods(['POST'])
+def make_copy_of_algorithm(request):
+    """Создание полной копии алгоритма со всеми знаниями и связями"""
+
+    def copy_knowledge(knowledge: Znanie, author: Author, name: str = None, name_prefix: str = 'Копия - '):
+        """
+        Копирование знания \n
+        knowledge: исходное знание; \n
+        author: автор, который будет присвоен новому знанию; \n
+        name: тема нового знания; \n
+        name_prefix: если не передано name, в тему нового знания добавляется префикс. \n
+        Возвращает новое знание
+        """
+        new_knowledge = copy.deepcopy(knowledge)
+        if name:
+            new_knowledge.name = name
+        else:
+            new_knowledge.name = f"{name_prefix}{new_knowledge.name}"
+        new_knowledge.author = author
+        new_knowledge.pk = None
+        new_knowledge.id = None
+        try:
+            new_knowledge.save()
+        except IntegrityError as e:
+            return None
+        return new_knowledge
+
+    body = json.loads(request.body)
+    id = body['id']
+    name = body['name']
+    user = request.user
+    author, created = Author.objects.get_or_create(name=user.get_full_name())
+    algorithm = Znanie.objects.get(id=id)
+    descendants = get_descendants_for_knowledge(algorithm)
+    tree_builder = KnowledgeTreeBuilder(
+        queryset=descendants,
+        show_complex=True,
+    )
+
+    copy_tree = {}
+    new_znaniya = {}
+    # Копия главного знания - алгоритма
+    new_algorithm = copy_knowledge(algorithm, author, name)
+    if not new_algorithm:
+        return JsonResponse(data={}, status=409)
+    KnowledgeStatuses.objects.create(
+        knowledge=new_algorithm,
+        status='PUB',
+        user=request.user
+    )
+
+    new_znaniya[algorithm.id] = new_algorithm
+    # Копирование связанных знаний исходного алгоритма
+    for sm in tree_builder.relations_info:
+        rel_zn = Relation.objects.get(id=tree_builder.relations_info[sm]['id'])
+
+        if rel_zn.rz.id not in new_znaniya and rel_zn.rz in descendants:
+            new_bz = copy_knowledge(rel_zn.rz, author)
+            if not new_bz:
+                return JsonResponse(data={}, status=409)
+            new_znaniya[rel_zn.rz.id] = new_bz
+
+        if rel_zn.bz.id not in copy_tree:
+            copy_tree[rel_zn.bz.id] = {'type': rel_zn.tr, 'relations': []}
+
+        copy_tree[rel_zn.bz.id]['relations'].append(rel_zn.rz.id)
+
+    # Создание связей со скопированными знаниями
+    for parent_zn in copy_tree:
+        if parent_zn in new_znaniya:
+            for child_zn in copy_tree[parent_zn]['relations']:
+                Relation.objects.create(
+                    bz=new_znaniya[parent_zn],
+                    tr=copy_tree[parent_zn]['type'],
+                    rz=new_znaniya[child_zn],
+                    author=author,
+                    user=user,
+                    is_published=True
+                )
+    return JsonResponse({'id': new_algorithm.id})

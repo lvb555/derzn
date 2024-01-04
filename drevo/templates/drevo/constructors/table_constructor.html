@@ -10,7 +10,7 @@
 
 {% block content %}
 
-    <a href="{% url 'constructor_tree'%}?type_of_zn=table" class="btn btn-outline-secondary mb-3">Назад</a>
+    <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=table" class="btn btn-outline-secondary mb-3">Назад</a>
 
     <input type="hidden" name="filling_tables" value="">
     <!-- Блок с таблицей и действиями с ней -->
@@ -175,7 +175,7 @@
          </div>
     </div>
 
-    <input class="btn btn-outline-success mt-3" id="open_table" type="button" value="Открыть таблицу">
+    <input class="btn btn-outline-success mt-3" id="open_table" type="button" value="Показать">
 
     <!-- Модальное окно для создания и редактирования строк, столбцов и их элементов -->
     <div class="modal fade" id="create_edit_zn_modal" style="z-index: 1065;">

@@ -9,7 +9,7 @@
 {% if is_constructor_type and is_constructor_type != 'filling_tables' %}
     <a href="{% url 'main_znanie_in_constructor_create' type_of_zn=is_constructor_type %}" class="btn btn-success mb-1 btn-header" style="position: absolute; top: 35px; right: 160px; padding: 4px 12px;">
         Создать {% if is_constructor_type == 'algorithm' %}алгоритм{% elif is_constructor_type == 'table' %}таблицу
-        {% elif is_constructor_type == 'test' %}тест{% endif %}
+        {% elif is_constructor_type == 'test' %}тест {% elif is_constructor_type == 'document' %}документ{% endif %}
     </a>
 {% endif %}
 {% if show_searchbar %}
@@ -323,7 +323,7 @@ if ("{{ empty_result }}") {
         $('.confirmation-of-delete').text(`Вы действительно хотите удалить знание <${name}>?`);
         $('#algorithm_delete').modal("show");
         $('.okay-delete').click(function () {
-            fetch(`/drevo/delete_algorithm/?id=${zn_id}`)
+            fetch(`/drevo/delete_complex_zn/?id=${zn_id}`)
                 .then(response => response.json())
                 .then(data => {
                      window.location.href = data.redirect_url;

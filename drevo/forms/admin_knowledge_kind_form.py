@@ -20,6 +20,8 @@ class AdminKnowledgeKindForm(forms.ModelForm):
             "is_send",
             "is_author_required",
             "is_href_required",
+            "min_number_of_inner_rels",
+            "max_number_of_inner_rels",
             "available_suggestion_types"
         ]
         widgets = {

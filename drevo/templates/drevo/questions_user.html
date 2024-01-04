@@ -6,41 +6,83 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Знание: {{ znanie }}</h2>
+
+    <div class="popup_bg">
+        <div class="popup">
+            {% csrf_token %}
+            <input type="hidden" name="knowledge" value="{{ znanie.id }}">
+            <div class="popup_content">
+                <p id="label_for_popup">Удалить</p>
+                <div>
+                    <button class="button-cancel" type="submit" id="submit_delete">Да</button>
+                    <button class="button-cancel" id="cancel_delete" type="reset">Нет</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Знание: {{ znanie.name }}</h2>
     <hr>
     <h3>Вопросы:</h3>
     {% if user.is_authenticated %}
-        {% for question in questions %}
-        {% if question.publication%}
-        <div class="grid">
+    {% for question in questions %}
+    {% if question.publication%}
+    <div class="grid">           
             <div class="question">
                 <span class="question_text">{{ question }}</span>
+                <hr class="question_line">
             </div>
             <div class="block">
                 {% for answer in answers %}
                 {% if answer.question == question and answer.inspector == None %}
-                    <div class="edit">
-                        <form enctype="multipart/form-data" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="answer_id" value="{{ answer.id }}">
-                            <textarea name="edit_answer" id="" cols="40" rows="10" class="edit_answer" placeholder="Ваш ответ">{{ answer.answer}}</textarea>
-                            {% if question.need_file %}
-                            <input type="file" name="edit_file" class="id_file">
-                            {% endif %} 
-                            {% if answer.answer_file %}
-                            <div>
-                                <span class="point">Прикрепленный файл: </span>
-                                <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
-                                <span class="minus">&#8722</span>
-                                <span>удалить</span>
+                    <div class="not_checked_answers">
+                        <div class="content">
+                            <div class="block_text">
+                                <span class="point">Ответ: </span>
+                                {% if answer.answer != '-' %}
+                                <span class="answer_text">{{ answer.answer }}</span>
+                                {% else %}
+                                <span class="no_text">Текст ответа отсутствует</span>
+                                {% endif %}                             
+                            </div>                              
+                            <div class="new_content"></div>                            
+                            <div class="block_file">
+                                {% if answer.answer_file %}
+                                    <span class="point">Прикрепленный файл: </span>
+                                    <a class="file" href="{{ answer.answer_file.url }}">{{ answer.answer_file.name }}</a>
+                                {% elif question.need_file and answer.answer_file == "" %}
+                                    <span class="no_file">Можно добавить файл</span>
+                                {% endif %}
                             </div>
-                            {% endif %}
                             <div>
-                                <button class="button">Сохранить</button> 
+                                <span class="point">Статус: </span>
+                                <span class="">Не обработано</span>                           
+                            </div>            
+                        </div>
+                        <div class="edit_menu">                  
+                            <span class="dots">
+                                &middot;&middot;&middot;
+                            </span>
+                            <div class="menu" id="{{ answer.id }}">
+                                {% if answer.answer == "-" %}
+                                <div class="add_text">Добавить текст</div>
+                                {% else %}
+                                <div class="edit_text">Изменить текст</div>
+                                {% endif %}
+                                {% if answer.answer != "-" and answer.answer_file %}
+                                <div class="delete_text">Удалить текст</div>
+                                {% endif %}
+                                {% if answer.answer_file and answer.answer != "-" %}
+                                <div class="delete_file">Удалить файл</div>
+                                {% endif %}
+                                {% if answer.answer != "-" and question.need_file and answer.answer_file == "" %}
+                                <div class="add_file">Добавить файл</div>
+                                {% endif %}
+                                <div class="delete_answer">Удалить ответ</div>
                             </div>
-                        </form>
+                        </div>
                     </div>
-                    {% elif answer.question == question and answer.inspector %}
+                {% elif answer.question == question and answer.inspector %}
                     <div class="checked_answers">
                         {% if answer.answer != '-' %}
                         <div>
@@ -56,12 +98,12 @@
                         {% endif %}
                         {% if answer.accepted == True %}
                         <div>
-                            <span class="point">Результат: </span>
+                            <span class="point">Статус: </span>
                             <span class="yes">Принято</span>
                         </div>
                         {% else %}
                         <div>
-                            <span class="point">Результат: </span>
+                            <span class="point">Статус: </span>
                             <span class="no">Не принято</span>                           
                         </div>
                         {% if answer.refuse_reason %}
@@ -71,85 +113,35 @@
                         </div>
                         {% endif %}
                         {% endif %}
+                        <hr>
                     </div>
-                    <hr>
-                    {% endif %}
+                {% endif %}
                 {% endfor %}
-                    <form action="questions_user" enctype="multipart/form-data" method="post">
+                    <div>
                         {% csrf_token %}
-                        <input type="hidden" name="question_id" value="{{ question.id }}">
-                        <div class="new_answer">
-                            <span class="plus">&#43</span>
+                        <div>
+                            <div>
+                                <span class="no_text">Добавить ответ</span>
+                                <span class="plus">&#10010</span>
+                            </div>
                             <div class="new_form">
                                 <textarea name="answer" id="" cols="40" rows="10" class="new_answer" placeholder="Ваш ответ"></textarea>
                                 {% if question.need_file %}
-                                <input type="file" name="file" class="id_file">
+                                <input type="file" name="file" class="id_file" multiple>
                                 {% endif %}  
                                 <div>
-                                    <input type="submit" class="button" value="Сохранить"> 
+                                    <button type="submit" class="button" name="save_new_answer" value="{{ question.id}}">Сохранить</button>
                                 </div>
                             </div>                               
                         </div>
-                    </form>
+                    </div>
             </div>
         </div>
-        <hr>
         {% endif %}
         {% endfor %}
     {% endif %}
 {% endblock %}
 
 {% block jsfiles %}
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-
-        if (document.querySelector('.edit')) {
-            document.querySelectorAll('.edit').forEach( (e) => {
-                e.parentElement.querySelector('.new_answer').remove()
-                if (e.querySelector('.id_file')) {
-                    if (e.querySelector('.minus')) {
-                        e.parentElement.querySelector('.id_file').style.display = 'none'
-
-                    }
-                    if (e.querySelector('.edit_answer').innerHTML === '-') {
-                        e.querySelector('.edit_answer').innerHTML = ''
-                    }
-                }
-            })
-        }
-
-        if (document.querySelector('.file')) {
-            document.querySelectorAll('.file').forEach((e) => {
-                const part = 'proof/'
-                let name_file = e.innerHTML
-                name_file = name_file.replace(part, '')
-                e.innerHTML = name_file
-            })
-        }
-
-        const block_of_ans = document.querySelectorAll('.block')
-        block_of_ans.forEach((e) => {
-            if (e.querySelector('.new_answer') && !e.querySelector('.checked_answers')) {
-                e.querySelector('.new_form').style.display = 'block'
-                e.querySelector('.plus').remove()
-            }
-        })
-
-        document.addEventListener('click', () => {
-            if (event.target.className === 'plus') {
-                let block = event.target.parentElement
-                block.querySelector('.new_form').style.display = 'block'
-                block.querySelector('.plus').remove()
-            }
-        })
-
-        document.addEventListener('click', () => {
-            if (event.target.className === 'minus') {
-                let block = event.target.parentElement
-                block.style.display = 'none'
-                block.parentElement.querySelector('.id_file').style.display = 'block'
-            }
-        })
-    })
-</script>
+<script src="{% static '/drevo/js/questions_user.js' %}"></script>
 {% endblock %}

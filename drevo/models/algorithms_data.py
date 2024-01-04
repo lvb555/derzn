@@ -8,7 +8,7 @@ class AlgorithmWork(models.Model):
     Таблица для хранения работ по алгоритмам
     """
     user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE)
-    algorithm = models.ForeignKey(Znanie, verbose_name='Алгоритм', on_delete=models.CASCADE)
+    algorithm = models.ForeignKey(Znanie, verbose_name='Алгоритм', on_delete=models.CASCADE, limit_choices_to={'tz__name': 'Алгоритм'})
     work_name = models.CharField(max_length=255, verbose_name='Работа')
 
     class Meta:
@@ -31,7 +31,7 @@ class AlgorithmData(models.Model):
     ]
 
     algorithm = models.ForeignKey(Znanie, verbose_name='Алгоритм', related_name='passed_algorithm',
-                                  on_delete=models.CASCADE)
+                                  on_delete=models.CASCADE, limit_choices_to={'tz__name': 'Алгоритм'})
     user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE)
     element = models.CharField(max_length=255, verbose_name='Элемент')
     element_type = models.CharField(max_length=255, verbose_name='Тип элемента', choices=TYPE_CHOICES)
