@@ -1,22 +1,28 @@
+import uuid
+
 from django import forms
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from mptt.forms import TreeNodeChoiceField
+from ckeditor.widgets import CKEditorWidget
 
-from drevo.models import Znanie, Category, Tz, Tr, RelationshipTzTr
+from drevo.models import Znanie, Category, Tz
 from drevo.models.utils import get_model_or_stub
 
 from .knowledge_create_form import ZnanieCreateForm
-from .knowledge_form import ZnanieValidators
 
 
 def add_css_class_form_control(items):
-    """Добавляет к полям формы класс «form-control»"""
+    """Добавляет к полям формы класс «form-control» и стиль рамки"""
     for field_name, field in items:
-        if field_name != 'is_send':
+        if field_name != 'is_send' and field_name != 'show_link' and field_name != 'notification':
             field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['style'] = 'border: 1px solid #dee2e6;'
+        else:
+            field.widget.attrs['class'] = 'form-check-input'
 
 
-def special_permissions_for_user(type_of_zn, user=None):
+def special_permissions_for_user(type_of_zn, user):
     """Выбор всех категорий
      в компетенции руководителя или эксперта"""
     _categories = Category.tree_objects.exclude(is_published=False)
@@ -29,8 +35,6 @@ def special_permissions_for_user(type_of_zn, user=None):
                 experts = category.get_expert_ancestors_category()
             if user in experts:
                 result_categories.append(category)
-        else:
-            result_categories.append(category)
 
     queryset = get_model_or_stub(Category).objects.filter(pk__in=[category.pk for category in result_categories])
 
@@ -38,31 +42,72 @@ def special_permissions_for_user(type_of_zn, user=None):
 
 
 class MainZnInConstructorCreateEditForm(ZnanieCreateForm):
-    """Форма создания и редактирования главного Знания для конструкторов (вид «Таблица», «Тест», «Алгоритм») и всех
-    знаний конструктора алгоритмов"""
+    """Форма создания и редактирования главного Знания для конструкторов сложных знаний (все конструкторы)"""
+    content = forms.CharField(widget=CKEditorWidget(attrs={
+                                                           'cols': 40,
+                                                           'rows': 10,
+                                                           }
+                                                    ),
+                              label='Содержание',
+                              required=False
+                              )
 
     def __init__(self, user, type_of_zn='default', *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Присвоение виду знания значения в зависимости от вида конструктора
+        # Присваивание вида знания
         if type_of_zn == 'table':
             self.fields['tz'].initial = Tz.objects.get(name='Таблица')
         elif type_of_zn == 'test':
             self.fields['tz'].initial = Tz.objects.get(name='Тест')
-        else:
+        elif type_of_zn == 'algorithm':
             self.fields['tz'].initial = Tz.objects.get(name='Алгоритм')
+        elif type_of_zn == 'document':
+            self.fields['tz'].initial = Tz.objects.get(name='Документ')
 
         self.fields['tz'].widget = forms.HiddenInput()
+
+        # Динамическое присвоение уникального ID виджету CKEditor
+        self.fields['content'].widget.attrs['id'] = uuid.uuid4()
 
         # Выбор всех категорий в компетенции конкретного пользователя
         self.fields['category'] = TreeNodeChoiceField(queryset=special_permissions_for_user(type_of_zn, user),
                                                       empty_label='Выберите категорию',
                                                       label='Категория',
                                                       required=True)
+        add_css_class_form_control(self.fields.items())
+
+class ZnanieForCellCreateForm(forms.ModelForm):
+    """
+    Форма создания сущности Знание для ячейки в таблице (страница «Наполнение таблиц»)
+    """
+    content = forms.CharField(widget=CKEditorWidget(attrs={'cols': 40,
+                                                           'rows': 10,
+                                                           }
+                                                    ),
+                              label='Содержание',
+                              required=False
+                              )
+    class Meta:
+        model = Znanie
+        fields = ('name', 'category', 'tz', 'content', 'href', 'source_com', 'order', 'author')
+
+    def __init__(self, user=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Динамическое присвоение уникального ID виджету CKEditor
+        self.fields['content'].widget.attrs['id'] = uuid.uuid4()
+
+        # Выбор всех категорий в компетенции конкретного пользователя
+        self.fields['category'] = TreeNodeChoiceField(queryset=special_permissions_for_user('filling_tables', user),
+                                                      empty_label='Выберите категорию',
+                                                      label='Категория',
+                                                      required=False)
+
+        add_css_class_form_control(self.fields.items())
 
 
-class NameOfZnCreateUpdateForm(forms.ModelForm, ZnanieValidators):
-    """Форма создания и редактирования знания с темой"""
+class NameOfZnCreateUpdateForm(forms.ModelForm):
+    """Форма создания и редактирования темы знания (конструктор таблиц)"""
     name = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
                                                         'rows': 4,
                                                         }
@@ -72,9 +117,7 @@ class NameOfZnCreateUpdateForm(forms.ModelForm, ZnanieValidators):
 
     class Meta:
         model = Znanie
-        exclude = ('id', 'category', 'content', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director',
-                   'is_send', 'is_published', 'labels', 'author', 'href', 'source_com', 'order', 'show_link',
-                   'notification')
+        fields = ('name', 'tz')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -83,73 +126,8 @@ class NameOfZnCreateUpdateForm(forms.ModelForm, ZnanieValidators):
         add_css_class_form_control(self.fields.items())
 
 
-class ZnForAlgorithmCreateUpdateForm(ZnanieCreateForm):
-    """Форма для создания дочернего знания на странице «Конструктор алгоритмов»"""
-
-    def __init__(self, user=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['tz'].widget.attrs.update({'disabled': 'disabled'})
-
-        # Выбор всех категорий в компетенции конкретного пользователя
-        self.fields['category'] = TreeNodeChoiceField(queryset=special_permissions_for_user('algorithm', user),
-                                                      empty_label='Выберите категорию',
-                                                      label='Категория',
-                                                      required=False)
-        add_css_class_form_control(self.fields.items())
-
-
-class RelationForZnInAlgorithm(forms.Form):
-    """Форма для выбора вида связи на странице «Конструктор алгоритмов»"""
-    def __init__(self, parent_zn_tz='default', *args, **kwargs):
-        super(RelationForZnInAlgorithm, self).__init__(*args, **kwargs)
-        relationships_with_parent_zn = RelationshipTzTr.objects.filter(base_tz=parent_zn_tz)
-        rel_type_with_parent_zn = Tr.objects.filter(pk__in=[rel.rel_type_id for rel in relationships_with_parent_zn])
-        self.fields['tr'] = forms.ModelChoiceField(queryset=rel_type_with_parent_zn,
-                                                   empty_label='Выберите вид связи',
-                                                   label='Вид связи',
-                                                   required=True)
-        add_css_class_form_control(self.fields.items())
-
-
-class ZnanieForCellCreateForm(ZnanieCreateForm):
-    """
-    Форма создания сущности Знание для ячейки в таблице (для страницы «Наполнение таблиц»)
-    """
-
-    def __init__(self, user=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['tz'].initial = Tz.objects.get(name='Заголовок')
-        self.fields['tz'].widget = forms.HiddenInput()
-        # Выбор всех категорий в компетенции конкретного пользователя
-        self.fields['category'] = TreeNodeChoiceField(queryset=special_permissions_for_user('filling_tables', user),
-                                                      empty_label='Выберите категорию',
-                                                      label='Категория',
-                                                      required=False)
-
-
-class AttributesOfZnForm(forms.Form):
-    order_of_relation = forms.CharField(widget=forms.TextInput(attrs={'cols': 40,
-                                                                      'rows': 1,
-                                                                      }
-                                                               ),
-                                        label='Номер связи', required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(AttributesOfZnForm, self).__init__(*args, **kwargs)
-        add_css_class_form_control(self.fields.items())
-
-
-class AttributesOfAnswerForm(AttributesOfZnForm):
-    is_correct = forms.BooleanField(label='Верно', required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(AttributesOfZnForm, self).__init__(*args, **kwargs)
-        add_css_class_form_control(self.fields.items())
-
-
-class RelationCreateEditForm(NameOfZnCreateUpdateForm):
-    """Форма создания Знания вида Строка или Столбец для конструктора таблиц"""
+class ZnanieForRowOrColumnForm(NameOfZnCreateUpdateForm):
+    """Форма создания знания для строки/столбца таблицы (конструктор таблиц)"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -161,8 +139,22 @@ class RelationCreateEditForm(NameOfZnCreateUpdateForm):
         add_css_class_form_control(self.fields.items())
 
 
-class QuestionToQuizCreateForm(NameOfZnCreateUpdateForm):
-    """Форма создания вопроса теста для конструктора тестов"""
+class OrderOfRelationForm(forms.Form):
+    """
+    """
+    order_of_relation = forms.CharField(widget=forms.TextInput(attrs={'cols': 40,
+                                                                      'rows': 1,
+                                                                      }
+                                                               ),
+                                        label='Номер связи', required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        add_css_class_form_control(self.fields.items())
+
+
+class QuestionToQuizCreateEditForm(NameOfZnCreateUpdateForm):
+    """Форма создания вопроса теста (конструктор тестов)"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -174,11 +166,48 @@ class QuestionToQuizCreateForm(NameOfZnCreateUpdateForm):
         add_css_class_form_control(self.fields.items())
 
 
-class AnswerToQuizCreateForm(NameOfZnCreateUpdateForm):
-    """Форма создания ответа теста для конструктора тестов"""
+class AnswerToQuizCreateEditForm(NameOfZnCreateUpdateForm):
+    """Форма создания ответа теста (конструктор тестов)"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['tz'].initial = Tz.objects.get(name='Ответ теста')
         self.fields['tz'].widget = forms.HiddenInput()
+        add_css_class_form_control(self.fields.items())
+
+
+class AnswerCorrectForm(forms.Form):
+    """
+    Форма с полем, которое определяет связь для ответа (Ответ верный/неверный) (конструктор тестов)
+    """
+    answer_correct = forms.BooleanField(label='Верный ответ', required=False,
+                                        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
+
+
+class ZnForAlgorithmCreateUpdateForm(forms.ModelForm):
+    """Форма для создания дочернего знания (конструктор алгоритмов)"""
+    content = forms.CharField(widget=CKEditorWidget(attrs={
+                                                           'cols': 40,
+                                                           'rows': 10,
+                                                           }
+                                                    ),
+                              label='Содержание',
+                              required=False
+                              )
+
+    class Meta:
+        model = Znanie
+        fields = ('name', 'tz', 'content', 'href', 'source_com')
+
+    def __init__(self, *args, **kwargs):
+        tz_id = kwargs.pop('tz_id', None)
+        super().__init__(*args, **kwargs)
+
+        # Динамическое присвоение id CKEditor для корректного отображения нескольких виджетов
+        self.fields['content'].widget.attrs['id'] = uuid.uuid4()
+        
+        if tz_id:
+            self.fields['tz'].initial = get_object_or_404(Tz, id=tz_id)
+            self.fields['tz'].widget = forms.HiddenInput()
+
         add_css_class_form_control(self.fields.items())

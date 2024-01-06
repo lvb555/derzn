@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 from django.db import models
+
 from .knowledge import Znanie
 
 
@@ -11,13 +13,6 @@ class Tz(models.Model):
         max_length=128,
         unique=True,
         verbose_name='Название'
-    )
-    tr = models.ForeignKey(
-        'Tr',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        verbose_name='Обязательный вид связи'
     )
     order = models.PositiveSmallIntegerField(
         verbose_name='Порядок',
@@ -51,16 +46,26 @@ class Tz(models.Model):
         default=False,
         verbose_name='Источник обязателен для заполнения'
     )
+    min_number_of_inner_rels = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name='Минимальное число внутренних связей'
+    )
+    max_number_of_inner_rels = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name='Максимальное число внутренних связей'
+    )
     objects = models.Manager()
 
     available_suggestion_types = models.ManyToManyField(to='drevo.SuggestionType',
-        verbose_name='Типы предложений',
+        verbose_name='Виды предложений',
         blank=True)
 
     def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
+        if self.max_number_of_inner_rels < self.min_number_of_inner_rels:
+            raise ValidationError("Максимальное кол-во внутренних связей не может быть меньше минимального!")
         znaniya = Znanie.objects.filter(tz=self).all()
         for znanie in znaniya:
             znanie.is_send = self.is_send
@@ -68,7 +73,7 @@ class Tz(models.Model):
         super(Tz, self).save(*args, **kwargs)
 
     def sorted_suggestion_types(self):
-        return self.available_suggestion_types.all().order_by('weight')
+        return self.available_suggestion_types.all().order_by('-weight')
 
     class Meta:
         verbose_name = 'Вид знания'

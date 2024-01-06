@@ -55,7 +55,7 @@
                               Наш проект <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
                             </a>
                               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item from-nav" href="{% url 'drevo' %}">О проекте</a></li>
+                                <li><a class="dropdown-item from-nav" href="{% url 'about_proj' %}">О проекте</a></li>
                                 <li><a class="dropdown-item from-nav" href="{% url 'appeal' %}">Обратная связь</a></li>
                                 <li><a class="dropdown-item from-nav" href="{% url 'glossary' %}">Глоссарий</a></li>
                                 <li>
@@ -119,20 +119,19 @@
                           Оценки знаний
                     </a>
                     </div>
-					<div class="btn-group">
-                    <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                      Мнения <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                    </a>
-                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        {% if user.is_expert %}
-                          {% get_interview_in_categories user as interview %}
-                          {% if interview %}
-                          <li><a class="dropdown-item from-nav" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a></li>
-                          {% endif %}
+                    {% if user.is_expert %}
+                        {% get_interview_in_categories user as interview %}
+                        {% if interview %}
+                        <div class="btn-group">
+                        <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                          Мнения <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                        </a>
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item from-nav" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a></li>
+                          </ul>
+                        </div>
                         {% endif %}
-                          <li><a class="dropdown-item from-nav" href="#">Опросы</a></li>
-                      </ul>
-                    </div>
+                    {% endif %}
                     <div class="btn-group">
                     <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                       Другое <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
@@ -236,7 +235,7 @@
             <p class="mb-0 ms-3" style="color: #212529;">Научно-образовательный проект «Дерево знаний»</p>
         </div>
       <ul class="nav col-md-4 justify-content-end">
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">О проекте</a></li>
+        <li class="nav-item"><a href="{% url 'about_proj' %}" class="nav-link px-2 text-muted">О проекте</a></li>
         <li class="nav-item"><a href="{% url 'privacy' %}" class="nav-link px-2 text-muted">Политика обработки Персональных данных</a></li>
       </ul>
     </footer>
@@ -309,7 +308,7 @@ function logAndStop(event) {
 }
 </script>
 
-<script>
+<!-- <script>
     let team = document.querySelector('#team');
     let doubleMenu = document.querySelector('.double-menu');
 
@@ -325,7 +324,7 @@ function logAndStop(event) {
     doubleMenu.addEventListener("mouseenter", mouseOverSelect)
     team.addEventListener("mouseenter", mouseOverSelect)
     team.addEventListener("mouseleave", mouseOutSelect)
-  </script>
+</script> -->
 
 <!-- Optional JavaScript; choose one of the two! -->
 

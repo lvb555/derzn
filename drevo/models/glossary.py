@@ -1,4 +1,5 @@
 from django.db import models
+from .category_glossary import GlossaryCategories
 
 
 class GlossaryTerm(models.Model):
@@ -36,6 +37,13 @@ class GlossaryTerm(models.Model):
         default=True,
         verbose_name='Опубликовано?'
     )
+    category = models.ForeignKey(
+        GlossaryCategories,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name='Категория'
+        )
     objects = models.Manager()
 
     def __str__(self):
@@ -44,4 +52,4 @@ class GlossaryTerm(models.Model):
     class Meta:
         verbose_name = 'Термин глоссария'
         verbose_name_plural = 'Термины глоссария'
-        ordering = ('order', 'name', )
+        ordering = ('order',)

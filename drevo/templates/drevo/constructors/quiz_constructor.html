@@ -1,0 +1,170 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block title %}Конструктор тестов{% endblock %}
+
+{% block jsfiles %}
+    <script src="{% static 'drevo/js/constructors/quiz_constructor.js' %}"></script>
+    <script src="{% static 'drevo/js/constructors/allow_actions.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=test" class="btn btn-outline-secondary mb-3">Назад</a>
+    <!-- Блок с тестом и действиями с ним -->
+    <div class="constructor-block d-flex flex-column mb-3">
+        <h1>{{ title }}</h1>
+        <label for="test">Тест:</label>
+        <div class="select-options d-flex align-items-center gap-2">
+            <select class="form-control" name="test" id="test" style="pointer-events: none">
+                <option value="{{ main_zn_id }}" id="{{ main_zn_id }}"> {{ main_zn_name }} </option>
+            </select>
+            <i onclick="editZnanie('test')" class="text-primary" id="edit_test" style="cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pen" viewBox="0 0 16 16">
+                    <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z"></path>
+                </svg>
+            </i>
+            <i onclick="deleteZnanie('test')" class="text-danger" id="delete_test" style="cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"></path>
+                </svg>
+            </i>
+        </div>
+    </div>
+
+    <div class="row-column-question-block">
+        <!-- Блок с выбранным вопросом и действиями с ним -->
+        <label for="question">Вопрос:</label>
+        <div class="select-options d-flex align-items-center gap-2">
+            <select class="form-control" name="question" id="question">
+                    {% if not questions_attributes %}
+                        <option value="" id="create_question" selected disabled>Создайте вопрос</option>
+                    {% else %}
+                        <option value="" id="choose_question" selected disabled>Выберите вопрос</option>
+                        {% for question in questions_attributes %}
+                            <option value="{{ question.rz_id }}" id="{{ question.rz_id }}"> {{ question.rz__name }} </option>
+                        {% endfor %}
+                    {% endif %}
+            </select>
+            <i onclick="addZnanie('question')" class="text-success" id="add_question" style="cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"></path>
+                </svg>
+            </i>
+            <i onclick="editZnanie('question')" class="text-secondary" id="edit_question">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pen" viewBox="0 0 16 16">
+                    <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z"></path>
+                </svg>
+            </i>
+            <i onclick="deleteZnanie('question')" class="text-secondary" id="delete_question">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"></path>
+                </svg>
+            </i>
+        </div>
+        <!-- Блок с выбранным ответом и действиями с ним -->
+        <div class="answers-block mt-1">
+            <label for="answer">Ответ:</label>
+            <div class="select-options d-flex align-items-center gap-2">
+                <select class="form-control" name="answer" id="answer" disabled>
+                        <option value="" id="choose_answer" selected disabled>Выберите ответ</option>
+                </select>
+                <i onclick="addZnanie('answer')" class="text-secondary" id="add_answer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"></path>
+                    </svg>
+                </i>
+                <i onClick="editZnanie('answer')" class="text-secondary" id="edit_answer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pen" viewBox="0 0 16 16">
+                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z"></path>
+                    </svg>
+                </i>
+                <i onclick="deleteZnanie('answer')" class="text-secondary" id="delete_answer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"></path>
+                    </svg>
+                </i>
+            </div>
+        </div>
+    </div>
+
+    <input class="btn btn-outline-success mt-3" id="open_quiz" type="button" value="Показать">
+
+
+    <!-- Модальное окно для редактирования главного знания - теста-->
+    {% include 'drevo/constructors/main_zn_edit.html' %}
+
+    <!-- Модальное окно для предупреждения об удалении знания -->
+    <div class="modal fade" id="delete_element_warning" tabindex="-1" aria-labelledby="delete_element" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" style="position: absolute; right: 1rem;" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h3 class="delete-confirmation"></h3>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success js-okay-successful">Ок</button>
+                    <button type="button" class="btn btn-danger js-cancel-successful" data-bs-dismiss="modal">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для создания/редактирования вопроса/ответа -->
+    <div class="modal fade" id="create_edit_zn_modal" style="z-index: 1065;">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-white text-dark">
+                <div class="modal-header" style="justify-content: center;">
+                    <h3 class="modal-title text-center" id="create_edit_zn_title"></h3>
+                    <button type="button" class="btn-close" style="position: absolute; right: 1rem;" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="create_edit_zn_form">
+                        {% csrf_token %}
+                        <input type="hidden" id="type_of_tr">
+                        <input id="action" name="action" type="hidden">
+                        <div id="info_about_question" hidden>
+                            <span>Вопрос:</span>
+                            <span id="name_of_question"></span>
+                        </div>
+                        <input id="edited_zn_id" name="edited_zn_id" type="hidden">
+                        <input id="quiz_id" name="quiz_id" value="{{ main_zn_id }}" type="hidden">
+                        <input id="question_id" name="question_id" type="hidden">
+                        <div id="zn_form" style="display: block;"></div>
+                        <div id="answer_attrs_form"></div>
+                        <div id="order_of_rel_form"></div>
+                        <input type="submit" class="btn btn-success" value="Сохранить">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для отображения ошибок теста -->
+     <div class="modal fade" id="quiz_open_errors">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-white text-dark">
+                <div class="modal-header" style="justify-content: center;">
+                    <h3 class="modal-title text-center">Ошибки при открытии теста</h3>
+                    <button type="button" class="btn-close" style="position: absolute; right: 1rem;" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="no_questions" hidden>
+                        <h2 class="text-center">В тесте нет вопросов!</h2>
+                    </div>
+                    <div id="questions_less_two_answers" hidden>
+                        <h5>Вопросы с менее чем двумя ответами:</h5>
+                        <ul id="questions_less_two_answers_list"></ul>
+                    </div>
+                    <div id="questions_without_correct_answer" hidden>
+                        <h5>Вопросы без верных ответов:</h5>
+                        <ul id="questions_without_correct_answer_list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

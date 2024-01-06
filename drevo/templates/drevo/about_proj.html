@@ -1,0 +1,37 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block title %}О проекте{% endblock %}
+
+{% block content %}
+<div class="container header_info p-0">
+    <h1>О проекте</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item"><a>Наш проект</a></li>
+          <li class="breadcrumb-item opened"><a>О проекте</a></li>
+        </ol>
+    </nav>
+</div>
+<div class="d-grid basic" style="gap: 16px; margin-top: 25px;">
+    {{ preamble.content|safe }}
+    <h2>Оглавление</h2>
+    <ul>
+        {% for chapter in chapters %}
+        <h1 class="author-title"><a class="chapter-link" href="#chapter_{{ chapter.order }}">{{ chapter.name }}</a></h1>
+        {% endfor %}
+    </ul>
+
+    {% for chapter in chapters %}
+            <h4 id="chapter_{{ chapter.order }}" class="author-title">{{ chapter.name }}</h4>
+            {{ chapter.content|safe }}
+    {% endfor %}
+</div>
+<script type="application/javascript" src="{% static 'drevo/js/toggle_element.js' %}"></script>
+{% endblock %}

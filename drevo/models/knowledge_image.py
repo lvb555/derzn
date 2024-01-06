@@ -1,5 +1,7 @@
 from django.db import models
 
+from drevo.common.file_storage import ASCIIFileSystemStorage
+
 
 class ZnImage(models.Model):
     znanie = models.ForeignKey(
@@ -10,7 +12,8 @@ class ZnImage(models.Model):
     photo = models.ImageField(
         upload_to='photos/%Y/%m/%d/',
         verbose_name='Фото',
-        blank=True
+        blank=True,
+        storage=ASCIIFileSystemStorage()
     )
     objects = models.Manager()
 

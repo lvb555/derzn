@@ -1,9 +1,11 @@
+/* css для страницы questions_user */
 textarea {
     overflow: hidden;
     resize: none;
     height: 86px;
     background: rgba(245, 245, 245, 0.75);
     border-radius: 8px;
+    padding:5px;
 }
 
 .question_text {
@@ -13,27 +15,39 @@ textarea {
     margin-top: 20px;    
 }
 
-.grid {
-    display: grid;
-    margin-top: 30px;
-    grid-template-columns: 30vw auto 80px;
+.question_line {
+    display: none;
 }
 
-.id_answer {
+.grid {
+    background-color: white;
+    border-radius: 10px;
+    padding: 32px;
+    font-family: Rubik;
+    display: grid;
+    margin-top: 30px;
+    grid-template-columns: 30% 70%;
+}
+
+.new_answer, .edit_answer {
     vertical-align: middle;
-    padding:5px;
+    width: 100%;
 }
 
 .id_file {
     font-size: 12px;
     line-height: 200%;
     letter-spacing: 0.02em;
-    margin: 10px;
+    margin-top: 10px;
+}
+
+.file_inform {
+    margin-top: 10px;
 }
 
 .button {
+    width: 100px;
     margin-top: 20px;
-    margin-left: 20px;
     font-size: 14px;
     line-height: 200%;
     letter-spacing: 0.02em;
@@ -42,10 +56,207 @@ textarea {
     border-radius: 8px !important;    
 }
 
+.button-cancel {
+    width: 100px;
+    margin-top: 20px;
+    font-size: 14px;
+    line-height: 200%;
+    letter-spacing: 0.02em;
+    background-color: #a0a8a6;
+    border-color: #66736f;
+    color: #f8f9fa;
+    border-radius: 8px !important;    
+}
+
 .question {
     margin: 10px;
 }
 
+.plus {
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 900;
+    color: green;
+}
+
+.edit_menu {
+    position: relative;
+}
+
+.menu {
+    display: none;
+    z-index: 2;
+    position: absolute;
+    float: right;
+    min-width: 150px;
+    padding: 5px;
+    right: 0px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow:1px 1px 1px black;
+}
+
+.menu > div:hover {
+    background-color: rgb(200, 199, 199);
+    cursor: pointer;
+}
+
+.menu > div {
+    padding: 2px;
+}
+
+.dots {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.dots:hover {
+    color: blue;
+    font-size: 22px;
+    transition: 0.3s all ;
+}
+
+.popup_bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.popup_bg.active {
+    opacity: 1;
+    pointer-events: all;
+    transition: 0.5s all ;
+}
+
+hr {
+    pointer-events: none;
+}
+
+.popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #083E2F;
+    border-radius: 8px;
+    height: 200px;
+    width: 400px;
+    padding-top: 30px;
+}
+
+.popup.active {
+    opacity: 1;
+    pointer-events: all;
+    transition: 0.5s all ;
+}
+
+#label_for_popup {
+    color: white;
+    font-size: 20px;
+}
+
+.popup_content>div, .popup_content>p {
+    text-align: center;    
+}
+
+.popup_content>div>button {
+    margin: 20px;
+}
+
+.popup_content>div>button:hover {
+    margin: 20px;
+    background-color: gray;
+    color: #083E2F;
+}
+
+.not_checked_answers {
+    display: grid;
+    grid-template-columns: auto 20px;
+}
+
+.new_form {
+    display: none;
+}
+
+.yes {
+    color: green;
+}
+
+.no {
+    color: red;
+}
+
+.point {
+    font-weight: bold;
+}
+
+.answer_text {
+    font-style: italic;
+    font-size: 18px;
+}
+
+.block {
+    margin: 10px;
+}
+
+.admin_cross {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+
+.no_text, .no_file {
+    font-size: 18px;
+    font-style: italic;
+    color: brown;
+
+}
+
+@media (max-width: 900px) {
+    .grid {
+        display: block;
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .question_line {
+        display: block;
+    }
+    
+    hr:not(.question_line) {
+        opacity: 0;
+    }
+
+}
+
+@media (max-width: 1200px) {
+
+    .delete {
+        margin-top: 10px;
+        color: red;
+        cursor: pointer;
+    }
+    
+}
+@media (min-width: 1199px) {
+
+    .delete {
+        margin-top: 10px;
+        float: right;
+        color: red;
+        cursor: pointer;
+    }
+
+}
+
+
+/* css для страницы questions_and_check_answers */
 .list_questions {
     font-family: Rubik;
     font-size: 22px;
@@ -68,7 +279,9 @@ textarea {
     }
     
 }
+
 @media (min-width: 900px) {
+
     .answers {
         display: grid;
         grid-template-columns: 30vw 15vw auto 20vw;
@@ -85,7 +298,7 @@ textarea {
     }
 }
 
-#accepted {
+.accepted {
     margin-top: 20px;
     margin: 20px auto;
     display: block;
@@ -119,7 +332,7 @@ select {
     appearance: auto;
 }
 
-.one_question {
+.one_question, #if_one_question {
     font-family: Rubik;
     font-size: 24px;
     font-weight: 100;
@@ -150,5 +363,9 @@ select {
 }
 
 .not_checked_div {
+    display: none;
+}
+
+#if_one_question_not_checked {
     display: none;
 }

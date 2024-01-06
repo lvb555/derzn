@@ -48,7 +48,7 @@
         </div>
     </div>
     {% endif %}
-    <p class="px-4">{{znanie.name}}
+    <p class="px-4 mb-0">{{znanie.name}}
         {% if znanie.author %}
             <i class="d-inline-flex" style="color: #6C757D; font-style: normal;">({{ znanie.author }})</i>
         {% endif %}
@@ -59,11 +59,11 @@
     <div class="popup__bg">
         <div class="popup p-5">
             <i class="bi bi-x-lg close-popup"></i>
-                <h3 id="condition"></h3><br>
-                <div class="d-flex justify-content-around">
-                  <input type="button" value="Да" class="btn btn-header" onclick="answerCondition('Тогда');" style="background: var(--danger, #E01F27); font-size: 18px;">
-                  <input type="button" value="Нет" class="btn btn-header" onclick="answerCondition('Иначе');" style="background: var(--danger, #E01F27); font-size: 18px;">
-                </div>
+            <h3 id="condition"></h3><br>
+            <div class="d-flex justify-content-around">
+              <input type="button" value="Да" class="btn btn-header" onclick="answerCondition('Тогда');" style="background: var(--danger, #E01F27); font-size: 18px;">
+              <input type="button" value="Нет" class="btn btn-header" onclick="answerCondition('Иначе');" style="background: var(--danger, #E01F27); font-size: 18px;">
+            </div>
         </div>
     </div>
     <div class="notification-field">
@@ -73,27 +73,52 @@
         </div>
     </div>
     <div class="d-flex" style="border-top: 1px solid var(--grey-1, #DFDFE3);">
-        {% if current_work and znanie.several_works %}
-        <div class="p-4">
-            <input onclick="onButtonSendClick('same');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить результат">
-        </div>
-        {% endif %}
-        {% if znanie.several_works %}
+        {% if modification %}
             <div class="p-4">
-                <input id="save-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить как новую работу">
+                <button name="go-back" class="btn btn btn-light btn-header py-1">
+                    <span>Назад</span>
+                </button>
+            </div>
+            <div class="p-4">
+                {% if not znanie.several_works %}
+                    <input onclick="onButtonSendClick('static_name');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);"
+                           type="button" value="Сохранить">
+                {% elif current_work %}
+                    <input onclick="onButtonSendClick('same');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);"
+                           type="button" value="Сохранить">
+                {% else %}
+                    <input name="save-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить">
+                {% endif %}
             </div>
         {% else %}
+        {% if current_work %}
             <div class="p-4">
-                <input onclick="onButtonSendClick('static_name');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить результат">
+                <input onclick="onButtonSendClick('same');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить результат">
+            </div>
+        {% elif znanie.several_works and not previous_works %}
+            <div class="p-4">
+                <input name="save-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить">
+            </div>
+        {% elif not znanie.several_works and not progress %}
+            <div class="p-4">
+                <input onclick="onButtonSendClick('static_name');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить">
             </div>
         {% endif %}
-        {% if user.is_authenticated %}
         <div class="p-4">
-            <a class="btn btn btn-light btn-header py-1"
-               href="?{% url_replace request 'mode' 'modify' %}">
-                <span>Добавить свои элементы</span>
-            </a>
+        {% if znanie.several_works and previous_works %}
+            <input  name="save-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить как новую работу">
+        {% elif not znanie.several_works and progress %}
+            <input onclick="onButtonSendClick('static_name');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить результат">
+        {% endif %}
         </div>
+        {% if user.is_authenticated %}
+            <div class="p-4">
+                <a class="btn btn btn-light btn-header py-1"
+                   href="?{% url_replace request 'mode' 'modify' %}">
+                    <span>Добавить свои элементы</span>
+                </a>
+            </div>
+        {% endif %}
         {% endif %}
     </div>
     <div class="save-form popup__bg">
@@ -113,11 +138,15 @@
         <div class="popup p-5">
             <i class="bi bi-x-lg close-popup"></i>
             <span class="warning"></span>
+            <div id="transformation">
+                <input type="checkbox" id="change-checkbox" class="form-check-input" onclick="openNext('block');">
+                <label for="change-checkbox" style="color: #6C757D; display: inline!important;"></label>
+            </div>
             <h5 class="title">Введите название элемента</h5><br>
             <label class="regular-text m-0" for="elem">Введите название элемента</label>
-            <input class="form-control py-2 text-grey" type="text" placeholder="Введите название элемента" id="elem" name="elem">
+            <input class="form-control py-2" type="text" placeholder="Введите название элемента" id="elem" name="elem">
             <div id="block-questions">
-                <div class="mt-4 d-flex justify-content-around">
+                <div class="mt-4 justify-content-around" style="display: flex;">
                     <label>Вид связи: </label><br>
                     <input type="radio" class="m-0 p-0 text-grey form-check-input" name="insertion_type" value="Block" id="blockRadio" onclick="openNext('block');">В блок
                     <input type="radio" class="m-0 p-0 text-grey form-check-input" name="insertion_type" value="Action" id="actionRadio" onclick="openNext('action');">В цепочку
@@ -130,6 +159,48 @@
             </div>
             <div class="mt-4 d-flex justify-content-around">
               <input type="button" onclick="saveNewElement();" name="add-data" value="Добавить" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
+            </div>
+        </div>
+    </div>
+    <div class="redact-form popup__bg">
+        <div class="popup p-5">
+            <i class="bi bi-x-lg close-popup"></i>
+            <span class="warning"></span>
+            <h5 class="title">Введите новое название элемента</h5><br>
+            <label class="regular-text m-0" for="elem">Введите новое название элемента</label>
+            <input class="form-control py-2" type="text" placeholder="Введите новое название элемента" id="rename" name="rename">
+            <div class="mt-4 d-flex justify-content-around">
+              <input type="button" onclick="saveNewName();" name="redact-data" value="Переименовать" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
+            </div>
+        </div>
+    </div>
+    <div class="delete-form popup__bg">
+        <div class="popup p-5">
+            <i class="bi bi-x-lg close-popup"></i>
+            <span class="warning"></span>
+            <h5 class="title">Вы уверены, что хотите удалить элемент?</h5><br>
+            <div class="mt-4 d-flex justify-content-around">
+              <input type="button" onclick="deleteElement();" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
+              <input type="button" name="rejection" value="Нет" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
+            </div>
+        </div>
+    </div>
+    <div class="go-back-form popup__bg">
+        <div class="popup p-5">
+            <i class="bi bi-x-lg close-popup"></i>
+            <span class="warning"></span>
+            <h5 class="title">Хотите сохранить изменения?</h5><br>
+            <div class="mt-4 d-flex justify-content-around">
+              {% if not znanie.several_works %}
+                <input type="button" onclick="onButtonSendClick('static_name');" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
+              {% elif current_work %}
+                <input type="button" onclick="onButtonSendClick('same');" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
+              {% else %}
+                <input type="button" name="save-button" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
+              {% endif %}
+              <a class="btn btn btn-light btn-header py-1" style="font-size: 18px;" href="?{% url_replace request 'mode' '' %}">
+                  Нет
+              </a>
             </div>
         </div>
     </div>

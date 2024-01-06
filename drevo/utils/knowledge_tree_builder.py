@@ -12,11 +12,13 @@ class KnowledgeTreeBuilder:
                  show_only: Tr = None,
                  show_complex: bool = False,
                  edit_mode: bool = False,
-                 empty_categories: bool = False
+                 empty_categories: bool = False,
+                 is_constructor_type: str = None
                  ):
         self.queryset = queryset
         self.edit_mode = edit_mode
         self.empty_categories = empty_categories
+        self.is_constructor_type = is_constructor_type
         self.building_knowledge = set(kn.id for kn in queryset)  # Множество знаний используемых для построения дерева
         self.categories_data = {}
         self.knowledge = {}
@@ -38,11 +40,18 @@ class KnowledgeTreeBuilder:
         filter_lookups = Q(is_published=True)
         if self.edit_mode:
             filter_lookups = filter_lookups | Q(is_published=False)
-        relations = (
-            Relation.objects
-            .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
-            .filter(filter_lookups, tr__is_systemic=False)
-        )
+        if not self.is_constructor_type:
+            relations = (
+                Relation.objects
+                .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
+                .filter(filter_lookups, tr__is_systemic=False)
+            )
+        else:
+            relations = (
+                Relation.objects
+                .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
+                .filter(filter_lookups)
+            )
         if self.edit_mode:
             relations_statuses = RelationStatuses.objects.filter(is_active=True)
             statuses_data = {rel_status.relation.id: rel_status.status for rel_status in relations_statuses}
@@ -52,10 +61,11 @@ class KnowledgeTreeBuilder:
         for rel in relations:
             if self.show_only and rel.rz.id in self.building_knowledge and rel.tr != self.show_only:
                 continue
-            self.relations_info[(rel.bz.id, rel.rz.id)] = {'name': '', 'status': '', 'author': ''}
+            self.relations_info[(rel.bz.id, rel.rz.id)] = {'id': '', 'name': '', 'status': '', 'author': ''}
             if self.edit_mode and rel.id in statuses_data:
                 self.relations_info[(rel.bz.id, rel.rz.id)]['status'] = statuses_data.get(rel.id)
                 self.relations_info[(rel.bz.id, rel.rz.id)]['author'] = rel.user_id
+            self.relations_info[(rel.bz.id, rel.rz.id)]['id'] = rel.id
             self.relations_info[(rel.bz.id, rel.rz.id)]['name'] = rel.tr.name
             relations_data[rel.rz.id].append(rel.bz)
         return relations_data
@@ -132,7 +142,7 @@ class KnowledgeTreeBuilder:
             }
         """
         self._gather_knowledge_relations()
-
+        
         for base_knowledge, related_knowledge in self.knowledge.items():
             if not base_knowledge.category_id:
                 continue
@@ -150,7 +160,7 @@ class KnowledgeTreeBuilder:
         ancestors_knowledge = self._get_ancestors_for_knowledge_list()
         for ancestors in ancestors_knowledge:
             self._build_tree_data(ancestors)
-
+    
     def _build_tree_data(self, knowledge_list: list) -> None:
         """
             Метод, который рекурсивно обходит текущие данные для дерева, следуя цепочке связей знаний,
@@ -164,7 +174,7 @@ class KnowledgeTreeBuilder:
                     return
                 elif parent.tz_id in self.complex_tz and self.show_complex:
                     knowledge.clear()
-                if parent.tz_id in self._systemic_types:
+                if parent.tz_id in self._systemic_types and not self.is_constructor_type:
                     continue
                 if parent not in tree:
                     tree[parent] = {}

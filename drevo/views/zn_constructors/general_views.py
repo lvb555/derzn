@@ -1,67 +1,74 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import CreateView, TemplateView, UpdateView
+from django.views.decorators.http import require_http_methods
+from django.views.generic import CreateView, TemplateView
 
-from drevo.forms.knowledge_create_form import ZnImageFormSet
+from drevo.forms.knowledge_create_form import ZnImageFormSet, ZnFilesFormSet
 from drevo.forms.constructor_knowledge_form import MainZnInConstructorCreateEditForm
-from drevo.forms.knowledge_update_form import ZnImageEditFormSet
-from drevo.models import Znanie, Tr, Relation
+from drevo.models import Znanie, SpecialPermissions
 
-from drevo.views.knowledge_tp_view import get_knowledge_dict
-from .supplementary_functions import create_zn_for_constructor
-from drevo.relations_tree import get_descendants_for_knowledge
-from .mixins import FormKwargsMixin, DispatchMixin
+from .supplementary_functions import create_zn_for_constructor, get_images_from_request, \
+    get_file_from_request, delete_tables_without_row_and_columns
+from .mixins import DispatchMixin
+from ...relations_tree import get_descendants_for_knowledge
 
 
-class ConstructorTreeView(LoginRequiredMixin, DispatchMixin, TemplateView):
+class ZnaniyaForConstructorView(DispatchMixin, TemplateView):
     """
-    Представление страницы дерева знаний конструкторов в компетенциях эксперта/руководителя
+    Представление страницы, в которой знания в компетенциях эксперта/руководителя строятся в виде дерева
+    для последующего открытия конструктора
     """
-    template_name = 'drevo/constructor_tree.html'
+    template_name = 'drevo/constructors/constructor_start_page.html'
 
-    def __init__(self, **kwargs):
+    def __init__(self):
         super().__init__()
         self.type_of_zn = None
+
+    @staticmethod
+    def get_queryset(user, tz_name: str):
+        """Метод для получения опубликованных сложных знаний конкретного вида в компетенции эксперта"""
+        tz_name_mapping = {
+            'algorithm': 'Алгоритм',
+            'document': 'Документ',
+            'filling_tables': 'Таблица',
+            'table': 'Таблица',
+            'test': 'Тест',
+        }
+        zn_filter = Q(tz__name=tz_name_mapping.get(tz_name)) & Q(knowledge_status__status='PUB')
+
+        user_competencies = SpecialPermissions.objects.filter(expert=user).first()
+        user_competencies = (
+            user_competencies.categories.all() if not tz_name == 'table' else user_competencies.admin_competencies.all()
+        )
+        queryset = Znanie.objects.select_related('category').filter(zn_filter).distinct()
+
+        # При построении дерева для наполнения таблиц удаляются таблицы, не содержащие хотя бы одну строку и столбец
+        if tz_name == 'filling_tables':
+            queryset = delete_tables_without_row_and_columns(queryset=queryset)
+
+        knowledge_list = list()
+        for know in queryset:
+            if know.category in user_competencies:
+                knowledge_list.append(know.pk)
+
+        required_kn = knowledge_list
+        return queryset.filter(pk__in=required_kn).distinct()
 
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        self.type_of_zn = self.kwargs.get('type_of_zn')
-        tz_name_mapping = {
-            'algorithm': 'Алгоритм',
-            'filling_tables': 'Таблица',
-            'table': 'Таблица',
-            'test': 'Тест',
-        }
-
-        # Формирование списка знаний со статусом "Опубликованное знание" в соответствии с выбранным конструктором
-        zn = Znanie.objects.filter(
-            Q(tz__name=tz_name_mapping.get(self.type_of_zn)) & Q(knowledge_status__status='PUB')
-        )
-
-        if self.type_of_zn == 'filling_tables':
-            for znanie in zn:
-                row_id = get_object_or_404(Tr, name='Строка').id
-                column_id = get_object_or_404(Tr, name='Столбец').id
-                # Проверка, существуют ли в таблице опубликованные строка и столбец
-                if not (Relation.objects.filter(tr_id=row_id, bz_id=znanie.id, is_published=True).exists() and
-                        Relation.objects.filter(tr_id=column_id, bz_id=znanie.id, is_published=True).exists()):
-                    zn = zn.exclude(id=znanie.id)
-
-        if self.type_of_zn == 'table':
-            context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn, rights='admin', user=user)
-        else:
-            context['ztypes'], context['zn_dict'] = get_knowledge_dict(zn, rights='expert', user=user)
+        self.type_of_zn = self.request.GET.get('type_of_zn')
+        context['knowledge'] = self.get_queryset(user=user, tz_name=self.type_of_zn)
 
         title_mapping = {
             'filling_tables': 'Наполнение таблиц',
             'table': 'Конструктор таблиц',
             'test': 'Конструктор тестов',
             'algorithm': 'Конструктор алгоритмов',
+            'document': 'Конструктор документов'
         }
         context['title'] = title_mapping.get(self.type_of_zn)
         context['type_of_page'] = self.type_of_zn
@@ -69,37 +76,43 @@ class ConstructorTreeView(LoginRequiredMixin, DispatchMixin, TemplateView):
         return context
 
 
-class MainZnInConstructorCreateView(FormKwargsMixin, DispatchMixin, LoginRequiredMixin, CreateView):
-    """Представление создания главного для конструктора знания (виды Тест, Таблица, Алгоритм)"""
+class MainZnInConstructorCreateView(DispatchMixin, CreateView):
+    """Представление создания главного знания для конструктора знания (виды Тест, Таблица, Алгоритм)"""
     model = Znanie
     form_class = MainZnInConstructorCreateEditForm
+    template_name = 'drevo/constructors/main_zn_create.html'
 
-    def get_template_names(self):
-        self.type_of_zn = self.kwargs.get('type_of_zn')
-        if self.type_of_zn == 'table':
-            return ['drevo/table_constructor/table_relation_create.html']
-        elif self.type_of_zn == 'test':
-            return ['drevo/quiz_constructor/quiz_question_answer_create.html']
-        elif self.type_of_zn == 'algorithm':
-            return ['drevo/algorithm_constructor/algorithm_create.html']
+    def __init__(self):
+        super().__init__()
+        self.object = None
+        self.type_of_zn = None
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['type_of_zn'] = self.type_of_zn
+        return kwargs
 
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
         context = super().get_context_data(**kwargs)
+        context['action'] = 'create'
         title_mapping = {
-            'algorithm': 'Создание названия алгоритма',
-            'table': 'Создание названия таблицы',
-            'test': 'Создание названия теста',
+            'algorithm': 'Создание алгоритма',
+            'document': 'Создание документа',
+            'table': 'Создание таблицы',
+            'test': 'Создание теста',
         }
         self.type_of_zn = self.kwargs.get('type_of_zn')
+        context['type_of_zn'] = self.type_of_zn
         context['title'] = title_mapping.get(self.type_of_zn)
 
         # Передаем формы для создания знания и добавления фотографий к знанию
         if self.request.POST:
-            context['zn_create_form'] = MainZnInConstructorCreateEditForm(self.request.POST, type_of_zn=self.type_of_zn)
+            context['zn_form'] = MainZnInConstructorCreateEditForm(self.request.POST, type_of_zn=self.type_of_zn)
             context['image_form'] = ZnImageFormSet(self.request.POST)
         else:
-            context['zn_create_form'] = MainZnInConstructorCreateEditForm(user=self.request.user, type_of_zn=self.type_of_zn)
+            context['zn_form'] = MainZnInConstructorCreateEditForm(user=self.request.user, type_of_zn=self.type_of_zn)
             context['image_form'] = ZnImageFormSet()
         return context
 
@@ -123,28 +136,15 @@ class MainZnInConstructorCreateView(FormKwargsMixin, DispatchMixin, LoginRequire
         if form.is_valid() and image_form.is_valid():
             # Перед сохранением формы в поле user подставляем значения по умолчанию
             knowledge = form.save(commit=False)
-            create_zn_for_constructor(knowledge, form, request, author=False, image_form=image_form)
+            create_zn_for_constructor(knowledge, form, request, author=True, image_form=image_form)
             self.object = knowledge
-            if self.type_of_zn == 'algorithm':
-                context = {
-                    'title': 'Конструктор алгоритмов',
-                    'znanie': knowledge,
-                    'relative_znaniya': get_descendants_for_knowledge(knowledge)
-                }
-            else:
-                context = {
-                    'form': form,
-                    'new_znanie_name': knowledge.name,
-                    'new_znanie_id': knowledge.id,
-                    'new': True,
-                    'type_of_zn': self.type_of_zn
-                }
-            if self.type_of_zn == 'table':
-                return render(request, 'drevo/table_constructor/table_relation_create.html', context)
+
+            if self.type_of_zn == 'algorithm' or self.type_of_zn == 'document':
+                return HttpResponseRedirect(reverse('tree_constructor', kwargs={'type': self.type_of_zn, 'pk': knowledge.pk}))
             elif self.type_of_zn == 'test':
-                return render(request, 'drevo/quiz_constructor/quiz_question_answer_create.html', context)
-            elif self.type_of_zn == 'algorithm':
-                return HttpResponseRedirect(reverse('algorithm_constructor', kwargs={'pk': knowledge.pk}))
+                return HttpResponseRedirect(reverse('quiz_constructor', kwargs={'pk': knowledge.pk}))
+            elif self.type_of_zn == 'table':
+                return HttpResponseRedirect(reverse('table_constructor', kwargs={'pk': knowledge.pk}))
 
         return self.form_invalid(form, image_form)
 
@@ -152,63 +152,28 @@ class MainZnInConstructorCreateView(FormKwargsMixin, DispatchMixin, LoginRequire
         return self.render_to_response(self.get_context_data(form=form, image_form=image_form))
 
 
-class MainZnInConstructorEditView(FormKwargsMixin, DispatchMixin, LoginRequiredMixin, UpdateView):
-    """Представление редактирования главного для конструктора знания (виды Тест, Таблица, Алгоритм)"""
-    model = Znanie
-    form_class = MainZnInConstructorCreateEditForm
-    template_name = 'drevo/quiz_constructor/quiz_question_answer_edit.html'
+@require_http_methods(['POST'])
+def edit_main_zn_in_constructor(request):
+    """Редактирование атрибутов знания, прикрепленных изображений и файла главного сложного знания в конструкторе"""
+    req_data = request.POST
+    existing_knowledge = get_object_or_404(Znanie, id=req_data.get('main_zn_id'))
+    form = MainZnInConstructorCreateEditForm(data=req_data, instance=existing_knowledge, user=request.user,
+                                             type_of_zn='algorithm')
+    images_form = ZnImageFormSet(req_data, get_images_from_request(request=request), instance=existing_knowledge)
+    file_form = ZnFilesFormSet(req_data, get_file_from_request(request=request), instance=existing_knowledge)
 
-    def get_context_data(self, **kwargs):
-        """Передает контекст в шаблон"""
-        context = super().get_context_data(**kwargs)
-        title_mapping = {
-            'table': 'Редактирование названия таблицы',
-            'test': 'Редактирование названия теста',
-            'algorithm': 'Редактирование названия алгоритма',
-        }
-        self.type_of_zn = self.kwargs.get('type_of_zn')
-        context['title'] = title_mapping.get(self.type_of_zn)
-        context['pk'] = self.kwargs.get('pk')
-        return context
+    if form.is_valid() and images_form.is_valid() and file_form.is_valid():
+        knowledge = form.save(commit=False)
+        create_zn_for_constructor(knowledge, form, request, image_form=images_form, file_form=file_form)
+        return JsonResponse(data={'zn_id': knowledge.id, 'zn_name': knowledge.name}, status=200)
+    return JsonResponse(data={}, status=400)
 
-    def get(self, request, *args, **kwargs):
-        """Обрабатывает GET запрос"""
-        self.object = self.get_object()
-        form_class = self.get_form_class()
-        zn_edit_form = self.get_form(form_class)
-        image_form = ZnImageFormSet()
-        return self.render_to_response(self.get_context_data(zn_edit_form=zn_edit_form, image_form=image_form))
 
-    def post(self, request, *args, **kwargs):
-        """Обрабатывает POST запрос"""
-        self.object = self.get_object()
-        self.type_of_zn = self.kwargs.get('type_of_zn')
-        # Получаем форму для заполнения данных Знания
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        # Получаем форму для прикрепления фотографий
-        image_form = ZnImageEditFormSet(self.request.POST, self.request.FILES, instance=self.object)
-        if form.is_valid() and image_form.is_valid():
-            # Перед сохранением формы в поле user подставляем значения по умолчанию
-            knowledge = form.save(commit=False)
-            create_zn_for_constructor(knowledge, form, request, author=False, image_form=image_form)
-
-            context = {
-                'form': form,
-                'changed_znanie_name': knowledge.name,
-                'changed_znanie_id': knowledge.id,
-                'new': True,
-                'relation': self.type_of_zn,
-            }
-            if self.type_of_zn == 'table':
-                return render(request, 'drevo/table_constructor/table_relation_edit.html', context)
-            elif self.type_of_zn == 'test':
-                return render(request, 'drevo/quiz_constructor/quiz_question_answer_edit.html', context)
-            else:
-                pass
-
-        return self.form_invalid(form)
-
-    def form_invalid(self, form):
-        image_form = ZnImageEditFormSet(self.request.POST, self.request.FILES, instance=self.object)
-        return self.render_to_response(self.get_context_data(form=form, image_form=image_form))
+def delete_complex_zn(request):
+    """Удаление сложного знания: главного знания и всех связанных знаний"""
+    main_zn = get_object_or_404(Znanie, id=request.GET.get('id'))
+    rel_znaniya = get_descendants_for_knowledge(main_zn)
+    for zn in rel_znaniya:
+        zn.delete()
+    main_zn.delete()
+    return JsonResponse({'redirect_url': request.META['HTTP_REFERER']})

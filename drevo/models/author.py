@@ -1,4 +1,6 @@
 from django.db import models
+
+from drevo.common.file_storage import ASCIIFileSystemStorage
 from users.models import User
 
 
@@ -25,7 +27,8 @@ class Author(models.Model):
     photo = models.ImageField(upload_to='photos/authors/',
                               verbose_name='Фото',
                               blank=True,
-                              null=True
+                              null=True,
+                              storage=ASCIIFileSystemStorage()
                               )
     atype = models.ForeignKey('AuthorType',
                               on_delete=models.PROTECT,
