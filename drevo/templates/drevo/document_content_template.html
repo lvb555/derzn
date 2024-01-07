@@ -1,8 +1,12 @@
 {% extends 'drevo/base.html' %}
 {% load static %}
-{% csrf_token %}
+{% load by_structure %}
 
 {% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
+<link rel="stylesheet" href="{% static 'drevo/css/content_template.css'%}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 {% endblock %}
 
 {% block title %}
@@ -10,7 +14,191 @@
 {% endblock %}
 
 {% block content %}
+<div class="content">
+<form class="template" action="" method="post">
+	{% csrf_token %}
+	{{ form }}
+	<button type="button" class="template__btn btn btn-icon" type="submit">Сохранить</button>
+</form>
+
+<div class="objects">
+
+	<div class="objects__tabs">
+		{% for k, v in object_structure_types %}
+			<a href="#structure-{{k}}" class="objects__tab">{{ v }}</a>
+		{% endfor %}
+	</div>
+
+	<div class="object-card objects-list__object-card clone" style="display: none">
+		<div class="object-card__content">
+			<div class="object-card__btns">
+				<button class="btn btn-icon object-card__btn edit"><img src="{% static 'drevo/img/pencil.svg'%}" alt=""></button>
+				<button class="btn btn-icon object-card__btn"><img src="{% static 'drevo/img/bin.svg'%}" alt=""></button>
+			</div>
+			<p class="object-card__header"></p>
+		</div>
+	</div>
+
+	<div class="objects__body">
+		{% for k, v in object_structure_types %}
+
+			<div class="objects-list objects__objects-list" id="structure-{{ k }}">
+				{% for i in objects|by_structure:k %}
+					<div class="object-card objects-list__object-card" id="pk-{{ i.id }}">
+						<div class="object-card__content">
+							<div class="object-card__btns">
+								<button class="btn btn-icon object-card__btn edit"><img src="{% static 'drevo/img/pencil.svg'%}" alt=""></button>
+								<button class="btn btn-icon object-card__btn"><img src="{% static 'drevo/img/bin.svg'%}" alt=""></button>
+							</div>
+							<p class="object-card__header"> {{ i.name }}</p>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+		{% endfor%}
+	</div>
+	<button class="btn btn-icon objects__create_btn" type="button">Новый объект</button>
+
+	<form class="edit-menu">
+		<div class="edit-menu-header">
+			<h5>Объект</h5>
+			<button class="btn-icon btn edit-menu__close-btn" type="button">x</button>
+		</div>
+
+		<p class="edit-menu__log"></p>
+
+		<div id="name" class="field">
+			<label class="edit-menu__label" for="name">{{var_form.name.label}}</label>
+			{{var_form.name}}
+		</div>
+
+		<div id="comment" class="field">
+			<label for="{{ var_form.comment.id_for_label }}" class="edit-menu__label"> {{ var_form.comment.label }}</label>
+			{{var_form.comment}}
+		</div>
+
+		<div id="structure" class="field">
+			<label for="{{ var_form.structure.id_for_label }}" class="edit-menu__type-field">{{ var_form.structure.label }}</label>
+			{{ var_form.structure }}
+		</div>
+
+		<div id="type_of" class="field">
+			<label class="edit-menu__label">Тип</label>
+			{{var_form.type_of}}
+		</div>
+
+		<div id="global" class="field">
+			<label for="{{ var_form.is_global.id_for_label }}" class="edit-menu__label">{{ var_form.is_global.label }}</label>
+			{{ var_form.is_global }}
+		</div>
+		<div id="main" class="field">
+			<label for="{{ var_form.is_main.id_for_label }}" class="edit-menu__label">{{ var_form.is_main.label }}</label>
+			{{ var_form.is_main }}
+		</div>
+		<div id="subscription" class="field">
+			<label for="{{ var_form.subscription.id_for_label }}" class="edit-menu__label">{{ var_form.subscription.label }}</label>
+			{{ var_form.subscription }}
+		</div>
+		<div id="optional" class="field">
+			<label for="{{ var_form.optional.id_for_label }}" class="edit-menu__label">{{ var_form.optional.label }}</label>
+			{{ var_form.optional }}
+		</div>
+
+		<div id="intro" class="field">
+			<label class="edit-menu__label" for="fill-title">Текст при ининцализации</label>
+			{{ var_form.fill_title }}
+		</div>
+
+		<div id="weight" class="field">
+			<label for="weight" class="edit-menu__label">Порядок</label>
+			<input class="form-control" type="number" id="weight" name="weight" min="1" max="1000">
+		</div>
+
+		<div id="connected-to" class="field">
+			<label class="edit-menu__label" for="{{ var_form.connected_to.id_for_label }}">{{ var_form.connected_to.label }}</label>
+			{{ var_form.connected_to }}
+		</div>
+
+		<div id="turple" class="field turple-selection">
+			<label for="{{ var_form.turple.id_for_label }}" class="edit-menu__header">{{ var_form.turple.label}}</label>
+			<div class="turple-selection-body">
+				<div class="turple-selection__field">
+					{{ var_form.turple }}
+				</div>
+				<div class="turple-selection-btns">
+					<button class="btn btn-icon create turple-selection__btn" type="button" data-bs-toggle="modal" data-bs-target="#createTurpleModal">
+						<img src="{% static 'drevo/img/knowledge_search/plus.svg'%}" alt="">
+					</button>
+					<button class="btn btn-icon edit turple-selection__btn" type="button" data-bs-toggle="modal" data-bs-target="#createTurpleModal">
+						<img src="{% static 'drevo/img/pencil.svg'%}" alt="">
+					</button>
+					<button class="btn btn-icon turple-selection__btn" type="button">
+						<img src="{% static 'drevo/img/bin.svg'%}" alt="">
+					</button>
+				</div>
+			</div>
+		</div>
+
+		{{ var_form.knowledge }}
+
+		<button type="button" class="btn-icon btn edit-menu__save-btn">Сохранить</button>
+	</form>
+</div>
+</div>
+<div class="modal fade" id="createTurpleModal" tabindex="-1" aria-labelledby="createTurpleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header turple-menu">
+              	<h5 class="modal-title" id="createTurpleModalLabel">Справочник</h5>
+              	<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+				<form action="" method="post" class="turple-form">
+						<div class="field">							
+							<label for="{{turple_form.name.id_for_label}}" class="turple-form__label">{{turple_form.name.label}}</label>
+							{{turple_form.name}}
+						</div>
+						<div class="field">
+							<label for="{{turple_form.is_global.id_for_label}}" class="turple-form__label">{{turple_form.is_global.label}}</label>
+							{{turple_form.is_global}}
+						</div>
+						<div class="field">
+							<label for="{{turple_form.weight.id_for_label}}" class="turple-form__label">{{turple_form.weight.label}}</label>
+							{{turple_form.weight}}
+						</div>
+						{{ turple_form.knowledge }}
+					<button type="button" class="btn-icon btn turple-form__save-btn">Сохранить</button>
+				</form>
+				<div class="turple-form-elements">
+					<h5 class="sub-title turple-form-elements__header">Элементы:</h5>
+					<form action="" class="element-form">
+						<div class="field">
+							<label for="{{ turple_element_form.value.id_for_label }}" class="element-for__label">{{ turple_element_form.value.label }}</label>
+							{{ turple_element_form.value }}
+						</div>
+
+						<div class="field">
+							<label for="{{ turple_element_form.var.id_for_label }}" class="element-for__label">{{ turple_element_form.var.label }}</label>
+							{{ turple_element_form.var }}
+						</div>
+
+						<div class="field">
+							<label for="{{ turple_element_form.weight.id_for_label }}" class="element-for__label">{{ turple_element_form.weight.label }}</label>
+							{{ turple_element_form.weight }}
+						</div>
+						<button type="button" class="btn btn-icon element-form__save-btn">Создать</button>
+					</form>
+				</div>
+				<div class="objects-list turple-menu__objects-list">
+				</div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block jsfiles %}
+<script type="application/javascript" src="{% static 'drevo/js/template_objects/content_template.js' %}"></script>
+<script type="application/javascript" src="{% static 'drevo/js/template_objects/dynamic_form.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %}
