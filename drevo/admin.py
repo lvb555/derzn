@@ -28,10 +28,11 @@ from drevo.models.quiz_results import QuizResult
 from drevo.models.message import Message
 from drevo.models import QuestionToKnowledge
 from drevo.models import UserAnswerToQuestion
-
 from drevo.models.suggestion import Suggestion
 from drevo.models.suggestion_type import SuggestionType
 from drevo.models.refuse_reason import RefuseReason
+from drevo.models import Turple
+from drevo.models import TurpleElement
 
 from drevo.models import Var
 
@@ -870,5 +871,18 @@ class RefuseReasonAdmin(admin.ModelAdmin):
 
 @admin.register(Var)
 class VarAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'knowledge')
-    list_filter = ('knowledge',)
+    list_display = ('id', 'name', 'knowledge', 'structure', 'type_of', 'turple', 'optional', 'connected_to')
+    list_filter = ('knowledge', 'turple', 'is_global', 'type_of')
+    ordering = ('weight', )
+
+@admin.register(TurpleElement)
+class TurpleElementAdmin(admin.ModelAdmin):
+    list_display = ('value', 'turple')
+    list_filter = ('turple', )
+    ordering = ('weight', )
+
+@admin.register(Turple)
+class TurpleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'knowledge', 'is_global')
+    list_filter = ('is_global', )
+    ordering = ('weight', )
