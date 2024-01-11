@@ -31,7 +31,7 @@ from drevo.models.chapter import ChapterDescriptions
 from drevo.models import QuestionToKnowledge
 from drevo.models import UserAnswerToQuestion
 from drevo.models.suggestion import Suggestion
-from drevo.models.suggestion_type import SuggestionType
+from drevo.models.suggestion_type import SuggestionKind
 from drevo.models.refuse_reason import RefuseReason
 from drevo.models import Turple
 from drevo.models import TurpleElement
@@ -947,7 +947,7 @@ class UserSuggestionAdmin(admin.ModelAdmin):
     form = AdminSuggestionUserForm
 
 
-@admin.register(SuggestionType)
+@admin.register(SuggestionKind)
 class SuggestionTypeAdmin(admin.ModelAdmin):
     list_display = ('type_name', 'weight')
     list_filter = ('type_name', 'weight')

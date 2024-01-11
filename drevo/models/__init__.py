@@ -34,7 +34,7 @@ from .questions import QuestionToKnowledge
 from .answers import UserAnswerToQuestion
 from .users_algorithm_elements import AlgorithmAdditionalElements
 from .suggestion import Suggestion
-from .suggestion_type import SuggestionType
+from .suggestion_type import SuggestionKind
 from .vars import Var
 from .turple import Turple
 from .turple_element import TurpleElement

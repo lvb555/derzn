@@ -56,7 +56,7 @@ class Tz(models.Model):
     )
     objects = models.Manager()
 
-    available_suggestion_types = models.ManyToManyField(to='drevo.SuggestionType',
+    available_suggestion_types = models.ManyToManyField(to='drevo.SuggestionKind',
         verbose_name='Виды предложений',
         blank=True)
 
