@@ -7,7 +7,7 @@ from django.views.generic.edit import ProcessFormView
 from ..models import Znanie, IP, Visits, BrowsingHistory, Relation, Tr , AlgorithmAdditionalElements
 from loguru import logger
 from ..models.algorithms_data import AlgorithmData, AlgorithmWork
-from ..relations_tree import get_children_by_relation_type_for_knowledge
+from ..relations_tree import get_children_by_relation_type_for_knowledge, get_children_for_knowledge
 
 logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
@@ -92,7 +92,17 @@ def make_complicated_dict1(algorithm_dict, queryset, previous_key, level=1, next
     пока функция get_children_by_relation_type_for_knowledge не вернет None
     """
 
-    relations = get_children_by_relation_type_for_knowledge(queryset)
+    children = get_children_for_knowledge(queryset)
+
+    if not children:
+        relations = None
+    else:
+        relations = {}
+        for child in children:
+            relation = Relation.objects.filter(bz=queryset, rz=child).first()
+            relations.setdefault(relation.tr, []).append(child)
+        relations = dict(sorted(relations.items(), key=lambda x: x[0].name, reverse=True))
+
     if relations:
         if next_relation in relations.keys() and len(relations) == 1:
             if level == 0:

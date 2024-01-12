@@ -81,8 +81,10 @@ def recurse_dict(data, previous_knowledge, algorithm, user=None, work=None, html
                     extra_span += f'</span>'
                 html += f'<span class="algorithm-element ms-2"><a href="{list(child.keys())[0].get_absolute_url()}">' \
                         f'{list(child.keys())[0]}</a> ({list(child.keys())[0].tz}){extra_span}</span>'
-                if mode and rel != 'Вариант' and not (list(child.keys())[0].tz.name != 'Блок' and rel in ['Можно сделать', 'Нужно сделать']):
-                    html += f'<i class="bi bi-plus-lg text-success p-2" onclick="addNewElement(this);"></i>'
+                if mode:
+                    if rel != 'Вариант' and not (list(child.keys())[0].tz.name != 'Блок' and rel in ['Можно сделать', 'Нужно сделать']):
+                        html += f'<i class="bi bi-plus-lg text-success p-2" onclick="addNewElement(this);"></i>'
+                    html += f'<i class="bi bi-play-circle-open" onclick="toggleHiddenElement(this);"></i>'
             else:
                 html += f'<span style="display: none;">{list(child.keys())[0].name} ({list(child.keys())[0].tz})</span>'
             if QuestionToKnowledge.objects.filter(knowledge=list(child.keys())[0], publication=True).count() > 0:

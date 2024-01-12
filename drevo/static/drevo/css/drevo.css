@@ -934,6 +934,7 @@ input[type="number"] {
     background: radial-gradient(0.9vh, #BFBFBF 100%, #F5F5F5BF 100% );
     font-size: x-large;
     vertical-align: bottom;
+    border-radius: 50%;
 }
 
 .dashed {
