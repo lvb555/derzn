@@ -31,10 +31,11 @@ from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
 from .algorithm_check_correctness_view import check_algorithm_correctness_from_request
 from .zn_constructors.supplementary_functions import make_copy_of_algorithm
+from .zn_constructors.algorithm_constructor_view import delete_algorithm
 from .zn_constructors.tree_constructor_view import (
     TreeConstructorView,
     get_tr_for_create_relation_in_tree_constructor,
-    get_rel_zn_in_tree_constructor,
+    get_rel_zn_in_tree_constructor_from_request,
     save_rel_in_tree_constructor,
     delete_relation_in_tree_constructor,
     get_tr_for_edit_relation_in_tree_constructor,
@@ -242,7 +243,7 @@ __all__ = [
     'RelationsPublicationPageView',
     'relation_publication_view',
     'get_tr_for_create_relation_in_tree_constructor',
-    'get_rel_zn_in_tree_constructor',
+    'get_rel_zn_in_tree_constructor_from_request',
     'TreeConstructorView',
     'TableConstructorView',
     'QuizConstructorView',
@@ -260,5 +261,6 @@ __all__ = [
     'element_of_group_in_table_create_update_view',
     'edit_main_zn_in_constructor',
     'get_order_of_relation',
+    'delete_algorithm',
 
 ]

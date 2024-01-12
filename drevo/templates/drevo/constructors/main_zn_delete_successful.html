@@ -1,0 +1,18 @@
+<!-- Модальное окно, сообщающее об успешном удалении главного знания конструктора -->
+<div class="modal fade" id="success_delete_main_zn" tabindex="-1" aria-labelledby="delete_element" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title text-center">Сообщение</h3>
+                <a href="{% url 'znaniya_for_constructor' %}?type_of_zn={{ type_of_zn }}" class="btn-close" style="position: absolute; right: 1rem;"></a>
+            </div>
+            <div class="modal-body">
+                <h4> {% if type_of_zn == 'table' %} Таблица успешно удалена!
+                {% elif type_of_zn == 'quiz' %} Тест успешно удален!
+                {% elif type_of_zn == 'algorithm' %} Алгоритм успешно удален!
+                {% elif type_of_zn == 'document' %} Документ успешно удален!
+                {% endif %}</h4>
+            </div>
+        </div>
+    </div>
+</div>

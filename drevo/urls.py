@@ -94,7 +94,7 @@ from .views import (
     RelationsPublicationPageView,
     relation_publication_view,
     get_tr_for_create_relation_in_tree_constructor,
-    get_rel_zn_in_tree_constructor,
+    get_rel_zn_in_tree_constructor_from_request,
     TreeConstructorView,
     TableConstructorView,
     save_rel_in_tree_constructor,
@@ -109,6 +109,7 @@ from .views import (
     check_algorithm_correctness_from_request,
     edit_main_zn_in_constructor,
     get_order_of_relation,
+    delete_algorithm,
 
 )
 
@@ -551,7 +552,7 @@ urlpatterns = [
         get_tr_for_create_relation_in_tree_constructor,
         name="rel_in_tree_constructor_create"
     ),
-    path("get_rel_zn_in_tree_constructor/", get_rel_zn_in_tree_constructor, name="get_rel_zn_in_tree_constructor"),
+    path("get_rel_zn_in_tree_constructor_from_request/", get_rel_zn_in_tree_constructor_from_request, name="get_rel_zn_in_tree_constructor_from_request"),
     path("quiz_constructor/<int:pk>/", QuizConstructorView.as_view(), name="quiz_constructor"),
     path("tree_constructor/<type>/<int:pk>/", TreeConstructorView.as_view(), name="tree_constructor"),
     path("table_constructor/<int:pk>/", TableConstructorView.as_view(), name="table_constructor"),
@@ -580,6 +581,8 @@ urlpatterns = [
          name="edit_main_zn_in_constructor"),
     path("get_order_of_relation/", get_order_of_relation,
          name="get_order_of_relation"),
+    path("delete_algorithm/", delete_algorithm,
+         name="delete_algorithm"),
 
 
 ]
