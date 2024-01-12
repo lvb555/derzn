@@ -1,5 +1,6 @@
 {% load mptt_tags %}
 {% load static %}
+{% load constructors_tag %}
 {% load knowledge_tree %}
 
 {% block cssfiles %}
@@ -13,25 +14,56 @@
     <button type="button" class="btn tree-btn" onclick="tree{{ tree_num }}_hiddenAll();">Свернуть</button>
     {% recursetree category_nodes %}
     <li id="tree{{ tree_num }}_li_category_{{ node.pk }}" class="title-treeline">
-        <i class="family bi-file-plus-fill circle_icon" style="color: #F3E5AD;" onclick="toggleHiddenCategoryElementTree{{ tree_num }}(this);"></i>
 
-        <a href="{{ node.get_absolute_url }}" class="text-dark title" style="vertical-align: 0.5vh;">
-            {{ node.name }}
-        </a>
-        {% get_category_counts category_rel_counts node.id %}
-
-        {% if not node.is_leaf_node %}
-        <ul class="children ps-0" hidden>
-            {{ children }}
-        </ul>
-        {% endif %}
-
-        <ul class="children ps-0" hidden>
-            {% get_data_by_category tree_data node as category_knowledge %}
+        {% get_data_by_category tree_data node as category_knowledge %}
+        <!-- В начале дерева главное знание конструктора -->
+        {% for knowledge in category_knowledge %}
+            {% for base_knowledge, knowledge_data in knowledge.items %}
+                {% if knowledge_data %}
+                    <i class="family bi-file-minus-fill circle_icon" style="color: #F3E5AD;" onclick="toggleHiddenCategoryElementTree{{ tree_num }}(this);"></i>
+                {% else %}
+                     <span style="margin-left: 27.5px;"></span>
+                {% endif %}
+                {% get_color_by_tz base_knowledge.tz.name %}
+                <a href="{{ base_knowledge.get_absolute_url }}" id="znanie_id_{{ base_knowledge.id }}" class="text-blue znanie">
+                    {{ base_knowledge.name }}
+                </a>
+                {% is_max_number_of_inner_rels_for_zn base_knowledge as is_max_number_of_inner_rels %}
+                {% if not is_max_number_of_inner_rels %}
+                    <i class="text-success mt-1 me-2 align-top" id="add_knowledge" onclick="add_relation({{ base_knowledge.pk }})" style="cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"></path>
+                        </svg>
+                    </i>
+                {% endif %}
+                {% if not children %}
+                    <i class="text-info mt-1 me-2 align-top" onclick="editMainZnanie()" style="cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pen" viewBox="0 0 16 16">
+                            <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z"/>
+                        </svg>
+                    </i>
+                    <i class="text-danger mt-1 me-2 align-top" onclick="deleteMainZnanie(`{{ is_constructor_type }}`, {{ base_knowledge.id }})" style="cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                        </svg>
+                    </i>
+                {% endif %}
+                {% is_questions_and_answers_for_algorithm base_knowledge as is_questions_and_answers_for_alg %}
+                {% if is_questions_and_answers_for_alg %}
+                    <i class="text-dark mt-1 align-top" onclick="questions_and_answers_for_zn({{ base_knowledge.pk }})" style="cursor: pointer"> ? </i>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        <!-- Все дочерние знания конструктора -->
+        <ul class="children ps-0" >
             {% for knowledge in category_knowledge %}
-            {%for base_knowledge, knowledge_data in knowledge.items %}
-            {% include 'drevo/tags/constructors_nodes.html' %}
-            {%endfor%}
+                {% for base_knowledge, knowledge_data in knowledge.items %}
+                    {% for b_zn, zn_data in knowledge_data.items %}
+                        {% with base_knowledge=b_zn knowledge_data=zn_data parent=base_knowledge template_name="drevo/tags/constructors_nodes.html" children=True %}
+                            {% include template_name %}
+                        {% endwith %}
+                    {% endfor %}
+                {% endfor%}
             {% endfor %}
         </ul>
     </li>
@@ -158,7 +190,7 @@ if ("{{ empty_result }}") {
 </script>
 
 <script>
-    function deleteMainZm(zn_name) {
+    function deleteMainZn(zn_name) {
         $('.delete-confirmation').text(
             `Вы действительно хотите удалить алгоритм «${zn_name}»? Все связанные знания также удалятся!`)
         $('#algorithm_delete').modal("show");
