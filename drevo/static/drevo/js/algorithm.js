@@ -80,7 +80,7 @@ function addNewElement(elem){
         addBg.querySelector('#block-questions div').style.display = 'none';
         if(elem.parentNode.querySelector('input').value == 'Действие' && !(elem.nextSibling)){
             addBg.querySelector('#transformation').style.display = 'block';
-            addBg.querySelector('#transformation label').textContent = 'Преобразовать элемент '+elem.parentNode.querySelector('a').textContent+' в "Блок"?';
+            addBg.querySelector('#transformation label').textContent = 'Преобразовать элемент "'+elem.parentNode.querySelector('a').textContent+'" в "Блок"?';
         }else{
             addBg.querySelector('#transformation').style.display = 'none';
         }
@@ -98,9 +98,11 @@ function redactOrDelete(elem, status, action){
     if(action == 'delete'){
         deleteBg.classList.add('active');
         deletePopup.classList.add('active');
+        deleteBg.querySelector('h5.title').textContent = "Вы уверены, что хотите удалить элемент '"+elementInProcess.querySelector('a').textContent+"' ?";
     }else{
         redactBg.classList.add('active');
         redactPopup.classList.add('active');
+        redactBg.querySelector('#rename').value = elementInProcess.querySelector('a').textContent;
     }
     elementStatus = status;
 }
@@ -267,7 +269,7 @@ function saveNewElement(){
         list_with_new_elements.push({ 'element_name': elementName, 'parent_element':
         parent_element.firstChild.nextSibling.nextSibling.firstChild.textContent, 'relation_type': relation, 'insertion_type': insertion})
         new_elements.push(elementName);
-        showNotification(String('Действие '+elementName+' добавлено в дерево'), 'new_element_notification');
+        showNotification(String('Действие "'+elementName+'" добавлено в дерево'), 'new_element_notification');
     }
 }
 

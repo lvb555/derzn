@@ -373,7 +373,7 @@ class RelationAdmin(admin.ModelAdmin):
                         list_pk.append(item.pk)
                 return queryset.filter(pk__in=list_pk)
 
-    list_display = ("id", "bz", "tr", "rz", "author", "date", "user", "expert", "director", "order")
+    list_display = ("id", "order", "bz", "tr", "rz", "author", "date", "user", "expert", "director")
     save_as = True
     autocomplete_fields = ["author"]
     search_fields = ["bz__name", "rz__name"]
@@ -875,10 +875,10 @@ class AlgorithmWorkAdmin(admin.ModelAdmin):
 
 @admin.register(AlgorithmData)
 class AlgorithmDataAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "display_algorithm", "display_work", "element")
+    list_display = ("id", "user", "display_algorithm", "display_work", "element", "element_type")
     autocomplete_fields = ["algorithm", "user"]
-    search_fields = ["algorithm", "work"]
-    list_filter = ("algorithm", "work", "user")
+    search_fields = ["algorithm__name", "work__work_name"]
+    list_filter = ("algorithm", "work", "user", "element_type")
     def display_algorithm(self, obj):
         return str(obj.algorithm)
     display_algorithm.short_description = "Алгоритм"
@@ -892,7 +892,7 @@ class AlgorithmDataAdmin(admin.ModelAdmin):
 class AlgorithmAdditionalElementsAdmin(admin.ModelAdmin):
     list_display = ("user", "display_algorithm", "display_work", "parent_element", "element_name")
     autocomplete_fields = ["algorithm", "user"]
-    search_fields = ["parent_element", "element_name"]
+    search_fields = ["parent_element__name", "element_name"]
     list_filter = ("algorithm", "work", "relation_type", "insertion_type", "user")
     def display_algorithm(self, obj):
         return str(obj.algorithm)
