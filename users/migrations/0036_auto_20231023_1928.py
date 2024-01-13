@@ -12,7 +12,7 @@ def migrate_data(apps, schema_editor):
 
     drevo_suggestion = apps.get_model('drevo', 'Suggestion')
     users_suggestion = apps.get_model('users', 'UserSuggection')
-    drevo_type = apps.get_model('drevo', 'SuggestionType')
+    drevo_type = apps.get_model('drevo', 'SuggestionKind')
     users_type = apps.get_model('users', 'SuggestionType')
 
     # Перенос данных из users.SuggestionType в drevo.SuggestionType
