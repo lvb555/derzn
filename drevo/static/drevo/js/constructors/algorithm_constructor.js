@@ -56,3 +56,7 @@ function copy(zn_id) {
             window.open(`/drevo/tree_constructor/algorithm/${data.id}`)
     })
 }
+$('#open_algorithm_with_errors').click(function () {
+    let main_zn_id = $('#main_zn_id').val()
+    window.open(`/drevo/znanie/${main_zn_id}`);
+})

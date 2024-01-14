@@ -21,18 +21,42 @@
         <h4>Координаты ячейки:</h4>
         <label for="row">Строка:</label>
         <select class="form-control" name="row" id="row">
-            <option value="" selected disabled>Выберите строку</option>
+            {% if not row_is_group %}
+                <option value="" selected disabled>Выберите строку</option>
+            {% endif %}
             {% for row in rows_attributes %}
                 <option value="{{ row.rz_id }}" id="{{ row.rz_id }}"> {{ row.rz__name }} </option>
             {% endfor %}
         </select>
+        {% if row_is_group %}
+            <div id="row_elements" style="margin-left: 30px;">
+                 <label for="element_row" class="mt-1">Элемент строки:</label>
+                 <select class="form-control" name="row_element" id="element_row">
+                     <option value="" id="" selected disabled> Выберите элемент строки</option>
+                     {% for row in rows_structure_attributes %}
+                         <option value="{{ row.rz_id }}" id="{{ row.rz_id }}"> {{ row.rz__name }} </option>
+                     {% endfor %}
+                </select>
+            </div>
+        {% endif %}
         <label class="mt-1" for="column">Столбец:</label>
         <select class="form-control" name="column" id="column">
-            <option value="" selected disabled>Выберите столбец</option>
+            {% if not column_is_group %}
+                <option value="" selected disabled>Выберите столбец</option>
+             {% endif %}
             {% for column in columns_attributes %}
                 <option value="{{ column.rz_id }}" id="{{ column.rz_id }}"> {{ column.rz__name }} </option>
             {% endfor %}
         </select>
+        <div id="column_elements" {% if not column_is_group %} hidden {% endif %} style="margin-left: 30px;">
+             <label for="element_column" class="mt-1">Элемент столбца:</label>
+             <select class="form-control" name="column_element" id="element_column">
+                 <option value="" id="" selected disabled> Выберите элемент столбца</option>
+                 {% for row in columns_structure_attributes %}
+                     <option value="{{ row.rz_id }}" id="{{ row.rz_id }}"> {{ row.rz__name }} </option>
+                 {% endfor %}
+            </select>
+        </div>
         <label class="mt-2" for="znanie">Знание:</label>
     </div>
 

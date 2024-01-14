@@ -7,7 +7,7 @@ from drevo.forms.knowledge_create_form import ZnImageFormSet, ZnFilesFormSet
 from drevo.forms.constructor_knowledge_form import (OrderOfRelationForm, QuestionToQuizCreateEditForm,
                                                     AnswerToQuizCreateEditForm, AnswerCorrectForm,
                                                     MainZnInConstructorCreateEditForm)
-from drevo.models import BrowsingHistory, Znanie, Relation, Tr
+from drevo.models import Znanie, Relation, Tr
 
 from .mixins import DispatchMixin
 from .supplementary_functions import create_zn_for_constructor, create_relation
@@ -22,10 +22,11 @@ class QuizConstructorView(DispatchMixin, TemplateView):
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Конструктор тестов'
+        context['title'] = 'Конструктор теста'
+        context['type_of_zn'] = 'quiz'
         pk = self.kwargs.get('pk')
         selected_quiz = Znanie.objects.get(id=pk)
-        context["main_zn_name"] = selected_quiz.name
+        context["main_zn_name"] = f'Тест: «{selected_quiz.name}»'
         context["main_zn_id"] = selected_quiz.id
 
         selected_questions = Relation.objects.filter(bz_id=pk, tr__name="Состав")
@@ -35,7 +36,7 @@ class QuizConstructorView(DispatchMixin, TemplateView):
 
         main_zn_edit_form = MainZnInConstructorCreateEditForm(instance=selected_quiz,
                                                               user=self.request.user,
-                                                              type_of_zn='test')
+                                                              type_of_zn='quiz')
         context['main_zn_edit_form'] = main_zn_edit_form
         context['main_zn_edit_form_uuid'] = main_zn_edit_form.fields['content'].widget.attrs['id']
         context['images_form_for_main_zn'] = ZnImageFormSet(instance=selected_quiz)
@@ -161,12 +162,6 @@ def delete_quiz(request):
     """Удаление теста. В таком случае удаляются связи вида «Тест», с вопросами и ответами на вопросы теста;
     знания «Вопрос» и «Ответ», знание «Тест»"""
     quiz_id = request.GET.get('id')
-
-    # Удаление просмотра теста при его существовании (protect-объект)
-    BrowsingHistory.objects.filter(znanie_id=quiz_id).delete()
-
-    # Удаление связи вида "Тест", где связанным знанием является выбранный тест
-    Relation.objects.filter(rz_id=quiz_id).delete()
 
     relations_with_questions = Relation.objects.filter(bz_id=quiz_id)
     for relation_with_question in relations_with_questions:

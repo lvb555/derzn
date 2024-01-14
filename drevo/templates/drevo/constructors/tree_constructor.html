@@ -20,15 +20,14 @@
 {% endblock %}
 
 {% block content %}
-
-    <a href="{% url 'znaniya_for_constructor' %}?type_of_zn=algorithm" class="btn btn-outline-info mb-3">Назад</a>
+    <a href="{% url 'znaniya_for_constructor' %}?type_of_zn={{ type_of_zn }}" class="btn btn-outline-info mb-3">Назад</a>
     <h1>{{ title }}</h1>
     <div>
-      {% if relative_znaniya %}
-        {% build_constructor_tree queryset=relative_znaniya show_complex=True is_constructor_type='algorithm' %}
-      {% else %}
-          {% build_constructor_tree queryset=znanie show_complex=True is_constructor_type='algorithm' %}
-      {% endif %}
+        {% if relative_znaniya %}
+            {% build_constructor_tree queryset=relative_znaniya show_complex=True is_constructor_type=type_of_zn %}
+        {% else %}
+            {% build_constructor_tree queryset=znanie show_complex=True is_constructor_type=type_of_zn %}
+        {% endif %}
     </div>
     <div id="div-param" class="button-block">
         <div class="mt-3">
@@ -55,8 +54,8 @@
                         <input type="hidden" id="last_rz_id">
                         <label for="bz">Базовое знание:</label>
                         <div class="select-options d-flex align-items-center gap-3">
-                            <select class="form-control" id="bz" required></select>
-                            <span style="margin-left: 5px">
+                            <select class="form-control" id="bz" style="pointer-events: none"></select>
+                            <span style="margin-left: auto">
                                 <i class="text-primary mt-1 me-2" id="bz_edit" onclick="edit_znanie('for_bz')" style="cursor: pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pen" viewBox="0 0 16 16">
                                         <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z"/>
@@ -65,10 +64,10 @@
                             </span>
                         </div>
                         <label for="tr">Вид связи:</label>
-                        <select class="form-control" id="tr" required></select>
+                        <select class="form-control" id="tr"></select>
                         <label for="rz">Связанное знание</label>
                         <div class="select-options d-flex align-items-center gap-2">
-                            <select id="rz" class="form-control" disabled required></select>
+                            <select class="form-control" id="rz"></select>
                             <i class="text-secondary" onclick="add_znanie()" id="add_rel_zn">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
@@ -122,6 +121,7 @@
                     <form method="post" id="create_zn">
                         <input type="hidden" name="new_zn_form_create_uuid" id="new_zn_form_create_uuid" value="{{ new_zn_form_create_uuid }}">
                         {% csrf_token %}
+                        <input type="hidden" name="edited_zn_id" id="edited_zn_id" value="{{ main_zn_id }}">
                         {{ new_zn_form_create.media }}
                         {{ new_zn_form_create.as_p }}
                         {{ images_form.management_form }}
@@ -157,7 +157,6 @@
                         <input type="hidden" name="new_zn_form_edit_uuid" id="new_zn_form_edit_uuid" value="{{ new_zn_form_edit_uuid }}">
                         {{ new_zn_form_edit.media }}
                         {{ new_zn_form_edit.as_p }}
-{#                        <input type="hidden" id="for_rel_type">#}
                         <div id="edit_zn_images_form" style="display: block;"></div>
                         <div id="edit_zn_file_form"></div>
                         <input type="submit" class="btn btn-success" value="Сохранить">
@@ -166,6 +165,12 @@
             </div>
         </div>
     </div>
+
+    <!-- Модальное окно для подтверждения удаления главного знания и связей в конструкторе -->
+    {% include 'drevo/constructors/delete_element_warning.html' %}
+
+    <!-- Модальное окно, сообщающее об успешном удалении главного знания-->
+    {% include 'drevo/constructors/main_zn_delete_successful.html' %}
 
     {% if type_of_zn == 'algorithm' %}
         <!-- Модальное окно для отображения ошибок алгоритма -->
@@ -181,6 +186,7 @@
                             <h5>Знания, в которых недостаточно внутренних связей:</h5>
                             <div id="less_than_min"></div>
                         </div>
+                        <button class="btn btn-warning mx-auto d-block" type="button" id="open_algorithm_with_errors">Продолжить</button>
                     </div>
                 </div>
             </div>

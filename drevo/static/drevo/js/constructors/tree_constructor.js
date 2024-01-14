@@ -15,6 +15,16 @@ let last_tr_id = $('#last_tr_id');
 let last_rz_id = $('#last_rz_id');
 let current_action = $('#current_action');
 
+let new_zn_tz = $('#create_zn_modal #id_tz');
+let editing_zn_name = $('#edit_zn_modal #id_name');
+let zn_id_in_edit_form = $('#edit_zn_form #edited_zn_id');
+let zn_id_in_create_form = $('#create_zn_form #edited_zn_id');
+
+// Кнопки «Конструктор шаблона текста документа» в форме создания и редактирования знания
+let textOfDocumentTemplateButtonForCreateZn = $('<button class="btn btn-info mt-3" hidden>').text('Конструктор шаблона текста документа');
+new_zn_tz.after(textOfDocumentTemplateButtonForCreateZn);
+let textOfDocumentTemplateButtonForEditZn = $('<button class="btn btn-info mt-3" hidden>').text('Конструктор шаблона текста документа');
+editing_zn_name.after(textOfDocumentTemplateButtonForEditZn);
 
 function add_relation(parent_zn_id) {
     fetch(`/drevo/rel_in_tree_constructor/create/?parent_id=${parent_zn_id}`)
@@ -33,67 +43,121 @@ function add_relation(parent_zn_id) {
             add_rel_zn.css('cursor','default').attr("class", "text-secondary");
             edit_rel_zn.css('cursor','default').attr("class", "text-secondary");
             $('#title_create_edit_rel_modal').text(`Создание связи`);
-            tr.empty().append(`<option selected disabled>-----</option>`);
-            $('#bz').empty().append(`<option id="${data['bz']['id']}" value="${data['bz']['id']}">${data['bz']['name']}</option>`)
+            $('#bz').empty().append(`<option id="${data['bz']['id']}" value="${data['bz']['id']}">${data['bz']['name']}</option>`);
+            tr.empty();
+            if (data['relations'].length !== 1) {
+               tr.append(`<option selected disabled>-----</option>`);
+               tr.css('pointer-events', 'auto');
+            }
             data['relations'].forEach(item => {
                 tr.append(`<option id="${item['id']}" value="${item['id']}">${item['name']}</option>`)
             })
+            if (data['relations'].length === 1) {
+                tr.css('pointer-events', 'none');
+                add_rel_zn.css('cursor','pointer').attr("class", "text-success");
+                rz.prop('disabled', false).empty().select2().append(`<option selected disabled>-----</option>`);
+                data.rel_zn.forEach(item => {
+                    const option = $('<option>').val(item.id).text(item.name);
+                    rz.append(option);
+                });
+                new_zn_tz.empty()
+                if (data.rel_tz.length !== 1) new_zn_tz.append(`<option selected disabled>-----</option>`).prop('disabled', false);
+                data.rel_tz.forEach(item => {
+                    const option = $('<option>').val(item.id).text(item.name);
+                    if (item.name === 'Текст' && data.rel_tz.length === 1) textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
+                    else textOfDocumentTemplateButtonForCreateZn.prop('hidden', true);
+                    new_zn_tz.append(option);
+                });
+            }
+            else {
+                rz.empty();
+            }
             if (data['bz']['editable']) $('#bz_edit').show();
             else $('#bz_edit').hide();
-            rz.empty().append(`<option selected>-----</option>`).prop('disabled', true);
             create_edit_relation_modal.modal("show");
         });
 }
+
+// При создании знания, если выбран вид знания "Текст", появляется кнопка для открытия страницы
+// «Конструктор шаблона текста документа»
+new_zn_tz.change(function () {
+    if ($(this).find(":selected").text() === 'Текст') textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
+    else textOfDocumentTemplateButtonForCreateZn.prop('hidden', true);
+})
+
+textOfDocumentTemplateButtonForCreateZn.click(function () {
+    if (!$('#create_zn #id_name').val()) return
+    if (!zn_id_in_create_form.val()) {
+        let uuid = $('#new_zn_form_create_uuid').val();
+        $(`#${uuid}`).val(CKEDITOR.instances[uuid].getData());
+        const formData = new FormData(create_zn);
+        fetch('/drevo/create_zn_in_tree_constructor/', {
+         method: 'POST',
+         body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            zn_id_in_create_form.val(`${data.zn_id}`)
+            window.open(`/drevo/znanie/${data.zn_id}`, 'modal', 'Width=1280,Height=650');
+        });
+    }
+    else window.open(`/drevo/znanie/${zn_id_in_create_form.val()}`, 'modal', 'Width=1280,Height=650');
+})
+
 function edit_relation(rel_id) {
     fetch(`/drevo/rel_in_tree_constructor/edit/?rel_id=${rel_id}`)
         .then(response => response.json())
         .then(data => {
             current_action.val('edit');
             $('#title_create_edit_rel_modal').text(`Редактирование связи`);
-            tr.empty().append(`<option disableО Бd>-----</option>`)
+            $('#bz').empty().append(`<option id="${data['bz']['id']}" value="${data['bz']['id']}">${data['bz']['name']}</option>`);
+            if (data['bz']['editable']) $('#bz_edit').show();
+            else $('#bz_edit').hide();
+            tr.empty().append(`<option disabled>-----</option>`)
                 .append((`<option id="${data['selected_tr']['id']}" value="${data['selected_tr']['id']}" selected>${data['selected_tr']['name']}</option>`));
-            $('#bz').empty().append(`<option id="${data['bz']['id']}" value="${data['bz']['id']}">${data['bz']['name']}</option>`)
-            data['relations'].forEach(item => {
-                tr.append(`<option id="${item['id']}" value="${item['id']}">${item['name']}</option>`)
-            })
-
+            if (data['other_tr'].length !== 0) {
+                data['other_tr'].forEach(item => {
+                    tr.append(`<option id="${item['id']}" value="${item['id']}">${item['name']}</option>`)
+                });
+                tr.css('pointer-events', 'auto');
+            }
+            else tr.css('pointer-events', 'none');
             $.map(data.other_rz, (obj) => obj.text = obj.name);
-
             rz_list = data.other_rz;
             rz_list.push({id: data.selected_rz.id, text: data.selected_rz.name, selected: true})
-
+            rz.prop('disabled', false).empty().removeAttr('hidden').select2({
+                data: rz_list
+            })
             last_tr_id.val(`${data['selected_tr']['id']}`);
             last_rz_id.val(`${data.selected_rz.id}`);
             if (data.selected_order.id) order.val(`${data.selected_order.id}`)
-
-            rz.prop('disabled', false).empty().select2({
-                data: rz_list
-            })
+            else order.val(null);
             add_rel_zn.css('cursor','pointer').attr("class", "text-success");
-
-            if (data['bz']['editable']) $('#bz_edit').show();
-            else $('#bz_edit').hide();
-            if (data['selected_rz']['editable']) {
-                edit_rel_zn.css('cursor','pointer').attr("class", "text-primary").show();
-            }
+            if (data['selected_rz']['editable']) edit_rel_zn.css('cursor','pointer').attr("class", "text-primary").show();
             else edit_rel_zn.hide();
-            let tz_in_new_zn = $('#create_zn_modal #id_tz');
-
-            tz_in_new_zn.empty().append(`<option selected disabled>-----</option>`).prop('disabled', false);
+            new_zn_tz.empty()
+            if (data.rel_tz.length !== 1) new_zn_tz.append(`<option selected disabled>-----</option>`).prop('disabled', false);
             data.rel_tz.forEach(item => {
                 const option = $('<option>').val(item.id).text(item.name);
-                tz_in_new_zn.append(option);
+                if (item.name === 'Текст' && data.rel_tz.length === 1) textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
+                else textOfDocumentTemplateButtonForCreateZn.prop('hidden', true);
+                new_zn_tz.append(option);
             });
             create_edit_relation_modal.modal("show");
         });
 }
 
+
+textOfDocumentTemplateButtonForEditZn.click(function () {
+    window.open(`/drevo/znanie/${zn_id_in_edit_form.val()}`);
+})
+
 // Получение видов связей, учитывая выбранное базовое знание
 tr.change(function() {
-    let bz_id = $('#bz').val();
-    let tr_id = $('#tr').val();
+    let bz_id = bz.val();
+    let tr_id = tr.val();
     order.val(null);
-    fetch(`/drevo/get_rel_zn_in_tree_constructor/?bz_id=${bz_id}&tr_id=${tr_id}`)
+    fetch(`/drevo/get_rel_zn_in_tree_constructor_from_request/?bz_id=${bz_id}&tr_id=${tr_id}`)
         .then(response => response.json())
         .then(data => {
             if (Object.entries(data).length !== 0) {
@@ -102,23 +166,21 @@ tr.change(function() {
                     const option = $('<option>').val(item.id).text(item.name);
                     rz.append(option);
                 });
-                let tz_in_new_zn = $('#create_zn_modal #id_tz');
-
-                tz_in_new_zn.empty().append(`<option selected disabled>-----</option>`).prop('disabled', false);
+                new_zn_tz.empty().append(`<option selected disabled>-----</option>`).prop('disabled', false);
                 data.rel_tz.forEach(item => {
                     const option = $('<option>').val(item.id).text(item.name);
-                    tz_in_new_zn.append(option);
+                    new_zn_tz.append(option);
                 });
             }
             add_rel_zn.css('cursor','pointer').attr("class", "text-success");
         });
 })
 
-// Получение связанных знаний, учитывая выбранные базовое знание и вид связи
+// Получение порядка выбранной связи (при выборе связанной связи) и проверка, является ли пользователь создателем св. знания
 rz.change(function() {
-    let bz_id = $('#bz').val();
-    let tr_id = $('#tr').val();
-    let rz_id = $('#rz').val();
+    let bz_id = bz.val();
+    let tr_id = tr.val();
+    let rz_id = rz.val();
     fetch(`/drevo/is_current_user_creator_of_zn/?id=${rz_id}`)
         .then(response => response.json())
         .then(data => {
@@ -145,33 +207,45 @@ function delete_relation(bz_id, rz_id) {
          })
         .then(response => response.json())
         .then(data => {
-            if (data.redirect_url) {
-                window.location.href = data.redirect_url;
-            }
+            window.location.href = data.redirect_url;
             $('#create_relation').modal("hide");
         });
     })
 }
 function add_znanie() {
     $('#title_create_edit_rel_modal').text(`Создание связи`);
+    create_zn.reset();
+    zn_id_in_create_form.val(null);
     $('#create_zn_modal').modal('show');
 }
 
 create_zn.addEventListener('submit', (event) => {
     event.preventDefault();
-    let uuid = $('#new_zn_form_create_uuid').val();
-    $(`#${uuid}`).val(CKEDITOR.instances[uuid].getData());
-    const formData = new FormData(create_zn);
-    fetch('/drevo/create_zn_in_tree_constructor/', {
-     method: 'POST',
-     body: formData,
-    })
-    .then(response => response.json())
-    .then(data => {
-        rz.append(`<option value="${data.zn_id}" selected>${data.zn_name}</option>`);
-        $('#create_zn_modal').modal('hide');
-        create_zn.reset();
-    });
+    let uuid = $('#new_zn_form_edit_uuid').val();
+    $(`#${uuid}`).val(CKEDITOR.instances[uuid].getData())
+    if (zn_id_in_create_form.val()) {
+        const formData = new FormData(create_zn);
+        fetch(`/drevo/edit_znanie_in_tree_constructor/`, {
+         method: 'POST',
+         body: formData,
+        })
+        .then(data => {
+            rz.append(`<option value="${data.zn_id}" selected>${data.zn_name}</option>`);
+            $('#create_zn_modal').modal('hide');
+        });
+    }
+    else {
+        const formData = new FormData(create_zn);
+        fetch('/drevo/create_zn_in_tree_constructor/', {
+         method: 'POST',
+         body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            rz.append(`<option value="${data.zn_id}" selected>${data.zn_name}</option>`);
+            $('#create_zn_modal').modal('hide');
+        });
+    }
 })
 
 
@@ -193,7 +267,12 @@ function edit_znanie(for_type) {
         }
         $('#edit_zn_images_form').html(data.images_form);
         $('#edit_zn_file_form').html(data.file_form);
-        $('#edit_zn_form #edited_zn_id').val(`${zn_id}`);
+        zn_id_in_edit_form.val(`${zn_id}`);
+
+        // При редактировании знания, если вид знания "Текст", появляется кнопка для открытия страницы
+        // «Конструктор шаблона текста документа»
+        if (data.zn_tz === 'Текст') textOfDocumentTemplateButtonForEditZn.prop('hidden', false)
+        else textOfDocumentTemplateButtonForEditZn.prop('hidden', true);
         $('#edit_zn_modal').modal('show');
     });
 }
@@ -223,8 +302,39 @@ edit_zn.addEventListener('submit', (event) => {
         $('#edit_zn_modal').modal('hide');
     });
 })
-function editMainAlgorithm() {
+function editMainZnanie() {
     $('#main_zn_edit_modal').modal("show");
+}
+
+function deleteMainZnanie(type_of_zn, zn_id) {
+    if (type_of_zn === 'algorithm') {
+        $('.delete-confirmation').text(`Вы действительно хотите удалить этот алгоритм? Все связанные знания (кроме внутренних знаний «Алгоритм») также удалятся!`)
+        $('#delete_element_warning').modal("show");
+        $('.js-okay-successful').click(function () {
+            fetch(`/drevo/delete_algorithm/?id=${zn_id}`)
+                .then(response => {
+                    $('#delete_element_warning').modal("hide");
+                    $('#success_delete_main_zn').modal("show");
+                })
+                .catch((error) => {
+                    console.log('Error:', error);
+                });
+        })
+    }
+    else if (type_of_zn === 'document') {
+        $('.delete-confirmation').text(`Вы действительно хотите удалить этот документ? Все связанные знания также удалятся!`)
+        $('#delete_element_warning').modal("show");
+        $('.js-okay-successful').click(function () {
+            fetch(`/drevo/delete_complex_zn/?id=${zn_id}`)
+                .then(response => {
+                    $('#delete_element_warning').modal("hide");
+                    $('#success_delete_main_zn').modal("show");
+                })
+                .catch((error) => {
+                    console.log('Error:', error);
+                });
+        })
+    }
 }
 edit_main_algorithm.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -246,13 +356,16 @@ edit_main_algorithm.addEventListener('submit', (event) => {
 
 $('#save_new_relation').click(function () {
     if (bz.val() && tr.val() && rz.val()) {
-        let data;
-        if (current_action.val() === 'create') data = { bz_id: $('#bz').val(), tr_id: $('#tr').val(),
-            rz_id: $('#rz').val(), order: order.val(), action: 'create'};
-        else data = { bz_id: $('#bz').val(), tr_id: $('#tr').val(),  rz_id: $('#rz').val(),
-            last_tr_id: last_tr_id.val(), last_rz_id: last_rz_id.val(), order: order.val(), action: 'edit'};
+        let data = {
+                bz_id: bz.val(), tr_id: tr.val(),
+                rz_id: rz.val(), order: order.val(), action: current_action.val()
+            };
+        if (current_action.val() === 'edit') {
+            data.last_tr_id = last_tr_id.val();
+            data.last_rz_id = last_rz_id.val();
+        }
 
-         fetch('/drevo/save_rel_in_tree_constructor/', {
+        fetch('/drevo/save_rel_in_tree_constructor/', {
              method: 'POST',
              body: JSON.stringify(data),
              headers: {
@@ -262,9 +375,7 @@ $('#save_new_relation').click(function () {
            })
             .then(response => response.json())
             .then(data => {
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                }
+                window.location.href = data.redirect_url;
                 $('#create_edit_relation_modal').modal("hide");
             });
     }
