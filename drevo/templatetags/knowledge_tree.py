@@ -97,7 +97,6 @@ def build_knowledge_tree(context: RequestContext,
     if is_constructor_type:
         tree_context['is_constructor_type'] = is_constructor_type
 
-
     tree_context['user_search_param'] = user_search_param
     tree_knowledge = tree_builder.get_tree_knowledge_list(with_struct_knowledge=show_struct_param)
     tree_context['empty_result'] = context.request.GET.get('empty_result', '')
