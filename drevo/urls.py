@@ -32,7 +32,7 @@ from .views import (
     ZnaniyaForConstructorView,
     MainZnInConstructorCreateView,
     FillingTablesView,
-    save_zn_to_cell_in_table,
+    save_zn_to_cell_in_table_from_request,
     get_cell_for_table,
     relation_in_table_create_update_view,
     element_of_group_in_table_create_update_view,
@@ -110,6 +110,7 @@ from .views import (
     edit_main_zn_in_constructor,
     get_order_of_relation,
     delete_algorithm,
+    delete_zn_in_cell_in_table,
 
 )
 
@@ -527,7 +528,7 @@ urlpatterns = [
         name='relation_publication'
     ),
     path("filling_tables/<int:pk>/", FillingTablesView.as_view(), name="filling_tables"),
-    path("save_zn_to_cell_in_table/", save_zn_to_cell_in_table, name="save_zn_to_cell_in_table"),
+    path("save_zn_to_cell_in_table_from_request/", save_zn_to_cell_in_table_from_request, name="save_zn_to_cell_in_table_from_request"),
     path("get_cell_for_table/", get_cell_for_table, name="get_cell_for_table"),
     path(
         'main_znanie_in_constructor_create/<type_of_zn>/',
@@ -583,7 +584,8 @@ urlpatterns = [
          name="get_order_of_relation"),
     path("delete_algorithm/", delete_algorithm,
          name="delete_algorithm"),
-
+    path("delete_zn_in_cell_in_table/", delete_zn_in_cell_in_table,
+         name="delete_zn_in_cell_in_table"),
 
 ]
 

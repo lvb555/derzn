@@ -13,12 +13,12 @@ from drevo.relations_tree import get_descendants_for_knowledge
 from drevo.utils.knowledge_tree_builder import KnowledgeTreeBuilder
 
 
-def create_relation(bz_id, rz_id, tr_id, request, order_of_relation=None, is_answer=False):
+def create_relation(bz_id, rz_id, tr_id, user, order_of_relation=None, is_answer=False):
     """Создание опубликованной связи с заданными параметрами"""
 
     # Создание автора с именем и фамилией пользователя, если такого не существует
     author, created = Author.objects.get_or_create(
-        name=f"{request.user.first_name} {request.user.last_name}",
+        name=f"{user.first_name} {user.last_name}",
     )
     relation = None
     if is_answer:
@@ -40,7 +40,7 @@ def create_relation(bz_id, rz_id, tr_id, request, order_of_relation=None, is_ans
             rz_id=rz_id,
             author_id=author.id,
             is_published=True,
-            defaults={'user_id': request.user.id}
+            defaults={'user_id': user.id}
         )
 
     if order_of_relation:

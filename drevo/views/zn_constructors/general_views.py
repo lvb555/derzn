@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -15,7 +16,7 @@ from .mixins import DispatchMixin
 from ...relations_tree import get_descendants_for_knowledge
 
 
-class ZnaniyaForConstructorView(DispatchMixin, TemplateView):
+class ZnaniyaForConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView):
     """
     Представление страницы, в которой знания в компетенциях эксперта/руководителя строятся в виде дерева
     для последующего открытия конструктора
@@ -76,7 +77,7 @@ class ZnaniyaForConstructorView(DispatchMixin, TemplateView):
         return context
 
 
-class MainZnInConstructorCreateView(DispatchMixin, CreateView):
+class MainZnInConstructorCreateView(LoginRequiredMixin, DispatchMixin, CreateView):
     """Представление создания главного знания для конструктора знания (виды Тест, Таблица, Алгоритм)"""
     model = Znanie
     form_class = MainZnInConstructorCreateEditForm

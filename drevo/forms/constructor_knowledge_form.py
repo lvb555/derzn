@@ -88,6 +88,7 @@ class ZnanieForCellCreateForm(forms.ModelForm):
                               label='Содержание',
                               required=False
                               )
+    tz = forms.ModelChoiceField(queryset=Tz.objects.all().order_by('name'), label='Вид знания')
 
     class Meta:
         model = Znanie
@@ -184,7 +185,7 @@ class AnswerCorrectForm(forms.Form):
 
 
 class ZnForTreeConstructorCreateUpdateForm(forms.ModelForm):
-    """Форма для создания и редактирования дочернего знания в конструкторе древовидного вида"""
+    """Форма для создания и редактирования дочернего знания в древовидном конструкторе"""
     content = forms.CharField(widget=CKEditorWidget(attrs={
                                                            'cols': 40,
                                                            'rows': 10,

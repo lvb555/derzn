@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -128,7 +129,7 @@ def get_contex_data(pk, type_of_page, user=None):
     return context
 
 
-class TableConstructorView(DispatchMixin, TemplateView):
+class TableConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView):
     """Представление для страницы «Конструктор таблиц»"""
     template_name = "drevo/constructors/table_constructor.html"
 
@@ -136,7 +137,7 @@ class TableConstructorView(DispatchMixin, TemplateView):
         return get_contex_data(pk=self.kwargs.get('pk'), type_of_page="table_constructor", user=self.request.user)
 
 
-class FillingTablesView(DispatchMixin, TemplateView):
+class FillingTablesView(LoginRequiredMixin, DispatchMixin, TemplateView):
     """Представление для страницы «Наполнение таблицы»"""
     template_name = "drevo/constructors/filling_tables.html"
 
@@ -180,9 +181,9 @@ def relation_in_table_create_update_view(request):
             row_id = get_object_or_404(Tr, name='Строка').id
             column_id = get_object_or_404(Tr, name='Столбец').id
             if req_data.get('type_of_tr') == 'row':
-                create_relation(table_id, knowledge.id, row_id, request, order_of_relation)
+                create_relation(table_id, knowledge.id, row_id, request.user, order_of_relation)
             else:
-                create_relation(table_id, knowledge.id, column_id, request, order_of_relation)
+                create_relation(table_id, knowledge.id, column_id, request.user, order_of_relation)
             return JsonResponse({'zn_id': knowledge.id, 'zn_name': knowledge.name,
                                  'new_zn_tr_is_group': knowledge.tz.name == 'Группа'}, status=200)
         return JsonResponse({}, status=400)
@@ -219,7 +220,7 @@ def element_of_group_in_table_create_update_view(request):
             knowledge = form.save(commit=False)
             create_zn_for_constructor(knowledge, form, request, tz_id=tz_id)
             parent_id = req_data.get('parent_for_element_of_group')
-            create_relation(parent_id, knowledge.id, structure_kind, request, order_of_relation)
+            create_relation(parent_id, knowledge.id, structure_kind, request.user, order_of_relation)
             return JsonResponse({'zn_id': knowledge.id, 'zn_name': knowledge.name}, status=200)
         return JsonResponse({}, status=400)
 
@@ -259,24 +260,20 @@ def create_zn_for_cell(request):
     if form.is_valid() and images_form.is_valid() and file_form.is_valid():
         knowledge = form.save(commit=False)
         create_zn_for_constructor(knowledge, form, request, image_form=images_form, file_form=file_form)
+        save_zn_to_cell_in_table(request.user,
+                                 selected_table_id=request.POST.get('table_id'),
+                                 selected_row_id=request.POST.get('row_id'),
+                                 selected_column_id=request.POST.get('column_id'),
+                                 selected_zn_for_cell_id=knowledge.id)
         return JsonResponse(data={'zn_name': knowledge.name, 'zn_id': knowledge.id}, status=200)
     return JsonResponse(data={}, status=400)
 
 
-@require_http_methods(['POST'])
-def save_zn_to_cell_in_table(request):
-    """Удаляются раннее созданные знания в ячейке, и создаются 3 связи с новым знанием"""
+def save_zn_to_cell_in_table(user, selected_table_id, selected_row_id, selected_column_id, selected_zn_for_cell_id):
+    """Удаляются раннее созданные связи с ячейкой, и создаются 3 связи с новым знанием"""
     row_id = get_object_or_404(Tr, name='Строка').id
     column_id = get_object_or_404(Tr, name='Столбец').id
     value_id = get_object_or_404(Tr, name='Значение').id
-
-    new_relation_attrs = json.loads(request.body)
-    selected_table_id = new_relation_attrs['table_id']
-    selected_row_id = new_relation_attrs['row_id']
-    selected_column_id = new_relation_attrs['column_id']
-    selected_zn_for_cell_id = new_relation_attrs['selected_zn_for_cell_id']
-
-    # Удаление связей со знанием/знаниями, которые раньше находились в этой ячейке
     row_relations = Relation.objects.filter(rz_id=selected_row_id)
     column_relations = Relation.objects.filter(rz_id=selected_column_id)
     cell_related_knowledges_id = []
@@ -289,17 +286,53 @@ def save_zn_to_cell_in_table(request):
                 cell_related_knowledges_id.append(row_relation.bz_id)
 
     # Создание связи "Строка": базовое знание - выбранное знание, связанное знание - строка
-    create_relation(selected_zn_for_cell_id, selected_row_id, row_id, request)
+    create_relation(selected_zn_for_cell_id, selected_row_id, row_id, user)
 
     # Создание связи "Столбец": базовое знание - выбранное знание, связанное знание - столбец
-    create_relation(selected_zn_for_cell_id, selected_column_id, column_id, request)
+    create_relation(selected_zn_for_cell_id, selected_column_id, column_id, user)
 
     # Удаление предыдущей связи "Значение" с данной ячейкой
     for knowledge_id in cell_related_knowledges_id:
         Relation.objects.filter(bz_id=selected_table_id, rz_id=knowledge_id).delete()
 
     # Создание связи "Значение" : базовое знание - таблица, связанное знание - выбранное знание
-    create_relation(selected_table_id, selected_zn_for_cell_id, value_id, request)
+    create_relation(selected_table_id, selected_zn_for_cell_id, value_id, user)
+
+
+@require_http_methods(['POST'])
+def save_zn_to_cell_in_table_from_request(request):
+    new_relation_attrs = json.loads(request.body)
+    save_zn_to_cell_in_table(request.user,
+                             selected_table_id=new_relation_attrs['table_id'],
+                             selected_row_id=new_relation_attrs['row_id'],
+                             selected_column_id=new_relation_attrs['column_id'],
+                             selected_zn_for_cell_id=new_relation_attrs['selected_zn_for_cell_id'])
+
+    return HttpResponse(status=200)
+
+
+@require_http_methods(['DELETE'])
+def delete_zn_in_cell_in_table(request):
+    """Удаляются связи с выбранной ячейкой"""
+    relation_attrs = json.loads(request.body)
+    table_id = relation_attrs['table_id']
+    row_id = relation_attrs['row_id']
+    column_id = relation_attrs['column_id']
+    zn_in_cell_id = relation_attrs['selected_zn_for_cell_id']
+    rel_with_table = get_object_or_404(Relation, bz_id=table_id, rz_id=zn_in_cell_id, tr__name='Значение')
+    rel_with_row = get_object_or_404(Relation, bz_id=zn_in_cell_id, rz_id=row_id, tr__name='Строка')
+    rel_with_column = get_object_or_404(Relation, bz_id=zn_in_cell_id, rz_id=column_id,
+                                        tr__name='Столбец')
+
+    # Если данный пользователь не является создателем связей с ячейкой, то запрещается удаление
+    user_name_and_last_name = f"{request.user.first_name} {request.user.last_name}"
+    if rel_with_table.author.name != user_name_and_last_name or rel_with_row.author.name != user_name_and_last_name \
+            or rel_with_column.author.name != user_name_and_last_name:
+        return HttpResponse(status=422)
+
+    rel_with_table.delete()
+    rel_with_row.delete()
+    rel_with_column.delete()
 
     return HttpResponse(status=200)
 
@@ -367,7 +400,8 @@ def delete_row_or_column(request):
         if Relation.objects.filter(bz_id=znanie_id, tr_id=structure_id).exists():
             return HttpResponse(status=422)
     # Если есть ячейки, привязанные к строке/столбцу, запрещается удаление
-    elif Relation.objects.filter(Q(rz_id=znanie_id) & ~Q(bz_id=table_id) & (Q(tr_id=tr_row_id) | Q(tr_id=tr_column_id))):
+    elif Relation.objects.filter(
+            Q(rz_id=znanie_id) & ~Q(bz_id=table_id) & (Q(tr_id=tr_row_id) | Q(tr_id=tr_column_id))):
         return HttpResponse(status=422)
 
     Relation.objects.filter(rz_id=znanie_id).delete()

@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.db import transaction
@@ -38,7 +39,7 @@ def get_rel_zn_in_tree_constructor(bz_id, tr_id):
     return req_relationship, rel_tz, rel_zn
 
 
-class TreeConstructorView(DispatchMixin, TemplateView):
+class TreeConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView):
     """Отображение древовидного конструктора"""
     template_name = 'drevo/constructors/tree_constructor.html'
 
@@ -286,5 +287,5 @@ def save_rel_in_tree_constructor(request):
         last_rz_id = rel_attrs['last_rz_id']
         if not (tr_id == last_tr_id and rz_id == last_rz_id):
             Relation.objects.filter(bz_id=bz_id, tr_id=last_tr_id, rz_id=last_rz_id).delete()
-    create_relation(bz_id=bz_id, tr_id=tr_id, rz_id=rz_id, request=request, order_of_relation=order)
+    create_relation(bz_id=bz_id, tr_id=tr_id, rz_id=rz_id, user=request.user, order_of_relation=order)
     return JsonResponse({'redirect_url': request.META['HTTP_REFERER']})
