@@ -63,7 +63,7 @@ from .zn_constructors.table_constructor_view import (
     relation_in_table_create_update_view,
     element_of_group_in_table_create_update_view,
     TableConstructorView,
-    save_zn_to_cell_in_table,
+    save_zn_to_cell_in_table_from_request,
     delete_table,
     delete_row_or_column,
     FillingTablesView,
@@ -72,6 +72,7 @@ from .zn_constructors.table_constructor_view import (
     show_filling_tables_page,
     delete_element_of_relation,
     create_zn_for_cell,
+    delete_zn_in_cell_in_table,
 )
 from .friends_added_view import friends_added_view
 from .friends_view import friends_view
@@ -171,7 +172,7 @@ __all__ = [
     "MainZnInConstructorCreateView",
     "FillingTablesView",
     "get_cell_for_table",
-    "save_zn_to_cell_in_table",
+    "save_zn_to_cell_in_table_from_request",
     "delete_table",
     "delete_row_or_column",
     "row_and_column_existence",
@@ -266,5 +267,6 @@ __all__ = [
     'edit_main_zn_in_constructor',
     'get_order_of_relation',
     'delete_algorithm',
+    'delete_zn_in_cell_in_table',
 
 ]

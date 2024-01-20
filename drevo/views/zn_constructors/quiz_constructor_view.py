@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
@@ -13,7 +14,7 @@ from .mixins import DispatchMixin
 from .supplementary_functions import create_zn_for_constructor, create_relation
 
 
-class QuizConstructorView(DispatchMixin, TemplateView):
+class QuizConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView):
     """
     Отображение страницы "Конструктор тестов"
     """
@@ -77,7 +78,7 @@ def question_create_update_in_quiz(request):
             knowledge = form.save(commit=False)
             create_zn_for_constructor(knowledge, form, request)
             structure_kind_id = get_object_or_404(Tr, name='Состав').id
-            create_relation(quiz_id, knowledge.id, structure_kind_id, request, order_of_relation)
+            create_relation(quiz_id, knowledge.id, structure_kind_id, request.user, order_of_relation)
             return JsonResponse({'zn_id': knowledge.id, 'zn_name': knowledge.name}, status=200)
         return JsonResponse({}, status=400)
 
@@ -124,12 +125,12 @@ def answer_create_update_in_quiz(request):
             is_correct_answer_value = answer_correct_form.cleaned_data['answer_correct']
             if is_correct_answer_value:
                 create_relation(
-                    question_id, knowledge.id, is_correct_answer_tr_id, request, order_of_relation, True
+                    question_id, knowledge.id, is_correct_answer_tr_id, request.user, order_of_relation, True
                 )
             else:
                 is_incorrect_answer_tr_id = get_object_or_404(Tr, name='Ответ неверный').id
                 create_relation(
-                    question_id, knowledge.id, is_incorrect_answer_tr_id, request, order_of_relation, True)
+                    question_id, knowledge.id, is_incorrect_answer_tr_id, request.user, order_of_relation, True)
             return JsonResponse({'zn_id': knowledge.id, 'zn_name': knowledge.name}, status=200)
         return JsonResponse({}, status=400)
 

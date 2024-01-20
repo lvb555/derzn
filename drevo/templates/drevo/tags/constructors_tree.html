@@ -13,8 +13,7 @@
     <button type="button" class="btn tree-btn" onclick="tree{{ tree_num }}_showAll();">Развернуть</button>
     <button type="button" class="btn tree-btn" onclick="tree{{ tree_num }}_hiddenAll();">Свернуть</button>
     {% recursetree category_nodes %}
-    <li id="tree{{ tree_num }}_li_category_{{ node.pk }}" class="title-treeline">
-
+    <li id="tree{{ tree_num }}_li_category_{{ node.pk }}" class="{% if node.is_leaf_node %}title-treeline{% endif %}">
         {% get_data_by_category tree_data node as category_knowledge %}
         <!-- В начале дерева главное знание конструктора -->
         {% for knowledge in category_knowledge %}
@@ -54,8 +53,14 @@
                 {% endif %}
             {% endfor %}
         {% endfor %}
+         {% if not node.is_leaf_node %}
+            <ul class="ps-0">
+                {{ children }}
+            </ul>
+        {% endif %}
+
         <!-- Все дочерние знания конструктора -->
-        <ul class="children ps-0" >
+        <ul class="children ps-0 title-treeline">
             {% for knowledge in category_knowledge %}
                 {% for base_knowledge, knowledge_data in knowledge.items %}
                     {% for b_zn, zn_data in knowledge_data.items %}
