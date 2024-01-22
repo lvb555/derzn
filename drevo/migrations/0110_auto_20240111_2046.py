@@ -2,16 +2,6 @@
 
 from django.db import migrations
 
-def foo(apps, schema_editor):
-    """
-        Перенос данных из SuggestionType в SuggestionKind
-    """
-    Kind = apps.get_model('drevo', 'SuggestionKind')
-    Type = apps.get_model('drevo', 'SuggestionType')
-
-    for i in Type.objects.all():
-        Kind.create(weight=i.weight, type_name=i.type_name)
-
 
 class Migration(migrations.Migration):
 
@@ -19,6 +9,4 @@ class Migration(migrations.Migration):
         ('drevo', '0109_suggestionkind'),
     ]
 
-    operations = [
-        migrations.RunPython(foo),
-    ]
+    operations = []

@@ -9,17 +9,4 @@ class Migration(migrations.Migration):
         ('drevo', '0108_merge_20240110_1230'),
     ]
 
-    operations = [
-        migrations.CreateModel(
-            name='SuggestionKind',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type_name', models.CharField(max_length=255, verbose_name='Название типа')),
-                ('weight', models.IntegerField(blank=True, default=100, verbose_name='Порядок')),
-            ],
-            options={
-                'verbose_name': 'Вид предложения',
-                'verbose_name_plural': 'Виды предложений',
-            },
-        ),
-    ]
+    operations = []

@@ -10,15 +10,4 @@ class Migration(migrations.Migration):
         ('drevo', '0110_auto_20240111_2046'),
     ]
 
-    operations = [
-        migrations.AlterField(
-            model_name='suggestion',
-            name='suggestions_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='drevo.suggestionkind', verbose_name='Вид предложения'),
-        ),
-        migrations.AlterField(
-            model_name='tz',
-            name='available_suggestion_types',
-            field=models.ManyToManyField(blank=True, to='drevo.SuggestionKind', verbose_name='Виды предложений'),
-        ),
-    ]
+    operations = []
