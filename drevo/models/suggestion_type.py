@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class SuggestionKind(models.Model):
+class SuggestionType(models.Model):
     type_name = models.CharField(max_length=255, verbose_name='Название типа')
     weight = models.IntegerField(verbose_name='Порядок', default=100, blank=True)
 
