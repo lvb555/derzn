@@ -12,13 +12,33 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='suggestiontype',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            name='weight2',
+            field=models.IntegerField(blank=True, default=100, verbose_name='Порядок'),
             preserve_default=False,
+        ),
+        migrations.RenameField(
+            model_name='suggestiontype',
+            old_name='weight',
+            new_name='id'
         ),
         migrations.AlterField(
             model_name='suggestiontype',
-            name='weight',
-            field=models.IntegerField(blank=True, default=100, verbose_name='Порядок'),
+            name='id',
+            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+        ),
+        migrations.RenameField(
+            model_name='suggestiontype',
+            old_name='weight2',
+            new_name='weight'
+        ),
+        migrations.AlterField(
+            model_name='suggestion',
+            name='suggestions_type',
+            field=models.ForeignKey(on_delete=models.deletion.CASCADE, to='drevo.suggestiontype', verbose_name='Вид предложения'),
+        ),
+        migrations.AlterField(
+            model_name='tz',
+            name='available_suggestion_types',
+            field=models.ManyToManyField(blank=True, to='drevo.SuggestionType', verbose_name='Виды предложений'),
         ),
     ]
