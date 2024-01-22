@@ -14,7 +14,6 @@ class Migration(migrations.Migration):
             model_name='suggestiontype',
             name='weight2',
             field=models.IntegerField(blank=True, default=100, verbose_name='Порядок'),
-            preserve_default=False,
         ),
         migrations.RenameField(
             model_name='suggestiontype',
