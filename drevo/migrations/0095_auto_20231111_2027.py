@@ -4,18 +4,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
-    def set_id_as_weight(apps, schema_editor):
-        SuggestionType = apps.get_model("drevo", "SuggestionType")
-        query = SuggestionType.objects.all()
-        for i in query:
-            i.id = i.weight
-            i.save()
-
     dependencies = [
         ('drevo', '0094_auto_20231111_2025'),
     ]
 
-    operations = [
-        migrations.RunPython(set_id_as_weight)
-    ]
+    operations = []
