@@ -119,15 +119,10 @@
 }
 
 .edit-menu {
-	position: absolute;
 	background: white;
 	border-radius: 0.5rem;
 	padding: 10px;
 	width: 30vw;
-	display: none;
-
-	top: 0;
-	right: 24vw;
 }
 
 .edit-menu-header {
