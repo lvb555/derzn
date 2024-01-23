@@ -11,3 +11,4 @@ class SuggestionType(models.Model):
     class Meta:
         verbose_name = 'Вид предложения'
         verbose_name_plural = 'Виды предложений'
+        ordering = ('weight',)

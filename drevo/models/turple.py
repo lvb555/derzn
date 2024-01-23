@@ -20,3 +20,4 @@ class Turple(models.Model):
     class Meta:
         verbose_name = 'Словарь'
         verbose_name_plural = 'Словари'
+        ordering = ('weight',)
