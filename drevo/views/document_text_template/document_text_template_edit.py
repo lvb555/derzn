@@ -13,12 +13,12 @@ class DocumentTextTemplateEdit(TemplateView):
     """
     Редактирование и создание шаблона текста в документе
     """
-    template_name = 'drevo/document_content_template.html'
+    template_name = 'drevo/document_text_template.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        document_knowledge = Znanie.objects.get(id=self.request.GET['zn_id'])  # шаблон документа
+        document_knowledge = Znanie.objects.get(id=context['doc_pk'])  # шаблон документа
 
         context['var_form'] = VarForm(initial={'knowledge': document_knowledge.id})  # форма создания/изменения объектов
         context['var_form'].fields['turple'].queryset = Turple.objects.filter(knowledge=document_knowledge)  # допустимые справочники
@@ -33,7 +33,7 @@ class DocumentTextTemplateEdit(TemplateView):
 
         context['object_structure_types'] = Var.available_sctructures  # типы структур объектов
         
-        knowledge = Znanie.objects.get(id=self.request.GET['id'])  # шаблон текста
+        knowledge = Znanie.objects.get(id=context['text_pk'])  # шаблон текста
         context['form'] = ContentTemplate(initial={'zn_pk': document_knowledge.id})  # форма шаблона текста
 
         form = ContentTemplate(initial={

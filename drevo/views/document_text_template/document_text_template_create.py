@@ -13,7 +13,7 @@ class DocumentTextTemplateCreate(TemplateView):
     """
     Редактирование и создание шаблона текста в документе
     """
-    template_name = 'drevo/document_content_template.html'
+    template_name = 'drevo/document_text_template.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
