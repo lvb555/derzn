@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 import json
 
 
-class DocumentContentTemplate(TemplateView):
+class DocumentTextTemplateEdit(TemplateView):
 
     """
     Редактирование и создание шаблона текста в документе
@@ -32,14 +32,9 @@ class DocumentContentTemplate(TemplateView):
         context['turple_element_form'].fields['var'].queryset = Var.objects.filter(knowledge=document_knowledge, structure=0)
 
         context['object_structure_types'] = Var.available_sctructures  # типы структур объектов
-
-
-        # Ведется редактирование существующего шаблона?
-        if 'id' not in self.request.GET:
-            pass  # создание нового
-        else:
-            knowledge = Znanie.objects.get(id=self.request.GET['id'])  # шаблон текста
-            context['form'] = ContentTemplate(initial={'zn_pk': document_knowledge.id})  # форма шаблона текста
+        
+        knowledge = Znanie.objects.get(id=self.request.GET['id'])  # шаблон текста
+        context['form'] = ContentTemplate(initial={'zn_pk': document_knowledge.id})  # форма шаблона текста
 
         form = ContentTemplate(initial={
             'content': knowledge.content,
