@@ -25,7 +25,7 @@ def get_object(pk):
     return obj
 
 
-def document_object_processing_view(request, pk):
+def document_object_processing_view(request, doc_pk):
     """
     Обработка запросов, касающихся объектов в сервисе создания шаблонов документов
     GET: запрос информации об объекте
@@ -72,7 +72,7 @@ def document_object_processing_view(request, pk):
                     subscription=form.cleaned_data['subscription'],
                     optional=form.cleaned_data['optional'],
                     type_of=form.cleaned_data['type_of'],
-                    knowledge=form.cleaned_data['knowledge'],
+                    knowledge=form.cleaned_data['knowledge'], # переделать под параметр doc_pk
                     connected_to=form.cleaned_data['connected_to'],
                     turple=form.cleaned_data['turple'],
                     comment=form.cleaned_data['comment'])
