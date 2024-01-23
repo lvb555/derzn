@@ -1,5 +1,5 @@
 from django.db import models
-from .suggestion_type import SuggestionKind
+from .suggestion_type import SuggestionType
 
 
 class Suggestion(models.Model):
@@ -16,7 +16,7 @@ class Suggestion(models.Model):
         related_name='suggestions',
         verbose_name='Пользователь')
     suggestions_type = models.ForeignKey(
-        to='drevo.SuggestionKind',
+        to='drevo.SuggestionType',
         on_delete=models.CASCADE,
         verbose_name='Вид предложения')
     expert = models.ForeignKey(
