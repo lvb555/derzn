@@ -64,7 +64,7 @@ function add_relation(parent_zn_id) {
                 if (data.rel_tz.length !== 1) new_zn_tz.append(`<option selected disabled>-----</option>`).prop('disabled', false);
                 data.rel_tz.forEach(item => {
                     const option = $('<option>').val(item.id).text(item.name);
-                    if (item.name === 'Текст' && data.rel_tz.length === 1) textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
+                    if (item.name === 'Текст документа' && data.rel_tz.length === 1) textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
                     else textOfDocumentTemplateButtonForCreateZn.prop('hidden', true);
                     new_zn_tz.append(option);
                 });
@@ -78,10 +78,10 @@ function add_relation(parent_zn_id) {
         });
 }
 
-// При создании знания, если выбран вид знания "Текст", появляется кнопка для открытия страницы
+// При создании знания, если выбран вид знания "Текст документа", появляется кнопка для открытия страницы
 // «Конструктор шаблона текста документа»
 new_zn_tz.change(function () {
-    if ($(this).find(":selected").text() === 'Текст') textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
+    if ($(this).find(":selected").text() === 'Текст документа') textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
     else textOfDocumentTemplateButtonForCreateZn.prop('hidden', true);
 })
 
@@ -139,7 +139,7 @@ function edit_relation(rel_id) {
             if (data.rel_tz.length !== 1) new_zn_tz.append(`<option selected disabled>-----</option>`).prop('disabled', false);
             data.rel_tz.forEach(item => {
                 const option = $('<option>').val(item.id).text(item.name);
-                if (item.name === 'Текст' && data.rel_tz.length === 1) textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
+                if (item.name === 'Текст документа' && data.rel_tz.length === 1) textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
                 else textOfDocumentTemplateButtonForCreateZn.prop('hidden', true);
                 new_zn_tz.append(option);
             });
@@ -271,7 +271,7 @@ function edit_znanie(for_type) {
 
         // При редактировании знания, если вид знания "Текст", появляется кнопка для открытия страницы
         // «Конструктор шаблона текста документа»
-        if (data.zn_tz === 'Текст') textOfDocumentTemplateButtonForEditZn.prop('hidden', false)
+        if (data.zn_tz === 'Текст документа') textOfDocumentTemplateButtonForEditZn.prop('hidden', false)
         else textOfDocumentTemplateButtonForEditZn.prop('hidden', true);
         $('#edit_zn_modal').modal('show');
     });
