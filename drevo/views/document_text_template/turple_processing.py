@@ -23,7 +23,7 @@ def get_turple(pk):
 
     return turple
 
-def turple_processing_view(request, pk):
+def turple_processing_view(request, doc_pk):
     """
         Обработка запросов, касающихся справочников в сервисе создания шаблонов документов
         GET: 
