@@ -140,9 +140,10 @@ from .relations_preparing_work import (
     relation_publication_view,
 )
 
-from .document_content_template.document_content_template import DocumentContentTemplate
-from .document_content_template.turple_processing import turple_processing_view
-from .document_content_template.object_processing import document_object_processing_view
+from .document_text_template.document_text_template_edit import DocumentTextTemplateEdit
+from .document_text_template.document_text_template_create import DocumentTextTemplateCreate
+from .document_text_template.turple_processing import turple_processing_view
+from .document_text_template.object_processing import document_object_processing_view
 
 __all__ = [
     "AuthorDetailView",

@@ -9,8 +9,8 @@ let turple_field = document.querySelector("#turple") // поле выбора с
 let connected_to_field = document.querySelector("#connected-to")
 let main_checkbox = document.querySelector("#main input")
 let turple_menu_btns = document.querySelectorAll(".turple-selection-btns .turple-selection__btn")
-
-
+let url = window.location.href.split("document-template")[0] + "document-template"
+let csrftoken = getCookie("csrftoken")
 let types_block = document.querySelector("#type_of") // блок с полем выбора типа содержимого 
 let type = document.querySelector("#type_of select") // поле выбора типа содержимого
 let types = { // допустимые типы содержимого
@@ -24,6 +24,14 @@ let structure_types = {} // допустимые типы содержимого
 new Array("var", "arr", "turple", "iterator", "if").forEach((i, index) => {
 	structure_types[i] = index
 })
+
+
+function stripQueryParam(path) { 
+	// обрезание параметров запроса из url адреса
+	return path.slice(0, path.indexOf("?"))
+}
+
+
 
 
 function TurpleEditID() {
@@ -97,12 +105,6 @@ function ObjectProcessingBody (action) {
 
 function stripPrimaryKey(str) {
 	return Number(str.split("-")[1])
-}
-
-
-function stripQueryParam(path) { 
-	// обрезание параметров запроса из url адреса
-	return path.slice(0, path.indexOf("?"))
 }
 
 
