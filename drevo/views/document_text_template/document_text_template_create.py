@@ -18,7 +18,7 @@ class DocumentTextTemplateCreate(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        document_knowledge = Znanie.objects.get(id=self.request.GET['zn_id'])  # шаблон документа
+        document_knowledge = Znanie.objects.get(id=context['doc_pk'])  # шаблон документа
 
         context['var_form'] = VarForm(initial={'knowledge': document_knowledge.id})  # форма создания/изменения объектов
         context['var_form'].fields['turple'].queryset = Turple.objects.filter(knowledge=document_knowledge)  # допустимые справочники
@@ -33,7 +33,11 @@ class DocumentTextTemplateCreate(TemplateView):
 
         context['object_structure_types'] = Var.available_sctructures  # типы структур объектов
         
-        knowledge = Znanie.objects.get(id=self.request.GET['id'])  # шаблон текста
+        knowledge = Znanie.objects.create(
+            name=self.request.GET['name'],
+            tz=Tz.objects.get(name='Текст документа'),
+            user=self.request.user
+        )  # шаблон текста
         context['form'] = ContentTemplate(initial={'zn_pk': document_knowledge.id})  # форма шаблона текста
 
         form = ContentTemplate(initial={
