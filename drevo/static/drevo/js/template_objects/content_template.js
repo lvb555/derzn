@@ -235,15 +235,6 @@ document.querySelector(".objects__create_btn").addEventListener("click", async (
 })
 
 
-// закрытие формы
-document.querySelector(".edit-menu__close-btn").addEventListener("click", (e) => {
-	if (edit_menu.classList.contains("edit-menu_show")) {
-		update_state(e)
-		edit_menu.classList.remove("edit-menu_show")
-	}
-})
-
-
 // селектор словаря
 document.querySelector(".turple-selection__field select").addEventListener("change", update_state)
 
