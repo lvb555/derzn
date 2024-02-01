@@ -78,6 +78,7 @@ from .models import (
     AlgorithmAdditionalElements
 )
 from .models.algorithms_data import AlgorithmData, AlgorithmWork
+from .models.users_documents import UsersDocuments
 from .models.appeal import Appeal
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -455,6 +456,9 @@ class RelationAdmin(admin.ModelAdmin):
     class Media:
         # css = {"all": ("drevo/css/style.css",)}
         js = ("drevo/js/notify_interview.js",)
+
+
+admin.site.register(UsersDocuments)
 
 
 class GlossaryTermAdmin(admin.ModelAdmin):

@@ -27,13 +27,15 @@ class ZnanieDetailView(DetailView):
 
     def get(self, *args, **kwargs):
         """
-        Если знание является тестом или алгоритмом- перенаправляет по другой ссылке
+        Обрабатывает перенаправления для знаний вида тест, алгоритм и документ
         """
         self.object = self.get_object()
         if self.object.tz in Tz.objects.filter(name='Тест'):
             return redirect('quiz', pk=self.object.pk)
         elif self.object.tz in Tz.objects.filter(name='Алгоритм'):
             return redirect('algorithm', pk=self.object.pk)
+        elif self.object.tz in Tz.objects.filter(name='Документ'):
+            return redirect('create_document', pk=self.object.pk)
         return super(ZnanieDetailView, self).get(*args, **kwargs)
 
     def get_context_data(self, *, object_list=None, **kwargs):
