@@ -458,7 +458,44 @@ class RelationAdmin(admin.ModelAdmin):
         js = ("drevo/js/notify_interview.js",)
 
 
-admin.site.register(UsersDocuments)
+class RootDocumentFilter(admin.SimpleListFilter):
+    """
+    Описывает фильтр модели "Пользовательские документы" по полю "Родительский документ".
+    """
+    
+    title = 'Родительский документ'
+    parameter_name = 'root_document'
+
+    def lookups(self, request, model_admin):
+        tz = Tz.objects.get(name='Документ').pk
+        documents = Znanie.objects.filter(tz=tz)
+
+        return [(document.pk, document) for document in documents]
+
+    def queryset(self, request, queryset):
+
+        if self.value():
+            return queryset.filter(root_document=self.value())
+
+
+class UsersDocumentsAdmin(admin.ModelAdmin):
+    """
+    Описывает отображение модели "Пользовательские документы" в админке.
+    """
+
+    list_display = (
+        "id",
+        "name",
+        "root_document"
+    )
+    list_display_links = ("name",)
+    list_filter = (
+        RootDocumentFilter,
+        "owner",
+    )    
+
+
+admin.site.register(UsersDocuments, UsersDocumentsAdmin)
 
 
 class GlossaryTermAdmin(admin.ModelAdmin):
