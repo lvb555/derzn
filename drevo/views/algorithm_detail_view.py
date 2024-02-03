@@ -200,15 +200,11 @@ class EditAlgorithm(ProcessFormView):
                 if pk:
                     algorithm = get_object_or_404(Znanie, id=pk)
                     work_name = request.GET.get('work')
-                    previous_work = AlgorithmWork.objects.filter(algorithm=algorithm, user=user,
-                                                                 work_name=str(work_name)).first()
-
-                    if not previous_work:
-                        previous_work = AlgorithmWork.objects.create(
+                    previous_work, created = AlgorithmWork.objects.get_or_create(
                             algorithm=algorithm,
                             user=user,
-                            work_name=work_name,
-                        )
+                            work_name=str(work_name),
+                    )
 
                     if request.GET.get('new_element'):
                         new_element = json.loads(request.GET.get('new_element'))

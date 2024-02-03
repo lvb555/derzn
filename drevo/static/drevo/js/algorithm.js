@@ -79,7 +79,7 @@ function addNewElement(elem){
             addBg.querySelector('#transformation').style.display = 'none';
         }
     }
-    if(new_work != '' && document.querySelector('#new_work_name')){
+    if(new_work && document.querySelector('#new_work_name')){
         document.querySelector('#new_work_name').parentNode.style.display = 'none';
     }
     addBg.classList.add('active');
@@ -193,11 +193,9 @@ function saveNewElement(){
         }else{
             document.querySelector('.add-form .warning').textContent = 'Выберите вид связи';
         }
-    }else if(document.querySelector('#new_work_name')){
-        if(Array.from(document.querySelectorAll('.select__item')).filter(item => item.textContent.trim() ==
-        document.querySelector('#new_work_name').value).length > 0 || document.querySelector('#new_work_name').value == ''){
+    }else if(document.querySelector('#new_work_name') && (Array.from(document.querySelectorAll('.select__item')).filter(item => item.textContent.trim() ==
+    document.querySelector('#new_work_name').value).length > 0 || document.querySelector('#new_work_name').value == '')){
             document.querySelector('.add-form .warning').textContent = 'Недопустимое название работы';
-        }
     }else{
         // Создаем новый элемент
         var newLi = document.createElement('li');
