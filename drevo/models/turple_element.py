@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class TurpleElement(models.Model):
     """
         объект Элемент справочника в сервисе создания документов
@@ -7,8 +8,8 @@ class TurpleElement(models.Model):
 
     value = models.CharField(max_length=255, verbose_name="Содержание")
     turple = models.ForeignKey(
-        to='drevo.Turple', 
-        on_delete=models.CASCADE, 
+        to='drevo.Turple',
+        on_delete=models.CASCADE,
         verbose_name="Справочник")
     weight = models.IntegerField(default=100, verbose_name="Порядок")
     var = models.ForeignKey(
