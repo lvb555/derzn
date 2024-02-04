@@ -17,6 +17,7 @@
 <div class="content">
 <form class="template" action="" method="post">
 	{% csrf_token %}
+	{{ form.media }}
 	{{ form }}
 	<button type="button" class="template__btn btn btn-icon" type="submit">Сохранить</button>
 </form>
@@ -29,7 +30,7 @@
 		{% endfor %}
 	</div>
 
-	<div class="object-card objects-list__object-card clone" style="display: none">
+	<div class="object-card objects-list__object-card clone" style="display: none" draggable="true">
 		<div class="object-card__content">
 			<div class="object-card__btns">
 				<button class="btn btn-icon object-card__btn edit" data-bs-toggle="modal" data-bs-target="#ObjectModal"><img src="{% static 'drevo/img/pencil.svg'%}" alt=""></button>
@@ -44,12 +45,14 @@
 
 			<div class="objects-list objects__objects-list" id="structure-{{ k }}">
 				{% for i in objects|by_structure:k %}
-					<div class="object-card objects-list__object-card" id="pk-{{ i.id }}">
+					<div class="object-card objects-list__object-card" id="pk-{{ i.id }}" draggable="true">
 						<div class="object-card__content">
-							<div class="object-card__btns">
-								<button class="btn btn-icon object-card__btn edit" data-bs-toggle="modal" data-bs-target="#ObjectModal"><img src="{% static 'drevo/img/pencil.svg'%}" alt=""></button>
-								<button class="btn btn-icon object-card__btn"><img src="{% static 'drevo/img/bin.svg'%}" alt=""></button>
-							</div>
+							{% if i.availability < 2 %}
+								<div class="object-card__btns">
+									<button class="btn btn-icon object-card__btn edit" data-bs-toggle="modal" data-bs-target="#ObjectModal"><img src="{% static 'drevo/img/pencil.svg'%}" alt=""></button>
+									<button class="btn btn-icon object-card__btn"><img src="{% static 'drevo/img/bin.svg'%}" alt=""></button>
+								</div>
+							{% endif %}
 							<p class="object-card__header"> {{ i.name }}</p>
 						</div>
 					</div>
@@ -65,21 +68,17 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
         	<div class="modal-header turple-menu">
-				<h5 class="modal-title">Объект</h5>
+				<h5 class="modal-title">Создание объекта шаблона</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
         	</div>
         	<div class="modal-body">
         		<form class="edit-menu">
-					<p class="edit-menu__log"></p>
-
+        			<div class="log-container edit-menu__log-container">
+						<p class="edit-menu__log"></p>
+					</div>
 					<div id="name" class="field">
 						<label class="edit-menu__label" for="name">{{var_form.name.label}}</label>
 						{{var_form.name}}
-					</div>
-
-					<div id="comment" class="field">
-						<label for="{{ var_form.comment.id_for_label }}" class="edit-menu__label"> {{ var_form.comment.label }}</label>
-						{{var_form.comment}}
 					</div>
 
 					<div id="structure" class="field">
@@ -88,13 +87,17 @@
 					</div>
 
 					<div id="type_of" class="field">
-						<label class="edit-menu__label">Тип</label>
+						<label class="edit-menu__label">{{var_form.type_of.label}}</label>
 						{{var_form.type_of}}
 					</div>
 
-					<div id="global" class="field">
-						<label for="{{ var_form.is_global.id_for_label }}" class="edit-menu__label">{{ var_form.is_global.label }}</label>
-						{{ var_form.is_global }}
+					<div id="connected-to" class="field">
+						<label class="edit-menu__label" for="{{ var_form.connected_to.id_for_label }}">{{ var_form.connected_to.label }}</label>
+						{{ var_form.connected_to }}
+					</div>
+					<div id="availability" class="field">
+						<label for="{{ var_form.availability.id_for_label }}" class="edit-menu__label">{{ var_form.availability.label }}</label>
+						{{ var_form.availability }}
 					</div>
 					<div id="main" class="field">
 						<label for="{{ var_form.is_main.id_for_label }}" class="edit-menu__label">{{ var_form.is_main.label }}</label>
@@ -108,7 +111,10 @@
 						<label for="{{ var_form.optional.id_for_label }}" class="edit-menu__label">{{ var_form.optional.label }}</label>
 						{{ var_form.optional }}
 					</div>
-
+					<div id="comment" class="field">
+						<label for="{{ var_form.comment.id_for_label }}" class="edit-menu__label"> {{ var_form.comment.label }}</label>
+						{{var_form.comment}}
+					</div>
 					<div id="intro" class="field">
 						<label class="edit-menu__label" for="fill-title">Текст при ининцализации</label>
 						{{ var_form.fill_title }}
@@ -117,11 +123,6 @@
 					<div id="weight" class="field">
 						<label for="weight" class="edit-menu__label">Порядок</label>
 						<input class="form-control" type="number" id="weight" name="weight" min="1" max="1000">
-					</div>
-
-					<div id="connected-to" class="field">
-						<label class="edit-menu__label" for="{{ var_form.connected_to.id_for_label }}">{{ var_form.connected_to.label }}</label>
-						{{ var_form.connected_to }}
 					</div>
 
 					<div id="turple" class="field turple-selection">
