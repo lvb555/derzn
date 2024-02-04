@@ -159,18 +159,14 @@ class AlgorithmResultAdd(ProcessFormView):
             if pk:
                 algorithm = get_object_or_404(Znanie, id=pk)
                 saved_progress = json.loads(request.GET.get('values'))
-                new_elements = json.loads(request.GET.get('new_elements'))
-                deleted_elements = json.loads(request.GET.get('deleted'))
-                redacted_elements = json.loads(request.GET.get('redacted'))
                 work_name = request.GET.get('work')
                 previous_result = request.GET.get('previous_result')
                 previous_work = AlgorithmWork.objects.filter(algorithm=algorithm, user=user, 
                                                              work_name=str(previous_result)).first()
 
                 if previous_result != '' and previous_work:
-                    if not new_elements and not deleted_elements and not redacted_elements:
-                        results_for_delete = AlgorithmData.objects.filter(work=previous_work)
-                        results_for_delete.delete()
+                    results_for_delete = AlgorithmData.objects.filter(work=previous_work)
+                    results_for_delete.delete()
                 else:
                     previous_work = AlgorithmWork.objects.create(
                                         algorithm=algorithm,
@@ -187,34 +183,59 @@ class AlgorithmResultAdd(ProcessFormView):
                         work=previous_work,
                     )
 
-                for deleted_element in deleted_elements:
-                    elem = get_object_or_404(AlgorithmAdditionalElements, user=user, algorithm=algorithm,
-                                             work=previous_work, element_name=str(deleted_element))
-                    elem.delete()
-                    try:
-                        saved_in_progress_element = get_object_or_404(AlgorithmData, user=user, algorithm=algorithm,
-                                                                      work=previous_work, element=str(deleted_element))
-                        saved_in_progress_element.delete()
-                    except Http404:
-                        pass
-
-                for new_element in new_elements:
-                    AlgorithmAdditionalElements.objects.create(
-                        user=user,
-                        algorithm=algorithm,
-                        work=previous_work,
-                        parent_element=get_object_or_404(Znanie, name=str(new_element['parent_element'])),
-                        element_name=new_element['element_name'],
-                        relation_type=new_element['relation_type'],
-                        insertion_type=new_element['insertion_type'],
-                    )
-
-                for renamed_element in redacted_elements:
-                    elem = get_object_or_404(AlgorithmAdditionalElements, user=user, algorithm=algorithm,
-                                             work=previous_work, element_name=str(renamed_element[0]))
-                    elem.element_name = renamed_element[1]
-                    elem.save()
-
                 return JsonResponse({}, status=200)
 
         raise Http404
+
+
+class EditAlgorithm(ProcessFormView):
+    def get(self, request, pk, *args, **kwargs):
+        try:
+            if request.is_ajax():
+                user = self.request.user
+
+                if not user.is_authenticated:
+                    return JsonResponse({}, status=403)
+
+                if pk:
+                    algorithm = get_object_or_404(Znanie, id=pk)
+                    work_name = request.GET.get('work')
+                    previous_work, created = AlgorithmWork.objects.get_or_create(
+                            algorithm=algorithm,
+                            user=user,
+                            work_name=str(work_name),
+                    )
+
+                    if request.GET.get('new_element'):
+                        new_element = json.loads(request.GET.get('new_element'))
+                        AlgorithmAdditionalElements.objects.create(
+                            user=user,
+                            algorithm=algorithm,
+                            work=previous_work,
+                            parent_element=get_object_or_404(Znanie, name=str(new_element['parent_element'])),
+                            element_name=new_element['element_name'],
+                            relation_type=new_element['relation_type'],
+                            insertion_type=new_element['insertion_type'],
+                        )
+                    elif request.GET.get('deleted'):
+                        deleted_element = request.GET.get('deleted')
+                        elem = get_object_or_404(AlgorithmAdditionalElements, user=user, algorithm=algorithm,
+                                                 work=previous_work, element_name=str(deleted_element))
+                        elem.delete()
+                        results_for_delete = AlgorithmData.objects.filter(work=previous_work, element=str(deleted_element))
+                        results_for_delete.delete()
+                    elif request.GET.get('redacted'):
+                        redacted_element = json.loads(request.GET.get('redacted'))
+                        elem = get_object_or_404(AlgorithmAdditionalElements, user=user, algorithm=algorithm,
+                                                 work=previous_work, element_name=str(redacted_element[0]))
+                        elem.element_name = redacted_element[1]
+                        elem.save()
+                        results_for_redaction = AlgorithmData.objects.filter(work=previous_work, element=str(redacted_element[0]))
+                        for saved_item in results_for_redaction:
+                            saved_item.element = redacted_element[1]
+                            saved_item.save()
+
+                    return JsonResponse({}, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)

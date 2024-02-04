@@ -84,14 +84,14 @@ def recurse_dict(data, previous_knowledge, algorithm, user=None, work=None, html
                 if mode:
                     if rel != 'Вариант' and not (list(child.keys())[0].tz.name != 'Блок' and rel in ['Можно сделать', 'Нужно сделать']):
                         html += f'<i class="bi bi-plus-lg text-success p-2" onclick="addNewElement(this);"></i>'
-                    html += f'<i class="bi bi-play-circle-open" onclick="toggleHiddenElement(this);"></i>'
+                    html += f'<i class="bi bi-play-circle-close" onclick="toggleHiddenElement(this);"></i>'
             else:
                 html += f'<span style="display: none;">{list(child.keys())[0].name} ({list(child.keys())[0].tz})</span>'
             if QuestionToKnowledge.objects.filter(knowledge=list(child.keys())[0], publication=True).count() > 0:
                 html += f'<a class="btn question" href="{list(child.keys())[0].get_absolute_url()}/questions_user"><i class="bi bi-question-lg"></i></a>'
             if list(child.values())[0]:
                 html = recurse_dict(list(child.values())[0], list(child.keys())[0], algorithm, user=user, work=work,
-                                    html=html, display='none' if not mode else 'block', complicated_knowledge=list(child.keys())[0], mode=mode)
+                                    html=html, display='none', complicated_knowledge=list(child.keys())[0], mode=mode)
             html += f'</li>'
             if algorithm.several_works is False:
                 work = 'Данные по алгоритму'
