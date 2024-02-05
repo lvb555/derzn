@@ -9,5 +9,6 @@ class TurpleForm(forms.ModelForm):
         fields = ['name', 'availability', 'weight', 'knowledge']
 
         widgets = {
-            'knowledge': forms.NumberInput(attrs={'type': 'hidden'})
+            'knowledge': forms.NumberInput(attrs={'type': 'hidden'}),
+            'availability': forms.RadioSelect
         }
