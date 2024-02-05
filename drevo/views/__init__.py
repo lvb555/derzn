@@ -1,4 +1,4 @@
-from .algorithm_detail_view import AlgorithmDetailView, AlgorithmResultAdd
+from .algorithm_detail_view import AlgorithmDetailView, AlgorithmResultAdd, EditAlgorithm
 from .algorithm_list_view import AlgorithmListView
 from .author_detail_view import AuthorDetailView
 from drevo.views.quiz_list_view import QuizListView
@@ -151,6 +151,7 @@ __all__ = [
     "AlgorithmListView",
     "AlgorithmDetailView",
     "AlgorithmResultAdd",
+    "EditAlgorithm",
     "CommentPageView",
     "CommentSendView",
     "DrevoListView",

@@ -31,21 +31,15 @@ var redactClosePopupButton = document.querySelector('.redact-form.popup__bg .clo
 var deleteBg = document.querySelector('.delete-form.popup__bg');
 var deletePopup = document.querySelector('.delete-form.popup__bg .popup');
 var deleteClosePopupButton = document.querySelector('.delete-form.popup__bg .close-popup');
-var backBg = document.querySelector('.go-back-form.popup__bg');
-var backPopup = document.querySelector('.go-back-form.popup__bg .popup');
-var backClosePopupButton = document.querySelector('.go-back-form.popup__bg .close-popup');
 var additionalElement = '';
 var elementInProcess = '';
-var elementStatus = '';
 var users_elements = [];
 var inputElement = document.createElement('input');
 inputElement.setAttribute('type', 'checkbox');
 inputElement.setAttribute('class', 'simple-elements');
 inputElement.setAttribute("onclick", "nextAction(this);");
-var list_with_new_elements = [];
-var new_elements = [];
+var new_work = '';
 var redacted_elements = [];
-var elements_for_delete = [];
 var deleteElementIcon = document.createElement("i");
 deleteElementIcon.setAttribute('class', 'bi bi-x-lg text-danger p-2');
 deleteElementIcon.setAttribute("onclick", "redactOrDelete(this, 'new', 'delete');");
@@ -85,6 +79,9 @@ function addNewElement(elem){
             addBg.querySelector('#transformation').style.display = 'none';
         }
     }
+    if(new_work && document.querySelector('#new_work_name')){
+        document.querySelector('#new_work_name').parentNode.style.display = 'none';
+    }
     addBg.classList.add('active');
     addPopup.classList.add('active');
     document.body.classList.add("stop-scrolling");
@@ -98,26 +95,16 @@ function redactOrDelete(elem, status, action){
     if(action == 'delete'){
         deleteBg.classList.add('active');
         deletePopup.classList.add('active');
-        deleteBg.querySelector('h5.title').textContent = "Вы уверены, что хотите удалить элемент '"+elementInProcess.querySelector('a').textContent+"' ?";
+        deleteBg.querySelector('h5.title').textContent = 'Вы уверены, что хотите удалить элемент "'+elementInProcess.querySelector('a').textContent+'" ?';
     }else{
         redactBg.classList.add('active');
         redactPopup.classList.add('active');
         redactBg.querySelector('#rename').value = elementInProcess.querySelector('a').textContent;
     }
-    elementStatus = status;
 }
 
 
 function deleteElement(){
-    if(elementStatus == 'new'){
-        for_delete = new_elements.indexOf(elementInProcess.querySelector('a').textContent);
-        if(for_delete > -1){
-            list_with_new_elements.splice(for_delete, 1);
-            new_elements.splice(for_delete, 1);
-        }
-    }else{
-        elements_for_delete.push(elementInProcess.querySelector('a').textContent)
-    }
     users_elements.forEach((elem) => {
         if(elementInProcess.querySelector('a').textContent == elem.querySelector('a').textContent && elem != elementInProcess){
             elem.parentNode.removeChild(elem);
@@ -140,43 +127,55 @@ function deleteElement(){
     deleteBg.classList.remove('active');
     deletePopup.classList.remove('active');
     document.body.classList.remove("stop-scrolling");
+    if(!new_work){
+        new_work = 'Данные по алгоритму';
+    }
+    $.ajax({
+        data: { 'work' : new_work, 'deleted': elementInProcess.querySelector('a').textContent },
+        url: document.location.pathname + '/edit_algorithm/',
+        success: function (response) {
+            showNotification('Элемент удален','success_comment');
+        }
+    });
 }
 
 
 function saveNewName(){
     var elementName = document.getElementById('rename').value;
-    if(elementName == ''){
+    if(elementName == '' || users_elements.filter(item => item.querySelector('a').textContent.trim() == elementName).length > 0){
         document.querySelector('.redact-form .warning').textContent = 'Недопустимое название';
     }else{
-        if(elementStatus == 'new'){
-            changed_element = new_elements.indexOf(elementInProcess.querySelector('a').textContent);
-            if(changed_element > -1){
-                list_with_new_elements[changed_element]['element_name'] = elementName;
-                new_elements[changed_element] = elementName;
-            }
+        if(!(redacted_elements.includes(elementInProcess.querySelector('a').textContent))){
+            redacted_elements.push(elementName);
+            redacted_elements.push([elementInProcess.querySelector('a').textContent, elementName]);
         }else{
-            if(!(redacted_elements.includes(elementInProcess.querySelector('a').textContent))){
-                redacted_elements.push(elementName);
-                redacted_elements.push([elementInProcess.querySelector('a').textContent, elementName]);
-            }else{
-                changed_element = redacted_elements.indexOf(elementInProcess.querySelector('a').textContent);
-                if(changed_element > -1){
-                    redacted_elements[changed_element] = elementName;
-                    redacted_elements[changed_element+1][1] = elementName;
-                }
+            changed_element = redacted_elements.indexOf(elementInProcess.querySelector('a').textContent);
+            if(changed_element > -1){
+                redacted_elements[changed_element] = elementName;
+                redacted_elements[changed_element+1][1] = elementName;
             }
-            users_elements.forEach((elem) => {
-                if(elementInProcess.querySelector('a').textContent == elem.querySelector('a').textContent && elem != elementInProcess){
-                    elem.querySelector('a').textContent = elementName;
-                }
-            });
         }
+        users_elements.forEach((elem) => {
+            if(elementInProcess.querySelector('a').textContent == elem.querySelector('a').textContent && elem != elementInProcess){
+                elem.querySelector('a').textContent = elementName;
+            }
+        });
         elementInProcess.querySelector('a').textContent = elementName;
         redactBg.classList.remove('active');
         redactPopup.classList.remove('active');
         document.body.classList.remove("stop-scrolling");
         document.getElementById('rename').value = '';
         document.querySelector('.redact-form .warning').textContent = '';
+        if(!new_work){
+            new_work = 'Данные по алгоритму';
+        }
+        $.ajax({
+            data: { 'work' : new_work, 'redacted': JSON.stringify(redacted_elements[redacted_elements.length - 1]) },
+            url: document.location.pathname + '/edit_algorithm/',
+            success: function (response) {
+                showNotification('Элемент изменен','success_comment');
+            }
+        });
     }
 }
 
@@ -186,15 +185,17 @@ function saveNewElement(){
     var insertionType = document.querySelector('input[name="insertion_type"]:checked');
     var connectionType = document.querySelector('input[name="connection"]:checked');
     // Проверяем заполнены ли поля и повторяется ли название пользовательских элементов
-    if(elementName == '' || new_elements.includes(elementName) ||
-    users_elements.filter(item => item.querySelector('a').textContent.trim() == elementName).length > 0){
-        document.querySelector('.add-form .warning').textContent = 'Недопустимое название';
+    if(elementName == '' || users_elements.filter(item => item.querySelector('a').textContent.trim() == elementName).length > 0){
+        document.querySelector('.add-form .warning').textContent = 'Недопустимое название элемента';
     }else if(addBg.querySelector('#block-questions').style.display == 'block' && !connectionType){
         if(!insertionType){
             document.querySelector('.add-form .warning').textContent = 'Выберите вид вставки';
         }else{
             document.querySelector('.add-form .warning').textContent = 'Выберите вид связи';
         }
+    }else if(document.querySelector('#new_work_name') && (Array.from(document.querySelectorAll('.select__item')).filter(item => item.textContent.trim() ==
+    document.querySelector('#new_work_name').value).length > 0 || document.querySelector('#new_work_name').value == '')){
+            document.querySelector('.add-form .warning').textContent = 'Недопустимое название работы';
     }else{
         // Создаем новый элемент
         var newLi = document.createElement('li');
@@ -266,10 +267,23 @@ function saveNewElement(){
         parent_element.lastChild.previousSibling.classList.contains('text-danger')){
             parent_element = parent_element.previousSibling;
         }
-        list_with_new_elements.push({ 'element_name': elementName, 'parent_element':
-        parent_element.firstChild.nextSibling.nextSibling.firstChild.textContent, 'relation_type': relation, 'insertion_type': insertion})
-        new_elements.push(elementName);
-        showNotification(String('Действие "'+elementName+'" добавлено в дерево'), 'new_element_notification');
+        if(!new_work){
+            if(document.querySelector('#new_work_name')){
+                new_work = document.querySelector('#new_work_name').value
+            }else{
+                new_work = 'Данные по алгоритму';
+            }
+        }
+        users_elements.push(newLi);
+        $.ajax({
+            data: { 'work' : new_work, 'new_element': JSON.stringify({ 'element_name': elementName, 'parent_element':
+            parent_element.firstChild.nextSibling.nextSibling.firstChild.textContent, 'relation_type': relation,
+            'insertion_type': insertion})},
+            url: document.location.pathname + '/edit_algorithm/',
+            success: function (response) {
+                showNotification('Элемент добавлен','success_comment');
+            }
+        });
     }
 }
 
@@ -303,12 +317,9 @@ if(!urlParams.has('mode') || urlParams.get('mode') == ''){
             elem.parentNode.parentNode.firstChild.before(elem.parentNode);
         }
     });
-    document.querySelector('[name="go-back"]').addEventListener('click', (e) => {
-        backBg.classList.add('active');
-        backPopup.classList.add('active');
-        document.body.classList.add("stop-scrolling");
-    });
-
+    if(urlParams.has('previous_works') || urlParams.get('previous_works') != ''){
+        new_work = urlParams.get('previous_works');
+    }
 }
 
 
@@ -330,12 +341,6 @@ if(openPopupButton){
         document.body.classList.add("stop-scrolling");
     };
     openPopupButton.addEventListener('click', () => openSaveForm());
-    if(backBg && backBg.querySelector('input[name="save-button"]')){
-        backBg.querySelector('input[name="save-button"]').addEventListener('click', () => {
-            closePopup(backClosePopupButton);
-            openSaveForm();
-        });
-    }
 }
 
 
@@ -355,7 +360,6 @@ if(addClosePopupButton){
     addClosePopupButton.addEventListener('click', () => closePopup(addClosePopupButton));
     deleteClosePopupButton.addEventListener('click', () => closePopup(deleteClosePopupButton));
     redactClosePopupButton.addEventListener('click', () => closePopup(redactClosePopupButton));
-    backClosePopupButton.addEventListener('click', () => closePopup(backClosePopupButton));
     document.getElementsByName("rejection")[0].addEventListener('click', () => closePopup(deleteClosePopupButton));
 }
 
@@ -1102,11 +1106,6 @@ function endTheAlgorithm(action){
 function onButtonSendClick(status){
     previous_result = '';
     flag = true;
-    if(backBg && backBg.classList.contains('active')){
-        backBg.classList.remove('active');
-        backPopup.classList.remove('active');
-        document.body.classList.remove("stop-scrolling");
-    }
     if(status == 'same'){
         if(urlParams.has('previous_works')){
             previous_result = urlParams.get('previous_works');
@@ -1128,31 +1127,6 @@ function onButtonSendClick(status){
                 flag = true;
             }
         }
-        // Проверяем, есть ли пользовательские элементы, чтобы добавить их в новую работу
-        if(document.querySelector('a.new-element')){
-            document.querySelectorAll('a.new-element').forEach((newElem)=>{
-                insertion = true;
-                relation = 'necessary';
-                if(/Можно сделать|Нужно сделать/.test(newElem.parentNode.parentNode.getAttribute('value'))){
-                    parent_element = newElem.parentNode.parentNode.parentNode.parentNode;
-                    if(newElem.parentNode.parentNode.getAttribute('value') == 'Можно сделать'){
-                        relation = 'unnecessary';
-                    }
-                    insertion = false;
-                }else{
-                    possible_parent = newElem.parentNode.parentNode.previousSibling;
-                    if(possible_parent.querySelector('a').classList.contains('new-element')){
-                        while(possible_parent.querySelector('a').classList.contains('new-element')){
-                            possible_parent = possible_parent.previousSibling
-                        }
-                    }
-                    parent_element = possible_parent;
-                }
-                list_with_new_elements.push({ 'element_name': newElem.textContent, 'parent_element':
-                parent_element.firstChild.nextSibling.nextSibling.firstChild.textContent, 'relation_type': relation,
-                'insertion_type': insertion})
-            });
-        }
     }
     if(flag){
         list_to_send = [];
@@ -1169,11 +1143,8 @@ function onButtonSendClick(status){
                 }
             }
         });
-        redacted_elements = redacted_elements.filter((n) => {return typeof n != "string"});
         $.ajax({
-            data: { 'values' : JSON.stringify(list_to_send), 'work' : current_name, 'previous_result' : previous_result,
-            'new_elements': JSON.stringify(list_with_new_elements), 'redacted' : JSON.stringify(redacted_elements),
-            'deleted' : JSON.stringify(elements_for_delete)},
+            data: { 'values' : JSON.stringify(list_to_send), 'work' : current_name, 'previous_result' : previous_result},
             url: document.location.pathname + '/algorithm_result/',
             success: function (response) {
                 if(previous_result !== 'Данные по алгоритму' || (urlParams.has('mode') && urlParams.get('mode') != '')){

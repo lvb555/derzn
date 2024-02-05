@@ -15,12 +15,19 @@
 
 {% block content %}
 <div class="container header_info p-0">
-    <h1>{{znanie.name}}</h1>
+    <h1>{% if modification %}
+            Адаптация алгоритма под себя
+        {% else %}
+            {{znanie.name}}
+        {% endif %}</h1>
     <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
           <li class="breadcrumb-item"><a href="{% url 'all_algorithms' %}">Алгоритмы</a></li>
           <li class="breadcrumb-item opened"><a>{{znanie.name}}</a></li>
+          {% if modification %}
+            <li class="breadcrumb-item opened"><a>Адаптация алгоритма под себя</a></li>
+          {% endif %}
         </ol>
     </nav>
 </div>
@@ -75,20 +82,9 @@
     <div class="d-flex" style="border-top: 1px solid var(--grey-1, #DFDFE3);">
         {% if modification %}
             <div class="p-4">
-                <button name="go-back" class="btn btn btn-light btn-header py-1">
+                <a href="?{% url_replace request 'mode' '' %}" class="btn btn btn-light btn-header py-1">
                     <span>Назад</span>
-                </button>
-            </div>
-            <div class="p-4">
-                {% if not znanie.several_works %}
-                    <input onclick="onButtonSendClick('static_name');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);"
-                           type="button" value="Сохранить">
-                {% elif current_work %}
-                    <input onclick="onButtonSendClick('same');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);"
-                           type="button" value="Сохранить">
-                {% else %}
-                    <input name="save-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить">
-                {% endif %}
+                </a>
             </div>
         {% else %}
         {% if current_work %}
@@ -115,7 +111,7 @@
             <div class="p-4">
                 <a class="btn btn btn-light btn-header py-1"
                    href="?{% url_replace request 'mode' 'modify' %}">
-                    <span>Добавить свои элементы</span>
+                    <span>Адаптация под себя</span>
                 </a>
             </div>
         {% endif %}
@@ -138,11 +134,17 @@
         <div class="popup p-5">
             <i class="bi bi-x-lg close-popup"></i>
             <span class="warning"></span>
+            {% if znanie.several_works and not current_work %}
+                <div>
+                    <label class="regular-text m-0" for="new_work_name">Введите название работы</label>
+                    <input class="form-control py-2" type="text" placeholder="Введите название работы" id="new_work_name" name="new_work_name">
+                </div>
+            {% endif %}
             <div id="transformation">
                 <input type="checkbox" id="change-checkbox" class="form-check-input" onclick="openNext('block');">
                 <label for="change-checkbox" style="color: #6C757D; display: inline!important;"></label>
             </div>
-            <h5 class="title">Введите название элемента</h5><br>
+            <h5 class="title">Создание элемента</h5><br>
             <label class="regular-text m-0" for="elem">Введите название элемента</label>
             <input class="form-control py-2" type="text" placeholder="Введите название элемента" id="elem" name="elem">
             <div id="block-questions">
@@ -182,25 +184,6 @@
             <div class="mt-4 d-flex justify-content-around">
               <input type="button" onclick="deleteElement();" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
               <input type="button" name="rejection" value="Нет" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-            </div>
-        </div>
-    </div>
-    <div class="go-back-form popup__bg">
-        <div class="popup p-5">
-            <i class="bi bi-x-lg close-popup"></i>
-            <span class="warning"></span>
-            <h5 class="title">Хотите сохранить изменения?</h5><br>
-            <div class="mt-4 d-flex justify-content-around">
-              {% if not znanie.several_works %}
-                <input type="button" onclick="onButtonSendClick('static_name');" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-              {% elif current_work %}
-                <input type="button" onclick="onButtonSendClick('same');" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-              {% else %}
-                <input type="button" name="save-button" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-              {% endif %}
-              <a class="btn btn btn-light btn-header py-1" style="font-size: 18px;" href="?{% url_replace request 'mode' '' %}">
-                  Нет
-              </a>
             </div>
         </div>
     </div>
