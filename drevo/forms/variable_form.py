@@ -32,7 +32,7 @@ class VarForm(forms.Form):
         cleaned_data = super().clean()
 
         name = cleaned_data.get('name')
-        structure = cleaned_data.get('structure')
+        structure = cleaned_data.get('structure', False)
         is_main = cleaned_data.get('is_main')
         availability = cleaned_data.get('availability')
         try:
@@ -81,12 +81,8 @@ class VarForm(forms.Form):
         if count > 0:
             raise ValidationError(f'Объект с именем {name} уже существует в контексте этого документа')
 
-        # Проверка на совпадение типов структур главной и подчиняемой переменной
-        if (not is_main) and (connected_to is not None) and (structure != connected_to.structure):
-            raise ValidationError(f'Объект типа {Var.available_sctructures[int(structure)][1]} не может быть подчинен объекту типа {Var.available_sctructures[int(connected_to.structure)][1]}')
-
     name = forms.CharField(max_length=255, label='Имя объекта')
-    structure = forms.BooleanField(label='Массив')
+    structure = forms.BooleanField(label='Массив', required=False)
     is_main = forms.BooleanField(label='Это группа', required=False)
     availability = forms.BooleanField(label='Глобальный объект', required=False)
     subscription = forms.BooleanField(label='Прописью', required=False)
