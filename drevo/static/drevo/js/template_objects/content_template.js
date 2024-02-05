@@ -51,7 +51,7 @@ function TurpleProcessingBody() {
 		body.append("id", editing_turple)
 	}
 	body.append("name", form.querySelector("#id_name").value)
-	body.append("availability", form.querySelector("#id_availability").checked)
+	body.append("availability", form.querySelector("#id_availability_0[checked], #id_availability_1[checked]").value)
 	body.append("weight", form.querySelector("#id_weight").value)
 	body.append("knowledge", form.querySelector("#id_knowledge").value)
 
@@ -75,8 +75,8 @@ function ObjectProcessingBody (action) {
 
 		if (i.type !== "checkbox" && i.type !== "radio"){
 			body.append(i.name, i.value)
-		} else if(i.type === "checkbox" && i.checked) {
-			body.append(i.name, true)
+		} else if(i.type === "checkbox") {
+			body.append(i.name, i.checked)
 		} else if(i.checked) {
 			body.append(i.name, i.value)
 		}
@@ -126,7 +126,7 @@ function getCookie(name) {
 function edit_var_foo(e) {
 	// открыть форму для редактирования объекта
 	action = "edit"	
-	edit_menu_title = "Редактирование объекта шаблона"
+	edit_menu_title.innerHTML = "Редактирование объекта шаблона"
 	editing_var = stripPrimaryKey(e.target.closest(".objects-list__object-card").id)
 	update_state(e)
 
@@ -240,12 +240,24 @@ document.querySelector(".edit-menu__save-btn").addEventListener("click", (e) => 
 		if (ans["res"] == "ok") {
 			let blocks = document.querySelector(".objects__body")
 			let clone = document.querySelector(".objects-list__object-card.clone")
+			let select = connected_to_field.querySelector("select")
 
 			blocks.querySelectorAll(".objects__objects-list").forEach((i) => {
 				while (i.firstChild) {
 					i.removeChild(i.firstChild)
 				}
 			})
+
+			while(select.firstChild) {
+				select.removeChild(select.firstChild)
+			}
+
+			let default_option = document.createElement("option")
+			default_option.value = ""
+			default_option.innerHTML = "Без подчинения"
+			default_option.selected = true
+			select.appendChild(default_option)
+			select.value = ""
 
 			ans["objects"].forEach((i) => {
 				let obj = clone.cloneNode(true)
@@ -255,7 +267,20 @@ document.querySelector(".edit-menu__save-btn").addEventListener("click", (e) => 
 				obj.style.display = "inline-block"
 				obj.querySelector(".object-card__btn.edit").addEventListener("click", edit_var_foo)
 				blocks.querySelector(`#structure-${i["fields"]["structure"]}`).appendChild(obj)
+
+				if (i["fields"]["is_main"]) {
+					let option = document.createElement("option")
+					option.value = i["pk"]
+					option.innerHTML = i["fields"]["name"]
+					select.appendChild(option)
+					if (option.value === body.get("connected_to")) {
+						option.selected = true
+						default_option.selected = false
+					}
+				}
 			})
+
+
 
 			message.innerHTML = (action === "edit" ? "Изменения сохранены" : "Объект создан")
 
@@ -276,7 +301,7 @@ document.querySelector(".edit-menu__save-btn").addEventListener("click", (e) => 
 })
 
 
-// создание нового словаря
+// создание нового справочника
 document.querySelector(".turple-form__save-btn").addEventListener('click', (e) => {
 	console.log(url + "/turple_processing")
 	let body = TurpleProcessingBody()
@@ -286,24 +311,48 @@ document.querySelector(".turple-form__save-btn").addEventListener('click', (e) =
 	.then((response) => { return response.json() })
 	.then((ans) => {
 		console.log(ans)
+		let message = document.createElement("p")
+		message.classList.add("edit-menu__log")
+		if (ans["res"] === "ok") {
+			let a = (body.has("id") ? body.get("id") : null)
+			let turple_select = document.querySelector('.turple-selection__field select')
+			while (turple_select.firstChild) {
+				turple_select.removeChild(turple_select.firstChild)
+			}
 
-		let turple_select = document.querySelector('.turple-selection__field select')
-		while (turple_select.firstChild) {
-			turple_select.removeChild(turple_select.firstChild)
+			let default_option = document.createElement("option")
+			default_option.value = ""
+			default_option.innerHTML = "Новый справочник"
+			turple_select.appendChild(default_option)
+			default_option.selected = true
+
+			ans["turples"].forEach((i) => {
+				let option = document.createElement("option")
+				option.value = i["pk"]
+				option.innerHTML = i["fields"]["name"]
+				turple_select.appendChild(option)
+				if (i["pk"] === a) {
+					default_option.selected = false
+					option.selected = true
+				}
+			})	
+			if (body.has("id"))
+				message.innerHTML = "Изменения сохранены"
+			else
+				message.innerHTML = "Справочник создан"
+		} else if (ans["res"] == "validation error") {
+			message.innerHTML = "Что-то пошло не так"
 		}
-
-		ans["turples"].forEach((i) => {
-			let option = document.createElement("option")
-			option.value = i["pk"]
-			option.innerHTML = i["fields"]["name"]
-
-			turple_select.appendChild(option)
-		})
-		let option = document.createElement("option")
-		option.value = ""
-		option.innerHTML = "Новый словарь"
-		option.setAttribute("checked", true)
-		turple_select.value = ""
+		message_block.insertBefore(message, message_block.firstChild)
+		setTimeout(() => {
+			message.style.opacity = "100%"
+			setTimeout(() => {
+			message.style.opacity = "0%"
+			setTimeout(() => {
+				message.remove()
+			}, 510)
+		}, 1500)
+		}, 10)
 	})
 })
 
@@ -313,7 +362,8 @@ document.querySelector(".turple-selection__btn.create").addEventListener("click"
 	editing_turple = null
 	let form = document.querySelector(".turple-form")
 	form.querySelector("#id_name").value = ""
-	form.querySelector("#id_availability").checked = false
+	form.querySelector("#id_availability_0").checked = false
+	form.querySelector("#id_availability_1").checked = false
 	form.querySelector("#id_weight").value = 100
 	let elements_block = document.querySelector(".turple-menu__objects-list")
 	while (elements_block.firstChild) {
@@ -326,7 +376,8 @@ document.querySelector(".turple-selection__btn.create").addEventListener("click"
 document.querySelector(".turple-selection__btn.edit").addEventListener("click", (e) => {
 	let form = document.querySelector(".turple-form")
 	form.querySelector("#id_name").value = ""
-	form.querySelector("#id_availability").checked = false
+	form.querySelector("#id_availability_0").checked = false
+	form.querySelector("#id_availability_1").checked = false
 	form.querySelector("#id_weight").value = 100
 	let elements_block = document.querySelector(".turple-menu__objects-list")
 	while (elements_block.firstChild) {
@@ -341,7 +392,8 @@ document.querySelector(".turple-selection__btn.edit").addEventListener("click", 
 		console.log(ans)
 
 		form.querySelector("#id_name").value = ans["turple"]["name"]
-		form.querySelector("#id_availability").checked = ans["turple"]["availability"]
+		form.querySelector("#id_availability_0").checked = ans["turple"]["availability"] === 0
+		form.querySelector("#id_availability_1").checked = ans["turple"]["availability"] === 1
 		form.querySelector("#id_weight").value = ans["turple"]["weight"]
 
 		
