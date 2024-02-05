@@ -93,6 +93,7 @@ def document_object_processing_view(request, doc_pk):
                 form.cleaned_data['pk'].type_of = form.cleaned_data['type_of']
                 form.cleaned_data['pk'].turple = form.cleaned_data['turple']
                 form.cleaned_data['pk'].comment = form.cleaned_data['comment']
+                form.cleaned_data['pk'].connected_to = form.cleaned_data['connected_to']
                 form.cleaned_data['pk'].save()
 
         except Exception as e:
