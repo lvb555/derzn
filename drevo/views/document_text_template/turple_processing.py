@@ -48,7 +48,7 @@ def turple_processing_view(request, doc_pk):
             new_turple = form.save(commit=(action == 'create'))
             if action == 'edit':
                 turple.name = new_turple.name
-                turple.is_global = new_turple.is_global
+                turple.availability = int(new_turple.availability)
                 turple.weight = new_turple.weight
                 turple.save()
             # список элементов справочника
