@@ -5,15 +5,15 @@
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 {% endblock %}
 
-{% block title %}Создание документа{% endblock %}
+{% block title %}Редактирование документа{% endblock %}
 
 {% block content %}
-    <h4>Создание документа по шаблону: {{ root_document }}</h4>
+    <h4>Редактирование документа по шаблону: {{ root_document }}</h4>
 
     <form method="post">
         {% csrf_token %}
         {{ document_form.as_p }}
-        <button type="submit">Создать</button>
+        <button type="submit">Внести изменения</button>
     </form>
 
 <script type="application/javascript" src="{% static 'drevo/js/toggle_element.js' %}"></script>

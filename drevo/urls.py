@@ -124,7 +124,8 @@ from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
 from .views.user_suggestion_view import UserSuggestionView
-from .views.create_document import CreateDocumentView
+from .views.users_documents import CreateDocumentView, \
+    ChangeDocumentView, DeleteDocumentView
 
 from .views.expert_work.views import (
     propose_answer,
@@ -237,6 +238,8 @@ urlpatterns = [
     path("search/knowledge", KnowledgeSearchView.as_view(), name="search_knowledge"),
     path("new_knowledge/", NewKnowledgeListView.as_view(), name="new_knowledge"),
     path("create_document/<int:pk>", CreateDocumentView.as_view(), name="create_document"),
+    path("change_document/<int:pk>", ChangeDocumentView.as_view(), name="change_document"),
+    path("delete_document/<int:pk>", DeleteDocumentView.as_view(), name="delete_document"),
     path("search/author", AuthorSearchView.as_view(), name="search_author"),
     path("search/tag", TagSearchView.as_view(), name="search_tag"),
     path("history/<int:id>/", browsing_history, name="history"),
