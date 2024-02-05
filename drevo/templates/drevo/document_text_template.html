@@ -168,8 +168,11 @@
 							{{turple_form.name}}
 						</div>
 						<div class="field">
-							<label for="{{turple_form.is_global.id_for_label}}" class="turple-form__label">{{turple_form.is_global.label}}</label>
-							{{turple_form.is_global}}
+							{% for choice in turple_form.availability %}
+								{% if choice.choice_label != "Общий"%}
+									{{ choice }}
+								{% endif %}
+							{% endfor %}
 						</div>
 						<div class="field">
 							<label for="{{turple_form.weight.id_for_label}}" class="turple-form__label">{{turple_form.weight.label}}</label>
