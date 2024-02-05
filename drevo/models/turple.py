@@ -23,6 +23,6 @@ class Turple(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Словарь'
-        verbose_name_plural = 'Словари'
+        verbose_name = 'Справочник'
+        verbose_name_plural = 'Справочники'
         ordering = ('weight',)
