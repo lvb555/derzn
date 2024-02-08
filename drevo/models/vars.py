@@ -37,7 +37,7 @@ class Var(models.Model):
         default=0,
         choices=types_of_availability,
         verbose_name="Класс объекта")
-    weight = models.IntegerField(default=100, verbose_name="Порядок")
+    weight = models.IntegerField(default=1, verbose_name="Порядок")
     fill_title = models.TextField(verbose_name="Обращение", default="", blank=True)
     subscription = models.BooleanField(default=False, verbose_name="Прописью")
     optional = models.BooleanField(default=False, verbose_name="Необязательность")
