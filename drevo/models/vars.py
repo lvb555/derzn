@@ -49,6 +49,8 @@ class Var(models.Model):
     knowledge = models.ForeignKey(
         to="drevo.Znanie",
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         verbose_name="Знание")
     connected_to = models.ForeignKey(
         to='drevo.Var',
