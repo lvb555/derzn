@@ -18,8 +18,7 @@ class Var(models.Model):
     available_sctructures = (
         (0, 'Переменная'),
         (1, 'Массив'),
-        (2, 'Итератор'),
-        (3, 'Условие'),
+        (2, 'Управление')
     )
 
     types_of_availability = (
