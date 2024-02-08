@@ -964,6 +964,7 @@ class VarAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'knowledge', 'availability', 'structure', 'type_of', 'turple', 'optional', 'connected_to')
     list_filter = ('knowledge', 'turple', 'availability', 'type_of')
     ordering = ('weight', )
+    search_fields = ('knowledge__name', 'connected_to__name')
 
 @admin.register(TurpleElement)
 class TurpleElementAdmin(admin.ModelAdmin):
