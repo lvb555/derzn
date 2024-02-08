@@ -974,6 +974,5 @@ class TurpleElementAdmin(admin.ModelAdmin):
 
 @admin.register(Turple)
 class TurpleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'knowledge', 'availability')
-    list_filter = ('availability', )
+    list_display = ('name',)
     ordering = ('weight', )
