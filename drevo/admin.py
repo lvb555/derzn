@@ -961,8 +961,8 @@ class RefuseReasonAdmin(admin.ModelAdmin):
 
 @admin.register(Var)
 class VarAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'knowledge', 'structure', 'type_of', 'turple', 'optional', 'connected_to')
-    list_filter = ('knowledge', 'turple', 'is_global', 'type_of')
+    list_display = ('id', 'name', 'knowledge', 'availability', 'structure', 'type_of', 'turple', 'optional', 'connected_to')
+    list_filter = ('knowledge', 'turple', 'availability', 'type_of')
     ordering = ('weight', )
 
 @admin.register(TurpleElement)
@@ -973,6 +973,6 @@ class TurpleElementAdmin(admin.ModelAdmin):
 
 @admin.register(Turple)
 class TurpleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'knowledge', 'is_global')
-    list_filter = ('is_global', )
+    list_display = ('name', 'knowledge', 'availability')
+    list_filter = ('availability', )
     ordering = ('weight', )

@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class TurpleElement(models.Model):
     """
         объект Элемент справочника в сервисе создания документов
@@ -7,8 +8,8 @@ class TurpleElement(models.Model):
 
     value = models.CharField(max_length=255, verbose_name="Содержание")
     turple = models.ForeignKey(
-        to='drevo.Turple', 
-        on_delete=models.CASCADE, 
+        to='drevo.Turple',
+        on_delete=models.CASCADE,
         verbose_name="Справочник")
     weight = models.IntegerField(default=100, verbose_name="Порядок")
     var = models.ForeignKey(
@@ -18,6 +19,6 @@ class TurpleElement(models.Model):
         verbose_name='Переменная')
 
     class Meta:
-        verbose_name = 'Элемент словаря'
-        verbose_name_plural = 'Элементы словаря'
+        verbose_name = 'Элемент справочника'
+        verbose_name_plural = 'Элементы справочника'
         ordering = ('weight',)
