@@ -6,4 +6,4 @@ class UsersDocumentsForm(ModelForm):
     
     class Meta:
         model = UsersDocuments
-        fields = ('name', 'content')
+        fields = ('name', 'content', 'is_complete')

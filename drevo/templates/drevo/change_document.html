@@ -13,6 +13,7 @@
     <form method="post">
         {% csrf_token %}
         {{ document_form.as_p }}
+        <a class="mydocument-button" href="{% url 'users:my_documents' %}">Отменить</a>
         <button type="submit">Внести изменения</button>
     </form>
 

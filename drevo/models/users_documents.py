@@ -27,6 +27,10 @@ class UsersDocuments(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Пользователь'
     )
+    is_complete = models.BooleanField(
+        default=False,
+        verbose_name='Завершено'
+    )
     pdf = models.FileField(
         upload_to='pdf/',
         null=True,
