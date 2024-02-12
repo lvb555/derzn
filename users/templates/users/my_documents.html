@@ -26,8 +26,12 @@
                         <div class="mydocument-parent">Родительский документ: {{ document.root_document }}</div>
                     </div>
                     <div class="mydocument-button-container">
-                        <button class="mydocument-button mydocument-button-edit"><a href="{% url 'change_document' pk=document.id %}">Изменить</a></button>
-                        <button class="mydocument-button mydocument-button-delete"><a href="{% url 'delete_document' pk=document.id %}">Удалить</a></button>
+                        {% if document.is_complete %}
+                            <button class="mydocument-button mydocument-button-edit"><a href="{% url 'change_document' pk=document.id %}">PDF</a></button>
+                            <button class="mydocument-button mydocument-button-edit"><a href="{% url 'change_document' pk=document.id %}">WORD</a></button>
+                        {% endif%}
+                        <button class="mydocument-button"><a href="{% url 'change_document' pk=document.id %}">Редактировать</a></button>
+                        <button class="mydocument-button"><a href="{% url 'delete_document' pk=document.id %}" style="color: red;">Удалить</a></button>
                     </div>
                 </div>
             {% endfor %}
