@@ -16,6 +16,7 @@ import base64
 from django.core.files.base import ContentFile
 from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory, \
     FriendsInviteTerm, Message, Tz, Tr
+from drevo.models.users_documents import UsersDocuments
 from drevo.models.feed_messages import FeedMessage
 from drevo.models.special_permissions import SpecialPermissions
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
@@ -246,6 +247,20 @@ class UserProfileTemplateView(LoginRequiredMixin, TemplateView):
             context['users_categories'] = False
 
         context['title'] = f'Профиль пользователя {_object.username}'
+        return context
+
+
+class UserDocumentsView(LoginRequiredMixin, TemplateView):
+    """
+    Описывает отображение шаблона "users/my_documents" по адресу "users/my_documents".
+    """
+
+    template_name = "users/my_documents.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["documents"] = UsersDocuments.objects.filter(owner=self.request.user)
+
         return context
 
 

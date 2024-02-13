@@ -1141,3 +1141,56 @@ a.question {
     transform: translate(-50%, -50%);
     background-color: #6C757D;   
 }
+
+.mydocument-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.mydocument {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    background-color: #fff;
+    width: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mydocument-info {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.mydocument-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.mydocument-parent {
+    font-size: 14px;
+    color: #666;
+}
+
+.mydocument-button-container {
+    display: flex;
+}
+
+.mydocument-button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.mydocument-button-edit {
+    color: #4caf50;
+}
+
+.mydocument-button-delete {
+    color: #f44336;
+}

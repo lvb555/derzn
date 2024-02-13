@@ -78,6 +78,7 @@ from .models import (
     AlgorithmAdditionalElements
 )
 from .models.algorithms_data import AlgorithmData, AlgorithmWork
+from .models.users_documents import UsersDocuments
 from .models.appeal import Appeal
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -455,6 +456,46 @@ class RelationAdmin(admin.ModelAdmin):
     class Media:
         # css = {"all": ("drevo/css/style.css",)}
         js = ("drevo/js/notify_interview.js",)
+
+
+class RootDocumentFilter(admin.SimpleListFilter):
+    """
+    Описывает фильтр модели "Пользовательские документы" по полю "Родительский документ".
+    """
+    
+    title = 'Родительский документ'
+    parameter_name = 'root_document'
+
+    def lookups(self, request, model_admin):
+        tz = Tz.objects.get(name='Документ').pk
+        documents = Znanie.objects.filter(tz=tz)
+
+        return [(document.pk, document) for document in documents]
+
+    def queryset(self, request, queryset):
+
+        if self.value():
+            return queryset.filter(root_document=self.value())
+
+
+class UsersDocumentsAdmin(admin.ModelAdmin):
+    """
+    Описывает отображение модели "Пользовательские документы" в админке.
+    """
+
+    list_display = (
+        "id",
+        "name",
+        "root_document"
+    )
+    list_display_links = ("name",)
+    list_filter = (
+        RootDocumentFilter,
+        "owner",
+    )    
+
+
+admin.site.register(UsersDocuments, UsersDocumentsAdmin)
 
 
 class GlossaryTermAdmin(admin.ModelAdmin):
