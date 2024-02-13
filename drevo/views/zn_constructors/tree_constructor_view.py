@@ -18,6 +18,7 @@ from drevo.forms.constructor_knowledge_form import MainZnInConstructorCreateEdit
 from .mixins import DispatchMixin
 from .supplementary_functions import create_relation, create_zn_for_constructor, get_images_from_request, \
     get_file_from_request
+from ..algorithm_detail_view import make_complicated_dict1
 
 
 # --------------------------------------------------------------
@@ -56,15 +57,29 @@ class TreeConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         type_of_zn = self.kwargs.get('type')
         selected_zn_queryset = Znanie.objects.filter(id=self.kwargs.get('pk'))
-        if type_of_zn == 'algorithm':
-            context['title'] = 'Конструктор алгоритма'
-        else:
-            context['title'] = 'Конструктор документа'
         context['znanie'] = selected_zn_queryset
         selected_zn = selected_zn_queryset.first()
         context['type_of_zn'] = self.kwargs.get('type')
         context['main_zn_id'] = selected_zn.pk
-        context['relative_znaniya'] = get_descendants_for_knowledge(selected_zn)
+        if type_of_zn == 'algorithm':
+            context['title'] = 'Конструктор алгоритма'
+            try:
+                next_relation = Tr.objects.get(name='Далее')
+            except Tr.DoesNotExist:
+                next_relation = None
+            try:
+                start_of_algorithm = Relation.objects.get(bz=selected_zn, tr__name='Начало алгоритма').rz
+                context['relative_znaniya'] = make_complicated_dict1(
+                    {'previous_key': []},
+                    start_of_algorithm,
+                    'previous_key',
+                    next_relation=next_relation
+                )['previous_key']
+            except Relation.DoesNotExist:
+                context['relative_znaniya'] = []
+        else:
+            context['title'] = 'Конструктор документа'
+            context['relative_znaniya'] = get_descendants_for_knowledge(selected_zn).order_by('-related__order')
 
         main_zn_edit_form = MainZnInConstructorCreateEditForm(instance=selected_zn,
                                                               user=self.request.user,
