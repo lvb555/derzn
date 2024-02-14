@@ -1,6 +1,7 @@
 {% extends 'drevo/base.html' %}
 {% load mptt_tags %}
 {% load static %}
+{% load algorithm_tags %}
 {% load constructors_tag %}
 
 {% block title %}Конструктор алгоритмов{% endblock %}
@@ -23,10 +24,22 @@
     <a href="{% url 'znaniya_for_constructor' %}?type_of_zn={{ type_of_zn }}" class="btn btn-outline-info mb-3">Назад</a>
     <h1>{{ title }}</h1>
     <div>
-        {% if relative_znaniya %}
-            {% build_constructor_tree queryset=relative_znaniya show_complex=True is_constructor_type=type_of_zn %}
+        {% if type_of_zn != 'algorithm' %}
+            {% if relative_znaniya %}
+                {% build_constructor_tree queryset=relative_znaniya show_complex=True is_constructor_type=type_of_zn %}
+            {% else %}
+                {% build_constructor_tree queryset=znanie show_complex=True is_constructor_type=type_of_zn %}
+            {% endif %}
         {% else %}
-            {% build_constructor_tree queryset=znanie show_complex=True is_constructor_type=type_of_zn %}
+            <div style="background-color: #FFFFFF; padding: 32px;border-radius: 10px;">
+                <ul class="root ps-0" id="tree1_root">
+                    <button type="button" class="btn tree-btn" onclick="tree_showAll();">Развернуть</button>
+                    <button type="button" class="btn tree-btn" onclick="tree_hiddenAll();">Свернуть</button>
+                    <li>
+                        {% recurse_dict relative_znaniya previous_knowledge=znanie.first algorithm=znanie.first user=request.user constructor=True %}
+                    </li>
+                </ul>
+            </div>
         {% endif %}
     </div>
     <div id="div-param" class="button-block">

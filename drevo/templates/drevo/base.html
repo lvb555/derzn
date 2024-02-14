@@ -119,19 +119,19 @@
                           Оценки знаний
                     </a>
                     </div>
-                    {% if user.is_expert %}
-                        {% get_interview_in_categories user as interview %}
-                        {% if interview %}
-                        <div class="btn-group">
-                        <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                          Мнения <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                        </a>
-                          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <li><a class="dropdown-item from-nav" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a></li>
-                          </ul>
-                        </div>
+                    <div class="btn-group">
+                      <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                        Мнения <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+                      </a>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% if user.is_expert %}
+                            {% get_interview_in_categories user as interview %}
+                            {% if interview %}
+                                <li><a class="dropdown-item from-nav" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a></li>
+                            {% endif %}
                         {% endif %}
-                    {% endif %}
+                      </ul>
+                    </div>
                     <div class="btn-group">
                     <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                       Другое <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">

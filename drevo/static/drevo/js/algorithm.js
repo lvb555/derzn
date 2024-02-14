@@ -825,12 +825,30 @@ function toggleHiddenElement(element) {
     if(element.classList.contains("bi-play-circle-open")){
         element.classList.remove("bi-play-circle-open")
         element.classList.add("bi-play-circle-close");
-        element.parentNode.lastChild.style.display = 'none';
+        element.parentNode.lastElementChild.style.display = 'none';
     }else{
         element.classList.remove("bi-play-circle-close")
         element.classList.add("bi-play-circle-open");
-        element.parentNode.lastChild.style.display = 'block';
+        element.parentNode.lastElementChild.style.display = 'block';
     }
+}
+
+
+function tree_showAll() {
+    document.querySelectorAll('.bi-play-circle-close, .bi-play-circle-open').forEach((elem) => {
+        elem.classList.remove("bi-play-circle-close")
+        elem.classList.add("bi-play-circle-open");
+        elem.parentNode.lastElementChild.style.display = 'block';
+    })
+}
+
+
+function tree_hiddenAll() {
+    document.querySelectorAll('.bi-play-circle-close, .bi-play-circle-open').forEach((elem) => {
+        elem.classList.remove("bi-play-circle-open")
+        elem.classList.add("bi-play-circle-close");
+        elem.parentNode.lastElementChild.style.display = 'none';
+    })
 }
 
 

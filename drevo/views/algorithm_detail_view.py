@@ -70,18 +70,20 @@ class AlgorithmDetailView(DetailView):
                                                                         'element', 'element_type'))
 
         # Создание словаря со всеми элементами алгоритма
-        start_of_algorithm = Relation.objects.get(bz=knowledge, tr__name='Начало алгоритма').rz
         try:
             next_relation = Tr.objects.get(name='Далее')
         except Tr.DoesNotExist:
             next_relation = None
-        context['algorithm_data'] = make_complicated_dict1(
-            {'previous_key': []},
-            start_of_algorithm,
-            'previous_key',
-            next_relation=next_relation
-        )
-        context['algorithm_data'] = context['algorithm_data']['previous_key']
+        try:
+            start_of_algorithm = Relation.objects.get(bz=knowledge, tr__name='Начало алгоритма').rz
+            context['algorithm_data'] = make_complicated_dict1(
+                {'previous_key': []},
+                start_of_algorithm,
+                'previous_key',
+                next_relation=next_relation
+            )['previous_key']
+        except Relation.DoesNotExist:
+            context['algorithm_data'] = []
 
         return context
 

@@ -55,13 +55,19 @@
         </div>
     </div>
     {% endif %}
-    <p class="px-4 mb-0">{{znanie.name}}
-        {% if znanie.author %}
-            <i class="d-inline-flex" style="color: #6C757D; font-style: normal;">({{ znanie.author }})</i>
-        {% endif %}
-    </p>
     <div id="algorithm_tree">
-        {% recurse_dict algorithm_data previous_knowledge=znanie algorithm=znanie user=request.user work=current_work mode=modification %}
+        <ul class="root ps-0" id="tree_root">
+            {% if modification %}
+                <button type="button" class="btn tree-btn mx-4" onclick="tree_showAll();">Развернуть</button>
+                <button type="button" class="btn tree-btn" onclick="tree_hiddenAll();">Свернуть</button>
+            {% endif %}
+            <p class="px-4 mb-0">{{znanie.name}}
+                {% if znanie.author %}
+                    <i class="d-inline-flex" style="color: #6C757D; font-style: normal;">({{ znanie.author }})</i>
+                {% endif %}
+            </p>
+            {% recurse_dict algorithm_data previous_knowledge=znanie algorithm=znanie user=request.user work=current_work mode=modification %}
+        </ul>
     </div>
     <div class="popup__bg">
         <div class="popup p-5">
