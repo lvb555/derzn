@@ -20,10 +20,10 @@ let editing_zn_name = $('#edit_zn_modal #id_name');
 let zn_id_in_edit_form = $('#edit_zn_form #edited_zn_id');
 let zn_id_in_create_form = $('#create_zn_form #edited_zn_id');
 
-// Кнопки «Конструктор шаблона текста документа» в форме создания и редактирования знания
-let textOfDocumentTemplateButtonForCreateZn = $('<button class="btn btn-info mt-3" hidden>').text('Конструктор шаблона текста документа');
+// Кнопки «Конструктор шаблона текста» в форме создания и редактирования знания
+let textOfDocumentTemplateButtonForCreateZn = $('<button class="btn btn-info mt-3">').text('Конструктор шаблона текста');
 new_zn_tz.after(textOfDocumentTemplateButtonForCreateZn);
-let textOfDocumentTemplateButtonForEditZn = $('<button class="btn btn-info mt-3" hidden>').text('Конструктор шаблона текста документа');
+let textOfDocumentTemplateButtonForEditZn = $('<button class="btn btn-info mt-3">').text('Конструктор шаблона текста');
 editing_zn_name.after(textOfDocumentTemplateButtonForEditZn);
 
 function add_relation(parent_zn_id) {
@@ -31,7 +31,7 @@ function add_relation(parent_zn_id) {
         .then(response => {
             if (response.status === 409) {
                 $('#error_create_relation_modal').modal('show');
-                $('#error_create_relation_message').text(`Для базового знания уже создано максимальное количество 
+                $('#error_create_relation_message').text(`Для базового знания уже создано максимальное количество
                 связей! Вы можете удалить существующие связи, чтобы добавить новую.`)
 
             }
@@ -64,7 +64,7 @@ function add_relation(parent_zn_id) {
                 if (data.rel_tz.length !== 1) new_zn_tz.append(`<option selected disabled>-----</option>`).prop('disabled', false);
                 data.rel_tz.forEach(item => {
                     const option = $('<option>').val(item.id).text(item.name);
-                    if (item.name === 'Текст документа' && data.rel_tz.length === 1) textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
+                    if (data.rel_tz.length === 1) textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
                     else textOfDocumentTemplateButtonForCreateZn.prop('hidden', true);
                     new_zn_tz.append(option);
                 });
@@ -78,12 +78,6 @@ function add_relation(parent_zn_id) {
         });
 }
 
-// При создании знания, если выбран вид знания "Текст документа", появляется кнопка для открытия страницы
-// «Конструктор шаблона текста документа»
-new_zn_tz.change(function () {
-    if ($(this).find(":selected").text() === 'Текст документа') textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
-    else textOfDocumentTemplateButtonForCreateZn.prop('hidden', true);
-})
 
 textOfDocumentTemplateButtonForCreateZn.click(function () {
     if (!$('#create_zn #id_name').val()) return
@@ -139,7 +133,7 @@ function edit_relation(rel_id) {
             if (data.rel_tz.length !== 1) new_zn_tz.append(`<option selected disabled>-----</option>`).prop('disabled', false);
             data.rel_tz.forEach(item => {
                 const option = $('<option>').val(item.id).text(item.name);
-                if (item.name === 'Текст документа' && data.rel_tz.length === 1) textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
+                if (data.rel_tz.length === 1) textOfDocumentTemplateButtonForCreateZn.prop('hidden', false)
                 else textOfDocumentTemplateButtonForCreateZn.prop('hidden', true);
                 new_zn_tz.append(option);
             });
@@ -269,10 +263,6 @@ function edit_znanie(for_type) {
         $('#edit_zn_file_form').html(data.file_form);
         zn_id_in_edit_form.val(`${zn_id}`);
 
-        // При редактировании знания, если вид знания "Текст", появляется кнопка для открытия страницы
-        // «Конструктор шаблона текста документа»
-        if (data.zn_tz === 'Текст документа') textOfDocumentTemplateButtonForEditZn.prop('hidden', false)
-        else textOfDocumentTemplateButtonForEditZn.prop('hidden', true);
         $('#edit_zn_modal').modal('show');
     });
 }

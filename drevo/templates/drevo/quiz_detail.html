@@ -4,6 +4,7 @@
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 <link rel="stylesheet" href="{% static '/drevo/css/quiz.css' %}">
+<link rel="stylesheet" href="{% static '/users/css/profile.css' %}">
 {% endblock %}
 
 {% block title %}Знание: {{ znanie.name }}
@@ -171,7 +172,7 @@
             </tr>
             </tbody>
             </table>
-        <div class="reacting-elem">
+        <div class="reacting-elem my-3">
             {% include "drevo/reacting.html" %}
         </div>
     </div>
@@ -207,9 +208,22 @@
         <p class="small-title" style="border-radius: 8px; background: var(--success, rgba(25, 135, 84, 0.20)); color: var(--success, #198754); padding: 12px 24px;">Верный ответ</p>
     </div>
 </div>
+
+<div class="save-data-form popup__bg">
+    <div class="popup p-5">
+        <i class="bi bi-x-lg close-popup"></i>
+        <h5 class="title text-center">Если Вы хотите  сохранить Ваши результаты, пожалуйста, авторизуйтесь на сайте</h5><br>
+        <div class="mt-4 d-flex justify-content-around">
+          <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-header">Авторизоваться</a>
+        </div>
+    </div>
+</div>
 {% endif %}
 
 {% endblock %}
 {% block jsfiles %}
+<script>
+var isAuthenticated = {{ user.is_authenticated|lower }};
+</script>
 <script type="application/javascript" src="{% static 'drevo/js/quiz.js' %}"></script>
 {% endblock %}
