@@ -1,8 +1,8 @@
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from drevo.forms import VarForm
+from drevo.forms import TemplateObjectForm
 from django.db.models import Q
-from drevo.models import Var
+from drevo.models import TemplateObject
 from django.forms.models import model_to_dict
 from django.core import serializers
 import json
@@ -13,9 +13,9 @@ def get_object(pk):
         Получить объект с данным id
     """
     try:
-        obj = Var.objects.get(id=int(pk))
-    except Var.DoesNotExist:
-        raise Var.DoesNotExist(json.dumps({
+        obj = TemplateObject.objects.get(id=int(pk))
+    except TemplateObject.DoesNotExist:
+        raise TemplateObject.DoesNotExist(json.dumps({
             'res': 'error',
             'error': f'Словаря с id {pk} не существует'}))
     except ValueError:
@@ -49,7 +49,7 @@ def document_object_processing_view(request, doc_pk):
 
     # создание/изменение объекта
     elif request.method == 'POST':
-        form = VarForm(request.POST)
+        form = TemplateObjectForm(request.POST)
 
         if not form.is_valid():
             return HttpResponse(
@@ -67,7 +67,7 @@ def document_object_processing_view(request, doc_pk):
             form.cleaned_data['comment'] = form.cleaned_data['comment'] if form.cleaned_data['comment'] is not None else ''
             form.cleaned_data['structure'] = int(form.cleaned_data['structure'])
             if form.cleaned_data['action'] == 'create':
-                Var.objects.create(
+                TemplateObject.objects.create(
                     name=form.cleaned_data['name'],
                     structure=form.cleaned_data['structure'],
                     is_main=form.cleaned_data['is_main'],
@@ -100,7 +100,7 @@ def document_object_processing_view(request, doc_pk):
             return HttpResponse(json.dumps({'res': 'database error', 'error': e}), content_type='application/json')
 
         # множество объектов отображемых на странице создания/редактирования шаблона текста документа
-        q = Var.objects.filter(Q(knowledge=form.cleaned_data['knowledge']) | Q(availability=1) | Q(availability=2))
+        q = TemplateObject.objects.filter(Q(knowledge=form.cleaned_data['knowledge']) | Q(availability=1) | Q(availability=2))
         return HttpResponse(json.dumps({'res': 'ok', 'objects': json.loads(serializers.serialize('json', q))}), content_type='application/json')
     else:
         return HttpResponseRedirect(reverse('drevo'))

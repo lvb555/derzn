@@ -1,5 +1,4 @@
 from django.db import models
-from drevo.models import Var
 
 
 class Turple(models.Model):

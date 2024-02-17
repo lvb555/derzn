@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
-from drevo.models import Znanie, Var, Tz, Turple
-from drevo.forms import ContentTemplate, VarForm, TurpleForm, TurpleElementForm
+from drevo.models import Znanie, TemplateObject, Tz, Turple
+from drevo.forms import ContentTemplate, TemplateObjectForm, TurpleForm, TurpleElementForm
 from django.db.models import Q
 from django.urls import reverse
 from django.http import HttpResponse
@@ -24,14 +24,14 @@ class DocumentTextTemplateCreate(TemplateView):
         context['var_form'].fields['turple'].queryset = Turple.objects.filter(knowledge=document_knowledge)  # допустимые справочники
 
         # допустимые главные переменные
-        context['var_form'].fields['connected_to'].queryset = Var.objects.filter(Q(knowledge=document_knowledge, is_main=True) | Q(is_main=True, is_global=True))
+        context['var_form'].fields['connected_to'].queryset = TemplateObject.objects.filter(Q(knowledge=document_knowledge, is_main=True) | Q(is_main=True, is_global=True))
 
         context['turple_form'] = TurpleForm(initial={'knowledge': document_knowledge.id})  # форма создания справочника
 
         context['turple_element_form'] = TurpleElementForm()  # форма создания элемента справочника
-        context['turple_element_form'].fields['var'].queryset = Var.objects.filter(knowledge=document_knowledge, structure=0)
+        context['turple_element_form'].fields['var'].queryset = TemplateObject.objects.filter(knowledge=document_knowledge, structure=0)
 
-        context['object_structure_types'] = Var.available_sctructures  # типы структур объектов
+        context['object_structure_types'] = TemplateObjectForm.available_sctructures  # типы структур объектов
         
         knowledge = Znanie.objects.create(
             name=self.request.GET['name'],
@@ -46,7 +46,7 @@ class DocumentTextTemplateCreate(TemplateView):
             'zn_pk': document_knowledge.id})
 
         # переменные, относящиеся к текущему шаблону
-        context['objects'] = Var.objects.filter(Q(knowledge=document_knowledge) | Q(is_global=True))
+        context['objects'] = TemplateObject.objects.filter(Q(knowledge=document_knowledge) | Q(is_global=True))
         context['form'] = form
 
         return context        

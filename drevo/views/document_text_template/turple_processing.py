@@ -4,7 +4,7 @@ from django.forms.models import model_to_dict
 from django.core import serializers
 from django.urls import reverse
 from drevo.forms import TurpleForm
-from drevo.models import Turple, TurpleElement, Var
+from drevo.models import Turple, TurpleElement, TemplateObject
 
 
 def get_turple(pk):
@@ -62,7 +62,7 @@ def turple_processing_view(request, doc_pk):
                 if pk == '':  # создание нового значения справочника
                     TurpleElement.objects.create(
                         value=value,
-                        var=(None if var == '' else Var.objects.get(id=var)),
+                        var=(None if var == '' else TemplateObject.objects.get(id=var)),
                         weight=weight,
                         turple=related_turple
                     )
@@ -70,7 +70,7 @@ def turple_processing_view(request, doc_pk):
                     elem = TurpleElement.objects.get(id=int(pk))
                     elem.value = value
                     elem.weight = weight
-                    elem.var = None if var == '' else Var.objects.get(id=var)
+                    elem.var = None if var == '' else TemplateObject.objects.get(id=var)
                     elem.turple = related_turple
                     elem.save()
 

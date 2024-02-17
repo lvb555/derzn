@@ -1,10 +1,10 @@
 from django.forms import Textarea, NumberInput
 from django import forms
-from drevo.models import Var, Znanie, Turple
+from drevo.models import TemplateObject, Znanie, Turple
 from django.core.exceptions import ValidationError
 
 
-class VarForm(forms.Form):
+class TemplateObjectForm(forms.Form):
     """
         Форма создания/редактирования объектов шаблона документа
 
@@ -25,8 +25,8 @@ class VarForm(forms.Form):
         comment - комментарий к объекту
     """
 
-    available_sctructures = (('', 'Выберите структуру'), ) + Var.available_sctructures  # допустимые типы структрур объектов
-    available_types_of_content = (('', 'Выберите тип данных'), ) + Var.available_types_of_content  # допустимые типы содержимого
+    available_sctructures = (('', 'Выберите структуру'), ) + TemplateObject.available_sctructures  # допустимые типы структрур объектов
+    available_types_of_content = (('', 'Выберите тип данных'), ) + TemplateObject.available_types_of_content  # допустимые типы содержимого
 
     def clean(self):
         cleaned_data = super().clean()
@@ -72,11 +72,11 @@ class VarForm(forms.Form):
             raise ValidationError('Не задан редактируемый объект')
 
         # Проверка на то, что типы объектов и данных находятся в своих рамках
-        if not (0 <= type_of < len(Var.available_types_of_content)):
+        if not (0 <= type_of < len(TemplateObject.available_types_of_content)):
             raise ValidationError(f'Нельзя привести число {type_of} к типу данных')
 
         # Проверка на уникальность имени
-        count = Var.objects.filter(knowledge=zn, name=name).count()
+        count = TemplateObject.objects.filter(knowledge=zn, name=name).count()
         count -= int(action == 'edit' and var.name == name)
         if count > 0:
             raise ValidationError(f'Объект с именем {name} уже существует в контексте этого документа')
@@ -92,7 +92,7 @@ class VarForm(forms.Form):
         choices=available_types_of_content,
         required=False)
     weight = forms.IntegerField(required=False, label='Порядок')
-    connected_to = forms.ModelChoiceField(queryset=Var.objects.all(), label='Родитель', required=False, empty_label='Без подчинения')
+    connected_to = forms.ModelChoiceField(queryset=TemplateObject.objects.all(), label='Родитель', required=False, empty_label='Без подчинения')
     turple = forms.ModelChoiceField(queryset=Turple.objects.all(), label='Справочник', required=False, empty_label='Новый справочник')
     fill_title = forms.CharField(
         label='Заголовок для окна диалога',
@@ -103,6 +103,6 @@ class VarForm(forms.Form):
             'class': 'form-control edit-menu__textarea',
             'id': 'fill-title'}))
     knowledge = forms.ModelChoiceField(queryset=Znanie.objects.all(), widget=NumberInput(attrs={'type': 'hidden'}))
-    pk = forms.ModelChoiceField(queryset=Var.objects.all(), required=False)
+    pk = forms.ModelChoiceField(queryset=TemplateObject.objects.all(), required=False)
     action = forms.CharField(max_length=100)
     comment = forms.CharField(max_length=255, label='Комментарий', required=False)
