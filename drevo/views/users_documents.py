@@ -45,7 +45,7 @@ class CreateDocumentView(TemplateView):
                                           content=content,
                                           owner=request.user)
             
-        return redirect("/users/my_documents/")
+        return redirect("users:my_documents")
     
 
 class ChangeDocumentView(TemplateView):
@@ -87,7 +87,7 @@ class ChangeDocumentView(TemplateView):
             document.content = content
             document.save()
             
-        return redirect("/users/my_documents/")
+        return redirect("users:my_documents")
 
 
 class DeleteDocumentView(TemplateView):
@@ -105,4 +105,4 @@ class DeleteDocumentView(TemplateView):
         document = UsersDocuments.objects.get(pk=pk)
         document.delete()
 
-        return redirect("/users/my_documents/")
+        return redirect("users:my_documents")
