@@ -23,7 +23,8 @@
                 <div class="mydocument">
                     <div class="mydocument-info">
                         <div class="mydocument-title">{{ document.name }}</div>
-                        <div class="mydocument-parent">Родительский документ: {{ document.root_document }}</div>
+                        <div class="mydocument-parent">Последнее изменение:</div>
+                        <div class="mydocument-parent">Шаблон документа: {{ document.root_document }}</div>
                     </div>
                     <div class="mydocument-button-container">
                         {% if document.is_complete %}
