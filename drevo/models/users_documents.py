@@ -34,7 +34,8 @@ class UsersDocuments(models.Model):
         verbose_name='Завершено'
     )
     changed_at = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
+        verbose_name='Последнее изменение'
     )
     pdf = models.FileField(
         upload_to='pdf/',
