@@ -1,134 +1,106 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
+from drevo.common import variables
 from mptt.models import TreeForeignKey
 from users.models import User
 
 from ..managers import ZManager
-from drevo.common import variables
 from .category import Category
 from .knowledge_grade_scale import KnowledgeGradeScale
 from .knowledge_rating import ZnRating
-from .relation_type import Tr
 from .relation import Relation
+from .relation_type import Tr
 
 
 class Znanie(models.Model):
     """
     Класс для описания сущности 'Знание'
     """
-    title = 'Знание'
-    name = models.CharField(
-        max_length=255,
-        verbose_name='Тема',
-        unique=True
-    )
+
+    title = "Знание"
+    name = models.CharField(max_length=255, verbose_name="Тема", unique=True)
     category = TreeForeignKey(
         Category,
         on_delete=models.PROTECT,
-        verbose_name='Категория',
+        verbose_name="Категория",
         null=True,
         blank=True,
-        limit_choices_to={'is_published': True}
+        limit_choices_to={"is_published": True},
     )
-    tz = models.ForeignKey(
-        'Tz',
-        on_delete=models.PROTECT,
-        verbose_name='Вид знания'
-    )
+    tz = models.ForeignKey("Tz", on_delete=models.PROTECT, verbose_name="Вид знания")
     content = models.TextField(
-        max_length=2048,
-        blank=True,
-        null=True,
-        verbose_name='Содержание'
+        max_length=2048, blank=True, null=True, verbose_name="Содержание"
     )
     href = models.URLField(
         max_length=256,
-        verbose_name='Источник',
-        help_text='укажите www-адрес источника',
+        verbose_name="Источник",
+        help_text="укажите www-адрес источника",
         null=True,
-        blank=True)
+        blank=True,
+    )
     source_com = models.CharField(
-        max_length=256,
-        verbose_name='Комментарий к источнику',
-        null=True,
-        blank=True
+        max_length=256, verbose_name="Комментарий к источнику", null=True, blank=True
     )
     author = models.ForeignKey(
-        'Author',
+        "Author",
         on_delete=models.PROTECT,
-        verbose_name='Автор',
-        help_text='укажите автора',
+        verbose_name="Автор",
+        help_text="укажите автора",
         null=True,
-        blank=True
+        blank=True,
     )
     date = models.DateField(
         auto_now_add=True,
-        verbose_name='Дата создания',
+        verbose_name="Дата создания",
     )
     updated_at = models.DateTimeField(
         auto_now=True,
-        verbose_name='Дата и время редактирования',
+        verbose_name="Дата и время редактирования",
     )
     user = models.ForeignKey(
+        User, on_delete=models.PROTECT, editable=False, verbose_name="Пользователь"
+    )
+    expert = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
-        editable=False,
-        verbose_name='Пользователь'
-    )
-    expert = models.ForeignKey(User,
-                               on_delete=models.PROTECT,
-                               null=True,
-                               blank=True,
-                               related_name='knowledge_expert',
-                               verbose_name='Эксперт'
-                               )
-    redactor = models.ForeignKey(User,
-                                 on_delete=models.PROTECT,
-                                 null=True,
-                                 blank=True,
-                                 related_name='redactor',
-                                 verbose_name='Редактор'
-                                 )
-    director = models.ForeignKey(User,
-                                 on_delete=models.PROTECT,
-                                 null=True,
-                                 blank=True,
-                                 related_name='director',
-                                 verbose_name='Руководитель')
-    order = models.IntegerField(
-        verbose_name='Порядок',
-        help_text='укажите порядковый номер',
         null=True,
-        blank=True
+        blank=True,
+        related_name="knowledge_expert",
+        verbose_name="Эксперт",
+    )
+    redactor = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="redactor",
+        verbose_name="Редактор",
+    )
+    director = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="director",
+        verbose_name="Руководитель",
+    )
+    order = models.IntegerField(
+        verbose_name="Порядок",
+        help_text="укажите порядковый номер",
+        null=True,
+        blank=True,
     )
 
-    is_published = models.BooleanField(
-        default=False,
-        verbose_name='Опубликовано?'
-    )
-    labels = models.ManyToManyField(
-        'Label',
-        verbose_name='Метки',
-        blank=True
-    )
-    is_send = models.BooleanField(
-        verbose_name='Пересылать',
-        default=True
-    )
+    is_published = models.BooleanField(default=False, verbose_name="Опубликовано?")
+    labels = models.ManyToManyField("Label", verbose_name="Метки", blank=True)
+    is_send = models.BooleanField(verbose_name="Пересылать", default=True)
     show_link = models.BooleanField(
-        verbose_name='Отображать как ссылку?',
+        verbose_name="Отображать как ссылку?",
         default=True,
     )
-    notification = models.BooleanField(
-        default=False,
-        verbose_name='Уведомления'
-    )
-    several_works = models.BooleanField(
-        default=False,
-        verbose_name='Несколько работ'
-    )
+    notification = models.BooleanField(default=False, verbose_name="Уведомления")
+    several_works = models.BooleanField(default=False, verbose_name="Несколько работ")
 
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
@@ -139,7 +111,7 @@ class Znanie(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('zdetail', kwargs={"pk": self.pk})
+        return reverse("zdetail", kwargs={"pk": self.pk})
 
     def voting(self, user, value):
         rating_obj = self.znrating_set.filter(user=user).first()
@@ -173,26 +145,26 @@ class Znanie(models.Model):
         return self.comments.filter(parent=None).count()
 
     def get_table_object(self):
-        if self.tz.name != 'Таблица':
+        if self.tz.name != "Таблица":
             return None
 
-        row_type_name = 'Строка'
-        col_type_name = 'Столбец'
-        value_type_name = 'Значение'
+        row_type_name = "Строка"
+        col_type_name = "Столбец"
+        value_type_name = "Значение"
 
         row_type = Tr.objects.get(name=row_type_name)
         col_type = Tr.objects.get(name=col_type_name)
         value_type = Tr.objects.get(name=value_type_name)
 
         rows = sorted(
-            self.base.filter(tr=row_type).select_related('rz'),
+            self.base.filter(tr=row_type).select_related("rz"),
             key=lambda x: x.rz.order if x.rz.order else 0,
-            reverse=True
+            reverse=True,
         )
         cols = sorted(
-            self.base.filter(tr=col_type).select_related('rz'),
+            self.base.filter(tr=col_type).select_related("rz"),
             key=lambda x: x.rz.order if x.rz.order else 0,
-            reverse=True
+            reverse=True,
         )
 
         # если нет строк и/или колонок - выходим
@@ -210,38 +182,43 @@ class Znanie(models.Model):
         target_rows = [row.rz for row in target_rows]
         target_cols = [col.rz for col in target_cols]
 
-        values = self.base.filter(tr=value_type).values_list('rz', flat=True)
+        values = self.base.filter(tr=value_type).values_list("rz", flat=True)
 
-        # отбираем связи где базовое знание из списка values, а зависимое - это строка или столбец
+        # отбираем связи, где базовое знание из списка values, а зависимое - это строка или столбец
         # причем строки и столбцы из списка
-        values_positions = Relation.objects.filter(Q(bz__in=values) & (
-                (Q(tr=row_type) & Q(rz__in=target_rows)) |
-                (Q(tr=col_type) & Q(rz__in=target_cols))
-        )).order_by('bz')
+        values_positions = Relation.objects.filter(
+            Q(bz__in=values)
+            & (
+                (Q(tr=row_type) & Q(rz__in=target_rows))
+                | (Q(tr=col_type) & Q(rz__in=target_cols))
+            )
+        ).order_by("bz")
 
         # делаем группировку значения и его координат в словаре
         # в идеале должно быть по одному значению строки и столбца на значение
         # но могут быть всякие баги....
         positions = {}
         for record in values_positions:
-            current_pos = positions.setdefault(record.bz, {'cols': [], 'rows': []})
+            current_pos = positions.setdefault(record.bz, {"cols": [], "rows": []})
             if record.tr == col_type:
-                current_pos['cols'].append(record.rz)
+                current_pos["cols"].append(record.rz)
 
             elif record.tr == row_type:
-                current_pos['rows'].append(record.rz)
+                current_pos["rows"].append(record.rz)
 
             else:
-                raise ValueError('Invalid relation type')
+                raise ValueError("Invalid relation type")
 
         # матрица таблицы размером кол-во рядов х кол-во колонок
-        matrix = [[None]*len(target_cols) for _ in range(len(target_rows))]
+        matrix = [[None] * len(target_cols) for _ in range(len(target_rows))]
 
         for value, pos in positions.items():
-            if len(pos['cols']) == 1 and (len(pos['rows']) == 1):
-                col = pos['cols'][0]
-                row = pos['rows'][0]
-                row_i = target_rows.index(row)  # не оптимально, но список должен быть небольшой
+            if len(pos["cols"]) == 1 and (len(pos["rows"]) == 1):
+                col = pos["cols"][0]
+                row = pos["rows"][0]
+
+                # не оптимально так получать индекс, но список должен быть небольшой
+                row_i = target_rows.index(row)
                 col_j = target_cols.index(col)
                 matrix[row_i][col_j] = value
             else:
@@ -249,9 +226,9 @@ class Znanie(models.Model):
                 pass
 
         table_object = {
-            'rows': rows,
-            'cols': cols,
-            'values': matrix,
+            "rows": rows,
+            "cols": cols,
+            "values": matrix,
         }
         return table_object
 
@@ -264,7 +241,7 @@ class Znanie(models.Model):
         queryset = self.grades.filter(user=user)
         if queryset.exists():
             return queryset.first().grade.get_base_grade()
-        return KnowledgeGradeScale.objects.get(name='Нет оценки').get_base_grade()
+        return KnowledgeGradeScale.objects.get(name="Нет оценки").get_base_grade()
 
     def get_common_grades(self, request):
         """
@@ -273,7 +250,7 @@ class Znanie(models.Model):
         числовое значение оценки доказательной базы (ОДБ).
         """
 
-        variant = request.GET.get('variant')
+        variant = request.GET.get("variant")
         if variant and variant.isdigit():
             variant = int(variant)
         else:
@@ -324,7 +301,7 @@ class Znanie(models.Model):
 
     @staticmethod
     def get_default_grade():
-        """ Возвращает числовое значение оценки по умолчанию """
+        """Возвращает числовое значение оценки по умолчанию"""
         return KnowledgeGradeScale.objects.all().first().get_base_grade()
 
     def get_ancestors_category(self):
@@ -375,6 +352,6 @@ class Znanie(models.Model):
             return variables.TRANSITIONS_PUB[self.get_current_status()]
 
     class Meta:
-        verbose_name = 'Знание'
-        verbose_name_plural = 'Знания'
-        ordering = ('order',)
+        verbose_name = "Знание"
+        verbose_name_plural = "Знания"
+        ordering = ("order",)
