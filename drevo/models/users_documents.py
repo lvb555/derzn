@@ -20,7 +20,9 @@ class UsersDocuments(models.Model):
         verbose_name='Название пользовательского документа',
     )
     content = models.TextField(
-        verbose_name='Содержание'
+        verbose_name='Содержание',
+        null=True,
+        blank=True,
     )
     owner = models.ForeignKey(
         User,
@@ -30,6 +32,9 @@ class UsersDocuments(models.Model):
     is_complete = models.BooleanField(
         default=False,
         verbose_name='Завершено'
+    )
+    changed_at = models.DateTimeField(
+        auto_now_add=True
     )
     pdf = models.FileField(
         upload_to='pdf/',
