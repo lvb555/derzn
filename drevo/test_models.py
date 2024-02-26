@@ -356,8 +356,7 @@ class TestZnanie(TestCase):
         tested_property = obj._meta.get_field("name").unique
         self.assertTrue(tested_property)
 
-        # Testing 'category' field
-
+    # Testing 'category' field
     def test_category_verbose_name(self):
         obj = Znanie.objects.get(id=1)
         tested_property = obj._meta.get_field("category").verbose_name
@@ -371,9 +370,7 @@ class TestZnanie(TestCase):
     def test_category_related_model(self):
         obj = Znanie.objects.get(id=1)
         tested_property = str(obj._meta.get_field("category").related_model)
-        self.assertEquals(tested_property, "<class 'drevo.models.Category'>")
-
-        # Testing 'tz' field
+        self.assertEquals(tested_property, "<class 'drevo.models.category.Category'>")
 
     def test_tz_verbose_name(self):
         obj = Znanie.objects.get(id=1)
@@ -383,7 +380,7 @@ class TestZnanie(TestCase):
     def test_tz_related_model(self):
         obj = Znanie.objects.get(id=1)
         tested_property = str(obj._meta.get_field("tz").related_model)
-        self.assertEquals(tested_property, "<class 'drevo.models.Tz'>")
+        self.assertEquals(tested_property, "<class 'drevo.models.knowledge_kind.Tz'>")
 
     # Testing 'content' field
     def test_content_verbose_name(self):
