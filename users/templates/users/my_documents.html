@@ -26,8 +26,10 @@
 
     <p class="author-title pb-1">Мои документы</p>
 
-    <div class="d-grid basic" style="gap: 16px; margin-top: 25px;">
-            {% for document in documents %}
+    <div class="mydocument-container d-grid basic" style="gap: 16px; margin-top: 25px;">
+        <div class="mydocument-list">
+            <a href="{% url 'knowledge_type' type_pk=tz_pk %}" style="margin-bottom: 10px;">к дереву Документов...</a>
+            {% for document in user_documents %}
                 <div class="mydocument">
                     <div class="mydocument-info">
                         <div class="mydocument-title">{{ document.name }}</div>
@@ -44,6 +46,27 @@
                     </div>
                 </div>
             {% endfor %}
+        </div>
+        <div class="mydocument-filter">
+            <h1>Фильтровать</h1>
+            <form action="{% url 'users:my_documents' %}" method="get">
+                <label for="root_document">Шаблон документа:</label>
+                <select name="root_document" id="root_document">
+                    <option value="None">Не выбрано</option>
+                    {% for root_doc in root_documents %}
+                        <option value="{{ root_doc.id }}" {% if selected_root == root_doc.id %} selected {% endif %}>{{ root_doc.name }}</option>
+                    {% endfor %}
+                </select>
+                <h1>Сортировать</h1>
+                <select name="order_by" id="order_by">
+                    <option value="None">Не выбрано</option>
+                    <option value="asc" {% if selected_order == "asc" %} selected {% endif %}>От старого к новым</option>
+                    <option value="desc" {% if selected_order == "desc" %} selected {% endif %}>От нового к старым</option>
+                </select>
+                <button type="submit">Применить</button>
+                <a href="{% url 'users:my_documents' %}">Сбросить фильтры</a>
+            </form>
+        </div>
     </div>
 
 <script type="application/javascript" src="{% static 'drevo/js/toggle_element.js' %}"></script>

@@ -259,8 +259,28 @@ class UserDocumentsView(LoginRequiredMixin, TemplateView):
         if request.method == 'GET':
             user = User.objects.filter(id=request.user.pk).first()
             context = {}
+
             if user is not None:
-                context["documents"] = UsersDocuments.objects.filter(owner=self.request.user)
+                user_documents = UsersDocuments.objects.filter(owner=self.request.user)
+                tz = Tz.objects.get(name='Документ').pk
+                context["tz_pk"] = tz
+                documents = Znanie.objects.filter(tz=tz).values('id', 'name')
+                context["root_documents"] = documents.filter(id__in=user_documents.values_list('root_document', flat=True)).distinct()
+
+                if self.request.GET.get("root_document"): 
+                    if self.request.GET.get("root_document") != 'None':
+                        user_documents = user_documents.filter(root_document=self.request.GET.get("root_document"))
+                        context["selected_root"] = int(self.request.GET.get("root_document"))
+                
+                if self.request.GET.get("order_by"):
+                    context["selected_order"] = self.request.GET.get("order_by")
+                    if self.request.GET.get("order_by") == "asc":
+                        user_documents = user_documents.order_by("changed_at")
+                    elif self.request.GET.get("order_by") == "desc":
+                        user_documents = user_documents.order_by("-changed_at")
+
+                context["user_documents"] = user_documents
+
                 if user == request.user:
                     context['sections'] = access_sections(user)
                     context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
@@ -277,7 +297,9 @@ class UserDocumentsView(LoginRequiredMixin, TemplateView):
                     context['activity'] = [i.name for i in user.sections.all() if i.name.startswith('Мои') or i.name.startswith('Моя')]
                     context['link'] = 'public_human'
                     context['id'] = id
+
                 context['pub_user'] = user
+
                 return render(request, 'users/my_documents.html', context)
 
 
