@@ -21,7 +21,7 @@ class UsersDocuments(models.Model):
     )
     content = models.TextField(
         verbose_name='Содержание',
-        null=True,
+        default="",
         blank=True,
     )
     owner = models.ForeignKey(
