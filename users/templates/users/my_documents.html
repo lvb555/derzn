@@ -1,14 +1,17 @@
 {% extends 'drevo/base.html' %}
-{% load static %}
-
-{% block cssfiles %}
-    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
-{% endblock %}
+{% load mptt_tags %}
+{% load filter %}
+{% load static %} 
 
 {% block title %}Мои документы{% endblock %}
 
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
 {% block content %}
-    <div class="container header_info p-0">
+    <div class="container header_info px-2">
         <h1>Мои документы</h1>
         <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
             <ol class="breadcrumb">
@@ -18,12 +21,20 @@
             </ol>
         </nav>
     </div>
-    <div class="d-grid basic" style="gap: 16px; margin-top: 25px;">
-            {% for document in documents %}
+
+    {% include 'drevo/include/profile_header.html' %}
+
+    <p class="author-title pb-1">Мои документы</p>
+
+    <div class="mydocument-container d-grid basic" style="gap: 16px; margin-top: 25px;">
+        <div class="mydocument-list">
+            <a href="{% url 'knowledge_type' type_pk=tz_pk %}" style="margin-bottom: 10px;">к дереву Документов...</a>
+            {% for document in user_documents %}
                 <div class="mydocument">
                     <div class="mydocument-info">
                         <div class="mydocument-title">{{ document.name }}</div>
-                        <div class="mydocument-parent">Родительский документ: {{ document.root_document }}</div>
+                        <div class="mydocument-parent">Последнее изменение: {{ document.changed_at }}</div>
+                        <div class="mydocument-parent">Шаблон документа: {{ document.root_document }}</div>
                     </div>
                     <div class="mydocument-button-container">
                         {% if document.is_complete %}
@@ -35,6 +46,27 @@
                     </div>
                 </div>
             {% endfor %}
+        </div>
+        <div class="mydocument-filter">
+            <h1>Фильтровать</h1>
+            <form action="{% url 'users:my_documents' %}" method="get">
+                <label for="root_document">Шаблон документа:</label>
+                <select name="root_document" id="root_document">
+                    <option value="None">Не выбрано</option>
+                    {% for root_doc in root_documents %}
+                        <option value="{{ root_doc.id }}" {% if selected_root == root_doc.id %} selected {% endif %}>{{ root_doc.name }}</option>
+                    {% endfor %}
+                </select>
+                <h1>Сортировать</h1>
+                <select name="order_by" id="order_by">
+                    <option value="None">Не выбрано</option>
+                    <option value="asc" {% if selected_order == "asc" %} selected {% endif %}>От старого к новым</option>
+                    <option value="desc" {% if selected_order == "desc" %} selected {% endif %}>От нового к старым</option>
+                </select>
+                <button type="submit">Применить</button>
+                <a href="{% url 'users:my_documents' %}">Сбросить фильтры</a>
+            </form>
+        </div>
     </div>
 
 <script type="application/javascript" src="{% static 'drevo/js/toggle_element.js' %}"></script>
