@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
-from users.models import User
+from users.models import User,Profile
 
 
 def editorial_staff_view(request):
@@ -25,9 +25,10 @@ def update_roles(request):
 
         try:
             user = User.objects.get(id=user_id)
-            user.is_staff = is_employee
+            user.is_employee = is_employee
             user.is_superuser = is_admin
             user.save()
+
             return JsonResponse({'message': 'Roles updated successfully'})
         except User.DoesNotExist:
             return JsonResponse({'error': 'User does not exist'}, status=404)
