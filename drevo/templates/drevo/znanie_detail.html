@@ -174,9 +174,9 @@
                   Делаем вместе
                 </a>
               {% endif %}
-          </div>
-          <div>
+        </div>
         {% if request.user.is_authenticated %}
+        <div>
             <a class="btn open-popup btn-icon" style="background-color: #E7ECEB; color: #083E2F; padding: 8px 24px;">Отправить в Ленту знаний</a>
             <div class="popup__bg">
               <form class="popup" method="post" id="feedmessage_form" novalidate onsubmit="return false;">
@@ -234,7 +234,7 @@
                   </div>
               </form>
             </div>
-          </div>
+        </div>
         {% endif %}
         </div>
         <div class="row mb-2">
