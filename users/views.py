@@ -261,7 +261,7 @@ class UserDocumentsView(LoginRequiredMixin, TemplateView):
             context = {}
 
             if user is not None:
-                user_documents = UsersDocuments.objects.filter(owner=self.request.user)
+                user_documents = UsersDocuments.objects.filter(owner=self.request.user).order_by("-changed_at")
                 tz = Tz.objects.get(name='Документ').pk
                 context["tz_pk"] = tz
                 documents = Znanie.objects.filter(tz=tz).values('id', 'name')
@@ -272,12 +272,16 @@ class UserDocumentsView(LoginRequiredMixin, TemplateView):
                         user_documents = user_documents.filter(root_document=self.request.GET.get("root_document"))
                         context["selected_root"] = int(self.request.GET.get("root_document"))
                 
+                if self.request.GET.get("is_complete"): 
+                    if self.request.GET.get("is_complete") != "None":
+                        value = True if self.request.GET.get("is_complete") == "true" else False
+                        user_documents = user_documents.filter(is_complete=value)
+                        context["selected_complete"] = self.request.GET.get("is_complete")
+                
                 if self.request.GET.get("order_by"):
                     context["selected_order"] = self.request.GET.get("order_by")
-                    if self.request.GET.get("order_by") == "asc":
+                    if self.request.GET.get("order_by") == "desc":
                         user_documents = user_documents.order_by("changed_at")
-                    elif self.request.GET.get("order_by") == "desc":
-                        user_documents = user_documents.order_by("-changed_at")
 
                 context["user_documents"] = user_documents
 
