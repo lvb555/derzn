@@ -327,6 +327,12 @@ if((!urlParams.has('mode') || urlParams.get('mode') == '') && document.querySele
     if(!isManyWorks && (typeof getPreviousProgress() === 'undefined' || getPreviousProgress().length === 0)){
         setTimeout(()=>{new_work = 'Данные по алгоритму';}, 1000);
         ShowFirst();
+    }else if(document.getElementById('choose_other') && document.querySelectorAll('.select__item a').length > 2){
+        if(typeof getPreviousProgress() === 'object' && getPreviousProgress().length > 0){
+            rebuildResult(getPreviousProgress());
+        }else{
+            ShowFirst();
+        }
     }else{
         saveBg.classList.add('active');
         savePopup.classList.add('active');
@@ -374,14 +380,19 @@ function closePopup(condition){
         if(!isManyWorks){
             setTimeout(()=>{new_work = 'Данные по алгоритму';}, 1000);
         }
-        if(flag == true){
-            saveBg.classList.remove('active');
-            savePopup.classList.remove('active');
-            document.body.classList.remove("stop-scrolling");
-        }
         if(condition == 'continue' && (typeof getPreviousProgress() === 'object' && getPreviousProgress().length > 0)){
-
             rebuildResult(getPreviousProgress());
+            if(document.getElementById('continue')){
+                new_work = document.querySelectorAll('.select__item a')[1].textContent
+            }
+        }else if(condition == 'choose_other'){
+            flag = false;
+            document.getElementById('continue').style.display = 'none';
+            document.getElementById('choose_other').style.display = 'block';
+        }else if( condition == 'confirm'){
+            flag = false;
+            document.getElementById('continue_work').style.display = 'none';
+            document.getElementById('confirm').style.display = 'block';
         }else{
             if(isAuthenticated && (typeof getPreviousProgress() === 'object' && getPreviousProgress().length > 0)){
                 $.ajax({
@@ -391,6 +402,11 @@ function closePopup(condition){
                 });
             }
             ShowFirst();
+        }
+        if(flag == true){
+            saveBg.classList.remove('active');
+            savePopup.classList.remove('active');
+            document.body.classList.remove("stop-scrolling");
         }
 }
 
