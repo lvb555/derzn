@@ -1198,6 +1198,7 @@ a.question {
 .mydocument-filter {
     grid-column: 2;
     position: sticky;
+    height: 430px;
     margin: 0 auto;
     padding: 20px;
     background-color: #ffffff;

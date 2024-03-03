@@ -52,6 +52,9 @@ class UsersDocuments(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def formatted_datetime(self):
+        return self.changed_at.strftime('%d.%m.%Y %H:%M')
 
     class Meta:
         verbose_name = 'Документ пользователя'

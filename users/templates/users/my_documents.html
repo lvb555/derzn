@@ -33,7 +33,7 @@
                 <div class="mydocument">
                     <div class="mydocument-info">
                         <div class="mydocument-title">{{ document.name }}</div>
-                        <div class="mydocument-parent">Последнее изменение: {{ document.changed_at }}</div>
+                        <div class="mydocument-parent">Последнее изменение: {{ document.formatted_datetime }}</div>
                         <div class="mydocument-parent">Шаблон документа: <a href="{% url 'create_document' pk=document.root_document.id %}">{{ document.root_document }}</a></div>
                     </div>
                     <div class="mydocument-button-container">
