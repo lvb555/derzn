@@ -33,8 +33,8 @@
                 <div class="mydocument">
                     <div class="mydocument-info">
                         <div class="mydocument-title">{{ document.name }}</div>
-                        <div class="mydocument-parent">Последнее изменение: {{ document.changed_at }}</div>
-                        <div class="mydocument-parent">Шаблон документа: {{ document.root_document }}</div>
+                        <div class="mydocument-parent">Последнее изменение: {{ document.formatted_datetime }}</div>
+                        <div class="mydocument-parent">Шаблон документа: <a href="{% url 'create_document' pk=document.root_document.id %}">{{ document.root_document }}</a></div>
                     </div>
                     <div class="mydocument-button-container">
                         {% if document.is_complete %}
@@ -48,26 +48,38 @@
             {% endfor %}
         </div>
         <div class="mydocument-filter">
-            <h1>Фильтровать</h1>
-            <form action="{% url 'users:my_documents' %}" method="get">
+            <form id="my_document-filter-form" action="{% url 'users:my_documents' %}" method="get">
+                <h1>Фильтровать</h1>
                 <label for="root_document">Шаблон документа:</label>
                 <select name="root_document" id="root_document">
-                    <option value="None">Не выбрано</option>
+                    <option value="None">Все шаблоны</option>
                     {% for root_doc in root_documents %}
                         <option value="{{ root_doc.id }}" {% if selected_root == root_doc.id %} selected {% endif %}>{{ root_doc.name }}</option>
                     {% endfor %}
                 </select>
+                <label for="is_complete">Завершенность:</label>
+                <select name="is_complete" id="is_complete">
+                    <option value="None">Все документы</option>
+                    <option value="true" {% if selected_complete == "true" %} selected {% endif %}>Завершенные</option>
+                    <option value="false" {% if selected_complete == "false" %} selected {% endif %}>Незавершенные</option>
+                </select>
                 <h1>Сортировать</h1>
                 <select name="order_by" id="order_by">
-                    <option value="None">Не выбрано</option>
-                    <option value="asc" {% if selected_order == "asc" %} selected {% endif %}>От старого к новым</option>
-                    <option value="desc" {% if selected_order == "desc" %} selected {% endif %}>От нового к старым</option>
+                    <option value="asc">От нового к старым</option>
+                    <option value="desc" {% if selected_order == "desc" %} selected {% endif %}>От старого к новым</option>
                 </select>
-                <button type="submit">Применить</button>
                 <a href="{% url 'users:my_documents' %}">Сбросить фильтры</a>
             </form>
         </div>
     </div>
 
 <script type="application/javascript" src="{% static 'drevo/js/toggle_element.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var form = document.querySelector('#my_document-filter-form');
+        form.addEventListener('change', function() {
+            form.submit();
+        });
+    });
+</script>
 {% endblock %}
