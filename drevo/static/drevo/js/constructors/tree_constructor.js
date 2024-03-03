@@ -25,6 +25,8 @@ let textOfDocumentTemplateButtonForCreateZn = $('<button class="btn btn-info mt-
 new_zn_tz.after(textOfDocumentTemplateButtonForCreateZn);
 let textOfDocumentTemplateButtonForEditZn = $('<button class="btn btn-info mt-3">').text('Конструктор шаблона текста');
 editing_zn_name.after(textOfDocumentTemplateButtonForEditZn);
+let textOfDocumentTemplateButtonForEditMainZn = $('<button class="btn btn-info mt-3">').text('Конструктор шаблона текста');
+$('#main_zn_edit_modal #id_name').after(textOfDocumentTemplateButtonForEditMainZn);
 
 function add_relation(parent_zn_id) {
     fetch(`/drevo/rel_in_tree_constructor/create/?parent_id=${parent_zn_id}`)
@@ -143,6 +145,10 @@ function edit_relation(rel_id) {
 
 
 textOfDocumentTemplateButtonForEditZn.click(function () {
+    window.open(`/drevo/znanie/${$('#main_zn_id').val()}/document-template/edit-text/${zn_id_in_edit_form.val()}`);
+})
+
+textOfDocumentTemplateButtonForEditMainZn.click(function () {
     window.open(`/drevo/znanie/${$('#main_zn_id').val()}/document-template/edit-text/${zn_id_in_edit_form.val()}`);
 })
 
