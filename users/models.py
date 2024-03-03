@@ -24,6 +24,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=150, verbose_name='Имя')
     last_name = models.CharField( max_length=150, verbose_name='Фамилия')
     is_expert = models.BooleanField(default=False, verbose_name='Эксперт')
+    is_employee = models.BooleanField(default=False, verbose_name='Сотрудник')
     is_redactor = models.BooleanField(default=False, verbose_name='Редактор')
     is_director = models.BooleanField(default=False, verbose_name='Руководитель')
     in_klz = models.BooleanField(default=False, verbose_name='Член КЛЗ')
