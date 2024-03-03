@@ -1,18 +1,13 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
-from users.models import User,Profile
+from users.models import User, Profile
 
 
 def editorial_staff_view(request):
     users = User.objects.all().order_by('last_name')
     template_name = 'admin/drevo/knowledge/editorial_staff_template.html'
     return render(request, template_name, {'users': users})
-
-
-
-
 
 
 @csrf_exempt
@@ -36,4 +31,3 @@ def update_roles(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
-
