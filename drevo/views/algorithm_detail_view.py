@@ -62,6 +62,12 @@ class AlgorithmDetailView(DetailView):
                 if self.request.GET.get('previous_works'):
                     context['current_work'] = self.request.GET.get('previous_works')
 
+            elif len(context['previous_works']) == 1:
+                context['progress'] = list(AlgorithmData.objects.filter(user=self.request.user, algorithm=knowledge,
+                                                                        work__work_name=context['previous_works'].first()).values(
+                                                                        'element', 'element_type'))
+                context['current_work'] = context['previous_works'].first()
+
             if self.request.GET.get('mode'):
                 context['modification'] = 'on'
 
