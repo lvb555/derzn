@@ -293,6 +293,9 @@ function saveNewElement(){
 function ShowFirst(){
     dict_to_send = {};
     let list_to_change_status = [];
+    if(!(new_work == 'Данные по алгоритму')){
+        document.getElementById('new_work').textContent = 'Работа "'+new_work+'"';
+    }
     document.querySelector('.basic input[type="checkbox"]').nextSibling.style.color = 'red';
     if(!(document.querySelector('.basic div#algorithm_tree span').classList.contains('text-secondary'))){
         showNotification(document.querySelector('.basic div#algorithm_tree span'), 'comment');
@@ -324,6 +327,9 @@ function ShowFirst(){
 
 
 if((!urlParams.has('mode') || urlParams.get('mode') == '') && document.querySelector('#algorithm_tree')){
+    if(urlParams.has('previous_works') || urlParams.get('previous_works') != ''){
+        new_work = urlParams.get('previous_works');
+    }
     if(!isManyWorks && (typeof getPreviousProgress() === 'undefined' || getPreviousProgress().length === 0)){
         setTimeout(()=>{new_work = 'Данные по алгоритму';}, 1000);
         ShowFirst();
@@ -345,9 +351,6 @@ if((!urlParams.has('mode') || urlParams.get('mode') == '') && document.querySele
             }
             document.querySelector('#work_name').value = 'Работа по алгоритму '+String(defolt_name);
         }
-    }
-    if(urlParams.has('previous_works') || urlParams.get('previous_works') != ''){
-        new_work = urlParams.get('previous_works');
     }
 }else if(document.querySelector('#algorithm_tree')){
     document.querySelectorAll('i[onclick="redactOrDelete(this, \'same\', \'redact\');"').forEach((elem) => {
@@ -436,6 +439,9 @@ function selectToggle() {
 
 // Перебор всех сохраненных элементов
 function rebuildResult(list_of_elements){
+    if(!(new_work == 'Данные по алгоритму')){
+        document.getElementById('new_work').textContent = 'Работа "'+new_work+'"';
+    }
     end_elem = '';
     changeCondition(document.querySelector('.basic input[type="checkbox"]'),list_of_elements[0]['element_type'])
     delete list_of_elements[0];
@@ -486,6 +492,23 @@ function findCheckbox(lay, name, previous_element){
             if(!(lay[0].parentNode.parentNode.parentNode.tagName == 'UL')) break;
             if(!(founded_checkbox == '')) break;
             lay = lay[0].parentNode.parentNode.parentNode.childNodes
+        }
+        if(founded_checkbox == ''){
+            elements_with_similar_name = Array.from(document.querySelectorAll('.algorithm-element a')).filter(item => item.innerText == name);
+            if(elements_with_similar_name.length > 1){
+                elements_with_similar_name = elements_with_similar_name.filter(item => /green|blue/.test(item.parentNode.parentNode.parentNode.parentNode.querySelector('span.algorithm-element').style.color)
+                || item.parentNode.parentNode.previousSibling && /green|blue/.test(item.parentNode.parentNode.previousSibling.querySelector('span.algorithm-element').style.color));
+                if(elements_with_similar_name.length == 1){
+                    founded_checkbox = elements_with_similar_name[0].parentNode.previousSibling
+                }
+            }else{
+                founded_checkbox = elements_with_similar_name[0].parentNode.previousSibling
+            }
+            if(founded_checkbox.parentNode.lastChild.tagName == 'UL' && founded_checkbox.parentNode.lastChild.getElementsByTagName('li').length > 0){
+                lay = founded_checkbox.parentNode.lastChild.childNodes;
+            }else{
+                lay = founded_checkbox.parentNode.parentNode.parentNode.parentNode.childNodes;
+            }
         }
     }
     return[lay, founded_checkbox]
@@ -623,7 +646,7 @@ function recurseOpening(element){
                     first_sub_elem.nextSibling.style.color = 'blue';
                     list_to_change_status.push([first_sub_elem.parentNode.querySelector('a').textContent, 'completed']);
                     first_sub_elem.nextSibling.style.fontWeight = 'normal';
-                    showNotification(first_sub_elem, 'ending');
+                    list_to_change_status = list_to_change_status.concat(showNotification(first_sub_elem, 'ending'));
                 }else{
                     list_to_change_status.push([first_sub_elem.parentNode.querySelector('a').textContent, 'available']);
                 }
@@ -679,7 +702,7 @@ function startAction(action){
                 action.nextSibling.disabled = true;
                 action.nextSibling.style.color = 'blue';
                 action.nextSibling.style.fontWeight = 'normal';
-                showNotification(action, 'ending');
+                list_to_change_status = list_to_change_status.concat(showNotification(action, 'ending'));
             }
         }
     }else{
@@ -1036,7 +1059,7 @@ function findNextAction(next_action){
                 next_action.querySelector('input[type="checkbox"]').nextSibling.style.color = 'blue';
                 list_to_change_status.push([next_action.querySelector('a').textContent, 'completed']);
                 next_action.querySelector('input[type="checkbox"]').nextSibling.style.fontWeight = 'normal';
-                showNotification(next_action.querySelector('input[type="checkbox"]'), 'ending');
+                list_to_change_status = list_to_change_status.concat(showNotification(next_action.querySelector('input[type="checkbox"]'), 'ending'));
             }else{
                 list_to_change_status.push([next_action.querySelector('a').textContent, 'available']);
             }
@@ -1044,8 +1067,6 @@ function findNextAction(next_action){
     }else{
         if(!(next_action.querySelector('span').classList.contains('text-secondary'))){
             showNotification(next_action.querySelector('span'), 'comment');
-            next_action.parentNode.parentNode.querySelector('.algorithm-element').style.color= 'blue';
-            list_to_change_status.push([next_action.parentNode.parentNode.querySelector('a').textContent, 'completed']);
         }
         if(next_action.nextSibling && next_action.nextSibling.getAttribute('value') == 'Далее'){
             list_to_change_status = list_to_change_status.concat(findNextAction(next_action.nextSibling));
@@ -1193,6 +1214,7 @@ function uncheckSiblings(closest_sibling){
 
 // Показывает уведомление о завершении алгоритма или комментарий
 function showNotification(elem, type){
+    let list_to_change_status = [];
     if(type == 'ending'){
         let name_of_completed_algorithm = 'Вы прошли алгоритм "';
         const algorithm_to_end = document.querySelector('.container.header_info h1');
@@ -1212,7 +1234,7 @@ function showNotification(elem, type){
         document.querySelector('#end_of_algorithm').innerHTML = name_of_completed_algorithm;
         notificationPopup.style.display = 'block';
         setTimeout(()=>{removeNotification(closeNotificationButton)}, 10000);
-        endTheAlgorithm(current_elem.parentNode);
+        list_to_change_status = list_to_change_status.concat(endTheAlgorithm(current_elem.parentNode));
     }else{
         const comment = document.createElement("div");
         comment.classList.add('notification');
@@ -1231,6 +1253,7 @@ function showNotification(elem, type){
         document.querySelector('#end_of_algorithm').parentNode.before(comment);
         setTimeout(()=>{comment.remove()}, 20000);
     }
+    return list_to_change_status
 }
 
 
@@ -1274,15 +1297,5 @@ function endTheAlgorithm(action){
     if(!action.classList.contains('root') && action.nextSibling){
         list_to_change_status = list_to_change_status.concat(findNextAction(action.nextSibling));
     }
-    dict_to_send = {};
-    if(list_to_change_status){
-        for(prop = 0, len = list_to_change_status.length; prop < len; ++prop){
-            dict_to_send[list_to_change_status[prop][0]] = list_to_change_status[prop][1]
-        }
-    }
-    $.ajax({
-        data: { 'values' : JSON.stringify(dict_to_send), 'for_deletion': JSON.stringify(''), 'work' : new_work},
-        url: document.location.pathname + '/algorithm_result/',
-        success: function (response) {}
-    });
+    return list_to_change_status
 }
