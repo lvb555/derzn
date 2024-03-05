@@ -45,6 +45,7 @@
                 {% if znanie.author %}
                     <i class="d-inline-flex" style="color: #6C757D; font-style: normal;">({{ znanie.author }})</i>
                 {% endif %}
+                <span class="ps-2" id="new_work"></span>
             </p>
             {% recurse_dict algorithm_data previous_knowledge=znanie algorithm=znanie user=request.user work=current_work mode=modification %}
         </ul>
@@ -106,7 +107,7 @@
                             </div>
                             {% for work in previous_works %}
                                 <div class="select__item">
-                                    <a class="text-grey" href="?{% url_replace request 'previous_works' work %}">{{work}}</a>
+                                    <a class="text-grey" href="?{% url_replace request 'previous_works' work %}">"{{work}}"</a>
                                 </div>
                             {% endfor %}
                         </div>
@@ -137,7 +138,7 @@
                     </div>
                 {% elif current_work %}
                     <div id="continue">
-                        <h5 class="title">Вы хотите продолжить выполнение работы {{current_work}}?</h5><br>
+                        <h5 class="title">Вы хотите продолжить выполнение работы "{{current_work}}"?</h5><br>
                         <div class="mt-4 d-flex justify-content-around">
                           <input type="button" onclick="closePopup('continue')" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
                           <input type="button" onclick="closePopup('choose_other')" value="Нет" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
@@ -160,7 +161,7 @@
                                 </div>
                                 {% for work in previous_works %}
                                     <div class="select__item">
-                                        <a class="text-grey" href="?{% url_replace request 'previous_works' work %}">{{work}}</a>
+                                        <a class="text-grey" href="?{% url_replace request 'previous_works' work %}">"{{work}}"</a>
                                     </div>
                                 {% endfor %}
                             </div>
