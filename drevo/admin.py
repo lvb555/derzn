@@ -30,11 +30,13 @@ from drevo.models.message import Message
 from drevo.models.chapter import ChapterDescriptions
 from drevo.models import QuestionToKnowledge
 from drevo.models import UserAnswerToQuestion
-
 from drevo.models.suggestion import Suggestion
 from drevo.models.suggestion_type import SuggestionType
 from drevo.models.refuse_reason import RefuseReason
+from drevo.models import Turple
+from drevo.models import TurpleElement
 
+from drevo.models import Var
 
 from .forms.developer_form import DeveloperForm
 from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
@@ -76,6 +78,7 @@ from .models import (
     AlgorithmAdditionalElements
 )
 from .models.algorithms_data import AlgorithmData, AlgorithmWork
+from .models.users_documents import UsersDocuments
 from .models.appeal import Appeal
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -371,7 +374,7 @@ class RelationAdmin(admin.ModelAdmin):
                         list_pk.append(item.pk)
                 return queryset.filter(pk__in=list_pk)
 
-    list_display = ("id", "bz", "tr", "rz", "author", "date", "user", "expert", "director", "order")
+    list_display = ("id", "order", "bz", "tr", "rz", "author", "date", "user", "expert", "director")
     save_as = True
     autocomplete_fields = ["author"]
     search_fields = ["bz__name", "rz__name"]
@@ -453,6 +456,48 @@ class RelationAdmin(admin.ModelAdmin):
     class Media:
         # css = {"all": ("drevo/css/style.css",)}
         js = ("drevo/js/notify_interview.js",)
+
+
+class RootDocumentFilter(admin.SimpleListFilter):
+    """
+    Описывает фильтр модели "Пользовательские документы" по полю "Родительский документ".
+    """
+    
+    title = 'Родительский документ'
+    parameter_name = 'root_document'
+
+    def lookups(self, request, model_admin):
+        tz = Tz.objects.get(name='Документ').pk
+        documents = Znanie.objects.filter(tz=tz)
+
+        return [(document.pk, document) for document in documents]
+
+    def queryset(self, request, queryset):
+
+        if self.value():
+            return queryset.filter(root_document=self.value())
+
+
+class UsersDocumentsAdmin(admin.ModelAdmin):
+    """
+    Описывает отображение модели "Пользовательские документы" в админке.
+    """
+
+    list_display = (
+        "id",
+        "name",
+        "root_document",
+        "owner"
+    )
+    list_display_links = ("name",)
+    readonly_fields = ('changed_at',)
+    list_filter = (
+        RootDocumentFilter,
+        "owner",
+    )    
+
+
+admin.site.register(UsersDocuments, UsersDocumentsAdmin)
 
 
 class GlossaryTermAdmin(admin.ModelAdmin):
@@ -873,10 +918,10 @@ class AlgorithmWorkAdmin(admin.ModelAdmin):
 
 @admin.register(AlgorithmData)
 class AlgorithmDataAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "display_algorithm", "display_work", "element")
+    list_display = ("id", "user", "display_algorithm", "display_work", "element", "element_type")
     autocomplete_fields = ["algorithm", "user"]
-    search_fields = ["algorithm", "work"]
-    list_filter = ("algorithm", "work", "user")
+    search_fields = ["algorithm__name", "work__work_name"]
+    list_filter = ("algorithm", "work", "user", "element_type")
     def display_algorithm(self, obj):
         return str(obj.algorithm)
     display_algorithm.short_description = "Алгоритм"
@@ -890,7 +935,7 @@ class AlgorithmDataAdmin(admin.ModelAdmin):
 class AlgorithmAdditionalElementsAdmin(admin.ModelAdmin):
     list_display = ("user", "display_algorithm", "display_work", "parent_element", "element_name")
     autocomplete_fields = ["algorithm", "user"]
-    search_fields = ["parent_element", "element_name"]
+    search_fields = ["parent_element__name", "element_name"]
     list_filter = ("algorithm", "work", "relation_type", "insertion_type", "user")
     def display_algorithm(self, obj):
         return str(obj.algorithm)
@@ -940,17 +985,37 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
 
 @admin.register(Suggestion)
 class UserSuggestionAdmin(admin.ModelAdmin):
-    list_display = ('parent_knowlege', 'name', 'user', 'expert', 'is_approve', 'suggestions_type')
+    list_display = ('id', 'parent_knowlege', 'name', 'user', 'expert', 'is_approve', 'suggestions_type')
     list_filter = ('suggestions_type', 'user', 'parent_knowlege')
     form = AdminSuggestionUserForm
 
 
 @admin.register(SuggestionType)
 class SuggestionTypeAdmin(admin.ModelAdmin):
-    list_display = ('type_name', 'weight')
+    list_display = ('id', 'type_name', 'weight')
     list_filter = ('type_name', 'weight')
+    ordering = ('weight', )
 
 
 @admin.register(RefuseReason)
 class RefuseReasonAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(Var)
+class VarAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'knowledge', 'availability', 'structure', 'type_of', 'turple', 'optional', 'connected_to')
+    list_filter = ('knowledge', 'turple', 'availability', 'type_of')
+    ordering = ('weight', )
+
+@admin.register(TurpleElement)
+class TurpleElementAdmin(admin.ModelAdmin):
+    list_display = ('value', 'turple')
+    list_filter = ('turple', )
+    ordering = ('weight', )
+
+@admin.register(Turple)
+class TurpleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'knowledge', 'availability')
+    list_filter = ('availability', )
+    ordering = ('weight', )

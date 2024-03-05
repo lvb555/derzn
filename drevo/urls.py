@@ -15,6 +15,7 @@ from .views import (
     AlgorithmDetailView,
     AlgorithmListView,
     AlgorithmResultAdd,
+    EditAlgorithm,
     LabelsListView,
     GlossaryListView,
     ZnanieRatingView,
@@ -33,7 +34,7 @@ from .views import (
     ZnaniyaForConstructorView,
     MainZnInConstructorCreateView,
     FillingTablesView,
-    save_zn_to_cell_in_table,
+    save_zn_to_cell_in_table_from_request,
     get_cell_for_table,
     relation_in_table_create_update_view,
     element_of_group_in_table_create_update_view,
@@ -82,6 +83,10 @@ from .views import (
     PreparingRelationsExpertiseView,
     PreparingRelationsPublicationView,
     RelationCreatePageView,
+    DocumentTextTemplateEdit,
+    DocumentTextTemplateCreate,
+    turple_processing_view,
+    document_object_processing_view,
     check_related,
     relation_create_view,
     relation_delete_view,
@@ -95,7 +100,7 @@ from .views import (
     RelationsPublicationPageView,
     relation_publication_view,
     get_tr_for_create_relation_in_tree_constructor,
-    get_rel_zn_in_tree_constructor,
+    get_rel_zn_in_tree_constructor_from_request,
     TreeConstructorView,
     TableConstructorView,
     save_rel_in_tree_constructor,
@@ -110,6 +115,8 @@ from .views import (
     check_algorithm_correctness_from_request,
     edit_main_zn_in_constructor,
     get_order_of_relation,
+    delete_algorithm,
+    delete_zn_in_cell_in_table,
 
 )
 
@@ -118,6 +125,8 @@ from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
 from .views.user_suggestion_view import UserSuggestionView
+from .views.users_documents import CreateDocumentView, \
+    ChangeDocumentView, DeleteDocumentView
 
 from .views.expert_work.views import (
     propose_answer,
@@ -171,6 +180,7 @@ from .views.knowledge_tp_view import (
     DirectorKnowledgeProcess,
     KlzKnowledgeProcess,
 )
+from .views.editorial_staff import editorial_staff_view, update_roles
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
@@ -193,6 +203,10 @@ urlpatterns = [
     path('znanie/<int:pk>/grade/group/infographics', GroupInfographicsView.as_view(), name="grade_group_infographics"),
     path('znanie/<int:pk>/grade/group/statistics', GroupKnowledgeStatisticsView.as_view(), name="grade_group_statistics"),
     path("znanie/<int:pk>/grade/infographics", InfographicsView.as_view(), name="grade_infographics"),
+    path('znanie/<int:doc_pk>/document-template/edit-text/<int:text_pk>', DocumentTextTemplateEdit.as_view(), name='edit_text_template'),
+    path('znanie/<int:doc_pk>/document-template/create-text/', DocumentTextTemplateCreate.as_view(), name='create_text_template'),
+    path('znanie/<int:doc_pk>/document-template/turple_processing', turple_processing_view),
+    path('znanie/<int:doc_pk>/document-template/document_object_processing', document_object_processing_view),
     path("knowledges_grades/", knowledges_grades, name="knowledges_grades"),
     path("my_knowledge_grade/<int:id>/", my_knowledge_grade, name="my_knowledge_grade"),
     path("about/", about_proj.AboutView.as_view(), name="about_proj"),
@@ -223,8 +237,12 @@ urlpatterns = [
     path("all_algorithms/", AlgorithmListView.as_view(), name="all_algorithms"),
     path("algorithm/<int:pk>", AlgorithmDetailView.as_view(), name="algorithm"),
     path("algorithm/<int:pk>/algorithm_result/", AlgorithmResultAdd.as_view()),
+    path("algorithm/<int:pk>/edit_algorithm/", EditAlgorithm.as_view()),
     path("search/knowledge", KnowledgeSearchView.as_view(), name="search_knowledge"),
     path("new_knowledge/", NewKnowledgeListView.as_view(), name="new_knowledge"),
+    path("create_document/<int:pk>", CreateDocumentView.as_view(), name="create_document"),
+    path("change_document/<int:pk>", ChangeDocumentView.as_view(), name="change_document"),
+    path("delete_document/<int:pk>", DeleteDocumentView.as_view(), name="delete_document"),
     path("search/author", AuthorSearchView.as_view(), name="search_author"),
     path("search/tag", TagSearchView.as_view(), name="search_tag"),
     path("history/<int:id>/", browsing_history, name="history"),
@@ -528,7 +546,7 @@ urlpatterns = [
         name='relation_publication'
     ),
     path("filling_tables/<int:pk>/", FillingTablesView.as_view(), name="filling_tables"),
-    path("save_zn_to_cell_in_table/", save_zn_to_cell_in_table, name="save_zn_to_cell_in_table"),
+    path("save_zn_to_cell_in_table_from_request/", save_zn_to_cell_in_table_from_request, name="save_zn_to_cell_in_table_from_request"),
     path("get_cell_for_table/", get_cell_for_table, name="get_cell_for_table"),
     path(
         'main_znanie_in_constructor_create/<type_of_zn>/',
@@ -553,7 +571,7 @@ urlpatterns = [
         get_tr_for_create_relation_in_tree_constructor,
         name="rel_in_tree_constructor_create"
     ),
-    path("get_rel_zn_in_tree_constructor/", get_rel_zn_in_tree_constructor, name="get_rel_zn_in_tree_constructor"),
+    path("get_rel_zn_in_tree_constructor_from_request/", get_rel_zn_in_tree_constructor_from_request, name="get_rel_zn_in_tree_constructor_from_request"),
     path("quiz_constructor/<int:pk>/", QuizConstructorView.as_view(), name="quiz_constructor"),
     path("tree_constructor/<type>/<int:pk>/", TreeConstructorView.as_view(), name="tree_constructor"),
     path("table_constructor/<int:pk>/", TableConstructorView.as_view(), name="table_constructor"),
@@ -582,7 +600,12 @@ urlpatterns = [
          name="edit_main_zn_in_constructor"),
     path("get_order_of_relation/", get_order_of_relation,
          name="get_order_of_relation"),
-
+    path("delete_algorithm/", delete_algorithm,
+         name="delete_algorithm"),
+    path("delete_zn_in_cell_in_table/", delete_zn_in_cell_in_table,
+         name="delete_zn_in_cell_in_table"),
+    path("editorial_staff/", editorial_staff_view, name='editorial_staff'),
+    path('editorial_staff/update_roles/', update_roles, name='update_roles'),
 
 ]
 

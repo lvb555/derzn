@@ -56,3 +56,35 @@ function copy(zn_id) {
             window.open(`/drevo/tree_constructor/algorithm/${data.id}`)
     })
 }
+$('#open_algorithm_with_errors').click(function () {
+    let main_zn_id = $('#main_zn_id').val()
+    window.open(`/drevo/znanie/${main_zn_id}`);
+})
+
+function toggleHiddenElement(element) {
+    if(element.classList.contains("bi-play-circle-open")){
+        element.classList.remove("bi-play-circle-open")
+        element.classList.add("bi-play-circle-close");
+        element.parentNode.lastElementChild.style.display = 'none';
+    }else{
+        element.classList.remove("bi-play-circle-close")
+        element.classList.add("bi-play-circle-open");
+        element.parentNode.lastElementChild.style.display = 'block';
+    }
+}
+
+function tree_showAll() {
+    document.querySelectorAll('.bi-play-circle-close, .bi-play-circle-open').forEach((elem) => {
+        elem.classList.remove("bi-play-circle-close")
+        elem.classList.add("bi-play-circle-open");
+        elem.parentNode.lastElementChild.style.display = 'block';
+    })
+}
+
+function tree_hiddenAll() {
+    document.querySelectorAll('.bi-play-circle-close, .bi-play-circle-open').forEach((elem) => {
+        elem.classList.remove("bi-play-circle-open")
+        elem.classList.add("bi-play-circle-close");
+        elem.parentNode.lastElementChild.style.display = 'none';
+    })
+}

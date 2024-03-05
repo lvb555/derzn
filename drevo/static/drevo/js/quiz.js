@@ -1,3 +1,6 @@
+var saveBg = document.querySelector('.save-data-form.popup__bg');
+var savePopup = saveBg.querySelector('.popup');
+var saveClosePopupButton = saveBg.querySelector('.close-popup');
 let b = document.getElementsByClassName('cont').length;
 let res = document.getElementsByClassName('Allanswers');
 let allQuestionNumber = document.querySelectorAll('#number_of_question');
@@ -42,6 +45,11 @@ function showFirst() {
     }
     for(let f=0; f< res.length; f++){
         countanswers += +(res[f].textContent);
+    }
+    if(!isAuthenticated){
+        saveBg.classList.add('active');
+        savePopup.classList.add('active');
+        document.body.classList.add("stop-scrolling");
     }
 }
 
@@ -335,6 +343,14 @@ function makeGrade(sum_of_answers, countans, row){
     td[2].innerHTML = sum_of_answers+'/'+countans;
     tabl = document.getElementById(lst2[d]+'2');
 }
+
+
+saveClosePopupButton.addEventListener('click', (e) => {
+    saveBg.classList.remove('active');
+    savePopup.classList.remove('active');
+    document.body.classList.remove("stop-scrolling");
+});
+
 
 function onButtonSendClick(){
     next_block();

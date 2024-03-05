@@ -943,6 +943,7 @@ input[type="number"] {
     background: radial-gradient(0.9vh, #BFBFBF 100%, #F5F5F5BF 100% );
     font-size: x-large;
     vertical-align: bottom;
+    border-radius: 50%;
 }
 
 .dashed {
@@ -1139,4 +1140,109 @@ a.question {
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: #6C757D;   
+}
+
+.mydocument-list {
+    display: flex;
+    grid-column: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+}
+
+.mydocument {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mydocument-info {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.mydocument-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.mydocument-parent {
+    font-size: 14px;
+    color: #666;
+}
+
+.mydocument-button-container {
+    display: flex;
+}
+
+.mydocument-button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.mydocument-button-edit {
+    color: #4caf50;
+}
+
+.mydocument-button-delete {
+    color: #f44336;
+}
+.mydocument-filter {
+    grid-column: 2;
+    position: sticky;
+    height: 430px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    top: 20px;
+}
+.mydocument-filter h1 {
+    font-size: 22px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.mydocument-filter label {
+    font-weight: bold;
+}
+.mydocument-filter select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.mydocument-filter button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.mydocument-filter button:hover {
+    background-color: #0056b3;
+}
+.mydocument-filter a {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+}
+.mydocument-container {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    padding: 20px;
 }

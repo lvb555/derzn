@@ -1,5 +1,6 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
@@ -15,7 +16,7 @@ from .mixins import DispatchMixin
 from ...relations_tree import get_descendants_for_knowledge
 
 
-class ZnaniyaForConstructorView(DispatchMixin, TemplateView):
+class ZnaniyaForConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView):
     """
     Представление страницы, в которой знания в компетенциях эксперта/руководителя строятся в виде дерева
     для последующего открытия конструктора
@@ -34,7 +35,7 @@ class ZnaniyaForConstructorView(DispatchMixin, TemplateView):
             'document': 'Документ',
             'filling_tables': 'Таблица',
             'table': 'Таблица',
-            'test': 'Тест',
+            'quiz': 'Тест',
         }
         zn_filter = Q(tz__name=tz_name_mapping.get(tz_name)) & Q(knowledge_status__status='PUB')
 
@@ -66,7 +67,7 @@ class ZnaniyaForConstructorView(DispatchMixin, TemplateView):
         title_mapping = {
             'filling_tables': 'Наполнение таблиц',
             'table': 'Конструктор таблиц',
-            'test': 'Конструктор тестов',
+            'quiz': 'Конструктор тестов',
             'algorithm': 'Конструктор алгоритмов',
             'document': 'Конструктор документов'
         }
@@ -76,7 +77,7 @@ class ZnaniyaForConstructorView(DispatchMixin, TemplateView):
         return context
 
 
-class MainZnInConstructorCreateView(DispatchMixin, CreateView):
+class MainZnInConstructorCreateView(LoginRequiredMixin, DispatchMixin, CreateView):
     """Представление создания главного знания для конструктора знания (виды Тест, Таблица, Алгоритм)"""
     model = Znanie
     form_class = MainZnInConstructorCreateEditForm
@@ -101,7 +102,7 @@ class MainZnInConstructorCreateView(DispatchMixin, CreateView):
             'algorithm': 'Создание алгоритма',
             'document': 'Создание документа',
             'table': 'Создание таблицы',
-            'test': 'Создание теста',
+            'quiz': 'Создание теста',
         }
         self.type_of_zn = self.kwargs.get('type_of_zn')
         context['type_of_zn'] = self.type_of_zn
@@ -141,7 +142,7 @@ class MainZnInConstructorCreateView(DispatchMixin, CreateView):
 
             if self.type_of_zn == 'algorithm' or self.type_of_zn == 'document':
                 return HttpResponseRedirect(reverse('tree_constructor', kwargs={'type': self.type_of_zn, 'pk': knowledge.pk}))
-            elif self.type_of_zn == 'test':
+            elif self.type_of_zn == 'quiz':
                 return HttpResponseRedirect(reverse('quiz_constructor', kwargs={'pk': knowledge.pk}))
             elif self.type_of_zn == 'table':
                 return HttpResponseRedirect(reverse('table_constructor', kwargs={'pk': knowledge.pk}))
@@ -176,4 +177,4 @@ def delete_complex_zn(request):
     for zn in rel_znaniya:
         zn.delete()
     main_zn.delete()
-    return JsonResponse({'redirect_url': request.META['HTTP_REFERER']})
+    return HttpResponse(status=200)

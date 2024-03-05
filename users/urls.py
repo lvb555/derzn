@@ -1,7 +1,8 @@
 from django.urls import path
 from users.views import LoginFormView, RegistrationFormView, \
     LogoutFormView, UserProfileTemplateView, UserProfileFormView, UserVerifyView, \
-    UserPasswordRecoveryFormView, UserSetPasswordFormView, MenuSectionsAdd, my_profile, change_username
+    UserPasswordRecoveryFormView, UserSetPasswordFormView, MenuSectionsAdd, my_profile, \
+    change_username, UserDocumentsView
 
 app_name = 'users'
 
@@ -11,6 +12,7 @@ urlpatterns = [
     path('profile/', UserProfileFormView.as_view(), name='myprofile'),
     path('change-username/', change_username, name='change-username'),
     path('my_profile/', my_profile, name='my_profile'),
+    path('my_documents/', UserDocumentsView.as_view(), name='my_documents'),
     path('user_menu/', MenuSectionsAdd.as_view()),
     path('<int:id>/', UserProfileTemplateView.as_view(), name='usersprofile'),
     path('logout/', LogoutFormView.as_view(), name='logout'),

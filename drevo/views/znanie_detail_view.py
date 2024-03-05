@@ -27,28 +27,21 @@ class ZnanieDetailView(DetailView):
 
     def get(self, *args, **kwargs):
         """
-        Если знание является тестом или алгоритмом- перенаправляет по другой ссылке
+        Обрабатывает перенаправления для знаний вида тест, алгоритм и документ
         """
         self.object = self.get_object()
         if self.object.tz in Tz.objects.filter(name='Тест'):
             return redirect('quiz', pk=self.object.pk)
         elif self.object.tz in Tz.objects.filter(name='Алгоритм'):
             return redirect('algorithm', pk=self.object.pk)
+        elif self.object.tz in Tz.objects.filter(name='Документ'):
+            return redirect('create_document', pk=self.object.pk)
         return super(ZnanieDetailView, self).get(*args, **kwargs)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
         Передает в шаблон данные через контекст
         """
-
-        def built_url(url_path_name, **kwargs):
-            url = reverse(url_path_name)
-            params = ''.join([f'{k}={v}&' for k, v in zip(kwargs.keys(), kwargs.values())])
-            if len(params):
-                return url + '?' + params[:-1]
-            else:
-                return url
-
         context = super().get_context_data(**kwargs)
 
         # первичный ключ текущей записи

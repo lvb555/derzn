@@ -1,4 +1,4 @@
-from .algorithm_detail_view import AlgorithmDetailView, AlgorithmResultAdd
+from .algorithm_detail_view import AlgorithmDetailView, AlgorithmResultAdd, EditAlgorithm
 from .algorithm_list_view import AlgorithmListView
 from .author_detail_view import AuthorDetailView
 from drevo.views.quiz_list_view import QuizListView
@@ -31,10 +31,11 @@ from .favourite_processing_view import FavouriteProcessView
 from .favourites_view import FavouritesView
 from .algorithm_check_correctness_view import check_algorithm_correctness_from_request
 from .zn_constructors.supplementary_functions import make_copy_of_algorithm
+from .zn_constructors.algorithm_constructor_view import delete_algorithm
 from .zn_constructors.tree_constructor_view import (
     TreeConstructorView,
     get_tr_for_create_relation_in_tree_constructor,
-    get_rel_zn_in_tree_constructor,
+    get_rel_zn_in_tree_constructor_from_request,
     save_rel_in_tree_constructor,
     delete_relation_in_tree_constructor,
     get_tr_for_edit_relation_in_tree_constructor,
@@ -62,7 +63,7 @@ from .zn_constructors.table_constructor_view import (
     relation_in_table_create_update_view,
     element_of_group_in_table_create_update_view,
     TableConstructorView,
-    save_zn_to_cell_in_table,
+    save_zn_to_cell_in_table_from_request,
     delete_table,
     delete_row_or_column,
     FillingTablesView,
@@ -71,6 +72,7 @@ from .zn_constructors.table_constructor_view import (
     show_filling_tables_page,
     delete_element_of_relation,
     create_zn_for_cell,
+    delete_zn_in_cell_in_table,
 )
 from .friends_added_view import friends_added_view
 from .friends_view import friends_view
@@ -138,12 +140,18 @@ from .relations_preparing_work import (
     relation_publication_view,
 )
 
+from .document_text_template.document_text_template_edit import DocumentTextTemplateEdit
+from .document_text_template.document_text_template_create import DocumentTextTemplateCreate
+from .document_text_template.turple_processing import turple_processing_view
+from .document_text_template.object_processing import document_object_processing_view
+
 __all__ = [
     "AuthorDetailView",
     "AuthorsListView",
     "AlgorithmListView",
     "AlgorithmDetailView",
     "AlgorithmResultAdd",
+    "EditAlgorithm",
     "CommentPageView",
     "CommentSendView",
     "DrevoListView",
@@ -166,7 +174,7 @@ __all__ = [
     "MainZnInConstructorCreateView",
     "FillingTablesView",
     "get_cell_for_table",
-    "save_zn_to_cell_in_table",
+    "save_zn_to_cell_in_table_from_request",
     "delete_table",
     "delete_row_or_column",
     "row_and_column_existence",
@@ -242,7 +250,7 @@ __all__ = [
     'RelationsPublicationPageView',
     'relation_publication_view',
     'get_tr_for_create_relation_in_tree_constructor',
-    'get_rel_zn_in_tree_constructor',
+    'get_rel_zn_in_tree_constructor_from_request',
     'TreeConstructorView',
     'TableConstructorView',
     'QuizConstructorView',
@@ -260,5 +268,7 @@ __all__ = [
     'element_of_group_in_table_create_update_view',
     'edit_main_zn_in_constructor',
     'get_order_of_relation',
+    'delete_algorithm',
+    'delete_zn_in_cell_in_table',
 
 ]

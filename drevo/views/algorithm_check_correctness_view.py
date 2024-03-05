@@ -19,7 +19,7 @@ def check_algorithm_correctness(algorithm_id):
     for zn in all_znaniya:
         inner_rels_with_zn = Relation.objects.filter(bz=zn).exclude(tr__name='Далее')
         if inner_rels_with_zn.count() < zn.tz.min_number_of_inner_rels:
-            less_than_min.append(f"{zn.tz.name} <{zn.name}>")
+            less_than_min.append(f"{zn.tz.name} «{zn.name}»")
     if not less_than_min:
         return None
     return {'less_than_min': less_than_min}

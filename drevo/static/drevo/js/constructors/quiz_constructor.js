@@ -1,9 +1,9 @@
-let test = $("#test")
+let quiz = $("#quiz")
 let question = $("#question")
 let answer = $("#answer")
 
 let create_edit_zn_form = $('#create_edit_zn_form');
-let edit_main_zn_form = $('#main_zn_edit_form');
+let edit_main_zn_form = $('#edit_main_zn_form');
 let type_of_tr = $('#type_of_tr');
 let action = $('#action');
 let edited_zn_id = $('#edited_zn_id');
@@ -111,7 +111,7 @@ function editZnanie(type_of_current_tr) {
     let question_id = question.val();
     type_of_tr.val(type_of_current_tr);
     action.val('edit');
-    if (type_of_current_tr ===  'test') {
+    if (type_of_current_tr ===  'quiz') {
         $('#main_zn_edit_modal').modal("show");
     }
     else if (type_of_current_tr === 'question') {
@@ -160,26 +160,21 @@ edit_main_zn_form.on('submit', (event) => {
     })
     .then(response => response.json())
     .then(data => {
-        $(`#test option[id="${data.zn_id}"]`).text(data.zn_name);
+        $('#quiz_name').text(`Тест: «${data.zn_name}»`);
         $('#main_zn_edit_modal').modal('hide');
     })
 })
 
 // Удаление знания (при подтверждении пользователем)
 function deleteZnanie(type_of_zn) {
-    if (type_of_zn === 'test') {
-        $('.delete-confirmation').text(`Вы действительно хотите удалить этот тест? Все связанные вопросы и ответы также удалятся!`)
+    if (type_of_zn === 'quiz') {
+        $('.delete-confirmation').text(`Вы действительно хотите удалить этот тест? Все вопросы и ответа теста также удалятся!`)
         $('#delete_element_warning').modal("show");
         $('.js-okay-successful').click(function () {
-            fetch(`/drevo/delete_quiz/?id=${test.val()}`)
+            fetch(`/drevo/delete_quiz/?id=${quiz.val()}`)
                 .then(response => {
-                    $('.row-column-question-block').hide();
-                    $('#open_quiz').hide();
-                    let successful_quiz_delete = `Тест «${$('#test option:selected').text().trim()}» успешно удален!`;
-                    $('.constructor-block').empty().append(
-                        `<span>${successful_quiz_delete}</span>`
-                    )
                     $('#delete_element_warning').modal("hide");
+                    $('#success_delete_main_zn').modal("show");
                 })
                 .catch((error) => {
                     console.log('Error:', error);
@@ -226,8 +221,8 @@ function deleteZnanie(type_of_zn) {
 // вопросов, есть вопросы без верного ответа, есть вопросы с менее чем двумя ответами. Если ошибка(и) возникает(ют),
 // то открывается модальное окно с соответствующим сообщением. Если ошибок нет, открывается тест.
 $("#open_quiz").on('click', function(){
-    let test_id = test.val()
-    let question_length = $('#question option').length
+    let test_id = quiz.val();
+    let question_length = $('#question option').length;
     $('#no_questions').prop('hidden', true);
     $('#questions_without_answer').prop('hidden', true);
     $('#questions_less_two_answers').prop('hidden', true);

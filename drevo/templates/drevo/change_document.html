@@ -1,0 +1,22 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block title %}Редактирование документа{% endblock %}
+
+{% block content %}
+    <h4>Редактирование документа по шаблону: {{ root_document }}</h4>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ document_form.as_p }}
+        <a class="mydocument-button" href="{% url 'users:my_documents' %}">Отменить</a>
+        <button type="submit">Внести изменения</button>
+    </form>
+
+<script type="application/javascript" src="{% static 'drevo/js/toggle_element.js' %}"></script>
+<script type="application/javascript" src="{% static 'drevo/js/appeal.js' %}"></script>
+{% endblock %}

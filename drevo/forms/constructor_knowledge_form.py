@@ -12,14 +12,14 @@ from drevo.models.utils import get_model_or_stub
 from .knowledge_create_form import ZnanieCreateForm
 
 
-def add_css_class_form_control(items):
-    """Добавляет к полям формы класс «form-control» и стиль рамки"""
+def add_css_for_fields(items):
+    """Добавляет к полям формы css-классы"""
     for field_name, field in items:
-        if field_name != 'is_send' and field_name != 'show_link' and field_name != 'notification':
+        if isinstance(field, forms.BooleanField):
+            field.widget.attrs['class'] = 'form-check-input'
+        else:
             field.widget.attrs['class'] = 'form-control'
             field.widget.attrs['style'] = 'border: 1px solid #dee2e6;'
-        else:
-            field.widget.attrs['class'] = 'form-check-input'
 
 
 def special_permissions_for_user(type_of_zn, user):
@@ -52,18 +52,18 @@ class MainZnInConstructorCreateEditForm(ZnanieCreateForm):
                               required=False
                               )
 
-    def __init__(self, user, type_of_zn='default', *args, **kwargs):
+    def __init__(self, user, type_of_zn=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Присваивание вида знания
-        if type_of_zn == 'table':
-            self.fields['tz'].initial = Tz.objects.get(name='Таблица')
-        elif type_of_zn == 'test':
-            self.fields['tz'].initial = Tz.objects.get(name='Тест')
-        elif type_of_zn == 'algorithm':
-            self.fields['tz'].initial = Tz.objects.get(name='Алгоритм')
-        elif type_of_zn == 'document':
-            self.fields['tz'].initial = Tz.objects.get(name='Документ')
-
+        tz_name_mapping = {
+            'algorithm': 'Алгоритм',
+            'document': 'Документ',
+            'filling_tables': 'Таблица',
+            'table': 'Таблица',
+            'quiz': 'Тест'
+        }
+        if type_of_zn:
+            self.fields['tz'].initial = Tz.objects.get(name=tz_name_mapping.get(type_of_zn))
         self.fields['tz'].widget = forms.HiddenInput()
 
         # Динамическое присвоение уникального ID виджету CKEditor
@@ -74,7 +74,8 @@ class MainZnInConstructorCreateEditForm(ZnanieCreateForm):
                                                       empty_label='Выберите категорию',
                                                       label='Категория',
                                                       required=True)
-        add_css_class_form_control(self.fields.items())
+        add_css_for_fields(self.fields.items())
+
 
 class ZnanieForCellCreateForm(forms.ModelForm):
     """
@@ -87,6 +88,8 @@ class ZnanieForCellCreateForm(forms.ModelForm):
                               label='Содержание',
                               required=False
                               )
+    tz = forms.ModelChoiceField(queryset=Tz.objects.all().order_by('name'), label='Вид знания')
+
     class Meta:
         model = Znanie
         fields = ('name', 'category', 'tz', 'content', 'href', 'source_com', 'order', 'author')
@@ -103,7 +106,7 @@ class ZnanieForCellCreateForm(forms.ModelForm):
                                                       label='Категория',
                                                       required=False)
 
-        add_css_class_form_control(self.fields.items())
+        add_css_for_fields(self.fields.items())
 
 
 class NameOfZnCreateUpdateForm(forms.ModelForm):
@@ -123,7 +126,7 @@ class NameOfZnCreateUpdateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['tz'].initial = Tz.objects.get(name='Заголовок')
         self.fields['tz'].widget = forms.HiddenInput()
-        add_css_class_form_control(self.fields.items())
+        add_css_for_fields(self.fields.items())
 
 
 class ZnanieForRowOrColumnForm(NameOfZnCreateUpdateForm):
@@ -136,7 +139,7 @@ class ZnanieForRowOrColumnForm(NameOfZnCreateUpdateForm):
             label='Вид знания',
             required=True
         )
-        add_css_class_form_control(self.fields.items())
+        add_css_for_fields(self.fields.items())
 
 
 class OrderOfRelationForm(forms.Form):
@@ -150,7 +153,7 @@ class OrderOfRelationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        add_css_class_form_control(self.fields.items())
+        add_css_for_fields(self.fields.items())
 
 
 class QuestionToQuizCreateEditForm(NameOfZnCreateUpdateForm):
@@ -158,12 +161,9 @@ class QuestionToQuizCreateEditForm(NameOfZnCreateUpdateForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['tz'] = forms.ModelChoiceField(
-            queryset=Tz.objects.filter(Q(name='Вопрос') | Q(name='Вопрос теста')).order_by('name'),
-            label='Вид знания',
-            required=True
-        )
-        add_css_class_form_control(self.fields.items())
+        self.fields['tz'].initial = Tz.objects.get(name='Вопрос теста')
+        self.fields['tz'].widget = forms.HiddenInput()
+        add_css_for_fields(self.fields.items())
 
 
 class AnswerToQuizCreateEditForm(NameOfZnCreateUpdateForm):
@@ -173,7 +173,7 @@ class AnswerToQuizCreateEditForm(NameOfZnCreateUpdateForm):
         super().__init__(*args, **kwargs)
         self.fields['tz'].initial = Tz.objects.get(name='Ответ теста')
         self.fields['tz'].widget = forms.HiddenInput()
-        add_css_class_form_control(self.fields.items())
+        add_css_for_fields(self.fields.items())
 
 
 class AnswerCorrectForm(forms.Form):
@@ -184,8 +184,8 @@ class AnswerCorrectForm(forms.Form):
                                         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
 
 
-class ZnForAlgorithmCreateUpdateForm(forms.ModelForm):
-    """Форма для создания дочернего знания (конструктор алгоритмов)"""
+class ZnForTreeConstructorCreateUpdateForm(forms.ModelForm):
+    """Форма для создания и редактирования дочернего знания в древовидном конструкторе"""
     content = forms.CharField(widget=CKEditorWidget(attrs={
                                                            'cols': 40,
                                                            'rows': 10,
@@ -210,4 +210,4 @@ class ZnForAlgorithmCreateUpdateForm(forms.ModelForm):
             self.fields['tz'].initial = get_object_or_404(Tz, id=tz_id)
             self.fields['tz'].widget = forms.HiddenInput()
 
-        add_css_class_form_control(self.fields.items())
+        add_css_for_fields(self.fields.items())

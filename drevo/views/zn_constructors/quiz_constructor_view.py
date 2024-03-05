@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
@@ -7,13 +8,13 @@ from drevo.forms.knowledge_create_form import ZnImageFormSet, ZnFilesFormSet
 from drevo.forms.constructor_knowledge_form import (OrderOfRelationForm, QuestionToQuizCreateEditForm,
                                                     AnswerToQuizCreateEditForm, AnswerCorrectForm,
                                                     MainZnInConstructorCreateEditForm)
-from drevo.models import BrowsingHistory, Znanie, Relation, Tr
+from drevo.models import Znanie, Relation, Tr
 
 from .mixins import DispatchMixin
 from .supplementary_functions import create_zn_for_constructor, create_relation
 
 
-class QuizConstructorView(DispatchMixin, TemplateView):
+class QuizConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView):
     """
     Отображение страницы "Конструктор тестов"
     """
@@ -22,10 +23,11 @@ class QuizConstructorView(DispatchMixin, TemplateView):
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Конструктор тестов'
+        context['title'] = 'Конструктор теста'
+        context['type_of_zn'] = 'quiz'
         pk = self.kwargs.get('pk')
         selected_quiz = Znanie.objects.get(id=pk)
-        context["main_zn_name"] = selected_quiz.name
+        context["main_zn_name"] = f'Тест: «{selected_quiz.name}»'
         context["main_zn_id"] = selected_quiz.id
 
         selected_questions = Relation.objects.filter(bz_id=pk, tr__name="Состав")
@@ -35,7 +37,7 @@ class QuizConstructorView(DispatchMixin, TemplateView):
 
         main_zn_edit_form = MainZnInConstructorCreateEditForm(instance=selected_quiz,
                                                               user=self.request.user,
-                                                              type_of_zn='test')
+                                                              type_of_zn='quiz')
         context['main_zn_edit_form'] = main_zn_edit_form
         context['main_zn_edit_form_uuid'] = main_zn_edit_form.fields['content'].widget.attrs['id']
         context['images_form_for_main_zn'] = ZnImageFormSet(instance=selected_quiz)
@@ -76,7 +78,7 @@ def question_create_update_in_quiz(request):
             knowledge = form.save(commit=False)
             create_zn_for_constructor(knowledge, form, request)
             structure_kind_id = get_object_or_404(Tr, name='Состав').id
-            create_relation(quiz_id, knowledge.id, structure_kind_id, request, order_of_relation)
+            create_relation(quiz_id, knowledge.id, structure_kind_id, request.user, order_of_relation)
             return JsonResponse({'zn_id': knowledge.id, 'zn_name': knowledge.name}, status=200)
         return JsonResponse({}, status=400)
 
@@ -123,12 +125,12 @@ def answer_create_update_in_quiz(request):
             is_correct_answer_value = answer_correct_form.cleaned_data['answer_correct']
             if is_correct_answer_value:
                 create_relation(
-                    question_id, knowledge.id, is_correct_answer_tr_id, request, order_of_relation, True
+                    question_id, knowledge.id, is_correct_answer_tr_id, request.user, order_of_relation, True
                 )
             else:
                 is_incorrect_answer_tr_id = get_object_or_404(Tr, name='Ответ неверный').id
                 create_relation(
-                    question_id, knowledge.id, is_incorrect_answer_tr_id, request, order_of_relation, True)
+                    question_id, knowledge.id, is_incorrect_answer_tr_id, request.user, order_of_relation, True)
             return JsonResponse({'zn_id': knowledge.id, 'zn_name': knowledge.name}, status=200)
         return JsonResponse({}, status=400)
 
@@ -161,12 +163,6 @@ def delete_quiz(request):
     """Удаление теста. В таком случае удаляются связи вида «Тест», с вопросами и ответами на вопросы теста;
     знания «Вопрос» и «Ответ», знание «Тест»"""
     quiz_id = request.GET.get('id')
-
-    # Удаление просмотра теста при его существовании (protect-объект)
-    BrowsingHistory.objects.filter(znanie_id=quiz_id).delete()
-
-    # Удаление связи вида "Тест", где связанным знанием является выбранный тест
-    Relation.objects.filter(rz_id=quiz_id).delete()
 
     relations_with_questions = Relation.objects.filter(bz_id=quiz_id)
     for relation_with_question in relations_with_questions:

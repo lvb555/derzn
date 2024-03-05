@@ -8,17 +8,17 @@ from django.db import IntegrityError
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from drevo.models import Znanie, Relation, Author, KnowledgeStatuses, Tr
+from drevo.models import Znanie, Relation, Author, KnowledgeStatuses, Tr, Tz
 from drevo.relations_tree import get_descendants_for_knowledge
 from drevo.utils.knowledge_tree_builder import KnowledgeTreeBuilder
 
 
-def create_relation(bz_id, rz_id, tr_id, request, order_of_relation=None, is_answer=False):
+def create_relation(bz_id, rz_id, tr_id, user, order_of_relation=None, is_answer=False):
     """Создание опубликованной связи с заданными параметрами"""
 
     # Создание автора с именем и фамилией пользователя, если такого не существует
     author, created = Author.objects.get_or_create(
-        name=f"{request.user.first_name} {request.user.last_name}",
+        name=f"{user.first_name} {user.last_name}",
     )
     relation = None
     if is_answer:
@@ -40,7 +40,7 @@ def create_relation(bz_id, rz_id, tr_id, request, order_of_relation=None, is_ans
             rz_id=rz_id,
             author_id=author.id,
             is_published=True,
-            defaults={'user_id': request.user.id}
+            defaults={'user_id': user.id}
         )
 
     if order_of_relation:
@@ -100,11 +100,32 @@ def get_file_from_request(request):
 def delete_tables_without_row_and_columns(queryset: QuerySet) -> QuerySet:
     """Удаляет из queryset таблицы, не содержащие строки и столбцы"""
     for znanie in queryset:
+        group_kind = get_object_or_404(Tz, name='Группа').id
+        structure_kind = get_object_or_404(Tr, name='Состав').id
+
         row_id = get_object_or_404(Tr, name='Строка').id
         column_id = get_object_or_404(Tr, name='Столбец').id
+
+        # Удаляются таблицы, в которых нет хотя бы одной строки и столбца
         if not (Relation.objects.filter(tr_id=row_id, bz_id=znanie.id, is_published=True).exists() and
                 Relation.objects.filter(tr_id=column_id, bz_id=znanie.id, is_published=True).exists()):
             queryset = queryset.exclude(id=znanie.id)
+
+        # Удаляются таблицы, строки которых - группы, при этом нет хотя бы одного элемента строки
+        relation_row_group = Relation.objects.filter(bz_id=znanie.id, rz__tz_id=group_kind, tr__name="Строка",
+                                                     is_published=True).first()
+        if relation_row_group:
+            if not Relation.objects.filter(bz_id=relation_row_group.rz_id, tr_id=structure_kind,
+                                           is_published=True).exists():
+                queryset = queryset.exclude(id=znanie.id)
+
+        # Удаляются таблицы, столбцы которых - группы, при этом нет хотя бы одного элемента столбца
+        relation_column_group = Relation.objects.filter(bz_id=znanie.id, rz__tz_id=group_kind, tr__name="Столбец",
+                                                        is_published=True).first()
+        if relation_column_group:
+            if not Relation.objects.filter(bz_id=relation_column_group.rz_id, tr_id=structure_kind,
+                                           is_published=True).exists():
+                queryset = queryset.exclude(id=znanie.id)
     return queryset
 
 

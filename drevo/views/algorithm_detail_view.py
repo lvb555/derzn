@@ -4,10 +4,12 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView
 from datetime import datetime
 from django.views.generic.edit import ProcessFormView
+
+from .algorithm_check_correctness_view import check_algorithm_correctness
 from ..models import Znanie, IP, Visits, BrowsingHistory, Relation, Tr , AlgorithmAdditionalElements
 from loguru import logger
 from ..models.algorithms_data import AlgorithmData, AlgorithmWork
-from ..relations_tree import get_children_by_relation_type_for_knowledge
+from ..relations_tree import get_children_by_relation_type_for_knowledge, get_children_for_knowledge
 
 logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
@@ -60,6 +62,12 @@ class AlgorithmDetailView(DetailView):
                 if self.request.GET.get('previous_works'):
                     context['current_work'] = self.request.GET.get('previous_works')
 
+            elif len(context['previous_works']) == 1:
+                context['progress'] = list(AlgorithmData.objects.filter(user=self.request.user, algorithm=knowledge,
+                                                                        work__work_name=context['previous_works'].first()).values(
+                                                                        'element', 'element_type'))
+                context['current_work'] = context['previous_works'].first()
+
             if self.request.GET.get('mode'):
                 context['modification'] = 'on'
 
@@ -70,18 +78,22 @@ class AlgorithmDetailView(DetailView):
                                                                         'element', 'element_type'))
 
         # Создание словаря со всеми элементами алгоритма
-        start_of_algorithm = Relation.objects.get(bz=knowledge, tr__name='Начало алгоритма').rz
         try:
             next_relation = Tr.objects.get(name='Далее')
         except Tr.DoesNotExist:
             next_relation = None
-        context['algorithm_data'] = make_complicated_dict1(
-            {'previous_key': []},
-            start_of_algorithm,
-            'previous_key',
-            next_relation=next_relation
-        )
-        context['algorithm_data'] = context['algorithm_data']['previous_key']
+        try:
+            start_of_algorithm = Relation.objects.get(bz=knowledge, tr__name='Начало алгоритма').rz
+            context['algorithm_data'] = make_complicated_dict1(
+                {'previous_key': []},
+                start_of_algorithm,
+                'previous_key',
+                next_relation=next_relation
+            )['previous_key']
+        except Relation.DoesNotExist:
+            context['algorithm_data'] = []
+        if check_algorithm_correctness(knowledge.id):
+            context['warning_text'] = 'Данный алгоритм на данный момент находится в разработке'
 
         return context
 
@@ -92,7 +104,17 @@ def make_complicated_dict1(algorithm_dict, queryset, previous_key, level=1, next
     пока функция get_children_by_relation_type_for_knowledge не вернет None
     """
 
-    relations = get_children_by_relation_type_for_knowledge(queryset)
+    children = get_children_for_knowledge(queryset)
+
+    if not children:
+        relations = None
+    else:
+        relations = {}
+        for child in children:
+            relation = Relation.objects.filter(bz=queryset, rz=child).first()
+            relations.setdefault(relation.tr, []).append(child)
+        relations = dict(sorted(relations.items(), key=lambda x: x[0].name, reverse=True))
+
     if relations:
         if next_relation in relations.keys() and len(relations) == 1:
             if level == 0:
@@ -149,62 +171,96 @@ class AlgorithmResultAdd(ProcessFormView):
             if pk:
                 algorithm = get_object_or_404(Znanie, id=pk)
                 saved_progress = json.loads(request.GET.get('values'))
-                new_elements = json.loads(request.GET.get('new_elements'))
-                deleted_elements = json.loads(request.GET.get('deleted'))
-                redacted_elements = json.loads(request.GET.get('redacted'))
+                elements_for_deletion = json.loads(request.GET.get('for_deletion'))
                 work_name = request.GET.get('work')
-                previous_result = request.GET.get('previous_result')
-                previous_work = AlgorithmWork.objects.filter(algorithm=algorithm, user=user, 
-                                                             work_name=str(previous_result)).first()
+                previous_work = AlgorithmWork.objects.filter(algorithm=algorithm, user=user,
+                                                             work_name=str(work_name)).first()
 
-                if previous_result != '' and previous_work:
-                    if not new_elements and not deleted_elements and not redacted_elements:
-                        results_for_delete = AlgorithmData.objects.filter(work=previous_work)
-                        results_for_delete.delete()
+                if elements_for_deletion and elements_for_deletion == 'delete old results':
+                    results_for_delete = AlgorithmData.objects.filter(work=previous_work)
+                    results_for_delete.delete()
                 else:
-                    previous_work = AlgorithmWork.objects.create(
-                                        algorithm=algorithm,
-                                        user=user,
-                                        work_name=work_name,
-                                    )
+                    if not previous_work:
+                        previous_work = AlgorithmWork.objects.create(
+                                            algorithm=algorithm,
+                                            user=user,
+                                            work_name=work_name,
+                                        )
 
-                for algorithm_element in saved_progress:
-                    AlgorithmData.objects.create(
-                        algorithm=algorithm,
-                        user=user,
-                        element=str(algorithm_element[0]),
-                        element_type=algorithm_element[1],
-                        work=previous_work,
-                    )
+                    for deleted_element in elements_for_deletion:
+                        elem = get_object_or_404(AlgorithmData, user=user, algorithm=algorithm,
+                                          work=previous_work, element=str(deleted_element))
+                        elem.delete()
 
-                for deleted_element in deleted_elements:
-                    elem = get_object_or_404(AlgorithmAdditionalElements, user=user, algorithm=algorithm,
-                                             work=previous_work, element_name=str(deleted_element))
-                    elem.delete()
-                    try:
-                        saved_in_progress_element = get_object_or_404(AlgorithmData, user=user, algorithm=algorithm,
-                                                                      work=previous_work, element=str(deleted_element))
-                        saved_in_progress_element.delete()
-                    except Http404:
-                        pass
-
-                for new_element in new_elements:
-                    AlgorithmAdditionalElements.objects.create(
-                        user=user,
-                        algorithm=algorithm,
-                        work=previous_work,
-                        parent_element=get_object_or_404(Znanie, name=str(new_element['parent_element'])),
-                        element_name=new_element['element_name'],
-                        relation_type=new_element['relation_type'],
-                        insertion_type=new_element['insertion_type'],
-                    )
-
-                for renamed_element in redacted_elements:
-                    elem = get_object_or_404(AlgorithmAdditionalElements, user=user, algorithm=algorithm,
-                                             work=previous_work, element_name=str(renamed_element[0]))
-                    elem.element_name = renamed_element[1]
-                    elem.save()
+                    for algorithm_element, algorithm_element_type in saved_progress.items():
+                        try:
+                            next_relation = AlgorithmData.objects.get(algorithm=algorithm,
+                            user=user,
+                            element=str(algorithm_element),work=previous_work)
+                            next_relation.element_type = algorithm_element_type
+                            next_relation.save()
+                        except AlgorithmData.DoesNotExist:
+                            AlgorithmData.objects.create(
+                            algorithm=algorithm,
+                            user=user,
+                            element=str(algorithm_element),
+                            element_type=algorithm_element_type,
+                            work=previous_work,
+                            )
 
                 return JsonResponse({}, status=200)
 
         raise Http404
+
+
+class EditAlgorithm(ProcessFormView):
+    def get(self, request, pk, *args, **kwargs):
+        try:
+            if request.is_ajax():
+                user = self.request.user
+
+                if not user.is_authenticated:
+                    return JsonResponse({}, status=403)
+
+                if pk:
+                    algorithm = get_object_or_404(Znanie, id=pk)
+                    work_name = request.GET.get('work')
+                    previous_work, created = AlgorithmWork.objects.get_or_create(
+                            algorithm=algorithm,
+                            user=user,
+                            work_name=str(work_name),
+                    )
+
+                    if request.GET.get('new_element'):
+                        new_element = json.loads(request.GET.get('new_element'))
+                        AlgorithmAdditionalElements.objects.create(
+                            user=user,
+                            algorithm=algorithm,
+                            work=previous_work,
+                            parent_element=get_object_or_404(Znanie, name=str(new_element['parent_element'])),
+                            element_name=new_element['element_name'],
+                            relation_type=new_element['relation_type'],
+                            insertion_type=new_element['insertion_type'],
+                        )
+                    elif request.GET.get('deleted'):
+                        deleted_element = request.GET.get('deleted')
+                        elem = get_object_or_404(AlgorithmAdditionalElements, user=user, algorithm=algorithm,
+                                                 work=previous_work, element_name=str(deleted_element))
+                        elem.delete()
+                        results_for_delete = AlgorithmData.objects.filter(work=previous_work, element=str(deleted_element))
+                        results_for_delete.delete()
+                    elif request.GET.get('redacted'):
+                        redacted_element = json.loads(request.GET.get('redacted'))
+                        elem = get_object_or_404(AlgorithmAdditionalElements, user=user, algorithm=algorithm,
+                                                 work=previous_work, element_name=str(redacted_element[0]))
+                        elem.element_name = redacted_element[1]
+                        elem.save()
+                        results_for_redaction = AlgorithmData.objects.filter(work=previous_work, element=str(redacted_element[0]))
+                        for saved_item in results_for_redaction:
+                            saved_item.element = redacted_element[1]
+                            saved_item.save()
+
+                    return JsonResponse({}, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)

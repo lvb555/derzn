@@ -16,6 +16,7 @@ import base64
 from django.core.files.base import ContentFile
 from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory, \
     FriendsInviteTerm, Message, Tz, Tr
+from drevo.models.users_documents import UsersDocuments
 from drevo.models.feed_messages import FeedMessage
 from drevo.models.special_permissions import SpecialPermissions
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
@@ -247,6 +248,63 @@ class UserProfileTemplateView(LoginRequiredMixin, TemplateView):
 
         context['title'] = f'Профиль пользователя {_object.username}'
         return context
+
+
+class UserDocumentsView(LoginRequiredMixin, TemplateView):
+    """
+    Описывает отображение шаблона "users/my_documents" по адресу "users/my_documents".
+    """
+
+    def get(self, request):
+        if request.method == 'GET':
+            user = User.objects.filter(id=request.user.pk).first()
+            context = {}
+
+            if user is not None:
+                user_documents = UsersDocuments.objects.filter(owner=self.request.user).order_by("-changed_at")
+                tz = Tz.objects.get(name='Документ').pk
+                context["tz_pk"] = tz
+                documents = Znanie.objects.filter(tz=tz).values('id', 'name')
+                context["root_documents"] = documents.filter(id__in=user_documents.values_list('root_document', flat=True)).distinct()
+
+                if self.request.GET.get("root_document"): 
+                    if self.request.GET.get("root_document") != 'None':
+                        user_documents = user_documents.filter(root_document=self.request.GET.get("root_document"))
+                        context["selected_root"] = int(self.request.GET.get("root_document"))
+                
+                if self.request.GET.get("is_complete"): 
+                    if self.request.GET.get("is_complete") != "None":
+                        value = True if self.request.GET.get("is_complete") == "true" else False
+                        user_documents = user_documents.filter(is_complete=value)
+                        context["selected_complete"] = self.request.GET.get("is_complete")
+                
+                if self.request.GET.get("order_by"):
+                    context["selected_order"] = self.request.GET.get("order_by")
+                    if self.request.GET.get("order_by") == "desc":
+                        user_documents = user_documents.order_by("changed_at")
+
+                context["user_documents"] = user_documents
+
+                if user == request.user:
+                    context['sections'] = access_sections(user)
+                    context['activity'] = [i for i in context['sections'] if i.startswith('Мои') or
+                                        i.startswith('Моя')]
+                    context['link'] = 'users:myprofile'
+                    invite_count = FriendsInviteTerm.objects.filter(recipient=request.user.id).count()
+                    context['invite_count'] = invite_count if invite_count else 0
+                    context['new_knowledge_feed'] = FeedMessage.objects.filter(recipient=user, was_read=False).count()
+                    context['new_messages'] = Message.objects.filter(recipient=user, was_read=False).count()
+                    context['new'] = int(context['new_knowledge_feed']) + int(
+                        context['invite_count'] + int(context['new_messages']))
+                else:
+                    context['sections'] = [i.name for i in user.sections.all()]
+                    context['activity'] = [i.name for i in user.sections.all() if i.name.startswith('Мои') or i.name.startswith('Моя')]
+                    context['link'] = 'public_human'
+                    context['id'] = id
+
+                context['pub_user'] = user
+
+                return render(request, 'users/my_documents.html', context)
 
 
 class UserVerifyView(TemplateView):

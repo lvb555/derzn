@@ -1,0 +1,45 @@
+{% extends "drevo/base.html" %}
+{% load static %}
+
+{% block content %}
+    {% block cssfiles %}
+        <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+        <link rel="stylesheet" href="{% static '/users/css/profile.css' %}">
+        <link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
+    {% endblock %}
+
+    <div class="container">
+        <h2>Сотрудники редакции</h2>
+        <h5>Главная - Профиль - Сотрудники редакции</h5>
+        <br>
+
+        <label><input type="checkbox" id="all-users-checkbox" formmethod="post"> Все пользователи</label>
+
+        <input type="text" id="search-input" name="search-input" style="float: right;" placeholder="Поиск">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ФИО пользователя</th>
+                    <th>Сотрудник</th>
+                    <th>Администратор</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr style="display: {% if user.is_employee or allUsersCheckbox.checked %}table-row{% else %}none{% endif %}">
+                        <td>{{ user.first_name }} {{ user.last_name }} {% if user.profile.patronymic %}{{ user.profile.patronymic }}{% endif %}</td>
+                        <td>
+                            <input type="checkbox" class="employee-checkbox" data-userid="{{ user.id }}" data-isemployee="{{ user.is_employee }}" {% if user.is_employee %}checked="checked"{% endif %}>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="admin-checkbox" data-userid="{{ user.id }}" data-isadmin="{{ user.is_superuser }}" {% if user.is_superuser %}checked="checked"{% endif %}>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="{% static 'admin/js/admin/editorial_staff.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load filter %}
+{% load static %} 
+
+{% block title %}Мои документы{% endblock %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/friends.css' %}">
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container header_info px-2">
+        <h1>Мои документы</h1>
+        <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+            <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+            <li class="breadcrumb-item opened"><a>Мои документы</a></li>
+            </ol>
+        </nav>
+    </div>
+
+    {% include 'drevo/include/profile_header.html' %}
+
+    <p class="author-title pb-1">Мои документы</p>
+
+    <div class="mydocument-container d-grid basic" style="gap: 16px; margin-top: 25px;">
+        <div class="mydocument-list">
+            <a href="{% url 'knowledge_type' type_pk=tz_pk %}" style="margin-bottom: 10px;">к дереву Документов...</a>
+            {% for document in user_documents %}
+                <div class="mydocument">
+                    <div class="mydocument-info">
+                        <div class="mydocument-title">{{ document.name }}</div>
+                        <div class="mydocument-parent">Последнее изменение: {{ document.formatted_datetime }}</div>
+                        <div class="mydocument-parent">Шаблон документа: <a href="{% url 'create_document' pk=document.root_document.id %}">{{ document.root_document }}</a></div>
+                    </div>
+                    <div class="mydocument-button-container">
+                        {% if document.is_complete %}
+                            <button class="mydocument-button mydocument-button-edit"><a href="{% url 'change_document' pk=document.id %}">PDF</a></button>
+                            <button class="mydocument-button mydocument-button-edit"><a href="{% url 'change_document' pk=document.id %}">WORD</a></button>
+                        {% endif%}
+                        <button class="mydocument-button"><a href="{% url 'change_document' pk=document.id %}">Редактировать</a></button>
+                        <button class="mydocument-button"><a href="{% url 'delete_document' pk=document.id %}" style="color: red;">Удалить</a></button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="mydocument-filter">
+            <form id="my_document-filter-form" action="{% url 'users:my_documents' %}" method="get">
+                <h1>Фильтровать</h1>
+                <label for="root_document">Шаблон документа:</label>
+                <select name="root_document" id="root_document">
+                    <option value="None">Все шаблоны</option>
+                    {% for root_doc in root_documents %}
+                        <option value="{{ root_doc.id }}" {% if selected_root == root_doc.id %} selected {% endif %}>{{ root_doc.name }}</option>
+                    {% endfor %}
+                </select>
+                <label for="is_complete">Завершенность:</label>
+                <select name="is_complete" id="is_complete">
+                    <option value="None">Все документы</option>
+                    <option value="true" {% if selected_complete == "true" %} selected {% endif %}>Завершенные</option>
+                    <option value="false" {% if selected_complete == "false" %} selected {% endif %}>Незавершенные</option>
+                </select>
+                <h1>Сортировать</h1>
+                <select name="order_by" id="order_by">
+                    <option value="asc">От нового к старым</option>
+                    <option value="desc" {% if selected_order == "desc" %} selected {% endif %}>От старого к новым</option>
+                </select>
+                <a href="{% url 'users:my_documents' %}">Сбросить фильтры</a>
+            </form>
+        </div>
+    </div>
+
+<script type="application/javascript" src="{% static 'drevo/js/toggle_element.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var form = document.querySelector('#my_document-filter-form');
+        form.addEventListener('change', function() {
+            form.submit();
+        });
+    });
+</script>
+{% endblock %}
