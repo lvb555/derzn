@@ -6,6 +6,8 @@ class Tr(models.Model):
     Виды связей
     """
 
+    _cache = None
+
     FOR = False
     AGAINST = True
 
@@ -49,6 +51,32 @@ class Tr(models.Model):
             self.has_invert = True
         else:
             self.has_invert = False
+
+    @classmethod
+    def t_(cls, item):
+        """
+        Возвращает экземпляр типа связи из кэша
+        это справочник, инвалидация не предполагается
+        для ускорения работы и упрощения кода
+        пример использования: tr_type = Tr.t_('Состав')
+        """
+        # если нет данных - делаем заполнение кэша
+        if cls._cache is None:
+            cls._cache = {}
+            for record in cls.objects.all():
+                cls._cache[record.name.strip()] = record
+
+        if item in cls._cache:
+            return cls._cache[item]
+        else:
+            # попытаемся поискать - вдруг таблица изменилась
+            result = cls.objects.get(name=item)
+            if result:
+                # добавляем в кэш
+                cls._cache[item] = result
+                return result
+            else:
+                raise ValueError(f"Не найден тип связи: {item}")
 
     class Meta:
         verbose_name = 'Вид связи'

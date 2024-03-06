@@ -8,12 +8,11 @@ class Tz(models.Model):
     """
     Виды знания
     """
-    title = 'Вид знания'
-    name = models.CharField(
-        max_length=128,
-        unique=True,
-        verbose_name='Название'
-    )
+
+    _cache = None
+
+    title = "Вид знания"
+    name = models.CharField(max_length=128, unique=True, verbose_name="Название")
     order = models.PositiveSmallIntegerField(
         verbose_name='Порядок',
         help_text='укажите порядковый номер',
@@ -73,7 +72,33 @@ class Tz(models.Model):
         super(Tz, self).save(*args, **kwargs)
 
     def sorted_suggestion_types(self):
-        return self.available_suggestion_types.all().order_by('-weight')
+        return self.available_suggestion_types.all().order_by("-weight")
+
+    @classmethod
+    def t_(cls, item):
+        """
+        Возвращает экземпляр типа знаний из кэша
+        это справочник, инвалидация не предполагается
+        для ускорения работы и упрощения кода
+        пример использования: table_type = Tz.t_('Таблица')
+        """
+        # если нет данных - делаем заполнение кэша
+        if cls._cache is None:
+            cls._cache = {}
+            for record in cls.objects.all():
+                cls._cache[record.name.strip()] = record
+
+        if item in cls._cache:
+            return cls._cache[item]
+        else:
+            # попытаемся поискать - вдруг таблица изменилась
+            result = cls.objects.get(name=item)
+            if result:
+                # добавляем в кэш
+                cls._cache[item] = result
+                return result
+            else:
+                raise ValueError(f"Не найден тип знаний: {item}")
 
     class Meta:
         verbose_name = 'Вид знания'
