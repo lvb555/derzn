@@ -19,6 +19,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>Логин</th>
                     <th>ФИО пользователя</th>
                     <th>Сотрудник</th>
                     <th>Администратор</th>
@@ -27,12 +28,13 @@
             <tbody>
                 {% for user in users %}
                     <tr style="display: {% if user.is_employee or allUsersCheckbox.checked %}table-row{% else %}none{% endif %}">
-                        <td>{{ user.first_name }} {{ user.last_name }} {% if user.profile.patronymic %}{{ user.profile.patronymic }}{% endif %}</td>
+                        <td>{{ user.username }}</td>
+                        <td><a href="#">{{ user.last_name }} {{ user.first_name }}  {% if user.profile.patronymic %}{{ user.profile.patronymic }}{% endif %}</a></td>
                         <td>
                             <input type="checkbox" class="employee-checkbox" data-userid="{{ user.id }}" data-isemployee="{{ user.is_employee }}" {% if user.is_employee %}checked="checked"{% endif %}>
                         </td>
                         <td>
-                            <input type="checkbox" class="admin-checkbox" data-userid="{{ user.id }}" data-isadmin="{{ user.is_superuser }}" {% if user.is_superuser %}checked="checked"{% endif %}>
+                           <input type="checkbox" class="admin-checkbox" data-userid="{{ user.id }}" data-isadmin="{{ user.is_superuser }}" {% if not user.is_employee %} disabled="disabled" {% endif %} {% if user.is_superuser %}checked="checked"{% endif %}>
                         </td>
                     </tr>
                 {% endfor %}

@@ -65,13 +65,6 @@ function getCookie(name) {
 }
 
 $(document).ready(function(){
-    $(".admin-checkbox").change(function() {
-        var userId = $(this).data("userid");
-        var isChecked = $(this).prop("checked");
-        $(".employee-checkbox[data-userid='" + userId + "']").prop("checked", isChecked);
-        updateRoles(userId, isChecked, isChecked);
-    });
-
     $(".employee-checkbox").change(function() {
         var userId = $(this).data("userid");
         var isChecked = $(this).prop("checked");
@@ -87,7 +80,15 @@ $(document).ready(function(){
         updateRoles(userId, isChecked, adminCheckbox.prop("checked"));
     });
 
+    $(".admin-checkbox").change(function() {
+        var userId = $(this).data("userid");
+        var isChecked = $(this).prop("checked");
+        var employeeCheckbox = $(".employee-checkbox[data-userid='" + userId + "']");
+
+        updateRoles(userId, employeeCheckbox.prop("checked"), isChecked);
+    });
 });
+
 
 
 $(document).ready(function() {
