@@ -72,6 +72,10 @@ class Relation(models.Model):
         null=True,
         blank=True
     )
+    meta_info = models.CharField(
+        max_length=1024, blank=True, null=True, verbose_name="Метаинформация"
+    )
+
     objects = models.Manager()
 
     def __str__(self):

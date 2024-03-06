@@ -102,6 +102,10 @@ class Znanie(models.Model):
     notification = models.BooleanField(default=False, verbose_name="Уведомления")
     several_works = models.BooleanField(default=False, verbose_name="Несколько работ")
 
+    meta_info = models.CharField(
+        max_length=1024, blank=True, null=True, verbose_name="Метаинформация"
+    )
+
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
     objects = models.Manager()
@@ -174,10 +178,16 @@ class Znanie(models.Model):
         target_rows = rows
         target_cols = cols
 
+        group_col = None
+        group_row = None
+
         if rows[0].rz.tz.is_group:
             target_rows = rows[0].get_grouped_relations()
+            group_row = rows[0].rz
+
         if cols[0].rz.tz.is_group:
             target_cols = cols[0].get_grouped_relations()
+            group_col = cols[0].rz
 
         target_rows = [row.rz for row in target_rows]
         target_cols = [col.rz for col in target_cols]
