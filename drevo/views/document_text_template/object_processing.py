@@ -1,3 +1,4 @@
+from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from drevo.forms import TemplateObjectForm
@@ -25,7 +26,7 @@ def get_object(pk):
 
     return obj
 
-
+@require_http_methods(["GET", "POST", "DELETE"])
 def document_object_processing_view(request, doc_pk):
     """
     Обработка запросов, касающихся объектов в сервисе создания шаблонов документов
@@ -102,5 +103,6 @@ def document_object_processing_view(request, doc_pk):
         # множество объектов отображемых на странице создания/редактирования шаблона текста документа
         q = TemplateObject.objects.filter(Q(knowledge=form.cleaned_data['knowledge']) | Q(availability=1) | Q(availability=2))
         return HttpResponse(json.dumps({'res': 'ok', 'objects': json.loads(serializers.serialize('json', q))}), content_type='application/json')
-    else:
-        return HttpResponseRedirect(reverse('drevo'))
+    elif request.method == 'DELETE':
+        obj = get_object(request.DELETE["id"])
+        return HttpResponse(json.dumps({'res': 'ok'}), content_type='application/json')
