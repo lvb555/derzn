@@ -1,5 +1,6 @@
 from django.forms import Textarea, NumberInput
 from django import forms
+from mptt.forms import TreeNodeChoiceField
 from drevo.models import TemplateObject, Znanie, Turple
 from django.core.exceptions import ValidationError
 
@@ -92,10 +93,10 @@ class TemplateObjectForm(forms.Form):
         choices=available_types_of_content,
         required=False)
     weight = forms.IntegerField(required=False, label='Порядок')
-    connected_to = forms.ModelChoiceField(queryset=TemplateObject.objects.all(), label='Родитель', required=False, empty_label='Без подчинения')
+    connected_to = TreeNodeChoiceField(queryset=TemplateObject.objects.all(), label='Родитель', required=False, empty_label='Без подчинения')
     turple = forms.ModelChoiceField(queryset=Turple.objects.all(), label='Справочник', required=False, empty_label='Новый справочник')
     fill_title = forms.CharField(
-        label='Заголовок для окна диалога',
+        label='Заголовок',
         required=False,
         widget=Textarea(attrs={
             'cols': 10,
