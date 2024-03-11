@@ -2,6 +2,7 @@ import {csrftoken} from "./setup_queries.js"
 
 const zn_pk = document.querySelector(".template #document_pk").value
 const pk = document.querySelector(".template #id_pk").value
+const message_block = document.querySelector(".log-container")
 
 function SaveTemplateBody() {
 	const body = new FormData()
@@ -21,11 +22,25 @@ document.addEventListener("DOMContentLoaded", (e) => {
 		fetch(url, {"method":"post", "headers":{"X-CSRFToken":csrftoken}, "body": SaveTemplateBody()})
 		.then(res => res.json())
 		.then((ans) => {
-			if (ans["res"] === "ok"){
-				console.log("template saved")
-			} else if (ans["res"] === "err"){
-				console.log(ans["errors"])
+
+			let message = document.createElement("p")
+			message.classList.add("log-container__log")
+
+			if (ans["res"] == "ok") {
+				message.innerHTML = "Изменения сохранены"
+			} else if (ans["res"] === "err") {
+				message.innerHTML = ans["errors"]["__all__"][0]
 			}
+			message_block.insertBefore(message, message_block.firstChild)
+			setTimeout(() => {
+				message.style.opacity = "100%"
+				setTimeout(() => {
+				message.style.opacity = "0%"
+				setTimeout(() => {
+					message.remove()
+				}, 510)
+			}, 1500)
+			}, 10)
 		})
 	})
 })

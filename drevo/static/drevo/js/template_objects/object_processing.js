@@ -7,7 +7,7 @@ let action = null
 const edit_menu_title = document.querySelector("#ObjectModal .modal-title")
 const url = window.location.href.split("document-template")[0] + "document-template"
 const connected_to_block = document.querySelector("#connected-to")
-const message_block = document.querySelector(".edit-menu__log-container")
+const message_block = document.querySelector(".log-container")
 
 const focused_object = document.querySelector(".object-card")
 const focused_object_header = document.querySelector(".object-card__header")
@@ -75,7 +75,7 @@ document.querySelector(".edit-menu__save-btn").addEventListener("click", (e) => 
 	.then((response) => { return response.json() })
 	.then((ans) => {
 		let message = document.createElement("p")
-		message.classList.add("edit-menu__log")
+		message.classList.add("log-container__log")
 		console.log(ans)
 		if (ans["res"] == "ok") {
 			message.innerHTML = (action === "edit" ? "Изменения сохранены" : "Объект создан")
