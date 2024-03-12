@@ -120,6 +120,8 @@ from .views import (
     delete_zn_in_cell_in_table,
 
 )
+from .views.zn_constructors.table_constructor_view import TableFillingView, TableConstructView
+from drevo.views.knowledge_view import KnowledgeCreateView as KnowledgeCreateView2
 
 from .views import send_znanie, knowledge_feed_view
 from .views.appeal_in_support import appeal
@@ -205,10 +207,10 @@ urlpatterns = [
     path('znanie/<int:pk>/grade/group/statistics', GroupKnowledgeStatisticsView.as_view(), name="grade_group_statistics"),
     path("znanie/<int:pk>/grade/infographics", InfographicsView.as_view(), name="grade_infographics"),
     path('znanie/<int:doc_pk>/document-template/edit-text/<int:text_pk>', DocumentTextTemplateEdit.as_view(), name='edit_text_template'),
+    path('znanie/<int:doc_pk>/document-template/create-text/', DocumentTextTemplateCreate.as_view(), name='create_text_template'),
     path('znanie/<int:doc_pk>/document-template/turple_processing', turple_processing_view),
     path('znanie/<int:doc_pk>/document-template/document_object_processing', document_object_processing_view),
-    path('znanie/<int:doc_pk>/document-template/object-select', ObjectsTree.as_view(), name='select_object_from_tree'),
-    path('znanie/<int:doc_pk>/document-template/save-text-template', save_text_template_view, name='save_text_template'),
+    path('znanie/list/', KnowledgeListView.as_view(), name='get_knowledge_list'),
     path("knowledges_grades/", knowledges_grades, name="knowledges_grades"),
     path("my_knowledge_grade/<int:id>/", my_knowledge_grade, name="my_knowledge_grade"),
     path("about/", about_proj.AboutView.as_view(), name="about_proj"),
@@ -547,7 +549,14 @@ urlpatterns = [
         relation_publication_view,
         name='relation_publication'
     ),
-    path("filling_tables/<int:pk>/", FillingTablesView.as_view(), name="filling_tables"),
+
+    # конструирование и наполнение таблиц
+    path("table_constructor/<int:pk>/", TableConstructView.as_view(), name="table_constructor"),
+    path("filling_tables/<int:pk>/", TableFillingView.as_view(), name="filling_tables"),
+    # для вызова модального окна
+    path("znanie/add/", KnowledgeCreateView2.as_view(), name="knowledge_create"),
+
+
     path("save_zn_to_cell_in_table_from_request/", save_zn_to_cell_in_table_from_request, name="save_zn_to_cell_in_table_from_request"),
     path("get_cell_for_table/", get_cell_for_table, name="get_cell_for_table"),
     path(
@@ -556,6 +565,7 @@ urlpatterns = [
         name="main_znanie_in_constructor_create"
     ),
     path('znaniya_for_constructor/', ZnaniyaForConstructorView.as_view(), name="znaniya_for_constructor"),
+
     path("delete_table/", delete_table, name="delete_table"),
     path("delete_row_or_column/", delete_row_or_column, name="delete_row_or_column"),
     path("show_filling_tables_page/", show_filling_tables_page, name="show_filling_tables_page"),
@@ -576,7 +586,7 @@ urlpatterns = [
     path("get_rel_zn_in_tree_constructor_from_request/", get_rel_zn_in_tree_constructor_from_request, name="get_rel_zn_in_tree_constructor_from_request"),
     path("quiz_constructor/<int:pk>/", QuizConstructorView.as_view(), name="quiz_constructor"),
     path("tree_constructor/<type>/<int:pk>/", TreeConstructorView.as_view(), name="tree_constructor"),
-    path("table_constructor/<int:pk>/", TableConstructorView.as_view(), name="table_constructor"),
+
     path("save_rel_in_tree_constructor/", save_rel_in_tree_constructor, name="save_rel_in_tree_constructor"),
     path("make_copy_of_algorithm/", make_copy_of_algorithm, name="make_copy_of_algorithm"),
     path("delete_relation_in_tree_constructor/", delete_relation_in_tree_constructor, name="delete_relation_in_tree_constructor"),
@@ -610,6 +620,8 @@ urlpatterns = [
     path('editorial_staff/update_roles/', update_roles, name='update_roles'),
 
 ]
+
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

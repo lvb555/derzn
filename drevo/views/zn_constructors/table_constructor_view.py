@@ -1,11 +1,15 @@
 import json
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.forms import ModelChoiceField
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView, CreateView, FormView, UpdateView
 
 from drevo.forms.knowledge_create_form import ZnImageFormSet, ZnFilesFormSet
 from drevo.forms.constructor_knowledge_form import (ZnanieForRowOrColumnForm, NameOfZnCreateUpdateForm,
@@ -17,6 +21,7 @@ from .mixins import DispatchMixin
 from .supplementary_functions import create_relation, create_zn_for_constructor, get_images_from_request, \
     get_file_from_request
 from drevo.views.my_interview_view import search_node_categories
+from ...utils.knowledge_proxy import TableProxy, KnowledgeProxyError
 
 
 # --------------------------------------------------------------
@@ -27,33 +32,22 @@ from drevo.views.my_interview_view import search_node_categories
 def show_filling_tables_page(request):
     """
     Страница «Наполнение таблиц» доступна, если существует хотя бы одна таблица в компетенции
-    эксперта и в ней есть хотя бы одна строка и столбец
+    эксперта и в ней есть хотя бы одна строка и столбец.
+    Используется, видимо только при построении меню в профиле - удаляет "Наполнение таблиц"
     """
     result = {'show': False}
     expert = get_object_or_404(SpecialPermissions, expert=request.user)
 
     if expert:
-
         categories_expert = expert.categories.all()
         categories = search_node_categories(categories_expert)
-        zn_queryset = Znanie.objects.filter(tz__name='Таблица', is_published=True)
 
-        # Выбор опубликованных знаний вида "Таблица" в пределах компетенции эксперта
-        table_dict = {}
-        for category in categories:
-            zn_in_this_category = zn_queryset.filter(category=category).order_by('name')
+        expert_tables = Znanie.published.filter(category__in=categories, tz=Tz.t_('Таблица'))
 
-            for zn in zn_in_this_category:
-                table_dict[zn.pk] = zn.name
-
-        for table, table_id in enumerate(table_dict):
-            if (Relation.objects
-                    .filter(tr__name='Строка', bz_id=table_id, is_published=True)
-                    .exists() and
-                    Relation.objects
-                            .filter(tr__name='Столбец', bz_id=table_id, is_published=True)
-                            .exists()):
+        for table in expert_tables:
+            if not TableProxy(table).is_zero_table():
                 result['show'] = True
+                break
 
     return JsonResponse(result, safe=False)
 
@@ -440,3 +434,142 @@ def row_and_column_existence(request):
     )
 
     return JsonResponse({'is_row_and_column_exist': is_row_and_column_exist})
+
+
+"""
+ #####################################################################
+ 
+ View конструктора таблиц и наполнения таблиц
+ 
+ #####################################################################
+"""
+
+
+class PrevNextMixin:
+    """
+    Миксин для добавления referer в контекст
+    Нужен чтобы кнопка Назад работала правильно
+    Так же добавляется поддержка параметра next - перенаправление на другую страницу после успешного сохранения
+    """
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # берем поле prev из POST, если его там нет - из HTTP_REFERER
+        # по этому полю будем уходить по кнопке «Назад»
+        if self.request.GET.get('next'):
+            context['next'] = self.request.GET.get('next')
+
+        if self.request.GET.get('prev'):
+            context['prev'] = self.request.GET.get('prev')
+
+        elif self.request.POST.get('prev'):
+            context['prev'] = self.request.POST.get('prev')
+
+        elif self.request.META.get('HTTP_REFERER'):
+            context['prev'] = self.request.META.get('HTTP_REFERER')
+        else:
+            # если же пришли из ниоткуда - при закрытии уходим на главную страницу
+            context['prev'] = "/"
+        return context
+
+    def form_valid(self):
+        # если есть параметр next - уходим по нему
+        # если нет - уходим по prev (только если там не корень)
+        # если и его нет - уходим обратно на эту же страницу
+
+        if self.request.POST.get('next'):
+            return redirect(self.request.POST.get('next'))
+
+        context = self.get_context_data()
+
+        if 'prev' in context:
+            if context['prev'] != '/':
+                return redirect(context['prev'])
+
+        # если не было prev и next - остаемся на этой странице
+        return self.get(self.request)
+
+
+class TableConstructView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, TemplateView):
+    """Представление для страницы «Конструктор таблицы»"""
+    template_name = "drevo/constructors/table_construct.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        table = TableProxy(Znanie.objects.get(id=self.kwargs['pk']))
+        context['title'] = 'Конструктор таблицы'
+        context['table'] = table.knowledge
+        context['table_info'] = json.dumps(table.get_header(), ensure_ascii=False)
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        table_data = self.request.POST.get('table_info')
+        if not table_data:
+            raise ValueError('Не удалось получить данные таблицы')
+
+        table_data = json.loads(table_data)
+
+        knowledge = Znanie.objects.get(id=kwargs['pk'])
+        table = TableProxy(knowledge)
+
+        try:
+            table.update_header(table_data)
+
+        except KnowledgeProxyError as e:
+            messages.warning(self.request, e)
+            return self.form_invalid()
+
+        return self.form_valid()
+
+    def form_invalid(self):
+        return self.get(self.request)
+
+
+class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, TemplateView):
+    """Представление для страницы «Наполнение таблицы»"""
+    template_name = "drevo/constructors/table_filling.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Наполнение таблицы'
+
+        self.object = Znanie.objects.get(id=self.kwargs['pk'])
+        context['object'] = self.object
+
+        table = TableProxy(self.object)
+        if table.is_zero_table():
+            messages.warning(self.request, 'Таблица пустая. Необходимо задать структуру')
+
+        header, cells = table.get_header_and_cells()
+        context['table_data'] = json.dumps(cells, ensure_ascii=False)
+
+        # Заголовки таблицы. Вдруг ее поменяют пока мы редактируем?
+        # можно было бы посчитать хэш, но json тоже сойдет - размер таблиц не ожидается очень большой
+        context['table_hash'] = json.dumps(header, ensure_ascii=False)
+
+        # Это ужасное решение - гнать весь список в страницу. Тут нужен запрос на сервер!!!!
+        context['knowledges'] = Znanie.objects.filter(tz__is_systemic=False,
+                                                      is_published=True).values('id', 'name').order_by('name')
+        return context
+
+    def form_invalid(self):
+        return self.get(self.request)
+
+    def post(self, request, *args, **kwargs):
+        self.object = Znanie.objects.get(id=kwargs['pk'])
+
+        tbl = TableProxy(self.object)
+        table_hash = json.loads(self.request.POST.get('table_hash'))
+        table_data = json.loads(self.request.POST.get('table_data'))
+
+        try:
+            tbl.update_values(table_hash, table_data, self.request.user)
+
+        except KnowledgeProxyError as e:
+            messages.warning(request, str(e))
+            return self.form_invalid()
+
+        return self.form_valid()
