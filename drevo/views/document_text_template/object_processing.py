@@ -1,6 +1,5 @@
 from django.views.decorators.http import require_http_methods
-from django.urls import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from drevo.forms import TemplateObjectForm
 from django.db.models import Q
 from drevo.models import TemplateObject
@@ -25,6 +24,7 @@ def get_object(pk):
             'error': f'Не удалось распознать id {pk}'}))
 
     return obj
+
 
 @require_http_methods(["GET", "POST", "DELETE"])
 def document_object_processing_view(request, doc_pk):
