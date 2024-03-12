@@ -1144,17 +1144,18 @@ a.question {
 
 .mydocument-list {
     display: flex;
+    grid-column: 1;
     flex-direction: column;
-    align-items: center;
-    padding: 20px;
+    align-items: flex-start;
+    padding: 10px;
 }
 
 .mydocument {
     border: 1px solid #ccc;
     padding: 10px;
-    margin: 10px;
+    margin-bottom: 10px;
     background-color: #fff;
-    width: auto;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1193,4 +1194,55 @@ a.question {
 
 .mydocument-button-delete {
     color: #f44336;
+}
+.mydocument-filter {
+    grid-column: 2;
+    position: sticky;
+    height: 430px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    top: 20px;
+}
+.mydocument-filter h1 {
+    font-size: 22px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.mydocument-filter label {
+    font-weight: bold;
+}
+.mydocument-filter select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.mydocument-filter button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.mydocument-filter button:hover {
+    background-color: #0056b3;
+}
+.mydocument-filter a {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+}
+.mydocument-container {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    padding: 20px;
 }

@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView
 from datetime import datetime
 from django.views.generic.edit import ProcessFormView
+
+from .algorithm_check_correctness_view import check_algorithm_correctness
 from ..models import Znanie, IP, Visits, BrowsingHistory, Relation, Tr , AlgorithmAdditionalElements
 from loguru import logger
 from ..models.algorithms_data import AlgorithmData, AlgorithmWork
@@ -60,6 +62,12 @@ class AlgorithmDetailView(DetailView):
                 if self.request.GET.get('previous_works'):
                     context['current_work'] = self.request.GET.get('previous_works')
 
+            elif len(context['previous_works']) == 1:
+                context['progress'] = list(AlgorithmData.objects.filter(user=self.request.user, algorithm=knowledge,
+                                                                        work__work_name=context['previous_works'].first()).values(
+                                                                        'element', 'element_type'))
+                context['current_work'] = context['previous_works'].first()
+
             if self.request.GET.get('mode'):
                 context['modification'] = 'on'
 
@@ -84,6 +92,8 @@ class AlgorithmDetailView(DetailView):
             )['previous_key']
         except Relation.DoesNotExist:
             context['algorithm_data'] = []
+        if check_algorithm_correctness(knowledge.id):
+            context['warning_text'] = 'Данный алгоритм на данный момент находится в разработке'
 
         return context
 
@@ -161,29 +171,42 @@ class AlgorithmResultAdd(ProcessFormView):
             if pk:
                 algorithm = get_object_or_404(Znanie, id=pk)
                 saved_progress = json.loads(request.GET.get('values'))
+                elements_for_deletion = json.loads(request.GET.get('for_deletion'))
                 work_name = request.GET.get('work')
-                previous_result = request.GET.get('previous_result')
-                previous_work = AlgorithmWork.objects.filter(algorithm=algorithm, user=user, 
-                                                             work_name=str(previous_result)).first()
+                previous_work = AlgorithmWork.objects.filter(algorithm=algorithm, user=user,
+                                                             work_name=str(work_name)).first()
 
-                if previous_result != '' and previous_work:
+                if elements_for_deletion and elements_for_deletion == 'delete old results':
                     results_for_delete = AlgorithmData.objects.filter(work=previous_work)
                     results_for_delete.delete()
                 else:
-                    previous_work = AlgorithmWork.objects.create(
-                                        algorithm=algorithm,
-                                        user=user,
-                                        work_name=work_name,
-                                    )
+                    if not previous_work:
+                        previous_work = AlgorithmWork.objects.create(
+                                            algorithm=algorithm,
+                                            user=user,
+                                            work_name=work_name,
+                                        )
 
-                for algorithm_element in saved_progress:
-                    AlgorithmData.objects.create(
-                        algorithm=algorithm,
-                        user=user,
-                        element=str(algorithm_element[0]),
-                        element_type=algorithm_element[1],
-                        work=previous_work,
-                    )
+                    for deleted_element in elements_for_deletion:
+                        elem = get_object_or_404(AlgorithmData, user=user, algorithm=algorithm,
+                                          work=previous_work, element=str(deleted_element))
+                        elem.delete()
+
+                    for algorithm_element, algorithm_element_type in saved_progress.items():
+                        try:
+                            next_relation = AlgorithmData.objects.get(algorithm=algorithm,
+                            user=user,
+                            element=str(algorithm_element),work=previous_work)
+                            next_relation.element_type = algorithm_element_type
+                            next_relation.save()
+                        except AlgorithmData.DoesNotExist:
+                            AlgorithmData.objects.create(
+                            algorithm=algorithm,
+                            user=user,
+                            element=str(algorithm_element),
+                            element_type=algorithm_element_type,
+                            work=previous_work,
+                            )
 
                 return JsonResponse({}, status=200)
 
