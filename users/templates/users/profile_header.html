@@ -231,6 +231,8 @@
                                 {% if user.is_active %}
                                 <li><a class="dropdown-item from-nav" href="/admin" id="control_panel_link">Панель управления</a></li>
                                 {% endif %}
+
+                                <li><a class="dropdown-item from-nav" href="/drevo/editorial_staff/" id="editorial_staff">Сотрудники редакции</a></li>
                                 <li><a class="dropdown-item from-nav" href="{% url 'special_permissions_page' %}">Добавление особых прав</a></li>
                                 <li><a class="dropdown-item from-nav" href="{% url 'delete_special_permissions_page' %}">Удаление особых прав</a></li>
 								<li>
