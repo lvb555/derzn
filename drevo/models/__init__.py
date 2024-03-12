@@ -35,6 +35,6 @@ from .answers import UserAnswerToQuestion
 from .users_algorithm_elements import AlgorithmAdditionalElements
 from .suggestion import Suggestion
 from .suggestion_type import SuggestionType
-from .vars import Var
+from .vars import TemplateObject
 from .turple import Turple
 from .turple_element import TurpleElement
