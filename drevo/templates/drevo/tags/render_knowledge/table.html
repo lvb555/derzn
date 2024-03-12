@@ -1,0 +1,124 @@
+{% load index %}
+
+
+<style>
+    .knowledge_table_table {
+        table-layout: auto;
+    }
+
+    .knowledge_table__body {
+        border-bottom-color: #BFBFBF;
+        border: 2px black solid;
+    }
+
+    .knowledge_table__head_group_col {
+        border: 2px black solid;
+        text-align: center !important
+    }
+
+    .knowledge_table__head_empty {
+        border: 2px black solid;
+        text-align: center !important;
+    }
+
+    .knowledge_table__head_col {
+        border: 2px black solid;
+        text-align: center !important;
+    }
+
+     .knowledge_table__head_group_row {
+        border: 2px black solid;
+        vertical-align: middle;
+    }
+
+    .knowledge_table__head_row {
+        border: 2px black solid;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .knowledge_table__data {
+        border: 2px black solid;
+    }
+
+
+
+     .knowledge_table a {
+        color: black;
+        text-decoration: none;
+     }
+
+     .selected {
+        background-color: yellow !important;
+     }
+
+
+
+</style>
+<div class="table-responsive scrollbar">
+<div id="{{ table_id }}" class="knowledge_table">
+    <table class="knowledge_table_table table align-middle my-2">
+        <tbody class="knowledge_table__body">
+        {# считаем размер пустого заголовка в левом верхнем угле таблицы #}
+        {% with col_span=group_row|yesno:"2,1,1"  row_span=group_col|yesno:"2,1,1" %}
+
+            {# выводим строки заголовка #}
+            <tr>
+                <th class="knowledge_table__head_empty" colspan="{{ col_span }}" rowspan="{{ row_span }}"></th>
+            {% if group_col %}
+                <th class="knowledge_table__head_group_col" colspan="{{ cols|length }}">{{ group_col }}</th>
+            </tr>
+            <tr>
+            {% endif %}
+
+        {% endwith %}
+
+            {% for col in cols %}
+                <th class="knowledge_table__head_col">{{ col }}</th>
+            {% endfor %}
+            </tr>
+
+            {# выводим строки и заголовки строк #}
+            {% for row_values in values %}
+                <tr>
+                    {% if forloop.first and group_row %}
+                        <th class="knowledge_table__head_group_row" rowspan="{{ rows|length }}">{{ group_row }}</th>
+                    {% endif %}
+
+                    {% for cell_value in row_values %}
+                        {% if forloop.first %}
+                            <th class="knowledge_table__head_row">{{ rows|index:forloop.parentloop.counter0 }}</th>
+                        {% endif %}
+
+                        <td class="knowledge_table__data" data-row="{{forloop.parentloop.counter0}}" data-col="{{forloop.counter0}}">
+                            {% if cell_value %}
+                                        {% comment %}
+                                        Надо разбираться, возможно старый функционал????
+
+                                        {% if cell_value.tz.name == 'Тезис' %}
+                                        <i class="kn_type" style="color: #1CA053;"><img src="{% static 'drevo/img/green_file.png' %}"></i>
+                                        {% elif cell_value.tz.name == 'Вопрос' %}
+                                        <i class="kn_type" style="color: #1BA2F1;"><img src="{% static 'drevo/img/blue_file.png' %}"></i>
+                                        {% elif cell_value.tz.name == 'Факт' %}
+                                        <i class="kn_type" style="color: #FC918F;"><img src="{% static 'drevo/img/red_file.png' %}"></i>
+                                        {% elif cell_value.tz.name == 'Классификация' %}
+                                        <i class="kn_type" style="color: #BA7507;"><img src="{% static 'drevo/img/ginger_file.png' %}"></i>
+                                        {% else %}
+                                        <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}"></i>
+                                        {% endif %}
+                                        {% endcomment %}
+                                        {% if cell_value.show_link %}
+                                            <a>{{ cell_value.name }}</a>
+                                        {% else %}
+                                            {{ cell_value.name }}
+                                        {% endif %}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
