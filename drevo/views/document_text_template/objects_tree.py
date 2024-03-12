@@ -3,10 +3,9 @@ from drevo.models import TemplateObject, Znanie
 from django.db.models import Q
 
 
-
 class ObjectsTree(TemplateView):
     """
-        На странице строится дерево объектов для того, 
+        На странице строится дерево объектов для того,
         чтобы выбрать объект для вставки в шаблон
     """
     template_name = 'drevo/document_text_template/objects_tree.html'
