@@ -153,6 +153,12 @@ class TableProxy:
 
         return False
 
+    def is_empty_table(self):
+        """
+        Проверка на пустую (не заполненную) таблицу
+        """
+        return bool(self.get_cells(in_list=True))
+
     def update_header(self, header_data: dict):
         old_header_data = self._get_data(self.table_key)
 
