@@ -59,14 +59,14 @@ class TableProxy:
         self.knowledge.meta_info = json.dumps(self.meta_info, ensure_ascii=False)
         self.knowledge.save()
 
-    def get_data(self, key):
+    def _get_data(self, key):
         return self.meta_info.get(key, None)
 
-    def set_data(self, key, data):
+    def _set_data(self, key, data):
         self.meta_info[key] = data
 
     @staticmethod
-    def set_ids(header_data):
+    def _set_ids(header_data):
         # устанавливаем идентификаторы для колонок и строк если они не установлены
         # логика такая - находим максимум id и нумеруем все по возрастанию где нет id (или он 0)
 
@@ -110,13 +110,33 @@ class TableProxy:
         return row_id, col_id
 
     @staticmethod
-    def headers_is_eq(old_header: dict, new_header: dict):
+    def headers_is_eq(old_header: dict, new_header: dict, strict=True):
         """
-        сравнение двух словарей с данными о колонках и строках
+        Сравнение двух словарей с данными о колонках и строках
         так как порядок колонок и строк в списке важен, а порядок ключей вроде бы всегда получается одинаковый
-         (как из формы редактирования приходит) - будем тупо сравнивать по текстовому представлению
+         (как из формы редактирования приходит) - будем тупо сравнивать по текстовому представлению,
+         если это строгая проверка
         """
-        return str(old_header) == str(new_header)
+        if strict:
+            return str(old_header) == str(new_header)
+
+        # дальше проверяется возможность сохранить данные, если в БД new_header
+        # если пересекаемые новые и старые идентификаторы колонок/строк одинаковые,
+        # то считаем возможным сохранить данные
+        # но если редактируемый (старые) колонки/строки длиннее, то возможна потеря данных
+
+        for data_type in ['rows', 'cols']:
+            new_data = new_header.get(data_type, [])
+            old_data = old_header.get(data_type, [])
+
+            if len(old_data) > len(new_data):
+                return False
+
+            for old, new in zip(old_data, new_data):
+                if old['id'] != new['id']:
+                    return False
+
+        return True
 
     def is_zero_table(self):
         """
@@ -124,7 +144,7 @@ class TableProxy:
             нулевая таблица - если нет данных о структуре таблицы
             либо колонки и/или строки не установлены
         """
-        header = self.get_data(self.table_key)
+        header = self._get_data(self.table_key)
         if not header:
             return True
 
@@ -134,7 +154,7 @@ class TableProxy:
         return False
 
     def update_header(self, header_data: dict):
-        old_header_data = self.get_data(self.table_key)
+        old_header_data = self._get_data(self.table_key)
 
         if self.headers_is_eq(old_header_data, header_data):
             # таблица не изменилась
@@ -142,8 +162,8 @@ class TableProxy:
 
         if not old_header_data:
             # все просто - записываем данные
-            self.set_ids(header_data)
-            self.set_data(self.table_key, header_data)
+            self._set_ids(header_data)
+            self._set_data(self.table_key, header_data)
             self._save()
             return
 
@@ -170,14 +190,14 @@ class TableProxy:
 
         Relation.objects.filter(pk__in=[rec.pk for rec in records_for_delete]).delete()
         # и теперь сохраняем
-        self.set_ids(header_data)
-        self.set_data(self.table_key, header_data)
+        self._set_ids(header_data)
+        self._set_data(self.table_key, header_data)
         self._save()
 
     def update_values(self, header_data: dict, cells_data: dict, user: User):
-        db_header_data = self.get_data(self.table_key)
+        db_header_data = self._get_data(self.table_key)
 
-        if db_header_data != header_data:
+        if self.headers_is_eq(header_data, db_header_data, False):
             raise KnowledgeProxyError('Заголовок таблицы изменился')
 
         # получаем все текущие ячейки
@@ -235,7 +255,16 @@ class TableProxy:
                                        meta_info=meta_info)
 
     def get_header(self):
-        header = self.get_data(self.table_key)
+        """
+        Возвращает словарь со структурой таблицы
+        {
+        'group_row': 'Заголовок строк',
+        'group_col': 'Заголовок колонок',
+        'cols': [{'id':12, 'name: 'колонка 1'}],
+        'rows': [{'id':10, 'name: 'Строка 1'}]
+        }
+        """
+        header = self._get_data(self.table_key)
         if not header:
             header = {'group_row': '', 'group_col': '', 'cols': [], 'rows': []}
 
