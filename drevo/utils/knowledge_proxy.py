@@ -243,6 +243,9 @@ class TableProxy:
         # ячейки, которые есть в обоих наборах - надо возможно обновить.
         for_update_cells = old_cells.keys() & new_cells.keys()
 
+        for cell in for_delete_cells:
+            old_cells[cell].delete()
+
         for cell in for_update_cells:
             old_pk = int(old_cells[cell].rz.pk)
             new_pk = int(new_cells[cell]["id"])
@@ -251,9 +254,6 @@ class TableProxy:
             if old_pk != new_pk:
                 old_cells[cell].rz = Znanie.objects.get(pk=new_pk)
                 old_cells[cell].save(update_fields=["rz"])
-
-        for cell in for_delete_cells:
-            old_cells[cell].delete()
 
         for cell in for_add_cells:
             # добавляем новую ячейку
