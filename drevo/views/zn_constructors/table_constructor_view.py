@@ -1,4 +1,5 @@
 import json
+from collections import Counter
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -559,11 +560,23 @@ class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, Templat
         return self.get(self.request)
 
     def post(self, request, *args, **kwargs):
+        def repeats(data: list[dict]):
+            # возвращает объекты которые повторяются
+            counter = Counter([(int(item['id']), item['name']) for item in data])
+            print(counter)
+            result = [item[1] for item in counter if counter[item] > 1]
+            return result
+
         self.object = Znanie.objects.get(id=kwargs['pk'])
 
         tbl = TableProxy(self.object)
         table_hash = json.loads(self.request.POST.get('table_hash'))
         table_data = json.loads(self.request.POST.get('table_data'))
+        repeat = repeats(table_data)
+        print(f'save data {repeat}')
+        if repeat:
+            messages.warning(request, f' Знания в таблице повторяются: {repeat}')
+            return self.form_invalid()
 
         try:
             tbl.update_values(table_hash, table_data, self.request.user)

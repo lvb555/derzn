@@ -198,7 +198,7 @@ body .modal-dialog { /* Width */
         //заполнение ячейки
         function setValue(i,j,id, name)  {
             if (id) {
-                values[i][j] = {'id': id, 'name': name}
+                values[i][j] = {'id': Number(id), 'name': name}
                 cells_ar[i][j].innerHTML = name
             }
             else {
