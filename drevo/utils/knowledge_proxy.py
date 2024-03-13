@@ -20,8 +20,8 @@ class TableProxy:
     {
         'group_row': 'Заголовок строк',
         'group_col': 'Заголовок колонок',
-        'cols': [{'id':12, 'name: 'колонка 1'}],
-        'rows': [{'id':10, 'name: 'Строка 1'}]
+        'cols': [{'id':12, 'name': 'колонка 1'}],
+        'rows': [{'id':10, 'name': 'Строка 1'}]
     }
     порядок колонок/строк важен и задает их порядок при просмотре таблицы
     id новых колонок/строк высчитываются как максимальный id колонок/строк +1
@@ -157,9 +157,14 @@ class TableProxy:
         """
         Проверка на пустую (не заполненную) таблицу
         """
-        return bool(self.get_cells(in_list=True))
+        return not bool(self.get_cells(in_list=True))
 
     def update_header(self, header_data: dict):
+        """
+        Устанавливает новую структуру таблицы
+        устанавливает id колонок/строк если они не установлены
+        в переданном словаре!
+        """
         old_header_data = self._get_data(self.table_key)
 
         if self.headers_is_eq(old_header_data, header_data):
@@ -191,7 +196,7 @@ class TableProxy:
         # получаем список ячеек которые надо удалить - потому что эти строки и колонки удалили
         for cell in cells:
             row_id, col_id = self.get_cell_data(cell)
-            if (row_id in rows_for_del) and (col_id in cols_for_del):
+            if (row_id in rows_for_del) or (col_id in cols_for_del):
                 records_for_delete.append(cell)
 
         Relation.objects.filter(pk__in=[rec.pk for rec in records_for_delete]).delete()
@@ -200,10 +205,10 @@ class TableProxy:
         self._set_data(self.table_key, header_data)
         self._save()
 
-    def update_values(self, header_data: dict, cells_data: dict, user: User):
+    def update_values(self, header_data: dict, cells_data: list[dict], user: User):
         db_header_data = self._get_data(self.table_key)
 
-        if self.headers_is_eq(header_data, db_header_data, False):
+        if not self.headers_is_eq(header_data, db_header_data, False):
             raise KnowledgeProxyError('Заголовок таблицы изменился')
 
         # получаем все текущие ячейки
