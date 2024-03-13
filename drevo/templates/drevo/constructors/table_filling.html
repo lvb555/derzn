@@ -11,13 +11,9 @@
     <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 
 <style>
-.modal .modal-body { /* Vertical scrollbar if necessary */
-    max-height: 480px;
-    overflow-y: auto;
-}
 
 body .modal-dialog { /* Width */
-    max-width: 100%;
+    max-width: 80%;
 }
 </style>
 {% endblock %}
@@ -47,7 +43,7 @@ body .modal-dialog { /* Width */
 
     <!-- Модальные окна -->
     <!-- выбор знания -->
-     <div class="modal fade" id="modal_select">
+     <div class="modal fade" id="modal_select" style="z-index: 1041">
         <div class="modal-dialog modal-dialog-centered modal-lg" id="dialog_select">
             <div class="modal-content bg-white text-dark p-3">
                 <div class="modal-header" style="justify-content: center;">
@@ -140,6 +136,7 @@ body .modal-dialog { /* Width */
 
         let onClickCell = (cell) => {onSelect(cell)};
         btnDlgSelectOk.onclick = () => {
+
         if (elSelectKnowledge.value) {
             setValue(current_row, current_col, elSelectKnowledge.value,
                     elSelectKnowledge.options[elSelectKnowledge.selectedIndex].text)
@@ -170,6 +167,7 @@ body .modal-dialog { /* Width */
 
                 for (let j = 0; j < cells.length; j++) {
                     let cell = cells[j];
+                    cell.innerHTML = "";
                     cell.onclick = function() {
                         onSelect(this, i-di, j)
                     }
@@ -192,6 +190,7 @@ body .modal-dialog { /* Width */
                 name = data[i].name;
 
                 values[row][col]= {'id': id, 'name': name}
+                setValue(row, col, id, name)
                 }
             }
 
@@ -234,7 +233,10 @@ body .modal-dialog { /* Width */
         setBtnState();
 
         btnDelete.onclick = () => { setValue(current_row, current_col, null, null) }
-        btnSelect.onclick = () => { dlg_select.show() }
+        btnSelect.onclick = () => {
+        //elSelectKnowledge.select2();
+        $('#select_zn').select2();
+        dlg_select.show() }
 
 
 
