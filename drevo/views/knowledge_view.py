@@ -78,6 +78,7 @@ class KnowledgeCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        form.instance.is_published = True
         response = super(KnowledgeCreateView, self).form_valid(form)
         context = self.get_context_data()
         image_form = context['image_form']
