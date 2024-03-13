@@ -5,49 +5,34 @@
 
 from django.urls import path
 
-from drevo.views.knowledge_view import KnowledgeCreateView as KnowledgeCreateViewModal
+from drevo.views.knowledge_view import \
+    KnowledgeCreateView as KnowledgeCreateViewModal
 from drevo.views.zn_constructors.table_constructor_view import (
-    TableConstructView,
-    TableFillingView,
-)
+    TableConstructView, TableFillingView)
 
-from .views import (
-    MainZnInConstructorCreateView,
-    QuizConstructorView,
-    TreeConstructorView,
-    ZnaniyaForConstructorView,
-    answer_create_update_in_quiz,
-    answers_in_quiz_existence,
-    check_algorithm_correctness_from_request,
-    create_zn_for_cell,
-    create_zn_in_tree_constructor,
-    delete_algorithm,
-    delete_answers_or_questions_to_quiz,
-    delete_complex_zn,
-    delete_element_of_relation,
-    delete_quiz,
-    delete_relation_in_tree_constructor,
-    delete_row_or_column,
-    delete_table,
-    delete_zn_in_cell_in_table,
-    edit_main_zn_in_constructor,
-    edit_znanie_in_tree_constructor,
-    element_of_group_in_table_create_update_view,
-    get_answers_to_selected_question_of_quiz,
-    get_cell_for_table,
-    get_order_of_relation,
-    get_rel_zn_in_tree_constructor_from_request,
-    get_tr_for_create_relation_in_tree_constructor,
-    get_tr_for_edit_relation_in_tree_constructor,
-    is_current_user_creator_of_zn,
-    make_copy_of_algorithm,
-    question_create_update_in_quiz,
-    relation_in_table_create_update_view,
-    row_and_column_existence,
-    save_rel_in_tree_constructor,
-    save_zn_to_cell_in_table_from_request,
-    show_filling_tables_page,
-)
+from .views import (MainZnInConstructorCreateView, QuizConstructorView,
+                    TreeConstructorView, ZnaniyaForConstructorView,
+                    answer_create_update_in_quiz, answers_in_quiz_existence,
+                    check_algorithm_correctness_from_request,
+                    create_zn_for_cell, create_zn_in_tree_constructor,
+                    delete_algorithm, delete_answers_or_questions_to_quiz,
+                    delete_complex_zn, delete_element_of_relation, delete_quiz,
+                    delete_relation_in_tree_constructor, delete_row_or_column,
+                    delete_table, delete_zn_in_cell_in_table,
+                    edit_main_zn_in_constructor,
+                    edit_znanie_in_tree_constructor,
+                    element_of_group_in_table_create_update_view,
+                    get_answers_to_selected_question_of_quiz,
+                    get_cell_for_table, get_order_of_relation,
+                    get_rel_zn_in_tree_constructor_from_request,
+                    get_tr_for_create_relation_in_tree_constructor,
+                    get_tr_for_edit_relation_in_tree_constructor,
+                    is_current_user_creator_of_zn, make_copy_of_algorithm,
+                    question_create_update_in_quiz,
+                    relation_in_table_create_update_view,
+                    row_and_column_existence, save_rel_in_tree_constructor,
+                    save_zn_to_cell_in_table_from_request,
+                    show_filling_tables_page)
 
 urlpatterns = [
     # квиз

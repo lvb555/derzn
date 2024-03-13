@@ -7,118 +7,65 @@ from drevo.views.interviews_view import interview_view
 from drevo.views.my_interview_view import my_interview_view
 
 from .urls_constructor import urlpatterns as urls_constructor
-from .views import (
-    AdminsPermissionsDeleteView,
-    AlgorithmDetailView,
-    AlgorithmListView,
-    AlgorithmResultAdd,
-    AuthorDetailView,
-    AuthorSearchView,
-    AuthorsListView,
-    CommentPageView,
-    CommentSendView,
-    DocumentTextTemplateEdit,
-    DrevoListView,
-    DrevoView,
-    EditAlgorithm,
-    ExpertKnowledgeView,
-    ExpertsPermissionsDeleteView,
-    FavouriteProcessView,
-    FavouritesView,
-    GlossaryListView,
-    GroupInfographicsView,
-    GroupKnowledgeStatisticsView,
-    GroupKnowledgeView,
-    InfographicsView,
-    KnowledgeFormView,
-    KnowledgeSearchView,
-    KnowledgeStatisticFormView,
-    KnowledgeTypesView,
-    KnowledgeView,
-    LabelsListView,
-    NewKnowledgeListView,
-    ObjectsTree,
-    ParameterSettingsView,
-    PreparingRelationsCreateView,
-    PreparingRelationsExpertiseView,
-    PreparingRelationsPublicationView,
-    PreparingRelationsUpdateView,
-    QuestionExpertWorkPage,
-    QuizDetailView,
-    QuizListView,
-    QuizResultAdd,
-    RelationCreatePageView,
-    RelationsExpertisePageView,
-    RelationsPublicationPageView,
-    RelationTypesView,
-    RelationUpdatePageView,
-    SpecialPermissionsDeleteView,
-    TagSearchView,
-    ZnanieByLabelView,
-    ZnanieDetailView,
-    ZnanieRatingView,
-    about_proj,
-    additional_knowledge_update_view,
-    advance_search_by_tree_view,
-    check_related,
-    create_additional_knowledge,
-    delete_competence_admin,
-    delete_competence_expert,
-    delete_editor_permissions,
-    document_object_processing_view,
-    friends_added_view,
-    friends_view,
-    get_related_tz,
-    get_required_rz,
-    get_required_tr,
-    knowledge_feed_view,
-    knowledges_grades,
-    messages_feed_view,
-    my_knowledge_grade,
-    relation_create_view,
-    relation_delete_view,
-    relation_expertise_view,
-    relation_publication_view,
-    relation_update_view,
-    save_text_template_view,
-    search_by_tree_view,
-    send_message_view,
-    send_znanie,
-    turple_processing_view,
-    update_user_settings,
-)
-from .views.admin_interview_work.views import (
-    AdminEditingKnowledgeView,
-    AllInterviewView,
-    InterviewQuestionsView,
-    NotifyExpertsView,
-    question_admin_work_view,
-)
+from .views import (AdminsPermissionsDeleteView, AlgorithmDetailView,
+                    AlgorithmListView, AlgorithmResultAdd, AuthorDetailView,
+                    AuthorSearchView, AuthorsListView, CommentPageView,
+                    CommentSendView, DocumentTextTemplateEdit, DrevoListView,
+                    DrevoView, EditAlgorithm, ExpertKnowledgeView,
+                    ExpertsPermissionsDeleteView, FavouriteProcessView,
+                    FavouritesView, GlossaryListView, GroupInfographicsView,
+                    GroupKnowledgeStatisticsView, GroupKnowledgeView,
+                    InfographicsView, KnowledgeFormView, KnowledgeSearchView,
+                    KnowledgeStatisticFormView, KnowledgeTypesView,
+                    KnowledgeView, LabelsListView, NewKnowledgeListView,
+                    ObjectsTree, ParameterSettingsView,
+                    PreparingRelationsCreateView,
+                    PreparingRelationsExpertiseView,
+                    PreparingRelationsPublicationView,
+                    PreparingRelationsUpdateView, QuestionExpertWorkPage,
+                    QuizDetailView, QuizListView, QuizResultAdd,
+                    RelationCreatePageView, RelationsExpertisePageView,
+                    RelationsPublicationPageView, RelationTypesView,
+                    RelationUpdatePageView, SpecialPermissionsDeleteView,
+                    TagSearchView, ZnanieByLabelView, ZnanieDetailView,
+                    ZnanieRatingView, about_proj,
+                    additional_knowledge_update_view,
+                    advance_search_by_tree_view, check_related,
+                    create_additional_knowledge, delete_competence_admin,
+                    delete_competence_expert, delete_editor_permissions,
+                    document_object_processing_view, friends_added_view,
+                    friends_view, get_related_tz, get_required_rz,
+                    get_required_tr, knowledge_feed_view, knowledges_grades,
+                    messages_feed_view, my_knowledge_grade,
+                    relation_create_view, relation_delete_view,
+                    relation_expertise_view, relation_publication_view,
+                    relation_update_view, save_text_template_view,
+                    search_by_tree_view, send_message_view, send_znanie,
+                    turple_processing_view, update_user_settings)
+from .views.admin_interview_work.views import (AdminEditingKnowledgeView,
+                                               AllInterviewView,
+                                               InterviewQuestionsView,
+                                               NotifyExpertsView,
+                                               question_admin_work_view)
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
 from .views.editorial_staff import editorial_staff_view, update_roles
-from .views.expert_work.views import (
-    ExpertProposalDeleteView,
-    proposal_update_view,
-    propose_answer,
-    set_answer_as_incorrect,
-    set_answer_is_agreed,
-    set_new_answer_is_agreed,
-    sub_answer_create_view,
-)
+from .views.expert_work.views import (ExpertProposalDeleteView,
+                                      proposal_update_view, propose_answer,
+                                      set_answer_as_incorrect,
+                                      set_answer_is_agreed,
+                                      set_new_answer_is_agreed,
+                                      sub_answer_create_view)
 from .views.interview_and_proposal import my_interview, my_proposal
 from .views.klz_all_knowledges import klz_all
-from .views.knowledge_tp_view import (
-    DirectorKnowledgeProcess,
-    ExpertKnowledgeProcess,
-    KlzKnowledgeProcess,
-    KnowledgeChangeStatus,
-    KnowledgeCreateView,
-    KnowledgeUpdateView,
-    RedactorKnowledgeProcess,
-    UserKnowledgeProcessView,
-)
+from .views.knowledge_tp_view import (DirectorKnowledgeProcess,
+                                      ExpertKnowledgeProcess,
+                                      KlzKnowledgeProcess,
+                                      KnowledgeChangeStatus,
+                                      KnowledgeCreateView, KnowledgeUpdateView,
+                                      RedactorKnowledgeProcess,
+                                      UserKnowledgeProcessView)
 from .views.my_favourites import my_favourites
 from .views.my_knowledge import my_expertise, my_knowledge, my_preknowledge
 from .views.new_knowledges import new_knowledge
@@ -128,26 +75,21 @@ from .views.public_people import public_human, public_people_view
 from .views.questions import questions_and_check_answers, save_answer
 from .views.quiz_result import show_quiz_result
 from .views.special_permissions_for_public import get_special_permission
-from .views.special_permissions_work.view import (
-    AdminCandidateKnowledgeView,
-    AdminsCandidatesListView,
-    ExpertCandidateKnowledgeView,
-    ExpertsCandidatesListView,
-    SpecialPermissionsView,
-    UsersSpecialPermissionsView,
-    set_users_as_admin,
-    set_users_as_editor,
-    set_users_as_expert,
-)
+from .views.special_permissions_work.view import (AdminCandidateKnowledgeView,
+                                                  AdminsCandidatesListView,
+                                                  ExpertCandidateKnowledgeView,
+                                                  ExpertsCandidatesListView,
+                                                  SpecialPermissionsView,
+                                                  UsersSpecialPermissionsView,
+                                                  set_users_as_admin,
+                                                  set_users_as_editor,
+                                                  set_users_as_expert)
 from .views.subscribe_to_author_view import sub_by_author
 from .views.subscription_by_category_view import sub_by_category
 from .views.subscription_by_tag_view import sub_by_tag
 from .views.user_suggestion_view import UserSuggestionView
-from .views.users_documents import (
-    ChangeDocumentView,
-    CreateDocumentView,
-    DeleteDocumentView,
-)
+from .views.users_documents import (ChangeDocumentView, CreateDocumentView,
+                                    DeleteDocumentView)
 
 urlpatterns = [
     # Общие
