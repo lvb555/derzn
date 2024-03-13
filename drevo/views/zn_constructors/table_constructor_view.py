@@ -660,12 +660,16 @@ class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, Templat
                 self.request, "Таблица пустая. Необходимо задать структуру"
             )
 
-        header, cells = table.get_header_and_cells()
-        context["table_data"] = json.dumps(cells, ensure_ascii=False)
+        if self.request.method == 'POST':
+            context["table_data"] = self.request.POST.get("table_data")
+            context["table_hash"] = self.request.POST.get("table_hash")
+        else:
+            header, cells = table.get_header_and_cells()
+            context["table_data"] = json.dumps(cells, ensure_ascii=False)
 
-        # Заголовки таблицы. Вдруг ее поменяют пока мы редактируем?
-        # можно было бы посчитать хэш, но json тоже сойдет - размер таблиц не ожидается очень большой
-        context["table_hash"] = json.dumps(header, ensure_ascii=False)
+            # Заголовки таблицы. Вдруг ее поменяют пока мы редактируем?
+            # можно было бы посчитать хэш, но json тоже сойдет - размер таблиц не ожидается очень большой
+            context["table_hash"] = json.dumps(header, ensure_ascii=False)
 
         # Это ужасное решение - гнать весь список в страницу. Тут нужен запрос на сервер!!!!
         context["knowledges"] = (
@@ -682,7 +686,6 @@ class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, Templat
         def repeats(data: list[dict]):
             # возвращает объекты которые повторяются
             counter = Counter([(int(item["id"]), item["name"]) for item in data])
-            print(counter)
             result = [item[1] for item in counter if counter[item] > 1]
             return result
 
@@ -692,7 +695,6 @@ class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, Templat
         table_hash = json.loads(self.request.POST.get("table_hash"))
         table_data = json.loads(self.request.POST.get("table_data"))
         repeat = repeats(table_data)
-        print(f"save data {repeat}")
         if repeat:
             messages.warning(request, f" Знания в таблице повторяются: {repeat}")
             return self.form_invalid()
