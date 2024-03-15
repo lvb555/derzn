@@ -21,26 +21,35 @@ body .modal-dialog { /* Width */
 {% block content %}
     {% include 'drevo/include/messages.html' %}
 
-    <div>
-        <h4>{{object.name}}</h4>
-    </div>
+    <div class="container">
+        <div class="row my-3">
+            <div class="col">
+                <h1>{{ title }}</h1>
+                <div>
+                    <h4>{{object.name}}</h4>
+                </div>
 
-    {% render_knowledge object table_id='table_1' %}
+                  {% render_knowledge object table_id='table_1' %}
 
-    <div class="mt-3">
-        <h4>Наполнение ячейки:</h4>
-        <div class="btn-group">
-            <input class="btn btn-outline-secondary" disabled id="select_btn" type="button" value="Выбрать">
-            <input class="btn btn-outline-secondary" hx-get="{% url 'knowledge_create' %}?modal" hx-target="#dialog_create"
-                   disabled id="create_btn" type="button" value="Создать">
-            <input class="btn btn-outline-secondary" disabled id="delete_btn" type="button" value="Удалить">
+             </div>
         </div>
-        <div class="float-end">
-            <input class="btn btn-primary" id="save_btn" value="Сохранить">
-            <input  class="btn btn-secondary" onclick="javascript:goPrev();" value="Закрыть">
+
+        <div class="row mb-3">
+            <div class="col mt-3">
+                <h4>Наполнение ячейки:</h4>
+                <div class="btn-group">
+                    <input class="btn btn-outline-secondary" disabled id="select_btn" type="button" value="Выбрать">
+                    <input class="btn btn-outline-secondary" hx-get="{% url 'knowledge_create' %}?modal" hx-target="#dialog_create"
+                           disabled id="create_btn" type="button" value="Создать">
+                    <input class="btn btn-outline-secondary" disabled id="delete_btn" type="button" value="Удалить">
+                </div>
+                <div class="float-end">
+                    <input class="btn btn-primary my-3" id="save_btn" value="Сохранить">
+                    <input  class="btn btn-secondary my-3" onclick="javascript:goPrev();" value="Закрыть">
+                </div>
+            </div>
         </div>
     </div>
-
     <!-- Модальные окна -->
     <!-- выбор знания -->
      <div class="modal fade" id="modal_select" style="z-index: 1041">
