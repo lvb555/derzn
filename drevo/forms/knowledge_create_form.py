@@ -30,7 +30,8 @@ class ZnanieCreateForm(forms.ModelForm, ZnanieValidators):
     category = TreeNodeChoiceField(queryset=get_model_or_stub(Category).published.all(),
                                    empty_label="(нет категории)",
                                    label='Категория',
-                                   required=True)
+                                   required=False)
+
     labels = forms.ModelMultipleChoiceField(queryset=Label.objects.all(), label='Метки', required=False)
     tz = forms.ModelChoiceField(queryset=Tz.objects.all().order_by('name'), label='Вид знания')
 
