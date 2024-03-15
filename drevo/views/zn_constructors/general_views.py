@@ -135,7 +135,9 @@ class MainZnInConstructorCreateView(LoginRequiredMixin, DispatchMixin, CreateVie
             elif self.type_of_zn == 'quiz':
                 return HttpResponseRedirect(reverse('quiz_constructor', kwargs={'pk': knowledge.pk}))
             elif self.type_of_zn == 'table':
-                return HttpResponseRedirect(reverse('table_constructor', kwargs={'pk': knowledge.pk}))
+                # указываем на возврат по кнопке «Закрыть» на нашу страницу
+                params = '?prev=' + reverse('znaniya_for_constructor')+'?type_of_zn=table'
+                return HttpResponseRedirect(reverse('table_constructor', kwargs={'pk': knowledge.pk})+params)
 
         return self.form_invalid(form, image_form)
 
