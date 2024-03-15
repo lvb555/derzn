@@ -2,8 +2,13 @@
 
 
 <style>
+    .knowledge_table {
+       //height: 50%;
+    }
+
     .knowledge_table_table {
         table-layout: auto;
+        overflow-y: auto
     }
 
     .knowledge_table__body {
@@ -41,8 +46,6 @@
         border: 2px black solid;
     }
 
-
-
      .knowledge_table a {
         color: black;
         text-decoration: none;
@@ -51,12 +54,9 @@
      .selected {
         background-color: yellow !important;
      }
-
-
-
 </style>
-<div class="table-responsive scrollbar">
-<div id="{{ table_id }}" class="knowledge_table">
+
+<div id="{{ table_id }}" class="table-responsive knowledge_table">
     <table class="knowledge_table_table table align-middle my-2">
         <tbody class="knowledge_table__body">
         {# считаем размер пустого заголовка в левом верхнем угле таблицы #}
@@ -120,5 +120,4 @@
             {% endfor %}
         </tbody>
     </table>
-</div>
 </div>
