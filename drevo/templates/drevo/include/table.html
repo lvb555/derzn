@@ -1,5 +1,5 @@
-{% load index %}
-
+{# добавляет функцию tableCreate() с помощью которой можно создавать таблицы на клиенте #}
+{# Используется в редакторе структуры таблиц #}
 
 <style>
     .knowledge_table_table {
@@ -13,35 +13,41 @@
 
     .knowledge_table__head_group_col {
         border: 2px black solid;
-        text-align: center !important
+        text-align: center !important;
+        background-color: yellow !important;
     }
 
     .knowledge_table__head_empty {
         border: 2px black solid;
         text-align: center !important;
+        background-color: yellow !important;
     }
 
     .knowledge_table__head_col {
         border: 2px black solid;
         text-align: center !important;
+        background-color: yellow !important;
     }
 
      .knowledge_table__head_group_row {
         border: 2px black solid;
         vertical-align: middle;
+        background-color: yellow !important;
+
     }
 
     .knowledge_table__head_row {
         border: 2px black solid;
         text-align: center;
         vertical-align: middle;
+        background-color: yellow !important;
+
     }
 
     .knowledge_table__data {
         border: 2px black solid;
+        background-color: white;
     }
-
-
 
      .knowledge_table a {
         color: black;
@@ -71,6 +77,7 @@
 
         let tr = table.insertRow();
         const th = tr.insertCell();
+
         th.classList.add('knowledge_table__head_empty');
         th.setAttribute('colspan', col_span); th.setAttribute('rowspan', row_span);
 
