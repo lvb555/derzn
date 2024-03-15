@@ -641,6 +641,9 @@ class TableConstructView(
     def form_invalid(self):
         return self.get(self.request)
 
+    def form_valid(self):
+        messages.info(self.request, 'Таблица обновлена')
+        return self.get(self.request)
 
 class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, TemplateView):
     """Представление для страницы «Наполнение таблицы»"""
@@ -680,6 +683,10 @@ class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, Templat
         return context
 
     def form_invalid(self):
+        return self.get(self.request)
+
+    def form_valid(self):
+        messages.info(self.request, 'Таблица обновлена')
         return self.get(self.request)
 
     def post(self, request, *args, **kwargs):
