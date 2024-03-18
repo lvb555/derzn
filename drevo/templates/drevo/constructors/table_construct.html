@@ -8,8 +8,18 @@
 {% block jsfiles %}
 {% endblock %}
 
-{% block content %}
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<style>
+    .form-control {
+        background: white;
+    }
+</style>
+{% endblock %}
 
+
+{% block content %}
+{% include 'drevo/include/table.html' %}
 {% include 'drevo/include/messages.html' %}
 <header>
   <div class="container">
@@ -71,6 +81,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
+                <input class="btn btn-success my-3" id="show_btn" value="Показать таблицу">
                 <div class="float-end">
                     <input class="btn btn-primary my-3" id="save_btn" value="Сохранить">
                     <input  class="btn btn-secondary my-3" onclick="javascript:goPrev();" value="Закрыть">
@@ -79,6 +90,7 @@
         </div>
     </div>
 </footer>
+
 
 <form id="save_form" action="{{ request.path }}" method="post">
     {% csrf_token %}
@@ -129,8 +141,14 @@
         })
     }
 
-    function addOption(selectList) {
-        selectList.appendChild(new Option('Новое значение', 0, false, false));
+    function addOption(selectList, value = null) {
+        if (value == null) {
+            selectList.appendChild(new Option('Новое значение', 0, false, false));
+        }
+        else {
+            selectList.appendChild(new Option(value, 0, false, false));
+        }
+
     }
 
     function editOption(selectList) {
@@ -139,7 +157,6 @@
 
         promptEx('Изменить значение', opt.innerHTML, res => {
              if (res != null) {
-                    console.log('second call: ',opt)
                     opt.innerHTML = res
                 }
         });
@@ -158,7 +175,12 @@
     }
 
     function addValue(selectList) {
-        addOption(selectList);
+        //addOption(selectList);
+         promptEx('Изменить значение', 'Новое значение', res => {
+             if (res != null) {
+                    addOption(selectList, res)
+                }
+        });
     }
 
     function deleteValue(selectList) {
@@ -181,38 +203,49 @@
         }
     }
 
+    function toJsonInfo() {
+         rows = [];
+            cols = [];
 
+            rowSelect.querySelectorAll('option').forEach(function (opt) {
+                rows.push({"id": parseInt(opt.value), "name": opt.innerHTML});
+            });
 
-    function saveData() {
-        rows = [];
-        cols = [];
+            colSelect.querySelectorAll('option').forEach(function (opt) {
+                cols.push({"id": parseInt(opt.value), "name": opt.innerHTML});
+            });
 
-        rowSelect.querySelectorAll('option').forEach(function (opt) {
-            rows.push({"id": parseInt(opt.value), "name": opt.innerHTML});
-        });
-
-        colSelect.querySelectorAll('option').forEach(function (opt) {
-            cols.push({"id": parseInt(opt.value), "name": opt.innerHTML});
-        });
-
-        let data = {
-            'group_row': document.getElementById('group_row').value,
-            'group_col': document.getElementById('group_col').value,
-            'rows': rows,
-            'cols': cols
-            };
-
-        document.getElementById('table_info').value = JSON.stringify(data);
-        document.getElementById('save_form').submit();
-        console.log('save')
+            let data = {
+                'group_row': document.getElementById('group_row').value,
+                'group_col': document.getElementById('group_col').value,
+                'rows': rows,
+                'cols': cols
+                };
+         return JSON.stringify(data);
     }
 
+    function saveData() {
+        document.getElementById('table_info').value = toJsonInfo();
+        document.getElementById('save_form').submit();
+    }
+
+    function showTable(info) {
+        console.log(info);
+        const div = document.getElementById('table_div');
+        div.innerHTML = '';
+        tableCreate(div, info);
+        $('#dlgShow').modal('show'); // Show dialog
+
+    }
 
     loadData();
+
     document.getElementById('save_btn').onclick = function () {
         saveData();
     }
-
+    document.getElementById('show_btn').onclick = function () {
+        showTable(toJsonInfo());
+    }
     rowSelect.ondblclick =  function () {
         editValue(rowSelect);
     }
@@ -257,7 +290,7 @@
 </script>
 <!-- promptEx  -->
     <div id="PromptEx" class="modal">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
 
                 <div class="modal-body">
@@ -267,13 +300,35 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success ">OK</button>
+                    <button type="button" class="btn btn-success">OK</button>
                     <button type="button" class="btn btn-danger">Отмена</button>
                 </div>
             </div>
         </div>
     </div>
 
+<!-- Dialog show -->
+<div class="modal" tabindex="-1" id="dlgShow">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 80%">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Макет таблицы</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+            <div id="table_div" class="knowledge_table">
+            </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Dialog show -->
 
 <script>
   function promptEx(message, value, onResolve) {

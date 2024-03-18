@@ -356,18 +356,7 @@ if ("{{ empty_result }}") {
 <!--Если в таблице нет хотя бы одной строки или столбца, её нельзя открыть-->
 <script>
     function clickOnTable (urlf, id) {
-        fetch(`/drevo/row_and_column_existence/?id=${id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.is_row_and_column_exist) {
-                  window.location.href = urlf;
-                }
-                else {
-                    $('#table_open_error_modal').modal("show");
-                }
-            })
-            .catch((error) => {
-                console.log('Error:', error);
-            });
+        window.location.href = urlf;
+
     }
 </script>
