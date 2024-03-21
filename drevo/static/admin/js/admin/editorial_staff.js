@@ -109,3 +109,36 @@ $(document).ready(function() {
 
 
 
+
+document.addEventListener('DOMContentLoaded', function() {
+    var showButtons = document.querySelectorAll('.show-info');
+    var popups = document.querySelectorAll('.popup');
+    var overlay = document.querySelector('.popup-overlay');
+    var closeButtons = document.querySelectorAll('.close-popup');
+
+    showButtons.forEach(function(button, index) {
+        button.addEventListener('click', function() {
+            popups.forEach(function(popup) {
+                popup.style.top = '-100%';
+            });
+            popups[index].style.top = '50%';
+            overlay.style.display = 'block';
+        });
+    });
+
+    closeButtons.forEach(function(closeButton) {
+        closeButton.addEventListener('click', function() {
+            popups.forEach(function(popup) {
+                popup.style.top = '-100%';
+            });
+            overlay.style.display = 'none';
+        });
+    });
+
+    overlay.addEventListener('click', function() {
+        popups.forEach(function(popup) {
+            popup.style.top = '-100%';
+        });
+        overlay.style.display = 'none';
+    });
+});
