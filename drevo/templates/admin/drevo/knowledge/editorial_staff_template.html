@@ -3,10 +3,54 @@
 
 {% block content %}
     {% block cssfiles %}
-        <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
         <link rel="stylesheet" href="{% static '/users/css/profile.css' %}">
         <link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
     {% endblock %}
+
+
+<style>
+      .popup {
+        display: block;
+        position: fixed;
+        top:  -100%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        transition: top 0.5s;
+        max-width: 900px;
+    }
+
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+    }
+    .popup h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    .popup p {
+        margin-bottom: 10px;
+    }
+
+    .show-info {
+        text-decoration: none;
+        font-style: italic;
+        cursor: pointer;
+    }
+
+</style>
+
+
 
     <div class="container">
         <h2>Сотрудники редакции</h2>
@@ -27,20 +71,68 @@
             </thead>
             <tbody>
                 {% for user in users %}
-                    <tr style="display: {% if user.is_employee or allUsersCheckbox.checked %}table-row{% else %}none{% endif %}">
-                        <td>{{ user.username }}</td>
-                        <td><a href="#">{{ user.last_name }} {{ user.first_name }}  {% if user.profile.patronymic %}{{ user.profile.patronymic }}{% endif %}</a></td>
-                        <td>
-                            <input type="checkbox" class="employee-checkbox" data-userid="{{ user.id }}" data-isemployee="{{ user.is_employee }}" {% if user.is_employee %}checked="checked"{% endif %}>
-                        </td>
-                        <td>
-                           <input type="checkbox" class="admin-checkbox" data-userid="{{ user.id }}" data-isadmin="{{ user.is_superuser }}" {% if not user.is_employee %} disabled="disabled" {% endif %} {% if user.is_superuser %}checked="checked"{% endif %}>
-                        </td>
-                    </tr>
-                {% endfor %}
+                <tr>
+                    <td>{{ user.username }}</td>
+
+                    <td>
+                        <a class="show-info" style="font-style: italic; cursor: pointer;">{{ user.last_name }} {{ user.first_name }} {% if user.profile.patronymic %}{{ user.profile.patronymic }}{% endif %}</a>
+                        <div class="popup container">
+                            <button class="close-popup">X</button>
+                            <h2>Дополнительная информация о сотруднике</h2>
+                            <p>ФИО: {{ user.last_name }} {{ user.first_name }} {% if user.profile.patronymic %}{{ user.profile.patronymic }}{% endif %}</p>
+                            <p>Дата рождения: {{ user.profile.birthday_at }}</p>
+                            <p>Профессия: {{ user.job }}</p>
+                            <p>E-mail: {{ user.email }}</p>
+
+                            {% if user in experts %}
+                                <p>Руководитель:</p>
+                                <ul class="categories">
+                                {% for special_permission in special_permissions %}
+                                    {% for competencies in special_permission.admin_competencies.all  %}
+                                        {% if user == special_permission.expert %}
+                                            <li>{{ competencies }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                                </ul>
+
+
+                                {% for special_permission in special_permissions %}
+                                    {% if user == special_permission.expert %}
+                                        {% if special_permission.editor %}
+                                            <p>Редактор</p>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+
+
+                                <p>Эксперт:</p>
+                                <ul class="categories">
+                                    {% for special_permission in special_permissions %}
+                                        {% for category in special_permission.categories.all  %}
+                                            {% if user == special_permission.expert %}
+                                                <li>{{ category }}</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <td>
+                        <input type="checkbox" class="employee-checkbox" data-userid="{{ user.id }}" data-isemployee="{{ user.is_employee }}" {% if user.is_employee %}checked="checked"{% endif %}>
+                    </td>
+                    <td>
+                        <input type="checkbox" class="admin-checkbox" data-userid="{{ user.id }}" data-isadmin="{{ user.is_superuser }}" {% if not user.is_employee %} disabled="disabled" {% endif %} {% if user.is_superuser %}checked="checked"{% endif %}>
+                    </td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>
+
+<div class="popup-overlay"></div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="{% static 'admin/js/admin/editorial_staff.js' %}"></script>
