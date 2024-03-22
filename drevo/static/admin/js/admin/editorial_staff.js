@@ -8,14 +8,14 @@ function filterUsers() {
 
     employeeCheckboxes.forEach(function(checkbox) {
         const userName = checkbox.closest('tr').querySelector('td:first-child').textContent.toLowerCase();
-        const isVisible = allUsersCheckbox.checked || checkbox.checked; // Update this line
+        const isEmployee = checkbox.checked || checkbox.disabled; // Обновленное условие
+        const isVisible = allUsersCheckbox.checked || (isEmployee && !checkbox.disabled);
         checkbox.closest('tr').style.display = userName.includes(searchString) && isVisible ? 'table-row' : 'none';
     });
 }
 
 searchInput.addEventListener('input', filterUsers);
 allUsersCheckbox.addEventListener('change', filterUsers);
-
 
 
 
@@ -103,6 +103,7 @@ $(document).ready(function() {
             } else {
                 $(this).hide();
             }
+
         });
     });
 });
@@ -142,3 +143,4 @@ document.addEventListener('DOMContentLoaded', function() {
         overlay.style.display = 'none';
     });
 });
+
