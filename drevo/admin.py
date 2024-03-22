@@ -486,9 +486,11 @@ class UsersDocumentsAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
-        "root_document"
+        "root_document",
+        "owner"
     )
     list_display_links = ("name",)
+    readonly_fields = ('changed_at',)
     list_filter = (
         RootDocumentFilter,
         "owner",

@@ -82,13 +82,15 @@
                         </li>
                     </ul>
                 </div>
-                {% if 'Мои экспертизы' in sections or 'Мои знания' in sections or 'Мои знания (пользовательский вклад)' in sections or 'Интервью' in sections %}
                 <div class="btn-group">
                     <div class="dropdown">
                         <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                             Активность <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li>
+                                <a href="{% url 'users:my_documents' %}" class="dropdown-item">Мои документы</a>
+                            </li>
                             {% if 'Интервью' in sections %}
                             <li>
                                 <div class="btn-group">
@@ -151,7 +153,6 @@
                         </ul>
                     </div>
                 </div>
-                {% endif %}
                 <div class="btn-group">
                     <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                       Изучение знаний <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
@@ -230,7 +231,8 @@
                                 {% if user.is_active %}
                                 <li><a class="dropdown-item from-nav" href="/admin" id="control_panel_link">Панель управления</a></li>
                                 {% endif %}
-                                <li><a class="dropdown-item from-nav" href="/drevo/editorial_staff/" id="editorial_staff">Сотрудники редакции </a></li>
+
+                                <li><a class="dropdown-item from-nav" href="/drevo/editorial_staff/" id="editorial_staff">Сотрудники редакции</a></li>
                                 <li><a class="dropdown-item from-nav" href="{% url 'special_permissions_page' %}">Добавление особых прав</a></li>
                                 <li><a class="dropdown-item from-nav" href="{% url 'delete_special_permissions_page' %}">Удаление особых прав</a></li>
 								<li>
@@ -300,12 +302,6 @@
                             {% endif %}
                         </li>
                     </ul>
-                </div>
-                <div class="btn-group">
-                    <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" href="{% url 'users:my_documents' %}">
-                        Мои документы
-                        <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
-                    </a>
                 </div>
             </div>
         </nav>
