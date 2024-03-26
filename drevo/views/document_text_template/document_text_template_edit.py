@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView
 from drevo.models import Znanie, TemplateObject, Turple
 from django.http import HttpResponse
-from drevo.forms import ContentTemplate, TemplateObjectForm, TurpleForm, TurpleElementForm
+from drevo.forms import ContentTemplate, TemplateObjectForm
 from django.db.models import Q
 import json
 
@@ -23,10 +23,6 @@ class DocumentTextTemplateEdit(TemplateView):
         context['var_form'].fields['turple'].queryset = Turple.objects.all()  # допустимые справочники
         # допустимые главные переменные
         context['var_form'].fields['connected_to'].queryset = TemplateObject.objects.filter(Q(knowledge=document_knowledge, is_main=True) | Q(is_main=True, availability=1) | Q(is_main=True, availability=2))
-
-        context['turple_form'] = TurpleForm(initial={'knowledge': document_knowledge.id})  # форма создания справочника
-
-        context['turple_element_form'] = TurpleElementForm()  # форма создания элемента справочника
 
         context['object_structure_types'] = TemplateObject.available_sctructures  # типы структур объектов
 

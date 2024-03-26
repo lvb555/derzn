@@ -41,7 +41,7 @@ from .views import (AdminsPermissionsDeleteView, AlgorithmDetailView,
                     relation_expertise_view, relation_publication_view,
                     relation_update_view, save_text_template_view,
                     search_by_tree_view, send_message_view, send_znanie,
-                    turple_processing_view, update_user_settings)
+                    update_user_settings)
 from .views.admin_interview_work.views import (AdminEditingKnowledgeView,
                                                AllInterviewView,
                                                InterviewQuestionsView,
@@ -241,10 +241,6 @@ urlpatterns = [
         "znanie/<int:doc_pk>/document-template/edit-text/<int:text_pk>",
         DocumentTextTemplateEdit.as_view(),
         name="edit_text_template",
-    ),
-    path(
-        "znanie/<int:doc_pk>/document-template/turple_processing",
-        turple_processing_view,
     ),
     path(
         "znanie/<int:doc_pk>/document-template/document_object_processing",
