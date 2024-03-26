@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block cssfiles %}
-	<!-- <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}"> -->
+	<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 	<link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 	<link rel="stylesheet" href="{% static '/drevo/css/objects_tree.css'%}">
@@ -13,29 +13,37 @@
 	<h1 class="title page-title">
 		Документ: {{ knowledge.name }}
 	</h1>
-	<div class="objects-tree-block">
-		<h3 class="title page-sub-title">
-			Дерево объектов шаблонов
-		</h3>
-	<ul>
-		{% recursetree objects %}
-			<li class="node {% if node.level > 0 %} child-node {% endif %}">
-			<p class="node-name {% if node.availability == 0 %} local {% elif node.availability == 1 %} global {% else %} general {% endif %}" id="id-{{node.id}}">
-				{% if not node.is_leaf_node%}
-					<!-- <button class="img-block node-name__expand-btn">
-						<img src="{% static 'drevo/img/knowledge_search/minus.svg'%}" alt="">
-					</button> -->
-				{% endif %}
-				<span>{{ node.name }}</span>
-			</p>
-				{% if not node.is_leaf_node %}
-					<ul class="node-children" >
-						{{ children }}
-					</ul>
-				{% endif %}
-			</li>
-		{% endrecursetree %}
-	</ul>
+	<div class="content">
+		<div class="objects-tree">
+			<div class="objects-tree__block">
+				<h3 class="title page-sub-title">
+					Дерево объектов шаблонов
+				</h3>
+			<ul>
+				{% recursetree objects %}
+					<li class="node {% if node.level > 0 %} child-node {% endif %}">
+					<p class="node-name {% if node.availability == 0 %} local {% elif node.availability == 1 %} global {% else %} general {% endif %}document_text_template.html" id="id-{{node.id}}">
+						{% if not node.is_leaf_node%}
+							<!-- <button class="img-block node-name__expand-btn">
+								<img src="{% static 'drevo/img/knowledge_search/minus.svg'%}" alt="">
+							</button> -->
+						{% endif %}
+						<span>{{ node.name }}</span>
+					</p>
+						{% if not node.is_leaf_node %}
+							<ul class="node-children" >
+								{{ children }}
+							</ul>
+						{% endif %}
+					</li>
+				{% endrecursetree %}
+			</ul>
+			</div>
+		</div>
+		<div class="tree-actions">
+			<button class="btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">Новый объект</button>
+			<button class="btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">Новая группа</button>
+		</div>
 	</div>
 {% endblock %}
 

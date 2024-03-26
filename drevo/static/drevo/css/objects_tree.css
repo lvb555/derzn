@@ -6,12 +6,17 @@ a {
     text-decoration: none;
 }
 
-.objects-tree-block {
+.btn {
+	color: black;
+}
+
+.content {
 	background: white;
+	display: flex;
+	justify-content: space-between;
 	border-radius: 1.3rem;
 	padding: 20px;
 }
-
 
 /*Заголовки страницы*/
 .title {
