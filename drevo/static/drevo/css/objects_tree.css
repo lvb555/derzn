@@ -101,3 +101,28 @@ a {
 .node-children {
 	margin: 0;
 }
+
+/*стиль блока, оповещающего пользователя*/
+
+.log-container {
+	position: absolute;
+	top: 20vh;
+	right: -5vw;
+	width: 20vw;
+}
+
+.log-container__log {
+	min-height: 100px;
+	width: 95%;
+	margin: auto;
+	border-radius: 0.5rem;
+
+	padding: 10px;
+	margin-bottom: 5px;
+	text-align: center;
+	background: #353535;
+	color: white;
+	
+	transition: 0.5s;
+	opacity: 0%;
+}

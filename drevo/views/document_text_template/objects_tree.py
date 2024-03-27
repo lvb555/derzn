@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView
-from drevo.models import TemplateObject, Znanie
+from drevo.models import TemplateObject, Znanie, Turple
+from drevo.forms import TemplateObjectForm
 from django.db.models import Q
 
 
@@ -16,5 +17,10 @@ class ObjectsTree(TemplateView):
         document_knowledge = Znanie.objects.get(id=context['doc_pk'])
         context['knowledge'] = document_knowledge
         context['objects'] = TemplateObject.objects.filter(Q(knowledge=document_knowledge) | Q(availability=1) | Q(availability=2))
+        
+        context['var_form'] = TemplateObjectForm(initial={'knowledge': document_knowledge.id})  # форма создания/изменения объектов
+        context['var_form'].fields['turple'].queryset = Turple.objects.all()  # допустимые справочники
+        # допустимые главные переменные
+        context['var_form'].fields['connected_to'].queryset = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) | Q(user=self.request.user, availability=1) | Q(availability=2))
 
         return context
