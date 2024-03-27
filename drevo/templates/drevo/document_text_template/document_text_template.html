@@ -48,72 +48,7 @@
 	</div>
 </form>
 
-<div class="modal fade" id="ObjectModal" tabindex="-1" aria-labelledby="ObjectModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-        	<div class="modal-header turple-menu">
-				<h5 class="modal-title">Создание объекта шаблона</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-        	</div>
-        	<div class="modal-body">
-        		<form class="edit-menu">
-					<div id="name" class="field">
-						<label class="edit-menu__label" for="name">{{var_form.name.label}}</label>
-						{{var_form.name}}
-					</div>
-
-					<div id="structure" class="field">
-						<label for="{{ var_form.structure.id_for_label }}" class="edit-menu__type-field">{{ var_form.structure.label }}</label>
-						{{ var_form.structure }}
-					</div>
-
-					<div id="type_of" class="field">
-						<label class="edit-menu__label">{{var_form.type_of.label}}</label>
-						{{var_form.type_of}}
-					</div>
-
-					<div id="connected-to" class="field">
-						<label class="edit-menu__label" for="{{ var_form.connected_to.id_for_label }}">{{ var_form.connected_to.label }}</label>
-						{{ var_form.connected_to }}
-					</div>
-					<div id="availability" class="field">
-						<label for="{{ var_form.availability.id_for_label }}" class="edit-menu__label">{{ var_form.availability.label }}</label>
-						{{ var_form.availability }}
-					</div>
-					<div id="main" class="field">
-						<label for="{{ var_form.is_main.id_for_label }}" class="edit-menu__label">{{ var_form.is_main.label }}</label>
-						{{ var_form.is_main }}
-					</div>
-					<div id="subscription" class="field">
-						<label for="{{ var_form.subscription.id_for_label }}" class="edit-menu__label">{{ var_form.subscription.label }}</label>
-						{{ var_form.subscription }}
-					</div>
-					<div id="optional" class="field">
-						<label for="{{ var_form.optional.id_for_label }}" class="edit-menu__label">{{ var_form.optional.label }}</label>
-						{{ var_form.optional }}
-					</div>
-					<div id="comment" class="field">
-						<label for="{{ var_form.comment.id_for_label }}" class="edit-menu__label"> {{ var_form.comment.label }}</label>
-						{{var_form.comment}}
-					</div>
-					<div id="intro" class="field">
-						<label class="edit-menu__label" for="fill-title">{{var_form.fill_title.label}}</label>
-						{{ var_form.fill_title }}
-					</div>
-
-					<div id="weight" class="field">
-						<label for="weight" class="edit-menu__label">Порядок</label>
-						<input class="form-control" type="number" id="weight" name="weight" min="1" max="1000">
-					</div>
-
-					{{ var_form.knowledge }}
-
-					<button type="button" class="btn-icon btn edit-menu__save-btn">Сохранить</button>
-				</form>
-        	</div>
-		</div>
-    </div>
-</div>
+{% include "drevo/document_text_template/object_form.html" %}
 
 <div class="log-container">
 	<p class="log-container__log"></p>

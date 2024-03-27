@@ -45,9 +45,15 @@
 			<button class="btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">Новая группа</button>
 		</div>
 	</div>
+
+	<div class="log-container">
+		<p class="log-container__log"></p>
+	</div>
+
+	{% include "drevo/document_text_template/object_form.html" %}
 {% endblock %}
 
 {% block jsfiles %}
-	<script type="application/javascript" src="{% static 'drevo/js/template_objects/objects_tree.js'%}"></script>
+	<script type="module" src="{% static 'drevo/js/template_objects/objects_tree.js'%}"></script>
 	<script type="application/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %}
