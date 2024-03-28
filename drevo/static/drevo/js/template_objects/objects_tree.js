@@ -1,4 +1,4 @@
-import {ObjectProcessingBody, csrftoken} from "./setup_queries.js"
+import {ObjectProcessingBody, GroupProcessingBody, csrftoken} from "./setup_queries.js"
 
 const url = window.location.href.split("document-template")[0] + "document-template"
 const message_block = document.querySelector(".log-container")
@@ -28,7 +28,13 @@ document.querySelectorAll(".node-name").forEach((i) => {
 })
 
 document.querySelector(".edit-menu__save-btn").addEventListener('click', (e) => {
-	const body = ObjectProcessingBody("create", null)
+	let body
+	if (e.target.closest("#ObjectModal"))
+		body = ObjectProcessingBody("create", null)
+	else
+		body = GroupProcessingBody()
+
+	console.log(body)
 
 	fetch(url + "/document_object_processing", {"method": "post", "body": body, "headers": {"X-CSRFToken": csrftoken}})
 	.then((response) => { return response.json() })

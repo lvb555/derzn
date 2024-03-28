@@ -43,6 +43,28 @@ export function ObjectProcessingBody (action, editing_var) {
 	return body
 }
 
+export function GroupProcessingBody() {
+	const body = new FormData()
+	body.append("name", document.querySelector("#GroupModal .field #id_name").value)
+	body.append("connected_to", document.querySelector("#GroupModal .field #id_parent").value)
+	body.append("knowledge", document.querySelector("#GroupModal .field #id_knowledge").value)
+
+	const necessary_fields = [
+		["action", "create"],
+		["is_main", true],
+		["type_of", 0],
+		["optional", false],
+		["structure", 0],
+		["availability", 0],
+		["subscription", ""]
+	]
+	necessary_fields.forEach((i) => {
+		body.append(i[0], i[1])
+	})
+
+	return body
+}
+
 function getCookie(name) {
 	//получить нужный параметр из куки
     let cookieValue = null;
