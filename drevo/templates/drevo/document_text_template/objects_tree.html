@@ -42,13 +42,37 @@
 		</div>
 		<div class="tree-actions">
 			<button class="btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">Новый объект</button>
-			<button class="btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">Новая группа</button>
+			<button class="btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#GroupModal">Новая группа</button>
 		</div>
 	</div>
 
 	<div class="log-container">
 		<p class="log-container__log"></p>
 	</div>
+
+	<div class="modal fade" id="GroupModal" tabindex="-1" aria-labelledby="GroupModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        	<div class="modal-header turple-menu">
+				<h5 class="modal-title">Создание группы</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        	</div>
+        	<div class="modal-body">
+        			{% for field in group_form %}
+        			<div class="field">
+        				{% if field != group_form.knowledge %}
+        					<label for="{{ field.id_for_label }}" class="edit-menu__type-field">{{ field.label }}</label>
+        				{% endif %}
+        				{{ field }}
+        			</div>
+        			{% endfor %}
+					<button type="button" data-bs-dismiss="modal" class="btn-icon btn edit-menu__save-btn">Сохранить</button>
+				</form>
+        	</div>
+		</div>
+    </div>
+</div>
+
 
 	{% include "drevo/document_text_template/object_form.html" %}
 {% endblock %}

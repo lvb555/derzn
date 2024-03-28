@@ -17,6 +17,7 @@ from .relation_statuses_form import RelationStatusesForm
 from .additional_knowledge_forms import AdditionalKnowledgeForm, ZnImageFormSet
 from .document_content_template_form import ContentTemplate
 from .variable_form import TemplateObjectForm
+from .group_creation_form import GroupForm
 
 __all__ = [
     'AuthorSubscriptionDeleteForm',

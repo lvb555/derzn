@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
 from drevo.models import TemplateObject, Znanie, Turple
-from drevo.forms import TemplateObjectForm
+from drevo.forms import TemplateObjectForm, GroupForm
 from django.db.models import Q
 
 
@@ -22,5 +22,8 @@ class ObjectsTree(TemplateView):
         context['var_form'].fields['turple'].queryset = Turple.objects.all()  # допустимые справочники
         # допустимые главные переменные
         context['var_form'].fields['connected_to'].queryset = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) | Q(user=self.request.user, availability=1) | Q(availability=2))
+
+        context['group_form'] = GroupForm(initial={'knowledge': document_knowledge})
+        context['group_form'].fields['parent'].queryset = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) | Q(user=self.request.user, availability=1) | Q(availability=2))
 
         return context
