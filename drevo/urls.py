@@ -180,7 +180,7 @@ from .views.knowledge_tp_view import (
     DirectorKnowledgeProcess,
     KlzKnowledgeProcess,
 )
-from .views.editorial_staff import editorial_staff_view, update_roles
+from .views.editorial_staff import editorial_staff_view, update_roles, update_user_permissions
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
@@ -606,6 +606,7 @@ urlpatterns = [
          name="delete_zn_in_cell_in_table"),
     path("editorial_staff/", editorial_staff_view, name='editorial_staff'),
     path('editorial_staff/update_roles/', update_roles, name='update_roles'),
+    path('editorial_staff/update-group-permissions/', update_user_permissions, name='update-user-permissions'),
 
 ]
 

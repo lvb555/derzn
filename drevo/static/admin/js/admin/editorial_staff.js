@@ -64,28 +64,35 @@ function getCookie(name) {
     return cookieValue;
 }
 
+
+
 $(document).ready(function(){
     $(".employee-checkbox").change(function() {
         var userId = $(this).data("userid");
-        var isChecked = $(this).prop("checked");
-        var adminCheckbox = $(".admin-checkbox[data-userid='" + userId + "']");
+        var isEmployee = $(this).prop("checked");
+        var isAdminCheckbox = $(".admin-checkbox[data-userid='" + userId + "']");
+        var isAdmin = isAdminCheckbox.prop("checked");
 
-        if (!isChecked) {
-            adminCheckbox.prop("checked", false);
-            adminCheckbox.prop("disabled", true);
+        if (!isEmployee) {
+            isAdminCheckbox.prop("checked", false).prop("disabled", true);
+            updateRoles(userId, isEmployee, false);
         } else {
-            adminCheckbox.prop("disabled", false);
+            isAdminCheckbox.prop("disabled", false);
+            if (isAdmin) {
+                $(".employee-checkbox[data-userid='" + userId + "']").prop("checked", true);
+                updateRoles(userId, true, true);
+            } else {
+                updateRoles(userId, true, false);
+            }
         }
-
-        updateRoles(userId, isChecked, adminCheckbox.prop("checked"));
     });
 
     $(".admin-checkbox").change(function() {
         var userId = $(this).data("userid");
         var isChecked = $(this).prop("checked");
-        var employeeCheckbox = $(".employee-checkbox[data-userid='" + userId + "']");
+        var isEmployeeCheckbox = $(".employee-checkbox[data-userid='" + userId + "']");
 
-        updateRoles(userId, employeeCheckbox.prop("checked"), isChecked);
+        updateRoles(userId, true, isChecked);
     });
 });
 
@@ -111,6 +118,8 @@ $(document).ready(function() {
 
 
 
+
+
 document.addEventListener('DOMContentLoaded', function() {
     var showButtons = document.querySelectorAll('.show-info');
     var popups = document.querySelectorAll('.popup');
@@ -118,7 +127,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var closeButtons = document.querySelectorAll('.close-popup');
 
     showButtons.forEach(function(button, index) {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation();
             popups.forEach(function(popup) {
                 popup.style.top = '-100%';
             });
@@ -144,3 +154,49 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
+
+
+$(document).ready(function() {
+    $(document).on('change', '.group-checkbox', function() {
+        var checkbox = $(this);
+        var userId = checkbox.data('userid');
+        var group = checkbox.val();
+        var granted = checkbox.prop('checked');
+
+        var data = {
+            userId: userId,
+            group: group,
+            granted: granted
+        };
+
+        $.ajax({
+            type: "POST",
+            url: '/drevo/editorial_staff/update-group-permissions/',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(response) {
+                console.log('Permissions updated successfully:', response);
+            },
+            error: function(error) {
+                console.error('Error updating permissions:', error);
+            }
+        });
+    });
+
+    function getCookie(name) {
+        var cookieValue = null;
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = cookie.substring(name.length + 1);
+                break;
+            }
+        }
+        return cookieValue;
+    }
+});
