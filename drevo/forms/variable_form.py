@@ -68,6 +68,15 @@ class TemplateObjectForm(forms.Form):
             if v is None:
                 raise ValidationError(f'Поле {n} должно быть заполнено')
 
+        # Проверка на то, что уровень доступа родителя и ребенка совпадают
+        if connected_to is not None and connected_to.availability < availability:
+            l = [
+                ('Локального', 'Локальный'),
+                ('Глобального', 'Глобальный'),
+                ('Общего', 'Общий')
+            ]
+            raise f'Родителем {l[availability]} объекта не может быть {l[connected_to.availability]} объект'
+
         # Указана ли редактируемая переменная
         if action == 'edit' and var is None:
             raise ValidationError('Не задан редактируемый объект')
