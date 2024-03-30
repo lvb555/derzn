@@ -124,6 +124,7 @@ from .views import send_znanie, knowledge_feed_view
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
+from .views.site_pages import site_pages_view, site_page_view
 from .views.user_suggestion_view import UserSuggestionView
 from .views.users_documents import CreateDocumentView, \
     ChangeDocumentView, DeleteDocumentView
@@ -250,6 +251,8 @@ urlpatterns = [
     path("subscribe_to_author/<int:id>/", sub_by_author, name="subscribe_to_author"),
     path("subscription_by_tag/<int:id>/", sub_by_tag, name="subscription_by_tag"),
     path("subscription_by_category/<int:id>/", sub_by_category, name="subscription_by_category"),
+    path("site_pages/", site_pages_view, name="site_pages"),
+    path("site_pages/<int:pk>/", site_page_view, name="site_page"),
     path("new_knowledges/<int:id>/", new_knowledge, name="new_knowledges"),
     path("favourites/", FavouritesView.as_view(), name="favourites"),
     path("my_favourites/<int:id>/", my_favourites, name="my_favourites"),

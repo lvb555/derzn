@@ -220,6 +220,9 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         {% if user.is_staff %}
+                        <li>
+                            <a href="{% url 'site_pages'%}" class="dropdown-item">Дерево страниц сайта</a>
+                        </li>
 						<li>
                             <div class="btn-group text-center">
                                 <a class="dropdown-item" href="#">Администратор</a>
