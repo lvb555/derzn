@@ -2,8 +2,10 @@ import {ObjectProcessingBody, GroupProcessingBody, csrftoken} from "./setup_quer
 
 const url = window.location.href.split("document-template")[0] + "document-template"
 const message_block = document.querySelector(".log-container")
+const expand_children = document.querySelectorAll(".node__expand-btn")
+const collapse_children = document.querySelectorAll(".node__collapse-btn")
 
-document.querySelectorAll(".node-name").forEach((i) => {
+document.querySelectorAll(".node:not(.group) > .node-name").forEach((i) => {
 	i.addEventListener("dblclick", (e) => {
 		const p = e.target.closest(".node-name")
 		const object_name = p.querySelector("span").innerHTML
@@ -58,4 +60,25 @@ document.querySelector(".edit-menu__save-btn").addEventListener('click', (e) => 
 		}, 1500)
 		}, 10)
 	})
+})
+
+function expand_collapse_node_children(e) {
+	e.target.closest(".img-block").classList.toggle("hidden")
+	e.target.closest(".node").querySelector(".node-children").classList.toggle("hidden")
+
+	let another_btn_class_name
+	if (e.target.closest(".img-block").classList.contains("node__collapse-btn"))
+		another_btn_class_name = ".node__expand-btn"
+	else
+		another_btn_class_name = ".node__collapse-btn"
+	console.log(another_btn_class_name)
+	e.target.closest(".node").querySelector(another_btn_class_name).classList.toggle("hidden")
+}
+
+expand_children.forEach((i) => {
+	i.addEventListener('click', expand_collapse_node_children)
+})
+
+collapse_children.forEach((i) => {
+	i.addEventListener('click', expand_collapse_node_children)
 })
