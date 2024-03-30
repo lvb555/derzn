@@ -8,11 +8,68 @@
 <head><title>{% block title %}Авторы Интервью{% endblock %}</title></head>
 {% block content %}
 
-<h1>{{ interview_this }} - Интервью</h1>
+<h1>{{ interview_this.name }} - Интервью</h1>
 <div style="overflow-x:auto;">
   <ul class="treeInterview">
     <ul>
       <table border-width="2px">
+        <!-- Заголовок таблицы -->
+        <tr>
+            <th class="graphs" rowspan="2">ФИО</th>
+            <th class="graphs" colspan="{{ table.0|length }}">Вопросы интервью</th>
+        </tr>
+        <tr>
+            {% for question in table.0 %}
+                {% if not forloop.first %}
+                    <th class="graphs">{{ question }}</th>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% for row in table %}
+            {% if not forloop.first %}
+                <tr>
+                    <!-- И.О.Ф -->
+                    <td>{{ row.0 }}</td>
+                    <!-- Для каждого вопроса проверяем ответы -->
+                    {% for cell in row %}
+                        {% if not forloop.first %}
+                            <td>
+                                {% if cell != "-" %}
+                                    <li class="li-table"><span class="span-table">{{ cell }}</span></li></br>
+                                {% else %}
+                                    <p class="minus-table">{{ cell }}</p>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+    
+    
+    
+
+      {% comment %} <table border-width="2px">
+        <!-- Заголовок таблицы -->
+        <tr>
+            <th class="graphs" rowspan="2">ФИО</th>
+            <th class="graphs" colspan="{{ questions_dict|length }}">Вопросы интервью</th>
+        </tr>
+        <tr>
+          <!-- И.О.Ф -->
+          <td>{{ author_dict.name }}</td>
+          <!-- Для каждого вопроса проверяем ответы -->
+          {% for row in table %}
+          <tr>
+              {% for cell in row %}
+                  <td>{{ cell }}</td>
+              {% endfor %}
+          </tr>
+          {% endfor %}
+        </tr>
+      </table> {% endcomment %}
+      {% comment %} <table border-width="2px">
         <!-- Заголовок таблицы -->
         <tr>
             <th class="graphs" rowspan="2">ФИО</th>
@@ -43,21 +100,21 @@
 
                             <p class="minus-table">{{ minus }}</p>
 
-                          {% endif %} {% endcomment %}
+                          {% endif %}
                         {% endif %}
                       
-                    {% comment %} {% empty %}
-                    <p class="minus-table">{{ minus }}</p> {% endcomment %}
+                     {% empty %}
+                    <p class="minus-table">{{ minus }}</p>
                     {% endfor %}
                   {% comment %} {% else %}
-                      <p class="minus-table">-</p> {% endcomment %}
+                      <p class="minus-table">-</p>
                   {% endif %}
                 </td>
               {% endfor %}
             </tr>
           {% endif %}
         {% endfor %}
-      </table>
+      </table> {% endcomment %}
     </ul>
   </ul>
 </div>

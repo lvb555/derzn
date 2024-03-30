@@ -2,6 +2,7 @@ from django.shortcuts import render
 from drevo.models.knowledge import Znanie
 from drevo.models.relation import Relation
 import datetime
+from datetime import timedelta
 from django.shortcuts import redirect, render, get_object_or_404
 from drevo.models.author import Author
 from drevo.models.category import Category
@@ -28,7 +29,7 @@ def interviews_all(request):
                     the_end_of_period = list_period_interview[11:]
                     str_end_part = ''.join(the_end_of_period)
                     date_end = datetime.datetime.strptime(str_end_part, "%d.%m.%y")
-                    if date_end < now:
+                    if date_end < now - timedelta(days=1):
                         valid_interviews.append(interview)
         category_interviews.append((category, valid_interviews)) 
 
