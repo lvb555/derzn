@@ -20,7 +20,9 @@ class UsersDocuments(models.Model):
         verbose_name='Название пользовательского документа',
     )
     content = models.TextField(
-        verbose_name='Содержание'
+        verbose_name='Содержание',
+        default="",
+        blank=True,
     )
     owner = models.ForeignKey(
         User,
@@ -30,6 +32,10 @@ class UsersDocuments(models.Model):
     is_complete = models.BooleanField(
         default=False,
         verbose_name='Завершено'
+    )
+    changed_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Последнее изменение'
     )
     pdf = models.FileField(
         upload_to='pdf/',
@@ -46,6 +52,9 @@ class UsersDocuments(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def formatted_datetime(self):
+        return self.changed_at.strftime('%d.%m.%Y %H:%M')
 
     class Meta:
         verbose_name = 'Документ пользователя'

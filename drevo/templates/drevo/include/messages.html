@@ -1,0 +1,11 @@
+{# показывает сообщения из контекста messages#}
+{% if messages %}
+    <div class="messages">
+    {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }} alert-dismissible fade show"{% endif %} role="alert">
+            <p>{{ message|safe }}</p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    </div>
+{% endif %}

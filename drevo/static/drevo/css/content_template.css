@@ -1,3 +1,21 @@
+.content {
+	margin-top: 20px;
+	padding: 10px 20px;
+	background: white;
+	border-radius: 1.2rem;
+	height: 100%;
+}
+
+.page-title {
+	font-size: 2.3rem;
+	margin: 0 0 20px 0;
+}
+
+.page-sub-title {
+	font-size: 1.8rem;
+	margin: 0 0 15px 0;
+}
+
 .btn {
 	color: black;
 }
@@ -5,6 +23,22 @@
 /*стили шаблона документа*/
 .template {
 	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.template__menu {
+	width: 100%;
+	padding: 10px 20px;
+	display: flex;
+	justify-content: space-around;
+}
+
+.template__menu button {
+	margin-left: 10px;
+	margin-right: 10px;
+	padding: 5px;
 }
 
 .template textarea {
@@ -15,19 +49,13 @@
 	margin-top: 15px;
 }
 
-.template__btn {
-	display: block;
+.template-btn {
 	text-align: center;
-	color: black;
-	padding: 5px;
-	color: white;
-	background: #083E2F;
 }
 
-.template__btn:hover {
-	color: white;
+.template__selected-object#unselected {
+	display: none;
 }
-
 
 /*стили меню объектов*/
 .objects__tabs {
@@ -59,22 +87,8 @@
 
 .object-card {
 	text-align: left;
-	font-size: 0.8rem;
-	display: inline-block;
-}
+	font-size: 1rem;
 
-.object-card:hover {
-	background: #F2F2F2;
-}
-
-.objects-list__object-card {
-	width: 20vw;
-	margin: 5px 15px 10px 15px;
-	padding: 10px;
-	border-radius: 0.3rem;
-}
-
-.object-card__content {
 	display: flex;
 	justify-content: start;
 	align-items: start;
@@ -82,31 +96,25 @@
 
 .object-card__btns {
 	display: flex;
-	width: 5vw;
 	flex-direction: column;
-	align-items: center;
-	justify-content: space-around;
-	margin: 0 3px 0 0;
+	align-items: start;
+	justify-content: start;
+	margin: 5px;
 }
 
 .object-card__btn {
-	width: 30px;
-	height: 30px;
-	padding: 0;
+	width: 40px;
+	height: 40px;
 	margin: 0 0 5px 0;
 }
 
 .object-card__header {
-	width: 10vw;
-	max-height: 10vh;
+	width: 8vw;
 	display: block;
 	word-break: break-all;
 	overflow: hidden;
 	text-overflow: ellipsis;
-}
-
-.objects__objects-list:target {
-	display: block;
+	margin: 5px;
 }
 
 /*стили формы создания/редактирования элементов*/
@@ -161,14 +169,14 @@
 
 /*стиль блока, оповещающего пользователя*/
 
-.edit-menu__log-container {
+.log-container {
 	position: absolute;
 	top: 0;
-	right: -31vw;
-	width: 30vw;
+	right: -5vw;
+	width: 20vw;
 }
 
-.edit-menu__log {
+.log-container__log {
 	min-height: 100px;
 	width: 95%;
 	margin: auto;
@@ -236,4 +244,23 @@
 
 .turple-menu__element > *{
 	margin: 0 2px;
+}
+
+.hidden {
+	visibility: hidden;
+}
+
+/*стили модального окна для удаления объекта*/
+
+#DeleteObjectModal .object-delete-menu {
+	display: flex;
+	justify-content: space-around;
+}
+
+#DeleteObjectModal .object-delete-menu button{
+	display: flex;
+	justify-content: space-around;
+	font-size: 1.3rem;
+	min-width: 6vw;
+	padding: 5px 10px;
 }

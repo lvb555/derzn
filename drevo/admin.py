@@ -35,8 +35,7 @@ from drevo.models.suggestion_type import SuggestionType
 from drevo.models.refuse_reason import RefuseReason
 from drevo.models import Turple
 from drevo.models import TurpleElement
-
-from drevo.models import Var
+from drevo.models import TemplateObject
 
 from .forms.developer_form import DeveloperForm
 from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
@@ -487,9 +486,11 @@ class UsersDocumentsAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
-        "root_document"
+        "root_document",
+        "owner"
     )
     list_display_links = ("name",)
+    readonly_fields = ('changed_at',)
     list_filter = (
         RootDocumentFilter,
         "owner",
@@ -1000,13 +1001,6 @@ class SuggestionTypeAdmin(admin.ModelAdmin):
 class RefuseReasonAdmin(admin.ModelAdmin):
     pass
 
-
-@admin.register(Var)
-class VarAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'knowledge', 'availability', 'structure', 'type_of', 'turple', 'optional', 'connected_to')
-    list_filter = ('knowledge', 'turple', 'availability', 'type_of')
-    ordering = ('weight', )
-
 @admin.register(TurpleElement)
 class TurpleElementAdmin(admin.ModelAdmin):
     list_display = ('value', 'turple')
@@ -1015,20 +1009,23 @@ class TurpleElementAdmin(admin.ModelAdmin):
 
 @admin.register(Turple)
 class TurpleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'knowledge', 'availability')
-    list_filter = ('availability', )
+    list_display = ('name',)
     ordering = ('weight', )
 
-
+@admin.register(TemplateObject)
+class TemplateObjectAdmin(DraggableMPTTAdmin):
+    list_display = ('tree_actions', 'indented_title')
+    list_display_links = ('indented_title', )
+    search_fields = ('knowledge__name', 'connected_to__name', 'name')
+    mptt_level_indent = 20
+    
 @admin.register(SitePage)
 class SitePageAdmin(admin.ModelAdmin):
     list_display = ('id', 'page', 'parent', 'type', 'status')
 
-
 @admin.register(StatusType)
 class StatusTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'text_for_users')
-
 
 @admin.register(PageHistory)
 class PageHistoryAdmin(admin.ModelAdmin):
