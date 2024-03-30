@@ -51,13 +51,18 @@
 						{{var_form.comment}}
 					</div>
 					<div id="intro" class="field">
-						<label class="edit-menu__label" for="fill-title">{{var_form.fill_title.label}}</label>
+						<label class="edit-menu__label" for="{{ var_form.fill_title.id_for_label }}">{{var_form.fill_title.label}}</label>
 						{{ var_form.fill_title }}
 					</div>
 
 					<div id="weight" class="field">
 						<label for="weight" class="edit-menu__label">Порядок</label>
 						<input class="form-control" type="number" id="weight" name="weight" min="1" max="1000">
+					</div>
+
+					<div id="tuple" class="field">
+						<label class="edit-menu__label" for="{{ var_form.turple.id_for_label }}">{{var_form.turple.label}}</label>
+						{{ var_form.turple }}
 					</div>
 
 					{{ var_form.knowledge }}
