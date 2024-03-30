@@ -1,0 +1,98 @@
+ul {
+    list-style-type: none;
+  }
+
+a {
+    text-decoration: none;
+}
+
+.objects-tree-block {
+	background: white;
+	border-radius: 1.3rem;
+	padding: 20px;
+}
+
+
+/*Заголовки страницы*/
+.title {
+	font-family: Rubik;
+}
+
+.page-title {
+	font-size: 2.3rem;
+	margin: 0 0 20px 0;
+}
+
+.page-sub-title {
+	font-size: 1.8rem;
+	margin: 0 0 15px 0;
+}
+
+/*Дерево объектов*/
+
+.node {
+	position: relative;
+	font-size: 1.2rem;
+	margin: 0 0 10px 0;
+}
+
+.child-node:before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -15px;
+	border-radius: 0 0 0 10px;
+	border-bottom: dotted 2px black;
+	border-left: dotted 2px black;
+	width: 20px;
+	height: 20px;
+}
+
+.node-name {
+	font-size: 1.2rem;
+	margin: 0;
+}
+
+.node-name span:hover {
+	background: #DFDBDB;
+}
+
+.node-name span {
+	padding: 5px 0 5px 10px;
+	display: inline-block;
+	border-radius: 0.3rem;
+	width: 15vw;
+
+	-webkit-touch-callout: none; /* iOS Safari */
+  	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+  	-khtml-user-select: none;    /* Konqueror */
+  	-moz-user-select: none;      /* Firefox */
+  	-ms-user-select: none;       /* Internet Explorer/Edge */
+}
+
+.node-name__expand-btn {
+	display: inline-block;
+	margin: 0 7px 0 0;
+	height: 1.8rem;
+	width: 1.8rem;
+	margin: 0.5rem 0;
+	background: silver;
+	border: none;
+	border-radius: 100%;
+	padding: 5px;
+}
+
+.node-name__expand-btn img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+}
+
+.node-name__expand-btn_inactive {
+	opacity: 30%;
+}
+
+.node-children {
+	margin: 0;
+}

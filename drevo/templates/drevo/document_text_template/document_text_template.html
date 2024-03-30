@@ -14,55 +14,40 @@
 {% endblock %}
 
 {% block content %}
+
+<h1 class="page-title">Шаблона документа: {{ knowledge.name }}</h1>
+
 <div class="content">
+<h3 class="page-sub-title">Конструктор шаблона текста</h3>
 <form class="template" action="" method="post">
 	{% csrf_token %}
 	{{ form.media }}
-	{{ form }}
-	<button type="button" class="template__btn btn btn-icon" type="submit">Сохранить</button>
-</form>
-
-<div class="objects">
-
-	<div class="objects__tabs">
-		{% for k, v in object_structure_types %}
-			<a href="#structure-{{k}}" class="objects__tab">{{ v }}</a>
-		{% endfor %}
-	</div>
-
-	<div class="object-card objects-list__object-card clone" style="display: none" draggable="true">
-		<div class="object-card__content">
-			<div class="object-card__btns">
-				<button class="btn btn-icon object-card__btn edit" data-bs-toggle="modal" data-bs-target="#ObjectModal"><img src="{% static 'drevo/img/pencil.svg'%}" alt=""></button>
-				<button class="btn btn-icon object-card__btn"><img src="{% static 'drevo/img/bin.svg'%}" alt=""></button>
+	{{ form.content }}
+	{{ form.zn_pk }}
+	{{ form.pk }}
+	<div class="template__menu">
+		<div class="template__template-actions">
+			<button class="template-btn save btn btn-icon" type="button">Сохранить</button>
+			<button class="template-btn select-obj btn btn-icon" type="button">Выбрать объект</button>
+			<button class="template-btn create btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">Новый объект</button>
+			<button class="template-btn paste btn btn-icon" type="button">Вставить</button>
+		</div>
+		<div class="template__selected-object" id="unselected">
+			<h6>Текущий объект</h6>
+			<div class="object-card" id="">
+				<p class="object-card__header">Название объекта</p>
+				<div class="object-card__btns">
+					<button class="object-card__btn edit btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">
+						<img src="{% static 'drevo/img/pencil.svg'%}" alt="Изменить">
+					</button>
+					<button class="object-card__btn delete btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#DeleteObjectModal">
+						<img src="{% static 'drevo/img/bin.svg'%}" alt="Удалить">
+					</button>
+				</div>
 			</div>
-			<p class="object-card__header"></p>
 		</div>
 	</div>
-
-	<div class="objects__body">
-		{% for k, v in object_structure_types %}
-
-			<div class="objects-list objects__objects-list" id="structure-{{ k }}">
-				{% for i in objects|by_structure:k %}
-					<div class="object-card objects-list__object-card" id="pk-{{ i.id }}" draggable="true">
-						<div class="object-card__content">
-							{% if i.availability < 2 %}
-								<div class="object-card__btns">
-									<button class="btn btn-icon object-card__btn edit" data-bs-toggle="modal" data-bs-target="#ObjectModal"><img src="{% static 'drevo/img/pencil.svg'%}" alt=""></button>
-									<button class="btn btn-icon object-card__btn"><img src="{% static 'drevo/img/bin.svg'%}" alt=""></button>
-								</div>
-							{% endif %}
-							<p class="object-card__header"> {{ i.name }}</p>
-						</div>
-					</div>
-				{% endfor %}
-			</div>
-		{% endfor%}
-	</div>
-	<button class="btn btn-icon objects__create_btn" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">Новый объект</button>
-</div>
-</div>
+</form>
 
 <div class="modal fade" id="ObjectModal" tabindex="-1" aria-labelledby="ObjectModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -73,9 +58,6 @@
         	</div>
         	<div class="modal-body">
         		<form class="edit-menu">
-        			<div class="log-container edit-menu__log-container">
-						<p class="edit-menu__log"></p>
-					</div>
 					<div id="name" class="field">
 						<label class="edit-menu__label" for="name">{{var_form.name.label}}</label>
 						{{var_form.name}}
@@ -116,7 +98,7 @@
 						{{var_form.comment}}
 					</div>
 					<div id="intro" class="field">
-						<label class="edit-menu__label" for="fill-title">Текст при ининцализации</label>
+						<label class="edit-menu__label" for="fill-title">{{var_form.fill_title.label}}</label>
 						{{ var_form.fill_title }}
 					</div>
 
@@ -131,7 +113,7 @@
 							<div class="turple-selection__field">
 								{{ var_form.turple }}
 							</div>
-							<div class="turple-selection-btns">
+							<!-- <div class="turple-selection-btns">
 								<button class="btn btn-icon create turple-selection__btn" type="button" data-bs-toggle="modal" data-bs-target="#TurpleModal">
 									<img src="{% static 'drevo/img/knowledge_search/plus.svg'%}" alt="">
 								</button>
@@ -141,7 +123,7 @@
 								<button class="btn btn-icon turple-selection__btn" type="button">
 									<img src="{% static 'drevo/img/bin.svg'%}" alt="">
 								</button>
-							</div>
+							</div> -->
 						</div>
 					</div>
 
@@ -154,7 +136,11 @@
     </div>
 </div>
 
-<div class="modal fade" id="TurpleModal" tabindex="-1" aria-labelledby="TurpleModalLabel" aria-hidden="true">
+<div class="log-container">
+	<p class="log-container__log"></p>
+</div>
+
+<!-- <div class="modal fade" id="TurpleModal" tabindex="-1" aria-labelledby="TurpleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header turple-menu">
@@ -167,18 +153,10 @@
 							<label for="{{turple_form.name.id_for_label}}" class="turple-form__label">{{turple_form.name.label}}</label>
 							{{turple_form.name}}
 						</div>
-						<div class="field">
-							{% for choice in turple_form.availability %}
-								{% if choice.choice_label != "Общий"%}
-									{{ choice }}
-								{% endif %}
-							{% endfor %}
-						</div>
-						<div class="field">
+						<div class="field">							
 							<label for="{{turple_form.weight.id_for_label}}" class="turple-form__label">{{turple_form.weight.label}}</label>
 							{{turple_form.weight}}
 						</div>
-						{{ turple_form.knowledge }}
 					<button type="button" class="btn-icon btn turple-form__save-btn">Сохранить</button>
 				</form>
 				<div class="turple-form-elements">
@@ -187,11 +165,6 @@
 						<div class="field">
 							<label for="{{ turple_element_form.value.id_for_label }}" class="element-for__label">{{ turple_element_form.value.label }}</label>
 							{{ turple_element_form.value }}
-						</div>
-
-						<div class="field">
-							<label for="{{ turple_element_form.var.id_for_label }}" class="element-for__label">{{ turple_element_form.var.label }}</label>
-							{{ turple_element_form.var }}
 						</div>
 
 						<div class="field">
@@ -207,9 +180,31 @@
         </div>
     </div>
 </div>
+ -->
+<div class="modal fade" id="DeleteObjectModal" tabindex="-1" aria-labelledby="DeleteObjectModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+	            <h5 class="modal-title" id="DeleteObjectModalLabel">Удаление объекта</h5>
+            	<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        	</div>
+        	<div class="modal-body">
+        		<p>Вы действительно хотите удалить объект <span id="delete-object-name"></span> ?</p>
+	        	<div class="object-delete-menu">
+        			<button class="btn btn-icon">Да</button>
+        			<button data-bs-dismiss="modal" class="btn btn-icon">Нет</button>
+        		</div>
+        	</div>
+        </div>
+	</div>
+</div>
 {% endblock %}
 
 {% block jsfiles %}
-<script type="application/javascript" src="{% static 'drevo/js/template_objects/content_template.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/paste_object.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/setup_queries.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/dynamic_form.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/object_processing.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/save_template.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %}

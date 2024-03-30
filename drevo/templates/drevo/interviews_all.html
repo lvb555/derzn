@@ -1,0 +1,146 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/interview_table.css' %}">
+{% endblock %}
+<head><title>{% block title %}Все интервью{% endblock %}</title></head>
+{% block content %}
+
+<h1>Все интервью</h1>
+
+
+{% comment %} <ul class="treeInterview">
+  <ul>
+    {% for interview in valid_interviews %}
+      <li>
+        <a href="{% url 'Interview_table' %}">{{ interview }}</a>
+      </li>
+      {% if knowledge %}
+        {% build_knowledge_tree queryset=knowledge empty_tree_message='Знаний этого вида ещё нет' show_complex=True %}
+      {% else %}
+      <div class="text-center mt-3">
+          <p class="fs-4">Знаний этого вида ещё нет</p> 
+      </div>
+    {% endif %}
+    {% empty %}
+      <p>None</p>
+    {% endfor %}
+    <p>{{ date_end }} </p>
+    <p>{{ list_period_interview }} </p>
+    {{ date_end }}
+    {{ now }}
+
+    
+ 
+    
+  </ul>
+</ul> {% endcomment %}
+<ul class="treeInterview">
+  <ul class="ul-interviews_all", style="list-style-type: none">
+      
+      {% for category,interviews in category_interviews %}
+      <li>
+          {{ category }} 
+          <ul class="ul-interviews_all", style="list-style-type: none">
+            {% for interview in interviews %}
+              <li>
+                <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a><a class="a-interviews_aurhors">Авторов интервью ещё нету</a>
+              </li>
+              {% comment %} {% for author in authors %}
+                {% if author in interview.author %}
+                <li>
+                  <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a><a class="a-interviews_aurhors">Авторы интервью</a>
+                </li>
+                {% else %}
+                <li>
+                  <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a><a class="a-interviews_aurhors">Авторов интервью ещё нету</a>
+                </li>
+                {% endif %}
+              {% endfor %} {% endcomment %}
+            {% endfor %}
+          </ul>
+        
+      </li>
+      {% endfor %}
+  </ul>
+</ul>
+
+{% comment %} <ul class="treeInterview">
+  <ul>
+      <li>
+          bruh
+          <ul>
+           
+            {% for interview in valid_interviews %}
+              <li>
+                <a href="{% url 'Interview_table' %}">{{ interview }}</a>
+              </li>
+            {% empty %}
+              <p>None</p>
+            {% endfor %}
+            <p>{{ date_end }} </p>
+            <p>{{ list_period_interview }} </p>
+            
+          </ul>
+      </li>
+  </ul>
+<ul>
+  {{ date_end }}
+  {{ now }}  
+</ul> {% endcomment %}
+
+<style>
+  
+  .bi-file-plus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .bi-file-minus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .treeInterview .drop {
+    left: -.5em;
+    top: .4em;
+    width: .9em;
+    height: .9em;
+    line-height: .9em;
+    text-align: center;
+    background: #fff;
+    font-size: 80%;
+    cursor: pointer;
+  }
+  .treeInterview li:last-child > .bi-file-plus-fill.lonely {
+    margin-left: 1px;
+  }
+  .treeInterview .family.bi-file-plus-fill + ul {
+    display: none;
+  }
+  .treeInterview .family.bi-file-minus-fill + ul {
+    display: block;
+  }
+
+  .interview-start {
+    color: red;
+  }
+  .interview-end {
+    color: green;
+  }
+  </style>
+
+  <script>
+  (function() {
+    var ul = document.querySelectorAll('.treeInterview > li:not(:only-child) ul, .treeInterview ul  ul');
+    for (var i = 0; i < ul.length; i++) {
+      var div = document.createElement('div');
+      div.className = 'family bi-file-plus-fill lonely';
+      ul[i].parentNode.insertBefore(div, ul[i].previousSibling);
+      div.onclick = function() {
+        this.className = (this.className == 'family bi-file-plus-fill lonely' ? 'family bi-file-minus-fill' : 'family bi-file-plus-fill lonely');
+      }
+    }
+  })();
+  </script>
+{% endblock %}

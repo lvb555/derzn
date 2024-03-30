@@ -2,6 +2,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 
+from drevo.views.interviews_all_view import interviews_all
+from drevo.views.interview_table_view import interview_table
 from drevo.views.interviews_view import interview_view
 from drevo.views.my_interview_view import my_interview_view
 from .views import (
@@ -180,7 +182,6 @@ from .views.knowledge_tp_view import (
     DirectorKnowledgeProcess,
     KlzKnowledgeProcess,
 )
-from .views.editorial_staff import editorial_staff_view, update_roles, update_user_permissions
 
 urlpatterns = [
     path("category/<int:pk>", DrevoListView.as_view(), name="drevo_type"),
@@ -262,6 +263,8 @@ urlpatterns = [
     path("my_proposal/<int:id>/", my_proposal, name="my_proposal"),
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
+    path("interview_table/<int:id>/", interview_table, name="interview_table"),
+    path("interviews_all", interviews_all, name="Interviews_all"), 
     path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/expertise",
         QuestionExpertWorkPage.as_view(),
@@ -604,9 +607,7 @@ urlpatterns = [
          name="delete_algorithm"),
     path("delete_zn_in_cell_in_table/", delete_zn_in_cell_in_table,
          name="delete_zn_in_cell_in_table"),
-    path("editorial_staff/", editorial_staff_view, name='editorial_staff'),
-    path('editorial_staff/update_roles/', update_roles, name='update_roles'),
-    path('editorial_staff/update-group-permissions/', update_user_permissions, name='update-user-permissions'),
+    
 
 ]
 

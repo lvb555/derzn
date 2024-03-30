@@ -94,10 +94,10 @@ textOfDocumentTemplateButtonForCreateZn.click(function () {
         .then(response => response.json())
         .then(data => {
             zn_id_in_create_form.val(`${data.zn_id}`)
-            window.open(`drevo/znanie/${$('#main_zn_id').val()}/document-template/edit-text/${data.zn_id}`, 'modal', 'Width=1280,Height=650');
+            window.open(`/drevo/znanie/${$('#main_zn_id').val()}/document-template/edit-text/${data.zn_id}`, 'modal', 'Width=1280,Height=650');
         });
     }
-    else window.open(`drevo/znanie/${$('#main_zn_id').val()}/document-template/edit-text/${zn_id_in_create_form.val()}`, 'modal', 'Width=1280,Height=650');
+    else window.open(`/drevo/znanie/${$('#main_zn_id').val()}/document-template/edit-text/${zn_id_in_create_form.val()}`, 'modal', 'Width=1280,Height=650');
 })
 
 function edit_relation(rel_id) {

@@ -1,0 +1,28 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <form class="form-horizontal" action="{{request.get_full_path}}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        {{ image_form.management_form }}
+        {% for frm in image_form %}
+            {{ frm.as_p }}
+        {% endfor %}
+        <br>
+
+        {{ files_form.management_form }}
+        {% for frm in files_form %}
+            {{ frm.as_p }}
+        {% endfor %}
+        <br>
+        <input type="submit" class="btn btn-primary" value="Сохранить и продолжить">
+    </form>
+    <a class="btn btn-primary know_action_btn" onclick="javascript:history.back();">Закрыть</a>
+{% endblock %}

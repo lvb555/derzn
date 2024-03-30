@@ -1,0 +1,32 @@
+<!-- модальная форма для создания знания
+ в основной форме обязательно надо загрузить htmx!!!!
+{% load static %}
+<script src="{% static 'drevo/js/htmx.min.js' %}"></script> -->
+
+<form hx-post="{{ request.path }}?modal" class="modal-content form-horizontal " enctype="multipart/form-data">
+
+  <div class="modal-header">
+    <h5 class="modal-title">{{ title }}</h5>
+  </div>
+  <div class="modal-body">
+        <input type="hidden" name="modal" value="1">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        {{ image_form.management_form }}
+        {% for frm in image_form %}
+            {{ frm.as_p }}
+        {% endfor %}
+        <br>
+
+        {{ files_form.management_form }}
+        {% for frm in files_form %}
+            {{ frm.as_p }}
+        {% endfor %}
+        <br>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+    <input type="submit" class="btn btn-primary" value="Сохранить">
+  </div>
+</form>

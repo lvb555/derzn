@@ -9,8 +9,6 @@ from ..managers import ZManager
 from .category import Category
 from .knowledge_grade_scale import KnowledgeGradeScale
 from .knowledge_rating import ZnRating
-from .relation import Relation
-from .relation_type import Tr
 
 
 class Znanie(models.Model):
@@ -147,100 +145,6 @@ class Znanie(models.Model):
 
     def get_comments_count(self):
         return self.comments.filter(parent=None).count()
-
-    def get_table_object(self):
-        if self.tz.name != "Таблица":
-            return None
-
-        row_type_name = "Строка"
-        col_type_name = "Столбец"
-        value_type_name = "Значение"
-
-        row_type = Tr.objects.get(name=row_type_name)
-        col_type = Tr.objects.get(name=col_type_name)
-        value_type = Tr.objects.get(name=value_type_name)
-
-        rows = sorted(
-            self.base.filter(tr=row_type).select_related("rz"),
-            key=lambda x: x.rz.order if x.rz.order else 0,
-            reverse=True,
-        )
-        cols = sorted(
-            self.base.filter(tr=col_type).select_related("rz"),
-            key=lambda x: x.rz.order if x.rz.order else 0,
-            reverse=True,
-        )
-
-        # если нет строк и/или колонок - выходим
-        if not all([rows, cols]):
-            return None
-
-        target_rows = rows
-        target_cols = cols
-
-        group_col = None
-        group_row = None
-
-        if rows[0].rz.tz.is_group:
-            target_rows = rows[0].get_grouped_relations()
-            group_row = rows[0].rz
-
-        if cols[0].rz.tz.is_group:
-            target_cols = cols[0].get_grouped_relations()
-            group_col = cols[0].rz
-
-        target_rows = [row.rz for row in target_rows]
-        target_cols = [col.rz for col in target_cols]
-
-        values = self.base.filter(tr=value_type).values_list("rz", flat=True)
-
-        # отбираем связи, где базовое знание из списка values, а зависимое - это строка или столбец
-        # причем строки и столбцы из списка
-        values_positions = Relation.objects.filter(
-            Q(bz__in=values)
-            & (
-                (Q(tr=row_type) & Q(rz__in=target_rows))
-                | (Q(tr=col_type) & Q(rz__in=target_cols))
-            )
-        ).order_by("bz")
-
-        # делаем группировку значения и его координат в словаре
-        # в идеале должно быть по одному значению строки и столбца на значение
-        # но могут быть всякие баги....
-        positions = {}
-        for record in values_positions:
-            current_pos = positions.setdefault(record.bz, {"cols": [], "rows": []})
-            if record.tr == col_type:
-                current_pos["cols"].append(record.rz)
-
-            elif record.tr == row_type:
-                current_pos["rows"].append(record.rz)
-
-            else:
-                raise ValueError("Invalid relation type")
-
-        # матрица таблицы размером кол-во рядов х кол-во колонок
-        matrix = [[None] * len(target_cols) for _ in range(len(target_rows))]
-
-        for value, pos in positions.items():
-            if len(pos["cols"]) == 1 and (len(pos["rows"]) == 1):
-                col = pos["cols"][0]
-                row = pos["rows"][0]
-
-                # не оптимально так получать индекс, но список должен быть небольшой
-                row_i = target_rows.index(row)
-                col_j = target_cols.index(col)
-                matrix[row_i][col_j] = value
-            else:
-                # надо бы ошибку сгенерировать
-                pass
-
-        table_object = {
-            "rows": rows,
-            "cols": cols,
-            "values": matrix,
-        }
-        return table_object
 
     def get_users_grade(self, user: User):
         """

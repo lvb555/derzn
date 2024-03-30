@@ -16,7 +16,7 @@ test_meta_{Meta class option}
 from django.test import TestCase
 from users.models import User
 
-from .models import Author, AuthorType, Category, Relation, Tr, Tz, Znanie
+from .models import Author, AuthorType, Category, Tz, Znanie
 
 
 class TestCategory(TestCase):
@@ -222,129 +222,6 @@ class TestZnanie(TestCase):
             order=1,
             is_published=False,
         )
-        # для тестирования поведения Таблицы требуется много данных
-        t_row_type = Tr.objects.create(name="Строка")
-        t_col_type = Tr.objects.create(name="Столбец")
-        t_struct_type = Tr.objects.create(name="Состав")
-        t_value_type = Tr.objects.create(name="Значение")
-
-        z_table_type = Tz.objects.create(name="Таблица")
-        z_head_type = Tz.objects.create(name="Заголовок")
-        z_value_type = Tz.objects.create(name="Значение")
-        z_gr_type = Tz.objects.create(name="Группа")
-
-        """
-        Создадим две таблицы размером 3х3 и два Значения - value_1 и value_2
-        в таблице 1 в позиции (1,2) будет value_1, в позиции (1,1) -value_2
-        в таблице 2 в позиции (2,1) будет value_2
-        """
-        value_1 = Znanie.objects.create(
-            name="Value_1",
-            category=category,
-            tz=z_value_type,
-            content="Test content",
-            author=author,
-            user=user,
-        )
-
-        value_2 = Znanie.objects.create(
-            name="Value_2",
-            category=category,
-            tz=z_value_type,
-            content="Test content",
-            author=author,
-            user=user,
-        )
-
-        table_1 = Znanie.objects.create(
-            name="TestTable_1",
-            category=category,
-            tz=z_table_type,
-            content="Test content",
-            author=author,
-            user=user,
-        )
-
-        table_2 = Znanie.objects.create(
-            name="TestTable_2",
-            category=category,
-            tz=z_table_type,
-            content="Test content",
-            author=author,
-            user=user,
-        )
-
-        row_count = 3
-        col_count = 3
-        rows = []
-        cols = []
-
-        for i in range(col_count):
-            col = Znanie.objects.create(
-                name=f"1.колонка {i}", tz=z_head_type, user=user
-            )
-            Relation.objects.create(
-                bz=table_1, rz=col, tr=t_col_type, user=user, author=author
-            )
-            cols.append(col)
-
-        for j in range(row_count):
-            row = Znanie.objects.create(name=f"1.строка {j}", tz=z_head_type, user=user)
-            Relation.objects.create(
-                bz=table_1, rz=row, tr=t_row_type, user=user, author=author
-            )
-            rows.append(row)
-
-        Relation.objects.create(
-            bz=value_1, rz=cols[1], tr=t_col_type, user=user, author=author
-        )
-        Relation.objects.create(
-            bz=value_1, rz=rows[2], tr=t_row_type, user=user, author=author
-        )
-        Relation.objects.create(
-            bz=table_1, rz=value_1, tr=t_value_type, user=user, author=author
-        )
-
-        Relation.objects.create(
-            bz=value_2, rz=cols[1], tr=t_col_type, user=user, author=author
-        )
-        Relation.objects.create(
-            bz=value_2, rz=rows[1], tr=t_row_type, user=user, author=author
-        )
-        Relation.objects.create(
-            bz=table_1, rz=value_2, tr=t_value_type, user=user, author=author
-        )
-
-        row_count = 3
-        col_count = 3
-        rows = []
-        cols = []
-
-        for i in range(col_count):
-            col = Znanie.objects.create(
-                name=f"2.колонка {i}", tz=z_head_type, user=user
-            )
-            Relation.objects.create(
-                bz=table_2, rz=col, tr=t_col_type, user=user, author=author
-            )
-            cols.append(col)
-
-        for j in range(row_count):
-            row = Znanie.objects.create(name=f"2.строка {j}", tz=z_head_type, user=user)
-            Relation.objects.create(
-                bz=table_2, rz=row, tr=t_row_type, user=user, author=author
-            )
-            rows.append(row)
-
-        Relation.objects.create(
-            bz=value_2, rz=cols[2], tr=t_col_type, user=user, author=author
-        )
-        Relation.objects.create(
-            bz=value_2, rz=rows[1], tr=t_row_type, user=user, author=author
-        )
-        Relation.objects.create(
-            bz=table_2, rz=value_2, tr=t_value_type, user=user, author=author
-        )
 
     def test_name_verbose_name(self):
         obj = Znanie.objects.get(id=1)
@@ -393,25 +270,3 @@ class TestZnanie(TestCase):
     def test_get_absolute_url(self):
         obj = Znanie.objects.get(id=1)
         self.assertEquals(obj.get_absolute_url(), "/drevo/znanie/1")
-
-    def test_get_table_object(self):
-        table_1 = Znanie.objects.get(name="TestTable_1")
-        table_2 = Znanie.objects.get(name="TestTable_2")
-        value_1 = Znanie.objects.get(name="Value_1")
-        value_2 = Znanie.objects.get(name="Value_2")
-
-        table_1_obj = table_1.get_table_object()
-        table_2_obj = table_2.get_table_object()
-        expected_values_1 = [
-            [None, None, None],
-            [None, value_2, None],
-            [None, value_1, None],
-        ]
-        expected_values_2 = [
-            [None, None, None],
-            [None, None, value_2],
-            [None, None, None],
-        ]
-
-        self.assertEquals(table_1_obj["values"], expected_values_1)
-        self.assertEquals(table_2_obj["values"], expected_values_2)

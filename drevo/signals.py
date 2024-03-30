@@ -1,12 +1,12 @@
 import datetime
 import locale
 
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_migrate
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.urls import reverse
 
-from drevo.models import Znanie, Relation
+from drevo.models import Znanie, Relation, TemplateObject
 from drevo.services import send_notify_interview
 from dz import settings
 from django.db import transaction
@@ -135,3 +135,9 @@ def notify_new_interview(sender, instance, created, **kwargs):
 
     # Передаем параметры в функцию send_notify_interview, которая формирует текст сообщения
     send_notify_interview(instance.bz, date)
+
+
+@receiver(post_migrate)
+def rebuild_tree_handler(sender, **kwargs):
+    if sender.name == 'drevo':
+        TemplateObject.objects.rebuild()
