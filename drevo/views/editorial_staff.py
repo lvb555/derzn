@@ -13,12 +13,13 @@ from django.contrib.auth.models import Group, Permission
 def editorial_staff_view(request):
     if request.user.is_superuser:
         users = User.objects.all().order_by('last_name')
-        special_permissions = SpecialPermissions.objects.all().select_related('expert')
         all_groups = Group.objects.all()
 
-        experts = [sp.expert for sp in special_permissions]
+        special_permissions = SpecialPermissions.objects.all().select_related('expert')
+        experts = special_permissions.values_list('expert_id', flat=True)
 
         template_name = 'admin/drevo/knowledge/editorial_staff_template.html'
+
         return render(request, template_name, {'users': users,
                                                'special_permissions': special_permissions,
                                                'experts': experts,
@@ -84,7 +85,6 @@ def update_user_permissions(request):
 
         user = User.objects.get(id=user_id)
         permissions = Permission.objects.filter(group=group)
-        print(permissions, group)
 
         if granted:
             user.groups.add(group)

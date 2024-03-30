@@ -117,7 +117,7 @@
                             <p>Профессия: {{ user.job }}</p>
                             <p>E-mail: {{ user.email }}</p>
 
-                            {% if user in experts %}
+                            {% if user.id in experts %}
                                 <p>Руководитель:</p>
                                 <ul class="categories">
                                 {% for special_permission in special_permissions %}
@@ -187,6 +187,6 @@
 
 
 
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-    <script src="{% static 'admin/js/admin/editorial_staff.js' %}"></script>
+
+    <script defer src="{% static 'admin/js/admin/editorial_staff.js' %}"></script>
 {% endblock %}
