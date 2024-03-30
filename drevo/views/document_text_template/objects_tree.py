@@ -15,15 +15,17 @@ class ObjectsTree(TemplateView):
         context = super().get_context_data(**kwargs)
 
         document_knowledge = Znanie.objects.get(id=context['doc_pk'])
+        objects = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) | Q(user=self.request.user, availability=1) | Q(availability=2))
+
         context['knowledge'] = document_knowledge
-        context['objects'] = TemplateObject.objects.filter(Q(knowledge=document_knowledge) | Q(availability=1) | Q(availability=2))
+        context['objects'] = objects
         
         context['var_form'] = TemplateObjectForm(initial={'knowledge': document_knowledge.id})  # форма создания/изменения объектов
         context['var_form'].fields['turple'].queryset = Turple.objects.all()  # допустимые справочники
-        # допустимые главные переменные
-        context['var_form'].fields['connected_to'].queryset = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) | Q(user=self.request.user, availability=1) | Q(availability=2))
+        
+        context['var_form'].fields['connected_to'].queryset = objects
 
         context['group_form'] = GroupForm(initial={'knowledge': document_knowledge})
-        context['group_form'].fields['parent'].queryset = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) | Q(user=self.request.user, availability=1) | Q(availability=2))
+        context['group_form'].fields['parent'].queryset = objects
 
         return context

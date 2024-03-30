@@ -17,16 +17,14 @@ class DocumentTextTemplateEdit(TemplateView):
         context = super().get_context_data(**kwargs)
 
         document_knowledge = Znanie.objects.get(id=context['doc_pk'])  # шаблон документа
-        context['knowledge'] = document_knowledge
+        objects = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) |  Q(user=self.request.user, availability=1) | Q(availability=2))
 
         context['var_form'] = TemplateObjectForm(initial={'knowledge': document_knowledge.id})  # форма создания/изменения объектов
         context['var_form'].fields['turple'].queryset = Turple.objects.all()  # допустимые справочники
         # допустимые главные переменные
-        context['var_form'].fields['connected_to'].queryset = TemplateObject.objects.filter(Q(knowledge=document_knowledge, is_main=True) | Q(is_main=True, availability=1) | Q(is_main=True, availability=2))
+        context['var_form'].fields['connected_to'].queryset = objects
 
         context['object_structure_types'] = TemplateObject.available_sctructures  # типы структур объектов
-
-        context['form'] = ContentTemplate(initial={'zn_pk': document_knowledge.id})  # форма шаблона текста
 
         knowledge = Znanie.objects.get(id=context['text_pk'])  # шаблон текста
         form = ContentTemplate(initial={
@@ -36,7 +34,9 @@ class DocumentTextTemplateEdit(TemplateView):
         context['form'] = form
 
         # переменные, относящиеся к текущему шаблону
-        context['objects'] = TemplateObject.objects.filter(Q(knowledge=document_knowledge) | Q(availability=1) | Q(availability=2))
+        context['objects'] = objects
+        
+        context['knowledge'] = document_knowledge
 
         return context
 
