@@ -29,10 +29,14 @@
 }
 
 .template__menu {
-	width: 100%;
+	width: 80%;
 	padding: 10px 20px;
 	display: flex;
-	justify-content: space-around;
+	justify-content: space-between;
+}
+
+.template__save-action {
+	margin-top: 10px;
 }
 
 .template__menu button {

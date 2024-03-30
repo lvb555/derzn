@@ -27,9 +27,13 @@
 	{{ form.pk }}
 	<div class="template__menu">
 		<div class="template__template-actions">
-			<button class="template-btn save btn btn-icon" type="button">Сохранить</button>
-			<button class="template-btn select-obj btn btn-icon" type="button">Выбрать объект</button>
-			<button class="template-btn paste btn btn-icon" type="button">Вставить</button>
+				<div class="template__obj-actions">
+					<button class="template-btn select-obj btn btn-icon" type="button">Выбрать объект</button>
+					<button class="template-btn paste btn btn-icon" type="button">Вставить</button>
+				</div>
+				<div class="template__save-action">
+					<button class="template-btn save btn btn-icon" type="button">Сохранить</button>
+				</div>
 		</div>
 		<div class="template__selected-object" id="unselected">
 			<h6>Текущий объект</h6>
