@@ -1,6 +1,6 @@
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
-from drevo.models import Znanie
+from drevo.models import Znanie, TemplateObject
 import json
 
 
@@ -25,6 +25,11 @@ def save_text_template_view(request, **kwargs):
                 content_type='application/json'
             )
 
+    zn.template_objects_set.clear()
+    objects = request.POST.getlist('objects')
+    if objects is not None:
+        for i in objects:
+            zn.template_objects_set.add(TemplateObject.objects.get(id=int(i)))
     zn.content = content
     zn.save()
 

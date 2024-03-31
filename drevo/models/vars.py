@@ -76,6 +76,12 @@ class TemplateObject(MPTTModel):
         on_delete=models.CASCADE,
         null=True,
         verbose_name="Пользователь")
+    templates_that_use = models.ManyToManyField(
+        'drevo.Znanie',
+        verbose_name='Включающие шаблоны',
+        related_name='template_objects_set',
+        blank=True)
+
 
     def __str__(self):
         return self.name
