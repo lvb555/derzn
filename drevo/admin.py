@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
 from mptt.admin import DraggableMPTTAdmin
 
 from drevo.models import InterviewAnswerExpertProposal
@@ -47,6 +48,7 @@ from .forms import (
     GlossaryTermForm,
     CategoryForm,
     CtegoryExpertForm,
+    TemplateObjectAdminForm
 )
 from .models import (
     Znanie,
@@ -1012,8 +1014,9 @@ class TurpleAdmin(admin.ModelAdmin):
     ordering = ('weight', )
 
 @admin.register(TemplateObject)
-class TemplateObjectAdmin(DraggableMPTTAdmin):
-    list_display = ('tree_actions', 'indented_title')
-    list_display_links = ('indented_title', )
+class TemplateObjectAdmin(admin.ModelAdmin):
+    list_display = ('name', 'availability', 'type_of', 'connected_to', 'knowledge', 'user')
+    list_display_links = ('name', )
+    list_filter = ('structure', 'availability', 'knowledge', 'type_of', )
     search_fields = ('knowledge__name', 'connected_to__name', 'name')
-    mptt_level_indent = 20
+    form = TemplateObjectAdminForm
