@@ -45,76 +45,7 @@
                 </tr>
             {% endif %}
         {% endfor %}
-    </table>
-    
-    
-    
-
-      {% comment %} <table border-width="2px">
-        <!-- Заголовок таблицы -->
-        <tr>
-            <th class="graphs" rowspan="2">ФИО</th>
-            <th class="graphs" colspan="{{ questions_dict|length }}">Вопросы интервью</th>
-        </tr>
-        <tr>
-          <!-- И.О.Ф -->
-          <td>{{ author_dict.name }}</td>
-          <!-- Для каждого вопроса проверяем ответы -->
-          {% for row in table %}
-          <tr>
-              {% for cell in row %}
-                  <td>{{ cell }}</td>
-              {% endfor %}
-          </tr>
-          {% endfor %}
-        </tr>
-      </table> {% endcomment %}
-      {% comment %} <table border-width="2px">
-        <!-- Заголовок таблицы -->
-        <tr>
-            <th class="graphs" rowspan="2">ФИО</th>
-            <th class="graphs" colspan="{{ questions_list|length }}">Вопросы интервью</th>
-        </tr>
-        <tr>
-            {% for question in questions_list %}
-                <th class="graphs">{{ question }}</th>
-            {% endfor %}
-        </tr>
-        {% for author_dict in author_list %}
-          {% if author_dict.author in answered_authors %}
-            <tr>
-              <!-- И.О.Ф -->
-              <td>{{ author_dict.name }}</td>
-              <!-- Для каждого вопроса проверяем ответы -->
-              {% for question, answers in matrix.items %}
-                <td>
-                  {% if answers %}
-                    <!-- Если есть ответы, выводим их -->
-                    {% for answer in answers %}
-                        {% if answer.rz.author.name == author_dict.author.name %}
-                          {% if answer != minus %}
-                            <li class="li-table"><span class="span-table">{{ answer.rz.name }}</span></li></br>
-                          {% endif %}
-                        {% comment %} {% else %}
-                          {% if minus in answer or not answer %}
-
-                            <p class="minus-table">{{ minus }}</p>
-
-                          {% endif %}
-                        {% endif %}
-                      
-                     {% empty %}
-                    <p class="minus-table">{{ minus }}</p>
-                    {% endfor %}
-                  {% comment %} {% else %}
-                      <p class="minus-table">-</p>
-                  {% endif %}
-                </td>
-              {% endfor %}
-            </tr>
-          {% endif %}
-        {% endfor %}
-      </table> {% endcomment %}
+      </table>
     </ul>
   </ul>
 </div>

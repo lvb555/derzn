@@ -10,33 +10,6 @@
 
 <h1>Все интервью</h1>
 
-
-{% comment %} <ul class="treeInterview">
-  <ul>
-    {% for interview in valid_interviews %}
-      <li>
-        <a href="{% url 'Interview_table' %}">{{ interview }}</a>
-      </li>
-      {% if knowledge %}
-        {% build_knowledge_tree queryset=knowledge empty_tree_message='Знаний этого вида ещё нет' show_complex=True %}
-      {% else %}
-      <div class="text-center mt-3">
-          <p class="fs-4">Знаний этого вида ещё нет</p> 
-      </div>
-    {% endif %}
-    {% empty %}
-      <p>None</p>
-    {% endfor %}
-    <p>{{ date_end }} </p>
-    <p>{{ list_period_interview }} </p>
-    {{ date_end }}
-    {{ now }}
-
-    
- 
-    
-  </ul>
-</ul> {% endcomment %}
 <ul class="treeInterview">
   <ul class="ul-interviews_all", style="list-style-type: none">
       
@@ -46,19 +19,8 @@
           <ul class="ul-interviews_all", style="list-style-type: none">
             {% for interview in interviews %}
               <li>
-                <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a><a class="a-interviews_aurhors">Авторов интервью ещё нету</a>
+                <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a>
               </li>
-              {% comment %} {% for author in authors %}
-                {% if author in interview.author %}
-                <li>
-                  <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a><a class="a-interviews_aurhors">Авторы интервью</a>
-                </li>
-                {% else %}
-                <li>
-                  <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a><a class="a-interviews_aurhors">Авторов интервью ещё нету</a>
-                </li>
-                {% endif %}
-              {% endfor %} {% endcomment %}
             {% endfor %}
           </ul>
         
@@ -66,31 +28,6 @@
       {% endfor %}
   </ul>
 </ul>
-
-{% comment %} <ul class="treeInterview">
-  <ul>
-      <li>
-          bruh
-          <ul>
-           
-            {% for interview in valid_interviews %}
-              <li>
-                <a href="{% url 'Interview_table' %}">{{ interview }}</a>
-              </li>
-            {% empty %}
-              <p>None</p>
-            {% endfor %}
-            <p>{{ date_end }} </p>
-            <p>{{ list_period_interview }} </p>
-            
-          </ul>
-      </li>
-  </ul>
-<ul>
-  {{ date_end }}
-  {{ now }}  
-</ul> {% endcomment %}
-
 <style>
   
   .bi-file-plus-fill {
