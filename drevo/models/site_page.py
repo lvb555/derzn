@@ -89,8 +89,8 @@ class PageHistory(models.Model):
 
     page = models.ForeignKey(SitePage, verbose_name='Страница', on_delete=models.CASCADE)
     prop = models.CharField(max_length=255, verbose_name='Реквизиты', choices=PROP_CHOICES)
-    previous_value = models.CharField(max_length=256, verbose_name='Предыдущее значение')
-    last_value = models.CharField(max_length=256, verbose_name='Последнее значение')
+    previous_value = models.CharField(max_length=256, verbose_name='Предыдущее значение', null=True)
+    last_value = models.CharField(max_length=256, verbose_name='Последнее значение', null=True)
     staff_member = models.ForeignKey(User, on_delete=models.PROTECT, null=True, verbose_name='Сотрудник')
     date = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
 
