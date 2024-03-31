@@ -50,7 +50,7 @@ from .views.admin_interview_work.views import (AdminEditingKnowledgeView,
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
-from .views.editorial_staff import editorial_staff_view, update_roles
+from .views.editorial_staff import editorial_staff_view, update_roles, update_user_permissions
 from .views.expert_work.views import (ExpertProposalDeleteView,
                                       proposal_update_view, propose_answer,
                                       set_answer_as_incorrect,
@@ -565,6 +565,7 @@ urlpatterns = [
     # сотрудники редакции
     path("editorial_staff/", editorial_staff_view, name="editorial_staff"),
     path("editorial_staff/update_roles/", update_roles, name="update_roles"),
+    path('editorial_staff/update-group-permissions/', update_user_permissions, name='update_group_permissions'),
     # --------------------------------------------------------------------------------------------------
     # служебное? возвращает json
     path("get_required_tr", get_required_tr, name="get_required_tr"),
