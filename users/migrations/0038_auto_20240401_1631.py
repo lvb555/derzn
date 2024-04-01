@@ -3,20 +3,36 @@
 from django.db import migrations, models
 
 
-class Migration(migrations.Migration):
+def migrate_patronymic(apps, schema_editor):
+    User = apps.get_model('users', 'User')
+    for user in User.objects.all():
+        if user.profile and user.profile.patronymic:
+            user.patronymic = user.profile.patronymic
+            user.save()
 
+
+def move_patronymic_back_to_profile(apps, schema_editor):
+    User = apps.get_model('users', 'User')
+    for user in User.objects.all():
+        if user.profile and user.patronymic:
+            user.profile.patronymic = user.patronymic
+            user.profile.save()
+
+
+class Migration(migrations.Migration):
     dependencies = [
         ('users', '0037_auto_20240229_2136'),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='profile',
-            name='patronymic',
-        ),
         migrations.AddField(
             model_name='user',
             name='patronymic',
             field=models.CharField(blank=True, max_length=150, verbose_name='Отчество'),
+        ),
+        migrations.RunPython(migrate_patronymic, move_patronymic_back_to_profile),
+        migrations.RemoveField(
+            model_name='profile',
+            name='patronymic',
         ),
     ]
