@@ -60,7 +60,7 @@ def update_roles(request):
                     message = "Вы лишены всех прав."
                     subject = "Лишение всех прав пользователя"
 
-                message += '\nРедакция портала "Дерево знаний" '
+                message += '\n\nРедакция портала "Дерево знаний" '
                 user.save()
 
                 send_email(user.email, subject, False, message)

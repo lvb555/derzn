@@ -10,7 +10,7 @@
 
 
     <style>
-      .popup {
+    .popup {
         display: block;
         position: fixed;
         top:  -100%;
@@ -22,6 +22,8 @@
         border-radius: 5px;
         transition: top 0.5s;
         max-width: 900px;
+        max-height: 300px;
+        overflow-y: auto; /* Add this line for vertical scrolling */
     }
 
     .popup-overlay {
@@ -33,10 +35,6 @@
         height: 100%;
         background: rgba(0, 0, 0, 0.5);
         z-index: 998;
-    }
-    .popup h2 {
-        text-align: center;
-        color: #333;
     }
 
     .popup p {
@@ -73,6 +71,13 @@
     .sidebar {
         background: lightgray;
         overflow-y: scroll;
+    }
+
+    .close-popup {
+        position: sticky  ;
+        top: 5px;
+        right: 5px;
+        float: right;
     }
 </style>
 
@@ -162,10 +167,13 @@
                     <td>
                     <a class="show-info" data-userid="{{ user.id }}" style="font-style: italic; cursor: pointer;">Права сотрудника</a>
                         <div class="popup container user-info-{{ user.id }}">
-                            <h1>Панель управления</h1>
-                            <h2>Настройка прав администратора</h2>
-                            <h2>Сотрудник: {{ user.last_name }} {{ user.first_name }} {{ user.profile.patronymic }}</h2>
-                            <div class="sidebar">
+                            <button class="close-popup">X</button>
+                            <h2>Панель управления</h2>
+                            <h3>Настройка прав администратора</h3>
+                            <br>
+                            <p>Администратор: {{ user.last_name }} {{ user.first_name | first|upper }}. {{ user.profile.patronymic | first|upper }}.</p>
+                            <div>
+                                <h6>Группы прав:</h6>
                                 <ul class="staff-list">
                                     {% for group in all_groups %}
                                         <li>
