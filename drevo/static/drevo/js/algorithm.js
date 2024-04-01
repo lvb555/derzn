@@ -293,7 +293,7 @@ function saveNewElement(){
 function ShowFirst(){
     dict_to_send = {};
     let list_to_change_status = [];
-    if(!(new_work == 'Данные по алгоритму')){
+    if(new_work && !(new_work == 'Данные по алгоритму')){
         document.getElementById('new_work').textContent = 'Работа "'+new_work+'"';
     }
     document.querySelector('.basic input[type="checkbox"]').nextSibling.style.color = 'red';
@@ -387,6 +387,7 @@ function closePopup(condition){
             rebuildResult(getPreviousProgress());
             if(document.getElementById('continue')){
                 new_work = document.querySelectorAll('.select__item a')[1].textContent
+                new_work = new_work.substring(1, new_work.length-1)
             }
         }else if(condition == 'choose_other'){
             flag = false;
@@ -439,7 +440,7 @@ function selectToggle() {
 
 // Перебор всех сохраненных элементов
 function rebuildResult(list_of_elements){
-    if(!(new_work == 'Данные по алгоритму')){
+    if(new_work && !(new_work == 'Данные по алгоритму')){
         document.getElementById('new_work').textContent = 'Работа "'+new_work+'"';
     }
     end_elem = '';
@@ -457,6 +458,15 @@ function rebuildResult(list_of_elements){
         changeCondition(founded_checkbox,list_of_elements[pair]['element_type'])
         findIsExceptionType(previous_element, founded_checkbox);
         previous_element = founded_checkbox;
+    }
+    if(previous_element.getAttribute('value') == 'Условие' && !(previous_element.nextSibling.style.color == 'blue')){
+        document.querySelector('#condition').textContent = previous_element.nextSibling.firstChild.innerText;
+        current_condition = previous_element;
+        setTimeout(()=>{
+            popupBg.classList.add('active');
+            popup.classList.add('active');
+            document.body.classList.add("stop-scrolling");
+        }, 1500);
     }
     document.querySelectorAll('#algorithm_tree li[value="Далее"]').forEach((elem) => {
         if(elem.firstChild.nextSibling && !(elem.firstChild.nextSibling.nextSibling.style.color)){

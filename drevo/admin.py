@@ -77,6 +77,7 @@ from .models import (
     AlgorithmAdditionalElements
 )
 from .models.algorithms_data import AlgorithmData, AlgorithmWork
+from .models.site_page import SitePage, StatusType, PageHistory
 from .models.users_documents import UsersDocuments
 from .models.appeal import Appeal
 from .services import send_notify_interview
@@ -1017,3 +1018,15 @@ class TemplateObjectAdmin(DraggableMPTTAdmin):
     list_display_links = ('indented_title', )
     search_fields = ('knowledge__name', 'connected_to__name', 'name')
     mptt_level_indent = 20
+    
+@admin.register(SitePage)
+class SitePageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'page', 'parent', 'type', 'status')
+
+@admin.register(StatusType)
+class StatusTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'text_for_users')
+
+@admin.register(PageHistory)
+class PageHistoryAdmin(admin.ModelAdmin):
+    list_display = ('page', 'prop', 'previous_value', 'last_value', 'staff_member', 'date')

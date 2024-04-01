@@ -1,0 +1,208 @@
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load static %}
+{% block title %}Дерево страниц сайта{% endblock %}
+
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<link rel="stylesheet" href="{% static '/users/css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container header_info p-0">
+    <h1>Страница <a style="color: black;" href="{{current_page.link}}">{{current_page}}</a></h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+          <li class="breadcrumb-item"><a>Подготовка знаний</a></li>
+          <li class="breadcrumb-item opened"><a href="{% url 'site_pages' %}">Дерево страниц сайта</a></li>
+        </ol>
+    </nav>
+</div>
+<div class="basic" style="justify-content: space-between;">
+    <div style="text-align: end;">
+        {% if user.is_superuser %}
+            <button class="me-2 btn btn-header" onclick="redaction();" style="background-color: lightseagreen;">Редактировать</button>
+        {% endif %}
+        <button id="history" class="btn btn-header" style="background-color: grey">История</button>
+    </div>
+    <form method="post" style="display: grid; gap: 2vh;">
+        {% csrf_token %}
+        <div style="display: flex; align-items: center; gap: 24px; width: fit-content;">
+            <label for="id_status">Статус:</label>
+            {{form.status}}
+        </div>
+        <div style="display: flex; align-items: center; gap: 24px; width: fit-content;">
+            <label for="id_parent">Родитель:</label>
+            {{form.parent}}
+        </div>
+        <div style="display: flex; align-items: center; gap: 24px; width: fit-content;">
+            <label for="id_type">Тип:</label>
+            {{form.type}}
+        </div>
+        <div style="display: flex; align-items: center; gap: 24px; width: fit-content;">
+            <label for="id_base_page">Базовая страница:</label>
+            {{form.base_page}}
+        </div>
+        <div style="display: flex; align-items: center; gap: 24px; width: fit-content;">
+            <label for="id_link">URL-адрес:</label>
+            {{form.link}}
+        </div>
+        <div>
+            <label for="id_subscribers">Подписчики:</label>
+            {{form.subscribers}}
+        </div>
+        <div id="page_condition">
+            <div>
+                <h4>Состояние страницы</h4>
+                <div class="d-flex gap-5">
+                    <div>
+                        <label for="id_functional">Функционал:</label>
+                        {{form.functional}}
+                    </div>
+                    <div>
+                        <label for="id_layout">Верстка:</label>
+                        {{form.layout}}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-5">
+                <div>
+                    <h5>Макет дизайна</h5>
+                    <div>
+                        <label for="id_design_needed">Необходимость:</label>
+                        {{form.design_needed}}
+                    </div>
+                    <div>
+                        <label for="id_design">Наличие:</label>
+                        {{form.design}}
+                    </div>
+                </div>
+                <div>
+                    <h5>Страница помощи</h5>
+                    <div>
+                        <label for="id_help_page">Необходимость:</label>
+                        {{form.help_page}}
+                    </div>
+                    <div>
+                        <label for="id_help_page_content">Наличие:</label>
+                        {{form.help_page_content}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <label for="id_notification">Оповещение, уведомление:</label>
+            {{form.notification}}
+        </div>
+        <button class="btn btn-header" type="submit" style="width: fit-content;" hidden>Сохранить изменения</button>
+    </form>
+    <div class="history popup__bg">
+        <div class="popup p-5" style="max-height: 80vh;">
+            <i class="bi bi-x-lg close-popup"></i>
+            <div class="scrollbar" style="overflow-y: scroll; max-height: 70vh;">
+                <table style="width: 100%">
+                    <tbody style="vertical-align: baseline;">
+                      <tr>
+                        <th style="width: 20%;">Реквизит</th>
+                        <th style="width: 20%;">Предыдущее значение</th>
+                        <th style="width: 20%;">Последнее значение</th>
+                        <th style="width: 20%;">Сотрудник</th>
+                        <th style="width: 20%;">Дата</th>
+                      </tr>
+                      {% for event in history %}
+                      <tr>
+                        <td>{{event.get_prop_display}}</td>
+                        <td>{{event.previous_value}}</td>
+                        <td>{{event.last_value}}</td>
+                        <td>{{event.staff_member}}</td>
+                        <td>{{event.date|date:"d/m/Y"}} {{event.date|time:"H:i"}}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+var historyBg = document.querySelector('.history.popup__bg');
+var historyPopup = historyBg.querySelector('.popup');
+var historyClosePopupButton = historyBg.querySelector('.close-popup');
+
+
+function showProperFields(){
+    if(document.querySelector('option[value="page"]').selected == true){
+        showFields(['base_page'], false, ['status', 'link']);
+        document.getElementById('page_condition').style.display = 'block';
+    }else if(document.querySelector('option[value="label"]').selected == true){
+        showFields(['base_page'], true, ['base_page']);
+        document.getElementById('page_condition').style.display = 'none';
+    }else if(document.querySelector('option[value="type_of_complicated_knowledge"]').selected == true){
+        showFields(['status', 'link', 'subscribers', 'base_page'], false, []);
+        document.getElementById('page_condition').style.display = 'block';
+    }else if(document.querySelector('option[value="complicated_knowledge"]').selected == true){
+        showFields(['status', 'link', 'subscribers'], true, ['status', 'link']);
+        document.getElementById('page_condition').style.display = 'none';
+    }else if(document.querySelector('option[value="group"]').selected == true){
+        showFields([], true, []);
+        document.getElementById('page_condition').style.display = 'none';
+    }
+}
+
+showProperFields()
+
+function redaction(){
+    if(document.querySelector('form button').hidden == true){
+        document.querySelectorAll('form select, form input').forEach((elem) =>{
+            elem.disabled = false;
+        });
+        document.querySelector('.basic button').textContent = 'Прекратить редактирование'
+        document.querySelector('form button').hidden = false;
+    }else{
+        document.querySelectorAll('form select, form input').forEach((elem) =>{
+            elem.disabled = true;
+        });
+        document.querySelector('.basic button').textContent = 'Редактировать'
+        document.querySelector('form button').hidden = true;
+    }
+}
+
+document.querySelector('select#id_type').addEventListener('click', (e) => {
+    showProperFields();
+})
+
+function showFields(fields, ability, required_fields){
+    document.querySelectorAll('form div select, form div input').forEach((elem) => {
+        if(['page', 'parent', 'type'].indexOf(elem.name) == -1){
+            if(fields.indexOf(elem.name) == -1){
+                elem.parentNode.hidden = ability;
+            }else{
+                elem.parentNode.hidden = !ability;
+            }
+            if(!(['status', 'link', 'base_page'].indexOf(elem.name) == -1)){
+                if(required_fields.indexOf(elem.name) == -1){
+                    elem.required = false;
+                }else{
+                    elem.required = true;
+                }
+            }
+        }
+    });
+}
+
+document.getElementById('history').addEventListener('click', (e) => {
+    historyBg.classList.add('active');
+    historyPopup.classList.add('active');
+    document.body.classList.add("stop-scrolling");
+})
+
+historyClosePopupButton.addEventListener('click', (e) => {
+    historyBg.classList.remove('active');
+    historyPopup.classList.remove('active');
+    document.body.classList.remove("stop-scrolling");
+})
+</script>
+{% endblock %}
