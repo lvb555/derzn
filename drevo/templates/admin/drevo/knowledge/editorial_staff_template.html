@@ -108,11 +108,11 @@
                     <td>{{ user.username }}</td>
 
                     <td>
-                        <a class="show-info" style="font-style: italic; cursor: pointer;">{{ user.last_name }} {{ user.first_name }} {% if user.profile.patronymic %}{{ user.profile.patronymic }}{% endif %}</a>
+                        <a class="show-info" style="font-style: italic; cursor: pointer;">{{ user.last_name }} {{ user.first_name }} {% if user.patronymic %}{{ user.patronymic }}{% endif %}</a>
                         <div class="popup container">
                             <button class="close-popup">X</button>
                             <h2>Дополнительная информация о сотруднике</h2>
-                            <p>ФИО: {{ user.last_name }} {{ user.first_name }} {% if user.profile.patronymic %}{{ user.profile.patronymic }}{% endif %}</p>
+                            <p>ФИО: {{ user.last_name }} {{ user.first_name }} {% if user.patronymic %}{{ user.patronymic }}{% endif %}</p>
                             <p>Дата рождения: {{ user.profile.birthday_at }}</p>
                             <p>Профессия: {{ user.job }}</p>
                             <p>E-mail: {{ user.email }}</p>
@@ -164,7 +164,7 @@
                         <div class="popup container user-info-{{ user.id }}">
                             <h1>Панель управления</h1>
                             <h2>Настройка прав администратора</h2>
-                            <h2>Сотрудник: {{ user.last_name }} {{ user.first_name }} {{ user.profile.patronymic }}</h2>
+                            <h2>Сотрудник: {{ user.last_name }} {{ user.first_name }} {{ user.patronymic }}</h2>
                             <div class="sidebar">
                                 <ul class="staff-list">
                                     {% for group in all_groups %}
