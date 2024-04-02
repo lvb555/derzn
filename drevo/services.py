@@ -49,8 +49,8 @@ def send_notify_interview(interview, date: str):
             patronymic = ''
             user = expert.expert
             user_profile = user.profile
-            if user.first_name and user_profile.patronymic:
-                patronymic = ' ' + user_profile.patronymic
+            if user.first_name and user.patronymic:
+                patronymic = ' ' + user.patronymic
 
             user_gender = user_profile.gender
             if user_gender == 'M' or user_gender == 'U':
