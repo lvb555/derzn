@@ -162,7 +162,7 @@
                         <input type="checkbox" class="employee-checkbox" data-userid="{{ user.id }}" data-isemployee="{{ user.is_employee }}" {% if user.is_employee %}checked="checked"{% endif %}>
                     </td>
                     <td>
-                        <input type="checkbox" class="admin-checkbox" data-userid="{{ user.id }}" data-isadmin="{{ user.is_superuser }}"  {% if user.is_superuser %}checked="checked"{% endif %}>
+                        <input type="checkbox" class="admin-checkbox" data-userid="{{ user.id }}" data-isadmin="{{ user.is_superuser }}" {% if user.is_superuser %}checked="checked"{% endif %} {% if not user.is_employee %}disabled{% endif %}>
                     </td>
                     <td>
                     <a class="show-info" data-userid="{{ user.id }}" style="font-style: italic; cursor: pointer;">Права сотрудника</a>

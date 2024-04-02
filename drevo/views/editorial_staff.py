@@ -36,9 +36,9 @@ def update_roles(request):
     user_id = request.POST.get('userId')
     is_employee = request.POST.get('isEmployee') == 'true'
     is_admin = request.POST.get('isAdmin') == 'true'
-
     user = User.objects.get(id=user_id)
-    message = f'Уважаемый {user.first_name} {user.profile.patronymic}! \n'
+    message = f'Уважаемый {user.first_name} {user.patronymic}! \n'
+
 
     if is_employee and is_admin:
         user.is_employee = True

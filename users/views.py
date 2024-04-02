@@ -115,7 +115,6 @@ class RegistrationFormView(CreateView):
             UserParameters.objects.bulk_create(user_settings)
 
             profile = user.profile
-            profile.patronymic = form.cleaned_data['patronymic']
             profile.gender = form.cleaned_data['gender']
             profile.birthday_at = form.cleaned_data['birthday_at']
             avatar = form.cleaned_data['image']
