@@ -20,7 +20,7 @@ def interview_table(request, id):
     for question in questions:
         # Получаем связи с типом связи "Ответ"
         answers = Relation.objects.filter(tr__name="Ответ", bz__id=question.rz.id).select_related('rz__author').all()
-        profiles = Profile.objects.filter(user=answers.rz.author.user_author)
+        profiles = Profile.objects.all()
         for answer in answers:
             author = answer.rz.author
             authors_dict[author.name][question.rz.name].append(answer.rz.name)
