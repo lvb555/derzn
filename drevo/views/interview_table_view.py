@@ -19,18 +19,20 @@ def interview_table(request, id):
 
     for question in questions:
         # Получаем связи с типом связи "Ответ"
-        answers = Relation.objects.filter(tr__name="Ответ", bz__id=question.rz.id)
+        answers = Relation.objects.filter(tr__name="Ответ", bz__id=question.rz.id).select_related('rz__author').all()
+        profiles = Profile.objects.filter(user=answers.rz.author.user_author)
         for answer in answers:
             author = answer.rz.author
             authors_dict[author.name][question.rz.name].append(answer.rz.name)
-            profile = Profile.objects.get(user=author.user_author)
-            if profile.patronymic:
-                short_fst_name = author.user_author.first_name[0]
-                short_patr = profile.patronymic[0]
-                author_names[author.name] = f"{short_fst_name}.{short_patr}.{author.user_author.last_name}"
-            else:
-                short_fst_name = author.user_author.first_name[0]
-                author_names[author.name] = f"{short_fst_name}.{author.user_author.last_name}"
+            for profile in profiles:
+                if profile.patronymic:
+                    if profile.user == author.user_author:
+                        short_fst_name = author.user_author.first_name[0]
+                        short_patr = profile.patronymic[0]
+                        author_names[author.name] = f"{short_fst_name}.{short_patr}.{author.user_author.last_name}"
+                else:
+                    short_fst_name = author.user_author.first_name[0]
+                    author_names[author.name] = f"{short_fst_name}.{author.user_author.last_name}"
 
     # Создаем таблицу-матрцу
     table = [[""] + questions_list]
