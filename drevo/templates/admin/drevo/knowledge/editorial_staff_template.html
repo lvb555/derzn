@@ -113,11 +113,11 @@
                     <td>{{ user.username }}</td>
 
                     <td>
-                        <a class="show-info" style="font-style: italic; cursor: pointer;">{{ user.last_name }} {{ user.first_name }} {% if user.profile.patronymic %}{{ user.profile.patronymic }}{% endif %}</a>
+                        <a class="show-info" style="font-style: italic; cursor: pointer;">{{ user.last_name }} {{ user.first_name }} {{ user.patronymic }}</a>
                         <div class="popup container">
                             <button class="close-popup">X</button>
                             <h2>Дополнительная информация о сотруднике</h2>
-                            <p>ФИО: {{ user.last_name }} {{ user.first_name }} {% if user.profile.patronymic %}{{ user.profile.patronymic }}{% endif %}</p>
+                            <p>ФИО: {{ user.last_name }} {{ user.first_name }} {{ user.patronymic }}</p>
                             <p>Дата рождения: {{ user.profile.birthday_at }}</p>
                             <p>Профессия: {{ user.job }}</p>
                             <p>E-mail: {{ user.email }}</p>
@@ -171,7 +171,7 @@
                             <h2>Панель управления</h2>
                             <h3>Настройка прав администратора</h3>
                             <br>
-                            <p>Администратор: {{ user.last_name }} {{ user.first_name | first|upper }}. {{ user.profile.patronymic | first|upper }}.</p>
+                            <p>Администратор: {{ user.last_name }} {{ user.first_name | first|upper }}. {{ user.patronymic | first|upper }}.</p>
                             <div>
                                 <h6>Группы прав:</h6>
                                 <ul class="staff-list">
