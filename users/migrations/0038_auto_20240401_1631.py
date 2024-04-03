@@ -6,7 +6,7 @@ from django.db import migrations, models
 def migrate_patronymic(apps, schema_editor):
     User = apps.get_model('users', 'User')
     for user in User.objects.all():
-        if user.profile and user.profile.patronymic:
+        if hasattr(user, 'profile') and user.profile.patronymic:
             user.patronymic = user.profile.patronymic
             user.save()
 
@@ -14,7 +14,7 @@ def migrate_patronymic(apps, schema_editor):
 def move_patronymic_back_to_profile(apps, schema_editor):
     User = apps.get_model('users', 'User')
     for user in User.objects.all():
-        if user.profile and user.patronymic:
+        if hasattr(user, 'profile') and user.patronymic:
             user.profile.patronymic = user.patronymic
             user.profile.save()
 
