@@ -15,7 +15,9 @@ function SaveTemplateBody() {
 		set.add(i.id)
 	})
 
-	body.append("objects", Array.from(set))
+	Array.from(set).forEach((i) => {
+		body.append("objects", i)
+	})
 
 	return body
 }

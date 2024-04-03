@@ -31,7 +31,7 @@
 						</button>
 					</div>
 					<p class="node-name {% if node.availability == 0 %} local {% elif node.availability == 1 %} global {% else %} general {% endif %}document_text_template.html" id="id-{{node.id}}">
-						<span>{{ node.name }} {{node.level}} {{node.is_main}}</span>
+						<span>{{ node.name }}</span>
 					</p>
 						{% if not node.is_leaf_node %}
 							<ul class="node-children" >
