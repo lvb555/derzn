@@ -50,7 +50,9 @@ from .views.admin_interview_work.views import (AdminEditingKnowledgeView,
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
+from .views.site_pages import site_pages_view, site_page_view
 from .views.editorial_staff import editorial_staff_view, update_roles
+from .views.editorial_staff import editorial_staff_view, update_roles, update_user_permissions
 from .views.expert_work.views import (ExpertProposalDeleteView,
                                       proposal_update_view, propose_answer,
                                       set_answer_as_incorrect,
@@ -275,6 +277,10 @@ urlpatterns = [
     path("search/knowledge", KnowledgeSearchView.as_view(), name="search_knowledge"),
     path("search/author", AuthorSearchView.as_view(), name="search_author"),
     path("search/tag", TagSearchView.as_view(), name="search_tag"),
+    # --------------------------------------------------------------------------------------------------
+    # Дерево страниц сайта 
+    path("site_pages/", site_pages_view, name="site_pages"),
+    path("site_pages/<int:pk>/", site_page_view, name="site_page"),
     # --------------------------------------------------------------------------------------------------
     # документ????
     path(
@@ -561,6 +567,7 @@ urlpatterns = [
     # сотрудники редакции
     path("editorial_staff/", editorial_staff_view, name="editorial_staff"),
     path("editorial_staff/update_roles/", update_roles, name="update_roles"),
+    path('editorial_staff/update-group-permissions/', update_user_permissions, name='update_group_permissions'),
     # --------------------------------------------------------------------------------------------------
     # служебное? возвращает json
     path("get_required_tr", get_required_tr, name="get_required_tr"),
