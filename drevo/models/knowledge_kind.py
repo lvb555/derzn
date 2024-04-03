@@ -80,13 +80,14 @@ class Tz(models.Model):
             return cls._cache[item]
         else:
             # попытаемся поискать - вдруг таблица изменилась
-            result = cls.objects.get(name=item)
-            if result:
-                # добавляем в кэш
-                cls._cache[item] = result
-                return result
-            else:
+            try:
+                result = cls.objects.get(name=item)
+            except cls.DoesNotExist:
                 raise ValueError(f"Не найден тип знаний: {item}")
+
+                # добавляем в кэш
+            cls._cache[item] = result
+            return result
 
     class Meta:
         verbose_name = "Вид знания"
