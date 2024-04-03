@@ -38,27 +38,27 @@ def update_roles(request):
     is_admin = request.POST.get('isAdmin') == 'true'
     user = User.objects.get(id=user_id)
     message = f'Уважаемый {user.first_name} {user.patronymic}! \n'
-
+    was_admin = user.is_superuser
 
     if is_employee and is_admin:
         user.is_employee = True
         user.is_superuser = True
-        message += "Вам дано право Сотрудника редакции и Администратора портала."
-        subject = "Дано право Сотрудника редакции и Администратора портала"
+        message += "Вам дано право Администратора портала."
+        subject = "Дано право Администратора портала"
     elif is_employee:
         user.is_employee = True
         user.is_superuser = False
-        message += "Вам дано право Сотрудника редакции."
-        subject = "Дано право Сотрудника редакции"
-    elif is_admin:
-        user.is_superuser = True
-        message += "Вам дано право Администратора портала."
-        subject = "Дано право Администратора портала"
+        if was_admin:
+            message += "Вы лишены права Администратора портала."
+            subject = "Лишение права Администратора портала"
+        else:
+            message += "Вам дано право Сотрудника редакции."
+            subject = "Дано право Сотрудника редакции"
     else:
         user.is_employee = False
         user.is_superuser = False
-        message = "Вы лишены всех прав."
-        subject = "Лишение всех прав пользователя"
+        message += "Лишение права Сотрудника редакции."
+        subject = "Вы лишены права Сотрудника редакции."
 
     message += '\n\nРедакция портала "Дерево знаний" '
     user.save()
