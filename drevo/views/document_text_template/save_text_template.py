@@ -27,7 +27,7 @@ def save_text_template_view(request, **kwargs):
 
     zn.template_objects_set.clear()
     objects = request.POST.getlist('objects')
-    if objects is not None:
+    if objects:
         for i in objects:
             zn.template_objects_set.add(TemplateObject.objects.get(id=int(i)))
     zn.content = content
