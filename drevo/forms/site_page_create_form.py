@@ -16,7 +16,7 @@ class SitePageCreateForm(forms.ModelForm):
     """
     Форма создания сущности Страницы сайта
     """
-    page = forms.ModelChoiceField(queryset=Znanie.objects, label='Выберите знание')
+    page = forms.ModelChoiceField(queryset=Znanie.objects.order_by('name'), label='Выберите знание')
     status = forms.ModelChoiceField(queryset=StatusType.objects, label='Статус', required=False)
     parent = TreeNodeChoiceField(queryset=SitePage.objects, label='Выберите родителя', required=False)
     type = forms.ChoiceField(choices=TYPE_CHOICES, label='Тип', widget=forms.RadioSelect())

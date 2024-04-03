@@ -1,5 +1,7 @@
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-
+from django.views.decorators.http import require_http_methods
+from drevo.forms.knowledge_create_form import ZnanieCreateForm
 from drevo.forms.site_page_create_form import SitePageCreateForm, SitePageRedactForm
 from drevo.models.site_page import SitePage, PageHistory
 
@@ -14,6 +16,7 @@ def site_pages_view(request):
 
     else:
         context['form'] = SitePageCreateForm
+    context['znanie_form'] = ZnanieCreateForm
     return render(request, "drevo/site_pages.html", context)
 
 
@@ -51,3 +54,17 @@ def site_page_view(request, pk=None):
     context['history'] = PageHistory.objects.filter(page=instance)
 
     return render(request, "drevo/site_page.html", context)
+
+@require_http_methods(['POST'])
+def create_new_zn(request):
+    form = ZnanieCreateForm(data=request.POST)
+
+    if form.is_valid():
+        knowledge = form.save(commit=False)
+        knowledge.is_published = True
+        knowledge.user = request.user
+        knowledge.save()
+
+        return JsonResponse(data={'zn_name': knowledge.name, 'zn_id': knowledge.id}, status=200)
+
+    return JsonResponse(data={}, status=400)
