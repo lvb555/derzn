@@ -24,12 +24,7 @@ def save_text_template_view(request, **kwargs):
                 }),
                 content_type='application/json'
             )
-
-    zn.template_objects_set.clear()
-    objects = request.POST.getlist('objects')
-    if objects:
-        for i in objects:
-            zn.template_objects_set.add(TemplateObject.objects.get(id=int(i)))
+    zn.template_objects_set.set(request.POST.getlist('objects'))
     zn.content = content
     zn.save()
 
