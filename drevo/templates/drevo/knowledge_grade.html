@@ -249,12 +249,7 @@
                                     </div>
                                 </td>
                                 <td class="table-border" style="border-right: none;">
-                                    <div class="knowledge_grade"
-                                    {% if relation|object_grade_num:user|grade_name != "Нет оценки" %}
-            style="background: {{ relation|object_grade_num:user|get_color_from_knowledge_grade_value:relation.tr.argument_type }}; width: auto;"
-                                    {% else %}
-                                    style="width: auto;"
-                                    {% endif %}>
+                                    <div class="knowledge_grade" style="width: auto;">
                                         <select name="relation_grade" id="id_relation_grade{{ relation.id }}"
                                                 style="background:none; border: none; padding: 0;">
                                             {% for grade in relation_scale %}
