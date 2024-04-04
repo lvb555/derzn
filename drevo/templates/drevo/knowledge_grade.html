@@ -284,62 +284,6 @@
             {% endif %}
         </form>
     </div>
-    <!--
-    {% if grade_scales %}
-    <div class="row justify-content-center">
-        <h4 class="text-center my-4">Легенда</h4>
-        <div class="col-6">
-        <div style="display:flex; flex-direction: row; justify-content: space-between;">
-            <p> </p>
-            <p class="text-center" style="width: 150px;"><strong>Любая оценка</strong></p>
-            <p> </p>
-            <p class="text-center" style="width: 150px;"><strong>Довод "Против"</strong></p>
-            <p> </p>
-        </div>
-        <table class="table table-sm text-center" style="border-collapse: collapse;">
-            <style>
-                {% get_gradients as bg_color %}
-                .grade_for{
-                    background: linear-gradient({{ bg_color.for.low_light }}, {{ bg_color.for.high_light }});
-                }
-                .grade_against{
-                    background: linear-gradient({{ bg_color.against.low_light }}, {{ bg_color.against.high_light }});
-                }
-            </style>
-            <colgroup>
-              <col class="grade_for" />
-              <col />
-              <col class="grade_against"/>
-            </colgroup>
-            <tbody>
-                {% for grade_scale in grade_scales %}
-                    <tr>
-                        {% if grade_scale.name != "Нет оценки" %}
-                        <td class="table-border">
-                            {{ grade_scale.name }}
-                        </td>
-                        <td style="border: none;"></td>
-                        <td class="table-border">
-                            {{ grade_scale.name }}
-                        </td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        </div>
-    </div>
-    <div class="row justify-content-center">
-        <table class="table table-sm text-center" style="border-collapse:collapse; width: 200px;">
-            <tbody>
-                <td class="text-center table-border">
-                    Нет оценки
-                </td>
-            </tbody>
-        </table>
-    </div>
-    {% endif %}
-      -->
     {% endif %}
     <script>
         function init() {
