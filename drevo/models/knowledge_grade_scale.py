@@ -64,7 +64,7 @@ class KnowledgeGradeScale(models.Model):
         if grade_value is None:
             return None
 
-        queryset = cls.objects.all()
+        queryset = cls.objects.all().order_by('order')
         for obj in queryset:
             if obj.low_value < grade_value < obj.high_value:
                 return obj
