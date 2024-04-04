@@ -185,6 +185,10 @@ class Znanie(models.Model):
     def get_proof_base_grade(self, request, variant):
         """
         Возвращает числовое значение оценки доказательной базы
+        как среднее от всех ненулевых оценок
+        в зависимости от варианта
+            1 - оценка берется не дальше аргументов
+            2 - оценка берется по всему дереву базы
         """
 
         sum_list = []
@@ -207,9 +211,10 @@ class Znanie(models.Model):
         # ОДБ := среднее арифметическое Оценок вкладов доводов (ОВД) среди существенных доводов..
         proof_base_value = sum(sum_list) / len(sum_list)
 
-        if proof_base_value < 0:
+        # TODO: Решение под вопросом!
+        #if proof_base_value < 0:
             # Если ОДБ < 0, тогда ОДБ := 0
-            proof_base_value = 0
+            #proof_base_value = 0
 
         return proof_base_value
 
