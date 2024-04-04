@@ -101,13 +101,19 @@ class Relation(models.Model):
         )
 
     def get_proof_grade(self, request, variant):
-        """Значение оценки довода (ЗОД)"""
+        """Значение оценки довода (ЗОД)
+            request - словарь с параметрами запроса
+            variant - вариант оценки: 1 - прямая оценка знания, 2 - общая оценка знания
+            = оценка связи н* оценка знания
+        """
 
+        # получаем оценку знания - общую или прямую (если есть)
         if variant == 2:
             related_knowledge_grade, _ = self.rz.get_common_grades(request)
         else:
             related_knowledge_grade = self.rz.get_users_grade(request.user)
 
+        # получаем оценку связи
         grades = self.grades.filter(user=request.user)
         if grades.exists():
             relation_grade = grades.first().grade.get_base_grade()
@@ -124,10 +130,14 @@ class Relation(models.Model):
         """Оценка вклада довода (ОВД)"""
         proof_grade = self.get_proof_grade(request, variant)
 
-        if proof_grade:
+        if proof_grade and proof_grade >= 0:
             # Если ЗОД имеет реальное значение, тогда расчет ОВД проводится по формуле.
             # Если расчета нет, то ОВД равен None.
-            return proof_grade * (-2 * self.tr.argument_type + 1)
+
+            # Так как argument_type ЗА почему то False, а против - True
+            # то определяем знак связи Аргумент-Контраргумент вот так
+            argument_sign = -1 if self.tr.argument_type else 1
+            return proof_grade * argument_sign
         else:
             return None
 
