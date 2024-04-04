@@ -187,15 +187,9 @@
                                 </td>
                                 <td class="table-border" >
                                     <div class="knowledge-title" style="max-width: 550px;">
-                                        {% if relation.rz|has_children %}
                                             <a class="text-dark text-decoration-none" href="{{ relation.rz.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
                                                 {{ relation.rz.name }}
                                             </a>
-                                        {% else %}
-                                            <a class="text-dark text-decoration-none" href="{{ relation.rz.get_absolute_url }}">
-                                                {{ relation.rz.name }}
-                                            </a>
-                                        {% endif %}
                                     </div>
                                 </td>
                                 <td class="table-border">
