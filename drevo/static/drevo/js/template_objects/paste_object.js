@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
 
 paste_btn.addEventListener("click", (e) => {
 	if (document.readyState == 'complete') {
-		let element = CKEDITOR.dom.element.createFromHtml(`<span contenteditable="false"><${focused_object_header.innerHTML}></span>`)
+		let element = CKEDITOR.dom.element.createFromHtml(`<span class="template-object" id="${focused_object.id}" contenteditable="false"><${focused_object_header.innerHTML}></span>`)
 		let space = CKEDITOR.dom.element.createFromHtml("<span>&nbsp;</span>")
 		CKEDITOR.instances.id_content.insertElement(element)
 		CKEDITOR.instances.id_content.insertElement(space)

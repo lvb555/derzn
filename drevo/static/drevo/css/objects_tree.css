@@ -6,12 +6,31 @@ a {
     text-decoration: none;
 }
 
-.objects-tree-block {
+.btn {
+	color: black;
+}
+
+.content {
 	background: white;
+	display: flex;
+	justify-content: space-between;
 	border-radius: 1.3rem;
 	padding: 20px;
 }
 
+.img-block {
+	display: block;
+	height: 1.8rem;
+	width: 1.8rem;
+	margin: 0.5rem 0;
+}
+
+.img-block img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+}
 
 /*Заголовки страницы*/
 .title {
@@ -34,6 +53,12 @@ a {
 	position: relative;
 	font-size: 1.2rem;
 	margin: 0 0 10px 0;
+	padding-left: 2rem;
+	position: relative;
+}
+
+.node.leaf {
+	padding-left: 0;
 }
 
 .child-node:before {
@@ -48,13 +73,19 @@ a {
 	height: 20px;
 }
 
+
+/*имя объекта*/
 .node-name {
 	font-size: 1.2rem;
-	margin: 0;
+	margin: 0 0 0 10px;
 }
 
-.node-name span:hover {
+.node:not(.group) > .node-name span:hover {
 	background: #DFDBDB;
+}
+
+.node.group > .node-name span {
+	border: dashed black 2px;
 }
 
 .node-name span {
@@ -70,29 +101,55 @@ a {
   	-ms-user-select: none;       /* Internet Explorer/Edge */
 }
 
-.node-name__expand-btn {
-	display: inline-block;
-	margin: 0 7px 0 0;
-	height: 1.8rem;
-	width: 1.8rem;
-	margin: 0.5rem 0;
+/*кнопки свернуть и развернуть*/
+
+.node__collapse-expand-btns {
+	position: absolute;
+	top: -4px;
+	left: 8px;
+}
+
+.node.leaf .node__collapse-expand-btns {
+	display: none;
+}
+
+.node__collapse-expand-btns > button{
 	background: silver;
 	border: none;
 	border-radius: 100%;
 	padding: 5px;
 }
 
-.node-name__expand-btn img {
-	display: block;
-	width: 100%;
-	height: 100%;
-	padding: 0;
+.node__expand-btn.hidden, .node__collapse-btn.hidden, .node-children.hidden {
+	display: none;
 }
 
-.node-name__expand-btn_inactive {
-	opacity: 30%;
-}
+/*стили наследников*/
 
 .node-children {
-	margin: 0;
+	margin-top: 10px;
+}
+
+/*стиль блока, оповещающего пользователя*/
+.log-container {
+	position: absolute;
+	top: 20vh;
+	right: -5vw;
+	width: 20vw;
+}
+
+.log-container__log {
+	min-height: 100px;
+	width: 95%;
+	margin: auto;
+	border-radius: 0.5rem;
+
+	padding: 10px;
+	margin-bottom: 5px;
+	text-align: center;
+	background: #353535;
+	color: white;
+	
+	transition: 0.5s;
+	opacity: 0%;
 }

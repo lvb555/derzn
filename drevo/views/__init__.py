@@ -142,7 +142,6 @@ from .relations_preparing_work import (
 
 from .document_text_template import (
     DocumentTextTemplateEdit,
-    turple_processing_view,
     document_object_processing_view,
     ObjectsTree,
     save_text_template_view

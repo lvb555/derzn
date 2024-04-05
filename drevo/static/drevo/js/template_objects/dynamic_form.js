@@ -1,4 +1,4 @@
-let turple_block = document.querySelector("#turple") // поле выбора справочника
+let turple_block = document.querySelector("#tuple") // поле выбора справочника
 
 let subscription_block = document.querySelector("#subscription") // чекбокс "прописью"
 
@@ -28,7 +28,3 @@ document.querySelector("#structure input").addEventListener("change", update_sta
 
 // изменили тип значения
 document.querySelector("#type_of select").addEventListener("change", update_state)
-
-
-// селектор словаря
-document.querySelector(".turple-selection__field select").addEventListener("change", update_state)

@@ -50,20 +50,20 @@ document.querySelectorAll(".object-card__btn.edit").forEach((i) => {
 
 
 // открыть форму для создания
-document.querySelector(".template__template-actions .template-btn.create").addEventListener("click", (e) => {
-	edit_menu_title.innerHTML = "Создание объекта шаблона"
-	action = "create"
-	editing_var = null
-	document.querySelectorAll(".edit-menu > .field input, .edit-menu > .field select").forEach((i) => {
-		if (i.type == "checkbox" || i.type == "radio") {
-			i.checked = false
-		} else {
-			i.value = ""
-		}
-	})
+// document.querySelector(".template__template-actions .template-btn.create").addEventListener("click", (e) => {
+// 	edit_menu_title.innerHTML = "Создание объекта шаблона"
+// 	action = "create"
+// 	editing_var = null
+// 	document.querySelectorAll(".edit-menu > .field input, .edit-menu > .field select").forEach((i) => {
+// 		if (i.type == "checkbox" || i.type == "radio") {
+// 			i.checked = false
+// 		} else {
+// 			i.value = ""
+// 		}
+// 	})
 
-	update_state(e)
-})
+// 	update_state(e)
+// })
 
 
 // отправка формы
