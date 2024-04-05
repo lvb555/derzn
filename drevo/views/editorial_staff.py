@@ -57,8 +57,8 @@ def update_roles(request):
     else:
         user.is_employee = False
         user.is_superuser = False
-        message += "Лишение права Сотрудника редакции."
-        subject = "Вы лишены права Сотрудника редакции."
+        message += "Вы лишены права Сотрудника редакции"
+        subject = "Лишение права Сотрудника редакции."
 
     message += '\n\nРедакция портала "Дерево знаний" '
     user.save()
