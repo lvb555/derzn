@@ -18,7 +18,6 @@ def interviews_all(request):
 
     category_interviews = []
     for category in categories:
-        # print(category.interviews)
         valid_interviews = []
         for interview in category.interviews:
             period = Relation.objects.filter(bz=interview, tr__name="Период интервью").first()
