@@ -1,14 +1,14 @@
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from drevo.common import variables
 from mptt.models import TreeForeignKey
-from users.models import User
 
-from ..managers import ZManager
+from drevo.common import variables
+from users.models import User
 from .category import Category
 from .knowledge_grade_scale import KnowledgeGradeScale
 from .knowledge_rating import ZnRating
+from ..managers import ZManager
 
 
 class Znanie(models.Model):

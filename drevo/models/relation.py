@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+
 from drevo.models.relation_grade_scale import RelationGradeScale
 from users.models import User
 
