@@ -48,23 +48,26 @@ class KnowledgeGradeScale(models.Model):
     def __str__(self):
         return self.name
 
-    def get_base_grade(self):
+    def get_base_grade(self) -> float:
         """ Оценка знания в форме числа """
 
-        return (self.low_value + self.high_value) / 2 if self.low_value != 2.0 else None
+        # откуда здесь такое условие ?????
+        # return (self.low_value + self.high_value) / 2 if self.low_value != 2.0 else None
+        return (self.low_value + self.high_value) / 2
 
     @classmethod
-    def get_grade_object(cls, grade_value):
+    def get_grade_object(cls, grade_value) -> 'KnowledgeGradeScale':
         """
         Возвращает объект шкалы оценок знания,
         в диапазон которой входит grade_value.
 
-        По умолчанию возвращает последний (с наименьшим значением)
+        Если ничего не подходит - вернет последний элемент по порядку order
         """
         if grade_value is None:
-            return None
+            return cls.get_default_grade()
 
         queryset = cls.objects.all().order_by('order')
+
         for obj in queryset:
             if obj.low_value < grade_value < obj.high_value:
                 return obj
@@ -73,3 +76,16 @@ class KnowledgeGradeScale(models.Model):
             elif obj.is_high_in_range and obj.high_value == grade_value:
                 return obj
         return queryset.last()
+
+    @classmethod
+    def get_default_grade(cls):
+        """ Оценка по умолчанию"""
+        # берем оценку максимально близкую к 0
+        return cls.get_grade_object(0)
+
+    def is_hidden(self) -> bool:
+        """ Признак скрытия (системности) оценки
+            в шкале оно есть, а выбрать из списка и присвоить нельзя
+            По-хорошему надо иметь поле в модели!
+        """
+        return self.name == 'Нет оценки'

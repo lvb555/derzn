@@ -146,18 +146,19 @@ class Znanie(models.Model):
     def get_comments_count(self):
         return self.comments.filter(parent=None).count()
 
-    def get_users_grade(self, user: User):
+    def get_users_grade(self, user: User) -> float | None:
         """
         Оценка пользователя user.
-        По умолчанию - Нет оценки
+        По умолчанию -  None
         """
 
-        queryset = self.grades.filter(user=user)
-        if queryset.exists():
-            return queryset.first().grade.get_base_grade()
-        return KnowledgeGradeScale.objects.get(name="Нет оценки").get_base_grade()
+        knowledge_grade = self.grades.filter(user=user).first()
+        if knowledge_grade:
+            return knowledge_grade.grade.get_base_grade()
+        else:
+            return None
 
-    def get_common_grades(self, request):
+    def get_common_grades(self, request) -> tuple[float | None, float | None]:
         """
         Расчёт общей оценки знания.
         Возвращает числовое значение общей оценки и
@@ -182,7 +183,7 @@ class Znanie(models.Model):
 
         return common_grade_value, proof_base_value
 
-    def get_proof_base_grade(self, request, variant):
+    def get_proof_base_grade(self, request, variant) -> float | None:
         """
         Возвращает числовое значение оценки доказательной базы
         как среднее от всех ненулевых оценок
@@ -211,17 +212,12 @@ class Znanie(models.Model):
         # ОДБ := среднее арифметическое Оценок вкладов доводов (ОВД) среди существенных доводов..
         proof_base_value = sum(sum_list) / len(sum_list)
 
-        # TODO: Решение под вопросом!
-        #if proof_base_value < 0:
-            # Если ОДБ < 0, тогда ОДБ := 0
-            #proof_base_value = 0
-
         return proof_base_value
 
     @staticmethod
-    def get_default_grade():
-        """Возвращает числовое значение оценки по умолчанию"""
-        return KnowledgeGradeScale.objects.all().first().get_base_grade()
+    def get_default_grade() -> KnowledgeGradeScale:
+        """Возвращает оценку по умолчанию"""
+        return KnowledgeGradeScale.get_default_grade()
 
     def get_ancestors_category(self):
         """
