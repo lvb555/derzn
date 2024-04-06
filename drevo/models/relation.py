@@ -100,11 +100,11 @@ class Relation(models.Model):
             ),
         )
 
-    def get_proof_grade(self, request, variant):
+    def get_proof_grade(self, request, variant) -> float | None:
         """Значение оценки довода (ЗОД)
             request - словарь с параметрами запроса
             variant - вариант оценки: 1 - прямая оценка знания, 2 - общая оценка знания
-            = оценка связи н* оценка знания
+            = оценка связи * оценка знания
         """
 
         # получаем оценку знания - общую или прямую (если есть)
@@ -114,11 +114,12 @@ class Relation(models.Model):
             related_knowledge_grade = self.rz.get_users_grade(request.user)
 
         # получаем оценку связи
-        grades = self.grades.filter(user=request.user)
-        if grades.exists():
-            relation_grade = grades.first().grade.get_base_grade()
+        rel_grade = self.grades.filter(user=request.user).first()
+        if rel_grade:
+            relation_grade = rel_grade.grade.get_base_grade()
         else:
-            relation_grade = RelationGradeScale.objects.first().get_base_grade()
+            # берем оценку по умолчанию
+            relation_grade = RelationGradeScale.get_default_grade().get_base_grade()
 
         return (
             related_knowledge_grade * relation_grade
@@ -126,7 +127,7 @@ class Relation(models.Model):
             else None
         )
 
-    def get_proof_weight(self, request, variant):
+    def get_proof_weight(self, request, variant) -> float | None:
         """Оценка вклада довода (ОВД)"""
         proof_grade = self.get_proof_grade(request, variant)
 
@@ -142,5 +143,6 @@ class Relation(models.Model):
             return None
 
     @staticmethod
-    def get_default_grade():
-        return RelationGradeScale.objects.all().first().get_base_grade()
+    def get_default_grade() -> RelationGradeScale:
+        """ Оценка по умолчанию """
+        return RelationGradeScale.get_default_grade()
