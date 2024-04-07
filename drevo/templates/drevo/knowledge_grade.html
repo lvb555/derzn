@@ -7,6 +7,15 @@
 
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/knowledge_grade.css' %}">
+{% scale_color_styles %}
+<style>
+    select {
+        color: inherit;
+        background-color: inherit;
+        border: none;
+        padding: 0;
+    }
+</style>
 {% endblock %}
 
 {% block title %}
@@ -45,6 +54,8 @@
                 <i class="bi bi-file-earmark-fill text-success" style="font-size: 1.4rem; font-style: normal;">
                     <span class="header" style="font-size:24px;">{{ knowledge.name }}</span>
                 </i>
+                <br>
+                <i>{{knowledge.is_full_rated|yesno:"Знание полностью оценено, Знание не полностью оценено"}} </i>
             </div>
             <a class="btn btn-filled-gray" href="{{ knowledge.get_absolute_url }}">
                 Вернуться на страницу знания
@@ -70,7 +81,7 @@
             </div>
         </div>
     {% else %}
-        {% if proof_relations.exists %}
+        {% if proof_relations %}
             <div class="my-4 header-tab">
                 <form action="{{ request.get_full_path }}" method="get" id="modeForm">
                     <div class="d-flex flex-row align-items-center">
@@ -103,24 +114,25 @@
                 </form>
             </div>
         {% endif %}
+
         <form action="{{ request.get_full_path }}" method="post" id="gradeForm">
             {% csrf_token %}
             <input type="hidden" name="variant" readonly value="{{ request.GET.variant }}">
             <div class="row justify-content-between">
                 <div class="col">
                     <p style="font-size:14px;color: #6C757D;">Оценка знания</p>
-                    <div class="knowledge_grade"
-                        {% if selected_base_grade.grade.name != "Нет оценки" %}
-            style="background: {{ selected_base_grade.grade.get_base_grade|get_color_from_knowledge_grade_value:0 }};"
-                        {% endif %}>
-                        <select name="base_knowledge_grade" id="id_base_knowledge_grade"
-                        {% if selected_base_grade.grade.name != "Нет оценки" %}
-            style="background: {{ selected_base_grade.grade.get_base_grade|get_color_from_knowledge_grade_value:0 }}; border:none; padding: 0;"
-                        {% endif %}>
+                    <div class="knowledge_grade {{ selected_base_grade|get_color_style }}">
+                        <select name="base_knowledge_grade" id="id_base_knowledge_grade" autocomplete="off">
+
+                            {# Если прилетело что то скрываемое, то показываем в списке, но не даем выбирать #}
+                            {% if selected_base_grade.is_hidden %}
+                                <option value="" selected hidden>{{ selected_base_grade.name }}</option>
+                            {% endif %}
+
                             {% for grade in knowledge_scale %}
-                                {% if grade.name != "Нет оценки" %}
+                                {% if not grade.is_hidden %}
                                 <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
-                                        {% if selected_base_grade and selected_base_grade.grade == grade %}
+                                        {% if selected_base_grade and selected_base_grade == grade %}
                                         selected {% endif %}>
                                     {{ grade.name }}
                                 </option>
@@ -128,15 +140,13 @@
                             {% endfor %}
                         </select>
                         <br>
-                        <span style="font-weight: 500;">{{ selected_base_grade.grade.get_base_grade|floatformat:-2 }}</span>
+
+                        <span style="font-weight: 500;">{{ selected_base_grade.get_base_grade|floatformat:-2 }}</span>
                     </div>
                 </div>
                 <div class="col">
                     <p style="font-size:14px;color: #6C757D;">Оценка доказательной базы</p>
-                    <div class="knowledge_grade"
-                        {% if proof_base_grade.name != "Нет оценки" %}
-            style="background: {{ proof_base_value|get_color_from_knowledge_grade_value:0 }};"
-                        {% endif %}>
+                    <div class="knowledge_grade {{ proof_base_grade|get_color_style }}">
                         {{ proof_base_grade.name }}
                         <br>
                         <span style="font-weight: 500;">{{ proof_base_value|floatformat:-2 }}</span>
@@ -144,17 +154,14 @@
                 </div>
                 <div class="col">
                     <p style="font-size:14px;color: #6C757D;">Общая оценка знания</p>
-                    <div class="knowledge_grade"
-                        {% if common_grade.name != "Нет оценки" %}
-            style="background: {{ common_grade_value|get_color_from_knowledge_grade_value:0 }};"
-                        {% endif %}>
+                    <div class="knowledge_grade {{ common_grade|get_color_style }}">
                         {{ common_grade.name }}
                         <br>
                         <span style="font-weight: 500;">{{ common_grade_value|floatformat:-2 }}</span>
                     </div>
                 </div>
             </div>
-            {% if proof_relations.exists %}
+            {% if proof_relations %}
                 <br>
                 <br>
                 <h4 class="my-4 header" style="font-size: 20px;">Доказательная база знания</h4>
@@ -181,68 +188,74 @@
                         {% for relation in proof_relations %}
                             <tr>
                                 <input type="hidden" name="relation_row" value="{{ relation.id }}">
+
+                                {# Иконка знания #}
                                 <td class="table-border" style="border-right: none;">
-                                    <i class="bi bi-file-earmark-fill text-success" style="font-size: 20px">
-                                    </i>
+                                    {% if relation.rz|has_children %}
+                                        <i class="bi bi-file-earmark-plus-fill text-success" style="font-size: 20px"></i>
+                                    {% else %}
+                                        <i class="bi bi-file-earmark-fill text-success" style="font-size: 20px"></i>
+                                    {% endif %}
+
                                 </td>
+
+                                {# Название знания #}
                                 <td class="table-border" >
                                     <div class="knowledge-title" style="max-width: 550px;">
-                                        {% if relation.rz|has_children %}
                                             <a class="text-dark text-decoration-none" href="{{ relation.rz.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
                                                 {{ relation.rz.name }}
                                             </a>
-                                        {% else %}
-                                            <a class="text-dark text-decoration-none" href="{{ relation.rz.get_absolute_url }}">
-                                                {{ relation.rz.name }}
-                                            </a>
-                                        {% endif %}
+                                            <hr>
+                                            <i>{{relation.is_full_rated|yesno:"Знание полностью оценено, Знание не полностью оценено"}} </i>
                                     </div>
                                 </td>
+
+                                {# Вид связи #}
                                 <td class="table-border">
                                     {{ relation.tr.name|endings_filter }}
                                 </td>
+
+                                {# Оценка Довода #}
                                 {% with relation|proof_grade:request as pw %}
                                     <td class="table-border">
-                                        <div class="knowledge_grade" style="width: 200px;{% if pw != 0 %} background: {{ pw|get_color_from_knowledge_grade_value:relation.tr.argument_type }};{% endif %}">
-                                            {% if pw == 0 %}
-                                            <span class="item-missing" style="color: red">Нет оценки</span>
-                                            {% else %}
+                                        <div class="knowledge_grade {{ pw|grade|get_color_style:relation.tr.argument_type }}" style="width: 200px;">
                                             <span>
                                                 {{ pw|grade_name }}
                                             </span>
                                             <br>
-                                            <span style="font-weight: 500;">{{ pw|floatformat:-2 }}</span>
-                                            {% endif %}
+                                            <span style="font-weight: 500;">{{ pw|default_if_none:0|floatformat:-2 }}</span>
                                         </div>
                                     </td>
                                 {% endwith %}
+
+                                {# Общая Оценка Знания #}
                                 {% with relation.rz|common_grades:request as grades_iter %}
                                     <td class="table-border">
-                                        <div class="knowledge_grade" style="width: 200px; {% if grades_iter.0 != 0 %}background: {{ grades_iter.0|get_color_from_knowledge_grade_value:relation.tr.argument_type }};{% endif %}">
-                                            {% if grades_iter.0 == 0 %}
-                                            <span class="item-missing" style="color: red">Нет оценки</span>
-                                            {% else %}
-                                                {{ grades_iter.0|grade_name }}
-                                                <br>
-                                                <span style="font-weight: 500;">{{ grades_iter.0|floatformat:-2 }}</span>
-                                            {% endif %}
+                                        <div class="knowledge_grade {{ grades_iter.0|grade|get_color_style:relation.tr.argument_type }}"  style="width: 200px;">
+                                            {{ grades_iter.0|grade_name }}
+                                            <br>
+                                            <span style="font-weight: 500;">{{ grades_iter.0|default_if_none:0|floatformat:-2 }}</span>
                                         </div>
                                     </td>
                                 {% endwith %}
+
+                                {# Оценка Знания #}
+                                {% with relation.rz|object_grade:user as knowledge_grade %}
                                 <td class="table-border">
-                                    <div class="knowledge_grade"
-                                    {% if relation.rz|object_grade_num:user|grade_name != "Нет оценки" %}
-            style="background: {{ relation.rz|object_grade_num:user|get_color_from_knowledge_grade_value:relation.tr.argument_type }}; width: auto;"
-                                    {% else %}
-                                    style="width: auto;"
-                                    {% endif %}>
-                                        <select name="knowledge_grade" id="id_relation_grade{{ relation.id }}"
-                                                style="background: none; border: none; padding: 0;">
+                                    <div class="knowledge_grade {{ knowledge_grade|get_color_style:relation.tr.argument_type }}"
+                                    style="width: auto;">
+                                        <select name="knowledge_grade" id="id_relation_grade{{ relation.id }}" autocomplete="off">
+
+                                            {# Если прилетело скрытое (системное типа нет оценки), то показываем его, но не даем выбирать#}
+                                            {% if knowledge_grade.is_hidden %}
+                                                <option value="" selected hidden>{{ knowledge_grade.name }}</option>
+                                            {% endif %}
+
                                             {% for grade in knowledge_scale %}
-                                                {% if grade.name != "Нет оценки" %}
+                                                {% if not grade.is_hidden %}
                                                 <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                                         id="proofRelationId{{ relation.id }}"
-                                                        {% if relation.rz|object_grade:user == grade %} selected {% endif %}>
+                                                        {% if knowledge_grade == grade %} selected="true" {% endif %}>
                                                     {{ grade.name }}
                                                 </option>
                                                 {% endif %}
@@ -254,21 +267,28 @@
                                         </span>
                                     </div>
                                 </td>
+                                {% endwith %}
+
+                                {# Оценка Связи #}
+                                {% with relation|object_grade:user as relation_grade %}
                                 <td class="table-border" style="border-right: none;">
-                                    <div class="knowledge_grade"
-                                    {% if relation|object_grade_num:user|grade_name != "Нет оценки" %}
-            style="background: {{ relation|object_grade_num:user|get_color_from_knowledge_grade_value:relation.tr.argument_type }}; width: auto;"
-                                    {% else %}
-                                    style="width: auto;"
-                                    {% endif %}>
-                                        <select name="relation_grade" id="id_relation_grade{{ relation.id }}"
-                                                style="background:none; border: none; padding: 0;">
+                                    <div class="knowledge_grade" style="width: auto;">
+
+                                        <select name="relation_grade" id="id_relation_grade{{ relation.id }}" autocomplete="off">
+
+                                            {# Если прилетело скрытое (системное типа нет оценки), то показываем его, но не даем выбирать#}
+                                            {% if relation_grade.is_hidden %}
+                                                <option value="" selected hidden>{{ relation_grade.name }}</option>
+                                            {% endif %}
+
                                             {% for grade in relation_scale %}
-                                                <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
+                                                {% if not grade.is_hidden %}
+                                                    <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
                                                         id="proofRelationId{{ relation.id }}"
-                                                        {% if relation|object_grade:user == grade %} selected {% endif %}>
-                                                    {{ grade.name }}
-                                                </option>
+                                                        {% if relation_grade == grade %} selected {% endif %}>
+                                                        {{ grade.name }}
+                                                    </option>
+                                                {% endif %}
                                             {% endfor %}
                                         </select>
                                         <br>
@@ -277,6 +297,7 @@
                                         </span>
                                     </div>
                                 </td>
+                                {% endwith %}
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -284,62 +305,6 @@
             {% endif %}
         </form>
     </div>
-    <!--
-    {% if grade_scales %}
-    <div class="row justify-content-center">
-        <h4 class="text-center my-4">Легенда</h4>
-        <div class="col-6">
-        <div style="display:flex; flex-direction: row; justify-content: space-between;">
-            <p> </p>
-            <p class="text-center" style="width: 150px;"><strong>Любая оценка</strong></p>
-            <p> </p>
-            <p class="text-center" style="width: 150px;"><strong>Довод "Против"</strong></p>
-            <p> </p>
-        </div>
-        <table class="table table-sm text-center" style="border-collapse: collapse;">
-            <style>
-                {% get_gradients as bg_color %}
-                .grade_for{
-                    background: linear-gradient({{ bg_color.for.low_light }}, {{ bg_color.for.high_light }});
-                }
-                .grade_against{
-                    background: linear-gradient({{ bg_color.against.low_light }}, {{ bg_color.against.high_light }});
-                }
-            </style>
-            <colgroup>
-              <col class="grade_for" />
-              <col />
-              <col class="grade_against"/>
-            </colgroup>
-            <tbody>
-                {% for grade_scale in grade_scales %}
-                    <tr>
-                        {% if grade_scale.name != "Нет оценки" %}
-                        <td class="table-border">
-                            {{ grade_scale.name }}
-                        </td>
-                        <td style="border: none;"></td>
-                        <td class="table-border">
-                            {{ grade_scale.name }}
-                        </td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        </div>
-    </div>
-    <div class="row justify-content-center">
-        <table class="table table-sm text-center" style="border-collapse:collapse; width: 200px;">
-            <tbody>
-                <td class="text-center table-border">
-                    Нет оценки
-                </td>
-            </tbody>
-        </table>
-    </div>
-    {% endif %}
-      -->
     {% endif %}
     <script>
         function init() {

@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+
 from drevo.models.relation_grade_scale import RelationGradeScale
 from users.models import User
 
@@ -100,19 +101,26 @@ class Relation(models.Model):
             ),
         )
 
-    def get_proof_grade(self, request, variant):
-        """Значение оценки довода (ЗОД)"""
+    def get_proof_grade(self, request, variant) -> float | None:
+        """Значение оценки довода (ЗОД)
+            request - словарь с параметрами запроса
+            variant - вариант оценки: 1 - прямая оценка знания, 2 - общая оценка знания
+            = оценка связи * оценка знания
+        """
 
+        # получаем оценку знания - общую или прямую (если есть)
         if variant == 2:
             related_knowledge_grade, _ = self.rz.get_common_grades(request)
         else:
             related_knowledge_grade = self.rz.get_users_grade(request.user)
 
-        grades = self.grades.filter(user=request.user)
-        if grades.exists():
-            relation_grade = grades.first().grade.get_base_grade()
+        # получаем оценку связи
+        rel_grade = self.grades.filter(user=request.user).first()
+        if rel_grade:
+            relation_grade = rel_grade.grade.get_base_grade()
         else:
-            relation_grade = RelationGradeScale.objects.first().get_base_grade()
+            # берем оценку по умолчанию
+            relation_grade = RelationGradeScale.get_default_grade().get_base_grade()
 
         return (
             related_knowledge_grade * relation_grade
@@ -120,17 +128,22 @@ class Relation(models.Model):
             else None
         )
 
-    def get_proof_weight(self, request, variant):
+    def get_proof_weight(self, request, variant) -> float | None:
         """Оценка вклада довода (ОВД)"""
         proof_grade = self.get_proof_grade(request, variant)
 
-        if proof_grade:
+        if proof_grade and proof_grade >= 0:
             # Если ЗОД имеет реальное значение, тогда расчет ОВД проводится по формуле.
             # Если расчета нет, то ОВД равен None.
-            return proof_grade * (-2 * self.tr.argument_type + 1)
+
+            # Так как argument_type ЗА почему то False, а против - True
+            # то определяем знак связи Аргумент-Контраргумент вот так
+            argument_sign = -1 if self.tr.argument_type else 1
+            return proof_grade * argument_sign
         else:
             return None
 
     @staticmethod
-    def get_default_grade():
-        return RelationGradeScale.objects.all().first().get_base_grade()
+    def get_default_grade() -> RelationGradeScale:
+        """ Оценка по умолчанию """
+        return RelationGradeScale.get_default_grade()
