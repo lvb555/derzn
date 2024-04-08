@@ -105,7 +105,7 @@
                                 <label for="var2"
                                        {% if request.GET.variant == '2' %} class="check-type-knowledge-grade-active"
                                        {% else %} class="check-type-knowledge-grade" {% endif %}>
-                                    Общая оценка знания
+                                    Итоговая оценка знания
                                 </label>
                             </span>
                         </fieldset>
@@ -153,7 +153,7 @@
                     </div>
                 </div>
                 <div class="col">
-                    <p style="font-size:14px;color: #6C757D;">Общая оценка знания</p>
+                    <p style="font-size:14px;color: #6C757D;">Итоговая оценка знания</p>
                     <div class="knowledge_grade {{ common_grade|get_color_style }}">
                         {{ common_grade.name }}
                         <br>
@@ -177,7 +177,7 @@
                             Оценка довода
                         </th>
                         <th class="table-border" style="border-top: none;">
-                            Общая оценка знания
+                            Итоговая оценка знания
                         </th>
                         <th class="table-border" style="border-top: none;">
                             Оценка знания
