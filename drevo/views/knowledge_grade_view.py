@@ -125,11 +125,7 @@ class KnowledgeFormView(TemplateView):
 
         user = request.user
 
-        # данных не будет, если значение в списке не выбрано (выбрано скрытое)
-        if "base_knowledge_grade" not in request.POST:
-            base_knowledge_grade = None
-        else:
-            base_knowledge_grade = request.POST["base_knowledge_grade"]
+        base_knowledge_grade = request.POST["base_knowledge_grade"]
 
         # обновляем базовую оценку знания
         if base_knowledge_grade:
