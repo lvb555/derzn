@@ -67,20 +67,6 @@ class KnowledgeFormView(TemplateView):
         else:
             variant = 1
 
-        # текущая оценка знания
-        selected_base_grade = KnowledgeGrade.objects.filter(
-            knowledge=knowledge,
-            user=user,
-        ).first()
-
-        # если оценки нет - получаем оценку по умолчанию
-        if not selected_base_grade:
-            selected_grade = Znanie.get_default_grade()
-        else:
-            selected_grade = selected_base_grade.grade
-
-        context["selected_base_grade"] = selected_grade
-
         # получаем список аргументов
         proof_relations = list(
             knowledge.base.filter(
@@ -93,7 +79,8 @@ class KnowledgeFormView(TemplateView):
         for relation in proof_relations:
             relation.is_full_rated = knowledge_is_full_rated(relation.rz, user, variant)
 
-        knowledge.is_full_rated = all([relation.is_full_rated for relation in proof_relations]) and selected_base_grade
+        knowledge_is_rated = knowledge_is_full_rated(knowledge, user, 1)
+        knowledge.is_full_rated = all([relation.is_full_rated for relation in proof_relations]) and knowledge_is_rated
         context["proof_relations"] = proof_relations
 
         # ищем родительское знание, не факт, что правильно

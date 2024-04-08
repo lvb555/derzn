@@ -120,30 +120,33 @@
             <input type="hidden" name="variant" readonly value="{{ request.GET.variant }}">
             <div class="row justify-content-between">
                 <div class="col">
-                    <p style="font-size:14px;color: #6C757D;">Оценка знания</p>
-                    <div class="knowledge_grade {{ selected_base_grade|get_color_style }}">
-                        <select name="base_knowledge_grade" id="id_base_knowledge_grade" autocomplete="off">
+                    {% with knowledge|object_grade:user as selected_base_grade %}
+                        <p style="font-size:14px;color: #6C757D;">Оценка знания</p>
+                        <div class="knowledge_grade {{ selected_base_grade|get_color_style }}">
+                            <select name="base_knowledge_grade" id="id_base_knowledge_grade" autocomplete="off">
 
-                            {# Если прилетело что то скрываемое, то показываем в списке, но не даем выбирать #}
-                            {% if selected_base_grade.is_hidden %}
-                                <option value="" selected hidden>{{ selected_base_grade.name }}</option>
-                            {% endif %}
-
-                            {% for grade in knowledge_scale %}
-                                {% if not grade.is_hidden %}
-                                <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
-                                        {% if selected_base_grade and selected_base_grade == grade %}
-                                        selected {% endif %}>
-                                    {{ grade.name }}
-                                </option>
+                                {# Если прилетело что то скрываемое, то показываем в списке, но не даем выбирать #}
+                                {% if selected_base_grade.is_hidden %}
+                                    <option value="" selected hidden>{{ selected_base_grade.name }}</option>
                                 {% endif %}
-                            {% endfor %}
-                        </select>
-                        <br>
 
-                        <span style="font-weight: 500;">{{ selected_base_grade.get_base_grade|floatformat:-2 }}</span>
-                    </div>
+                                {% for grade in knowledge_scale %}
+                                    {% if not grade.is_hidden %}
+                                    <option value="{{ grade.id }}" data-base-grade="{{ grade.get_base_grade }}"
+                                            {% if selected_base_grade and selected_base_grade == grade %}
+                                            selected {% endif %}>
+                                        {{ grade.name }}
+                                    </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <br>
+
+                            <span style="font-weight: 500;">{{ selected_base_grade.get_base_grade|floatformat:-2 }}</span>
+                        </div>
+                    {% endwith %}
                 </div>
+
                 <div class="col">
                     <p style="font-size:14px;color: #6C757D;">Оценка доказательной базы</p>
                     <div class="knowledge_grade {{ proof_base_grade|get_color_style }}">
