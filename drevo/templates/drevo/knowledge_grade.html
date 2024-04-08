@@ -189,43 +189,49 @@
                             <tr>
                                 <input type="hidden" name="relation_row" value="{{ relation.id }}">
 
-                                {# Иконка знания #}
-                                <td class="table-border" style="border-right: none;">
-                                    {% if relation.rz|has_children %}
-                                        <i class="bi bi-file-earmark-plus-fill text-success" style="font-size: 20px"></i>
-                                    {% else %}
-                                        <i class="bi bi-file-earmark-fill text-success" style="font-size: 20px"></i>
-                                    {% endif %}
-
-                                </td>
-
-                                {# Название знания #}
-                                <td class="table-border" >
-                                    <div class="knowledge-title" style="max-width: 550px;">
-                                            <a class="text-dark text-decoration-none" href="{{ relation.rz.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
-                                                {{ relation.rz.name }}
-                                            </a>
-                                            <hr>
-                                            <i>{{relation.is_full_rated|yesno:"Знание полностью оценено, Знание не полностью оценено"}} </i>
-                                    </div>
-                                </td>
-
-                                {# Вид связи #}
-                                <td class="table-border">
-                                    {{ relation.tr.name|endings_filter }}
-                                </td>
-
-                                {# Оценка Довода #}
                                 {% with relation|proof_grade:request as pw %}
-                                    <td class="table-border">
-                                        <div class="knowledge_grade {{ pw|grade|get_color_style:relation.tr.argument_type }}" style="width: 200px;">
-                                            <span>
-                                                {{ pw|grade_name }}
-                                            </span>
-                                            <br>
-                                            <span style="font-weight: 500;">{{ pw|default_if_none:0|floatformat:-2 }}</span>
+                                    {# Иконка знания #}
+                                    <td class="table-border" style="border-right: none;">
+                                        {% if relation.rz|has_children %}
+                                            <i class="bi bi-file-earmark-plus-fill text-success" style="font-size: 20px"></i>
+                                        {% else %}
+                                            <i class="bi bi-file-earmark-fill text-success" style="font-size: 20px"></i>
+                                        {% endif %}
+
+                                    </td>
+
+                                    {# Название знания #}
+                                    <td class="table-border" >
+                                        <div class="knowledge-title" style="max-width: 550px;">
+                                                <a class="text-dark text-decoration-none" href="{{ relation.rz.get_absolute_url }}/grade?variant={{ request.GET.variant }}">
+                                                    {{ relation.rz.name }}
+                                                </a>
+                                                <hr>
+                                                <i>{{relation.is_full_rated|yesno:"Знание полностью оценено, Знание не полностью оценено"}} </i>
                                         </div>
                                     </td>
+
+                                    {# Вид связи #}
+                                    <td class="table-border">
+                                        {{ relation.tr.name|endings_filter }}
+                                        <br>
+                                        {% if pw > 0 %}
+                                            <i class="bi bi-eye" style="font-size: 20px"></i>
+                                        {% else %}
+                                            <i class="bi bi-eye-slash" style="font-size: 20px"></i>
+                                        {% endif %}
+                                    </td>
+
+                                    {# Оценка Довода #}
+                                        <td class="table-border">
+                                            <div class="knowledge_grade {{ pw|grade|get_color_style:relation.tr.argument_type }}" style="width: 200px;">
+                                                <span>
+                                                    {{ pw|grade_name }}
+                                                </span>
+                                                <br>
+                                                <span style="font-weight: 500;">{{ pw|default_if_none:0|floatformat:-2 }}</span>
+                                            </div>
+                                        </td>
                                 {% endwith %}
 
                                 {# Общая Оценка Знания #}
