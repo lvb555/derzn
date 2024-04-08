@@ -171,15 +171,18 @@ class Znanie(models.Model):
         else:
             variant = 1
 
+        # оценка доказательной базы
         proof_base_value = self.get_proof_base_grade(request, variant)
-        if proof_base_value is not None:
-            users_grade = self.get_users_grade(request.user)
-            if users_grade is not None:
-                common_grade_value = (proof_base_value + users_grade) / 2
-            else:
-                common_grade_value = None
+        # прямая оценка пользователя
+        users_grade = self.get_users_grade(request.user)
+
+        # если есть оценка пользователя, отличная от 0 (и None), то берем ее
+        # иначе берем оценку доказательной базы (даже если она равна 0)
+
+        if users_grade:
+            common_grade_value = users_grade
         else:
-            common_grade_value = self.get_users_grade(request.user)
+            common_grade_value = proof_base_value
 
         return common_grade_value, proof_base_value
 
