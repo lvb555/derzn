@@ -156,19 +156,24 @@ class KnowledgeFormView(TemplateView):
         knowledge_grades = self.request.POST.getlist("knowledge_grade")
         relation_grades = self.request.POST.getlist("relation_grade")
 
+        default_relation_grade_id = Relation.get_default_grade().pk
+        default_knowledge_grade_id = Znanie.get_default_grade().pk
+
         # Обновляем ВСЕ данные? Зачем? Только одна строка же меняется
         for i, relation_id in enumerate(relation_rows):
             relation = Relation.objects.get(id=relation_id)
 
             # если пришло пустое значение - пропускаем
-            if knowledge_grades[i]:
+            # не сохраняем в базу значение по умолчанию
+            if knowledge_grades[i] and knowledge_grades[i] != default_knowledge_grade_id:
                 KnowledgeGrade.objects.update_or_create(
                     knowledge_id=relation.rz_id,
                     user=user,
                     defaults={"grade_id": knowledge_grades[i]},
                 )
 
-            if relation_grades[i]:
+            # не сохраняем в базу значение по умолчанию
+            if relation_grades[i] and relation_grades[i] != default_relation_grade_id:
                 RelationGrade.objects.update_or_create(
                     relation_id=relation.id,
                     user=user,
