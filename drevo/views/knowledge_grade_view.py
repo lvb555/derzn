@@ -67,20 +67,6 @@ class KnowledgeFormView(TemplateView):
         else:
             variant = 1
 
-        # текущая оценка знания
-        selected_base_grade = KnowledgeGrade.objects.filter(
-            knowledge=knowledge,
-            user=user,
-        ).first()
-
-        # если оценки нет - получаем оценку по умолчанию
-        if not selected_base_grade:
-            selected_grade = Znanie.get_default_grade()
-        else:
-            selected_grade = selected_base_grade.grade
-
-        context["selected_base_grade"] = selected_grade
-
         # получаем список аргументов
         proof_relations = list(
             knowledge.base.filter(
@@ -93,7 +79,8 @@ class KnowledgeFormView(TemplateView):
         for relation in proof_relations:
             relation.is_full_rated = knowledge_is_full_rated(relation.rz, user, variant)
 
-        knowledge.is_full_rated = all([relation.is_full_rated for relation in proof_relations]) and selected_base_grade
+        knowledge_is_rated = knowledge_is_full_rated(knowledge, user, 1)
+        knowledge.is_full_rated = all([relation.is_full_rated for relation in proof_relations]) and knowledge_is_rated
         context["proof_relations"] = proof_relations
 
         # ищем родительское знание, не факт, что правильно
@@ -138,11 +125,7 @@ class KnowledgeFormView(TemplateView):
 
         user = request.user
 
-        # данных не будет, если значение в списке не выбрано (выбрано скрытое)
-        if "base_knowledge_grade" not in request.POST:
-            base_knowledge_grade = None
-        else:
-            base_knowledge_grade = request.POST["base_knowledge_grade"]
+        base_knowledge_grade = request.POST["base_knowledge_grade"]
 
         # обновляем базовую оценку знания
         if base_knowledge_grade:
@@ -156,19 +139,24 @@ class KnowledgeFormView(TemplateView):
         knowledge_grades = self.request.POST.getlist("knowledge_grade")
         relation_grades = self.request.POST.getlist("relation_grade")
 
+        default_relation_grade_id = Relation.get_default_grade().pk
+        default_knowledge_grade_id = Znanie.get_default_grade().pk
+
         # Обновляем ВСЕ данные? Зачем? Только одна строка же меняется
         for i, relation_id in enumerate(relation_rows):
             relation = Relation.objects.get(id=relation_id)
 
             # если пришло пустое значение - пропускаем
-            if knowledge_grades[i]:
+            # не сохраняем в базу значение по умолчанию
+            if knowledge_grades[i] and knowledge_grades[i] != default_knowledge_grade_id:
                 KnowledgeGrade.objects.update_or_create(
                     knowledge_id=relation.rz_id,
                     user=user,
                     defaults={"grade_id": knowledge_grades[i]},
                 )
 
-            if relation_grades[i]:
+            # не сохраняем в базу значение по умолчанию
+            if relation_grades[i] and relation_grades[i] != default_relation_grade_id:
                 RelationGrade.objects.update_or_create(
                     relation_id=relation.id,
                     user=user,
