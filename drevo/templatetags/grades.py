@@ -22,6 +22,12 @@ def object_grade(obj, user):
 @register.filter
 def object_grade_num(obj, user):
     """Возвращает численную оценку от пользователя. Если ее нет - возвращает значение по умолчанию"""
+    grade = object_grade(obj, user)
+
+    # чтобы не показывать оценку знания для значения по умолчанию и 0
+    if isinstance(grade, KnowledgeGradeScale) and (grade.is_hidden() or grade.get_base_grade() == 0):
+        return None
+
     return object_grade(obj, user).get_base_grade()
 
 
@@ -42,7 +48,7 @@ def grade_name(value):
 
 @register.filter
 def common_grades(knowledge, request):
-    return knowledge.get_common_grades(request)
+    return knowledge.get_common_grades(request)[0]
 
 
 @register.filter
@@ -121,3 +127,8 @@ def get_color_style(grade: KnowledgeGradeScale, is_negative=False):
         return f"scale_{grade.pk}_negative"
     else:
         return f"scale_{grade.pk}_positive"
+
+
+@register.simple_tag
+def define(val=None):
+    return val

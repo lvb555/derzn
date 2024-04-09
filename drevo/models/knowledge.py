@@ -27,9 +27,7 @@ class Znanie(models.Model):
         limit_choices_to={"is_published": True},
     )
     tz = models.ForeignKey("Tz", on_delete=models.PROTECT, verbose_name="Вид знания")
-    content = models.TextField(
-        max_length=2048, blank=True, null=True, verbose_name="Содержание"
-    )
+    content = models.TextField(max_length=2048, blank=True, null=True, verbose_name="Содержание")
     href = models.URLField(
         max_length=256,
         verbose_name="Источник",
@@ -37,9 +35,7 @@ class Znanie(models.Model):
         null=True,
         blank=True,
     )
-    source_com = models.CharField(
-        max_length=256, verbose_name="Комментарий к источнику", null=True, blank=True
-    )
+    source_com = models.CharField(max_length=256, verbose_name="Комментарий к источнику", null=True, blank=True)
     author = models.ForeignKey(
         "Author",
         on_delete=models.PROTECT,
@@ -56,9 +52,7 @@ class Znanie(models.Model):
         auto_now=True,
         verbose_name="Дата и время редактирования",
     )
-    user = models.ForeignKey(
-        User, on_delete=models.PROTECT, editable=False, verbose_name="Пользователь"
-    )
+    user = models.ForeignKey(User, on_delete=models.PROTECT, editable=False, verbose_name="Пользователь")
     expert = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -100,9 +94,7 @@ class Znanie(models.Model):
     notification = models.BooleanField(default=False, verbose_name="Уведомления")
     several_works = models.BooleanField(default=False, verbose_name="Несколько работ")
 
-    meta_info = models.CharField(
-        max_length=1024, blank=True, null=True, verbose_name="Метаинформация"
-    )
+    meta_info = models.CharField(max_length=1024, blank=True, null=True, verbose_name="Метаинформация")
 
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
@@ -156,7 +148,7 @@ class Znanie(models.Model):
         if knowledge_grade:
             return knowledge_grade.grade.get_base_grade()
         else:
-            return None
+            return self.get_default_grade().get_base_grade()
 
     def get_common_grades(self, request) -> tuple[float | None, float | None]:
         """
@@ -173,8 +165,13 @@ class Znanie(models.Model):
 
         # оценка доказательной базы
         proof_base_value = self.get_proof_base_grade(request, variant)
+
         # прямая оценка пользователя
-        users_grade = self.get_users_grade(request.user)
+        knowledge_grade = self.grades.filter(user=request.user).first()
+        if knowledge_grade:
+            users_grade = knowledge_grade.grade.get_base_grade()
+        else:
+            users_grade = None
 
         # если есть оценка пользователя, отличная от 0 (и None), то берем ее
         # иначе берем оценку доказательной базы (даже если она равна 0)
@@ -201,16 +198,20 @@ class Znanie(models.Model):
             tr__is_argument=True,
             rz__tz__can_be_rated=True,
         )
+
         if queryset.exists():
             for relation in queryset:
                 grade = relation.get_proof_weight(request, variant)
 
                 if grade:
                     sum_list.append(grade)
+        else:
+            # Если нет аргументов .... возвращаем значение по умолчанию
+            return KnowledgeGradeScale.get_default_value()
 
         if not sum_list:
-            # Если доводов нет, Тогда ОДБ := None
-            return None
+            # Если доводов нет, Тогда ОДБ := 0
+            return 0
 
         # ОДБ := среднее арифметическое Оценок вкладов доводов (ОВД) среди существенных доводов..
         proof_base_value = sum(sum_list) / len(sum_list)
