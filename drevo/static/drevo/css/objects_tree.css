@@ -1,0 +1,155 @@
+ul {
+    list-style-type: none;
+  }
+
+a {
+    text-decoration: none;
+}
+
+.btn {
+	color: black;
+}
+
+.content {
+	background: white;
+	display: flex;
+	justify-content: space-between;
+	border-radius: 1.3rem;
+	padding: 20px;
+}
+
+.img-block {
+	display: block;
+	height: 1.8rem;
+	width: 1.8rem;
+	margin: 0.5rem 0;
+}
+
+.img-block img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+}
+
+/*Заголовки страницы*/
+.title {
+	font-family: Rubik;
+}
+
+.page-title {
+	font-size: 2.3rem;
+	margin: 0 0 20px 0;
+}
+
+.page-sub-title {
+	font-size: 1.8rem;
+	margin: 0 0 15px 0;
+}
+
+/*Дерево объектов*/
+
+.node {
+	position: relative;
+	font-size: 1.2rem;
+	margin: 0 0 10px 0;
+	padding-left: 2rem;
+	position: relative;
+}
+
+.node.leaf {
+	padding-left: 0;
+}
+
+.child-node:before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -15px;
+	border-radius: 0 0 0 10px;
+	border-bottom: dotted 2px black;
+	border-left: dotted 2px black;
+	width: 20px;
+	height: 20px;
+}
+
+
+/*имя объекта*/
+.node-name {
+	font-size: 1.2rem;
+	margin: 0 0 0 10px;
+}
+
+.node:not(.group) > .node-name span:hover {
+	background: #DFDBDB;
+}
+
+.node.group > .node-name span {
+	border: dashed black 2px;
+}
+
+.node-name span {
+	padding: 5px 0 5px 10px;
+	display: inline-block;
+	border-radius: 0.3rem;
+	width: 15vw;
+
+	-webkit-touch-callout: none; /* iOS Safari */
+  	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+  	-khtml-user-select: none;    /* Konqueror */
+  	-moz-user-select: none;      /* Firefox */
+  	-ms-user-select: none;       /* Internet Explorer/Edge */
+}
+
+/*кнопки свернуть и развернуть*/
+
+.node__collapse-expand-btns {
+	position: absolute;
+	top: -4px;
+	left: 8px;
+}
+
+.node.leaf .node__collapse-expand-btns {
+	display: none;
+}
+
+.node__collapse-expand-btns > button{
+	background: silver;
+	border: none;
+	border-radius: 100%;
+	padding: 5px;
+}
+
+.node__expand-btn.hidden, .node__collapse-btn.hidden, .node-children.hidden {
+	display: none;
+}
+
+/*стили наследников*/
+
+.node-children {
+	margin-top: 10px;
+}
+
+/*стиль блока, оповещающего пользователя*/
+.log-container {
+	position: absolute;
+	top: 20vh;
+	right: -5vw;
+	width: 20vw;
+}
+
+.log-container__log {
+	min-height: 100px;
+	width: 95%;
+	margin: auto;
+	border-radius: 0.5rem;
+
+	padding: 10px;
+	margin-bottom: 5px;
+	text-align: center;
+	background: #353535;
+	color: white;
+	
+	transition: 0.5s;
+	opacity: 0%;
+}

@@ -1,5 +1,6 @@
-from django.forms import Form, CharField, IntegerField
-from django.forms import TextInput
+from django.forms import Form, CharField, IntegerField, ModelChoiceField
+from django.forms import TextInput, Select
+from drevo.models import Znanie
 from ckeditor.widgets import CKEditorWidget
 
 
@@ -14,10 +15,11 @@ class ContentTemplate(Form):
     content = CharField(
         max_length=2048,
         widget=CKEditorWidget(attrs={'cols': 40, 'rows': 10, 'name': 'editor1'}),
+        required=False,
         label='Содержание')
-    pk = IntegerField(
-        widget=TextInput(attrs={'type': 'hidden'}),
-        required=False)
-    zn_pk = IntegerField(
-        widget=TextInput(attrs={'type': 'hidden', 'id': 'document_pk'}),
-        required=False)
+    pk = ModelChoiceField(
+        widget=Select(attrs={'style': 'display:none;'}),
+        queryset=Znanie.objects.all())
+    zn_pk = ModelChoiceField(
+        widget=Select(attrs={'style': 'display:none;', 'id': 'document_pk'}),
+        queryset=Znanie.objects.all())

@@ -1,0 +1,87 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+{% load by_structure %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
+<link rel="stylesheet" href="{% static 'drevo/css/content_template.css'%}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+{% endblock %}
+
+{% block title %}
+Шаблон текста
+{% endblock %}
+
+{% block content %}
+
+<h1 class="page-title">Шаблон документа: {{ knowledge.name }}</h1>
+
+<div class="content">
+<h3 class="page-sub-title">Конструктор шаблона текста</h3>
+<form class="template" action="" method="post">
+	{% csrf_token %}
+	{{ form.media }}
+	{{ form.content }}
+	{{ form.zn_pk }}
+	{{ form.pk }}
+	<div class="template__menu">
+		<div class="template__template-actions">
+				<div class="template__obj-actions">
+					<button class="template-btn select-obj btn btn-icon" type="button">Выбрать объект</button>
+					<button class="template-btn paste btn btn-icon" type="button">Вставить</button>
+				</div>
+				<div class="template__save-action">
+					<button class="template-btn save btn btn-icon" type="button">Сохранить</button>
+				</div>
+		</div>
+		<div class="template__selected-object" id="unselected">
+			<h6>Текущий объект</h6>
+			<div class="object-card" id="">
+				<p class="object-card__header">Название объекта</p>
+				<div class="object-card__btns">
+					<button class="object-card__btn edit btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">
+						<img src="{% static 'drevo/img/pencil.svg'%}" alt="Изменить">
+					</button>
+					<button class="object-card__btn delete btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#DeleteObjectModal">
+						<img src="{% static 'drevo/img/bin.svg'%}" alt="Удалить">
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+{% include "drevo/document_text_template/object_form.html" %}
+
+<div class="log-container">
+	<p class="log-container__log"></p>
+</div>
+
+<div class="modal fade" id="DeleteObjectModal" tabindex="-1" aria-labelledby="DeleteObjectModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+	            <h5 class="modal-title" id="DeleteObjectModalLabel">Удаление объекта</h5>
+            	<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        	</div>
+        	<div class="modal-body">
+        		<p>Вы действительно хотите удалить объект <span id="delete-object-name"></span> ?</p>
+	        	<div class="object-delete-menu">
+        			<button class="btn btn-icon">Да</button>
+        			<button data-bs-dismiss="modal" class="btn btn-icon">Нет</button>
+        		</div>
+        	</div>
+        </div>
+	</div>
+</div>
+{% endblock %}
+
+{% block jsfiles %}
+<script type="module" src="{% static 'drevo/js/template_objects/paste_object.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/setup_queries.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/dynamic_form.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/object_processing.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/save_template.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}

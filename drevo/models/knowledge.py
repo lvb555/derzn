@@ -1,16 +1,14 @@
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from drevo.common import variables
 from mptt.models import TreeForeignKey
-from users.models import User
 
-from ..managers import ZManager
+from drevo.common import variables
+from users.models import User
 from .category import Category
 from .knowledge_grade_scale import KnowledgeGradeScale
 from .knowledge_rating import ZnRating
-from .relation import Relation
-from .relation_type import Tr
+from ..managers import ZManager
 
 
 class Znanie(models.Model):
@@ -102,6 +100,10 @@ class Znanie(models.Model):
     notification = models.BooleanField(default=False, verbose_name="Уведомления")
     several_works = models.BooleanField(default=False, verbose_name="Несколько работ")
 
+    meta_info = models.CharField(
+        max_length=1024, blank=True, null=True, verbose_name="Метаинформация"
+    )
+
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
     objects = models.Manager()
@@ -144,106 +146,19 @@ class Znanie(models.Model):
     def get_comments_count(self):
         return self.comments.filter(parent=None).count()
 
-    def get_table_object(self):
-        if self.tz.name != "Таблица":
-            return None
-
-        row_type_name = "Строка"
-        col_type_name = "Столбец"
-        value_type_name = "Значение"
-
-        row_type = Tr.objects.get(name=row_type_name)
-        col_type = Tr.objects.get(name=col_type_name)
-        value_type = Tr.objects.get(name=value_type_name)
-
-        rows = sorted(
-            self.base.filter(tr=row_type).select_related("rz"),
-            key=lambda x: x.rz.order if x.rz.order else 0,
-            reverse=True,
-        )
-        cols = sorted(
-            self.base.filter(tr=col_type).select_related("rz"),
-            key=lambda x: x.rz.order if x.rz.order else 0,
-            reverse=True,
-        )
-
-        # если нет строк и/или колонок - выходим
-        if not all([rows, cols]):
-            return None
-
-        target_rows = rows
-        target_cols = cols
-
-        if rows[0].rz.tz.is_group:
-            target_rows = rows[0].get_grouped_relations()
-        if cols[0].rz.tz.is_group:
-            target_cols = cols[0].get_grouped_relations()
-
-        target_rows = [row.rz for row in target_rows]
-        target_cols = [col.rz for col in target_cols]
-
-        values = self.base.filter(tr=value_type).values_list("rz", flat=True)
-
-        # отбираем связи, где базовое знание из списка values, а зависимое - это строка или столбец
-        # причем строки и столбцы из списка
-        values_positions = Relation.objects.filter(
-            Q(bz__in=values)
-            & (
-                (Q(tr=row_type) & Q(rz__in=target_rows))
-                | (Q(tr=col_type) & Q(rz__in=target_cols))
-            )
-        ).order_by("bz")
-
-        # делаем группировку значения и его координат в словаре
-        # в идеале должно быть по одному значению строки и столбца на значение
-        # но могут быть всякие баги....
-        positions = {}
-        for record in values_positions:
-            current_pos = positions.setdefault(record.bz, {"cols": [], "rows": []})
-            if record.tr == col_type:
-                current_pos["cols"].append(record.rz)
-
-            elif record.tr == row_type:
-                current_pos["rows"].append(record.rz)
-
-            else:
-                raise ValueError("Invalid relation type")
-
-        # матрица таблицы размером кол-во рядов х кол-во колонок
-        matrix = [[None] * len(target_cols) for _ in range(len(target_rows))]
-
-        for value, pos in positions.items():
-            if len(pos["cols"]) == 1 and (len(pos["rows"]) == 1):
-                col = pos["cols"][0]
-                row = pos["rows"][0]
-
-                # не оптимально так получать индекс, но список должен быть небольшой
-                row_i = target_rows.index(row)
-                col_j = target_cols.index(col)
-                matrix[row_i][col_j] = value
-            else:
-                # надо бы ошибку сгенерировать
-                pass
-
-        table_object = {
-            "rows": rows,
-            "cols": cols,
-            "values": matrix,
-        }
-        return table_object
-
-    def get_users_grade(self, user: User):
+    def get_users_grade(self, user: User) -> float | None:
         """
         Оценка пользователя user.
-        По умолчанию - Нет оценки
+        По умолчанию -  None
         """
 
-        queryset = self.grades.filter(user=user)
-        if queryset.exists():
-            return queryset.first().grade.get_base_grade()
-        return KnowledgeGradeScale.objects.get(name="Нет оценки").get_base_grade()
+        knowledge_grade = self.grades.filter(user=user).first()
+        if knowledge_grade:
+            return knowledge_grade.grade.get_base_grade()
+        else:
+            return None
 
-    def get_common_grades(self, request):
+    def get_common_grades(self, request) -> tuple[float | None, float | None]:
         """
         Расчёт общей оценки знания.
         Возвращает числовое значение общей оценки и
@@ -256,21 +171,28 @@ class Znanie(models.Model):
         else:
             variant = 1
 
+        # оценка доказательной базы
         proof_base_value = self.get_proof_base_grade(request, variant)
-        if proof_base_value is not None:
-            users_grade = self.get_users_grade(request.user)
-            if users_grade is not None:
-                common_grade_value = (proof_base_value + users_grade) / 2
-            else:
-                common_grade_value = None
+        # прямая оценка пользователя
+        users_grade = self.get_users_grade(request.user)
+
+        # если есть оценка пользователя, отличная от 0 (и None), то берем ее
+        # иначе берем оценку доказательной базы (даже если она равна 0)
+
+        if users_grade:
+            common_grade_value = users_grade
         else:
-            common_grade_value = self.get_users_grade(request.user)
+            common_grade_value = proof_base_value
 
         return common_grade_value, proof_base_value
 
-    def get_proof_base_grade(self, request, variant):
+    def get_proof_base_grade(self, request, variant) -> float | None:
         """
         Возвращает числовое значение оценки доказательной базы
+        как среднее от всех ненулевых оценок
+        в зависимости от варианта
+            1 - оценка берется не дальше аргументов
+            2 - оценка берется по всему дереву базы
         """
 
         sum_list = []
@@ -293,16 +215,12 @@ class Znanie(models.Model):
         # ОДБ := среднее арифметическое Оценок вкладов доводов (ОВД) среди существенных доводов..
         proof_base_value = sum(sum_list) / len(sum_list)
 
-        if proof_base_value < 0:
-            # Если ОДБ < 0, тогда ОДБ := 0
-            proof_base_value = 0
-
         return proof_base_value
 
     @staticmethod
-    def get_default_grade():
-        """Возвращает числовое значение оценки по умолчанию"""
-        return KnowledgeGradeScale.objects.all().first().get_base_grade()
+    def get_default_grade() -> KnowledgeGradeScale:
+        """Возвращает оценку по умолчанию"""
+        return KnowledgeGradeScale.get_default_grade()
 
     def get_ancestors_category(self):
         """

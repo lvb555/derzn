@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
 from mptt.admin import DraggableMPTTAdmin
 
 from drevo.models import InterviewAnswerExpertProposal
@@ -35,8 +36,7 @@ from drevo.models.suggestion_type import SuggestionType
 from drevo.models.refuse_reason import RefuseReason
 from drevo.models import Turple
 from drevo.models import TurpleElement
-
-from drevo.models import Var
+from drevo.models import TemplateObject
 
 from .forms.developer_form import DeveloperForm
 from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
@@ -48,6 +48,7 @@ from .forms import (
     GlossaryTermForm,
     CategoryForm,
     CtegoryExpertForm,
+    TemplateObjectAdminForm
 )
 from .models import (
     Znanie,
@@ -78,6 +79,7 @@ from .models import (
     AlgorithmAdditionalElements
 )
 from .models.algorithms_data import AlgorithmData, AlgorithmWork
+from .models.site_page import SitePage, StatusType, PageHistory
 from .models.users_documents import UsersDocuments
 from .models.appeal import Appeal
 from .services import send_notify_interview
@@ -1001,13 +1003,6 @@ class SuggestionTypeAdmin(admin.ModelAdmin):
 class RefuseReasonAdmin(admin.ModelAdmin):
     pass
 
-
-@admin.register(Var)
-class VarAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'knowledge', 'availability', 'structure', 'type_of', 'turple', 'optional', 'connected_to')
-    list_filter = ('knowledge', 'turple', 'availability', 'type_of')
-    ordering = ('weight', )
-
 @admin.register(TurpleElement)
 class TurpleElementAdmin(admin.ModelAdmin):
     list_display = ('value', 'turple')
@@ -1016,6 +1011,26 @@ class TurpleElementAdmin(admin.ModelAdmin):
 
 @admin.register(Turple)
 class TurpleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'knowledge', 'availability')
-    list_filter = ('availability', )
+    list_display = ('name',)
     ordering = ('weight', )
+
+@admin.register(TemplateObject)
+class TemplateObjectAdmin(admin.ModelAdmin):
+    list_display = ('name', 'availability', 'type_of', 'connected_to', 'knowledge', 'user')
+    list_display_links = ('name', )
+    list_filter = ('structure', 'availability', 'knowledge', 'type_of', )
+    search_fields = ('knowledge__name', 'connected_to__name', 'name')
+    form = TemplateObjectAdminForm
+
+    
+@admin.register(SitePage)
+class SitePageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'page', 'parent', 'type', 'status')
+
+@admin.register(StatusType)
+class StatusTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'text_for_users')
+
+@admin.register(PageHistory)
+class PageHistoryAdmin(admin.ModelAdmin):
+    list_display = ('page', 'prop', 'previous_value', 'last_value', 'staff_member', 'date')

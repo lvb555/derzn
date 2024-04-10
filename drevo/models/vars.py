@@ -1,8 +1,11 @@
 from __future__ import annotations
 from django.db import models
+from mptt.managers import TreeManager
+from mptt.models import TreeForeignKey, MPTTModel
+from users.models import User
 
 
-class Var(models.Model):
+class TemplateObject(MPTTModel):
 
     """
         объект в сервисе создания документов
@@ -18,8 +21,7 @@ class Var(models.Model):
     available_sctructures = (
         (0, 'Переменная'),
         (1, 'Массив'),
-        (2, 'Итератор'),
-        (3, 'Условие'),
+        (2, 'Управление')
     )
 
     types_of_availability = (
@@ -38,7 +40,7 @@ class Var(models.Model):
         default=0,
         choices=types_of_availability,
         verbose_name="Класс объекта")
-    weight = models.IntegerField(default=100, verbose_name="Порядок")
+    weight = models.IntegerField(default=1, verbose_name="Порядок")
     fill_title = models.TextField(verbose_name="Обращение", default="", blank=True)
     subscription = models.BooleanField(default=False, verbose_name="Прописью")
     optional = models.BooleanField(default=False, verbose_name="Необязательность")
@@ -49,9 +51,11 @@ class Var(models.Model):
     knowledge = models.ForeignKey(
         to="drevo.Znanie",
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         verbose_name="Знание")
     connected_to = models.ForeignKey(
-        to='drevo.Var',
+        to='self',
         on_delete=models.PROTECT,
         verbose_name="Родитель",
         null=True,
@@ -67,6 +71,17 @@ class Var(models.Model):
         default='',
         blank=True,
         verbose_name="Комментарий")
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        null=True,
+        verbose_name="Пользователь")
+    templates_that_use = models.ManyToManyField(
+        'drevo.Znanie',
+        verbose_name='Включающие шаблоны',
+        related_name='template_objects_set',
+        blank=True)
+
 
     def __str__(self):
         return self.name
@@ -75,3 +90,6 @@ class Var(models.Model):
         verbose_name = "Объект"
         verbose_name_plural = "Объекты шаблонов"
         ordering = ('weight',)
+
+    class MPTTMeta:
+        parent_attr = 'connected_to'

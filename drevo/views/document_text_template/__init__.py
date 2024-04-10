@@ -1,0 +1,4 @@
+from .document_text_template_edit import DocumentTextTemplateEdit
+from .object_processing import document_object_processing_view
+from .objects_tree import ObjectsTree
+from .save_text_template import save_text_template_view

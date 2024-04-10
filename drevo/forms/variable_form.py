@@ -1,10 +1,26 @@
 from django.forms import Textarea, NumberInput
 from django import forms
-from drevo.models import Var, Znanie, Turple
+from django.db.models import Q
+from mptt.forms import TreeNodeChoiceField
+from drevo.models import TemplateObject, Znanie, Turple
 from django.core.exceptions import ValidationError
 
 
-class VarForm(forms.Form):
+class TemplateObjectAdminForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['connected_to'] = TreeNodeChoiceField(
+            queryset=TemplateObject.objects.filter(Q(knowledge=self.instance.knowledge, availability=0) |  Q(user=self.instance.user, availability=1) | Q(availability=2)),
+            label='Родитель',
+            required=False)
+
+    class Meta:
+        model = TemplateObject
+        fields = '__all__'
+        exclude = ['templates_that_use']
+
+
+class TemplateObjectForm(forms.Form):
     """
         Форма создания/редактирования объектов шаблона документа
 
@@ -25,8 +41,8 @@ class VarForm(forms.Form):
         comment - комментарий к объекту
     """
 
-    available_sctructures = (('', 'Выберите структуру'), ) + Var.available_sctructures  # допустимые типы структрур объектов
-    available_types_of_content = (('', 'Выберите тип данных'), ) + Var.available_types_of_content  # допустимые типы содержимого
+    available_sctructures = (('', 'Выберите структуру'), ) + TemplateObject.available_sctructures  # допустимые типы структрур объектов
+    available_types_of_content = (('', 'Выберите тип данных'), ) + TemplateObject.available_types_of_content  # допустимые типы содержимого
 
     def clean(self):
         cleaned_data = super().clean()
@@ -67,19 +83,28 @@ class VarForm(forms.Form):
             if v is None:
                 raise ValidationError(f'Поле {n} должно быть заполнено')
 
+        # Проверка на то, что уровень доступа родителя и ребенка совпадают
+        if connected_to and connected_to.availability < availability:
+            l = [
+                ('Локального', 'Локальный'),
+                ('Глобального', 'Глобальный'),
+                ('Общего', 'Общий')
+            ]
+            raise ValidationError(f'Родителем {l[availability]} объекта не может быть {l[connected_to.availability]} объект')
+
         # Указана ли редактируемая переменная
         if action == 'edit' and var is None:
             raise ValidationError('Не задан редактируемый объект')
 
         # Проверка на то, что типы объектов и данных находятся в своих рамках
-        if not (0 <= type_of < len(Var.available_types_of_content)):
+        if not (0 <= type_of < len(TemplateObject.available_types_of_content)):
             raise ValidationError(f'Нельзя привести число {type_of} к типу данных')
 
         # Проверка на уникальность имени
-        count = Var.objects.filter(knowledge=zn, name=name).count()
+        count = TemplateObject.objects.filter(knowledge=zn, name=name).count()
         count -= int(action == 'edit' and var.name == name)
         if count > 0:
-            raise ValidationError(f'Объект с именем {name} уже существует в контексте этого документа')
+            raise ValidationError(f'Объект с именем {name} уже в контексте этого документа')
 
     name = forms.CharField(max_length=255, label='Имя объекта')
     structure = forms.BooleanField(label='Массив', required=False)
@@ -92,10 +117,10 @@ class VarForm(forms.Form):
         choices=available_types_of_content,
         required=False)
     weight = forms.IntegerField(required=False, label='Порядок')
-    connected_to = forms.ModelChoiceField(queryset=Var.objects.all(), label='Родитель', required=False, empty_label='Без подчинения')
+    connected_to = TreeNodeChoiceField(queryset=TemplateObject.objects.all(), label='Родитель', required=False, empty_label='Без подчинения')
     turple = forms.ModelChoiceField(queryset=Turple.objects.all(), label='Справочник', required=False, empty_label='Новый справочник')
     fill_title = forms.CharField(
-        label='Заголовок для окна диалога',
+        label='Заголовок',
         required=False,
         widget=Textarea(attrs={
             'cols': 10,
@@ -103,6 +128,6 @@ class VarForm(forms.Form):
             'class': 'form-control edit-menu__textarea',
             'id': 'fill-title'}))
     knowledge = forms.ModelChoiceField(queryset=Znanie.objects.all(), widget=NumberInput(attrs={'type': 'hidden'}))
-    pk = forms.ModelChoiceField(queryset=Var.objects.all(), required=False)
+    pk = forms.ModelChoiceField(queryset=TemplateObject.objects.all(), required=False)
     action = forms.CharField(max_length=100)
     comment = forms.CharField(max_length=255, label='Комментарий', required=False)
