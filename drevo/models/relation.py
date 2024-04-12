@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation_grade_scale import RelationGradeScale
 from users.models import User
 
@@ -114,6 +115,10 @@ class Relation(models.Model):
         else:
             related_knowledge_grade = self.rz.get_users_grade(request.user)
 
+            if not related_knowledge_grade:
+                related_knowledge_grade = KnowledgeGradeScale.get_default_value()
+
+
         # получаем оценку связи
         rel_grade = self.grades.filter(user=request.user).first()
         if rel_grade:
@@ -122,11 +127,7 @@ class Relation(models.Model):
             # берем оценку по умолчанию
             relation_grade = RelationGradeScale.get_default_grade().get_base_grade()
 
-        return (
-            related_knowledge_grade * relation_grade
-            if related_knowledge_grade is not None
-            else None
-        )
+        return related_knowledge_grade * relation_grade if related_knowledge_grade is not None else None
 
     def get_proof_weight(self, request, variant) -> float | None:
         """Оценка вклада довода (ОВД)"""
