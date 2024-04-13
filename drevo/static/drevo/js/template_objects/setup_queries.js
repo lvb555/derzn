@@ -35,6 +35,7 @@ export function ObjectProcessingBody (action, editing_var) {
 
 	body.append("action", action)
 	body.append("knowledge", document.querySelector("#id_knowledge").value)
+	body.append("is_main", false)
 
 	if (editing_var !== null) {
 		body.append("pk", editing_var)	
@@ -55,7 +56,7 @@ export function GroupProcessingBody() {
 		["type_of", 0],
 		["optional", false],
 		["structure", 0],
-		["availability", 0],
+		["availability", false],
 		["subscription", ""]
 	]
 	necessary_fields.forEach((i) => {
