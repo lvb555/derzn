@@ -136,6 +136,7 @@ a {
 	top: 20vh;
 	right: -5vw;
 	width: 20vw;
+	display: none;
 }
 
 .log-container__log {
