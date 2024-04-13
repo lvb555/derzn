@@ -8,41 +8,33 @@ from users.models import User
 def interview_table(request, id):
     interview = get_object_or_404(Znanie, id=id)
     interview_this = interview
-    # Получаем связи с типом связи "Состав"
     questions = Relation.objects.filter(tr__name="Состав", bz__id=interview.id)
-    # Создаем список для хранения вопросов
-    questions_list = [question.rz.name for question in questions]
-    # Создаем defaultdict для хранения авторов и их ответов.
+    question_list = [question.rz for question in questions]
     authors_dict = defaultdict(lambda: defaultdict(list))
-    # defaultdict для И.О.Фамилии
     author_names = defaultdict(str)
 
     for question in questions:
-        # Получаем связи с типом связи "Ответ"
-        answers = Relation.objects.filter(tr__name="Ответ", bz__id=question.rz.id).select_related('rz__author').all()
+        answers = Relation.objects.filter(tr__name="Ответ", bz__in=question_list).select_related('rz__author').all()
         for answer in answers:
-            author = answer.rz.author
-            authors_dict[author.name][question.rz.name].append(answer.rz.name)
+            if answer.bz.id == question.rz.id:
+                author = answer.rz.author
+                authors_dict[author.id][question.rz].append(answer.rz.name)
+                if answer.rz.user.patronymic:
+                    short_fst_name = answer.rz.user.first_name[0]
+                    short_patr = answer.rz.user.patronymic[0]
+                    author_names[author.id] = f"{short_fst_name}.{short_patr}.{answer.rz.user.last_name}"
+                else:
+                    short_fst_name = author.first_name[0]
+                    author_names[author.id] = f"{short_fst_name}.{answer.rz.user.last_name}"
 
-            if author.user_author.patronymic:
-                short_fst_name = author.user_author.first_name[0]
-                short_patr = author.user_author.patronymic[0]
-                author_names[author.name] = f"{short_fst_name}.{short_patr}.{author.user_author.last_name}"
-            else:
-                short_fst_name = author.user_author.first_name[0]
-                author_names[author.name] = f"{short_fst_name}.{author.user_author.last_name}"
-
-    # Создаем таблицу-матрцу
-    table = [[""] + questions_list]
-    for author, answers in authors_dict.items():
+    table = [[""] + question_list]
+    for author_id, answers in authors_dict.items():
         if answers:
-            # Ряд автора и его ответов на вопросы
-            row = [author_names[author]]
-            for question in questions_list:
+            row = [author_names[author_id]]
+            for question in question_list:
                 if question in answers and answers[question]:
                     row.append(", ".join(answers[question]))
                 else:
-                    # Если нет ни одного ответа добавляем "-"
                     row.append("-")
             table.append(row)
 
