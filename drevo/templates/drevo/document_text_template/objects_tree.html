@@ -10,6 +10,21 @@
 {% endblock %}
 
 {% block content %}
+	
+	<li class="node clone">
+		<div class="node__collapse-expand-btns">
+			<button class="img-block node__expand-btn hidden">
+				<img src="{% static 'drevo/img/knowledge_search/plus.svg'%}" alt="">
+			</button>
+			<button class="img-block node__collapse-btn">
+				<img src="{% static 'drevo/img/knowledge_search/minus.svg'%}" alt="">
+			</button>
+		</div>
+		<p class="node-name">
+			<span></span>
+		</p>
+	</li>
+
 	<h1 class="title page-title">
 		Документ: {{ knowledge.name }}
 	</h1>
@@ -19,9 +34,9 @@
 				<h3 class="title page-sub-title">
 					Дерево объектов шаблонов
 				</h3>
-			<ul>
+			<ul class="objects-tree__containing-list">
 				{% recursetree objects %}
-					<li class="node{% if node.level > 0 %} child-node{% endif %}{% if node.is_leaf_node %} leaf{% endif %} {% if node.is_main %} group{% endif %}">
+					<li id="id-{{node.id}}" class="node{% if node.level > 0 %} child-node{% endif %}{% if node.is_leaf_node %} leaf{% endif %} {% if node.is_main %} group{% endif %}">
 					<div class="node__collapse-expand-btns">
 						<button class="img-block node__expand-btn hidden">
 							<img src="{% static 'drevo/img/knowledge_search/plus.svg'%}" alt="">
@@ -30,7 +45,7 @@
 							<img src="{% static 'drevo/img/knowledge_search/minus.svg'%}" alt="">
 						</button>
 					</div>
-					<p class="node-name {% if node.availability == 0 %} local {% elif node.availability == 1 %} global {% else %} general {% endif %}document_text_template.html" id="id-{{node.id}}">
+					<p class="node-name">
 						<span>{{ node.name }}</span>
 					</p>
 						{% if not node.is_leaf_node %}
@@ -82,4 +97,5 @@
 
 {% block jsfiles %}
 	<script type="module" src="{% static 'drevo/js/template_objects/objects_tree.js'%}"></script>
+	<script type="module" src="{% static 'drevo/js/template_objects/dynamic_form.js'%}"></script>
 {% endblock %}
