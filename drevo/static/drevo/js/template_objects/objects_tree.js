@@ -1,4 +1,5 @@
 import {ObjectProcessingBody, GroupProcessingBody, csrftoken} from "./setup_queries.js"
+import {update_state} from "./dynamic_form.js"
 
 const url = window.location.href.split("document-template")[0] + "document-template"
 const message_block = document.querySelector(".log-container")
@@ -91,6 +92,7 @@ document.querySelectorAll(".edit-menu__save-btn").forEach((i) => i.addEventListe
 			object.querySelector(".node__collapse-btn").addEventListener("click", expand_collapse_node_children)
 			object.classList.remove("clone")
 			parent.appendChild(object)
+
 		} else if (ans["res"] === "validation error") {
 			message.innerHTML = ans["errors"]["__all__"][0]
 		}
@@ -116,3 +118,5 @@ expand_children.forEach((i) => {
 collapse_children.forEach((i) => {
 	i.addEventListener('click', expand_collapse_node_children)
 })
+
+document.querySelector(".tree-actions button:first-child").addEventListener("click", update_state)
