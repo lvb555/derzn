@@ -6,6 +6,10 @@ a {
     text-decoration: none;
 }
 
+.clone {
+	display: none;
+}
+
 .btn {
 	color: black;
 }
