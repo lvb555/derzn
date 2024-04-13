@@ -17,7 +17,7 @@ def get_object(pk):
     except TemplateObject.DoesNotExist:
         raise TemplateObject.DoesNotExist(json.dumps({
             'res': 'error',
-            'error': f'Словаря с id {pk} не существует'}))
+            'error': f'Объекта с id {pk} не существует'}))
     except ValueError:
         raise ValueError(json.dumps({
             'res': 'error',
