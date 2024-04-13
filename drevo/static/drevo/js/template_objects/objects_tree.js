@@ -13,6 +13,7 @@ function select_obejct(e) {
 	const object_name = p.querySelector("span").innerHTML
 	const id = Number(p.id.split("-")[1])
 	let availability = -1
+	let optional = false
 	if (p.classList.contains("local"))
 		availability = 0
 	else if (p.classList.contains("global"))
@@ -20,11 +21,16 @@ function select_obejct(e) {
 	else if (p.classList.contains("general"))
 		availability = 2
 
+	if (p.classList.contains("optional"))
+		optional = true
+
+
 	window.opener.postMessage(
 		JSON.stringify({
 			"name": object_name,
 			"id": id,
-			"availability": availability
+			"availability": availability,
+			"optional": optional
 		}),
 		window.opener.location.href)
 	window.close()

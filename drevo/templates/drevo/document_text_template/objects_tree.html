@@ -45,7 +45,7 @@
 							<img src="{% static 'drevo/img/knowledge_search/minus.svg'%}" alt="">
 						</button>
 					</div>
-					<p class="node-name">
+					<p class="node-name {% if node.availability == 0 %} local {% elif node.availability == 1 %} global {% else %} general {% endif %} {% if node.optional%} optional{% endif %}" id="id-{{node.id}}">
 						<span>{{ node.name }}</span>
 					</p>
 						{% if not node.is_leaf_node %}
