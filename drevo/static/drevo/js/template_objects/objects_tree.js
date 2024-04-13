@@ -46,21 +46,18 @@ document.querySelectorAll(".node:not(.group) > .node-name").forEach((i) => {
 	i.addEventListener("dblclick", select_obejct)
 })
 
-document.querySelector(".edit-menu__save-btn").addEventListener('click', (e) => {
+document.querySelectorAll(".edit-menu__save-btn").forEach((i) => i.addEventListener('click', (e) => {
 	let body
 	if (e.target.closest("#ObjectModal"))
 		body = ObjectProcessingBody("create", null)
 	else
 		body = GroupProcessingBody()
 
-	console.log(body)
-
 	fetch(url + "/document_object_processing", {"method": "post", "body": body, "headers": {"X-CSRFToken": csrftoken}})
 	.then((response) => { return response.json() })
 	.then((ans) => {
 		let message = document.createElement("p")
 		message.classList.add("log-container__log")
-		console.log(ans)
 		if (ans["res"] == "ok") {
 			message.innerHTML = "Объект создан"
 
