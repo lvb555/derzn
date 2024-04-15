@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
@@ -68,3 +69,23 @@ def create_new_zn(request):
         return JsonResponse(data={'zn_name': knowledge.name, 'zn_id': knowledge.id}, status=200)
 
     return JsonResponse(data={}, status=400)
+
+
+def search_page(request):
+    filters = {
+        'functional': request.GET.get('functional', False),
+        'layout': request.GET.get('layout', False),
+        'design_needed': request.GET.get('design_needed', False),
+        'design': request.GET.get('design', False),
+        'help_page_content': request.GET.get('help_page_content', False),
+        'notification': request.GET.get('notification', False),
+    }
+
+    query = Q()
+    for key, value in filters.items():
+        if value:
+            query.add(Q(**{key: True}), Q.OR)
+
+    pages = SitePage.objects.filter(query)
+    print(pages)
+    return render(request, 'drevo/search_page.html', {'pages': pages})
