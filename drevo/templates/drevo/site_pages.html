@@ -33,13 +33,16 @@
             <button type="button" class="btn tree-btn" onclick="showAll();">Развернуть</button>
             <button type="button" class="btn tree-btn" onclick="hiddenAll();">Свернуть</button>
         </div>
+         <a href="{% url 'search_page' %}" style="margin-left: 600px;" type="button" class="btn tree-btn" onclick="hiddenAll();">Найти</a>
         {% if user.is_superuser %}
         <i id="create-form" class="mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
             </svg>
         </i>
+
         {% endif %}
+
     </div>
     <div class="save-data-form popup__bg">
         <div class="popup p-5" style="width: 90vh;">

@@ -30,20 +30,26 @@
 <div class="basic" style="justify-content: space-between;">
     <form id="searchForm" style="display: grid; gap: 2vh;" action="{% url 'search_page' %}" method="GET">
     {% csrf_token %}
-    <div style="display: flex; align-items: center; gap: 24px; width: fit-content;">
-        <label for="id_status">Статус:</label>
-    </div>
+        <div style="display: flex; align-items: center; gap: 24px; width: fit-content;">
+            <label>Статус:</label>
+            <select id="id_status" name="status">
+                <option value="">Выберите статус</option>
+                {% for status in all_status %}
+                <option value="{{ status.id }}">{{ status.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
    <div id="page_condition">
     <div>
         <h4>Состояние страницы</h4>
         <div class="d-flex gap-5">
             <div>
                 <input type="checkbox" class="search-checkbox" name="functional">
-                <label for="id_functional">Функционал:</label>
+                <label for="id_functional">Функционал</label>
             </div>
             <div>
                 <input type="checkbox" class="search-checkbox" name="layout">
-                <label for="id_layout">Верстка:</label>
+                <label for="id_layout">Верстка</label>
             </div>
         </div>
     </div>
@@ -54,33 +60,35 @@
             <h5>Макет дизайна</h5>
             <div>
                 <input type="checkbox" class="search-checkbox" name="design_needed">
-                <label for="id_design_needed">Необходимость:</label>
+                <label for="id_design_needed">Необходимость</label>
             </div>
             <div>
                 <input type="checkbox" class="search-checkbox" name="design">
-                <label for="id_design">Наличие:</label>
+                <label for="id_design">Наличие</label>
 
             </div>
-            <div>
-                <input type="checkbox" class="search-checkbox" name="notification">
-                <label for="id_notification">Оповещение, уведомление:</label>
-            </div>
+
         </div>
 
         <div>
             <h5>Страница помощи</h5>
             <div>
-                <input type="checkbox" class="search-checkbox" name="help_page_content">
-                <label for="id_help_page">Необходимость:</label>
+                <input type="checkbox" class="search-checkbox" name="help_page">
+                <label for="id_help_page">Наличие</label>
             </div>
             <div>
                 <input type="checkbox" class="search-checkbox" name="help_page_content">
-                <label for="id_help_page_content">Наличие:</label>
+                <label for="id_help_page_content">Контент</label>
             </div>
         </div>
 
     </div>
-       <br>
+    <br>
+    <div>
+        <input type="checkbox" class="search-checkbox" name="notification">
+        <label for="id_notification">Оповещение, уведомление</label>
+    </div>
+    <br>
     <button type="submit" style="background-color: black; color: white; margin-left: 200px;">Найти</button>
     </div>
 

@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
 from drevo.forms.knowledge_create_form import ZnanieCreateForm
 from drevo.forms.site_page_create_form import SitePageCreateForm, SitePageRedactForm
-from drevo.models.site_page import SitePage, PageHistory
+from drevo.models.site_page import SitePage, PageHistory, StatusType
 
 
 def site_pages_view(request):
@@ -72,20 +72,25 @@ def create_new_zn(request):
 
 
 def search_page(request):
+    all_status = StatusType.objects.all()
     filters = {
         'functional': request.GET.get('functional', False),
         'layout': request.GET.get('layout', False),
         'design_needed': request.GET.get('design_needed', False),
         'design': request.GET.get('design', False),
         'help_page_content': request.GET.get('help_page_content', False),
+        'help_page': request.GET.get('help_page', False),
         'notification': request.GET.get('notification', False),
+        'status_id': request.GET.get('status')
     }
 
     query = Q()
     for key, value in filters.items():
-        if value:
-            query.add(Q(**{key: True}), Q.OR)
+        if key == 'status_id' and value:
+            query.add(Q(status_id=value), Q.AND)
+        elif value:
+            query.add(Q(**{key: True}), Q.AND)
 
     pages = SitePage.objects.filter(query)
-    print(pages)
-    return render(request, 'drevo/search_page.html', {'pages': pages})
+    context = {'all_status': all_status, 'pages': pages}
+    return render(request, 'drevo/search_page.html', context)
