@@ -11,14 +11,14 @@
 <h1>Все интервью</h1>
 <ul class="treeInterview">
   <ul class="ul-interviews_all", style="list-style-type: none">
-    {% for category,interviews in category_interviews %}
+    {% for category, interviews in category_interviews %}
       <li>
           {{ category }}
           <ul class="ul-interviews_all", style="list-style-type: none">
             {% for interview in interviews %}
-              <li>
-                <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a>
-              </li>
+                <li>
+                  <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a>
+                </li>
             {% endfor %}
           </ul>
       </li>

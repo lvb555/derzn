@@ -1,9 +1,7 @@
 from collections import defaultdict
 from django.shortcuts import render, get_object_or_404
-from drevo.models.author import Author
 from drevo.models.knowledge import Znanie
 from drevo.models.relation import Relation
-from users.models import User
 
 def interview_table(request, id):
     interview = get_object_or_404(Znanie, id=id)
@@ -12,12 +10,11 @@ def interview_table(request, id):
     question_list = [question.rz for question in questions]
     authors_dict = defaultdict(lambda: defaultdict(list))
     author_names = defaultdict(str)
-
+    answers = Relation.objects.filter(tr__name="Ответ", bz__in=question_list).select_related('rz__author').all()
     for question in questions:
-        answers = Relation.objects.filter(tr__name="Ответ", bz__in=question_list).select_related('rz__author').all()
         for answer in answers:
             if answer.bz.id == question.rz.id:
-                author = answer.rz.author
+                author = answer.rz.user
                 authors_dict[author.id][question.rz].append(answer.rz.name)
                 if answer.rz.user.patronymic:
                     short_fst_name = answer.rz.user.first_name[0]
