@@ -50,7 +50,7 @@ from .views.admin_interview_work.views import (AdminEditingKnowledgeView,
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
-from .views.site_pages import site_pages_view, site_page_view, create_new_zn
+from .views.site_pages import site_pages_view, site_page_view, create_new_zn, search_page
 from .views.editorial_staff import editorial_staff_view, update_roles
 from .views.editorial_staff import editorial_staff_view, update_roles, update_user_permissions
 from .views.expert_work.views import (ExpertProposalDeleteView,
@@ -282,6 +282,7 @@ urlpatterns = [
     path("site_pages/", site_pages_view, name="site_pages"),
     path("site_pages/<int:pk>/", site_page_view, name="site_page"),
     path("site_pages/create_new_zn/", create_new_zn, name="create_new_zn"),
+    path('site_pages/search/', search_page, name='search_page'),
     # --------------------------------------------------------------------------------------------------
     # документ????
     path(

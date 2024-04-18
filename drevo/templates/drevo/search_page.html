@@ -1,0 +1,115 @@
+{% extends 'drevo/base.html' %}
+{% load mptt_tags %}
+{% load static %}
+{% block title %}Дерево страниц сайта{% endblock %}
+
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+    <link rel="stylesheet" href="{% static '/users/css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+
+
+
+<div class="container header_info p-0">
+     <h1>Поиск страницы</h1>
+    <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+          <li class="breadcrumb-item"><a>Подготовка знаний</a></li>
+          <li class="breadcrumb-item opened"><a href="{% url 'site_pages' %}">Дерево страниц сайта</a></li>
+          <li class="breadcrumb-item opened"><a href="{% url 'search_page' %}">Поиск страниц</a></li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="basic">
+    <form id="searchForm" style="display: grid; gap: 2vh;" action="{% url 'search_page' %}" method="GET">
+    {% csrf_token %}
+        <div style="display: flex; align-items: center; gap: 24px; width: fit-content;">
+            <label>Статус:</label>
+            <select id="id_status" name="status">
+                <option value="">Выберите статус</option>
+                {% for status in all_status %}
+                <option value="{{ status.id }}">{{ status.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+   <div id="page_condition">
+    <div>
+        <h4>Состояние страницы</h4>
+        <div class="d-flex gap-5">
+            <div>
+                <input type="checkbox" class="search-checkbox" name="functional">
+                <label for="id_functional">Функционал</label>
+            </div>
+            <div>
+                <input type="checkbox" class="search-checkbox" name="layout">
+                <label for="id_layout">Верстка</label>
+            </div>
+        </div>
+    </div>
+       <br>
+
+    <div class="d-flex gap-5">
+        <div>
+            <h5>Макет дизайна</h5>
+            <div>
+                <input type="checkbox" class="search-checkbox" name="design_needed">
+                <label for="id_design_needed">Необходимость</label>
+            </div>
+            <div>
+                <input type="checkbox" class="search-checkbox" name="design">
+                <label for="id_design">Наличие</label>
+
+            </div>
+
+        </div>
+
+        <div>
+            <h5>Страница помощи</h5>
+            <div>
+                <input type="checkbox" class="search-checkbox" name="help_page">
+                <label for="id_help_page">Наличие</label>
+            </div>
+            <div>
+                <input type="checkbox" class="search-checkbox" name="help_page_content">
+                <label for="id_help_page_content">Контент</label>
+            </div>
+        </div>
+
+    </div>
+    <br>
+    <div>
+        <input type="checkbox" class="search-checkbox" name="notification">
+        <label for="id_notification">Оповещение, уведомление</label>
+    </div>
+    <br>
+    <button type="submit" style="background-color: black; color: white; margin-left: 200px;">Найти</button>
+    </div>
+
+    </form>
+
+
+    <div class="container mt-3">
+    <h6>Результаты поиска:</h6>
+    <div role="group" aria-label="Pages">
+        <ul>
+        {% for page in pages %}
+            <li>
+                <a href="{% url 'site_page' page.id %}" >{{ page.page }}</a>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    </div>
+
+
+</div>
+
+
+{% endblock %}

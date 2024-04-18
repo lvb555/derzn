@@ -1,9 +1,10 @@
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
 from drevo.forms.knowledge_create_form import ZnanieCreateForm
 from drevo.forms.site_page_create_form import SitePageCreateForm, SitePageRedactForm
-from drevo.models.site_page import SitePage, PageHistory
+from drevo.models.site_page import SitePage, PageHistory, StatusType
 
 
 def site_pages_view(request):
@@ -68,3 +69,26 @@ def create_new_zn(request):
         return JsonResponse(data={'zn_name': knowledge.name, 'zn_id': knowledge.id}, status=200)
 
     return JsonResponse(data={}, status=400)
+
+
+def search_page(request):
+    all_status = StatusType.objects.all()
+    filters = {
+        'functional': request.GET.get('functional', False) == 'on',
+        'layout': request.GET.get('layout', False) == 'on',
+        'design_needed': request.GET.get('design_needed', False) == 'on',
+        'design': request.GET.get('design', False) == 'on',
+        'help_page_content': request.GET.get('help_page_content', False) == 'on',
+        'help_page': request.GET.get('help_page', False) == 'on',
+        'notification': request.GET.get('notification', False) == 'on',
+        'status_id': request.GET.get('status')
+    }
+
+    query = Q()
+    for key, value in filters.items():
+        if value:
+            query.add(Q(**{key: value}), Q.AND)
+
+    pages = SitePage.objects.filter(query)
+    context = {'all_status': all_status, 'pages': pages}
+    return render(request, 'drevo/search_page.html', context)
