@@ -15,6 +15,9 @@
         width: 70vh!important;
         margin-right: 4vh!important;
     }
+    .search-button{
+        margin-left: 600px;
+    }
 </style>
 <div class="container header_info p-0">
     <h1>Дерево страниц сайта</h1>
@@ -33,7 +36,7 @@
             <button type="button" class="btn tree-btn" onclick="showAll();">Развернуть</button>
             <button type="button" class="btn tree-btn" onclick="hiddenAll();">Свернуть</button>
         </div>
-         <a href="{% url 'search_page' %}" style="margin-left: 600px;" type="button" class="btn tree-btn" onclick="hiddenAll();">Найти</a>
+        <a href="{% url 'search_page' %}" type="button" class="btn tree-btn search-button" onclick="hiddenAll();">Найти</a>
         {% if user.is_superuser %}
         <i id="create-form" class="mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">

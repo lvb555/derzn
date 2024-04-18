@@ -74,22 +74,20 @@ def create_new_zn(request):
 def search_page(request):
     all_status = StatusType.objects.all()
     filters = {
-        'functional': request.GET.get('functional', False),
-        'layout': request.GET.get('layout', False),
-        'design_needed': request.GET.get('design_needed', False),
-        'design': request.GET.get('design', False),
-        'help_page_content': request.GET.get('help_page_content', False),
-        'help_page': request.GET.get('help_page', False),
-        'notification': request.GET.get('notification', False),
+        'functional': request.GET.get('functional', False) == 'on',
+        'layout': request.GET.get('layout', False) == 'on',
+        'design_needed': request.GET.get('design_needed', False) == 'on',
+        'design': request.GET.get('design', False) == 'on',
+        'help_page_content': request.GET.get('help_page_content', False) == 'on',
+        'help_page': request.GET.get('help_page', False) == 'on',
+        'notification': request.GET.get('notification', False) == 'on',
         'status_id': request.GET.get('status')
     }
 
     query = Q()
     for key, value in filters.items():
-        if key == 'status_id' and value:
-            query.add(Q(status_id=value), Q.AND)
-        elif value:
-            query.add(Q(**{key: True}), Q.AND)
+        if value:
+            query.add(Q(**{key: value}), Q.AND)
 
     pages = SitePage.objects.filter(query)
     context = {'all_status': all_status, 'pages': pages}
