@@ -97,8 +97,8 @@ class TemplateObjectForm(forms.Form):
         if action == 'edit' and var is None:
             raise ValidationError('Не задан редактируемый объект')
 
-        if type_of == 3 and tuple_ == None:
-            raise ValidationError(f'Не выбран справочник')
+        if type_of == 3 and tuple_ is None:
+            raise ValidationError('Не выбран справочник')
 
         # Проверка на то, что типы объектов и данных находятся в своих рамках
         if not (0 <= type_of < len(TemplateObject.available_types_of_content)):
