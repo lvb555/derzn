@@ -15,7 +15,7 @@ class ObjectsTree(TemplateView):
         context = super().get_context_data(**kwargs)
 
         document_knowledge = Znanie.objects.get(id=context['doc_pk'])
-        objects = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) | Q(user=self.request.user, availability=1) | Q(availability=2))
+        objects = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) | Q(user=self.request.user, availability=1) | Q(user=None, availability=1) | Q(availability=2))
 
         context['knowledge'] = document_knowledge
         context['objects'] = objects

@@ -48,24 +48,6 @@ document.querySelectorAll(".object-card__btn.edit").forEach((i) => {
 	i.addEventListener("click", edit_var_foo)
 })
 
-
-// открыть форму для создания
-// document.querySelector(".template__template-actions .template-btn.create").addEventListener("click", (e) => {
-// 	edit_menu_title.innerHTML = "Создание объекта шаблона"
-// 	action = "create"
-// 	editing_var = null
-// 	document.querySelectorAll(".edit-menu > .field input, .edit-menu > .field select").forEach((i) => {
-// 		if (i.type == "checkbox" || i.type == "radio") {
-// 			i.checked = false
-// 		} else {
-// 			i.value = ""
-// 		}
-// 	})
-
-// 	update_state(e)
-// })
-
-
 // отправка формы
 document.querySelector(".edit-menu__save-btn").addEventListener("click", (e) => {
 	const body = ObjectProcessingBody(action, editing_var)
@@ -78,19 +60,21 @@ document.querySelector(".edit-menu__save-btn").addEventListener("click", (e) => 
 		message.classList.add("log-container__log")
 		console.log(ans)
 		if (ans["res"] == "ok") {
-			message.innerHTML = (action === "edit" ? "Изменения сохранены" : "Объект создан")
+			message.innerHTML = "Изменения сохранены"
 		} else if (ans["res"] === "validation error") {
 			message.innerHTML = ans["errors"]["__all__"][0]
 		}
 		message_block.insertBefore(message, message_block.firstChild)
 		setTimeout(() => {
+			message_block.style.display = "block"
 			message.style.opacity = "100%"
-			setTimeout(() => {
-			message.style.opacity = "0%"
-			setTimeout(() => {
-				message.remove()
-			}, 510)
-		}, 1500)
+				setTimeout(() => {
+					message.style.opacity = "0%"
+					setTimeout(() => {
+						message_block.style.display = "none"
+						message.remove()
+					}, 510)
+				}, 1500)
 		}, 10)
 	})
 })

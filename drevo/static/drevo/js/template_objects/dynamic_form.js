@@ -2,8 +2,6 @@ let turple_block = document.querySelector("#tuple") // поле выбора с�
 
 let subscription_block = document.querySelector("#subscription") // чекбокс "прописью"
 
-let main_checkbox_input = document.querySelector("#main input")
-
 let type = document.querySelector("#type_of select") // поле выбора типа содержимого
 let types = { // допустимые типы содержимого
 	"text": 0,
@@ -20,11 +18,7 @@ export function update_state(e) {
 	turple_block.style.display = type.value == types["tuple"] ? "block" : "none"
 }
 
-main_checkbox_input.addEventListener("change", update_state)
-
-//
 document.querySelector("#structure input").addEventListener("change", update_state)
-
 
 // изменили тип значения
 document.querySelector("#type_of select").addEventListener("change", update_state)

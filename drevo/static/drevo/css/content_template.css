@@ -176,6 +176,7 @@
 .log-container {
 	position: absolute;
 	top: 0;
+	display: none;
 	right: -5vw;
 	width: 20vw;
 }

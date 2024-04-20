@@ -42,13 +42,15 @@ document.addEventListener("DOMContentLoaded", (e) => {
 			}
 			message_block.insertBefore(message, message_block.firstChild)
 			setTimeout(() => {
+				message_block.style.display = "block"
 				message.style.opacity = "100%"
-				setTimeout(() => {
-				message.style.opacity = "0%"
-				setTimeout(() => {
-					message.remove()
-				}, 510)
-			}, 1500)
+					setTimeout(() => {
+						message.style.opacity = "0%"
+						setTimeout(() => {
+							message.remove()
+							message_block.style.display = "none"
+						}, 510)
+					}, 1500)
 			}, 10)
 		})
 	})
