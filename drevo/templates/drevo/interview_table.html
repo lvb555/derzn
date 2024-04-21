@@ -8,7 +8,7 @@
 <head><title>{% block title %}Авторы Интервью{% endblock %}</title></head>
 {% block content %}
 
-<h1>{{ interview_this }} - Интервью</h1>
+<h1>{{ interview_this.name }} - Интервью</h1>
 <div style="overflow-x:auto;">
   <ul class="treeInterview">
     <ul>
@@ -16,46 +16,34 @@
         <!-- Заголовок таблицы -->
         <tr>
             <th class="graphs" rowspan="2">ФИО</th>
-            <th class="graphs" colspan="{{ questions_list|length }}">Вопросы интервью</th>
+            <th class="graphs" colspan="{{ table.0|length }}">Вопросы интервью</th>
         </tr>
         <tr>
-            {% for question in questions_list %}
-                <th class="graphs">{{ question }}</th>
+            {% for question in table.0 %}
+                {% if not forloop.first %}
+                    <th class="graphs">{{ question }}</th>
+                {% endif %}
             {% endfor %}
         </tr>
-        {% for author_dict in author_list %}
-          {% if author_dict.author in answered_authors %}
-            <tr>
-              <!-- И.О.Ф -->
-              <td>{{ author_dict.name }}</td>
-              <!-- Для каждого вопроса проверяем ответы -->
-              {% for question, answers in matrix.items %}
-                <td>
-                  {% if answers %}
-                    <!-- Если есть ответы, выводим их -->
-                    {% for answer in answers %}
-                        {% if answer.rz.author.name == author_dict.author.name %}
-                          {% if answer != minus %}
-                            <li class="li-table"><span class="span-table">{{ answer.rz.name }}</span></li></br>
-                          {% endif %}
-                        {% comment %} {% else %}
-                          {% if minus in answer or not answer %}
-
-                            <p class="minus-table">{{ minus }}</p>
-
-                          {% endif %} {% endcomment %}
+        {% for row in table %}
+            {% if not forloop.first %}
+                <tr>
+                    <!-- И.О.Ф -->
+                    <td>{{ row.0 }}</td>
+                    <!-- Для каждого вопроса проверяем ответы -->
+                    {% for cell in row %}
+                        {% if not forloop.first %}
+                            <td>
+                                {% if cell != "-" %}
+                                    <li class="li-table"><span class="span-table">{{ cell }}</span></li></br>
+                                {% else %}
+                                    <p class="minus-table">{{ cell }}</p>
+                                {% endif %}
+                            </td>
                         {% endif %}
-                      
-                    {% comment %} {% empty %}
-                    <p class="minus-table">{{ minus }}</p> {% endcomment %}
                     {% endfor %}
-                  {% comment %} {% else %}
-                      <p class="minus-table">-</p> {% endcomment %}
-                  {% endif %}
-                </td>
-              {% endfor %}
-            </tr>
-          {% endif %}
+                </tr>
+            {% endif %}
         {% endfor %}
       </table>
     </ul>
@@ -90,14 +78,7 @@
   .treeInterview .family.bi-file-minus-fill + ul {
     display: block;
   }
-
-  .interview-start {
-    color: red;
-  }
-  .interview-end {
-    color: green;
-  }
-  </style>
+</style>
 
   <script>
   (function() {
