@@ -72,23 +72,34 @@ def create_new_zn(request):
 
 
 def search_page(request):
-    all_status = StatusType.objects.all()
-    filters = {
-        'functional': request.GET.get('functional', False) == 'on',
-        'layout': request.GET.get('layout', False) == 'on',
-        'design_needed': request.GET.get('design_needed', False) == 'on',
-        'design': request.GET.get('design', False) == 'on',
-        'help_page_content': request.GET.get('help_page_content', False) == 'on',
-        'help_page': request.GET.get('help_page', False) == 'on',
-        'notification': request.GET.get('notification', False) == 'on',
-        'status_id': request.GET.get('status')
-    }
+    if request.method == 'GET' and 'searchForm' in request.GET:
+        all_status = StatusType.objects.all()
+        message = 'Результаты поиска:'
 
-    query = Q()
-    for key, value in filters.items():
-        if value:
-            query.add(Q(**{key: value}), Q.AND)
+        filters = {
+            'functional': request.GET.get('functional', False) == 'on',
+            'layout': request.GET.get('layout', False) == 'on',
+            'design_needed': request.GET.get('design_needed', False) == 'on',
+            'design': request.GET.get('design', False) == 'on',
+            'help_page_content': request.GET.get('help_page_content', False) == 'on',
+            'help_page': request.GET.get('help_page', False) == 'on',
+            'notification': request.GET.get('notification', False) == 'on',
+            'status_id': request.GET.get('status')
+        }
 
-    pages = SitePage.objects.filter(query)
-    context = {'all_status': all_status, 'pages': pages}
-    return render(request, 'drevo/search_page.html', context)
+        query = Q()
+        for key, value in filters.items():
+            if value:
+                query.add(Q(**{key: value}), Q.AND)
+
+        pages = SitePage.objects.filter(query)
+        if not pages:
+            message = 'Страниц сайта не найдено'
+
+        context = {'all_status': all_status, 'pages': pages, 'message': message}
+        return render(request, 'drevo/search_page.html', context)
+
+    else:
+        all_status = StatusType.objects.all()
+        context = {'all_status': all_status}
+        return render(request, 'drevo/search_page.html', context)

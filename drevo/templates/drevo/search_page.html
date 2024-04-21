@@ -89,14 +89,14 @@
         <label for="id_notification">Оповещение, уведомление</label>
     </div>
     <br>
-    <button type="submit" style="background-color: black; color: white; margin-left: 200px;">Найти</button>
+    <button type="submit" style="background-color: black; color: white; margin-left: 200px;" name="searchForm">Найти</button>
     </div>
 
     </form>
 
 
     <div class="container mt-3">
-    <h6>Результаты поиска:</h6>
+    <h6>{{message}}</h6>
     <div role="group" aria-label="Pages">
         <ul>
         {% for page in pages %}
