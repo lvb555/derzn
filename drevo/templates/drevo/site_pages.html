@@ -92,7 +92,7 @@
                     </a>
                 {% elif node.type == 'label' %}
                     <a  href="{% url 'site_page' node.base_page.pk %}" class="centered dashed small-title">
-                        {{ node.page }}
+                        {{ node.base_page.page }}
                     </a>
                 {% else %}
                     <a class="centered dashed small-title">
@@ -167,6 +167,14 @@ function ShowFields(fields, ability, required_fields){
         }
     });
 }
+
+document.querySelector('#id_status').addEventListener('click', (e) => {
+    if(/Эксплуатация|Ремонт/.test(document.querySelector('#id_status option:checked').textContent)){
+        document.querySelector('#id_link').required = true;
+    }else{
+        document.querySelector('#id_link').required = false;
+    }
+})
 
 document.getElementById('create-form').addEventListener('click', (e) => {
     saveBg.classList.add('active');
