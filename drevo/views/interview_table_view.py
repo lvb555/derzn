@@ -5,11 +5,11 @@ from drevo.models.relation import Relation
 
 def interview_table(request, id):
     interview = get_object_or_404(Znanie, id=id)
-    questions = Relation.objects.filter(tr__name="Состав", bz__id=interview.id)
+    questions = Relation.objects.filter(tr__name="Состав", bz__id=interview.id).select_related('rz')
     question_list = [question.rz for question in questions]
     authors_dict = defaultdict(lambda: defaultdict(list))
     author_names = defaultdict(str)
-    answers = Relation.objects.filter(tr__name="Ответ", bz__in=question_list).select_related('rz__author').all()
+    answers = Relation.objects.filter(tr__name="Ответ", bz__in=question_list).select_related('rz__user', 'rz')
 
     for answer in answers:
         question = answer.bz
