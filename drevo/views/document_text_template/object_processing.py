@@ -38,6 +38,8 @@ def document_object_processing_view(request, doc_pk):
 
         try:
             obj = get_object(request.GET['id'])
+            obj_in_dict = model_to_dict(obj)
+            obj_in_dict['templates_that_use'] = [i.id for i in obj_in_dict['templates_that_use']]
         except Exception as e:
             return HttpResponse(
                 json.dumps({
@@ -46,7 +48,7 @@ def document_object_processing_view(request, doc_pk):
                 }),
                 content_type='application/json')
 
-        return HttpResponse(json.dumps({'res': 'ok', 'object': model_to_dict(obj)}))
+        return HttpResponse(json.dumps({'res': 'ok', 'object': obj_in_dict}))
 
     # создание/изменение объекта
     elif request.method == 'POST':
