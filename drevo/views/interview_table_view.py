@@ -9,7 +9,7 @@ def interview_table(request, id):
     question_list = [question.rz for question in questions]
     authors_dict = defaultdict(lambda: defaultdict(list))
     author_names = defaultdict(str)
-    answers = Relation.objects.filter(tr__name="Ответ", bz__in=question_list).select_related('rz__user', 'rz')
+    answers = Relation.objects.filter(tr__name="Ответ", bz__in=question_list).select_related('rz__user', 'rz', 'bz')
 
     for answer in answers:
         question = answer.bz
