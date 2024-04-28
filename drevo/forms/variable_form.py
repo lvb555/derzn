@@ -91,7 +91,7 @@ class TemplateObjectForm(forms.Form):
                 ('Глобального', 'Глобальный'),
                 ('Общего', 'Общий')
             ]
-            raise ValidationError(f'Родителем {l[availability]} объекта не может быть {l[connected_to.availability]} объект')
+            raise ValidationError(f'Родителем {l[availability][0]} объекта не может быть {l[connected_to.availability][1]} объект')
 
         # Указана ли редактируемая переменная
         if action == 'edit' and var is None:

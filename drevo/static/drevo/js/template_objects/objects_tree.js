@@ -9,19 +9,19 @@ const object_template = document.querySelector(".node.clone")
 const objects_contaning_list = document.querySelector(".objects-tree__containing-list")
 
 function select_obejct(e) {
-	const p = e.target.closest(".node-name")
-	const object_name = p.querySelector("span").innerHTML
-	const id = Number(p.id.split("-")[1])
+	const object = e.target.closest(".node")
+	const object_name = object.querySelector("span").innerHTML
+	const id = Number(object.id.split("-")[1])
 	let availability = -1
 	let optional = false
-	if (p.classList.contains("local"))
+	if (object.classList.contains("local"))
 		availability = 0
-	else if (p.classList.contains("global"))
+	else if (object.classList.contains("global"))
 		availability = 1
-	else if (p.classList.contains("general"))
+	else if (object.classList.contains("general"))
 		availability = 2
 
-	if (p.classList.contains("optional"))
+	if (object.classList.contains("optional"))
 		optional = true
 
 
@@ -67,7 +67,6 @@ document.querySelectorAll(".edit-menu__save-btn").forEach((i) => i.addEventListe
 		message.classList.add("log-container__log")
 		if (ans["res"] == "ok") {
 			message.innerHTML = "Объект создан"
-
 			const object = object_template.cloneNode(true)
 			let parent
 			if (ans["object"].connected_to) {
@@ -90,6 +89,11 @@ document.querySelectorAll(".edit-menu__save-btn").forEach((i) => i.addEventListe
 			} else {
 				object.querySelector(".node-name").addEventListener("dblclick", select_obejct)
 			}
+
+			if (ans["object"].optional) {
+				object.classList.add("optional")
+			}
+			
 			object.classList.add("leaf")
 			object.setAttribute("id", `id-${ans["object"].id}`)
 
