@@ -66,6 +66,7 @@ class KnowledgeFormView(TemplateView):
             variant = int(param_variant)
         else:
             variant = 1
+        context["variant"] = variant
 
         # получаем список аргументов
         proof_relations = list(

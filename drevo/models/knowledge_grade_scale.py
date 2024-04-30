@@ -68,8 +68,12 @@ class KnowledgeGradeScale(models.Model):
     @classmethod
     def get_default_grade(cls):
         """Оценка по умолчанию"""
-        # берем оценку максимально близкую к 0
-        return cls.get_grade_object(0)
+        # Возвращаем оценку по умолчанию Нет оценки
+        return cls.objects.get(name="Нет оценки")
+
+    @classmethod
+    def get_default_value(cls):
+        return 1
 
     def is_hidden(self) -> bool:
         """Признак скрытия (системности) оценки

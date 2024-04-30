@@ -61,6 +61,7 @@ class TemplateObjectForm(forms.Form):
         zn = cleaned_data.get('knowledge')
         var = cleaned_data.get('pk')
         action = cleaned_data.get('action')
+        tuple_ = cleaned_data.get('turple')
 
         # обязательные полей
         required_fields = [
@@ -90,11 +91,14 @@ class TemplateObjectForm(forms.Form):
                 ('Глобального', 'Глобальный'),
                 ('Общего', 'Общий')
             ]
-            raise ValidationError(f'Родителем {l[availability]} объекта не может быть {l[connected_to.availability]} объект')
+            raise ValidationError(f'Родителем {l[availability][0]} объекта не может быть {l[connected_to.availability][1]} объект')
 
         # Указана ли редактируемая переменная
         if action == 'edit' and var is None:
             raise ValidationError('Не задан редактируемый объект')
+
+        if type_of == 3 and tuple_ is None:
+            raise ValidationError('Не выбран справочник')
 
         # Проверка на то, что типы объектов и данных находятся в своих рамках
         if not (0 <= type_of < len(TemplateObject.available_types_of_content)):

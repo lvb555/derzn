@@ -6,6 +6,10 @@ a {
     text-decoration: none;
 }
 
+.clone {
+	display: none;
+}
+
 .btn {
 	color: black;
 }
@@ -136,6 +140,7 @@ a {
 	top: 20vh;
 	right: -5vw;
 	width: 20vw;
+	display: none;
 }
 
 .log-container__log {
