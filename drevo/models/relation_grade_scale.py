@@ -2,6 +2,9 @@ from django.db import models
 
 
 class RelationGradeScale(models.Model):
+    _queryset = None
+    _default_grade = None
+
     name = models.CharField(
         max_length=80,
         unique=True,
@@ -45,7 +48,7 @@ class RelationGradeScale(models.Model):
         return (self.low_value + self.high_value) / 2
 
     @classmethod
-    def get_grade_object(cls, grade_value) -> "RelationGradeScale":
+    def get_grade_object(cls, grade_value, use_cache=False) -> "RelationGradeScale":
         """
         Возвращает объект шкалы оценок связи,
         в диапазон которой входит grade_value.
@@ -55,21 +58,37 @@ class RelationGradeScale(models.Model):
         if grade_value is None:
             return cls.get_default_grade()
 
-        queryset = cls.objects.all().order_by("order")
-        for obj in queryset:
+        if not use_cache:
+            cls.validate_cache()
+        else:
+            cls.get_cache()
+
+        for obj in cls._queryset:
             if obj.low_value < grade_value < obj.high_value:
                 return obj
             elif obj.is_low_in_range and obj.low_value == grade_value:
                 return obj
             elif obj.is_high_in_range and obj.high_value == grade_value:
                 return obj
-        return queryset.last()
+        return cls._queryset.last()
+
+    @classmethod
+    def validate_cache(cls):
+        cls._queryset = cls.objects.all().order_by("order")
+
+    @classmethod
+    def get_cache(cls):
+        if not cls._queryset:
+            cls.validate_cache()
+        return cls._queryset
 
     @classmethod
     def get_default_grade(cls) -> "RelationGradeScale":
         """Оценка по умолчанию"""
-        # берем оценку максимально близкую к 1
-        return cls.get_grade_object(1)
+        # берем первую оценку по порядку
+        if not cls._default_grade:
+            cls._default_grade = cls.get_cache()[0]
+        return cls._default_grade
 
     def is_hidden(self) -> bool:
         """Признак скрытия (системности) оценки
