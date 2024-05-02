@@ -16,4 +16,4 @@ def interviews_all(request):
                 category_interviews.setdefault(category, []).append(period.bz)
     return render(request, "drevo/interviews_all.html", {
         'category_interviews': category_interviews.items()
-    })
+    }) 
