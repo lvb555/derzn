@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block cssfiles %}
-<link rel="stylesheet" href="{% static '/drevo/css/interview_table.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/interviews_table_and_all.css' %}">
 {% endblock %}
 <head><title>{% block title %}Авторы Интервью{% endblock %}</title></head>
 {% block content %}
@@ -50,6 +50,9 @@
   </ul>
 </div>
 <style>
+  table {
+    table-layout: fixed; 
+  }
   .bi-file-plus-fill {
     width: 17px;
     display: inline;

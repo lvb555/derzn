@@ -265,6 +265,7 @@ urlpatterns = [
     path("interview/<int:pk>/", interview_view, name="interview"),
     path("interview_table/<int:id>/", interview_table, name="interview_table"),
     path("interviews_all", interviews_all, name="Interviews_all"), 
+    
     path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/expertise",
         QuestionExpertWorkPage.as_view(),
