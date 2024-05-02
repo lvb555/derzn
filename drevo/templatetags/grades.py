@@ -96,7 +96,7 @@ def scale_color_styles():
     """
 
     result = ["<style>"]
-    for grade in KnowledgeGradeScale.objects.all().order_by("order"):
+    for grade in KnowledgeGradeScale.get_cache():
         result.append(
             f".scale_{grade.pk}_positive {{"
             f"background: {grade.argument_color_background}; "
