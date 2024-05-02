@@ -1,0 +1,73 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/interview_table.css' %}">
+{% endblock %}
+<head><title>{% block title %}Все интервью{% endblock %}</title></head>
+{% block content %}
+
+<h1>Все интервью</h1>
+<ul class="treeInterview">
+  <ul class="ul-interviews_all", style="list-style-type: none">
+    {% for category, interviews in category_interviews %}
+      <li>
+          {{ category }}
+          <ul class="ul-interviews_all", style="list-style-type: none">
+            {% for interview in interviews %}
+                <li>
+                  <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a>
+                </li>
+            {% endfor %}
+          </ul>
+      </li>
+    {% endfor %}
+  </ul>
+</ul>
+<style>
+  
+  .bi-file-plus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .bi-file-minus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .treeInterview .drop {
+    left: -.5em;
+    top: .4em;
+    width: .9em;
+    height: .9em;
+    line-height: .9em;
+    text-align: center;
+    background: #fff;
+    font-size: 80%;
+    cursor: pointer;
+  }
+  .treeInterview li:last-child > .bi-file-plus-fill.lonely {
+    margin-left: 1px;
+  }
+  .treeInterview .family.bi-file-plus-fill + ul {
+    display: none;
+  }
+  .treeInterview .family.bi-file-minus-fill + ul {
+    display: block;
+  }
+  </style>
+
+  <script>
+  (function() {
+    var ul = document.querySelectorAll('.treeInterview > li:not(:only-child) ul, .treeInterview ul  ul');
+    for (var i = 0; i < ul.length; i++) {
+      var div = document.createElement('div');
+      div.className = 'family bi-file-plus-fill lonely';
+      ul[i].parentNode.insertBefore(div, ul[i].previousSibling);
+      div.onclick = function() {
+        this.className = (this.className == 'family bi-file-plus-fill lonely' ? 'family bi-file-minus-fill' : 'family bi-file-plus-fill lonely');
+      }
+    }
+  })();
+  </script>
+{% endblock %}
