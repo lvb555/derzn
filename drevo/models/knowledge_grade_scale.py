@@ -3,6 +3,9 @@ from django.db import models
 
 
 class KnowledgeGradeScale(models.Model):
+    _queryset = None
+    _default_grade = None
+
     name = models.CharField(
         max_length=80,
         unique=True,
@@ -44,7 +47,7 @@ class KnowledgeGradeScale(models.Model):
         return (self.low_value + self.high_value) / 2
 
     @classmethod
-    def get_grade_object(cls, grade_value) -> "KnowledgeGradeScale":
+    def get_grade_object(cls, grade_value, use_cache=False) -> "KnowledgeGradeScale":
         """
         Возвращает объект шкалы оценок знания,
         в диапазон которой входит grade_value.
@@ -54,22 +57,39 @@ class KnowledgeGradeScale(models.Model):
         if grade_value is None:
             return cls.get_default_grade()
 
-        queryset = cls.objects.all().order_by("order")
+        if not use_cache:
+            cls.validate_cache()
+        else:
+            cls.get_cache()
 
-        for obj in queryset:
+        for obj in cls._queryset:
+            if obj.is_hidden():
+                continue
             if obj.low_value < grade_value < obj.high_value:
                 return obj
             elif obj.is_low_in_range and obj.low_value == grade_value:
                 return obj
             elif obj.is_high_in_range and obj.high_value == grade_value:
                 return obj
-        return queryset.last()
+        return cls._queryset.last()
+
+    @classmethod
+    def validate_cache(cls):
+        cls._queryset = cls.objects.all().order_by("order")
+
+    @classmethod
+    def get_cache(cls):
+        if not cls._queryset:
+            cls.validate_cache()
+        return cls._queryset
 
     @classmethod
     def get_default_grade(cls):
         """Оценка по умолчанию"""
-        # Возвращаем оценку по умолчанию Нет оценки
-        return cls.objects.get(name="Нет оценки")
+        # Возвращаем оценку по умолчанию самую первую оценку в шкале
+        if not cls._default_grade:
+            cls._default_grade = cls.get_cache()[0]
+        return cls._default_grade
 
     @classmethod
     def get_default_value(cls):
@@ -78,6 +98,6 @@ class KnowledgeGradeScale(models.Model):
     def is_hidden(self) -> bool:
         """Признак скрытия (системности) оценки
         в шкале оно есть, а выбрать из списка и присвоить нельзя
-        По-хорошему надо иметь поле в модели!
+        Нужна только для хранения цвета и названия
         """
-        return self.name == "Нет оценки"
+        return self.order < 1
