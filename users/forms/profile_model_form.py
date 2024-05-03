@@ -8,11 +8,7 @@ GENDER_CHOICES = (
 
 
 class ProfileModelForm(forms.ModelForm):
-    patronymic = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Введите отчество'}),
-        label='Отчество',
-        required=False,
-    )
+
     gender = forms.ChoiceField(
         choices=GENDER_CHOICES,
         label='Пол',
@@ -30,7 +26,7 @@ class ProfileModelForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('patronymic', 'gender', 'birthday_at', 'image')
+        fields = ('gender', 'birthday_at', 'image')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

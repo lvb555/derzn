@@ -7,28 +7,6 @@ export function TurpleEditID() {
 	return body
 }
 
-// export function TurpleProcessingBody(editing_turple) {
-// 	// собрать тело для запроса создания/изменения справочника
-
-// 	const form = document.querySelector(".turple-form")
-// 	const body = new FormData()
-
-// 	if (editing_turple !== null) {
-// 		body.append("id", editing_turple)
-// 	}
-// 	body.append("name", form.querySelector("#id_name").value)
-// 	body.append("weight", form.querySelector("#id_weight").value)
-// 	body.append("knowledge", document.querySelector("#document_pk").value)
-
-// 	document.querySelectorAll(".turple-menu__element").forEach((i) => {
-// 		i.querySelectorAll("input").forEach((j) => {
-// 			body.append(j.name, j.value)
-// 		})
-// 	})
-
-// 	return body
-// }
-
 export function ObjectProcessingBody (action, editing_var) {
 	// собрать тело для запроса создания/редактирования объекта
 
@@ -56,11 +34,34 @@ export function ObjectProcessingBody (action, editing_var) {
 	})
 
 	body.append("action", action)
-	body.append("knowledge", document.querySelector("#document_pk").value)
+	body.append("knowledge", document.querySelector("#id_knowledge").value)
+	body.append("is_main", false)
 
 	if (editing_var !== null) {
 		body.append("pk", editing_var)	
 	}
+
+	return body
+}
+
+export function GroupProcessingBody() {
+	const body = new FormData()
+	body.append("name", document.querySelector("#GroupModal .field #id_name").value)
+	body.append("connected_to", document.querySelector("#GroupModal .field #id_parent").value)
+	body.append("knowledge", document.querySelector("#GroupModal .field #id_knowledge").value)
+
+	const necessary_fields = [
+		["action", "create"],
+		["is_main", true],
+		["type_of", 0],
+		["optional", false],
+		["structure", 0],
+		["availability", false],
+		["subscription", ""]
+	]
+	necessary_fields.forEach((i) => {
+		body.append(i[0], i[1])
+	})
 
 	return body
 }

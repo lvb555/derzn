@@ -1,8 +1,23 @@
 from django.forms import Textarea, NumberInput
 from django import forms
+from django.db.models import Q
 from mptt.forms import TreeNodeChoiceField
 from drevo.models import TemplateObject, Znanie, Turple
 from django.core.exceptions import ValidationError
+
+
+class TemplateObjectAdminForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['connected_to'] = TreeNodeChoiceField(
+            queryset=TemplateObject.objects.filter(Q(knowledge=self.instance.knowledge, availability=0) |  Q(user=self.instance.user, availability=1) | Q(availability=2)),
+            label='Родитель',
+            required=False)
+
+    class Meta:
+        model = TemplateObject
+        fields = '__all__'
+        exclude = ['templates_that_use']
 
 
 class TemplateObjectForm(forms.Form):
@@ -46,6 +61,7 @@ class TemplateObjectForm(forms.Form):
         zn = cleaned_data.get('knowledge')
         var = cleaned_data.get('pk')
         action = cleaned_data.get('action')
+        tuple_ = cleaned_data.get('turple')
 
         # обязательные полей
         required_fields = [
@@ -68,9 +84,21 @@ class TemplateObjectForm(forms.Form):
             if v is None:
                 raise ValidationError(f'Поле {n} должно быть заполнено')
 
+        # Проверка на то, что уровень доступа родителя и ребенка совпадают
+        if connected_to and connected_to.availability < availability:
+            l = [
+                ('Локального', 'Локальный'),
+                ('Глобального', 'Глобальный'),
+                ('Общего', 'Общий')
+            ]
+            raise ValidationError(f'Родителем {l[availability][0]} объекта не может быть {l[connected_to.availability][1]} объект')
+
         # Указана ли редактируемая переменная
         if action == 'edit' and var is None:
             raise ValidationError('Не задан редактируемый объект')
+
+        if type_of == 3 and tuple_ is None:
+            raise ValidationError('Не выбран справочник')
 
         # Проверка на то, что типы объектов и данных находятся в своих рамках
         if not (0 <= type_of < len(TemplateObject.available_types_of_content)):
@@ -80,7 +108,7 @@ class TemplateObjectForm(forms.Form):
         count = TemplateObject.objects.filter(knowledge=zn, name=name).count()
         count -= int(action == 'edit' and var.name == name)
         if count > 0:
-            raise ValidationError(f'Объект с именем {name} уже существует в контексте этого документа')
+            raise ValidationError(f'Объект с именем {name} уже в контексте этого документа')
 
     name = forms.CharField(max_length=255, label='Имя объекта')
     structure = forms.BooleanField(label='Массив', required=False)

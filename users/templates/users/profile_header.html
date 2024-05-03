@@ -214,12 +214,17 @@
                     </a>
                 </div>
                 {% endif %}
-                {% if user.is_expert or user.is_staff or user.is_director %}
+                {% if user.is_expert or user.is_staff or user.is_director or user.is_employee %}
                 <div class="btn-group">
                     <a style="border-radius: 8px;" class="btn shadow-none group-title" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                       Подготовка знаний <img class="ms-2" src="{% static 'drevo/img/three_dots.png' %}">
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% if user.is_employee or user.is_superuser %}
+                        <li>
+                            <a href="{% url 'site_pages'%}" class="dropdown-item">Дерево страниц сайта</a>
+                        </li>
+                        {% endif %}
                         {% if user.is_staff %}
 						<li>
                             <div class="btn-group text-center">

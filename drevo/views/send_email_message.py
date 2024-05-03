@@ -79,10 +79,9 @@ def send_email_messages():
         }
 
         patr = ""
-        user_profile = user_to_send.profile
-        if user_to_send.first_name and user_profile.patronymic:
+        if user_to_send.first_name and user_to_send.patronymic:
 
-            patr = ' ' + user_profile.patronymic
+            patr = ' ' + user_to_send.patronymic
         appeal = user_to_send.first_name or 'пользователь'
 
         context['appeal'] = appeal

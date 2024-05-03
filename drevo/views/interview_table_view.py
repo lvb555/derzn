@@ -33,8 +33,8 @@ def interview_table(request, id):
                     row.append(", ".join(answers[question]))
                 else:
                     row.append("-")
-            table.append(row)
 
+            table.append(row) 
     return render(request, "drevo/interview_table.html", {
         'table': table, 'interview': interview
     }) 
