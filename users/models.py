@@ -23,6 +23,8 @@ class User(AbstractUser):
     )
     first_name = models.CharField(max_length=150, verbose_name='Имя')
     last_name = models.CharField( max_length=150, verbose_name='Фамилия')
+    patronymic = models.CharField(max_length=150, blank=True, verbose_name="Отчество")
+
     is_expert = models.BooleanField(default=False, verbose_name='Эксперт')
     is_employee = models.BooleanField(default=False, verbose_name='Сотрудник')
     is_redactor = models.BooleanField(default=False, verbose_name='Редактор')
@@ -57,7 +59,6 @@ class Profile(models.Model):
         User, on_delete=models.CASCADE, verbose_name="Пользователь"
     )
 
-    patronymic = models.CharField(max_length=150, blank=True, verbose_name="Отчество")
     gender = models.CharField(
         max_length=1, choices=GENDERS, default=UNKNOWN, verbose_name="Пол"
     )

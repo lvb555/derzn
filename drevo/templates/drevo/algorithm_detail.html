@@ -35,7 +35,7 @@
     {% if warning_text %}
         <h3 class="text-center">{{warning_text}}</h3>
     {% else %}
-        <div id="algorithm_tree">
+    <div id="algorithm_tree">
         <ul class="root ps-0" id="tree_root">
             {% if modification %}
                 <button type="button" class="btn tree-btn mx-4" onclick="tree_showAll();">Развернуть</button>
@@ -50,7 +50,6 @@
             {% recurse_dict algorithm_data previous_knowledge=znanie algorithm=znanie user=request.user work=current_work mode=modification %}
         </ul>
     </div>
-    {% endif %}
     <div class="popup__bg">
         <div class="popup p-5">
             <i class="bi bi-x-lg close-popup"></i>
@@ -261,6 +260,7 @@
             <p class="small-title" style="color: grey; padding: 12px 24px;">Не может быть доступным больше</p>
         </div>
     </div>
+    {% endif %}
 </div>
 <script>
 var isAuthenticated = {{ user.is_authenticated|lower }};

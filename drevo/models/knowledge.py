@@ -1,14 +1,14 @@
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from drevo.common import variables
 from mptt.models import TreeForeignKey
-from users.models import User
 
-from ..managers import ZManager
+from drevo.common import variables
+from users.models import User
 from .category import Category
 from .knowledge_grade_scale import KnowledgeGradeScale
 from .knowledge_rating import ZnRating
+from ..managers import ZManager
 
 
 class Znanie(models.Model):
@@ -27,9 +27,7 @@ class Znanie(models.Model):
         limit_choices_to={"is_published": True},
     )
     tz = models.ForeignKey("Tz", on_delete=models.PROTECT, verbose_name="Вид знания")
-    content = models.TextField(
-        max_length=2048, blank=True, null=True, verbose_name="Содержание"
-    )
+    content = models.TextField(max_length=2048, blank=True, null=True, verbose_name="Содержание")
     href = models.URLField(
         max_length=256,
         verbose_name="Источник",
@@ -37,9 +35,7 @@ class Znanie(models.Model):
         null=True,
         blank=True,
     )
-    source_com = models.CharField(
-        max_length=256, verbose_name="Комментарий к источнику", null=True, blank=True
-    )
+    source_com = models.CharField(max_length=256, verbose_name="Комментарий к источнику", null=True, blank=True)
     author = models.ForeignKey(
         "Author",
         on_delete=models.PROTECT,
@@ -56,9 +52,7 @@ class Znanie(models.Model):
         auto_now=True,
         verbose_name="Дата и время редактирования",
     )
-    user = models.ForeignKey(
-        User, on_delete=models.PROTECT, editable=False, verbose_name="Пользователь"
-    )
+    user = models.ForeignKey(User, on_delete=models.PROTECT, editable=False, verbose_name="Пользователь")
     expert = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -100,9 +94,7 @@ class Znanie(models.Model):
     notification = models.BooleanField(default=False, verbose_name="Уведомления")
     several_works = models.BooleanField(default=False, verbose_name="Несколько работ")
 
-    meta_info = models.CharField(
-        max_length=1024, blank=True, null=True, verbose_name="Метаинформация"
-    )
+    meta_info = models.CharField(max_length=1024, blank=True, null=True, verbose_name="Метаинформация")
 
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
@@ -146,18 +138,19 @@ class Znanie(models.Model):
     def get_comments_count(self):
         return self.comments.filter(parent=None).count()
 
-    def get_users_grade(self, user: User):
+    def get_users_grade(self, user: User) -> float | None:
         """
         Оценка пользователя user.
-        По умолчанию - Нет оценки
+        По умолчанию -  None
         """
 
-        queryset = self.grades.filter(user=user)
-        if queryset.exists():
-            return queryset.first().grade.get_base_grade()
-        return KnowledgeGradeScale.objects.get(name="Нет оценки").get_base_grade()
+        knowledge_grade = self.grades.filter(user=user).first()
+        if knowledge_grade:
+            return knowledge_grade.grade.get_base_grade()
+        else:
+            return self.get_default_grade().get_base_grade()
 
-    def get_common_grades(self, request):
+    def get_common_grades(self, request) -> tuple[float | None, float | None]:
         """
         Расчёт общей оценки знания.
         Возвращает числовое значение общей оценки и
@@ -170,21 +163,33 @@ class Znanie(models.Model):
         else:
             variant = 1
 
+        # оценка доказательной базы
         proof_base_value = self.get_proof_base_grade(request, variant)
-        if proof_base_value is not None:
-            users_grade = self.get_users_grade(request.user)
-            if users_grade is not None:
-                common_grade_value = (proof_base_value + users_grade) / 2
-            else:
-                common_grade_value = None
+
+        # прямая оценка пользователя
+        knowledge_grade = self.grades.filter(user=request.user).first()
+        if knowledge_grade:
+            users_grade = knowledge_grade.grade.get_base_grade()
         else:
-            common_grade_value = self.get_users_grade(request.user)
+            users_grade = None
+
+        # если есть оценка пользователя, отличная от 0 (и None), то берем ее
+        # иначе берем оценку доказательной базы (даже если она равна 0)
+
+        if users_grade:
+            common_grade_value = users_grade
+        else:
+            common_grade_value = proof_base_value
 
         return common_grade_value, proof_base_value
 
-    def get_proof_base_grade(self, request, variant):
+    def get_proof_base_grade(self, request, variant) -> float | None:
         """
         Возвращает числовое значение оценки доказательной базы
+        как среднее от всех ненулевых оценок
+        в зависимости от варианта
+            1 - оценка берется не дальше аргументов
+            2 - оценка берется по всему дереву базы
         """
 
         sum_list = []
@@ -193,30 +198,30 @@ class Znanie(models.Model):
             tr__is_argument=True,
             rz__tz__can_be_rated=True,
         )
+
         if queryset.exists():
             for relation in queryset:
                 grade = relation.get_proof_weight(request, variant)
 
                 if grade:
                     sum_list.append(grade)
+        else:
+            # Если нет аргументов .... возвращаем значение по умолчанию
+            return KnowledgeGradeScale.get_default_value()
 
         if not sum_list:
-            # Если доводов нет, Тогда ОДБ := None
-            return None
+            # Если доводов нет, Тогда ОДБ := 0
+            return 0
 
         # ОДБ := среднее арифметическое Оценок вкладов доводов (ОВД) среди существенных доводов..
         proof_base_value = sum(sum_list) / len(sum_list)
 
-        if proof_base_value < 0:
-            # Если ОДБ < 0, тогда ОДБ := 0
-            proof_base_value = 0
-
         return proof_base_value
 
     @staticmethod
-    def get_default_grade():
-        """Возвращает числовое значение оценки по умолчанию"""
-        return KnowledgeGradeScale.objects.all().first().get_base_grade()
+    def get_default_grade() -> KnowledgeGradeScale:
+        """Возвращает оценку по умолчанию"""
+        return KnowledgeGradeScale.get_default_grade()
 
     def get_ancestors_category(self):
         """

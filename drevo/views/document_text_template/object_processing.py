@@ -17,7 +17,7 @@ def get_object(pk):
     except TemplateObject.DoesNotExist:
         raise TemplateObject.DoesNotExist(json.dumps({
             'res': 'error',
-            'error': f'Словаря с id {pk} не существует'}))
+            'error': f'Объекта с id {pk} не существует'}))
     except ValueError:
         raise ValueError(json.dumps({
             'res': 'error',
@@ -38,6 +38,8 @@ def document_object_processing_view(request, doc_pk):
 
         try:
             obj = get_object(request.GET['id'])
+            obj_in_dict = model_to_dict(obj)
+            obj_in_dict['templates_that_use'] = [i.id for i in obj_in_dict['templates_that_use']]
         except Exception as e:
             return HttpResponse(
                 json.dumps({
@@ -46,11 +48,12 @@ def document_object_processing_view(request, doc_pk):
                 }),
                 content_type='application/json')
 
-        return HttpResponse(json.dumps({'res': 'ok', 'object': model_to_dict(obj)}))
+        return HttpResponse(json.dumps({'res': 'ok', 'object': obj_in_dict}))
 
     # создание/изменение объекта
     elif request.method == 'POST':
         form = TemplateObjectForm(request.POST)
+        obj_to_return = None
 
         if not form.is_valid():
             return HttpResponse(
@@ -68,7 +71,7 @@ def document_object_processing_view(request, doc_pk):
             form.cleaned_data['comment'] = form.cleaned_data['comment'] if form.cleaned_data['comment'] is not None else ''
             form.cleaned_data['structure'] = int(form.cleaned_data['structure'])
             if form.cleaned_data['action'] == 'create':
-                TemplateObject.objects.create(
+                obj_to_return = TemplateObject.objects.create(
                     name=form.cleaned_data['name'],
                     structure=form.cleaned_data['structure'],
                     is_main=form.cleaned_data['is_main'],
@@ -81,8 +84,10 @@ def document_object_processing_view(request, doc_pk):
                     knowledge=form.cleaned_data['knowledge'],  # переделать под параметр doc_pk
                     connected_to=form.cleaned_data['connected_to'],
                     turple=form.cleaned_data['turple'],
-                    comment=form.cleaned_data['comment'])
+                    comment=form.cleaned_data['comment'],
+                    user=request.user)
             elif form.cleaned_data['action'] == 'edit':
+                obj_to_return = form.cleaned_data['pk']
                 form.cleaned_data['pk'].name = form.cleaned_data['name']
                 form.cleaned_data['pk'].structure = form.cleaned_data['structure']
                 form.cleaned_data['pk'].is_main = form.cleaned_data['is_main']
@@ -96,13 +101,9 @@ def document_object_processing_view(request, doc_pk):
                 form.cleaned_data['pk'].comment = form.cleaned_data['comment']
                 form.cleaned_data['pk'].connected_to = form.cleaned_data['connected_to']
                 form.cleaned_data['pk'].save()
-
         except Exception as e:
             return HttpResponse(json.dumps({'res': 'database error', 'error': e}), content_type='application/json')
-
-        # множество объектов отображемых на странице создания/редактирования шаблона текста документа
-        q = TemplateObject.objects.filter(Q(knowledge=form.cleaned_data['knowledge']) | Q(availability=1) | Q(availability=2))
-        return HttpResponse(json.dumps({'res': 'ok', 'objects': json.loads(serializers.serialize('json', q))}), content_type='application/json')
+        return HttpResponse(json.dumps({'res': 'ok', 'object': model_to_dict(obj_to_return)}), content_type='application/json')
     elif request.method == 'DELETE':
         obj = get_object(request.DELETE["id"])
         return HttpResponse(json.dumps({'res': 'ok'}), content_type='application/json')
