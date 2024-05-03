@@ -37,4 +37,4 @@ def interview_table(request, id):
             table.append(row) 
     return render(request, "drevo/interview_table.html", {
         'table': table, 'interview': interview
-    })
+    }) 

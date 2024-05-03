@@ -2,6 +2,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 
+
+from drevo.views.interviews_all_view import interviews_all
+from drevo.views.interview_table_view import interview_table
 from drevo.views.developer_view import developer_view
 from drevo.views.interviews_view import interview_view
 from drevo.views.my_interview_view import my_interview_view
@@ -300,8 +303,7 @@ urlpatterns = [
     path("interview/<int:pk>/", interview_view, name="interview"),
     path("interview_table/<int:id>/", interview_table, name="interview_table"),
     path("interviews_all", interviews_all, name="Interviews_all"), 
-    
-
+  
     path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/expertise",
         QuestionExpertWorkPage.as_view(),
