@@ -5,6 +5,7 @@ from drevo.models.relation import Relation
 
 def interview_table(request, id):
     interview = get_object_or_404(Znanie, id=id)
+    interview_this = interview.name
     questions = Relation.objects.filter(tr__name="Состав", bz__id=interview.id).select_related('rz')
     question_list = [question.rz for question in questions]
     authors_dict = defaultdict(lambda: defaultdict(list))
@@ -30,11 +31,11 @@ def interview_table(request, id):
             row = [author_names[author_id]]
             for question in question_list:
                 if question in answers and answers[question]:
-                    row.append(", ".join(answers[question]))
+                    row.append(",\n".join(answers[question]))
                 else:
                     row.append("-")
 
             table.append(row) 
     return render(request, "drevo/interview_table.html", {
-        'table': table, 'interview': interview
+        'table': table, 'interview_this': interview_this
     }) 
