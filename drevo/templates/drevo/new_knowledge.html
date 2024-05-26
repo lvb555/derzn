@@ -14,43 +14,45 @@
 
 {% block content %}
 <div class="container header_info px-2">
-    <h1>Новые, интересные знания</h1>
+    <h1>Новые знания по подпискам</h1>
     <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
           <li class="breadcrumb-item"><a {% if link == 'users:myprofile' %} href="{% url 'users:my_profile' %}" {% else %}
               href="{% url link id %}" {% endif %}>Профиль</a></li>
           <li class="breadcrumb-item"><a>Изучение знаний</a></li>
-          <li class="breadcrumb-item opened"><a>Новые, интересные знания</a></li>
+          <li class="breadcrumb-item opened"><a>Новые знания по подпискам</a></li>
         </ol>
     </nav>
 </div>
 
 {% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections invite_count=invite_count new_knowledge_feed=new_knowledge_feed new_messages=new_messages new=new %}
 
-<div class="sub-drevo">
-    <p class="author-title" style="padding-bottom: 5px;">Новые знания по подписке по авторам</p>
-    {% if knowledges_by_authors %}
-        {% build_knowledge_tree queryset=knowledges_by_authors tree_num=1 empty_tree_message='На данный момент нет новых знаний по подписке по авторам' show_complex=True %}
-    {% else %}
-        <p class="option">На данный момент нет новых знаний по подписке по авторам</p>
-    {% endif %}
-</div><br>
-<div class="sub-drevo">
-    <p class="author-title" style="padding-bottom: 5px;">Новые знания по подписке по тегам</p>
-    {% if knowledges_by_labels %}
-        {% build_knowledge_tree queryset=knowledges_by_labels tree_num=2 empty_tree_message='На данный момент нет новых знаний по подписке по тегам' show_complex=True %}
-    {% else %}
-        <p class="option">На данный момент нет новых знаний по подписке по тегам</p>
-    {% endif %}
-</div><br>
-<div class="sub-drevo">
-    <p class="author-title" style="padding-bottom: 5px;">Новые знания по подписке по категориям</p>
-    {% if knowledges_by_categories %}
-        {% build_knowledge_tree queryset=knowledges_by_categories tree_num=3 empty_tree_message='На данный момент нет новых знаний по подписке по категориям' show_complex=True %}
-    {% else %}
-        <p class="option">На данный момент нет новых знаний по подписке по категориям</p>
-    {% endif %}
+<div class="basic">
+    <div class="sub-drevo">
+        <p class="author-title" style="padding-bottom: 5px; font-size: 20px;">Новые знания по подписке по авторам</p>
+        {% if knowledges_by_authors %}
+            {% build_knowledge_tree queryset=knowledges_by_authors tree_num=1 empty_tree_message='На данный момент нет новых знаний по подписке по авторам' show_complex=True %}
+        {% else %}
+            <p class="option">На данный момент нет новых знаний по подписке по авторам</p>
+        {% endif %}
+    </div><br>
+    <div class="sub-drevo">
+        <p class="author-title" style="padding-bottom: 5px; font-size: 20px;">Новые знания по подписке по тегам</p>
+        {% if knowledges_by_labels %}
+            {% build_knowledge_tree queryset=knowledges_by_labels tree_num=2 empty_tree_message='На данный момент нет новых знаний по подписке по тегам' show_complex=True %}
+        {% else %}
+            <p class="option">На данный момент нет новых знаний по подписке по тегам</p>
+        {% endif %}
+    </div><br>
+    <div class="sub-drevo">
+        <p class="author-title" style="padding-bottom: 5px; font-size: 20px;">Новые знания по подписке по категориям</p>
+        {% if knowledges_by_categories %}
+            {% build_knowledge_tree queryset=knowledges_by_categories tree_num=3 empty_tree_message='На данный момент нет новых знаний по подписке по категориям' show_complex=True %}
+        {% else %}
+            <p class="option">На данный момент нет новых знаний по подписке по категориям</p>
+        {% endif %}
+    </div>
 </div>
 
 </div>
