@@ -29,6 +29,7 @@ class SitePageCreateForm(forms.ModelForm):
     help_page_content = forms.BooleanField(label='Контент помощи', required=False)
     notification = forms.BooleanField(label='Оповещение', required=False)
     link = forms.URLField(max_length=256, label='URL-адрес', required=False)
+    order = forms.IntegerField(label="Порядок", required=False)
 
     class Meta:
         model = SitePage
@@ -37,7 +38,7 @@ class SitePageCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            if field_name in ('page', 'status', 'parent', 'link', 'base_page', 'subscribers'):
+            if field_name in ('page', 'status', 'parent', 'link', 'base_page', 'subscribers', 'order'):
                 field.widget.attrs['class'] = 'form-control py-2 text-grey'
             else:
                 field.widget.attrs['class'] = 'm-0 p-0 text-grey'
@@ -56,7 +57,7 @@ class SitePageRedactForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['disabled'] = True
-            if field_name in ('status', 'parent', 'link', 'base_page', 'subscribers'):
+            if field_name in ('status', 'parent', 'link', 'base_page', 'subscribers', 'order'):
                 field.widget.attrs['class'] = 'form-control py-2 text-grey'
             else:
                 field.widget.attrs['class'] = 'm-0 p-0 text-grey'

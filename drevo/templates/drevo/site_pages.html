@@ -86,16 +86,12 @@
                     <i class="family bi-file-minus-fill circle_icon"
                        onclick="toggleHiddenElement(this);"></i>
                 {% endif %}
-                {% if node.type == 'page' or node.type == 'complicated_knowledge'%}
-                    <a  href="{% url 'site_page' node.pk %}" class="centered dashed small-title">
-                        {{ node.page }}
-                    </a>
-                {% elif node.type == 'label' %}
+                {% if node.type == 'label' %}
                     <a  href="{% url 'site_page' node.base_page.pk %}" class="centered dashed small-title">
                         {{ node.base_page.page }}
                     </a>
                 {% else %}
-                    <a class="centered dashed small-title">
+                    <a href="{% url 'site_page' node.pk %}" class="centered dashed small-title">
                         {{ node.page }}
                     </a>
                 {% endif %}
@@ -129,7 +125,7 @@ $(document).ready(function () {
 });
 
 document.querySelectorAll('form.scrollbar p label').forEach((elem) => {
-    if(elem.nextElementSibling && ['page', 'parent'].indexOf(elem.nextElementSibling.name) == -1){
+    if(elem.nextElementSibling && ['page', 'parent', 'order'].indexOf(elem.nextElementSibling.name) == -1){
         elem.parentNode.hidden = true;
     }
 });
@@ -151,7 +147,7 @@ document.querySelector('ul#id_type').addEventListener('click', (e) => {
 
 function ShowFields(fields, ability, required_fields){
     document.querySelectorAll('form.scrollbar p label').forEach((elem) => {
-        if(elem.nextElementSibling && ['page', 'parent'].indexOf(elem.nextElementSibling.name) == -1){
+        if(elem.nextElementSibling && ['page', 'parent', 'order'].indexOf(elem.nextElementSibling.name) == -1){
             if(fields.indexOf(elem.nextElementSibling.name) == -1){
                 elem.parentNode.hidden = ability;
             }else{

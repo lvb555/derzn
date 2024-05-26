@@ -28,7 +28,7 @@
         {% endif %}
         <button id="history" class="btn btn-header" style="background-color: grey">История</button>
     </div>
-    <form method="post" style="display: grid; gap: 2vh;">
+    <form method="post" class="mt-2" style="display: grid; gap: 2vh;">
         {% csrf_token %}
         <div style="display: flex; align-items: center; gap: 24px; width: fit-content;">
             <label for="id_status">Статус:</label>
@@ -96,6 +96,10 @@
         <div>
             <label for="id_notification">Оповещение, уведомление:</label>
             {{form.notification}}
+        </div>
+        <div>
+            <label for="id_order">Порядок:</label>
+            {{form.order}}
         </div>
         <button class="btn btn-header" type="submit" style="width: fit-content;" hidden>Сохранить изменения</button>
     </form>
@@ -174,9 +178,17 @@ document.querySelector('select#id_type').addEventListener('click', (e) => {
     showProperFields();
 })
 
+document.querySelector('#id_status').addEventListener('click', (e) => {
+    if(/Эксплуатация|Ремонт/.test(document.querySelector('#id_status option:checked').textContent)){
+        document.querySelector('#id_link').required = true;
+    }else{
+        document.querySelector('#id_link').required = false;
+    }
+})
+
 function showFields(fields, ability, required_fields){
     document.querySelectorAll('form div select, form div input').forEach((elem) => {
-        if(['page', 'parent', 'type'].indexOf(elem.name) == -1){
+        if(['page', 'parent', 'type', 'order'].indexOf(elem.name) == -1){
             if(fields.indexOf(elem.name) == -1){
                 elem.parentNode.hidden = ability;
             }else{
