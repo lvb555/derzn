@@ -1,0 +1,214 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load static %}
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/dimensional_distributions.css' %}">
+<script src="{% static 'drevo/js/dimensional_distributions.js' %}"></script> 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+{% endblock %}
+<head><title>{% block title %}Одномерные распределениия{% endblock %}</title></head>
+{% block content %}
+
+<form method="get">
+  <label for="interviewSelect"><strong>Интервью:</strong></label>
+  <select name="selected_interview" onchange="this.form.submit()">
+      <option value="">Выбрать интервью</option>
+      {% for interview in interviews %}
+          <option value="{{ interview }}">{{ interview }}</option>
+      {% endfor %}
+  </select>
+</form>
+<form method="get">
+  <label for="questionSelect"><strong>Вопрос:</strong></label>
+  <select name="selected_question" onchange="this.form.submit()">
+      <option value="">Выбрать вопрос</option>
+      {% for question in questions %}
+        <option value="{{ question }}">{{ question }}</option>
+      {% endfor %}
+      <li>Сначала выберете интервью</li>
+  </select>
+</form>
+
+{% if table %}
+    <table id="answers" border='2px'>
+        <tr>
+            <td class="graphs">Ответ</td>
+            <td class="graphs">Число голосов % к проголосовавшим</td>
+        </tr>
+        {% for row in table %}
+            <tr>
+                <td rowspan="2">{{ row.answer_name }}</td>
+                <td class="numbers">{{ row.agreed_count }}</td>
+            </tr>
+            <tr>
+                <td class="numbers">{{ row.percent|floatformat:2 }}%</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td class="graphs" rowspan="2">Всего проголосовавших:</td>
+            <td class="numbers">{{ total_voters }}</td>
+        </tr>
+        <tr>
+            <td class="numbers">100%</td>
+        </tr>
+        <tr>
+            <td class="graphs">Всего участников интервью</td>
+            <td></td>
+        </tr>
+    </table>
+{% endif %}
+
+<a class="btn btn-success" href="{% url 'dimensional_distributions_2' %}">Таблицы двумерных распределений</a> 
+  {% comment %} <h3>Таблица одномерных распределениий</h3>
+    <label for="interviewSelect"><strong>Интервью:</strong></label>
+    <form method="get">
+      <select name="selected_interview" onchange="this.form.submit()">
+          <option value="">Выбрать интервью</option>
+          {% for interview in interviews %}
+              <option value="{{ interview }}">{{ interview }}</option>
+          {% endfor %}
+      </select>
+    </form>
+    <label for="questionSelect"><strong>Вопрос:</strong></label>
+    <form method="get">
+        <select name="selected_question" onchange="this.form.submit()">
+            <option value="">Выбрать вопрос</option>
+            {% for question in questions %}
+                <option value="{{ question }}">{{ question }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    {% if answers %}
+      <table id="answers">
+        <tr>
+            <td>Ответ</td>
+            <td>Число голосов % к проголосовавшим</td>
+        </tr>
+        {% for answer_name, answer_data in all_answers.items %}
+            <tr>
+                <td rowspan="2">{{ answer_name }}</td>
+                <td>{{ answer_data.0 }}</td>  <!-- Access agreed_count directly -->
+            </tr>
+            <tr>
+                <td>{{ answer_data.1|floatformat:2 }}%</td>  <!-- Access percent directly -->
+            </tr>
+        {% endfor %} 
+        <tr>
+            <td rowspan="2">Всего проголосовавших:</td>
+            <td>{{ total_voters }}</td>
+        </tr><tr><td>100%</td></tr>
+        <tr>
+            <td>Всего участников интервью</td>
+            <td></td>
+        </tr>
+      </table>
+    {% endif %}
+    <a class="btn btn-success" href="{% url 'dimensional_distributions_2' %}">Таблицы двумерных распределений</a> {% endcomment %}
+    {% comment %} <label for="interviewSelect"><strong>Интервью:</strong></label>
+    <form method="get">
+      <select name="selected_interview" onchange="this.form.submit()">
+          <option value="">Выбрать интервью</option>
+          {% for interview in interviews %}
+              <option value="{{ interview }}">{{ interview }}</option>
+          {% endfor %}
+      </select>
+    </form>
+    <label for="questionSelect"><strong>Вопрос:</strong></label>
+    <form method="get">
+        <select name="selected_question" onchange="this.form.submit()">
+            <option value="">Выбрать вопрос</option>
+            {% for question in questions %}
+                <option value="{{ question }}">{{ question }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    <table id="answers">
+      <tr>
+          <td>Ответ</td>
+          <td>Число голосов % к проголосававшим</td>
+      </tr>
+      {% for answer in all_answers %}
+      <tr>
+          <td rowspan="2">{{ answer }}</td>
+          <td>{{ answer.agreed_id }}</td>
+      </tr><tr><td>20%</td></tr>
+      {% endfor %}
+      <tr>
+          <td rowspan="2">Всего проголосававших:</td>
+          <td>25</td>
+      </tr>
+      <tr>
+          <td>100%</td>
+      </tr>
+      <tr>
+          <td>Всего участников интервью</td>
+          <td>28</td>
+      </tr>
+    </table>
+    <a class="btn btn-success", href="{% url 'dimensional_distributions_2' %}">Таблицы двумерных распределений</a>  {% endcomment %}
+
+
+<style>
+  
+  .bi-file-plus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .bi-file-minus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .treeInterview .drop {
+    left: -.5em;
+    top: .4em;
+    width: .9em;
+    height: .9em;
+    line-height: .9em;
+    text-align: center;
+    background: #fff;
+    font-size: 80%;
+    cursor: pointer;
+  }
+  .treeInterview li:last-child > .bi-file-plus-fill.lonely {
+    margin-left: 1px;
+  }
+  .treeInterview .family.bi-file-plus-fill + ul {
+    display: none;
+  }
+  .treeInterview .family.bi-file-minus-fill + ul {
+    display: block;
+  }
+  </style>
+
+  <script>
+    (function() {
+      var ul = document.querySelectorAll('.treeInterview > li:not(:only-child) ul, .treeInterview ul  ul');
+      for (var i = 0; i < ul.length; i++) {
+        var div = document.createElement('div');
+        div.className = 'family bi-file-plus-fill lonely';
+        ul[i].parentNode.insertBefore(div, ul[i].previousSibling);
+        div.onclick = function() {
+          this.className = (this.className == 'family bi-file-plus-fill lonely' ? 'family bi-file-minus-fill' : 'family bi-file-plus-fill lonely');
+        }
+      }
+    })();
+    // Для визуализации активных кнопок меню
+    let menuLinks = document.querySelectorAll('.auto_active_link');
+    for (let link of menuLinks) {
+      link.classList.remove('active');
+    }
+    for (let link of menuLinks) {
+      let currentLink = localStorage.getItem('active_link');
+      if (link.id === currentLink) {
+        link.classList.add('active');
+      }
+    }
+  </script>
+{% endblock %}
+<!-- CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>

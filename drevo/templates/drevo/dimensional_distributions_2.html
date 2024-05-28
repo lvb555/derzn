@@ -1,0 +1,99 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/interviews_table_and_all.css' %}">
+{% endblock %}
+<head><title>{% block title %}Двумерные распределениия{% endblock %}</title></head>
+{% block content %}
+<div class="table", style="border-bottom: 2px;">
+    <table border="4px">
+        <h3>Таблица двумерных распределений</h3>
+        <form method="get">
+            <select name="selected_question_1" onchange="this.form.submit()">
+                <option value="">Вопрос-1</option>
+                {% for question in questions %}
+                    <option value="{{ question }}">{{ question }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        <form method="get">
+            <select name="selected_question_2" onchange="this.form.submit()">
+                <option value="">Вопрос-2</option>
+                {% for question in questions %}
+                    <option value="{{ question }}">{{ question }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        <tr>
+          <td rowspan="2">{{ selected_question_1 }}</td>
+          <td colspan="4">{{ selected_question_2 }}</td>
+        </tr>
+        {% for answer in answers_1 %}
+          <tr>
+            <td rowspan="2">{{ answer }}</td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td>20%</td>
+          </tr>
+        {% endfor %}
+        <tr>
+          {% for answer in answers_2 %}
+            <td >{{ answer }}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>Всего проголосовавших</td>
+          <td>25</td>
+        </tr>
+    </table>
+    <a class="btn btn-success", href="{% url 'dimensional_distributions_1' %}">Таблицы одномерных распределениий</a>
+</div>
+<style>
+  
+  .bi-file-plus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .bi-file-minus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .treeInterview .drop {
+    left: -.5em;
+    top: .4em;
+    width: .9em;
+    height: .9em;
+    line-height: .9em;
+    text-align: center;
+    background: #fff;
+    font-size: 80%;
+    cursor: pointer;
+  }
+  .treeInterview li:last-child > .bi-file-plus-fill.lonely {
+    margin-left: 1px;
+  }
+  .treeInterview .family.bi-file-plus-fill + ul {
+    display: none;
+  }
+  .treeInterview .family.bi-file-minus-fill + ul {
+    display: block;
+  }
+  </style>
+
+  <script>
+  (function() {
+    var ul = document.querySelectorAll('.treeInterview > li:not(:only-child) ul, .treeInterview ul  ul');
+    for (var i = 0; i < ul.length; i++) {
+      var div = document.createElement('div');
+      div.className = 'family bi-file-plus-fill lonely';
+      ul[i].parentNode.insertBefore(div, ul[i].previousSibling);
+      div.onclick = function() {
+        this.className = (this.className == 'family bi-file-plus-fill lonely' ? 'family bi-file-minus-fill' : 'family bi-file-plus-fill lonely');
+      }
+    }
+  })();
+  </script>
+{% endblock %}
