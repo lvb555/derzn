@@ -1,0 +1,191 @@
+{% load grades %}
+{% load custom_humanize %}
+
+<div class="non-bootsctrap-card">
+    {% if proof_relations %}
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link {% if variant == 1 %} active {% endif %}" href="{{ request.path }}?variant=1">Локальная оценка</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if variant != 1 %} active {% endif %}" href="{{ request.path }}?variant=2">Полная оценка</a>
+            </li>
+        </ul>
+    <br>
+    {% endif %}
+
+        <div class="row justify-content-between">
+            <div class="col">
+
+                <p class="grade_caption">Моя Оценка знания</p>
+                <div class="knowledge_grade {{ user_knowledge_grade_id|get_color_style }}">
+                    <select class="grade_select" name="knowledge_grade" id="{{ knowledge.id }}"
+                            autocomplete="off"
+                            hx-vals='{"knowledge": "{{ knowledge.id }}"}' hx-post="." hx-target="#score_card">
+                        {% for grade in knowledge_scale %}
+                            <option value="{{ grade.id }}"
+                                {% if user_knowledge_grade_id == grade.id %}
+                                selected
+                                {% endif %}
+                                {% if grade.is_hidden %}
+                                    hidden
+                                {% endif %}>
+                                {{ grade.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    <span class="grade_value">{{ user_knowledge_grade_value|floatformat:-2 }}</span>
+                </div>
+
+            </div>
+
+            <div class="col">
+                <p class="grade_caption">Оценка доказательной базы</p>
+                <div class="knowledge_grade {{ proof_grade_id|get_color_style }}">
+                    {{ proof_grade_text }}
+                    <br>
+                    <span class="grade_value">{{ proof_grade_value|floatformat:-2 }}</span>
+                </div>
+            </div>
+            <div class="col">
+                <p class="grade_caption">Итоговая оценка знания</p>
+                <div class="knowledge_grade {{ common_grade_id|get_color_style }}">
+                    {{ common_grade_text }}
+                    <br>
+                    <span class="grade_value">{{ common_grade_value|floatformat:-2 }}</span>
+                </div>
+            </div>
+        </div>
+        {% if proof_relations %}
+        <br>
+        <br>
+        <h4 class="my-4 header f20">Доказательная база знания</h4>
+        <table class="my-2 table-rounded">
+            <tbody class="table-border">
+            <th colspan="2" class="table-border no_top">
+                Знание
+            </th>
+            <th class="table-border no_top">
+                Вид связи
+            </th>
+            <th class="table-border no_top">
+                Оценка довода
+            </th>
+            <th class="table-border no_top">
+                Итоговая оценка знания
+            </th>
+            <th class="table-border no_top">
+                Моя Оценка знания
+            </th>
+            <th class="table-border no_top no_right">
+                Моя Оценка связи
+            </th>
+            {% for relation in proof_relations %}
+            <tr>
+                {# Иконка знания #}
+                <td class="table-border table-border no_right">
+                    {% if relation.has_children %}
+                    <i class="bi bi-file-earmark-plus-fill text-success"></i>
+                    {% else %}
+                    <i class="bi bi-file-earmark-fill text-success"></i>
+                    {% endif %}
+
+                </td>
+
+                {# Название знания #}
+                <td class="table-border">
+                    <div class="knowledge-title">
+                        <a class="text-dark text-decoration-none"
+                           href="{% url 'zdetail' pk=relation.knowledge_id %}/grade?variant={{ variant }}">
+                            {{ relation.knowledge_name }}
+                        </a>
+
+                    </div>
+                </td>
+
+                {# Вид связи #}
+                <td class="table-border">
+                    {{ relation.relation_name|endings_filter }}
+                    <br>
+                    {% if relation.argument_grade_value > 0 %}
+                    <i class="bi bi-eye"></i>
+                    {% else %}
+                    <i class="bi bi-eye-slash"></i>
+                    {% endif %}
+                </td>
+
+                {# Оценка Довода #}
+                <td class="table-border">
+                    <div class="knowledge_grade fix_width200 {{ relation.argument_grade_id|get_color_style:relation.relation_type }}">
+                        <span>
+                           {{ relation.argument_grade_text }}
+                        </span>
+                        <br>
+                        <span class="grade_value">{{ relation.argument_grade_value|floatformat:-2 }}</span>
+                    </div>
+                </td>
+                {# Итоговая оценка знания #}
+                <td class="table-border">
+                    <div class="knowledge_grade fix_width200 {{ relation.common_grade_id|get_color_style:relation.relation_type }}">
+                        <span>
+                            {{ relation.common_grade_text }}
+                        </span>
+                        <br>
+                        <span class="grade_value">{{ relation.common_grade_value|floatformat:-2 }}</span>
+                    </div>
+                </td>
+
+
+                {# Оценка Знания #}
+                <td class="table-border">
+                    <div class="knowledge_grade auto_width {{ relation.user_knowledge_grade_id|get_color_style:relation.relation_type }}">
+                        <select class="grade_select" name="knowledge_grade" id="{{ relation.knowledge_id }}"
+                                autocomplete="off"
+                                hx-vals='{"knowledge": "{{ relation.knowledge_id }}"}' hx-post="." hx-target="#score_card">
+                            {% for grade in knowledge_scale %}
+                                <option value="{{ grade.id }}"
+                                        {% if relation.user_knowledge_grade_id == grade.id %}
+                                        selected
+                                        {% endif %}
+                                        {% if grade.is_hidden %}
+                                            hidden
+                                        {% endif %}>
+                                    {{ grade.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <br>
+                        <span class="grade_value">
+                            {{ relation.user_knowledge_grade_value|floatformat:-2 }}
+                        </span>
+                    </div>
+                </td>
+
+
+                {# Оценка Связи #}
+                <td class="table-border no_right">
+                    <div class="knowledge_grade auto_width">
+                        <select class="grade_select" name="relation_grade" id="{{ relation.relation_id }}"
+                                autocomplete="off" hx-vals='{"relation": "{{ relation.relation_id }}"}' hx-post="." hx-target="#score_card">
+                            {% for grade in relation_scale %}
+                                <option value="{{ grade.id }}"
+                                        {% if relation.user_relation_grade_id == grade.id %}
+                                        selected
+                                        {% endif %}>
+                                    {{ grade.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <br>
+                        <span class="grade_value">
+                            {{ relation.user_relation_grade_value|floatformat:-2 }}
+                        </span>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+</div>
