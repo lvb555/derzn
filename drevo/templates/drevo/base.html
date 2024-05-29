@@ -115,11 +115,6 @@
                       </ul>
                     </div>
                     <div class="btn-group">
-                    <a href="{% url 'knowledges_grades' %}" id="grades_link" style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button">
-                          Оценки знаний
-                    </a>
-                    </div>
-                    <div class="btn-group">
                       <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                         Мнения <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
                       </a>
@@ -139,9 +134,16 @@
                     </a>
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <li><a class="dropdown-item from-nav" href="{% url 'all_quizzes' %}">Тесты</a></li>
-                          <li><a class="dropdown-item from-nav" href="{% url 'all_algorithms' %}">Алгоритмы</a></li>
                         <li><a class="dropdown-item from-nav" href="{% url 'public_people' %}">Публичные люди</a></li>
+                          <li><a class="dropdown-item from-nav" href="{% url 'knowledges_grades' %}" id="grades_link">Оценки знаний</a></li>
                       </ul>
+                    </div>
+                    <div class="btn-group">
+                        <a href="{% url 'all_algorithms' %}" style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button">Алгоритмы</a>
+                    </div>
+                    <div class="btn-group">
+                        {% get_knowledge_types specific_type="Документ" as knowledge_type %}
+                        <a href="{% url 'knowledge_type' knowledge_type.pk %}" style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button">Документ</a>
                     </div>
                 </div>
                 </nav>
