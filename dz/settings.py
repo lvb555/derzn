@@ -17,9 +17,11 @@ SECRET_KEY = env.str('SECRET_KEY')
 
 DEBUG = env.bool('DEBUG')
 
-
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
+# для использования django-debug-toolbar
+# https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
+USE_DEBUG_TOOLBAR = False
 
 # Application definition
 
@@ -52,6 +54,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
+
+# для использования django-debug-toolbar
+if USE_DEBUG_TOOLBAR:
+    INTERNAL_IPS = ("127.0.0.1",)
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+    INSTALLED_APPS.append("debug_toolbar")
 
 ROOT_URLCONF = 'dz.urls'
 

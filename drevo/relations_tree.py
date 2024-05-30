@@ -83,6 +83,11 @@ def get_category_for_knowledge(knowledge: Znanie) -> [None, Category]:
                                            is_published=True).exclude(tr__is_systemic=True).first()
         if relation:
             base_knowledge = relation.bz
+            # для предотвращения бесконечной рекурсии проверется, указывают ли связи base_knowledge и текущего знания
+            # друг на друга и есть ли у base_knowledge опубликованная категория
+            if Relation.objects.filter(rz=base_knowledge, is_published=True).exclude(tr__is_systemic=True).first().bz == \
+                    knowledge and not (base_knowledge.category and base_knowledge.category.is_published):
+                return None
             return get_category_for_knowledge(base_knowledge)
         else:
             return None
