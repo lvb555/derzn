@@ -21,7 +21,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 # для использования django-debug-toolbar
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
-USE_DEBUG_TOOLBAR = False
+USE_DEBUG_TOOLBAR = env.bool('USE_DEBUG_TOOLBAR', False)
 
 # Application definition
 
