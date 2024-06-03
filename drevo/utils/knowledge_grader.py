@@ -1,3 +1,5 @@
+import logging
+
 from django.db.models import Exists, F, OuterRef, Q, Subquery
 
 from drevo.models import Relation, Tr
@@ -5,6 +7,8 @@ from drevo.models.knowledge_grade import KnowledgeGrade
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation_grade import RelationGrade
 from drevo.models.relation_grade_scale import RelationGradeScale
+
+logger = logging.getLogger(__name__)
 
 
 class KnowledgeGraderService:
@@ -43,7 +47,9 @@ class KnowledgeGraderService:
         if visited is None:
             visited = set()
 
-        if knowledge_id in visited:
+        elif knowledge_id in visited:
+            # это цикл!!!
+            logger.warning(f"Обнаружен цикл в аргументах знания [{self.knowledge}]")
             return 0
 
         visited.add(knowledge_id)
