@@ -85,9 +85,9 @@ def get_category_for_knowledge(knowledge: Znanie) -> [None, Category]:
             base_knowledge = relation.bz
             # для предотвращения бесконечной рекурсии проверется, указывают ли связи base_knowledge и текущего знания
             # друг на друга и есть ли у base_knowledge опубликованная категория
-            if Relation.objects.filter(rz=base_knowledge, is_published=True).exclude(tr__is_systemic=True).first().bz == \
-                    knowledge and not (base_knowledge.category and base_knowledge.category.is_published):
-                return None
+            if new_relation := Relation.objects.filter(rz=base_knowledge, is_published=True).exclude(tr__is_systemic=True).first():
+                if new_relation.bz == knowledge and not (base_knowledge.category and base_knowledge.category.is_published):
+                    return None
             return get_category_for_knowledge(base_knowledge)
         else:
             return None
@@ -213,13 +213,15 @@ def get_descendants_for_knowledge(knowledge: Znanie) -> list:
         """
         for every_child in list(queryset):
             founded = get_children_for_knowledge(every_child)
-            if founded:
-                list_of_descendants.append(founded)
+            if founded and list(founded) not in list_of_descendants:
+                list_of_descendants.append(list(founded))
                 get_all(founded)
         return list_of_descendants
+
     get_all([knowledge])
-    q1 = Znanie.objects.none()
+    l1 = []
+
     for i in list_of_descendants:
-        q2 = q1 | i
-        q1 = q2
-    return q1
+        l1 = l1 + i
+
+    return l1
