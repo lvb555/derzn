@@ -1,4 +1,4 @@
-def validate_parameter_int(param, default: int = 0, good_values: list = None):
+def validate_parameter_int(param: str | int | None, default: int = 0, good_values: list[int] | None = None) -> int:
     """ Валидация параметра param, который может быть числом, строкой или None
         Если передан список good_values - проверяется на вхождение в него
         Если параметр равен None - возвращается default
