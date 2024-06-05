@@ -40,9 +40,15 @@ class KnowledgeFormView(LoginRequiredMixin, TemplateView):
         context["knowledge_scale"] = KnowledgeGradeScale.get_cache()
         context["relation_scale"] = RelationGradeScale.get_cache()
 
-        variant = validate_parameter_int(
-            self.request.GET.get("variant"), default=1, good_values=[1, 2]
-        )
+        # вариант оценки знания (1 или 2) берем из POST, если в нем нет - из GET, если нет - 1
+        if self.request.POST.get("variant"):
+            variant = validate_parameter_int(
+                self.request.POST.get("variant"), default=1, good_values=[1, 2]
+            )
+        else:
+            variant = validate_parameter_int(
+                self.request.GET.get("variant"), default=1, good_values=[1, 2]
+            )
         context["variant"] = variant
 
         grader = KnowledgeGraderService(user, knowledge)
@@ -52,6 +58,17 @@ class KnowledgeFormView(LoginRequiredMixin, TemplateView):
         context.update(grades)
 
         return context
+
+    def htmx_page(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return render(request, self.partial_name, context)
+
+    def get(self, request, *args, **kwargs):
+        # если это htmx запрос
+        if request.headers.get("Hx-Request", False):
+            return self.htmx_page(request, *args, **kwargs)
+
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """Возвращает только частичный рендер страницы с оценками
@@ -64,10 +81,11 @@ class KnowledgeFormView(LoginRequiredMixin, TemplateView):
         proof_relation = request.POST.get("relation", None)
         proof_knowledge = request.POST.get("knowledge", None)
 
+        # если поменялась оценка знания
         if (
-            new_knowledge_grade
-            and proof_knowledge
-            and new_knowledge_grade != KnowledgeGradeScale.get_default_grade().id
+                new_knowledge_grade
+                and proof_knowledge
+                and new_knowledge_grade != KnowledgeGradeScale.get_default_grade().id
         ):
             KnowledgeGrade.objects.update_or_create(
                 knowledge_id=proof_knowledge,
@@ -75,10 +93,11 @@ class KnowledgeFormView(LoginRequiredMixin, TemplateView):
                 defaults={"grade_id": new_knowledge_grade},
             )
 
+        # если поменялась оценка связи
         if (
-            new_relation_grade
-            and proof_relation
-            and new_relation_grade != RelationGradeScale.get_default_grade().id
+                new_relation_grade
+                and proof_relation
+                and new_relation_grade != RelationGradeScale.get_default_grade().id
         ):
             RelationGrade.objects.update_or_create(
                 relation_id=proof_relation,
@@ -86,5 +105,4 @@ class KnowledgeFormView(LoginRequiredMixin, TemplateView):
                 defaults={"grade_id": new_relation_grade},
             )
 
-        context = self.get_context_data(**kwargs)
-        return render(request, self.partial_name, context)
+        return self.htmx_page(request, *args, **kwargs)

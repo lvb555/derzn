@@ -5,10 +5,20 @@
     {% if proof_relations %}
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link {% if variant == 1 %} active {% endif %}" href="{{ request.path }}?variant=1">Локальная оценка</a>
+                <a class="nav-link {% if variant == 1 %} active {% endif %}"
+                   href="{{ request.path }}?variant=1"
+                   hx-push-url="true"
+                   hx-get="."
+                   hx-target="#score_card"
+                   hx-vals='{"variant": "1"}'>Локальная оценка</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if variant != 1 %} active {% endif %}" href="{{ request.path }}?variant=2">Полная оценка</a>
+                <a class="nav-link {% if variant != 1 %} active {% endif %}"
+                   href="{{ request.path }}?variant=2"
+                   hx-push-url="true"
+                   hx-get="."
+                   hx-target="#score_card"
+                   hx-vals='{"variant": "2"}'>Полная оценка</a>
             </li>
         </ul>
     <br>
