@@ -88,7 +88,7 @@ class KnowledgeGradeScale(models.Model):
         """Оценка по умолчанию"""
         # Возвращаем оценку по умолчанию самую первую оценку в шкале
         if not cls._default_grade:
-            cls._default_grade = cls.get_cache()[0]
+            cls._default_grade = cls.get_cache().first()
         return cls._default_grade
 
     @classmethod
@@ -97,6 +97,7 @@ class KnowledgeGradeScale(models.Model):
 
     def is_hidden(self) -> bool:
         """Признак скрытия (системности) оценки
+        Будем считать, что все оценки с order < 1 скрыты
         в шкале оно есть, а выбрать из списка и присвоить нельзя
         Нужна только для хранения цвета и названия
         """

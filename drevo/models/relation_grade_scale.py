@@ -53,7 +53,7 @@ class RelationGradeScale(models.Model):
         Возвращает объект шкалы оценок связи,
         в диапазон которой входит grade_value.
 
-        По умолчанию возвращает последний (с наименьшим значением)
+        Если ничего не подходит - вернет последний элемент по порядку order
         """
         if grade_value is None:
             return cls.get_default_grade()
@@ -87,7 +87,7 @@ class RelationGradeScale(models.Model):
         """Оценка по умолчанию"""
         # берем первую оценку по порядку
         if not cls._default_grade:
-            cls._default_grade = cls.get_cache()[0]
+            cls._default_grade = cls.get_cache().first()
         return cls._default_grade
 
     def is_hidden(self) -> bool:
