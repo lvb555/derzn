@@ -96,7 +96,7 @@ def scale_color_styles():
     """
 
     result = ["<style>"]
-    for grade in KnowledgeGradeScale.objects.all().order_by("order"):
+    for grade in KnowledgeGradeScale.get_cache():
         result.append(
             f".scale_{grade.pk}_positive {{"
             f"background: {grade.argument_color_background}; "
@@ -116,17 +116,21 @@ def scale_color_styles():
 
 
 @register.filter
-def get_color_style(grade: KnowledgeGradeScale, is_negative=False):
+def get_color_style(grade: KnowledgeGradeScale | int, is_positive=True):
     """Возвращает название стиля для значения шкалы grade
     По умолчанию возвращает стиль для положительного (аргумент) значения
     """
-    if not grade:
-        grade = KnowledgeGradeScale.get_default_grade()
-
-    if is_negative:
-        return f"scale_{grade.pk}_negative"
+    if grade is None:
+        pk = KnowledgeGradeScale.get_default_grade().pk
+    elif isinstance(grade, KnowledgeGradeScale):
+        pk = grade.pk
     else:
-        return f"scale_{grade.pk}_positive"
+        pk = grade
+
+    if not is_positive:
+        return f"scale_{pk}_negative"
+    else:
+        return f"scale_{pk}_positive"
 
 
 @register.simple_tag
