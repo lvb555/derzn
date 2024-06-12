@@ -9,6 +9,15 @@ function SaveTemplateBody() {
 	body.append("content", CKEDITOR.instances.id_content.getData())
 	body.append("zn_pk", zn_pk)
 	body.append("pk", pk)
+	const objects = CKEDITOR.instances.id_content.document.$.querySelectorAll("span.template-object")
+	let set = new Set()
+	objects.forEach((i) => {
+		set.add(i.id)
+	})
+
+	Array.from(set).forEach((i) => {
+		body.append("objects", i)
+	})
 
 	return body
 }
@@ -33,13 +42,15 @@ document.addEventListener("DOMContentLoaded", (e) => {
 			}
 			message_block.insertBefore(message, message_block.firstChild)
 			setTimeout(() => {
+				message_block.style.display = "block"
 				message.style.opacity = "100%"
-				setTimeout(() => {
-				message.style.opacity = "0%"
-				setTimeout(() => {
-					message.remove()
-				}, 510)
-			}, 1500)
+					setTimeout(() => {
+						message.style.opacity = "0%"
+						setTimeout(() => {
+							message.remove()
+							message_block.style.display = "none"
+						}, 510)
+					}, 1500)
 			}, 10)
 		})
 	})

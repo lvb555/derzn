@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
 
 from drevo.common.file_storage import ASCIIFileSystemStorage
@@ -44,6 +45,22 @@ class Author(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_author_by_user(cls, user: User) -> 'Author':
+        """Возвращает запись автора по пользователю
+            Если их много (это баг), то возвращает первую
+            Если нет автора, то создает запись и возвращает ее"""
+        try:
+            author = cls.objects.get(user_author=user)
+
+        except ObjectDoesNotExist:
+            author = cls.objects.create(user_author=user, name=user.get_full_name())
+
+        except MultipleObjectsReturned:
+            author = cls.objects.filter(user_author=user).first()
+
+        return author
 
     class Meta:
         verbose_name = 'Автор'

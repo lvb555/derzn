@@ -32,6 +32,7 @@ class UserAdmin(BaseUserAdmin):
             'Персональные данные',
             {
                 'fields': ('first_name',
+                           'patronymic',
                            'last_name',
                            'email',
                            'is_public',

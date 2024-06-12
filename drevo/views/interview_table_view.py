@@ -33,6 +33,7 @@ def interview_table(request, id):
             row = [author_names[author_id]]
             for question in question_list:
                 if question in answers and answers[question]:
+
                     row.append(mark_safe("<br>".join(answers[question])))
                 else:
                     row.append("-")
@@ -46,3 +47,4 @@ def interview_table(request, id):
         return render(request, "drevo/interview_table.html", {
             'interview_this': interview_this
         })
+
