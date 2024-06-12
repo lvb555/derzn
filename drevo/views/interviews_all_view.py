@@ -22,4 +22,3 @@ def interviews_all(request):
     return render(request, "drevo/interviews_all.html", {
         'category_interviews': category_interviews
     })
-

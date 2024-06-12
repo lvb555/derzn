@@ -17,9 +17,11 @@ SECRET_KEY = env.str('SECRET_KEY')
 
 DEBUG = env.bool('DEBUG')
 
-
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
+# для использования django-debug-toolbar
+# https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
+USE_DEBUG_TOOLBAR = env.bool('USE_DEBUG_TOOLBAR', False)
 
 # Application definition
 
@@ -31,7 +33,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'drevo.apps.DrevoConfig',
     'django.contrib.humanize',
     'colorfield',
     'mptt',
@@ -51,9 +52,14 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'drevo.middleware.DrevoInit',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
+
+# для использования django-debug-toolbar
+if USE_DEBUG_TOOLBAR:
+    INTERNAL_IPS = ("127.0.0.1",)
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+    INSTALLED_APPS.append("debug_toolbar")
 
 ROOT_URLCONF = 'dz.urls'
 
@@ -156,18 +162,33 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugTrue',
         }
     },
+    'formatters': {
+        'simple': {
+            'format': '[%(asctime)s] %(levelname)s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+    },
     'handlers': {
         'console': {
             'level': 'DEBUG',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         }
     },
     'loggers': {
         'django.db.backends': {
             'level': 'INFO',
             'handlers': ['console'],
-        }
+        },
+        'drevo': {
+            'level': 'DEBUG',
+            'handlers': ['console', ],
+        },
     }
 }
 

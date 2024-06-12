@@ -3,14 +3,13 @@
 {% load static %}
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/dimensional_distributions.css' %}">
-<script src="{% static 'drevo/js/dimensional_distributions.js' %}"></script> 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
 {% endblock %}
 
 
+
 <head><title>{% block title %}Одномерные распределениия{% endblock %}</title></head>
 {% block content %}
-<a class="btn btn-success" href="{% url 'interviews_all' %}">Все интервью</a>
 <h3>Таблица одномерных распределений</h3>
 
 <p><strong>Интервью: </strong>{{ selected_interview }}</p>
@@ -56,10 +55,5 @@
 {% endif %}
 {% if questions|length >= 2 %}
     <a class="btn btn-success" href="{% url 'dimensional_distributions_2' %}?selected_interview={{ selected_interview }}">Таблицы двумерных распределений</a> 
-{% else %}
-    <p>Недостаточно вопросов для отображения двумерных распределений.</p>
 {% endif %}
 {% endblock %}
-
-
-

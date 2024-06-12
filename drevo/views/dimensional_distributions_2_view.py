@@ -16,7 +16,6 @@ def dimensional_distributions_2(request):
         question__is_published=True,
         interview__name=selected_interview
     ).order_by('question__order').values_list('question__name', flat=True)))
-
     experts_agreed_1 = InterviewAnswerExpertProposal.objects.filter(
         Q(question__name=question1),
         interview__name=selected_interview,
@@ -42,8 +41,7 @@ def dimensional_distributions_2(request):
         total_counts[answer2] = InterviewAnswerExpertProposal.objects.filter(
             Q(answer__name=answer2),
             is_agreed=True
-        ).values('expert__id').distinct().count()
-        
+        ).values('expert__id').distinct().count() 
     common_experts = defaultdict(lambda: defaultdict(lambda: {'count': 0, 'percentage': 0, 'total': 0}))
     for expert_1 in experts_agreed_1:
         answer_1 = expert_1['answer__name']

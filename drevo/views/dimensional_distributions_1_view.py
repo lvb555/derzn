@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.db.models import Count, Q
 from drevo.models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 
+
 def dimensional_distributions_1(request):
     questions = []
     all_answers = {}
@@ -34,12 +35,12 @@ def dimensional_distributions_1(request):
                 all_answers[answer_id] = agreed_count
             else:
                 all_answers[answer_id] += agreed_count
+
     if selected_interview == None:
         selected_interview = selected_interview
     table = [{'answer_name': answer_id, 
               'agreed_count': agreed_count, 
               'percent': (agreed_count / answers.count()) * 100} for answer_id, agreed_count in all_answers.items()]
-
     return render(request, 'drevo/dimensional_distributions_1.html', {
         'selected_interview': selected_interview, 'questions': questions, 
         'table': table, 'total_voters': total_voters, 'all_participants': all_participants, 

@@ -17,6 +17,7 @@ def interview_table(request, id):
         question = answer.bz 
         author = answer.rz.user
         authors_dict[author.id][question].append(f"<li class='li-table'>{answer.rz.name}</li>")
+
         if author_names[author.id] == "": 
             if answer.rz.user.patronymic:
                 short_fst_name = answer.rz.user.first_name[0]
@@ -44,3 +45,4 @@ def interview_table(request, id):
         return render(request, "drevo/interview_table.html", {
             'interview_this': interview_this
         })
+
