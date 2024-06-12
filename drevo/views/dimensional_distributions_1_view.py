@@ -40,10 +40,8 @@ def dimensional_distributions_1(request):
             agreed_count = answer['agreed_count']
             if answer_id not in all_answers:
                 all_answers[answer_id] = agreed_count
-                print(all_answers)
             else:
                 all_answers[answer_id] += agreed_count
-                print(all_answers)
 
     table = [{'answer_name': answer_id, 
               'agreed_count': agreed_count, 
