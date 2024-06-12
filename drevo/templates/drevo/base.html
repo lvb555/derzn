@@ -124,6 +124,7 @@
                         Мнения <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
                       </a>
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item from-nav" href="{% url 'interviews_all' %}">Все интервью</a></li>
                         {% if user.is_expert %}
                             {% get_interview_in_categories user as interview %}
                             {% if interview %}
@@ -132,7 +133,7 @@
                         {% endif %}
                       </ul>
                     </div>
-                    <div class="btn-group">
+                    <div class="btn-group"> 
                     <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                       Другое <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
                     </a>
@@ -142,6 +143,7 @@
                         <li><a class="dropdown-item from-nav" href="{% url 'public_people' %}">Публичные люди</a></li>
                       </ul>
                     </div>
+                    
                 </div>
                 </nav>
                 <div class="d-flex text-end align-items-center">
@@ -176,7 +178,7 @@
                                     <img
                                      src="{% static 'drevo/img/knowledge_search/exit.svg' %}"
                                      alt="" style="width:10px">
-                                    <span>Выйти</span>
+                                    <span>Выйти</span> 
                                 </a>
                             </div>
                         </div>

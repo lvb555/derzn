@@ -1,0 +1,73 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load static %}
+
+{% block cssfiles %}
+<script src="{% static 'drevo/js/dimensional_distributions.js' %}"></script> 
+<link rel="stylesheet" href="{% static '/drevo/css/dimensional_distributions.css' %}">
+{% endblock %}
+<head><title>{% block title %}Двумерные распределениия{% endblock %}</title></head>
+{% block content %}
+<h3>Таблица двумерных распределений</h3>
+<h7>Выберете оба вопроса интервью, названия вопросов не должны совпадать</h7>
+<form method="get">
+    <select id="question1" name="selected_question_1" onchange="enableQuestion2()">
+        <option value="">Вопрос-1</option>
+        {% for question in questions %}
+            <option value="{{ question }}">{{ question }}</option>
+        {% endfor %}
+    </select>
+
+    <select id="question2" name="selected_question_2" onchange="this.form.submit()" disabled>
+        <option value="">Вопрос-2</option>
+        {% for question in questions %}
+            <option value="{{ question }}">{{ question }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+{% if table %}
+    {% if selected_question_1 != selected_question_2 %}
+    <table border="4px">
+        <thead>
+            <tr>
+                <td class="upper-td", rowspan="2">{{ selected_question_1 }}</td>
+                <td class="upper-td", colspan="{{ answers_2|length }}">{{ selected_question_2 }}</td>
+            </tr>
+            <tr>
+                {% for answer2 in answers_2 %}
+                    <td class="upper-td">{{ answer2 }}</td>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table %}
+            <tr>
+                <td class="lower-td", rowspan="2">{{ row.answer1 }}</td>
+                {% for cell in row.cells %}
+                    <td class="numbers">{{ cell.count }}</td>
+                {% endfor %}
+                
+            </tr>
+            <tr>
+                {% for cell in row.cells %}
+                    <td class="numbers">{{ cell.percentage|floatformat:2 }}%</td>
+                {% endfor %}
+            </tr>
+            
+            {% endfor %}
+            <tr><td class="upper-td", rowspan="2">Всего проголосовавших:</td>
+                {% for total in table.0.totals %}  
+                    <td class="numbers">{{ total }}</td>
+                {% endfor %}</tr><tr>
+                {% for total in table.0.totals %}  
+                    <td class="numbers">100%</td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+{% endif %}
+<a class="btn btn-success", href="{% url 'dimensional_distributions_1' %}?selected_interview={{ selected_interview }}">Таблицы одномерных распределениий</a>
+
+{% endblock %}

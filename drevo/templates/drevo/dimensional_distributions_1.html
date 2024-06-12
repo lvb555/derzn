@@ -1,0 +1,65 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load static %}
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/dimensional_distributions.css' %}">
+<script src="{% static 'drevo/js/dimensional_distributions.js' %}"></script> 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+{% endblock %}
+
+
+<head><title>{% block title %}Одномерные распределениия{% endblock %}</title></head>
+{% block content %}
+<a class="btn btn-success" href="{% url 'interviews_all' %}">Все интервью</a>
+<h3>Таблица одномерных распределений</h3>
+
+<p><strong>Интервью: </strong>{{ selected_interview }}</p>
+      
+<form method="get">
+  <label for="questionSelect"><strong>Вопрос:</strong></label>
+  <select name="selected_question" onchange="this.form.submit()">
+      <option value="">Выбрать вопрос</option>
+      {% for question in questions %}
+        <option value="{{ question }}">{{ question }}</option>
+      {% endfor %}
+  </select>
+</form>
+
+{% if table %}
+    <table id="answers" border='2px'>
+        <tr>
+            <td class="graphs">Ответ</td>
+            <td class="graphs">Число голосов % к проголосовавшим</td>
+        </tr>
+        {% for row in table %}
+          <tr>
+              <td rowspan="2">{{ row.answer_name }}</td>
+              <td class="numbers">{{ row.agreed_count }}</td>
+          </tr>
+          <tr>
+              <td class="numbers">{{ row.percent|floatformat:2 }}%</td>
+          </tr>
+        {% endfor %}
+        <tr>
+            <td class="graphs" rowspan="2">Всего проголосовавших:</td>
+            <td class="numbers">{{ total_voters }}</td>
+        </tr>
+        <tr>
+            <td class="numbers">100%</td>
+        </tr>
+        <tr>
+            <td class="graphs">Всего участников интервью</td>
+            <td class="numbers">{{ all_participants }}</td>
+        </tr>
+
+    </table>
+{% endif %}
+{% if questions|length >= 2 %}
+    <a class="btn btn-success" href="{% url 'dimensional_distributions_2' %}?selected_interview={{ selected_interview }}">Таблицы двумерных распределений</a> 
+{% else %}
+    <p>Недостаточно вопросов для отображения двумерных распределений.</p>
+{% endif %}
+{% endblock %}
+
+
+

@@ -1,0 +1,19 @@
+/*dimensional_distributions_1*/
+.numbers {
+    text-align: right;
+    padding-right: 20px;
+}
+.graphs{
+    text-align: center;
+}
+td{
+    border-width: 2px;
+    
+}
+/*dimensional_distributions_2*/
+.upper-td{
+    text-align: center;
+}
+.lower-td{
+    padding-left: 20px;
+}

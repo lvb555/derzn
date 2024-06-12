@@ -1,0 +1,80 @@
+/*Этот файл предназначен для interview-table и interviews_all>*/
+
+th {
+    border-width: 2px !important;
+}
+td {
+    border-width: 2px !important;
+    vertical-align: top;
+}
+.minus-table {
+    text-align: center;
+    font-size: 50px;
+}
+.li-table{
+    list-style-type: disc;
+    list-style-position: inside;
+    text-align: left;
+    position: relative;  left: 6px;
+    float: top;
+}
+.span-table{
+    position: relative;  right: 5px;
+}
+.graphs {
+    text-align: center;
+}
+
+
+/*interviews_all: */
+.li-interviews_all{
+    list-style-type: none !important;
+}
+.a-interviews{
+    color: green !important;
+    text-decoration: none !important;
+  }
+.bi-file-plus-fill::before {
+    content: "\f4f9" !important;
+}
+.bi-file-minus-fill::before {
+    content: "\f2e5" !important;
+}
+.family {
+    color: var(--main-bg-teal);
+    cursor: pointer;
+    font-size: 1.5em;
+}
+.a-interviews_aurhors {
+    color: red;
+    padding-left: 100px;
+    text-decoration: none !important;
+}
+  .bi-file-plus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .bi-file-minus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .treeInterview .drop {
+    left: -.5em;
+    top: .4em;
+    width: .9em;
+    height: .9em;
+    line-height: .9em;
+    text-align: center;
+    background: #fff;
+    font-size: 80%;
+    cursor: pointer;
+  }
+  .treeInterview li:last-child > .bi-file-plus-fill.lonely {
+    margin-left: 1px;
+  }
+  .treeInterview .family.bi-file-plus-fill + ul {
+    display: none;
+  }
+  .treeInterview .family.bi-file-minus-fill + ul {
+    display: block;
+  }
