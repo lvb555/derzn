@@ -1,6 +1,5 @@
 from collections import defaultdict
 from django.shortcuts import render, get_object_or_404
-from django.utils.safestring import mark_safe 
 from drevo.models.knowledge import Znanie
 from drevo.models.relation import Relation
 
@@ -14,11 +13,10 @@ def interview_table(request, id):
     answers = Relation.objects.filter(tr__name="Ответ", bz__in=question_list).select_related('rz__user', 'rz', 'bz')
 
     for answer in answers:
-        question = answer.bz 
+        question = answer.bz
         author = answer.rz.user
-        authors_dict[author.id][question].append(f"<li class='li-table'>{answer.rz.name}</li>")
-
-        if author_names[author.id] == "": 
+        authors_dict[author.id][question].append(answer.rz.name)
+        if author_names[author.id] == "":
             if answer.rz.user.patronymic:
                 short_fst_name = answer.rz.user.first_name[0]
                 short_patr = answer.rz.user.patronymic[0]
@@ -33,18 +31,11 @@ def interview_table(request, id):
             row = [author_names[author_id]]
             for question in question_list:
                 if question in answers and answers[question]:
-
-                    row.append(mark_safe("<br>".join(answers[question])))
+                    row.append(",\n".join(answers[question]))
                 else:
                     row.append("-")
-            table.append(row)
-    if question_list:
-        return render(request, "drevo/interview_table.html", {
-            'table': table, 'interview_this': interview_this
 
-        })
-    else:
-        return render(request, "drevo/interview_table.html", {
-            'interview_this': interview_this
-        })
-
+            table.append(row) 
+    return render(request, "drevo/interview_table.html", {
+        'table': table, 'interview_this': interview_this
+    }) 
