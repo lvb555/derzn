@@ -7,7 +7,7 @@ from django.views.generic import CreateView, TemplateView
 
 from drevo.forms.knowledge_create_form import ZnImageFormSet, ZnFilesFormSet
 from drevo.forms.constructor_knowledge_form import MainZnInConstructorCreateEditForm
-from drevo.models import Znanie, SpecialPermissions, Tz
+from drevo.models import Znanie, SpecialPermissions, Tz, Suggestion
 
 from .supplementary_functions import create_zn_for_constructor, get_images_from_request, \
     get_file_from_request
@@ -170,3 +170,30 @@ def delete_complex_zn(request):
         zn.delete()
     main_zn.delete()
     return HttpResponse(status=200)
+
+
+
+class UnprocessedSuggestionsTreeView(LoginRequiredMixin, TemplateView):
+    template_name = 'drevo/constructors/constructor_start_page.html'
+
+    def get_unprocessed_suggestions(self, user):
+        user_competencies = SpecialPermissions.objects.filter(expert=user).first().categories.all()
+        knowledge_with_unprocessed_suggestions_ids = Suggestion.objects.filter(
+            parent_knowlege__category__in=user_competencies,
+            is_approve=None).values_list('parent_knowlege', flat=True).distinct()
+
+        knowledge_with_unprocessed_suggestions = Znanie.objects.filter(
+            id__in=knowledge_with_unprocessed_suggestions_ids)
+
+        return knowledge_with_unprocessed_suggestions
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        self.type_of_zn = self.request.GET.get('type_of_zn')
+        is_constructor_type = 'suggestion'
+        knowledge_with_unprocessed_suggestions = self.get_unprocessed_suggestions(user)
+
+        context['knowledge'] = knowledge_with_unprocessed_suggestions
+        context['type_of_page'] = 'suggestion'
+        return context

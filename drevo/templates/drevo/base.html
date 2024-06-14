@@ -141,10 +141,7 @@
                     <div class="btn-group">
                         <a href="{% url 'all_algorithms' %}" style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button">Алгоритмы</a>
                     </div>
-                    <div class="btn-group">
-                        {% get_knowledge_types specific_type="Документ" as knowledge_type %}
-                        <a href="{% url 'knowledge_type' knowledge_type.pk %}" style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button">Документ</a>
-                    </div>
+
                 </div>
                 </nav>
                 <div class="d-flex text-end align-items-center">
