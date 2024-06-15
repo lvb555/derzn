@@ -190,8 +190,6 @@ class UnprocessedSuggestionsTreeView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        self.type_of_zn = self.request.GET.get('type_of_zn')
-        is_constructor_type = 'suggestion'
         knowledge_with_unprocessed_suggestions = self.get_unprocessed_suggestions(user)
 
         context['knowledge'] = knowledge_with_unprocessed_suggestions
