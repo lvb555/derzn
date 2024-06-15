@@ -53,7 +53,7 @@
     <a class="znanie" style="color: #6C757D;">({{ base_knowledge.author }})</a>
     {% endif %}
     {% if is_constructor_type == 'suggestion' %}
-        <a href="/drevo/znanie/{{ base_knowledge.id }}/suggestions"><i class="fa fa-info-circle">предложения</i></a>
+        <a href=" {% url 'create-suggestion' base_knowledge.id %}"><i class="fa fa-info-circle">предложения</i></a>
     {% endif %}
 
     {% get_knowledge_counts knowledge_rel_counts base_knowledge %}
