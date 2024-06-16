@@ -82,15 +82,17 @@
                     </span>
                     </a>
 
-                    {% if grades_iter.0 %}
-                    <span style="background-color: {{ grades_iter.0|get_color_from_knowledge_grade_value:0 }};
+                    {% if grades_iter %}
+                        <span style="background-color: {{ grades_iter.0|get_color_from_knowledge_grade_value:0 }};
                           border: 1px solid black">
-                    {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
-                            {{ grades_iter.0|grade_name }}
+                    {% else %}
+                            <span style="border: 1px solid black; color: black;">
+                    {% endif %}
+                            grades: {{ grades_iter }} {{ grades_iter|grade_name }}
                     </span>
 
                     <span style="background-color: #FFFF00">
-                        {{ grades_iter.0|floatformat:-2 }}
+                        {{ grades_iter|floatformat:-2 }}
                     </span>
                     {% endwith %}
                     {% with zn|elements_tree:false_request as elements_tree %}
@@ -218,15 +220,15 @@
                     </span>
                     </a>
 
-                    {% if grades_iter.0 %}
-                    <span style="background-color: {{ grades_iter.0|get_color_from_knowledge_grade_value:0 }};
+                    {% if grades_iter %}
+                    <span style="background-color: {{ grades_iter|get_color_from_knowledge_grade_value:0 }};
                           border: 1px solid black">
                     {% else %} <span style="border: 1px solid black; color: black;"> {% endif %}
-                            {{ grades_iter.0|grade_name }}
+                            grades2: {{ grades_iter }} {{ grades_iter|grade_name }}
                     </span>
 
                     <span style="background-color: #FFFF00">
-                        {{ grades_iter.0|floatformat:-2 }}
+                        {{ grades_iter|floatformat:-2 }}
                     </span>
                     {% endwith %}
                 </li>

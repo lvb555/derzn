@@ -2,19 +2,22 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import Http404, get_object_or_404, render
 from django.views.generic import TemplateView
 
+from drevo.models import SettingsOptions
 from drevo.models.knowledge import Znanie
 from drevo.models.knowledge_grade import KnowledgeGrade
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation import Relation
 from drevo.models.relation_grade import RelationGrade
 from drevo.models.relation_grade_scale import RelationGradeScale
-from drevo.utils.common import validate_parameter_int
+from drevo.utils.common import validate_parameter_int, get_user_parameter
 from drevo.utils.knowledge_grader import KnowledgeGraderService
 
 
 class KnowledgeFormView(LoginRequiredMixin, TemplateView):
     template_name = "drevo/knowledge_grade/knowledge_grade.html"
     partial_name = "drevo/knowledge_grade/score_card.html"
+    # идентификатор параметра пользователя, в котором хранится вариант расчета
+    variant_user_parameter = SettingsOptions.Option.SCORE_VARIANT
 
     def get_context_data(self, **kwargs):
         user = self.request.user
@@ -40,15 +43,22 @@ class KnowledgeFormView(LoginRequiredMixin, TemplateView):
         context["knowledge_scale"] = KnowledgeGradeScale.get_cache()
         context["relation_scale"] = RelationGradeScale.get_cache()
 
-        # вариант оценки знания (1 или 2) берем из POST, если в нем нет - из GET, если нет - 1
+        # вариант оценки знания (1 или 2) берем из POST, если в нем нет - из GET,
+        # если нет - то из настроек пользователя, если и там нет - то 1
         if self.request.POST.get("variant"):
             variant = validate_parameter_int(
-                self.request.POST.get("variant"), default=1, good_values=[1, 2]
+                self.request.POST.get("variant"), default=-1, good_values=[1, 2]
             )
         else:
             variant = validate_parameter_int(
-                self.request.GET.get("variant"), default=1, good_values=[1, 2]
+                self.request.GET.get("variant"), default=-1, good_values=[1, 2]
             )
+        # если параметр -1 (то есть нам его не передали или он неправильный), то берем из настроек пользователя
+        if variant == -1:
+            user_parameter = get_user_parameter(user, self.variant_user_parameter)
+            # так как значение параметра 0 и 1 - прибавляем 1 к значению
+            variant = user_parameter + 1 if user_parameter else 1
+
         context["variant"] = variant
 
         grader = KnowledgeGraderService(user, knowledge)

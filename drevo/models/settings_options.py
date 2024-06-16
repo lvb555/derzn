@@ -6,6 +6,31 @@ from django.apps import apps
 
 
 class SettingsOptions(models.Model):
+    # идентификаторы для параметров
+    # если нужно добавить новый параметр - добавьте его в этот список
+    class Option(models.IntegerChoices):
+        param_1 = 1
+        param_2 = 2
+        param_3 = 3
+        param_4 = 4
+        REC_FOR_PAGE = 5
+        CONTENT_WORDS = 6
+        MIN_TIME = 7
+        MIN_EXPERT = 8
+        MIN_DIRECTOR = 9
+        MIN_KNOWLEDGE_FOR_EXPERT = 10
+        EXPERT_PERIOD = 11
+        SCORE_VARIANT = 12
+        NOT_USE_AGAIN = 13
+        USE_STRUCTURE_KNOWLEDGE = 14
+        SEARCH_IN_CONTENT = 15
+        SEARCH_IN_COMMENT = 16
+        NOT_PROVIDED_KNOWLEDGE = 17
+        MOST_POPULAR_COUNT = 18
+        param_19 = 19
+        param_20 = 20
+
+    id = models.IntegerField(primary_key=True, choices=Option.choices, editable=True)
     name = models.CharField(
         verbose_name='Название параметра',
         max_length=255
