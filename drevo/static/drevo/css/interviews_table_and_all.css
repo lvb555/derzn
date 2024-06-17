@@ -25,7 +25,6 @@ td {
     text-align: center;
 }
 
-
 /*interviews_all: */
 .li-interviews_all{
     list-style-type: none !important;
@@ -50,32 +49,3 @@ td {
     padding-left: 100px;
     text-decoration: none !important;
 } 
-
-.bi-file-plus-fill {
-width: 17px;
-display: inline;
-}
-.bi-file-minus-fill {
-width: 17px;
-display: inline;
-}
-.treeInterview .drop {
-left: -.5em;
-top: .4em;
-width: .9em;
-height: .9em;
-line-height: .9em;
-text-align: center;
-background: #fff;
-font-size: 80%;
-cursor: pointer;
-}
-.treeInterview li:last-child > .bi-file-plus-fill.lonely {
-margin-left: 1px;
-}
-.treeInterview .family.bi-file-plus-fill + ul {
-display: none;
-}
-.treeInterview .family.bi-file-minus-fill + ul {
-display: block;
-}

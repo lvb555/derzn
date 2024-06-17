@@ -7,7 +7,7 @@ from django.db.models import Q, F
 from django.db.models.functions import Lower
 from django.forms.models import model_to_dict
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404         
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -35,7 +35,8 @@ from drevo.models.suggestion_type import SuggestionType
 from drevo.models.refuse_reason import RefuseReason
 from drevo.models import Turple
 from drevo.models import TurpleElement
-from drevo.models import TemplateObject
+
+from drevo.models import Var
 
 from .forms.developer_form import DeveloperForm
 from .forms.admin_user_suggestion_form import AdminSuggestionUserForm
@@ -485,11 +486,9 @@ class UsersDocumentsAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
-        "root_document",
-        "owner"
+        "root_document"
     )
     list_display_links = ("name",)
-    readonly_fields = ('changed_at',)
     list_filter = (
         RootDocumentFilter,
         "owner",
@@ -1000,6 +999,13 @@ class SuggestionTypeAdmin(admin.ModelAdmin):
 class RefuseReasonAdmin(admin.ModelAdmin):
     pass
 
+
+@admin.register(Var)
+class VarAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'knowledge', 'availability', 'structure', 'type_of', 'turple', 'optional', 'connected_to')
+    list_filter = ('knowledge', 'turple', 'availability', 'type_of')
+    ordering = ('weight', )
+
 @admin.register(TurpleElement)
 class TurpleElementAdmin(admin.ModelAdmin):
     list_display = ('value', 'turple')
@@ -1008,12 +1014,8 @@ class TurpleElementAdmin(admin.ModelAdmin):
 
 @admin.register(Turple)
 class TurpleAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'knowledge', 'availability')
+    list_filter = ('availability', )
     ordering = ('weight', )
 
-@admin.register(TemplateObject)
-class TemplateObjectAdmin(DraggableMPTTAdmin):
-    list_display = ('tree_actions', 'indented_title')
-    list_display_links = ('indented_title', )
-    search_fields = ('knowledge__name', 'connected_to__name', 'name')
-    mptt_level_indent = 20
+

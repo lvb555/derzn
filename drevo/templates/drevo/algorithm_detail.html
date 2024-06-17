@@ -32,10 +32,30 @@
     </nav>
 </div>
 <div class="basic px-2">
-    {% if warning_text %}
-        <h3 class="text-center">{{warning_text}}</h3>
-    {% else %}
-        <div id="algorithm_tree">
+    {% if previous_works and znanie.several_works %}
+    <div class="select mx-4 mb-4">
+        <div class="select__header">
+            <span value="all" class="select__current" id="select">
+                {% if current_work %} {{current_work}} {% else %} Новый алгоритм {% endif %}
+            </span>
+            <div class="select__icon">
+                <img style="height: 6px;weight: 10.5px;opacity: 0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
+            </div>
+        </div>
+
+        <div class="select__body">
+            <div class="select__item">
+            <a href="?{% url_replace request 'previous_works' '' %}">Новый алгоритм</a>
+            </div>
+            {% for work in previous_works %}
+                <div class="select__item">
+                    <a href="?{% url_replace request 'previous_works' work %}">{{work}}</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <div id="algorithm_tree">
         <ul class="root ps-0" id="tree_root">
             {% if modification %}
                 <button type="button" class="btn tree-btn mx-4" onclick="tree_showAll();">Развернуть</button>
@@ -45,12 +65,10 @@
                 {% if znanie.author %}
                     <i class="d-inline-flex" style="color: #6C757D; font-style: normal;">({{ znanie.author }})</i>
                 {% endif %}
-                <span class="ps-2" id="new_work"></span>
             </p>
             {% recurse_dict algorithm_data previous_knowledge=znanie algorithm=znanie user=request.user work=current_work mode=modification %}
         </ul>
     </div>
-    {% endif %}
     <div class="popup__bg">
         <div class="popup p-5">
             <i class="bi bi-x-lg close-popup"></i>
@@ -75,122 +93,46 @@
                 </a>
             </div>
         {% else %}
-            {% if user.is_authenticated and not warning_text %}
-                <div class="p-4">
-                    <a class="btn btn btn-light btn-header py-1"
-                       href="?{% url_replace request 'mode' 'modify' %}">
-                        <span>Адаптация под себя</span>
-                    </a>
-                </div>
-            {% endif %}
+        {% if current_work %}
+            <div class="p-4">
+                <input onclick="onButtonSendClick('same');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить результат">
+            </div>
+        {% elif znanie.several_works and not previous_works %}
+            <div class="p-4">
+                <input name="save-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить">
+            </div>
+        {% elif not znanie.several_works and not progress %}
+            <div class="p-4">
+                <input onclick="onButtonSendClick('static_name');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить">
+            </div>
+        {% endif %}
+        <div class="p-4">
+        {% if znanie.several_works and previous_works %}
+            <input  name="save-button" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить как новую работу">
+        {% elif not znanie.several_works and progress %}
+            <input onclick="onButtonSendClick('static_name');" class="btn open-popup btn-header" style="background: var(--danger, #E01F27);" type="button" value="Сохранить результат">
+        {% endif %}
+        </div>
+        {% if user.is_authenticated %}
+            <div class="p-4">
+                <a class="btn btn btn-light btn-header py-1"
+                   href="?{% url_replace request 'mode' 'modify' %}">
+                    <span>Адаптация под себя</span>
+                </a>
+            </div>
+        {% endif %}
         {% endif %}
     </div>
-
-    <div class="save-data-form popup__bg">
+    <div class="save-form popup__bg">
         <div class="popup p-5">
-            <span class="warning"></span>
-            {% if user.is_authenticated %}
-                {% if previous_works and not current_work and znanie.several_works %}
-                    <div class="select me-4">
-                        <div class="select__header">
-                            <span value="all" class="select__current" id="select">
-                                Выберите алгоритм
-                            </span>
-                            <div class="select__icon">
-                                <img style="height: 6px;weight: 10.5px;opacity: 0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                            </div>
-                        </div>
-
-                        <div class="select__body scrollbar" style="overflow-y: scroll; max-height: 20vh;">
-                            <div class="select__item">
-                                <a class="text-grey" href="?{% url_replace request 'previous_works' '' %}">Выберите алгоритм</a>
-                            </div>
-                            {% for work in previous_works %}
-                                <div class="select__item">
-                                    <a class="text-grey" href="?{% url_replace request 'previous_works' work %}">"{{work}}"</a>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <button class="btn btn btn-light btn-header" onclick="document.getElementById('newWork').toggleAttribute('hidden')">Создать новый алгоритм</button>
-                    <div id="newWork" class="mt-4" hidden>
-                        <h5 id="title">Введите название</h5><br>
-                        <label class="regular-text m-0" for="work_name">Введите название</label>
-                        <input class="form-control py-2 text-grey" type="text" placeholder="Введите название" id="work_name" name="work_name">
-                        <div class="mt-4 d-flex justify-content-around">
-                          <input type="button" onclick="closePopup('new');" name="save-data" value="Начать прохождение алгоритма" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-                        </div>
-                    </div>
-                {% elif not znanie.several_works %}
-                    <div id="continue_work">
-                        <h5 class="title">Хотите продолжить прохождение алгоритма?</h5><br>
-                        <div class="mt-4 d-flex justify-content-around">
-                          <input type="button" onclick="closePopup('continue')" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-                          <input type="button" onclick="closePopup('confirm')" value="Нет, хочу пройти заново" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-                        </div>
-                    </div>
-                    <div id="confirm" style="display: none;">
-                        <h5 class="title">Вы уверены, что хотите заново пройти алгоритм?</h5><br>
-                        <div class="mt-4 d-flex justify-content-around">
-                          <input type="button" onclick="closePopup('restart')" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-                          <input type="button" onclick="closePopup('continue')" value="Нет" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-                        </div>
-                    </div>
-                {% elif current_work %}
-                    <div id="continue">
-                        <h5 class="title">Вы хотите продолжить выполнение работы "{{current_work}}"?</h5><br>
-                        <div class="mt-4 d-flex justify-content-around">
-                          <input type="button" onclick="closePopup('continue')" value="Да" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-                          <input type="button" onclick="closePopup('choose_other')" value="Нет" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-                        </div>
-                    </div>
-                    <div id="choose_other" style="display: none;">
-                        <div class="select me-4">
-                            <div class="select__header">
-                                <span value="all" class="select__current" id="select">
-                                    Выберите алгоритм
-                                </span>
-                                <div class="select__icon">
-                                    <img style="height: 6px;weight: 10.5px;opacity: 0.6;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                                </div>
-                            </div>
-
-                            <div class="select__body scrollbar" style="overflow-y: scroll; max-height: 20vh;">
-                                <div class="select__item">
-                                    <a class="text-grey" href="?{% url_replace request 'previous_works' '' %}">Выберите алгоритм</a>
-                                </div>
-                                {% for work in previous_works %}
-                                    <div class="select__item">
-                                        <a class="text-grey" href="?{% url_replace request 'previous_works' work %}">"{{work}}"</a>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <button class="btn btn btn-light btn-header" onclick="document.getElementById('newWork').toggleAttribute('hidden')">Создать новый алгоритм</button>
-                        <div id="newWork" class="mt-4" hidden>
-                            <h5 id="title">Введите название</h5><br>
-                            <label class="regular-text m-0" for="work_name">Введите название</label>
-                            <input class="form-control py-2 text-grey" type="text" placeholder="Введите название" id="work_name" name="work_name">
-                            <div class="mt-4 d-flex justify-content-around">
-                              <input type="button" onclick="closePopup('new');" name="save-data" value="Начать прохождение алгоритма" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-                            </div>
-                        </div>
-                    </div>
-                {% else %}
-                    <h5 id="title">Введите название</h5><br>
-                    <label class="regular-text m-0" for="work_name">Введите название</label>
-                    <input class="form-control py-2 text-grey" type="text" placeholder="Введите название" id="work_name" name="work_name">
-                    <div class="mt-4 d-flex justify-content-around">
-                      <input type="button" onclick="closePopup('new');" name="save-data" value="Начать прохождение алгоритма" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
-                    </div>
-                {% endif %}
-            {% else %}
-                <i class="bi bi-x-lg close-popup" onclick="closePopup('unauthorized')"></i>
-                <h5 class="title text-center">Если Вы хотите  сохранить Ваши результаты, пожалуйста, авторизуйтесь на сайте</h5><br>
-                <div class="mt-4 d-flex justify-content-around">
-                  <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-header">Авторизоваться</a>
-                </div>
-            {% endif %}
+            <i class="bi bi-x-lg close-popup"></i>
+            <span id="warning"></span>
+            <h5 id="title">Введите название</h5><br>
+            <label class="regular-text m-0" for="work_name">Введите название</label>
+            <input class="form-control py-2 text-grey" type="text" placeholder="Введите название" id="work_name" name="work_name">
+            <div class="mt-4 d-flex justify-content-around">
+              <input type="button" onclick="onButtonSendClick('new');" name="save-data" value="Сохранить" class="btn btn-header" style="background: var(--danger, #E01F27); font-size: 18px;">
+            </div>
         </div>
     </div>
     {% if modification %}
@@ -264,7 +206,6 @@
 </div>
 <script>
 var isAuthenticated = {{ user.is_authenticated|lower }};
-var isManyWorks = {{ znanie.several_works|lower }};
 
 function getPreviousProgress(){
     return {{progress|safe}}

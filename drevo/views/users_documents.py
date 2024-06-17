@@ -1,6 +1,5 @@
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
-from django.utils import timezone
 
 from drevo.forms.users_documents import UsersDocumentsForm
 from drevo.models.users_documents import UsersDocuments
@@ -46,7 +45,7 @@ class CreateDocumentView(TemplateView):
                                           content=content,
                                           owner=request.user)
             
-        return redirect("users:my_documents")
+        return redirect("/users/my_documents/")
     
 
 class ChangeDocumentView(TemplateView):
@@ -83,14 +82,12 @@ class ChangeDocumentView(TemplateView):
         if form.is_valid():
             name = form.cleaned_data["name"]
             content = form.cleaned_data["content"]
-            changed_at = timezone.now()
 
             document.name = name
             document.content = content
-            document.changed_at = changed_at
             document.save()
             
-        return redirect("users:my_documents")
+        return redirect("/users/my_documents/")
 
 
 class DeleteDocumentView(TemplateView):
@@ -108,4 +105,4 @@ class DeleteDocumentView(TemplateView):
         document = UsersDocuments.objects.get(pk=pk)
         document.delete()
 
-        return redirect("users:my_documents")
+        return redirect("/users/my_documents/")

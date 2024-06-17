@@ -7,14 +7,14 @@ logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
 
 
-class AuthorsListView(ListView):
+class AuthorsListView(ListView): 
     """
     выводит список авторов
     """
     template_name = 'drevo/authors_list.html'
     model = Author
     context_object_name = 'authors'
-    paginate_by = 25
+    paginate_by = 25 
 
     def get_queryset(self):
         tag_sorted = self.request.GET.get('order')

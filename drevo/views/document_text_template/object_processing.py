@@ -1,8 +1,8 @@
-from django.views.decorators.http import require_http_methods
-from django.http import HttpResponse
-from drevo.forms import TemplateObjectForm
+from django.urls import reverse
+from django.http import HttpResponse, HttpResponseRedirect
+from drevo.forms import VarForm
 from django.db.models import Q
-from drevo.models import TemplateObject
+from drevo.models import Var
 from django.forms.models import model_to_dict
 from django.core import serializers
 import json
@@ -13,9 +13,9 @@ def get_object(pk):
         Получить объект с данным id
     """
     try:
-        obj = TemplateObject.objects.get(id=int(pk))
-    except TemplateObject.DoesNotExist:
-        raise TemplateObject.DoesNotExist(json.dumps({
+        obj = Var.objects.get(id=int(pk))
+    except Var.DoesNotExist:
+        raise Var.DoesNotExist(json.dumps({
             'res': 'error',
             'error': f'Словаря с id {pk} не существует'}))
     except ValueError:
@@ -26,7 +26,6 @@ def get_object(pk):
     return obj
 
 
-@require_http_methods(["GET", "POST", "DELETE"])
 def document_object_processing_view(request, doc_pk):
     """
     Обработка запросов, касающихся объектов в сервисе создания шаблонов документов
@@ -50,7 +49,7 @@ def document_object_processing_view(request, doc_pk):
 
     # создание/изменение объекта
     elif request.method == 'POST':
-        form = TemplateObjectForm(request.POST)
+        form = VarForm(request.POST)
 
         if not form.is_valid():
             return HttpResponse(
@@ -68,7 +67,7 @@ def document_object_processing_view(request, doc_pk):
             form.cleaned_data['comment'] = form.cleaned_data['comment'] if form.cleaned_data['comment'] is not None else ''
             form.cleaned_data['structure'] = int(form.cleaned_data['structure'])
             if form.cleaned_data['action'] == 'create':
-                TemplateObject.objects.create(
+                Var.objects.create(
                     name=form.cleaned_data['name'],
                     structure=form.cleaned_data['structure'],
                     is_main=form.cleaned_data['is_main'],
@@ -101,8 +100,7 @@ def document_object_processing_view(request, doc_pk):
             return HttpResponse(json.dumps({'res': 'database error', 'error': e}), content_type='application/json')
 
         # множество объектов отображемых на странице создания/редактирования шаблона текста документа
-        q = TemplateObject.objects.filter(Q(knowledge=form.cleaned_data['knowledge']) | Q(availability=1) | Q(availability=2))
+        q = Var.objects.filter(Q(knowledge=form.cleaned_data['knowledge']) | Q(availability=1) | Q(availability=2))
         return HttpResponse(json.dumps({'res': 'ok', 'objects': json.loads(serializers.serialize('json', q))}), content_type='application/json')
-    elif request.method == 'DELETE':
-        obj = get_object(request.DELETE["id"])
-        return HttpResponse(json.dumps({'res': 'ok'}), content_type='application/json')
+    else:
+        return HttpResponseRedirect(reverse('drevo'))

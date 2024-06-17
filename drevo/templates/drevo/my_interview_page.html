@@ -32,7 +32,7 @@
                     {% elif zn.name == zn_str and not info.all_answered and info.today_in_range %}
                         <a href="{% url 'interview' zn.pk %}" class="interview-start">
                             {{ zn }} ({{ info.count }}) {{ info.period }}
-                        </a>
+                        </a> 
                     {% endif %}
                 {% endfor %}
 

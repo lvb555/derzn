@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -7,10 +8,10 @@ from django.views.generic import CreateView, TemplateView
 
 from drevo.forms.knowledge_create_form import ZnImageFormSet, ZnFilesFormSet
 from drevo.forms.constructor_knowledge_form import MainZnInConstructorCreateEditForm
-from drevo.models import Znanie, SpecialPermissions, Tz
+from drevo.models import Znanie, SpecialPermissions
 
 from .supplementary_functions import create_zn_for_constructor, get_images_from_request, \
-    get_file_from_request
+    get_file_from_request, delete_tables_without_row_and_columns
 from .mixins import DispatchMixin
 from ...relations_tree import get_descendants_for_knowledge
 
@@ -36,16 +37,25 @@ class ZnaniyaForConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView)
             'table': 'Таблица',
             'quiz': 'Тест',
         }
+        zn_filter = Q(tz__name=tz_name_mapping.get(tz_name)) & Q(knowledge_status__status='PUB')
 
         user_competencies = SpecialPermissions.objects.filter(expert=user).first()
         user_competencies = (
             user_competencies.categories.all() if not tz_name == 'table' else user_competencies.admin_competencies.all()
         )
+        queryset = Znanie.objects.select_related('category').filter(zn_filter).distinct()
 
-        tz_type = Tz.t_(tz_name_mapping.get(tz_name))
-        queryset = Znanie.published.select_related('category').filter(tz=tz_type, category__in=user_competencies).distinct()
+        # При построении дерева для наполнения таблиц удаляются таблицы, не содержащие хотя бы одну строку и столбец
+        if tz_name == 'filling_tables':
+            queryset = delete_tables_without_row_and_columns(queryset=queryset)
 
-        return queryset
+        knowledge_list = list()
+        for know in queryset:
+            if know.category in user_competencies:
+                knowledge_list.append(know.pk)
+
+        required_kn = knowledge_list
+        return queryset.filter(pk__in=required_kn).distinct()
 
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
@@ -135,9 +145,7 @@ class MainZnInConstructorCreateView(LoginRequiredMixin, DispatchMixin, CreateVie
             elif self.type_of_zn == 'quiz':
                 return HttpResponseRedirect(reverse('quiz_constructor', kwargs={'pk': knowledge.pk}))
             elif self.type_of_zn == 'table':
-                # указываем на возврат по кнопке «Закрыть» на нашу страницу
-                params = '?prev=' + reverse('znaniya_for_constructor')+'?type_of_zn=table'
-                return HttpResponseRedirect(reverse('table_constructor', kwargs={'pk': knowledge.pk})+params)
+                return HttpResponseRedirect(reverse('table_constructor', kwargs={'pk': knowledge.pk}))
 
         return self.form_invalid(form, image_form)
 

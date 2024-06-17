@@ -120,7 +120,10 @@ class ZnanieDetailView(DetailView):
             knowledge.get_dislikes_count())
         context['comment_max_length'] = Comment.CONTENT_MAX_LENGTH
 
+        context['table'] = knowledge.get_table_object()
+
         # возвращает кнопку прохождения тестирования, если знание- базовое для теста
+
         context['button'] = []
         if context['children_by_tr']:
             for relation, children in context['children_by_tr'].items():

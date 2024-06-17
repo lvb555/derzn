@@ -3,14 +3,16 @@
 {% load static %}
 
 {% block cssfiles %}
-<script src="{% static 'drevo/js/dimensional_distributions.js' %}"></script> 
+<script src="{% static 'drevo/js/dimensional_distributions.js' %}?v=1.0"></script>
 <link rel="stylesheet" href="{% static '/drevo/css/dimensional_distributions.css' %}">
 {% endblock %}
-<head><title>{% block title %}Двумерные распределениия{% endblock %}</title></head>
+<head>{% block title %}Двумерные распределения{% endblock %}</head>
 {% block content %}
 <h3>Таблица двумерных распределений</h3>
-<h7>Выберете оба вопроса интервью, названия вопросов не должны совпадать</h7>
+<p><strong>Интервью: </strong>{{ selected_interview }}</p>
+<h7>Выберите оба вопроса интервью, названия вопросов не должны совпадать</h7>
 <form method="get">
+    <input type="hidden" name="selected_interview" value="{{ selected_interview }}">
     <select id="question1" name="selected_question_1" onchange="enableQuestion2()">
         <option value="">Вопрос-1</option>
         {% for question in questions %}
@@ -27,45 +29,46 @@
 </form>
 
 {% if table %}
-    {% if selected_question_1 != selected_question_2 %}
-    <table border="4px">
-        <thead>
-            <tr>
-                <td class="upper-td", rowspan="2">{{ selected_question_1 }}</td>
-                <td class="upper-td", colspan="{{ answers_2|length }}">{{ selected_question_2 }}</td>
-            </tr>
-            <tr>
-                {% for answer2 in answers_2 %}
-                    <td class="upper-td">{{ answer2 }}</td>
+    {% if selected_question_1 and selected_question_2 %}
+        {% if selected_question_1 != selected_question_2 %}
+        <table border="4px">
+            <thead>
+                <tr>
+                    <td class="upper-td" rowspan="2">{{ selected_question_1 }}</td>
+                    <td class="upper-td" colspan="{{ answers_2|length }}">{{ selected_question_2 }}</td>
+                </tr>
+                <tr>
+                    {% for answer2 in answers_2 %}
+                        <td class="upper-td">{{ answer2 }}</td>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in table %}
+                <tr>
+                    <td class="lower-td" rowspan="2">{{ row.answer1 }}</td>
+                    {% for cell in row.cells %}
+                        <td class="numbers">{{ cell.count }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for cell in row.cells %}
+                        <td class="numbers">{{ cell.percentage|floatformat:2 }}%</td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in table %}
-            <tr>
-                <td class="lower-td", rowspan="2">{{ row.answer1 }}</td>
-                {% for cell in row.cells %}
-                    <td class="numbers">{{ cell.count }}</td>
-                {% endfor %}
-            </tr>
-            <tr>
-                {% for cell in row.cells %}
-                    <td class="numbers">{{ cell.percentage|floatformat:2 }}%</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-            <tr><td class="upper-td", rowspan="2">Всего проголосовавших:</td>
-                {% for total in table.0.totals %}  
-                    <td class="numbers">{{ total }}</td>
-                {% endfor %}</tr><tr>
-                {% for total in table.0.totals %}  
-                    <td class="numbers">100%</td>
-                {% endfor %}
-            </tr>
-        </tbody>
-    </table>
+                <tr><td class="upper-td" rowspan="2">Всего проголосовавших:</td>
+                    {% for total in table.0.totals %}  
+                        <td class="numbers">{{ total }}</td>
+                    {% endfor %}</tr><tr>
+                    {% for total in table.0.totals %}  
+                        <td class="numbers">100%</td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+        {% endif %}
     {% endif %}
 {% endif %}
-<a class="btn btn-success", href="{% url 'dimensional_distributions_1' %}?selected_interview={{ selected_interview }}">Таблицы одномерных распределениий</a>
+<a class="btn btn-success" href="{% url 'dimensional_distributions_1' %}?selected_interview={{ selected_interview }}">Таблицы одномерных распределениий</a>
 {% endblock %}
-

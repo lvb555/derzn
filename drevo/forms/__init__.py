@@ -16,7 +16,7 @@ from .advance_tree_search_form import AdvanceTreeSearchFrom
 from .relation_statuses_form import RelationStatusesForm
 from .additional_knowledge_forms import AdditionalKnowledgeForm, ZnImageFormSet
 from .document_content_template_form import ContentTemplate
-from .variable_form import TemplateObjectForm
+from .variable_form import VarForm
 from .turple_creation_form import TurpleForm
 from .turple_element_creation_form import TurpleElementForm
 

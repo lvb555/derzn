@@ -30,19 +30,18 @@ class ZnanieCreateForm(forms.ModelForm, ZnanieValidators):
     category = TreeNodeChoiceField(queryset=get_model_or_stub(Category).published.all(),
                                    empty_label="(нет категории)",
                                    label='Категория',
-                                   required=False)
-
+                                   required=True)
     labels = forms.ModelMultipleChoiceField(queryset=Label.objects.all(), label='Метки', required=False)
     tz = forms.ModelChoiceField(queryset=Tz.objects.all().order_by('name'), label='Вид знания')
 
     class Meta:
         model = Znanie
-        exclude = ('id', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director', 'is_published', 'meta_info')
+        exclude = ('id', 'date', 'updated_at', 'user', 'expert', 'redactor', 'director', 'is_published')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            if field_name != 'is_send' and not isinstance(field, forms.BooleanField):
+            if field_name != 'is_send':
                 field.widget.attrs['class'] = 'form-control'
 
 

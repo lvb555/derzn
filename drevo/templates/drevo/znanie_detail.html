@@ -3,7 +3,6 @@
 {% load base_tags %}
 {% load static %}
 {% load knowledge_tree %}
-{% load render_knowledge %}
 
 {% block title %}Знание: {{ znanie.name }}{% endblock %}
 
@@ -129,15 +128,15 @@
 
       {# Таблица #}
       {% if znanie.tz.name == 'Таблица' %}
-
+      {% if table %}
       <div class="container p-0">
         <div class="row my-2">
           <div class="col">
-            {% render_knowledge znanie table_id='table_1' %}
+            {% include 'drevo/table.html' with table=table %}
           </div>
         </div>
       </div>
-
+      {% endif %}
       {% endif %}
 
       {% if znanie.files.all %}
@@ -175,9 +174,9 @@
                   Делаем вместе
                 </a>
               {% endif %}
-        </div>
+          </div>
+          <div>
         {% if request.user.is_authenticated %}
-        <div>
             <a class="btn open-popup btn-icon" style="background-color: #E7ECEB; color: #083E2F; padding: 8px 24px;">Отправить в Ленту знаний</a>
             <div class="popup__bg">
               <form class="popup" method="post" id="feedmessage_form" novalidate onsubmit="return false;">
@@ -235,7 +234,7 @@
                   </div>
               </form>
             </div>
-        </div>
+          </div>
         {% endif %}
         </div>
         <div class="row mb-2">

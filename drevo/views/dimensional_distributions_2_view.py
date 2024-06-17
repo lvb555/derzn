@@ -1,42 +1,38 @@
-from django.db.models import Count, Q
+from django.db.models import Q
 from drevo.models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from collections import defaultdict
 from django.shortcuts import render
 
 def dimensional_distributions_2(request):
-    selected_interview = request.GET.get('selected_interview')
-    question1 = request.GET.get('selected_question_1')
-    question2 = request.GET.get('selected_question_2')
+    selected_interview = request.GET.get('selected_interview') 
+    selected_question_1 = request.GET.get('selected_question_1')
+    selected_question_2 = request.GET.get('selected_question_2')
 
-    if selected_interview is None:
-        interview_object = InterviewAnswerExpertProposal.objects.filter(question__name__in=[question1, question2]).first()
-        if interview_object:
-            selected_interview = interview_object.interview.name
     questions = list(set(InterviewAnswerExpertProposal.objects.filter(
         question__is_published=True,
         interview__name=selected_interview
-    ).order_by('question__order').values_list('question__name', flat=True)))
+    ).values_list('question__name', flat=True).order_by('question__order')))
 
     experts_agreed_1 = InterviewAnswerExpertProposal.objects.filter(
-        Q(question__name=question1),
+        Q(question__name=selected_question_1),
         interview__name=selected_interview,
         is_agreed=True
-    ).values('answer__name', 'expert__id').annotate(count=Count('id'))
+    ).order_by('answer__order').values('answer__name', 'expert__id')
 
     experts_agreed_2 = InterviewAnswerExpertProposal.objects.filter(
-        Q(question__name=question2),
+        Q(question__name=selected_question_2),
         interview__name=selected_interview,
         is_agreed=True
-    ).values('answer__name', 'expert__id').order_by('answer__order').annotate(count=Count('id'))
+    ).order_by('answer__order').values('answer__name', 'expert__id')
 
     answers_1 = list(set(InterviewAnswerExpertProposal.objects.filter(
-        question__name=question1
-    ).values_list('answer__name', flat=True)))
-    
+        question__name=selected_question_1
+    ).order_by('answer__order').values_list('answer__name', flat=True)))
+
     answers_2 = list(set(InterviewAnswerExpertProposal.objects.filter(
-        question__name=question2
-    ).values_list('answer__name', flat=True)))
-    
+        question__name=selected_question_2
+    ).order_by('answer__order').values_list('answer__name', flat=True)))
+
     total_counts = {}
     for answer2 in answers_2:
         total_counts[answer2] = InterviewAnswerExpertProposal.objects.filter(
@@ -67,8 +63,8 @@ def dimensional_distributions_2(request):
     context = {
         'table': table,
         'questions': questions,
-        'selected_question_1': question1,
-        'selected_question_2': question2,
+        'selected_question_1': selected_question_1,
+        'selected_question_2': selected_question_2,
         'selected_interview': selected_interview,
         'answers_2': answers_2
     }

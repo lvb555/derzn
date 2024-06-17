@@ -63,6 +63,12 @@ class InterviewAnswerExpertProposal(models.Model):
 
     # реквизит "Ответ" - указатель на сущность "Знания".
     # ссылка на связь между вопросом и интервью. Связь с типом "Состав"
+    question = models.ForeignKey(
+        to=Znanie,
+        on_delete=models.PROTECT,
+        related_name="question_proposals",
+        verbose_name="Вопрос"
+    )
     answer = models.ForeignKey(
         to=Znanie,
         null=True,
@@ -70,12 +76,6 @@ class InterviewAnswerExpertProposal(models.Model):
         on_delete=models.PROTECT,
         related_name="answer_proposals",
         verbose_name="Ответ",
-    )
-
-    question = models.ForeignKey(
-        to=Znanie,
-        on_delete=models.PROTECT,
-        related_name="question_proposals",
     )
 
     # реквизит "Некорректная связь" - логический. Некорректная связь – True;

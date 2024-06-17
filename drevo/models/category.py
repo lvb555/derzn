@@ -19,7 +19,7 @@ class Category(MPTTModel):
         'self',
         on_delete=models.CASCADE,
         null=True,
-        blank=True,
+        blank=True,  
         related_name='children'
     )
     content = models.TextField(

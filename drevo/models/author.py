@@ -4,7 +4,7 @@ from drevo.common.file_storage import ASCIIFileSystemStorage
 from users.models import User
 
 
-class Author(models.Model):
+class Author(models.Model): 
     """
     Класс для описания авторов
     """

@@ -5,7 +5,7 @@
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/interviews_table_and_all.css' %}">
 {% endblock %}
-<head><title>{% block title %}Все интервью{% endblock %}</title></head>
+<head>{% block title %}Все интервью{% endblock %}</head>
 {% block content %}
 
 <h1>Все интервью</h1>
@@ -26,6 +26,36 @@
     {% endfor %}
   </ul>
 </ul>
+<style>
+  .bi-file-plus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .bi-file-minus-fill {
+    width: 17px;
+    display: inline;
+  }
+  .treeInterview .drop {
+    left: -.5em;
+    top: .4em;
+    width: .9em;
+    height: .9em;
+    line-height: .9em;
+    text-align: center;
+    background: #fff;
+    font-size: 80%;
+    cursor: pointer;
+  }
+  .treeInterview li:last-child > .bi-file-plus-fill.lonely {
+    margin-left: 1px;
+  }
+  .treeInterview .family.bi-file-plus-fill + ul {
+    display: none;
+  }
+  .treeInterview .family.bi-file-minus-fill + ul {
+    display: block;
+  }
+</style>
 <script>
 (function() {
   var ul = document.querySelectorAll('.treeInterview > li:not(:only-child) ul, .treeInterview ul  ul');

@@ -11,7 +11,12 @@ class TurpleElement(models.Model):
         to='drevo.Turple',
         on_delete=models.CASCADE,
         verbose_name="Справочник")
-    weight = models.IntegerField(default=1, verbose_name="Порядок")
+    weight = models.IntegerField(default=100, verbose_name="Порядок")
+    var = models.ForeignKey(
+        to='drevo.Var',
+        on_delete=models.CASCADE,
+        null=True,
+        verbose_name='Переменная')
 
     class Meta:
         verbose_name = 'Элемент справочника'
