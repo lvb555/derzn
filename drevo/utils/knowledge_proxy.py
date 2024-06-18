@@ -260,10 +260,8 @@ class TableProxy:
             cell_knowledge = Znanie.objects.get(pk=new_cells[cell]["id"])
             meta_info = json.dumps({"cell": {"row": cell[0], "col": cell[1]}})
 
-            # создаем автора. Реально через фамилию и имя связь?????
-            author, created = Author.objects.get_or_create(
-                name=f"{user.first_name} {user.last_name}",
-            )
+            author = Author.get_author_by_user(user)
+
             self.knowledge.base.create(
                 tr=Tr.t_(self.cell_relation),
                 rz=cell_knowledge,

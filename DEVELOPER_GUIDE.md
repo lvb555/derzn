@@ -113,7 +113,8 @@ export EMAIL_HOST_PASSWORD=somepass
 export EMAIL_USE_TLS=false
 export EMAIL_USE_SSL=false
 ```
-
+UPD 02/04/2024  
+`.env.sample` скопируйте и переименуйте в `.env`. Django автоматически подхватит эти переменные
 
 ## инициализировать БД
 
@@ -126,9 +127,10 @@ export EMAIL_USE_SSL=false
 ```
 ./manage.py loaddata dump.json
 ```
-
-
 Файл dump.json спросить в чате или искать в закрепах.
+
+UPD 02/04/2024  
+*Загрузка дампа выполняется некорректно, надо вручную создать необходимые записи*
 
 
 ## (\*) [Direnv](https://direnv.net/)

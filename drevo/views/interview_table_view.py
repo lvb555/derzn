@@ -35,8 +35,6 @@ def interview_table(request, id):
                     row.append(answers[question])
                 else:
                     row.append("-")
-            table.append(row)
-
     if question_list:
         return render(request, "drevo/interview_table.html", {
             'table': table, 'interview_this': interview_this

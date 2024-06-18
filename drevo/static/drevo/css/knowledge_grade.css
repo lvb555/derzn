@@ -87,7 +87,7 @@
     font-family: 'Rubik';
     font-style: normal;
     font-weight: 500;
-    font-size: 28px;
+    font-size: 24px;
     line-height: 120%;
 
     letter-spacing: 0.05em;
@@ -188,12 +188,21 @@ td, th {
     border-right: 1px solid #BFBFBF;
 }
 
+.no_top {
+    border-top: none;
+}
+
+.no_right {
+    border-right: none;
+}
+
 th {
     font-family: 'Rubik';
     font-style: normal;
     font-weight: 500;
     font-size: 14px;
     line-height: 120%;
+    border-top: none;
 
     background: #F5F5F5;
 }
@@ -233,4 +242,42 @@ th {
     padding: 12px 16px;
 
     min-width: 100px;
+}
+
+
+
+.grade_select {
+        color: inherit;
+        background-color: inherit;
+        border: none;
+        padding: 0;
+    }
+
+.grade_value {
+        font-weight: 500;
+}
+
+.grade_caption {
+    font-size:14px;
+    color: #6C757D;
+}
+
+i {
+    font-size: 20px;
+}
+
+.auto_width {
+    width: auto;
+}
+
+.knowledge-title {
+    max-width: 550px;
+}
+
+.fix_width200 {
+    width: 200px;
+}
+
+.f20 {
+    font-size:20px;
 }

@@ -12,8 +12,11 @@ def get_relation_types() -> QuerySet[Tr]:
 
 
 @register.simple_tag
-def get_knowledge_types() -> QuerySet[Tz]:
-    kn_types = Tz.objects.filter(is_systemic=False).order_by('name')
+def get_knowledge_types(specific_type=None) -> QuerySet[Tz]:
+    if specific_type:
+        kn_types = Tz.objects.get(name=specific_type)
+    else:
+        kn_types = Tz.objects.filter(is_systemic=False).order_by('name')
     return kn_types
 
 
