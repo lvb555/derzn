@@ -1,0 +1,72 @@
+{% extends 'drevo/base.html' %}
+{% load knowledge_tree %}
+{% load static %}
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/dimensional_distributions.css' %}">
+<script src="{% static 'drevo/js/dimensional_distributions.js' %}?v=1.0"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+{% endblock %}
+
+
+<head>{% block title %}Одномерные распределениия{% endblock %}</head>
+{% block content %}
+
+<h3>Таблица одномерных распределений</h3>
+
+<p><strong>Интервью: </strong>{{ selected_interview.name }}</p>
+{% if questions %}
+<form method="get">
+  <label for="questionSelect"><strong>Вопрос:</strong></label>
+  <select name="selected_question" onchange="this.form.submit()">
+      {% if selected_question %}
+        <option value="">{{ selected_question }}</option>
+      {% else %}
+        <option value="">Выбрать вопрос</option>
+      {% endif %}
+      {% for question in questions %}
+        {% if question != selected_question %}
+            <option value="{{ question }}">{{ question }}</option>
+        {% endif %}  
+      {% endfor %}
+  </select>
+</form>
+{% else %}
+<h5>Вопросов интервью нет</h5>
+{% endif %}
+
+{% if table %}
+  <table id="answers" border='2px'>
+    <tr>
+        <td class="graphs">Ответ</td>
+        <td class="graphs">Число голосов % к проголосовавшим</td>
+    </tr>
+    {% for row in table %}
+      <tr>
+          <td class="answers" rowspan="2">{{ row.answer_name }}</td>
+          <td class="numbers">{{ row.agreed_count }}</td>
+      </tr>
+      <tr>
+          <td class="numbers">{{ row.percent|floatformat:2 }}%</td>
+      </tr>
+    {% endfor %}
+    <tr>
+        <td class="graphs" rowspan="2">Всего проголосовавших:</td>
+        <td class="numbers">{{ total_voters }}</td>
+    </tr>
+    <tr>
+        <td class="numbers">100%</td>
+    </tr>
+    <tr>
+        <td class="graphs">Всего участников интервью</td>
+        <td class="numbers">{{ all_participants }}</td>
+    </tr>
+  </table>
+{% endif %}
+{% if questions|length >= 2 %}
+  {% if not table %}
+    <a class="btn btn-success" href="{% url 'dimensional_distributions_2' id=selected_interview.id %}">Таблицы двумерных распределений</a> 
+  {% else %}
+    <a class="btn btn-success" href="{% url 'dimensional_distributions_2' id=selected_interview.id %}?selected_question_1={{ selected_question}}">Таблицы двумерных распределений</a>
+  {% endif %}
+{% endif %}
+{% endblock %}

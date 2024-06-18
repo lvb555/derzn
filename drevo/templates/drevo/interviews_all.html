@@ -3,9 +3,9 @@
 {% load static %}
 
 {% block cssfiles %}
-<link rel="stylesheet" href="{% static '/drevo/css/interview_table.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/interviews_table_and_all.css' %}">
 {% endblock %}
-<head><title>{% block title %}Все интервью{% endblock %}</title></head>
+<head>{% block title %}Все интервью{% endblock %}</head>
 {% block content %}
 
 <h1>Все интервью</h1>
@@ -18,6 +18,7 @@
             {% for interview in interviews %}
                 <li>
                   <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a>
+                  <a href="{% url 'dimensional_distributions_1' id=interview.id %}">Статистика интервью</a>
                 </li>
             {% endfor %}
           </ul>
@@ -26,7 +27,6 @@
   </ul>
 </ul>
 <style>
-  
   .bi-file-plus-fill {
     width: 17px;
     display: inline;
@@ -55,19 +55,18 @@
   .treeInterview .family.bi-file-minus-fill + ul {
     display: block;
   }
-  </style>
-
-  <script>
-  (function() {
-    var ul = document.querySelectorAll('.treeInterview > li:not(:only-child) ul, .treeInterview ul  ul');
-    for (var i = 0; i < ul.length; i++) {
-      var div = document.createElement('div');
-      div.className = 'family bi-file-plus-fill lonely';
-      ul[i].parentNode.insertBefore(div, ul[i].previousSibling);
-      div.onclick = function() {
-        this.className = (this.className == 'family bi-file-plus-fill lonely' ? 'family bi-file-minus-fill' : 'family bi-file-plus-fill lonely');
-      }
+</style>
+<script>
+(function() {
+  var ul = document.querySelectorAll('.treeInterview > li:not(:only-child) ul, .treeInterview ul  ul');
+  for (var i = 0; i < ul.length; i++) {
+    var div = document.createElement('div');
+    div.className = 'family bi-file-plus-fill lonely';
+    ul[i].parentNode.insertBefore(div, ul[i].previousSibling);
+    div.onclick = function() {
+      this.className = (this.className == 'family bi-file-plus-fill lonely' ? 'family bi-file-minus-fill' : 'family bi-file-plus-fill lonely');
     }
-  })();
-  </script>
+  }
+})();
+</script>
 {% endblock %}

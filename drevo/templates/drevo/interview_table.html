@@ -3,94 +3,56 @@
 {% load static %}
 
 {% block cssfiles %}
-<link rel="stylesheet" href="{% static '/drevo/css/interview_table.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/interviews_table_and_all.css' %}">
 {% endblock %}
 <head><title>{% block title %}Авторы Интервью{% endblock %}</title></head>
 {% block content %}
 
-<h1>{{ interview.name }} - Интервью</h1>
+<h1>{{ interview_this }} - Интервью</h1>
 <div style="overflow-x:auto;">
   <ul class="treeInterview">
     <ul>
       <table border-width="2px">
-        <!-- Заголовок таблицы -->
-        <tr>
+        {% if table %}
+          <tr>
             <th class="graphs" rowspan="2">ФИО</th>
             <th class="graphs" colspan="{{ table.0|length }}">Вопросы интервью</th>
-        </tr>
+          </tr>
+        {% else %}
+          <h5>Вопросов интервью нет</h5>
+        {% endif %}
         <tr>
-            {% for question in table.0 %}
-                {% if not forloop.first %}
-                    <th class="graphs">{{ question }}</th>
-                {% endif %}
-            {% endfor %}
+          {% for question in table.0 %} 
+              {% if not forloop.first %}
+                  <th class="graphs">{{ question }}</th>
+              {% endif %}
+          {% endfor %}
         </tr>
-        {% for row in table %}
-            {% if not forloop.first %}
-                <tr>
-                    <!-- И.О.Ф -->
-                    <td>{{ row.0 }}</td>
-                    <!-- Для каждого вопроса проверяем ответы -->
-                    {% for cell in row %}
-                        {% if not forloop.first %}
+          {% for row in table %}
+              {% if not forloop.first %}
+                  <tr>
+                      <!-- И.О.Ф -->
+                      <td>{{ row.0 }}</td>
+                      {% for cell in row %}
+                          {% if not forloop.first %}
                             <td>
                                 {% if cell != "-" %}
-                                    <li class="li-table"><span class="span-table">{{ cell }}</span></li></br>
+                                  <ul>
+                                    {% for answer in cell %}
+                                      <li class="li-table"><span class="span-table">{{ answer }}</span></li>
+                                    {% endfor %}
+                                  </ul>
                                 {% else %}
                                     <p class="minus-table">{{ cell }}</p>
                                 {% endif %}
                             </td>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-            {% endif %}
-        {% endfor %}
+                          {% endif %}
+                      {% endfor %}
+                  </tr>
+              {% endif %}
+          {% endfor %}
       </table>
     </ul>
   </ul>
 </div>
-<style>
-  .bi-file-plus-fill {
-    width: 17px;
-    display: inline;
-  }
-  .bi-file-minus-fill {
-    width: 17px;
-    display: inline;
-  }
-  .treeInterview .drop {
-    left: -.5em;
-    top: .4em;
-    width: .9em;
-    height: .9em;
-    line-height: .9em;
-    text-align: center;
-    background: #fff;
-    font-size: 80%;
-    cursor: pointer;
-  }
-  .treeInterview li:last-child > .bi-file-plus-fill.lonely {
-    margin-left: 1px;
-  }
-  .treeInterview .family.bi-file-plus-fill + ul {
-    display: none;
-  }
-  .treeInterview .family.bi-file-minus-fill + ul {
-    display: block;
-  }
-</style>
-
-  <script>
-  (function() {
-    var ul = document.querySelectorAll('.treeInterview > li:not(:only-child) ul, .treeInterview ul  ul');
-    for (var i = 0; i < ul.length; i++) {
-      var div = document.createElement('div');
-      div.className = 'family bi-file-plus-fill lonely';
-      ul[i].parentNode.insertBefore(div, ul[i].previousSibling);
-      div.onclick = function() {
-        this.className = (this.className == 'family bi-file-plus-fill lonely' ? 'family bi-file-minus-fill' : 'family bi-file-plus-fill lonely');
-      }
-    }
-  })();
-  </script>
 {% endblock %}
