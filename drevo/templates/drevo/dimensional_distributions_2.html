@@ -11,32 +11,60 @@
 <h3>Таблица двумерных распределений</h3>
 <p><strong>Интервью: </strong>{{ selected_interview.name }}</p>
 <h7>Выберите оба вопроса интервью, названия вопросов не должны совпадать</h7>
-<form method="get">
-    <input type="hidden" value="selected_question_1">
-    <select id="question1" name="selected_question_1" onchange="enableQuestion2()">
-        {% if selected_question_1 and not selected_question_2 %}
-           <option value="{{ selected_question_1 }}">{{ selected_question_1 }}</option>
-        {% else %}
-           <option value="">Вопрос-1</option>
-        {% endif %}
-        {% for question in questions %}
-            <option value="{{ question }}">{{ question }}</option>
-        {% endfor %}
-    </select>
-    {% if selected_question_1 %}
-    <select id="question2" name="selected_question_2" onchange="this.form.submit()">
-        <option value="">Вопрос-2</option>
-        {% for question in questions %}
-            <option value="{{ question }}">{{ question }}</option>
-        {% endfor %}
-    </select>
+
+<form method="get">    
+    {% if selected_question_1 and selected_question_2 %}
+        <select id="question1" name="selected_question_1" onchange="enableQuestion2()">
+            {% if selected_question_1 and not selected_question_2 %}
+                <option value="{{ selected_question_1 }}">{{ selected_question_1 }}</option>
+            {% else %}
+                <option value="">Вопрос-1</option>
+            {% endif %}
+            {% for question in questions %}
+                {% if question != selected_question_1 %}
+                <option value="{{ question }}">{{ question }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <select id="question2" name="selected_question_2" onchange="this.form.submit()" disabled>
+            <option value="">Вопрос-2</option>
+            {% for question in questions %}
+                <option value="{{ question }}">{{ question }}</option>
+            {% endfor %}
+        </select>
     {% else %}
-    <select id="question2" name="selected_question_2" onchange="this.form.submit()" disabled>
-        <option value="">Вопрос-2</option>
-        {% for question in questions %}
-            <option value="{{ question }}">{{ question }}</option>
-        {% endfor %}
-    </select>
+        {% if selected_question_1 %}
+            <select id="question1" name="selected_question_1">
+                <option value="{{ selected_question_1 }}">{{ selected_question_1 }}</option>
+            </select>
+            <select id="question2" name="selected_question_2" onchange="this.form.submit()">
+                <option value="">Вопрос-2</option>
+                {% for question in questions %}
+                    {% if question != selected_question_1 %}
+                    <option value="{{ question }}">{{ question }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        {% else %}
+            <select id="question1" name="selected_question_1" onchange="enableQuestion2()">
+                {% if selected_question_1 and not selected_question_2 %}
+                    <option value="{{ selected_question_1 }}">{{ selected_question_1 }}</option>
+                {% else %}
+                    <option value="">Вопрос-1</option>
+                {% endif %}
+                {% for question in questions %}
+                    {% if question != selected_question_1 %}
+                    <option value="{{ question }}">{{ question }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            <select id="question2" name="selected_question_2" onchange="this.form.submit()" disabled>
+                <option value="">Вопрос-2</option>
+                {% for question in questions %}
+                    <option value="{{ question }}">{{ question }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
     {% endif %}
 </form> 
 {% if table %}

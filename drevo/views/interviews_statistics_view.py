@@ -32,18 +32,20 @@ def dimensional_distributions_1(request, id):
         interview__name=selected_interview,
         is_agreed=True
     ).values('expert').distinct().count()
-
+    table = []
     for answer in answers:
         answer_id = answer['answer__name']
-        agreed_count = answer['agreed_count']
-        if answer_id not in all_answers:
-            all_answers[answer_id] = agreed_count
-        else:
-            all_answers[answer_id] += agreed_count
-    table = [{'answer_name': answer_id, 
-          'agreed_count': agreed_count, 
-          'percent': (agreed_count / total_voters) * 100} for answer_id, agreed_count in all_answers.items()]
-
+        if answer_id != None:
+            agreed_count = answer['agreed_count']
+            if answer_id not in all_answers:
+                all_answers[answer_id] = agreed_count
+            else:
+                all_answers[answer_id] += agreed_count
+        
+            table = [{'answer_name': answer_id, 
+                'agreed_count': agreed_count, 
+                'percent': (agreed_count / total_voters) * 100} for answer_id, agreed_count in all_answers.items()]
+        
     context = {
         'selected_interview': selected_interview, 
         'questions': questions, 
