@@ -1,0 +1,20 @@
+{% load grades %}
+
+{% for zn in knowledge_dict %}
+{% if forloop.first %} <ul> {% endif %}
+    <li id="zn_{{ zn.knowledge.id }}">
+        {% if zn.children %}
+            <i class="bi-knowledge opened" onclick="toggleHiddenElement(this);"></i>
+        {% else %}
+            <i class="bi-knowledge-list"></i>
+        {% endif %}
+        <a href="{% url 'grade' zn.knowledge.id %}">
+        <span class="knowledge_name">{{ zn.knowledge.name }}</span>
+        <span class="score_card {{ zn.grade.id|get_color_style }}">{{ zn.grade.name }} {{ zn.grade.get_base_grade }}</span>
+        </a>
+        {% if zn.children %}
+            {% include 'drevo/knowledge_grade/tree_knowledge_snippet.html' with knowledge_dict=zn.children %}
+        {% endif %}
+    </li>
+    {% if forloop.last %} </ul> {% endif %}
+{% endfor %}
