@@ -105,4 +105,4 @@ def my_knowledge_grade(request, id) -> HttpResponse:
             .distinct()
         )
 
-        return render(request, "drevo/my_knowledge_grade.html", context)
+        return render(request, "drevo/knowledge_grade/my_knowledge_grade.html", context)
