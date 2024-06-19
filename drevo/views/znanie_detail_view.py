@@ -1,6 +1,8 @@
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import DetailView
+from django.utils import timezone
+
 from datetime import datetime
 from drevo.models.label_feed_message import LabelFeedMessage
 
@@ -80,10 +82,10 @@ class ZnanieDetailView(DetailView):
         if self.request.user.is_authenticated:
             if not BrowsingHistory.objects.filter(znanie=knowledge, user=self.request.user).count():
                 BrowsingHistory.objects.create(
-                    znanie=knowledge, user=self.request.user, date=datetime.now()).save()
+                    znanie=knowledge, user=self.request.user, date=timezone.now()).save()
             else:
                 browsing_history_obj = BrowsingHistory.objects.get(znanie=knowledge, user=self.request.user)
-                browsing_history_obj.date = datetime.now()
+                browsing_history_obj.date = timezone.now()
                 browsing_history_obj.save()
 
         # формируем дерево категорий для категории текущего знания
