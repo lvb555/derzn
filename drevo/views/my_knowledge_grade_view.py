@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -25,6 +26,7 @@ class KnowledgeRecord:
     parents: list[Znanie]
 
 
+@login_required
 def my_knowledge_grade(request, id) -> HttpResponse:
     """
     Страница "Мои оценки знания"
