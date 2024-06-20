@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -141,12 +140,8 @@ def my_knowledge_grade(request, id) -> HttpResponse:
         context["zn_dict"] = knowledge_by_category
 
         # фильтруем категории - только наше дерево, без пустых листов
-        tree_set = set([i.tree_id for i in categories if i])
         category_set = set([i.id for i in categories if i])
-        context["ztypes"] = (
-            Category.tree_objects.exclude(is_published=False)
-            .filter(Q(tree_id__in=tree_set), Q(Q(children=True) | Q(id__in=category_set)))
-            .distinct()
-        )
+        context["ztypes"] = Category.tree_objects.get_queryset_ancestors(
+            Category.objects.filter(pk__in=category_set), include_self=True)
 
         return render(request, "drevo/knowledge_grade/my_knowledge_grade.html", context)
