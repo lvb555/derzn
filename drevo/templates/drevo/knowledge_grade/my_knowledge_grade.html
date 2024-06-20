@@ -1,11 +1,8 @@
 {% extends 'drevo/base.html' %}
 {% load mptt_tags %}
-{% load filter %}
-{% load grades %}
-{% load infographics %}
-{% load knowledge_has_children %}
 {% load static %}
 {% load grades %}
+{% load filter %}
 
 {% block title %}
     Мои оценки знаний
@@ -91,13 +88,7 @@
             {% recursetree ztypes %}
             <li {% if not node.get_level %} class="root_category" {% else %} class="no_root_category" {% endif %}
                 id="li_{{ node.id }}">
-
-                {% if not node.has_published_children and not zn_dict|dict_value:node %}
-                    {# элемент не будет раскрываться - у него нет дочерних элементов - не должно быть таких #}
-                    <i class="bi-file-plus-fill lonely"></i>
-                {% else %}
-                    <i class="opened family bi-category" onclick="toggleHiddenElement(this);"></i>
-                {% endif %}
+                <i class="opened family bi-category" onclick="toggleHiddenElement(this);"></i>
                 <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
                 {% if not node.is_leaf_node %}
                     <ul class="children">
