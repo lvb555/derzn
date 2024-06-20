@@ -26,6 +26,32 @@ class KnowledgeRecord:
     parents: list[Znanie]
 
 
+def search_category(knowledge: Znanie) -> Category | None:
+    """ Ищем категорию знания среди ближайших предков
+        Классический bfs
+        ищем всех предков, находим их категории.
+        Если у предка нет категории, то ищем у их предков и т.д.
+    """
+
+    queue = [knowledge]
+    visited = set()
+    visited.add(knowledge)
+
+    while queue:
+        knowledge = queue.pop(0)
+        if knowledge.category:
+            return knowledge.category
+        for parent in Relation.objects.filter(tr__is_argument=True, rz=knowledge).select_related('bz',
+                                                                                                 'bz__category').all():
+            if parent.bz.category:
+                return parent.bz.category
+            elif parent.bz not in visited:
+                visited.add(parent.bz)
+                queue.append(parent.bz)
+
+    return None
+
+
 @login_required
 def my_knowledge_grade(request, id) -> HttpResponse:
     """
@@ -35,7 +61,9 @@ def my_knowledge_grade(request, id) -> HttpResponse:
     (только если родительское знание есть в списке знаний с оценками)
     Если у знания несколько разных родительских знаний, то оно выведется только
     под одним из них (можно сказать под случайным родителем, первым в списке)
-    Если знание без категории и без родителя - появится дополнительная категория "Без категории"
+    Если знание без категории и без родителя:
+     1. Сначала попытаемся определить категорию у родительских знаний, даже если они не оценивались
+     2. Если не получилось, то появится дополнительная категория "Без категории"
 
 
     """
@@ -104,6 +132,9 @@ def my_knowledge_grade(request, id) -> HttpResponse:
 
             if is_orphan:
                 # если же не нашли для знания родителя - оно будет сразу после категории
+                if not record.category:
+                    record.category = search_category(record.knowledge)
+
                 categories.add(record.category)
                 knowledge_by_category.setdefault(record.category, []).append(record)
 
