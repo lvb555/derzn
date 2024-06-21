@@ -5,7 +5,7 @@
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/interviews_table_and_all.css' %}">
 {% endblock %}
-<head><title>{% block title %}Авторы Интервью{% endblock %}</title></head>
+{% block title %}Авторы Интервью{% endblock %}
 {% block content %}
 
 <h1>{{ interview_this }} - Интервью</h1>

@@ -1,6 +1,5 @@
 from collections import defaultdict
 from django.shortcuts import render, get_object_or_404
-from django.utils.safestring import mark_safe 
 from drevo.models.knowledge import Znanie
 from drevo.models.relation import Relation
 
@@ -35,6 +34,8 @@ def interview_table(request, id):
                     row.append(answers[question])
                 else:
                     row.append("-")
+            table.append(row)
+
     if question_list:
         return render(request, "drevo/interview_table.html", {
             'table': table, 'interview_this': interview_this

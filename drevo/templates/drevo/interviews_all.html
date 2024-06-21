@@ -5,7 +5,7 @@
 {% block cssfiles %}
 <link rel="stylesheet" href="{% static '/drevo/css/interviews_table_and_all.css' %}">
 {% endblock %}
-<head>{% block title %}Все интервью{% endblock %}</head>
+{% block title %}Все интервью{% endblock %}
 {% block content %}
 
 <h1>Все интервью</h1>
@@ -20,7 +20,7 @@
                   <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a>
                   <a href="{% url 'dimensional_distributions_1' id=interview.id %}">Статистика интервью</a>
                 </li>
-            {% endfor %}
+            {% endfor %} 
           </ul>
       </li>
     {% endfor %}
