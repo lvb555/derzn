@@ -27,26 +27,28 @@ class KnowledgeRecord:
 
 def search_category(knowledge: Znanie) -> Category | None:
     """ Ищем категорию знания среди ближайших предков
-        Классический bfs
-        ищем всех предков, находим их категории.
-        Если у предка нет категории, то ищем у их предков и т.д.
+        Если у ни одного из предков нет категории, то ищем у их предков и т.д.
+        Сохраняем посещенные предки чтобы не получить рекурсию
     """
 
-    queue = [knowledge]
+    children = [knowledge.pk]
     visited = set()
-    visited.add(knowledge)
+    visited.add(knowledge.pk)
 
-    while queue:
-        knowledge = queue.pop(0)
-        if knowledge.category:
-            return knowledge.category
-        for parent in Relation.objects.filter(tr__is_argument=True, rz=knowledge).select_related('bz',
-                                                                                                 'bz__category').all():
-            if parent.bz.category:
-                return parent.bz.category
-            elif parent.bz not in visited:
-                visited.add(parent.bz)
-                queue.append(parent.bz)
+    while children:
+        parent_list = []
+        for relation in (Relation.objects.filter(tr__is_argument=True, rz_id__in=children)
+                                         .select_related('bz', 'bz__category')
+                                         .only('bz__id', 'bz__category__id')):
+
+            parent = relation.bz
+            if parent.category:
+                return parent.category
+            elif parent.pk not in visited:
+                visited.add(parent.pk)
+                parent_list.append(parent.pk)
+
+        children = parent_list
 
     return None
 
