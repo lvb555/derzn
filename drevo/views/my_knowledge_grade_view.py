@@ -99,7 +99,10 @@ def my_knowledge_grade(request, id) -> HttpResponse:
         context["pub_user"] = user
 
         # получаем все оценки знаний пользователя
-        knowledges_grade = KnowledgeGrade.objects.prefetch_related("knowledge", "knowledge__category").filter(user=user)
+        knowledges_grade = KnowledgeGrade.objects.prefetch_related("knowledge",
+                                                                   "knowledge__category",
+                                                                   "knowledge__tz",
+                                                                   "knowledge__author").filter(user=user)
 
         knowledges_dict = {}
         categories = set()
