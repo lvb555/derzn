@@ -254,8 +254,11 @@ class KnowledgeGraderService:
             "proof_grade_id": proof_grade.id,
             "proof_grade_value": proof_base_value,
             "proof_grade_text": proof_grade.name,
+
             "user_knowledge_grade_id": user_knowledge_grade_id,
             "user_knowledge_grade_value": user_knowledge_grade_value,
+            "user_knowledge_grade_text": user_knowledge_grade.grade.name,
+
             "common_grade_id": common_grade.id,
             "common_grade_value": common_grade_value,
             "common_grade_text": common_grade.name,
