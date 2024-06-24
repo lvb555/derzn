@@ -7,7 +7,7 @@ from drevo.models.knowledge_grade import KnowledgeGrade
 
 
 class InfographicsView(TemplateView):
-    template_name = 'drevo/infographics.html'
+    template_name = 'drevo/knowledge_grade/infographics.html'
 
     def get(self, request, *args, **kwargs):
         self.knowledge = get_object_or_404(Znanie, id=kwargs['pk'])
