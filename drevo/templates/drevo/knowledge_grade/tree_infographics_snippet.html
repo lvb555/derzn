@@ -1,0 +1,28 @@
+{% load grades %}
+{% load knowledge_tree %}
+
+{% for zn in knowledge_dict %}
+    <li id="zn_{{ zn.knowledge_id }}">
+        {% if zn.proof_relations %}
+            <i class="bi-knowledge opened" onclick="toggleHiddenElement(this);"></i>
+        {% else %}
+            <i class="bi-knowledge-list"></i>
+        {% endif %}
+        <a href="{% url 'grade' zn.knowledge_id %}">
+        {% get_color_by_tz '' %}
+        {% if zn.relation_type %}
+          <span class="score_card"><abbr title="Аргумент">А</abbr></span>
+        {% else %}
+          <span class="score_card"><abbr title="Контраргумент">К</abbr></span>
+        {% endif %}
+        <span class="text-dark">{{ zn.knowledge_name }}</span>
+
+        <span class="score_card {{ zn.common_grade_id|get_color_style:zn.relation_type }}">{{ zn.common_grade_text }} {{ zn.common_grade_value }}</span>
+        </a>
+        {% if zn.proof_relations %}
+            <ul>
+            {% include 'drevo/knowledge_grade/tree_infographics_snippet.html' with knowledge_dict=zn.proof_relations %}
+            </ul>
+        {% endif %}
+    </li>
+{% endfor %}
