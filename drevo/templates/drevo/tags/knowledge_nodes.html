@@ -65,8 +65,8 @@
         </svg>
     </a>
     {% endif %}
+    {% if is_constructor_type != 'suggestion' %}
     {% if is_constructor_type %}
-        {% if is_constructor_type != 'suggestion' %}
         <a {% if is_constructor_type == 'filling_tables' %} href="{% url 'filling_tables' base_knowledge.pk %}"  {% elif is_constructor_type == 'algorithm' %} href="{% url 'tree_constructor' 'algorithm' base_knowledge.pk %}"
         {% elif is_constructor_type == 'document' %} href="{% url 'tree_constructor' 'document' base_knowledge.pk %}" {% elif is_constructor_type == 'table' %} href="{% url 'table_constructor' base_knowledge.pk  %}"
         {% elif is_constructor_type == 'quiz' %} href="{% url 'quiz_constructor' base_knowledge.pk %}"{% endif %} class="text-success" style="pointer-events: auto">
