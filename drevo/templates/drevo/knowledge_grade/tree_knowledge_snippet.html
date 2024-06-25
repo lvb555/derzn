@@ -13,7 +13,7 @@
         {% get_color_by_tz zn.knowledge.tz.name %}
         <span class="text-dark znanie">{{ zn.knowledge.name }}</span>
         {% if zn.knowledge.author %}
-            <span class="znanie" style="color: #6C757D;">({{ zn.knowledge.author }})</span>
+            <span class="text-grey znanie">({{ zn.knowledge.author }})</span>
         {% endif %}
 
         <span class="score_card {{ zn.grade.id|get_color_style }}">{{ zn.grade.name }} {{ zn.grade.get_base_grade }}</span>
