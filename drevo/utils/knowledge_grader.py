@@ -11,6 +11,23 @@ from drevo.models.relation_grade_scale import RelationGradeScale
 logger = logging.getLogger(__name__)
 
 
+class ProofScore:
+    """ Вспомогательный класс для вычисления оценки доказательной базы
+    """
+    def __init__(self):
+        self.score = []
+
+    def add(self, is_argument: bool, value: float):
+        if value > 0:
+            if is_argument:
+                self.score.append(value)
+            else:
+                self.score.append(-value)
+
+    def mean(self) -> float:
+        return sum(self.score) / len(self.score) if self.score else 0
+
+
 class KnowledgeGraderService:
     """Класс для вычисления оценки знания для пользователя user
     использование:
@@ -75,7 +92,7 @@ class KnowledgeGraderService:
         if not proofs:
             return self.DEFAULT_KNOWLEDGE_GRADE_VALUE
 
-        score = []
+        score = ProofScore()
         for proof in proofs:
             # оценка связи - пользовательская если есть, иначе по умолчанию
             relation_grade_value = (
@@ -94,22 +111,19 @@ class KnowledgeGraderService:
 
             # учитываем в общей оценке только аргументы с положительной оценкой
             # другие аргументы отбрасываются
-            if argument_grade_value > 0:
-                # знак связи - если "За", то +
-                sign = +1 if proof.argument_type == Tr.FOR else -1
-                score.append(sign * argument_grade_value)
+            score.add(proof.argument_type == Tr.FOR, argument_grade_value)
 
-        result = sum(score) / len(score) if score else 0
-        return result
+        return score.mean()
 
     def calc_proof_grade(self, proof_list, variant: int = 1):
         """Вычисляет оценку знания и дополняет таблицу доказательной базы proof_list.
         Отличается от get_deep_proof_grade тем, что учитывает варианты оценки и
         меняет таблицу proof_list, добавляя оценки
         """
-        score = []
         if not proof_list:
             return self.DEFAULT_KNOWLEDGE_GRADE_VALUE
+
+        score = ProofScore()
 
         for proof in proof_list:
             knowledge_grade_value = proof["user_knowledge_grade_value"]
@@ -136,12 +150,8 @@ class KnowledgeGraderService:
             argument_grade = KnowledgeGradeScale.get_grade_object(
                 argument_grade_value, use_cache=True
             )
+            score.add(proof["relation_type"], argument_grade_value)
 
-            if argument_grade_value > 0:
-                if proof["relation_type"]:
-                    score.append(argument_grade_value)
-                else:
-                    score.append(-argument_grade_value)
 
             data = {
                 "common_grade_id": common_grade.id,  # итоговая оценка знания
@@ -153,7 +163,7 @@ class KnowledgeGraderService:
             }
             proof.update(data)
 
-        return sum(score) / len(score) if score else 0
+        return score.mean()
 
     def get_proof_table(self, knowledge_id: Znanie = None) -> list[dict]:
         # высчитывает таблицу на основе связей для показа в таблице
@@ -289,9 +299,10 @@ class KnowledgeGraderService:
         return proof_relations, grades
 
     """ Функции для получения дерева оценок для знания
-        Дерево представляет собой словарь, потомки хранятся по ключу 'proof_relations'
+        Дерево представляет собой словарь, потомки хранятся в списке по ключу 'proof_relations'
         корень дерева - основное знание self.knowledge
-        
+        Основное использование - get_tree(variant)
+        build_tree() и calc_tree() - вспомогательные методы
     """
 
     def build_tree(self) -> dict:
@@ -308,12 +319,19 @@ class KnowledgeGraderService:
                 'has_children': True}
 
         queue = [root]
-
+        visited = set()  # для учета повторов
         while queue:
             knowledge = queue.pop(0)
 
+            # проверяем на цикл
+            knowledge_id = knowledge['knowledge_id']
+            if knowledge_id in visited:
+                logger.warning(f"Обнаружен цикл - знание id: {knowledge_id}")
+                continue
+
+            visited.add(knowledge_id)
             if knowledge['has_children']:
-                proof_relations = self.get_proof_table(knowledge_id=knowledge['knowledge_id'])
+                proof_relations = self.get_proof_table(knowledge_id=knowledge_id)
                 if not proof_relations:
                     knowledge['has_children'] = False
                 else:
@@ -324,7 +342,7 @@ class KnowledgeGraderService:
             knowledge['proof_relations'] = proof_relations
         return root
 
-    def _node_grades(self, node: dict, proof_base_value: int, variant: int) -> dict:
+    def _node_grades(self, node: dict, proof_base_value: float, variant: int) -> dict:
         """ Функция для вычисления оценки узла дерева
             в зависимости от варианта расчета оценки и оценки доказательной базы
             возвращает словарь с 3мя оценками
@@ -334,7 +352,7 @@ class KnowledgeGraderService:
         user_knowledge_grade_id = node['user_knowledge_grade_id']
 
         if node['knowledge_id'] == self.knowledge.id:
-            # для корневого знания в любом случае надо учесть доказательную базу
+            # для корневого знания в любом случае надо учесть доказательную базу, поэтому вариант 2
             common_grade_value = self._get_common_grade_value(user_knowledge_grade_value, proof_base_value, 2)
         else:
             common_grade_value = self._get_common_grade_value(user_knowledge_grade_value, proof_base_value, variant)
@@ -361,19 +379,15 @@ class KnowledgeGraderService:
         """
         proof_relations = root['proof_relations']
         if proof_relations:
-            score = []
+            score = ProofScore()
             for child in proof_relations:
                 # calc_tree надо вызвать в любом случае - обходим дерево
                 child_grade_value = self.calc_tree(child, variant)
                 child_relation_grade_value = child['user_relation_grade_value']
                 argument_grade_value = child_grade_value * child_relation_grade_value
-                if argument_grade_value > 0:
-                    if child["relation_type"]:
-                        score.append(argument_grade_value)
-                    else:
-                        score.append(-argument_grade_value)
+                score.add(child["relation_type"], argument_grade_value)
 
-            proof_base_value = sum(score) / len(score) if score else 0
+            proof_base_value = score.mean()
 
         else:
             proof_base_value = self.DEFAULT_KNOWLEDGE_GRADE_VALUE
@@ -387,4 +401,3 @@ class KnowledgeGraderService:
         tree = self.build_tree()
         self.calc_tree(tree, variant)
         return tree
-
