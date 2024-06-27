@@ -1,4 +1,5 @@
 {% load grades %}
+{% load knowledge_tree %}
 
 {% for zn in knowledge_dict %}
 {% if forloop.first %} <ul> {% endif %}
@@ -9,7 +10,12 @@
             <i class="bi-knowledge-list"></i>
         {% endif %}
         <a href="{% url 'grade' zn.knowledge.id %}">
-        <span class="knowledge_name">{{ zn.knowledge.name }}</span>
+        {% get_color_by_tz zn.knowledge.tz.name %}
+        <span class="text-dark znanie">{{ zn.knowledge.name }}</span>
+        {% if zn.knowledge.author %}
+            <span class="text-grey znanie">({{ zn.knowledge.author }})</span>
+        {% endif %}
+
         <span class="score_card {{ zn.grade.id|get_color_style }}">{{ zn.grade.name }} {{ zn.grade.get_base_grade }}</span>
         </a>
         {% if zn.children %}
