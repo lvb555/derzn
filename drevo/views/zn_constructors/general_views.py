@@ -177,7 +177,7 @@ class UnprocessedSuggestionsTreeView(LoginRequiredMixin, TemplateView):
     template_name = 'drevo/constructors/constructor_start_page.html'
 
     def get_unprocessed_suggestions(self, user):
-        user_competencies = SpecialPermissions.objects.filter(expert=user).first().categories.all()
+        user_competencies = SpecialPermissions.objects.filter(expert=user).first().admin_competencies.all()
         knowledge_with_unprocessed_suggestions_ids = Suggestion.objects.filter(
             parent_knowlege__category__in=user_competencies,
             is_approve=None).values_list('parent_knowlege', flat=True).distinct()
