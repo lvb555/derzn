@@ -147,11 +147,14 @@ export function FillForm(ans) {
 export function ObjectDeletionHandler(ans) {
 	if (ans.res === "ok") {
 		document.querySelector(`.node#id-${ans.object.id}`).remove()
+		const parent = document.querySelector(`.node#id-${ans.object.connected_to}`)
+		if (document.querySelectorAll(`node#id-${ans.object.connected_to} > ul > li`).length === 0)
+			parent.classList.add("leaf")
 
 		const not_leaf_objects = Array.from(document.querySelectorAll(".edit-menu #connected-to option"))
-		const option_to_remove = not_leaf_objects.filter((i) => i.value == ans.object.id)
-		if (option_to_remove.length > 0){
-			option_to_remove[0].remove()
+		const options = not_leaf_objects.filter((i) => i.value == ans.object.id)
+		if (options.length > 0){
+			const option_to_remove = options[0]
 		}
 
 		show_message(`Объект ${ans.object.name} удaлен.`)
