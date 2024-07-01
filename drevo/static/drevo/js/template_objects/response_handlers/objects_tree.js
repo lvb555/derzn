@@ -147,6 +147,11 @@ export function FillForm(ans) {
 export function ObjectDeletionHandler(ans) {
 	if (ans.res === "ok") {
 		document.querySelector(`.node#id-${ans.object.id}`).remove()
+
+		const not_leaf_objects = Array.from(document.querySelectorAll(".edit-menu #connected-to option"))
+		const option_to_remove = not_leaf_objects.filter((i) => i.value == ans.object.id)[0]
+		option_to_remove.remove()
+
 		show_message(`Объект ${ans.object.name} удaлен.`)
 	}
 	else {
