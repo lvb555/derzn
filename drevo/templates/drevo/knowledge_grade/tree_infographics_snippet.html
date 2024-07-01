@@ -17,11 +17,16 @@
         {% endif %}
         <span class="text-dark">{{ zn.knowledge_name|truncatechars:100 }}</span>
 
-        <span class="score_card {{ zn.common_grade_id|get_color_style:zn.relation_type }}">{{ zn.common_grade_text }} {{ zn.common_grade_value }}</span>
+        {% if zn.relation_type or parent_relation_type %}
+            <span class="score_card {{ zn.common_grade_id|get_color_style:zn.relation_type }}">{{ zn.common_grade_text }} {{ zn.common_grade_value }}</span>
+        {% else %}
+            {# решение для случая контраргумент - контраргумент#}
+            <span class="score_card {{ grade_for_KK|get_color_style:False }}">{{ zn.common_grade_text }} {{ zn.common_grade_value }}</span>
+        {% endif %}
         </a>
         {% if zn.proof_relations %}
             <ul>
-            {% include 'drevo/knowledge_grade/tree_infographics_snippet.html' with knowledge_dict=zn.proof_relations %}
+            {% include 'drevo/knowledge_grade/tree_infographics_snippet.html' with knowledge_dict=zn.proof_relations parent_relation_type=zn.relation_type %}
             </ul>
         {% endif %}
     </li>
