@@ -70,10 +70,6 @@
 {% endblock %}
 
 {% block jsfiles %}
-<script type="module" src="{% static 'drevo/js/template_objects/paste_object.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/setup_queries.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/dynamic_form.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/object_processing.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/save_template.js' %}"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/requests/document_text_template.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/document_text_template.js'%}"></script>
 {% endblock %}
