@@ -105,5 +105,24 @@ def document_object_processing_view(request, doc_pk):
             return HttpResponse(json.dumps({'res': 'database error', 'error': e}), content_type='application/json')
         return HttpResponse(json.dumps({'res': 'ok', 'object': model_to_dict(obj_to_return)}), content_type='application/json')
     elif request.method == 'DELETE':
-        obj = get_object(request.DELETE["id"])
-        return HttpResponse(json.dumps({'res': 'ok'}), content_type='application/json')
+        try:
+            obj = get_object(request.GET['id'])
+        except Exception as e:
+            return HttpResponse(
+                json.dumps({
+                    'res': 'error',
+                    'error': str(e)
+                }),
+                content_type='application/json')
+
+        if obj.availability > 2:
+            return HttpResponse(json.dumps({'res': 'err', 'error': 'Нельзя удалить общий объект.'}), content_type='application/json')
+        if obj.templates_that_use.all().count() != 0:
+            return HttpResponse(json.dumps({'res': 'err', 'error': 'Этот объект используется в некоторых шаблонах.'}), content_type='application/json')
+        if not obj.is_leaf_node():
+            return HttpResponse(json.dumps({'res': 'err', 'error': 'Нельзя удалить родителя.'}), content_type='application/json')
+
+        objec_in_json = model_to_dict(obj, exclude=['templates_that_use'])
+        obj.delete()
+
+        return HttpResponse(json.dumps({'res': 'ok', 'object': objec_in_json}), content_type='application/json')
