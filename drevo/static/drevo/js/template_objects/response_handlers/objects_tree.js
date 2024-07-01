@@ -149,8 +149,10 @@ export function ObjectDeletionHandler(ans) {
 		document.querySelector(`.node#id-${ans.object.id}`).remove()
 
 		const not_leaf_objects = Array.from(document.querySelectorAll(".edit-menu #connected-to option"))
-		const option_to_remove = not_leaf_objects.filter((i) => i.value == ans.object.id)[0]
-		option_to_remove.remove()
+		const option_to_remove = not_leaf_objects.filter((i) => i.value == ans.object.id)
+		if (option_to_remove.length > 0){
+			option_to_remove[0].remove()
+		}
 
 		show_message(`Объект ${ans.object.name} удaлен.`)
 	}
