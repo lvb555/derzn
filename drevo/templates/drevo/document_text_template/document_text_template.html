@@ -15,7 +15,19 @@
 
 {% block content %}
 
-<h1 class="page-title">Шаблон документа: {{ knowledge.name }}</h1>
+{% if not request.user.is_authenticated %} 
+	<div class="card alert-warning">
+		<div class="card-body">
+			<span class="card-text">
+				<a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
+                или
+				<a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                чтобы внести предложение.
+			</span>
+		</div>
+	</div>
+{% else %}
+<h1 class="page-title">Шаблон документа: "{{ knowledge.name }}"</h1>
 
 <div class="content">
 <h3 class="page-sub-title">Конструктор шаблона текста</h3>
@@ -67,6 +79,7 @@
         </div>
 	</div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block jsfiles %}
