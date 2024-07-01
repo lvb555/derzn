@@ -92,4 +92,16 @@ document.querySelectorAll(".node-actions .edit").forEach(edit_btn => edit_btn.ad
 document.querySelector(".tree-actions .btn:first-child").addEventListener("click", (e) => {
     action = "create"
     editing_var = null
+
+	document.querySelectorAll('.edit-menu input[type="text"], .edit-menu select, .edit-menu textarea').forEach((elem) => {
+		elem.value = ""
+	})
+
+	document.querySelectorAll('.edit-menu input[type="checkbox"]').forEach((elem) => {
+		elem.value = false
+	})
+
+	document.querySelectorAll('.edit-menu input[type="number"]').forEach((elem) => {
+		elem.value = 100
+	})
 })
