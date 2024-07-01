@@ -103,7 +103,7 @@ def document_object_processing_view(request, doc_pk):
                 form.cleaned_data['pk'].save()
         except Exception as e:
             return HttpResponse(json.dumps({'res': 'database error', 'error': e}), content_type='application/json')
-        return HttpResponse(json.dumps({'res': 'ok', 'object': model_to_dict(obj_to_return)}), content_type='application/json')
+        return HttpResponse(json.dumps({'res': 'ok', 'object': model_to_dict(obj_to_return, exclude=['templates_that_use']), 'select_tree': form['connected_to']}), content_type='application/json')
     elif request.method == 'DELETE':
         try:
             obj = get_object(request.GET['id'])
