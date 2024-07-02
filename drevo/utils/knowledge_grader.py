@@ -116,17 +116,18 @@ class KnowledgeGraderService:
             knowledge_grade_value = proof["user_knowledge_grade_value"]
             relation_grade_value = proof["user_relation_grade_value"]
 
-            # если нет оценки пользователя или оценка пользователя равна 0, то оценка 1 если вариант 1,
-            # в противном случае считаем оценку вглубь
-            if not knowledge_grade_value:
-                if variant == 1:
-                    common_grade_value = self.DEFAULT_KNOWLEDGE_GRADE_VALUE
-                elif proof["has_children"]:
-                    common_grade_value = self.get_deep_proof_grade(proof["knowledge_id"])
-                else:
-                    common_grade_value = self.DEFAULT_KNOWLEDGE_GRADE_VALUE
+            if proof["has_children"]:
+                common_grade_value = self._get_common_grade_value(
+                    user_grade_value=knowledge_grade_value,
+                    proof_base_value=lambda: self.get_deep_proof_grade(proof["knowledge_id"]),
+                    variant=variant)
+
             else:
-                common_grade_value = knowledge_grade_value
+                # нет потомков - не идем вглубь
+                common_grade_value = self._get_common_grade_value(
+                    user_grade_value=knowledge_grade_value,
+                    proof_base_value=None,
+                    variant=variant)
 
             argument_grade_value = common_grade_value * relation_grade_value
             common_grade = KnowledgeGradeScale.get_grade_object(common_grade_value, use_cache=True)
@@ -200,6 +201,8 @@ class KnowledgeGraderService:
         return proof_relations
 
     def _get_knowledge_grade_by_id(self, knowledge_grade_id: int | None) -> tuple[KnowledgeGradeScale, float]:
+        """По id возвращает оценку знания и ее значение,
+        если id None, то возвращает оценку по умолчанию и None (чтобы не отображалось значение)"""
         if knowledge_grade_id:
             knowledge_grade = self.knowledge_grade_dict[knowledge_grade_id]
             value = knowledge_grade.get_base_grade()
@@ -210,6 +213,8 @@ class KnowledgeGraderService:
         return knowledge_grade, value
 
     def _get_relation_grade_by_id(self, relation_grade_id: int | None) -> tuple[RelationGradeScale, float]:
+        """По id возвращает оценку знания и ее значение,
+           если id None, то возвращает оценку и значение по умолчанию"""
         if relation_grade_id:
             relation_grade = self.relation_grade_dict[relation_grade_id]
             value = relation_grade.get_base_grade()
@@ -224,31 +229,31 @@ class KnowledgeGraderService:
         Иначе возвращает оценку по умолчанию и значение None
         """
         user_knowledge_grade = (
-            KnowledgeGrade.objects.filter(user=self.user, knowledge=knowledge).only("grade").first()
+            KnowledgeGrade.objects.filter(user=self.user, knowledge=knowledge).values("grade").first()
         )
-
-        user_knowledge_grade_id = user_knowledge_grade.grade.id if user_knowledge_grade else None
-        user_knowledge_grade, user_knowledge_grade_value = self._get_knowledge_grade_by_id(user_knowledge_grade_id)
-
-        # if user_knowledge_grade:
-        #     user_knowledge_grade_value = user_knowledge_grade.grade.get_base_grade()
-        #     user_knowledge_grade = user_knowledge_grade.grade
         #
-        # else:
-        #     user_knowledge_grade = KnowledgeGradeScale.get_default_grade()
-        #     user_knowledge_grade_value = None
+        user_knowledge_grade_id = user_knowledge_grade['grade'] if user_knowledge_grade else None
+        user_knowledge_grade, user_knowledge_grade_value = self._get_knowledge_grade_by_id(user_knowledge_grade_id)
 
         return user_knowledge_grade, user_knowledge_grade_value
 
-    def _get_common_grade_value(self, user_grade_value: float | None, proof_base_value: float, variant: int) -> float:
+    def _get_common_grade_value(self, user_grade_value: float | None,
+                                proof_base_value: float | callable | None, variant: int) -> float:
         """Метод высчитывает общую оценку знания"""
-        if not user_grade_value:
-            if variant == 1:
-                common_grade_value = self.DEFAULT_KNOWLEDGE_GRADE_VALUE
+        # если есть оценка пользователя не 0, то возвращаем ее
+        if user_grade_value:
+            return user_grade_value
+
+        # если вариант 1, возвращаем оценку по умолчанию
+        if variant == 1 or proof_base_value is None:
+            common_grade_value = self.DEFAULT_KNOWLEDGE_GRADE_VALUE
+        else:
+            # если вариант 2 ....
+            # если функция - вызываем ее
+            if callable(proof_base_value):
+                common_grade_value = proof_base_value()
             else:
                 common_grade_value = proof_base_value
-        else:
-            common_grade_value = user_grade_value
 
         return common_grade_value
 
