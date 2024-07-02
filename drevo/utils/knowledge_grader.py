@@ -1,4 +1,5 @@
 import logging
+from typing import Callable
 
 from django.db.models import Exists, F, OuterRef, Q, Subquery
 
@@ -53,7 +54,7 @@ class KnowledgeGraderService:
         self.knowledge_grade_dict = {knowledge.id: knowledge for knowledge in knowledge_scales}
         self.relation_grade_dict = {relation.id: relation for relation in relation_scales}
 
-    def get_deep_proof_grade(self, knowledge_id, visited=None):
+    def get_deep_proof_grade(self, knowledge_id, visited=None) -> float:
         """Высчитывает оценку знания по дереву связей - вызывает рекурсивно"""
 
         # для предотвращения циклов при вычислении
@@ -135,10 +136,10 @@ class KnowledgeGraderService:
             score.add(proof["relation_type"], argument_grade_value)
 
             data = {
-                "common_grade_id": common_grade.id,  # итоговая оценка знания
+                "common_grade_id": common_grade.pk,  # итоговая оценка знания
                 "common_grade_value": common_grade_value,
                 "common_grade_text": common_grade.name,
-                "argument_grade_id": argument_grade.id,  # оценка довода
+                "argument_grade_id": argument_grade.pk,  # оценка довода
                 "argument_grade_value": argument_grade_value,  # оценка довода
                 "argument_grade_text": argument_grade.name,  # текст оценки
             }
@@ -238,7 +239,7 @@ class KnowledgeGraderService:
         return user_knowledge_grade, user_knowledge_grade_value
 
     def _get_common_grade_value(self, user_grade_value: float | None,
-                                proof_base_value: float | callable | None, variant: int) -> float:
+                                proof_base_value: float | Callable | None, variant: int) -> float:
         """Метод высчитывает общую оценку знания"""
         # если есть оценка пользователя не 0, то возвращаем ее
         if user_grade_value:
@@ -259,8 +260,8 @@ class KnowledgeGraderService:
 
     def get_grades(self, proof_base_value) -> dict:
         """
-        Вспомогательный метод
-        Высчитывает оценки знания исходя из оценки доказательной базы proof_base_value и оценки пользователя
+        Вспомогательный метод.
+        Высчитывает оценки знания исходя из оценки доказательной базы proof_base_value и оценки пользователя.
         Возвращает словарь с оценками:
             id - идентификатор оценки
             value - значение оценки
@@ -275,13 +276,13 @@ class KnowledgeGraderService:
         common_grade = KnowledgeGradeScale.get_grade_object(common_grade_value, use_cache=True)
 
         return {
-            "proof_grade_id": proof_grade.id,
+            "proof_grade_id": proof_grade.pk,
             "proof_grade_value": proof_base_value,
             "proof_grade_text": proof_grade.name,
-            "user_knowledge_grade_id": user_knowledge_grade.id,
+            "user_knowledge_grade_id": user_knowledge_grade.pk,
             "user_knowledge_grade_value": user_knowledge_grade_value,
             "user_knowledge_grade_text": user_knowledge_grade.name,
-            "common_grade_id": common_grade.id,
+            "common_grade_id": common_grade.pk,
             "common_grade_value": common_grade_value,
             "common_grade_text": common_grade.name,
         }
@@ -310,7 +311,7 @@ class KnowledgeGraderService:
 
         root = {
             "knowledge_id": self.knowledge.id,
-            "user_knowledge_grade_id": user_knowledge_grade.id,
+            "user_knowledge_grade_id": user_knowledge_grade.pk,
             "user_knowledge_grade_value": user_knowledge_grade_value,
             "user_knowledge_grade_text": user_knowledge_grade.name,
             "has_children": True,
@@ -358,13 +359,13 @@ class KnowledgeGraderService:
         common_grade = KnowledgeGradeScale.get_grade_object(common_grade_value, use_cache=True)
 
         return {
-            "proof_grade_id": proof_grade.id,
+            "proof_grade_id": proof_grade.pk,
             "proof_grade_value": proof_base_value,
             "proof_grade_text": proof_grade.name,
             "user_knowledge_grade_id": user_knowledge_grade_id,
             "user_knowledge_grade_value": user_knowledge_grade_value,
             "user_knowledge_grade_text": self.knowledge_grade_dict[user_knowledge_grade_id].name,
-            "common_grade_id": common_grade.id,
+            "common_grade_id": common_grade.pk,
             "common_grade_value": common_grade_value,
             "common_grade_text": common_grade.name,
         }
