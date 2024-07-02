@@ -18,7 +18,8 @@ class ProofScore:
     def __init__(self):
         self.score = []
 
-    def add(self, is_argument: bool, value: float):
+    def add(self, is_argument: bool, relation_value: float, knowledge_value: float):
+        value = relation_value * knowledge_value
         if value > 0:
             if is_argument:
                 self.score.append(value)
@@ -98,8 +99,7 @@ class KnowledgeGraderService:
             if knowledge_grade_value == 0:
                 knowledge_grade_value = self.get_deep_proof_grade(proof.rz_id, visited)
 
-            argument_grade_value = knowledge_grade_value * relation_grade_value
-            score.add(proof.argument_type == Tr.FOR, argument_grade_value)
+            score.add(proof.argument_type == Tr.FOR, relation_grade_value, knowledge_grade_value)
 
         return score.mean()
 
@@ -130,10 +130,12 @@ class KnowledgeGraderService:
                     proof_base_value=None,
                     variant=variant)
 
-            argument_grade_value = common_grade_value * relation_grade_value
+            score.add(proof["relation_type"], relation_grade_value, common_grade_value)
+
             common_grade = KnowledgeGradeScale.get_grade_object(common_grade_value, use_cache=True)
+
+            argument_grade_value = common_grade_value * relation_grade_value
             argument_grade = KnowledgeGradeScale.get_grade_object(argument_grade_value, use_cache=True)
-            score.add(proof["relation_type"], argument_grade_value)
 
             data = {
                 "common_grade_id": common_grade.pk,  # итоговая оценка знания
@@ -381,8 +383,7 @@ class KnowledgeGraderService:
                 # calc_tree надо вызвать в любом случае - обходим дерево
                 child_grade_value = self.calc_tree(child, variant)
                 child_relation_grade_value = child["user_relation_grade_value"]
-                argument_grade_value = child_grade_value * child_relation_grade_value
-                score.add(child["relation_type"], argument_grade_value)
+                score.add(child["relation_type"],  child_relation_grade_value, child_grade_value)
 
             proof_base_value = score.mean()
 
