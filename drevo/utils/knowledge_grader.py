@@ -220,7 +220,7 @@ class KnowledgeGraderService:
             relation_grade = self.relation_grade_dict[relation_grade_id]
             value = relation_grade.get_base_grade()
         else:
-            relation_grade = KnowledgeGradeScale.get_default_grade()
+            relation_grade = RelationGradeScale.get_default_grade()
             value = self.DEFAULT_RELATION_GRADE_VALUE
 
         return relation_grade, value
