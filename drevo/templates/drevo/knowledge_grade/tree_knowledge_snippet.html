@@ -16,7 +16,7 @@
             <span class="text-grey znanie">({{ zn.knowledge.author }})</span>
         {% endif %}
 
-        <span class="score_card {{ zn.grade.id|get_color_style }}">{{ zn.grade.name }} {{ zn.grade.get_base_grade }}</span>
+        <span class="score_card {{ zn.grade.id|get_color_style }}">{{ zn.grade.name }} {{ zn.grade.get_base_grade|floatformat:-2 }}</span>
         </a>
         {% if zn.children %}
             {% include 'drevo/knowledge_grade/tree_knowledge_snippet.html' with knowledge_dict=zn.children %}
