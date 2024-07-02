@@ -89,15 +89,10 @@ class KnowledgeGraderService:
         score = ProofScore()
         for proof in proofs:
             # оценка связи - пользовательская если есть, иначе по умолчанию
-            if proof.user_relation_grade:
-                relation_grade_value = self.relation_grade_dict[proof.user_relation_grade].get_base_grade()
-            else:
-                relation_grade_value = self.DEFAULT_RELATION_GRADE_VALUE
+            _, relation_grade_value = self._get_relation_grade_by_id(proof.user_relation_grade)
 
             # оценка знания - пользовательская если есть, иначе идем вглубь по дереву связей
-            knowledge_grade_value = 0
-            if proof.user_knowledge_grade:
-                knowledge_grade_value = self.knowledge_grade_dict[proof.user_knowledge_grade].get_base_grade()
+            _, knowledge_grade_value = self._get_knowledge_grade_by_id(proof.user_knowledge_grade)
 
             if knowledge_grade_value == 0:
                 knowledge_grade_value = self.get_deep_proof_grade(proof.rz_id, visited)
@@ -182,22 +177,11 @@ class KnowledgeGraderService:
         proof_relations = []
 
         for relation in relations:
-            if relation.user_knowledge_grade:
-                knowledge_grade_id = relation.user_knowledge_grade
-            else:
-                knowledge_grade_id = KnowledgeGradeScale.get_default_grade().id
+            user_knowledge_grade, knowledge_grade_value = self._get_knowledge_grade_by_id(relation.user_knowledge_grade)
+            knowledge_grade_id = user_knowledge_grade.pk
 
-            if knowledge_grade_id:
-                knowledge_grade_value = self.knowledge_grade_dict[knowledge_grade_id].get_base_grade()
-            else:
-                knowledge_grade_value = None
-
-            relation_grade_id = relation.user_relation_grade
-
-            if relation_grade_id:
-                relation_grade_value = self.relation_grade_dict[relation_grade_id].get_base_grade()
-            else:
-                relation_grade_value = self.DEFAULT_RELATION_GRADE_VALUE
+            relation_grade, relation_grade_value = self._get_relation_grade_by_id(relation.user_relation_grade)
+            relation_grade_id = relation_grade.pk
 
             data = {
                 "knowledge_id": relation.knowledge_id,
@@ -215,21 +199,44 @@ class KnowledgeGraderService:
 
         return proof_relations
 
-    def _get_user_grade(self, knowledge: Znanie) -> tuple[KnowledgeGrade, float | None]:
+    def _get_knowledge_grade_by_id(self, knowledge_grade_id: int | None) -> tuple[KnowledgeGradeScale, float]:
+        if knowledge_grade_id:
+            knowledge_grade = self.knowledge_grade_dict[knowledge_grade_id]
+            value = knowledge_grade.get_base_grade()
+        else:
+            knowledge_grade = KnowledgeGradeScale.get_default_grade()
+            value = None
+
+        return knowledge_grade, value
+
+    def _get_relation_grade_by_id(self, relation_grade_id: int | None) -> tuple[RelationGradeScale, float]:
+        if relation_grade_id:
+            relation_grade = self.relation_grade_dict[relation_grade_id]
+            value = relation_grade.get_base_grade()
+        else:
+            relation_grade = KnowledgeGradeScale.get_default_grade()
+            value = self.DEFAULT_RELATION_GRADE_VALUE
+
+        return relation_grade, value
+
+    def _get_user_grade(self, knowledge: Znanie) -> tuple[KnowledgeGradeScale, float | None]:
         """Возвращает оценку пользователя для знания и ее значение, если она есть
         Иначе возвращает оценку по умолчанию и значение None
         """
         user_knowledge_grade = (
-            KnowledgeGrade.objects.filter(user=self.user, knowledge=knowledge).select_related("grade").first()
+            KnowledgeGrade.objects.filter(user=self.user, knowledge=knowledge).only("grade").first()
         )
 
-        if user_knowledge_grade:
-            user_knowledge_grade_value = user_knowledge_grade.grade.get_base_grade()
-            user_knowledge_grade = user_knowledge_grade.grade
+        user_knowledge_grade_id = user_knowledge_grade.grade.id if user_knowledge_grade else None
+        user_knowledge_grade, user_knowledge_grade_value = self._get_knowledge_grade_by_id(user_knowledge_grade_id)
 
-        else:
-            user_knowledge_grade = KnowledgeGradeScale.get_default_grade()
-            user_knowledge_grade_value = None
+        # if user_knowledge_grade:
+        #     user_knowledge_grade_value = user_knowledge_grade.grade.get_base_grade()
+        #     user_knowledge_grade = user_knowledge_grade.grade
+        #
+        # else:
+        #     user_knowledge_grade = KnowledgeGradeScale.get_default_grade()
+        #     user_knowledge_grade_value = None
 
         return user_knowledge_grade, user_knowledge_grade_value
 
