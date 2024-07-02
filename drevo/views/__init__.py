@@ -47,6 +47,7 @@ from .zn_constructors.tree_constructor_view import (
 from .zn_constructors.general_views import (
     ZnaniyaForConstructorView,
     MainZnInConstructorCreateView,
+    UnprocessedSuggestionsTreeView,
     edit_main_zn_in_constructor,
     delete_complex_zn
 )

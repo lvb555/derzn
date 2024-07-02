@@ -75,6 +75,7 @@ class RelationGradeScale(models.Model):
     @classmethod
     def validate_cache(cls):
         cls._queryset = cls.objects.all().order_by("order")
+        cls._default_grade = None
 
     @classmethod
     def get_cache(cls):

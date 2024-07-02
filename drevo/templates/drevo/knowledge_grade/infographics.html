@@ -1,0 +1,238 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+{% load grades %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+<link rel="stylesheet" href="{% static '/drevo/css/knowledge_grade.css' %}">
+{% scale_color_styles %}
+<style>
+        .root_category {
+            font-weight: 600;
+        }
+        .no_root_category {
+            font-weight: 400;
+        }
+
+        .score_card {
+            border: 1px solid black;
+            border-radius: 0.25rem;
+            padding-left: 5px;
+            padding-right: 5px;
+            font-weight: 400;
+
+        }
+        .bi-knowledge::before {
+            content: "\F4FE";
+            margin-top: 8px;
+            position: absolute;
+            z-index: 1
+        }
+        .bi-knowledge.opened::before {
+            content: "\F2EA";
+            margin-top: 8px;
+            position: absolute;
+            z-index: 1
+        }
+        .bi-knowledge-list::before {
+            content: "";
+            margin-top: 8px;
+            position: absolute;
+            z-index: 1
+        }
+
+        .bi-category::before {
+           content: "\f4f9";
+        }
+
+        .bi-category.opened::before {
+           content: "\f2e5";
+        }
+
+        .legend_table, th, td {
+            font-size: 14px;
+            border-collapse: collapse;
+            border: 1px solid black;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h2 class="my-2 header">
+        {{ title }}
+    </h2>
+    <div class="container header_info d-flex justify-content-between">
+        <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/drevo/">Главная</a></li>
+          <li class="breadcrumb-item"><a href="/drevo/knowledge">Дерево знаний</a></li>
+          <li class="breadcrumb-item"><a href="{{ knowledge.get_absolute_url }}">Знание</a></li>
+          <li class="breadcrumb-item"><a href="{{ knowledge.get_absolute_url }}/grade">Оценка знания</a></li>
+          <li class="breadcrumb-item opened"><a>Инфографика</a></li>
+        </ol>
+        </nav>
+
+
+        <div class="d-flex justify-content-around">
+            <a style="margin-right: 10px;" class="btn btn-filled-white" href="{{ knowledge.get_absolute_url }}/grade">
+                Вернуться к оценке знания
+            </a>
+        </div>
+    </div>
+    <div class="non-bootsctrap-card">
+    <div class="breadcrumbs">
+        <p>{{ title }}</p>
+    </div>
+    <div class="d-flex justify-content-between">
+        <div>
+            <i class="bi bi-file-earmark-fill text-success">
+                <span class="header">{{ knowledge.name }}</span>
+            </i>
+            <br>
+
+        </div>
+        <a class="btn btn-filled-gray" href="{{ knowledge.get_absolute_url }}">
+            Вернуться на страницу знания
+        </a>
+    </div>
+</div>
+
+<div id="score_card">
+    <div class="non-bootsctrap-card">
+    {% if proof_relations %}
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link {% if variant == 1 %} active {% endif %}"
+                   href="{{ request.path }}?variant=1"
+                   hx-push-url="true"
+                   hx-get="."
+                   hx-target="#score_card"
+                   hx-vals='{"variant": "1"}'>Локальная оценка</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if variant != 1 %} active {% endif %}"
+                   href="{{ request.path }}?variant=2"
+                   hx-push-url="true"
+                   hx-get="."
+                   hx-target="#score_card"
+                   hx-vals='{"variant": "2"}'>Полная оценка</a>
+            </li>
+        </ul>
+        <br>
+    {% endif %}
+        <div class="row justify-content-between">
+            <div class="col">
+                <p class="grade_caption">Моя Оценка знания</p>
+                <div class="knowledge_grade {{ user_knowledge_grade_id|get_color_style }}">
+                    {{ user_grade_text }}
+                    <br>
+                    <span class="grade_value">{{ user_knowledge_grade_value|floatformat:-2 }}</span>
+                </div>
+            </div>
+
+            <div class="col">
+                <p class="grade_caption">Оценка доказательной базы</p>
+                    {% if proof_relations %}
+                        <div class="knowledge_grade {{ proof_grade_id|get_color_style }}">
+                            {{ proof_grade_text }}
+                            <br>
+                            <span class="grade_value">{{ proof_grade_value|floatformat:-2 }}</span>
+                    {% else %}
+                        <div class="knowledge_grade">
+                            Нет доказательной базы
+                    {% endif %}
+
+                </div>
+            </div>
+            <div class="col">
+                <p class="grade_caption">Итоговая оценка знания</p>
+                <div class="knowledge_grade {{ common_grade_id|get_color_style }}">
+                    {{ common_grade_text }}
+                    <br>
+                    <span class="grade_value">{{ common_grade_value|floatformat:-2 }}</span>
+                </div>
+            </div>
+        </div> {# row #}
+    {% if proof_relations %}
+
+        <div class="basic my-4">
+            <p class="author-title pb-1">Доказательная база знания</p>
+
+            <div class="row">
+                <button type="button" class="btn tree-btn w-auto" onclick="showAll();">развернуть дерево</button>
+                <button type="button" class="btn tree-btn" onclick="hiddenAll();">cвернуть дерево</button>
+            </div>
+
+             <ul id="tree_root">
+                 {% include 'drevo/knowledge_grade/tree_infographics_snippet.html' with knowledge_dict=proof_relations %}
+            </ul>
+        </div>
+
+        <div class="basic my-4">
+                <p class="pb-1">Легенда</p>
+                <table class="legend_table">
+                    <tr>
+                        <td>За</td>
+                        {% for grade in knowledge_scale %}
+                            <td class="{{ grade.id|get_color_style:True }}">{{ grade.name }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Против</td>
+                        {% for grade in knowledge_scale %}
+                            <td class="{{ grade.id|get_color_style:False }}">{{ grade.name }}</td>
+                        {% endfor %}
+                    </tr>
+                </table>
+            </div>
+    {% endif %}
+    </div> {# non-bootsctrap-card #}
+</div> {# score_card #}
+
+
+{% endblock %}
+{% block jsfiles %}
+    <script>
+      function toggleHiddenElement(element) {
+        let li_id = element.parentNode.id;
+        let selector_string = "li#" + li_id + " > ul";
+        let ulToHidden = document.querySelectorAll(selector_string);
+        ulToHidden.forEach(function (item) {
+          item.hidden = !item.hidden;
+        })
+        element.classList.toggle("opened")
+      }
+
+      function showAll() {
+        let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+        ulToHidden.forEach(function (x) {
+          x.hidden = false;
+        }
+        )
+
+        let treeRoot = document.getElementById("tree_root");
+        let listIconsToChange = treeRoot.querySelectorAll('.bi-knowledge, .bi-category');
+        for (let icon of listIconsToChange) {
+          icon.classList.add("opened");
+        }
+      }
+
+      function hiddenAll() {
+        let ulToHidden = document.querySelectorAll('ul#tree_root ul');
+        ulToHidden.forEach(function (item) {
+          item.hidden = true;
+        })
+
+        let treeRoot = document.getElementById("tree_root");
+        let listIconsToChange = treeRoot.querySelectorAll('.bi-knowledge, .bi-category');
+        for (let icon of listIconsToChange) {
+          icon.classList.remove("opened");
+        }
+
+      }
+    </script>
+    {% endblock %}

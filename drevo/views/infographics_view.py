@@ -1,16 +1,18 @@
-from drevo.utils import get_elements_tree
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import Http404, get_object_or_404
 from django.views.generic import TemplateView
+
 from drevo.models.knowledge import Znanie
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
-from drevo.models.knowledge_grade import KnowledgeGrade
+from drevo.utils.common import validate_parameter_int
+from drevo.utils.knowledge_grader import KnowledgeGraderService
 
 
-class InfographicsView(TemplateView):
-    template_name = 'drevo/infographics.html'
+class InfographicsView(LoginRequiredMixin, TemplateView):
+    template_name = "drevo/knowledge_grade/infographics.html"
 
     def get(self, request, *args, **kwargs):
-        self.knowledge = get_object_or_404(Znanie, id=kwargs['pk'])
+        self.knowledge = get_object_or_404(Znanie, id=kwargs["pk"])
         if self.knowledge.tz.can_be_rated:
             return super().get(request, *args, **kwargs)
         raise Http404
@@ -20,37 +22,33 @@ class InfographicsView(TemplateView):
         Функция для получения контекста
         """
         context = super().get_context_data(**kwargs)
+        variant = validate_parameter_int(self.request.GET.get("variant"), default=-1, good_values=[1, 2])
 
-        if self.request.user.is_authenticated:
-            knowledge = Znanie.objects.prefetch_related('base').get(
-                id=self.kwargs.get('pk'))
-            context["base_grade"] = KnowledgeGrade.objects.filter(
-                knowledge=knowledge,
-                user=self.request.user,
-            ).first()
-            context['knowledge'] = knowledge
-            context['grade_scales'] = KnowledgeGradeScale.objects.all()
+        if variant == 2:
+            context["title"] = "Инфографика. Общая оценка знания"
+        else:
+            context["title"] = "Инфографика. Оценка знания"
 
-            proof_relations = knowledge.base.filter(
-                tr__is_argument=True,
-                rz__tz__can_be_rated=True,
-            ).order_by('tr__name')
+        context["variant"] = variant
+        context["knowledge"] = self.knowledge
 
-            context['proof_relations'] = proof_relations
+        grader = KnowledgeGraderService(self.request.user, self.knowledge)
+        knowledge_tree = grader.get_tree(variant=variant)
 
-            common_grade_value, proof_base_value = knowledge.get_common_grades(
-                request=self.request)
+        context["user_grade_text"] = knowledge_tree["user_knowledge_grade_text"]
+        context["user_knowledge_grade_value"] = knowledge_tree["user_knowledge_grade_value"]
+        context["user_knowledge_grade_id"] = knowledge_tree["user_knowledge_grade_id"]
 
-            if proof_base_value is not None:
-                context['proof_base_value'] = proof_base_value
-                context['proof_base_grade'] = \
-                    KnowledgeGradeScale.get_grade_object(proof_base_value)
-            if common_grade_value is not None:
-                context['common_grade_value'] = common_grade_value
-                context['common_grade'] = KnowledgeGradeScale.get_grade_object(
-                    common_grade_value)
+        context["proof_grade_text"] = knowledge_tree["proof_grade_text"]
+        context["proof_grade_value"] = knowledge_tree["proof_grade_value"]
+        context["proof_grade_id"] = knowledge_tree["proof_grade_id"]
 
-            self.index_element_tree = 0
-            context['elements_tree'] = get_elements_tree(
-                self.index_element_tree, self.request, proof_relations)
+        context["common_grade_text"] = knowledge_tree["common_grade_text"]
+        context["common_grade_value"] = knowledge_tree["common_grade_value"]
+        context["common_grade_id"] = knowledge_tree["common_grade_id"]
+
+        context["proof_relations"] = knowledge_tree["proof_relations"]
+
+        context["knowledge_scale"] = KnowledgeGradeScale.get_cache()
+
         return context

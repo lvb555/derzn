@@ -988,7 +988,7 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
 @admin.register(Suggestion)
 class UserSuggestionAdmin(admin.ModelAdmin):
     list_display = ('id', 'parent_knowlege', 'name', 'user', 'expert', 'is_approve', 'suggestions_type')
-    list_filter = ('suggestions_type', 'user', 'parent_knowlege')
+    list_filter = ('suggestions_type','is_approve', 'user', 'parent_knowlege')
     form = AdminSuggestionUserForm
 
 

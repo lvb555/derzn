@@ -52,10 +52,16 @@
 
             <div class="col">
                 <p class="grade_caption">Оценка доказательной базы</p>
-                <div class="knowledge_grade {{ proof_grade_id|get_color_style }}">
-                    {{ proof_grade_text }}
-                    <br>
-                    <span class="grade_value">{{ proof_grade_value|floatformat:-2 }}</span>
+                    {% if proof_relations %}
+                        <div class="knowledge_grade {{ proof_grade_id|get_color_style }}">
+                            {{ proof_grade_text }}
+                            <br>
+                            <span class="grade_value">{{ proof_grade_value|floatformat:-2 }}</span>
+                    {% else %}
+                        <div class="knowledge_grade">
+                            Нет доказательной базы
+                    {% endif %}
+
                 </div>
             </div>
             <div class="col">
