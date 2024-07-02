@@ -105,3 +105,10 @@ document.querySelector(".tree-actions .btn:first-child").addEventListener("click
 		elem.value = 100
 	})
 })
+document.querySelector(".tree-actions .btn:last-child").addEventListener("click", (e) => {
+	action="create"
+	editing_var = null
+
+	document.querySelector("#GroupModal .field input").value = ""
+	document.querySelector("#GroupModal .field select").value = ""
+})
