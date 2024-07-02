@@ -96,7 +96,7 @@ class KnowledgeGraderService:
             # оценка знания - пользовательская если есть, иначе идем вглубь по дереву связей
             _, knowledge_grade_value = self._get_knowledge_grade_by_id(proof.user_knowledge_grade)
 
-            if knowledge_grade_value == 0:
+            if not knowledge_grade_value:
                 knowledge_grade_value = self.get_deep_proof_grade(proof.rz_id, visited)
 
             score.add(proof.argument_type == Tr.FOR, relation_grade_value, knowledge_grade_value)
