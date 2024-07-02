@@ -95,9 +95,11 @@ class KnowledgeGraderService:
                 relation_grade_value = self.DEFAULT_RELATION_GRADE_VALUE
 
             # оценка знания - пользовательская если есть, иначе идем вглубь по дереву связей
+            knowledge_grade_value = 0
             if proof.user_knowledge_grade:
                 knowledge_grade_value = self.knowledge_grade_dict[proof.user_knowledge_grade].get_base_grade()
-            else:
+
+            if knowledge_grade_value == 0:
                 knowledge_grade_value = self.get_deep_proof_grade(proof.rz_id, visited)
 
             argument_grade_value = knowledge_grade_value * relation_grade_value
