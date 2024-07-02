@@ -15,12 +15,18 @@ a {
 	margin: 5px;
 }
 
+.field select, .field option {
+	text-overflow: ellipsis;
+	max-width: 450px;
+}
+
 .content {
 	background: white;
 	display: flex;
 	justify-content: space-between;
 	border-radius: 1.3rem;
 	padding: 20px;
+	max-width: 100vw;
 }
 
 .objects-tree {
@@ -93,10 +99,10 @@ a {
 }
 
 .node-label:hover .node-actions {
-	display: flex;
+	visibility: visible;
 }
 
-.node:not(.group) .node-label span:hover {
+.node:not(.group) > .node-label .node-label__name:hover {
 	background: #DFDBDB;
 }
 
@@ -117,7 +123,9 @@ a {
 }
 
 .node-label__name {
-	margin: 5px 5px 10px 5px;
+	margin: 5px 0 10px 0;
+	padding: 0 5px 0 5px;
+	border-radius: 0.3rem;
 }
 
 /*кнопки свернуть и развернуть*/
@@ -188,7 +196,8 @@ a {
 .node-actions {
 	justify-content: start;
 	align-items: center;
-	display: none;
+	display: flex;
+	visibility: hidden;
 }
 
 .btn-icon.edit, .btn-icon.delete {
