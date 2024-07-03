@@ -103,6 +103,7 @@ export function UpdateName(ans) {
 	window.opener.postMessage(JSON.stringify({
 		name: ans.object.name,
 		id: ans.object.id,
+		optional: ans.object.optional,
 		select: false
 	}))
 }
