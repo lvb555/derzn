@@ -51,4 +51,7 @@ class InfographicsView(LoginRequiredMixin, TemplateView):
 
         context["knowledge_scale"] = KnowledgeGradeScale.get_cache()
 
+        # используется для окраски случая контраргумент - контраргумент
+        context["grade_for_KK"] = KnowledgeGradeScale.get_default_grade()
+
         return context
