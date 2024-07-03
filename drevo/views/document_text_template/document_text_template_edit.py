@@ -47,6 +47,6 @@ class DocumentTextTemplateEdit(TemplateView):
             if template.is_valid():
                 template.cleaned_data['pk'].content = template.cleaned_data['content']
                 template.cleaned_data['pk'].save()
-                return HttpResponse(json.dumps({'res': 'ok'}, content_type='application/json'))
+                return JsonResponse({'res': 'ok'})
             else:
-                return HttpResponse(json.dumps({'res': 'err', 'errors': template.errors}, content_type='application/json'))
+                return JsonResponse({'res': 'err', 'errors': template.errors})
