@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
 from drevo.models import Znanie, TemplateObject, Turple
-from django.http import HttpResponse
+from django.http import JsonResponse
 from drevo.forms import ContentTemplate, TemplateObjectForm
 from django.db.models import Q
 import json
