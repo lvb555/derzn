@@ -109,11 +109,11 @@ def document_object_processing_view(request, doc_pk):
                 })
 
         if obj.availability > 2:
-            return HttpResponse(json.dumps({'res': 'err', 'error': 'Нельзя удалить общий объект.'}), content_type='application/json')
+            return JsonResponse({'res': 'err', 'error': 'Нельзя удалить общий объект.'})
         if obj.templates_that_use.all().count() != 0:
-            return HttpResponse(json.dumps({'res': 'err', 'error': 'Этот объект используется в некоторых шаблонах.'}), content_type='application/json')
+            return JsonResponse({'res': 'err', 'error': 'Этот объект используется в некоторых шаблонах.'})
         if not obj.is_leaf_node():
-            return HttpResponse(json.dumps({'res': 'err', 'error': 'Нельзя удалить родителя.'}), content_type='application/json')
+            return JsonResponse({'res': 'err', 'error': 'Нельзя удалить родителя.'})
 
         object_in_json = model_to_dict(obj, exclude=['templates_that_use'])
         obj.delete()
