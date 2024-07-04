@@ -1,5 +1,5 @@
 from django.views.decorators.http import require_http_methods
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from drevo.forms import TemplateObjectForm
 from django.db.models import Q
 from drevo.models import TemplateObject
@@ -41,14 +41,12 @@ def document_object_processing_view(request, doc_pk):
             obj_in_dict = model_to_dict(obj)
             obj_in_dict['templates_that_use'] = [i.id for i in obj_in_dict['templates_that_use']]
         except Exception as e:
-            return HttpResponse(
-                json.dumps({
+            return JsonResponse({
                     'res': 'error',
                     'error': str(e)
-                }),
-                content_type='application/json')
+                })
 
-        return HttpResponse(json.dumps({'res': 'ok', 'object': obj_in_dict}))
+        return JsonResponse({'res': 'ok', 'object': obj_in_dict})
 
     # создание/изменение объекта
     elif request.method == 'POST':
@@ -56,13 +54,10 @@ def document_object_processing_view(request, doc_pk):
         obj_to_return = None
 
         if not form.is_valid():
-            return HttpResponse(
-                json.dumps
-                ({
+            return JsonResponse({
                     'res': 'validation error',
                     'errors': form.errors
-                }),
-                content_type='application/json')
+                })
         try:
             form.cleaned_data['type_of'] = int(form.cleaned_data['type_of']) if form.cleaned_data['type_of'] != '' else 0
             form.cleaned_data['weight'] = int(form.cleaned_data['weight']) if form.cleaned_data['weight'] is not None else 100
@@ -102,8 +97,25 @@ def document_object_processing_view(request, doc_pk):
                 form.cleaned_data['pk'].connected_to = form.cleaned_data['connected_to']
                 form.cleaned_data['pk'].save()
         except Exception as e:
-            return HttpResponse(json.dumps({'res': 'database error', 'error': e}), content_type='application/json')
-        return HttpResponse(json.dumps({'res': 'ok', 'object': model_to_dict(obj_to_return)}), content_type='application/json')
+            return JsonResponse({'res': 'database error', 'error': e})
+        return JsonResponse({'res': 'ok', 'object': model_to_dict(obj_to_return, exclude=['templates_that_use']), 'select_tree': str(form['connected_to'])})
     elif request.method == 'DELETE':
-        obj = get_object(request.DELETE["id"])
-        return HttpResponse(json.dumps({'res': 'ok'}), content_type='application/json')
+        try:
+            obj = get_object(request.GET['id'])
+        except Exception as e:
+            return JsonResponse({
+                    'res': 'error',
+                    'error': str(e)
+                })
+
+        if obj.availability > 2:
+            return HttpResponse(json.dumps({'res': 'err', 'error': 'Нельзя удалить общий объект.'}), content_type='application/json')
+        if obj.templates_that_use.all().count() != 0:
+            return HttpResponse(json.dumps({'res': 'err', 'error': 'Этот объект используется в некоторых шаблонах.'}), content_type='application/json')
+        if not obj.is_leaf_node():
+            return HttpResponse(json.dumps({'res': 'err', 'error': 'Нельзя удалить родителя.'}), content_type='application/json')
+
+        object_in_json = model_to_dict(obj, exclude=['templates_that_use'])
+        obj.delete()
+
+        return JsonResponse({'res': 'ok', 'object': object_in_json})

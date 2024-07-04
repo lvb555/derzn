@@ -113,11 +113,12 @@
 }
 
 .object-card__header {
-	width: 8vw;
+	width: 16vw;
+
+	max-height: 100px;
 	display: block;
-	word-break: break-all;
-	overflow: hidden;
 	text-overflow: ellipsis;
+	overflow: hidden;
 	margin: 5px;
 }
 

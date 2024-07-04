@@ -1,4 +1,7 @@
-export const csrftoken = getCookie("csrftoken")
+// Здесь описаны функции по сбору тела для HTTP-зарпросов
+// со страниц drevo/znanie/<int:doc_pk>/document-template/edit-text/<int:text_pk>
+// и drevo/znanie/<id>/document-template/object-select
+
 
 export function TurpleEditID() {
 	// собрать тело для запроса данных редактируемого справочника
@@ -66,18 +69,24 @@ export function GroupProcessingBody() {
 	return body
 }
 
-function getCookie(name) {
-	//получить нужный параметр из куки
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + "=")) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+export function SaveTemplateBody() {
+	const zn_pk = document.querySelector(".template #document_pk").value
+	const pk = document.querySelector(".template #id_pk").value
+	const message_block = document.querySelector(".log-container")
+	const body = new FormData()
+	
+	body.append("content", CKEDITOR.instances.id_content.getData())
+	body.append("zn_pk", zn_pk)
+	body.append("pk", pk)
+	const objects = CKEDITOR.instances.id_content.document.$.querySelectorAll("span.template-object")
+	let set = new Set()
+	objects.forEach((i) => {
+		set.add(i.id.split('-')[1])
+	})
+
+	Array.from(set).forEach((i) => {
+		body.append("objects", i)
+	})
+
+	return body
 }

@@ -13,6 +13,8 @@ class ObjectsTree(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        if not self.request.user.is_authenticated:
+            return context
 
         document_knowledge = Znanie.objects.get(id=context['doc_pk'])
         objects = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) | Q(user=self.request.user, availability=1) | Q(user=None, availability=1) | Q(availability=2))
