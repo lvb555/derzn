@@ -16,18 +16,17 @@
   <label for="questionSelect"><strong>Вопрос:</strong></label>
   <select name="selected_question_id" onchange="this.form.submit()">
     {% if selected_question %}
-      <option value="{{ selected_question }}">{{ selected_question }}</option>
+      <option value="{{ selected_question.id }}">{{ selected_question.name }}</option>
     {% else %}
       <option value="">Выбрать вопрос</option>
     {% endif %}
     {% for question in questions %}
-      {% if question != selected_question %}
-        <option value="{{ question.id }}">{{ question }}</option>
+      {% if question.question != selected_question %}
+        <option value="{{ question.question__id }}">{{ question.question__name }}</option>
       {% endif %}
     {% endfor %}
   </select>
 </form>
-
 {% else %}
 <h5>Вопросов интервью нет</h5>
 {% endif %}
