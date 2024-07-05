@@ -65,17 +65,17 @@ export function UpdateTree(ans) {
 
 		//Если сменился родитель объекта
 		const object_parent_node = object_node.parentElement.closest(".node")
-		if ((object_parent_node || ans.object.connected_to) && object_parent_node.id !== `id-${ans.object.connected_to}`) {
+		if ((object_parent_node !== null ^ ans.object.connected_to !== null) || object_parent_node && (object_parent_node.id !== `id-${ans.object.connected_to}`)) {
 			object_node.remove()
-			if (object_parent_node.querySelectorAll(".node").length == 0)
+			if (object_parent_node && object_parent_node.querySelectorAll(".node").length == 0)
 				object_parent_node.classList.add("leaf")
 			if (ans.object.connected_to !== null) {
 				let object_new_parent_node = document.querySelector(`.node#id-${ans.object.connected_to}`)
 				object_new_parent_node.classList.remove("leaf")
 
 				if (!object_new_parent_node.querySelector(".node-children")) {
-					const ul = document.createElement(ul)
-					ul.classList.add(".node-children")
+					const ul = document.createElement("ul")
+					ul.classList.add("node-children")
 					object_new_parent_node.appendChild(ul)
 				}
 
