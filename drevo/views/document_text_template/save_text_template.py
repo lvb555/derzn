@@ -6,6 +6,9 @@ import json
 
 @require_POST
 def save_text_template_view(request, **kwargs):
+    """
+        Сохранение шаблона текста документа
+    """
     content = request.POST.get('content')
     text_template_pk = request.POST.get('pk')
     if content is None:
