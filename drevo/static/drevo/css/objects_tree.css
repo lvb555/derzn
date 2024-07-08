@@ -69,25 +69,33 @@ a {
 
 .node {
 	position: relative;
-	margin: 0 0 10px 0;
 	padding-left: 2rem;
 	position: relative;
+
+	border-block-end: dashed 1px;
+	border-color: #DFDFE3;
+  	padding-bottom: 1vh;
+  	padding-top: 1vh;
 }
 
 .node.leaf {
 	padding-left: 0;
 }
 
+.child-node {
+	border: none;
+}
+
 .child-node:before {
 	content: "";
 	position: absolute;
-	top: -5px;
+	top: 3px;
 	left: -15px;
 	border-radius: 0 0 0 10px;
-	border-bottom: dotted 2px #ccc;
-	border-left: dotted 2px #ccc;
-	width: 20px;
-	height: 20px;
+	border-bottom: dotted 1px #ccc;
+	border-left: dotted 1px #ccc;
+	width: 18px;
+	height: 18px;
 }
 
 
@@ -126,13 +134,16 @@ a {
 	margin: 5px 0 10px 0;
 	padding: 0 5px 0 5px;
 	border-radius: 0.3rem;
+
+	font-family: "Rubik";
+	font-weight: 500;
 }
 
 /*кнопки свернуть и развернуть*/
 
 .node__collapse-expand-btns {
 	position: absolute;
-	top: -5px;
+	top: 0px;
 	left: 8px;
 }
 
