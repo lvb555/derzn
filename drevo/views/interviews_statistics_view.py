@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.db.models import Count, Q
 from collections import Counter
+from collections import Counter
 from collections import defaultdict
 from drevo.models.interview_answer_expert_proposal import InterviewAnswerExpertProposal
 from django.shortcuts import render, get_object_or_404
@@ -12,15 +13,22 @@ def dimensional_distributions_1(request, id):
 
     selected_interview = get_object_or_404(Znanie, id=id)
     questions = list(InterviewAnswerExpertProposal.objects.filter(
+    questions = list(InterviewAnswerExpertProposal.objects.filter(
         question__is_published=True, 
         interview=selected_interview,
         is_agreed=True,
         answer__isnull=False
     ).order_by('question__order').values('question__id', 'question__name').distinct())
+    ).order_by('question__order').values('question__id', 'question__name').distinct())
     selected_question_id = request.GET.get('selected_question_id')
     if selected_question_id:
         selected_question = get_object_or_404(Znanie, id=selected_question_id)
     else:
+        if questions:
+            obj = questions[0]
+            selected_question = get_object_or_404(Znanie, id=obj['question__id'])  
+        else: 
+            selected_question = None
         if questions:
             obj = questions[0]
             selected_question = get_object_or_404(Znanie, id=obj['question__id'])  
@@ -36,6 +44,7 @@ def dimensional_distributions_1(request, id):
         agreed_count=Count('expert', filter=Q(is_agreed=True))
     ).distinct()
 
+
     total_voters = InterviewAnswerExpertProposal.objects.filter(
         interview=selected_interview,
         question=selected_question,
@@ -43,12 +52,14 @@ def dimensional_distributions_1(request, id):
         answer__isnull=False  
     ).values('expert').distinct().count()
 
+
     all_participants = InterviewAnswerExpertProposal.objects.filter( 
         interview=selected_interview,
         is_agreed=True,
         answer__isnull=False  
     ).values('expert').distinct().count()
 
+    table = []
     table = []
     for answer in answers:
         answer_id = answer['answer__name']
@@ -60,8 +71,16 @@ def dimensional_distributions_1(request, id):
             'percent': percent,
         })
     
+        percent = (agreed_count / total_voters) * 100
+        table.append({
+            'answer_name': answer_id,
+            'agreed_count': agreed_count,
+            'percent': percent,
+        })
+    
     context = {
         'selected_interview': selected_interview, 
+        'questions': questions,  # Используйте обновленный список вопросов
         'questions': questions,  # Используйте обновленный список вопросов
         'selected_question': selected_question,
         'table': table, 
@@ -124,10 +143,16 @@ def dimensional_distributions_2(request, id):
             if any(expert_2['expert__id'] == expert_1['expert__id'] 
                 for expert_1 in experts_agreed_1))
 
+    total_counts = Counter(expert_2['answer__name'] 
+        for expert_2 in experts_agreed_2 
+            if any(expert_2['expert__id'] == expert_1['expert__id'] 
+                for expert_1 in experts_agreed_1))
+
     common_experts = defaultdict(lambda: defaultdict(lambda: {'count': 0, 'percentage': 0, 'total': 0}))
     for expert_1 in experts_agreed_1:
         answer_1 = expert_1['answer__name']
         for expert_2 in experts_agreed_2:
+            answer_2 = expert_2['answer__name']  
             answer_2 = expert_2['answer__name']  
             if expert_1['expert__id'] == expert_2['expert__id']:
                 common_experts[answer_1][answer_2]['count'] += 1
@@ -148,6 +173,7 @@ def dimensional_distributions_2(request, id):
 
     context = {
         'table': table,
+        'questions': questions,
         'questions': questions,
         'selected_question_1': selected_question_1,
         'selected_question_2': selected_question_2,
