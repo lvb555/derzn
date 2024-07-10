@@ -159,4 +159,4 @@ def dimensional_distributions_2(request, id):
         'answers_2': answers_2,
         'all_participants': all_participants
     }
-    return render(request, 'drevo/dimensional_distributions_2.html', context) 
+    return render(request, 'drevo/dimensional_distributions_2.html', context)
