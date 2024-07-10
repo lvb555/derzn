@@ -12,7 +12,7 @@ a {
 
 .btn {
 	color: black;
-	margin: 5px;
+	margin: 0 5px;
 }
 
 .field select, .field option {
@@ -31,7 +31,7 @@ a {
 
 .objects-tree {
 	flex: 5;
-	font-size: 0.9rem;
+	font-size: 0.8rem;
 }
 
 .tree-actions {
@@ -89,8 +89,8 @@ a {
 .child-node:before {
 	content: "";
 	position: absolute;
-	top: 3px;
-	left: -15px;
+	top: 0px;
+	left: -20px;
 	border-radius: 0 0 0 10px;
 	border-bottom: dotted 1px #ccc;
 	border-left: dotted 1px #ccc;
@@ -103,7 +103,7 @@ a {
 .node-label {
 	display: flex;
 	justify-content: start;
-	align-items: start;
+	align-items: center;
 }
 
 .node-label:hover .node-actions {
@@ -119,7 +119,6 @@ a {
 }
 
 .node-label__name span {
-	padding: 3px 5px 3px 5px;
 	border-radius: 0.3rem;
 	width: 15vw;
 
@@ -131,7 +130,7 @@ a {
 }
 
 .node-label__name {
-	margin: 5px 0 10px 0;
+	margin: 0;
 	padding: 0 5px 0 5px;
 	border-radius: 0.3rem;
 
@@ -143,7 +142,7 @@ a {
 
 .node__collapse-expand-btns {
 	position: absolute;
-	top: 0px;
+	top: 3px;
 	left: 8px;
 }
 
@@ -174,7 +173,7 @@ a {
 /*стили наследников*/
 
 .node-children {
-	margin-top: 10px;
+	padding-left: 12px;
 }
 
 /*стиль блока, оповещающего пользователя*/
