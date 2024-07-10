@@ -36,14 +36,12 @@ def dimensional_distributions_1(request, id):
         agreed_count=Count('expert', filter=Q(is_agreed=True))
     ).distinct()
 
-
     total_voters = InterviewAnswerExpertProposal.objects.filter(
         interview=selected_interview,
         question=selected_question,
         is_agreed=True,
         answer__isnull=False  
     ).values('expert').distinct().count()
-
 
     all_participants = InterviewAnswerExpertProposal.objects.filter( 
         interview=selected_interview,
@@ -131,7 +129,6 @@ def dimensional_distributions_2(request, id):
         answer_1 = expert_1['answer__name']
         for expert_2 in experts_agreed_2:
             answer_2 = expert_2['answer__name']  
-            answer_2 = expert_2['answer__name']  
             if expert_1['expert__id'] == expert_2['expert__id']:
                 common_experts[answer_1][answer_2]['count'] += 1
                 if total_counts[answer_2] > 0:
@@ -151,7 +148,6 @@ def dimensional_distributions_2(request, id):
 
     context = {
         'table': table,
-        'questions': questions,
         'questions': questions,
         'selected_question_1': selected_question_1,
         'selected_question_2': selected_question_2,
