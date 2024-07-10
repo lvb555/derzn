@@ -115,7 +115,7 @@ a {
 }
 
 .node.group > .node-label span {
-	border: dashed black 2px;
+	color: #5BBAF2;
 }
 
 .node-label__name span {
