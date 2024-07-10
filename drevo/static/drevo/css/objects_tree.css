@@ -152,14 +152,14 @@ a {
 }
 
 .node__collapse-expand-btns > button {
-	background: #5BBAF2;
+	background: #F3E5AD;
 	border: none;
 	border-radius: 100%;
-	padding: 5px;
+	margin: 0;
 }
 
 .node.group > .node__collapse-expand-btns button {
-	background: #F3E5AD;
+	background: #5BBAF2;
 }
 
 .node__collapse-btn, .node__expand-btn {
