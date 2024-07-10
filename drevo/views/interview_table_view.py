@@ -13,10 +13,10 @@ def interview_table(request, id):
     answers = Relation.objects.filter(tr__name="Ответ", bz__in=question_list).select_related('rz__user', 'rz', 'bz')
 
     for answer in answers:
-        question = answer.bz
+        question = answer.bz 
         author = answer.rz.user
         authors_dict[author.id][question].append(answer.rz.name)
-        if author_names[author.id] == "":
+        if author_names[author.id] == "": 
             if answer.rz.user.patronymic:
                 short_fst_name = answer.rz.user.first_name[0]
                 short_patr = answer.rz.user.patronymic[0]
@@ -31,11 +31,16 @@ def interview_table(request, id):
             row = [author_names[author_id]]
             for question in question_list:
                 if question in answers and answers[question]:
-                    row.append(",\n".join(answers[question]))
+                    row.append(answers[question])
                 else:
                     row.append("-")
+            table.append(row)
 
-            table.append(row) 
-    return render(request, "drevo/interview_table.html", {
-        'table': table, 'interview_this': interview_this
-    }) 
+    if question_list:
+        return render(request, "drevo/interview_table.html", {
+            'table': table, 'interview_this': interview_this
+        })
+    else:
+        return render(request, "drevo/interview_table.html", {
+            'interview_this': interview_this
+        }) 

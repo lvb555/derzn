@@ -25,7 +25,6 @@ td {
     text-align: center;
 }
 
-
 /*interviews_all: */
 .li-interviews_all{
     list-style-type: none !important;
@@ -49,4 +48,4 @@ td {
     color: red;
     padding-left: 100px;
     text-decoration: none !important;
-}
+} 
