@@ -26,7 +26,7 @@ export function CreateNewObjec(ans) {
 			}
 			object.classList.add("child-node")
 		} else {
-			parent = objects_contaning_list
+			parent = document.querySelector(".objects-tree__containing-list")
 		}
 		if (ans["object"].is_main) {
 			object.classList.add("group")

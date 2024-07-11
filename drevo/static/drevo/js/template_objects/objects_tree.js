@@ -98,7 +98,7 @@ document.querySelector(".tree-actions .btn:first-child").addEventListener("click
 	})
 
 	document.querySelectorAll('.edit-menu input[type="checkbox"]').forEach((elem) => {
-		elem.value = false
+		elem.checked = false
 	})
 
 	document.querySelectorAll('.edit-menu input[type="number"]').forEach((elem) => {
