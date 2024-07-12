@@ -2,6 +2,10 @@
 {% load mptt_tags %}
 {% load static %}
 
+{% block title %}
+Дерево объектов
+{% endblock %}
+
 {% block cssfiles %}
 	<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 	<link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
@@ -11,6 +15,19 @@
 
 {% block content %}
 	
+{% if not request.user.is_authenticated %} 
+	<div class="card alert-warning">
+		<div class="card-body">
+			<span class="card-text">
+				<a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
+                или
+				<a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                чтобы внести предложение.
+			</span>
+		</div>
+	</div>
+{% else %}
+
 	<li class="node clone">
 		<div class="node__collapse-expand-btns">
 			<button class="img-block node__expand-btn hidden">
@@ -20,13 +37,23 @@
 				<img src="{% static 'drevo/img/knowledge_search/minus.svg'%}" alt="">
 			</button>
 		</div>
-		<p class="node-name">
-			<span></span>
-		</p>
+		<div class="node-label">
+			<p class="node-label__name">
+				<span></span>
+			</p>
+			<div class="node__actions">
+				<button class="edit btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">
+					<img src="{% static 'drevo/img/pencil.svg'%}" alt="Изменить">
+				</button>
+				<button class="delete btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#DeleteObjectModal">
+					<img src="{% static 'drevo/img/bin.svg'%}" alt="Удалить">
+				</button>
+			</div>
+		</div>
 	</li>
 
 	<h1 class="title page-title">
-		Документ: {{ knowledge.name }}
+		Документ: "{{ knowledge.name }}"
 	</h1>
 	<div class="content">
 		<div class="objects-tree">
@@ -45,9 +72,19 @@
 							<img src="{% static 'drevo/img/knowledge_search/minus.svg'%}" alt="">
 						</button>
 					</div>
-					<p class="node-name">
-						<span>{{ node.name }}</span>
-					</p>
+					<div class="node-label">
+						<p class="node-label__name">
+							<span>{{ node.name }}</span>
+						</p>
+						<div class="node-actions">
+							<button class="edit btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">
+								<img src="{% static 'drevo/img/pencil.svg'%}" alt="Изменить">
+							</button>
+							<button class="edit btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#DeleteObjectModal">
+								<img src="{% static 'drevo/img/bin.svg'%}" alt="Удалить">
+							</button>
+						</div>
+					</div>
 						{% if not node.is_leaf_node %}
 							<ul class="node-children" >
 								{{ children }}
@@ -93,9 +130,29 @@
 
 
 	{% include "drevo/document_text_template/object_form.html" %}
+
+<div class="modal fade" id="DeleteObjectModal" tabindex="-1" aria-labelledby="DeleteObjectModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+	            <h5 class="modal-title" id="DeleteObjectModalLabel">Удаление объекта</h5>
+            	<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        	</div>
+        	<div class="modal-body">
+        		<p>Вы действительно хотите удалить объект <span id="delete-object-name"></span> ?</p>
+	        	<div class="object-delete-menu">
+        			<button data-bs-dismiss="modal" class="btn btn-icon">Да</button>
+        			<button data-bs-dismiss="modal" class="btn btn-icon">Нет</button>
+        		</div>
+        	</div>
+        </div>
+	</div>
+</div>
+
+{% endif %}
 {% endblock %}
 
 {% block jsfiles %}
 	<script type="module" src="{% static 'drevo/js/template_objects/objects_tree.js'%}"></script>
-	<script type="module" src="{% static 'drevo/js/template_objects/dynamic_form.js'%}"></script>
+	<script type="module" src="{% static 'drevo/js/template_objects/requests/objects_tree.js'%}"></script>
 {% endblock %}

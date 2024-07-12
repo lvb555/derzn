@@ -3,6 +3,7 @@ from django import forms
 from django.db.models import Q
 from mptt.forms import TreeNodeChoiceField
 from drevo.models import TemplateObject, Znanie, Turple
+from users.models import User
 from django.core.exceptions import ValidationError
 
 
@@ -13,6 +14,15 @@ class TemplateObjectAdminForm(forms.ModelForm):
             queryset=TemplateObject.objects.filter(Q(knowledge=self.instance.knowledge, availability=0) |  Q(user=self.instance.user, availability=1) | Q(availability=2)),
             label='Родитель',
             required=False)
+        
+        self.fields['user'] = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
+
+    def clean(self):
+        user = self.cleaned_data.get('user')
+        availability = self.cleaned_data.get('availability')
+
+        if availability == 1 and not user:
+            raise ValidationError('У глобального объекта должен быть указан пользователь')
 
     class Meta:
         model = TemplateObject

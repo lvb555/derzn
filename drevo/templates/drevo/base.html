@@ -82,7 +82,7 @@
                         <li><a class="dropdown-item from-nav" href="{% url 'knowledge' %}" id="tree_link">Всё дерево</a></li>
                         <li><a class="dropdown-item from-nav" href="{% url 'popular_knowledges' %}" id="popular_link">Популярные знания</a></li>
                         <li><a class="dropdown-item from-nav" href="{% url 'authors' %}" id="authors_link">Авторы</a></li>
-						<li><a class="dropdown-item from-nav" href="{% url 'labels' %}" id="tags_link">Теги</a></li>
+                        <li><a class="dropdown-item from-nav" href="{% url 'labels' %}" id="tags_link">Теги</a></li>
                         <li><a class="dropdown-item from-nav" href="{% url 'new_knowledge'%}" id="new_knowledge_link">Новые знания</a></li>
                         <li>
                             <div class="btn-group dropstart">
@@ -119,7 +119,7 @@
                         Мнения <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
                       </a>
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><a class="dropdown-item from-nav" href="{% url 'Interviews_all' %}">Все интервью</a></li> 
+                        <li><a class="dropdown-item from-nav" href="{% url 'interviews_all' %}">Все интервью</a></li> 
                         {% if user.is_expert %}
                             {% get_interview_in_categories user as interview %}
                             {% if interview %}

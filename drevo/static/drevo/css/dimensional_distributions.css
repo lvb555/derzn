@@ -1,0 +1,21 @@
+/*dimensional_distributions_1*/
+.numbers {
+    text-align: right;
+    padding-right: 15px;
+}
+.graphs{
+    text-align: center;
+}
+td{
+    border-width: 2px;
+}
+.answers{
+    padding-left: 15px;
+}
+/*dimensional_distributions_2*/
+.upper-td{
+    text-align: center;
+}
+.lower-td{
+    padding-left: 15px;
+}

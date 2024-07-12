@@ -1,4 +1,5 @@
 import logging
+from typing import Callable
 
 from django.db.models import Exists, F, OuterRef, Q, Subquery
 
@@ -17,7 +18,8 @@ class ProofScore:
     def __init__(self):
         self.score = []
 
-    def add(self, is_argument: bool, value: float):
+    def add(self, is_argument: bool, relation_value: float, knowledge_value: float):
+        value = relation_value * knowledge_value
         if value > 0:
             if is_argument:
                 self.score.append(value)
@@ -53,7 +55,7 @@ class KnowledgeGraderService:
         self.knowledge_grade_dict = {knowledge.id: knowledge for knowledge in knowledge_scales}
         self.relation_grade_dict = {relation.id: relation for relation in relation_scales}
 
-    def get_deep_proof_grade(self, knowledge_id, visited=None):
+    def get_deep_proof_grade(self, knowledge_id, visited=None) -> float:
         """Высчитывает оценку знания по дереву связей - вызывает рекурсивно"""
 
         # для предотвращения циклов при вычислении
@@ -89,19 +91,15 @@ class KnowledgeGraderService:
         score = ProofScore()
         for proof in proofs:
             # оценка связи - пользовательская если есть, иначе по умолчанию
-            if proof.user_relation_grade:
-                relation_grade_value = self.relation_grade_dict[proof.user_relation_grade].get_base_grade()
-            else:
-                relation_grade_value = self.DEFAULT_RELATION_GRADE_VALUE
+            _, relation_grade_value = self._get_relation_grade_by_id(proof.user_relation_grade)
 
             # оценка знания - пользовательская если есть, иначе идем вглубь по дереву связей
-            if proof.user_knowledge_grade:
-                knowledge_grade_value = self.knowledge_grade_dict[proof.user_knowledge_grade].get_base_grade()
-            else:
+            _, knowledge_grade_value = self._get_knowledge_grade_by_id(proof.user_knowledge_grade)
+
+            if not knowledge_grade_value:
                 knowledge_grade_value = self.get_deep_proof_grade(proof.rz_id, visited)
 
-            argument_grade_value = knowledge_grade_value * relation_grade_value
-            score.add(proof.argument_type == Tr.FOR, argument_grade_value)
+            score.add(proof.argument_type == Tr.FOR, relation_grade_value, knowledge_grade_value)
 
         return score.mean()
 
@@ -119,28 +117,31 @@ class KnowledgeGraderService:
             knowledge_grade_value = proof["user_knowledge_grade_value"]
             relation_grade_value = proof["user_relation_grade_value"]
 
-            # если нет оценки пользователя или оценка пользователя равна 0, то оценка 1 если вариант 1,
-            # в противном случае считаем оценку вглубь
-            if not knowledge_grade_value:
-                if variant == 1:
-                    common_grade_value = self.DEFAULT_KNOWLEDGE_GRADE_VALUE
-                elif proof["has_children"]:
-                    common_grade_value = self.get_deep_proof_grade(proof["knowledge_id"])
-                else:
-                    common_grade_value = self.DEFAULT_KNOWLEDGE_GRADE_VALUE
+            if proof["has_children"]:
+                common_grade_value = self._get_common_grade_value(
+                    user_grade_value=knowledge_grade_value,
+                    proof_base_value=lambda: self.get_deep_proof_grade(proof["knowledge_id"]),
+                    variant=variant)
+
             else:
-                common_grade_value = knowledge_grade_value
+                # нет потомков - не идем вглубь
+                common_grade_value = self._get_common_grade_value(
+                    user_grade_value=knowledge_grade_value,
+                    proof_base_value=None,
+                    variant=variant)
+
+            score.add(proof["relation_type"], relation_grade_value, common_grade_value)
+
+            common_grade = KnowledgeGradeScale.get_grade_object(common_grade_value, use_cache=True)
 
             argument_grade_value = common_grade_value * relation_grade_value
-            common_grade = KnowledgeGradeScale.get_grade_object(common_grade_value, use_cache=True)
             argument_grade = KnowledgeGradeScale.get_grade_object(argument_grade_value, use_cache=True)
-            score.add(proof["relation_type"], argument_grade_value)
 
             data = {
-                "common_grade_id": common_grade.id,  # итоговая оценка знания
+                "common_grade_id": common_grade.pk,  # итоговая оценка знания
                 "common_grade_value": common_grade_value,
                 "common_grade_text": common_grade.name,
-                "argument_grade_id": argument_grade.id,  # оценка довода
+                "argument_grade_id": argument_grade.pk,  # оценка довода
                 "argument_grade_value": argument_grade_value,  # оценка довода
                 "argument_grade_text": argument_grade.name,  # текст оценки
             }
@@ -180,22 +181,11 @@ class KnowledgeGraderService:
         proof_relations = []
 
         for relation in relations:
-            if relation.user_knowledge_grade:
-                knowledge_grade_id = relation.user_knowledge_grade
-            else:
-                knowledge_grade_id = KnowledgeGradeScale.get_default_grade().id
+            user_knowledge_grade, knowledge_grade_value = self._get_knowledge_grade_by_id(relation.user_knowledge_grade)
+            knowledge_grade_id = user_knowledge_grade.pk
 
-            if knowledge_grade_id:
-                knowledge_grade_value = self.knowledge_grade_dict[knowledge_grade_id].get_base_grade()
-            else:
-                knowledge_grade_value = None
-
-            relation_grade_id = relation.user_relation_grade
-
-            if relation_grade_id:
-                relation_grade_value = self.relation_grade_dict[relation_grade_id].get_base_grade()
-            else:
-                relation_grade_value = self.DEFAULT_RELATION_GRADE_VALUE
+            relation_grade, relation_grade_value = self._get_relation_grade_by_id(relation.user_relation_grade)
+            relation_grade_id = relation_grade.pk
 
             data = {
                 "knowledge_id": relation.knowledge_id,
@@ -213,40 +203,67 @@ class KnowledgeGraderService:
 
         return proof_relations
 
-    def _get_user_grade(self, knowledge: Znanie) -> tuple[KnowledgeGrade, float | None]:
+    def _get_knowledge_grade_by_id(self, knowledge_grade_id: int | None) -> tuple[KnowledgeGradeScale, float]:
+        """По id возвращает оценку знания и ее значение,
+        если id None, то возвращает оценку по умолчанию и None (чтобы не отображалось значение)"""
+        if knowledge_grade_id:
+            knowledge_grade = self.knowledge_grade_dict[knowledge_grade_id]
+            value = knowledge_grade.get_base_grade()
+        else:
+            knowledge_grade = KnowledgeGradeScale.get_default_grade()
+            value = None
+
+        return knowledge_grade, value
+
+    def _get_relation_grade_by_id(self, relation_grade_id: int | None) -> tuple[RelationGradeScale, float]:
+        """По id возвращает оценку знания и ее значение,
+           если id None, то возвращает оценку и значение по умолчанию"""
+        if relation_grade_id:
+            relation_grade = self.relation_grade_dict[relation_grade_id]
+            value = relation_grade.get_base_grade()
+        else:
+            relation_grade = RelationGradeScale.get_default_grade()
+            value = self.DEFAULT_RELATION_GRADE_VALUE
+
+        return relation_grade, value
+
+    def _get_user_grade(self, knowledge: Znanie) -> tuple[KnowledgeGradeScale, float | None]:
         """Возвращает оценку пользователя для знания и ее значение, если она есть
         Иначе возвращает оценку по умолчанию и значение None
         """
         user_knowledge_grade = (
-            KnowledgeGrade.objects.filter(user=self.user, knowledge=knowledge).select_related("grade").first()
+            KnowledgeGrade.objects.filter(user=self.user, knowledge=knowledge).values("grade").first()
         )
-
-        if user_knowledge_grade:
-            user_knowledge_grade_value = user_knowledge_grade.grade.get_base_grade()
-            user_knowledge_grade = user_knowledge_grade.grade
-
-        else:
-            user_knowledge_grade = KnowledgeGradeScale.get_default_grade()
-            user_knowledge_grade_value = None
+        #
+        user_knowledge_grade_id = user_knowledge_grade['grade'] if user_knowledge_grade else None
+        user_knowledge_grade, user_knowledge_grade_value = self._get_knowledge_grade_by_id(user_knowledge_grade_id)
 
         return user_knowledge_grade, user_knowledge_grade_value
 
-    def _get_common_grade_value(self, user_grade_value: float | None, proof_base_value: float, variant: int) -> float:
+    def _get_common_grade_value(self, user_grade_value: float | None,
+                                proof_base_value: float | Callable | None, variant: int) -> float:
         """Метод высчитывает общую оценку знания"""
-        if not user_grade_value:
-            if variant == 1:
-                common_grade_value = self.DEFAULT_KNOWLEDGE_GRADE_VALUE
+        # если есть оценка пользователя не 0, то возвращаем ее
+        if user_grade_value:
+            return user_grade_value
+
+        # если вариант 1, возвращаем оценку по умолчанию
+        if variant == 1 or proof_base_value is None:
+            common_grade_value = self.DEFAULT_KNOWLEDGE_GRADE_VALUE
+        else:
+            # если вариант 2 ....
+            # если функция - вызываем ее
+            if callable(proof_base_value):
+                common_grade_value = proof_base_value()
             else:
                 common_grade_value = proof_base_value
-        else:
-            common_grade_value = user_grade_value
 
         return common_grade_value
 
     def get_grades(self, proof_base_value) -> dict:
         """
-        Вспомогательный метод
-        Высчитывает оценки знания исходя из оценки доказательной базы proof_base_value и оценки пользователя
+        Вспомогательный метод.
+        Высчитывает оценки знания исходя из оценки доказательной базы proof_base_value и оценки пользователя.
         Возвращает словарь с оценками:
             id - идентификатор оценки
             value - значение оценки
@@ -261,13 +278,13 @@ class KnowledgeGraderService:
         common_grade = KnowledgeGradeScale.get_grade_object(common_grade_value, use_cache=True)
 
         return {
-            "proof_grade_id": proof_grade.id,
+            "proof_grade_id": proof_grade.pk,
             "proof_grade_value": proof_base_value,
             "proof_grade_text": proof_grade.name,
-            "user_knowledge_grade_id": user_knowledge_grade.id,
+            "user_knowledge_grade_id": user_knowledge_grade.pk,
             "user_knowledge_grade_value": user_knowledge_grade_value,
             "user_knowledge_grade_text": user_knowledge_grade.name,
-            "common_grade_id": common_grade.id,
+            "common_grade_id": common_grade.pk,
             "common_grade_value": common_grade_value,
             "common_grade_text": common_grade.name,
         }
@@ -296,7 +313,7 @@ class KnowledgeGraderService:
 
         root = {
             "knowledge_id": self.knowledge.id,
-            "user_knowledge_grade_id": user_knowledge_grade.id,
+            "user_knowledge_grade_id": user_knowledge_grade.pk,
             "user_knowledge_grade_value": user_knowledge_grade_value,
             "user_knowledge_grade_text": user_knowledge_grade.name,
             "has_children": True,
@@ -344,13 +361,13 @@ class KnowledgeGraderService:
         common_grade = KnowledgeGradeScale.get_grade_object(common_grade_value, use_cache=True)
 
         return {
-            "proof_grade_id": proof_grade.id,
+            "proof_grade_id": proof_grade.pk,
             "proof_grade_value": proof_base_value,
             "proof_grade_text": proof_grade.name,
             "user_knowledge_grade_id": user_knowledge_grade_id,
             "user_knowledge_grade_value": user_knowledge_grade_value,
             "user_knowledge_grade_text": self.knowledge_grade_dict[user_knowledge_grade_id].name,
-            "common_grade_id": common_grade.id,
+            "common_grade_id": common_grade.pk,
             "common_grade_value": common_grade_value,
             "common_grade_text": common_grade.name,
         }
@@ -366,8 +383,7 @@ class KnowledgeGraderService:
                 # calc_tree надо вызвать в любом случае - обходим дерево
                 child_grade_value = self.calc_tree(child, variant)
                 child_relation_grade_value = child["user_relation_grade_value"]
-                argument_grade_value = child_grade_value * child_relation_grade_value
-                score.add(child["relation_type"], argument_grade_value)
+                score.add(child["relation_type"],  child_relation_grade_value, child_grade_value)
 
             proof_base_value = score.mean()
 

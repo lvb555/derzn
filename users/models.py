@@ -1,4 +1,9 @@
 from datetime import datetime
+from dateutil.parser import parse as du_parse
+from dateutil.relativedelta import relativedelta
+from hashlib import sha1
+from random import random
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.dispatch import receiver
@@ -6,11 +11,6 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
-from dateutil.parser import parse as du_parse
-from dateutil.relativedelta import relativedelta
-
-from hashlib import sha1
-from random import random
 
 from drevo.sender import send_email
 
@@ -84,6 +84,10 @@ class Profile(models.Model):
 
     @receiver(post_save, sender=User)
     def create_profile(sender, instance, created, **kwargs):
+        # если вызов произошел из loaddata, то пропускаем
+        if kwargs.get("raw", False):
+            return
+
         migration_in_progress = sender._meta.object_name == "Migrate"
         if not migration_in_progress and created:
             Profile.objects.create(user=instance).save()
