@@ -36,7 +36,7 @@ class SitePage(MPTTModel):
         ('label', 'Ярлык')
     ]
 
-    page = models.ForeignKey(Znanie, verbose_name='Страница', on_delete=models.CASCADE)
+    page = models.ForeignKey(Znanie, verbose_name='Страница', on_delete=models.CASCADE, null=True, blank=True)
     parent = TreeForeignKey(verbose_name='Родитель', to='self', on_delete=models.CASCADE, null=True, blank=True,
                             related_name='children')
     type = models.CharField(max_length=255, verbose_name='Тип', choices=TYPE_CHOICES)
@@ -58,7 +58,7 @@ class SitePage(MPTTModel):
     tree_objects = TreeManager()
 
     def __str__(self):
-        return self.page.name
+        return self.page.name if self.page else 'Ярлык'
 
     class Meta:
         verbose_name = 'Страница сайта'
