@@ -46,8 +46,6 @@ def site_page_view(request, pk=None):
         if 'delete' in request.POST:
             # Проверка на наличие связанных объектов
             related_pages = SitePage.objects.filter(parent=instance)
-            # print(related_pages)
-            # return redirect('site_page', pk=pk)
             if related_pages.exists():
                 messages.error(request, "Объект содержит подчиненные объекты, поэтому удален быть не может.")
                 return redirect('site_page', pk=pk)
