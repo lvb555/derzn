@@ -32,7 +32,12 @@ td {
 .a-interviews{
     color: green !important;
     text-decoration: none !important;
-  }
+    margin-right: 20px;
+    margin-left: 20px
+}
+.a2-interviews{
+    text-decoration: none !important;
+}
 .bi-file-plus-fill::before {
     content: "\f4f9" !important;
 }
