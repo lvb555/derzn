@@ -21,7 +21,9 @@
             <option value="">Вопрос-1</option>
         {% endif %}
         {% for question in questions %}
+            {% if question.question__id != selected_question_1.id %}
             <option value="{{ question.question__id }}">{{ question.question__name }}</option>
+            {% endif %}
         {% endfor %}
     </select>
     <select id="question2" name="selected_question_2_id" onchange="this.form.submit()" disabled>
@@ -31,7 +33,9 @@
             <option value="">Вопрос-2</option>
         {% endif %}
         {% for question in questions %}
+            {% if question.question__id != selected_question_2.id %}
             <option value="{{ question.question__id }}">{{ question.question__name }}</option>
+            {% endif %}
         {% endfor %}
     </select>
 </form>
