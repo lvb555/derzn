@@ -7,6 +7,10 @@ from drevo.utils import get_average_proof_base_and_common_grades, get_group_user
 
 register = template.Library()
 
+# название стиля для отрицательных оценок
+# используется в инфографике
+NEGATIVE_NAME = 'neg'
+
 
 @register.filter
 def object_grade(obj, user):
@@ -94,22 +98,30 @@ def scale_color_styles():
         .scale_{grade.pk}_negative {background-color: xxx; color: xxx;}
     </style>
     """
-
+    zero_grade = KnowledgeGradeScale.get_grade_object(0, use_cache=True)
     result = ["<style>"]
     for grade in KnowledgeGradeScale.get_cache():
         result.append(
             f".scale_{grade.pk}_positive {{"
-            f"background: {grade.argument_color_background}; "
             f"background-color: {grade.argument_color_background}; "
             f"color: {grade.argument_color_font};}}"
         )
 
         result.append(
             f".scale_{grade.pk}_negative {{"
-            f"background: {grade.argument_color_background}; "
             f"background-color: {grade.contraargument_color_background}; "
             f"color: {grade.contraargument_color_font};}}"
         )
+        # цвет фона для инфографики для отрицательных оценок
+        if grade == zero_grade:
+            result.append(
+                f".{NEGATIVE_NAME}_negative {{"
+                f"background-color: {grade.contraargument_color_background} !important;}}"
+            )
+            result.append(
+                f".{NEGATIVE_NAME}_positive {{"
+                f"background-color: {grade.argument_color_background} !important;}}"
+            )
 
     result.append("</style>")
     return mark_safe("\n".join(result))
@@ -131,6 +143,45 @@ def get_color_style(grade: KnowledgeGradeScale | int, is_positive=True):
         return f"scale_{pk}_negative"
     else:
         return f"scale_{pk}_positive"
+
+
+@register.simple_tag(name="get_info_color_style")
+def get_info_color_style(grade: KnowledgeGradeScale | int, is_positive=True, is_kk=False):
+    """ Возвращает название стиля для значения шкалы grade для инфографики
+        вся сложная логика окраски реализована здесь
+        описание здесь https://github.com/lvb555/derzn/issues/920#issuecomment-2212441813
+        контраргумент - контраргумент красятся в оценку по умолчанию - "Нет оценки" (если is_kk=True)
+        отрицательные оценки красятся в фон оценки 0 - "трудно сказать", шрифт из настроек оценки
+    """
+    result = []
+
+    if grade is None:
+        grade = KnowledgeGradeScale.get_default_grade()
+        pk = grade.pk
+
+    elif isinstance(grade, KnowledgeGradeScale):
+        pk = grade.pk
+    else:
+        pk = grade
+        grade = KnowledgeGradeScale.get_cache().get(pk=pk)
+
+    if grade.get_base_grade() < 0:
+        if not is_positive:
+            result.append(f"{NEGATIVE_NAME}_negative")
+        else:
+            result.append(f"{NEGATIVE_NAME}_positive")
+
+    elif is_kk:
+        # переопределяем стиль для случая контраргумент - контраргумент
+        grade = KnowledgeGradeScale.get_default_grade()
+        pk = grade.pk
+
+    if not is_positive:
+        result.append(f"scale_{pk}_negative")
+    else:
+        result.append(f"scale_{pk}_positive")
+
+    return ' '.join(result)
 
 
 @register.simple_tag

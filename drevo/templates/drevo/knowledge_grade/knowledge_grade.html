@@ -15,11 +15,61 @@
 {% block jsfiles %}
 <script src="{% static 'drevo/js/htmx.min.js' %}"></script>
 <script>
+    let error = document.querySelector("#errors")
+    let error_txt = document.querySelector("#error_txt")
+
+
     // добавляем заголовок csrf для htmx
     let CSRF_TOKEN = '{{ csrf_token }}';
     document.body.addEventListener('htmx:configRequest', (event) => {
-    event.detail.headers['X-CSRFToken'] = CSRF_TOKEN;
-    })
+    event.detail.headers['X-CSRFToken'] = CSRF_TOKEN; })
+
+    // сохраняем предыдущее значение select
+    let prev_value = 0
+    document.querySelectorAll('select').forEach((select) => {
+        select.addEventListener('focus', (event) => {prev_value = select.value})
+    });
+
+
+     function showError(msg) {
+        if (!msg) {
+            error_txt.innerHTML = '';
+            error.hidden = true;
+        }
+        else {
+            error.hidden = false;
+            error_txt.innerHTML = msg;
+        }
+     }
+     //восстанавливаем предыдущее значение
+     function undoSelect(){
+        event.detail.elt.value = prev_value;
+     }
+
+ htmx.on('htmx:beforeSwap', function (event) {
+
+    if (!event.detail.isError) {
+        showError('');
+        }
+    });
+
+ htmx.on('htmx:sendError', function (event) {
+            error_msg = 'Ошибка связи с сервером'
+            showError(error_msg);
+            });
+
+ htmx.on('htmx:responseError', function (event) {
+            error_msg = 'Сервер ответил ошибкой (' + event.detail.error + ')'
+            showError(error_msg);
+            });
+
+
+ htmx.on('htmx:error', function (event) {
+        //восстанавливаем предыдущее значение
+        undoSelect();
+    });
+
+
 </script>
 {% endblock jsfiles %}
 
@@ -65,7 +115,10 @@
         </a>
     </div>
 </div>
-
+<div id="errors" hidden class="fixed-bottom  alert alert-warning alert-dismissible fade show" role="alert">
+    <div id="error_txt"></div>
+    <button type="button" class="btn-close"  aria-label="Close" onclick="showError('')"></button>
+</div>
 <div id="score_card">
     {% include "./score_card.html" %}
 </div>
