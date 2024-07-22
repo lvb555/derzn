@@ -100,6 +100,7 @@ def document_object_processing_view(request, doc_pk):
             return JsonResponse({'res': 'database error', 'error': e})
         return JsonResponse({'res': 'ok', 'object': model_to_dict(obj_to_return, exclude=['templates_that_use']), 'select_tree': str(form['connected_to'])})
     elif request.method == 'DELETE':
+        form = TemplateObjectForm()
         try:
             obj = get_object(request.GET['id'])
         except Exception as e:
@@ -125,4 +126,4 @@ def document_object_processing_view(request, doc_pk):
         object_in_json = model_to_dict(obj, exclude=['templates_that_use'])
         obj.delete()
 
-        return JsonResponse({'res': 'ok', 'object': object_in_json})
+        return JsonResponse({'res': 'ok', 'object': object_in_json, 'select_tree': str(form['connected_to'])})
