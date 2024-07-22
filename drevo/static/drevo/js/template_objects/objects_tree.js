@@ -1,11 +1,8 @@
 // Код для страницы drevo/znanie/<int:doc_pk>/document-template/edit-text/<int:text_pk>
 // не затрагивающий HTTP-запросы
 
-const url = window.location.href.split("document-template")[0] + "document-template"
-const message_block = document.querySelector(".log-container")
 const expand_children = document.querySelectorAll(".node__expand-btn")
 const collapse_children = document.querySelectorAll(".node__collapse-btn")
-const objects_contaning_list = document.querySelector(".objects-tree__containing-list")
 
 const turple_block = document.querySelector("#tuple") // поле выбора справочника
 
