@@ -118,7 +118,7 @@ class TemplateObjectForm(forms.Form):
         count = TemplateObject.objects.filter(knowledge=zn, name=name).count()
         count -= int(action == 'edit' and var.name == name)
         if count > 0:
-            raise ValidationError(f'Объект с именем {name} уже в контексте этого документа')
+            raise ValidationError(f'Объект с именем {name} существует уже в контексте этого документа')
 
     name = forms.CharField(max_length=255, label='Имя объекта')
     structure = forms.BooleanField(label='Массив', required=False)
