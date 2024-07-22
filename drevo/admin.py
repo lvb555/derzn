@@ -1020,6 +1020,7 @@ class TemplateObjectAdmin(admin.ModelAdmin):
     list_display_links = ('name', )
     list_filter = ('structure', 'availability', 'knowledge', 'type_of', )
     search_fields = ('knowledge__name', 'connected_to__name', 'name')
+    autocomplete_fields = ('knowledge', )
     form = TemplateObjectAdminForm
 
     
