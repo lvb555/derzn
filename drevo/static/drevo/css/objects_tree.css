@@ -178,11 +178,11 @@ a {
 
 /*стиль блока, оповещающего пользователя*/
 .log-container {
-	position: absolute;
-	top: 20vh;
-	right: -5vw;
-	width: 20vw;
+	position: fixed;
+	top: 15vh;
 	display: none;
+	right: 2vw;
+	width: 20vw;
 }
 
 .log-container__log {

@@ -97,10 +97,10 @@
 /*стиль блока, оповещающего пользователя*/
 
 .log-container {
-	position: absolute;
-	top: 0;
+	position: fixed;
+	top: 15vh;
 	display: none;
-	right: -5vw;
+	right: 2vw;
 	width: 20vw;
 }
 
