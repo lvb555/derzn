@@ -65,6 +65,13 @@ export function ExpandCollapseNodeChildren(e) {
 	e.target.closest(".node").querySelector(another_btn_class_name).classList.toggle("hidden")
 }
 
+export function SelecObjectToDelete(e) {
+	console.log(e.target.closest(".node"))
+	deleting_object = Number(e.target.closest(".node").id.split('-')[1])
+}
+
+document.querySelector(".edit-menu #type_of select").addEventListener("change", update_state)
+
 document.querySelectorAll(".node:not(.group) > .node-label .node-label__name").forEach((i) => {
 	i.addEventListener("dblclick", SelectObject)
 })
@@ -79,10 +86,8 @@ collapse_children.forEach((i) => {
 
 document.querySelector(".tree-actions button:first-child").addEventListener("click", update_state)
 
-document.querySelectorAll(".node-actions").forEach((btn) => {
-	btn.addEventListener("click", (e) => {
-		deleting_object = Number(e.target.closest(".node").id.split('-')[1])
-	})
+document.querySelectorAll(".node-actions .delete").forEach((btn) => {
+	btn.addEventListener("click", SelecObjectToDelete)
 })
 
 document.querySelectorAll(".node-actions .edit").forEach(edit_btn => edit_btn.addEventListener("click", (e) => {

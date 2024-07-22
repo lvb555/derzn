@@ -1,6 +1,7 @@
 import {show_message} from "./requirements.js"
 import {SelectObject, ExpandCollapseNodeChildren} from "../objects_tree.js"
 import {ObjectInfoRequest} from "../requests/objects_tree.js"
+import {SelecObjectToDelete} from "../objects_tree.js"
 
 // В этом файле хранятся функции, меняющие DOM дерево в зависимости от ответа бекенда на запросы.
 // со страницы drevo/znanie/<id>/document-template/object-select
@@ -45,6 +46,7 @@ export function CreateNewObjec(ans) {
 		object.querySelector(".node__expand-btn").addEventListener("click", ExpandCollapseNodeChildren)
 		object.querySelector(".node__collapse-btn").addEventListener("click", ExpandCollapseNodeChildren)
 		object.querySelector(".node__actions .edit").addEventListener("click", ObjectInfoRequest)
+		object.querySelector(".node__actions .delete").addEventListener("click", SelecObjectToDelete)
 		object.classList.remove("clone")
 		parent.appendChild(object)
 
