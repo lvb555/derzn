@@ -1,3 +1,4 @@
+from turtle import mode
 from django.db import models
 
 
@@ -12,6 +13,11 @@ class TurpleElement(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Справочник")
     weight = models.IntegerField(default=1, verbose_name="Порядок")
+    object = models.ForeignKey('Turple',
+                               on_delete=models.CASCADE,
+                               verbose_name='Объект',
+                               related_name='tuple_elements',
+                               null=True)
 
     class Meta:
         verbose_name = 'Элемент справочника'
