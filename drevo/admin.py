@@ -1005,8 +1005,9 @@ class RefuseReasonAdmin(admin.ModelAdmin):
 
 @admin.register(TurpleElement)
 class TurpleElementAdmin(admin.ModelAdmin):
-    list_display = ('value', 'turple')
-    list_filter = ('turple', )
+    list_display = ('value', 'turple', 'object')
+    list_filter = ('turple', 'object')
+    search_fields = ('object', )
     ordering = ('weight', )
 
 @admin.register(Turple)
