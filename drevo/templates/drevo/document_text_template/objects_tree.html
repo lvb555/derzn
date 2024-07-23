@@ -53,13 +53,23 @@
 	</li>
 
 	<h1 class="title page-title">
-		Документ: "{{ knowledge.name }}"
+		Дерево объектов шаблонов
 	</h1>
+	<nav style="--bs-breadcrumb-divider: '-';display: inline-flex; justify-content: space-between; width: 100%; align-items: self-end; margin: 0px;">
+		<ol class="breadcrumb m-0">
+			<li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+			<li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+			<li class="breadcrumb-item">Подготовка знаний</li>
+			<li class="breadcrumb-item">Конструктор документов</li>
+			<li class="breadcrumb-item">Конструктор шаблона текста</li>
+			<li class="breadcrumb-item opened">Дерево объектов документа</li>
+		</ol>
+	</nav>
 	<div class="content">
 		<div class="objects-tree">
 			<div class="objects-tree__block">
 				<h3 class="title page-sub-title">
-					Дерево объектов шаблонов
+					Документ: "{{ knowledge.name }}"
 				</h3>
 			<ul class="objects-tree__containing-list">
 				{% recursetree objects %}

@@ -6,6 +6,10 @@ a {
     text-decoration: none;
 }
 
+ol.breadcrumb {
+	font-size: 0.9rem;
+}
+
 .clone {
 	display: none;
 }
@@ -27,6 +31,7 @@ a {
 	border-radius: 1.3rem;
 	padding: 20px;
 	max-width: 100vw;
+	margin-top: 20px;
 }
 
 .objects-tree {

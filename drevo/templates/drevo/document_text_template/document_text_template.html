@@ -27,10 +27,19 @@
 		</div>
 	</div>
 {% else %}
-<h1 class="page-title">Шаблон документа: "{{ knowledge.name }}"</h1>
+<h1 class="page-title">Конструктор шаблона текста</h1>
+<nav style="--bs-breadcrumb-divider: '-';display: inline-flex; justify-content: space-between; width: 100%; align-items: self-end; margin: 0px;">
+	<ol class="breadcrumb m-0">
+		<li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+		<li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+		<li class="breadcrumb-item">Подготовка знаний</li>
+		<li class="breadcrumb-item">Конструктор документов</li>
+		<li class="breadcrumb-item opened">Конструктор шаблона текста</li>
+	</ol>
+</nav>
 
 <div class="content">
-<h3 class="page-sub-title">Конструктор шаблона текста</h3>
+<h3 class="page-sub-title">Шаблон документа: "{{ knowledge.name }}"</h3>
 <form class="template" action="" method="post">
 	{% csrf_token %}
 	{{ form.media }}
