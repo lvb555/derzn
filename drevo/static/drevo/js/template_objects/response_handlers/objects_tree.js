@@ -133,7 +133,6 @@ export function FillForm(ans) {
 	document.querySelector("#ObjectModal .modal-title").innerHTML = "Редактирование объекта шаблона"
 
 	if (ans["res"] !== "ok") {
-		console.log(ans)
 		return
 	}
 	document.querySelectorAll(".edit-menu > .field input, .edit-menu > .field select").forEach((i) => {

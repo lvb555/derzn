@@ -59,12 +59,10 @@ export function ExpandCollapseNodeChildren(e) {
 		another_btn_class_name = ".node__expand-btn"
 	else
 		another_btn_class_name = ".node__collapse-btn"
-	console.log(another_btn_class_name)
 	e.target.closest(".node").querySelector(another_btn_class_name).classList.toggle("hidden")
 }
 
 export function SelectObjectToDelete(e) {
-	console.log(e.target.closest(".node"))
 	deleting_object = Number(e.target.closest(".node").id.split('-')[1])
 }
 
