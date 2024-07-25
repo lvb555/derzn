@@ -30,16 +30,18 @@ function ObjectProcessingRequest(e) {
 		else {
 			UpdateTree(ans)
 			UpdateName(ans)
-			UpdateSelectorTree(ans)
 		}
-
+		UpdateSelectorTree(ans)
 	})
 }
 
 function ObjectDeletionRequest(e) {
 	fetch(url + `/document_object_processing?id=${deleting_object}`, {"method": "delete", "headers": {"X-CSRFToken": csrftoken}})
 	.then((response) => response.json())
-	.then((ans) => ObjectDeletionHandler(ans))
+	.then((ans) => {
+		ObjectDeletionHandler(ans)
+		UpdateSelectorTree(ans)
+	})
 }
 
 

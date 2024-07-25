@@ -71,7 +71,6 @@ paste_btn.addEventListener("click", (e) => {
 
 		if (selected_object.optional) {
 			const object_html_code = `<span contenteditable="false">{[<span contenteditable="true">&nbsp;</span>]<span class="template-object" id="id-${selected_object.id}" >${selected_object.name}</span>}</span><span>&nbsp;</span>`
-  			console.log(object_html_code)
   			CKEDITOR.instances.id_content.insertHtml(object_html_code)
 		} else {
 			const element = CKEDITOR.dom.element.createFromHtml(`<span class="template-object" id="id-${selected_object.id}" contenteditable="false">&lt;${selected_object.name}&gt;</span>`)

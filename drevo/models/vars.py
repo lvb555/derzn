@@ -16,6 +16,7 @@ class TemplateObject(MPTTModel):
         (1, 'Число'),
         (2, 'Дата'),
         (3, 'Справочник'),
+        (4, 'Составной')
     )
 
     available_sctructures = (

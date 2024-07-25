@@ -17,7 +17,6 @@ export function ObjectProcessingBody (action, editing_var) {
 	const edit_menu = document.querySelector(".edit-menu") // меню создания-редактирования переменной
 	document.querySelectorAll(".edit-menu > .field input").forEach((i) => {
 
-		console.log(i)
 
 		if (i.type !== "checkbox" && i.type !== "radio"){
 			body.append(i.name, i.value)
