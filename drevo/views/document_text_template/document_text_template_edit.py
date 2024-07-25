@@ -41,12 +41,3 @@ class DocumentTextTemplateEdit(TemplateView):
         context['knowledge'] = document_knowledge
 
         return context
-
-        def post(self, request, **kwargs):
-            template = ContentTemplate(request.POST)
-            if template.is_valid():
-                template.cleaned_data['pk'].content = template.cleaned_data['content']
-                template.cleaned_data['pk'].save()
-                return JsonResponse({'res': 'ok'})
-            else:
-                return JsonResponse({'res': 'err', 'errors': template.errors})
