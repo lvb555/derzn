@@ -1018,11 +1018,11 @@ class TurpleAdmin(admin.ModelAdmin):
 
 @admin.register(TemplateObject)
 class TemplateObjectAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'availability', 'type_of', 'connected_to', 'knowledge', 'user')
+    list_display = ('id', 'weight', 'name', 'availability', 'type_of', 'connected_to', 'knowledge', 'user')
     list_display_links = ('name', )
     list_filter = ('structure', 'availability', 'knowledge', 'type_of', )
     search_fields = ('knowledge__name', 'connected_to__name', 'name')
-    sortable_by = ('id',)
+    sortable_by = ('id', 'weight')
     autocomplete_fields = ('knowledge', )
     form = TemplateObjectAdminForm
 
