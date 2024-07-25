@@ -13,7 +13,8 @@ const types = { // допустимые типы содержимого
 	"text": 0,
 	"number": 1,
 	"date": 2,
-	"tuple": 3
+	"tuple": 3,
+	"complex": 4
 }
 
 export let deleting_object = null
@@ -23,7 +24,7 @@ export let editing_var = null
 function update_state(e) {
 	// обновить форму
 	let is_turple = type.value == types["tuple"]
-	subscription_block.style.display = type.value == types["text"] || is_turple ? "none" : "block"
+	subscription_block.style.display = type.value == types["number"] || type.value == types["date"] ? "block" : "none"
 	turple_block.style.display = type.value == types["tuple"] ? "block" : "none"
 }
 
