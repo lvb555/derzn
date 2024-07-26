@@ -17,8 +17,9 @@
           <ul class="ul-interviews_all", style="list-style-type: none">
             {% for interview in interviews %}
                 <li>
-                  <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">{{ interview }}</a>
-                  <a href="{% url 'dimensional_distributions_1' id=interview.id %}">Статистика интервью</a>
+                  <a>{{ interview }}</a>
+                  <a class="a-interviews", href="{% url 'interview_table' id=interview.id %}">Авторы интервью</a>
+                  <a class="a2-interviews" href="{% url 'dimensional_distributions_1' id=interview.id %}">Статистика интервью</a>
                 </li>
             {% endfor %} 
           </ul>

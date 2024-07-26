@@ -4,6 +4,7 @@ from django.views.generic import TemplateView
 
 from drevo.models.knowledge import Znanie
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
+from drevo.models.relation_grade_scale import RelationGradeScale
 from drevo.utils.common import validate_parameter_int
 from drevo.utils.knowledge_grader import KnowledgeGraderService
 
@@ -32,6 +33,10 @@ class InfographicsView(LoginRequiredMixin, TemplateView):
         context["variant"] = variant
         context["knowledge"] = self.knowledge
 
+        # кэширование справочников в словари
+        KnowledgeGradeScale.validate_cache()
+        RelationGradeScale.validate_cache()
+
         grader = KnowledgeGraderService(self.request.user, self.knowledge)
         knowledge_tree = grader.get_tree(variant=variant)
 
@@ -50,8 +55,5 @@ class InfographicsView(LoginRequiredMixin, TemplateView):
         context["proof_relations"] = knowledge_tree["proof_relations"]
 
         context["knowledge_scale"] = KnowledgeGradeScale.get_cache()
-
-        # используется для окраски случая контраргумент - контраргумент
-        context["grade_for_KK"] = KnowledgeGradeScale.get_default_grade()
 
         return context

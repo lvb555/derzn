@@ -18,10 +18,10 @@
         <span class="text-dark">{{ zn.knowledge_name|truncatechars:100 }}</span>
 
         {% if zn.relation_type or parent_relation_type %}
-            <span class="score_card {{ zn.common_grade_id|get_color_style:zn.relation_type }}">{{ zn.common_grade_text }} {{ zn.common_grade_value|floatformat:-2 }}</span>
+            <span class="score_card {% get_info_color_style grade=zn.common_grade_id is_positive=zn.relation_type %}">{{ zn.common_grade_text }} {{ zn.common_grade_value|floatformat:-2 }}</span>
         {% else %}
             {# решение для случая контраргумент - контраргумент#}
-            <span class="score_card {{ grade_for_KK|get_color_style:False }}">{{ zn.common_grade_text }} {{ zn.common_grade_value|floatformat:-2 }}</span>
+            <span class="score_card {% get_info_color_style grade=zn.common_grade_id is_positive=False is_kk=True %}">{{ zn.common_grade_text }} {{ zn.common_grade_value|floatformat:-2 }}</span>
         {% endif %}
         </a>
         {% if zn.proof_relations %}

@@ -19,3 +19,9 @@ td{
 .lower-td{
     padding-left: 15px;
 }
+table{
+    margin-top: 30px;
+}
+.btn-success{
+    margin-top: 30px;
+}

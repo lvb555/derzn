@@ -21,7 +21,7 @@
       <option value="">Выбрать вопрос</option>
     {% endif %}
     {% for question in questions %}
-      {% if question.question != selected_question %}
+      {% if question.question__id != selected_question.id %}
         <option value="{{ question.question__id }}">{{ question.question__name }}</option>
       {% endif %}
     {% endfor %}

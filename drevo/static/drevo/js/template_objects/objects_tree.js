@@ -1,11 +1,8 @@
 // Код для страницы drevo/znanie/<int:doc_pk>/document-template/edit-text/<int:text_pk>
 // не затрагивающий HTTP-запросы
 
-const url = window.location.href.split("document-template")[0] + "document-template"
-const message_block = document.querySelector(".log-container")
 const expand_children = document.querySelectorAll(".node__expand-btn")
 const collapse_children = document.querySelectorAll(".node__collapse-btn")
-const objects_contaning_list = document.querySelector(".objects-tree__containing-list")
 
 const turple_block = document.querySelector("#tuple") // поле выбора справочника
 
@@ -16,7 +13,8 @@ const types = { // допустимые типы содержимого
 	"text": 0,
 	"number": 1,
 	"date": 2,
-	"tuple": 3
+	"tuple": 3,
+	"complex": 4
 }
 
 export let deleting_object = null
@@ -26,7 +24,7 @@ export let editing_var = null
 function update_state(e) {
 	// обновить форму
 	let is_turple = type.value == types["tuple"]
-	subscription_block.style.display = type.value == types["text"] || is_turple ? "none" : "block"
+	subscription_block.style.display = type.value == types["number"] || type.value == types["date"] ? "block" : "none"
 	turple_block.style.display = type.value == types["tuple"] ? "block" : "none"
 }
 
@@ -61,9 +59,19 @@ export function ExpandCollapseNodeChildren(e) {
 		another_btn_class_name = ".node__expand-btn"
 	else
 		another_btn_class_name = ".node__collapse-btn"
-	console.log(another_btn_class_name)
 	e.target.closest(".node").querySelector(another_btn_class_name).classList.toggle("hidden")
 }
+
+export function SelectObjectToDelete(e) {
+	deleting_object = Number(e.target.closest(".node").id.split('-')[1])
+}
+
+export function SelectObjectToUpdate(e) {
+	action = "edit"
+    editing_var = e.target.closest(".node").id.split("-")[1]
+}
+
+document.querySelector(".edit-menu #type_of select").addEventListener("change", update_state)
 
 document.querySelectorAll(".node:not(.group) > .node-label .node-label__name").forEach((i) => {
 	i.addEventListener("dblclick", SelectObject)
@@ -79,16 +87,13 @@ collapse_children.forEach((i) => {
 
 document.querySelector(".tree-actions button:first-child").addEventListener("click", update_state)
 
-document.querySelectorAll(".node-actions").forEach((btn) => {
-	btn.addEventListener("click", (e) => {
-		deleting_object = Number(e.target.closest(".node").id.split('-')[1])
-	})
+document.querySelectorAll(".node-actions .delete").forEach((btn) => {
+	btn.addEventListener("click", SelectObjectToDelete)
 })
 
-document.querySelectorAll(".node-actions .edit").forEach(edit_btn => edit_btn.addEventListener("click", (e) => {
-    action = "edit"
-    editing_var = e.target.closest(".node").id.split("-")[1]
-}))
+document.querySelectorAll(".node-actions .edit").forEach(edit_btn => {
+	edit_btn.addEventListener("click", SelectObjectToUpdate)
+})
 document.querySelector(".tree-actions .btn:first-child").addEventListener("click", (e) => {
     action = "create"
     editing_var = null
