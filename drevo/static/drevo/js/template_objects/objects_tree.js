@@ -1,6 +1,8 @@
 // Код для страницы drevo/znanie/<int:doc_pk>/document-template/edit-text/<int:text_pk>
 // не затрагивающий HTTP-запросы
 
+import {show_message} from "./response_handlers/requirements.js"
+
 const expand_children = document.querySelectorAll(".node__expand-btn")
 const collapse_children = document.querySelectorAll(".node__collapse-btn")
 
@@ -67,7 +69,13 @@ export function ExpandCollapseNodeChildren(e) {
 }
 
 export function SelectObjectToDelete(e) {
-	deleting_object = Number(e.target.closest(".node").id.split('-')[1])
+	const node = e.target.closest(".node")
+	deleting_object = Number(node.id.split('-')[1])
+	//является ли элемент родителем
+	if (node.querySelector(".node-children"))
+		show_message("Нельзя удалить родителя")
+	else
+		deleteModal.show()
 }
 
 export function SelectObjectToUpdate(e) {
