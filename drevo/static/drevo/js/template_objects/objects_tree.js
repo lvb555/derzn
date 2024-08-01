@@ -8,6 +8,10 @@ const turple_block = document.querySelector("#tuple") // поле выбора �
 
 const subscription_block = document.querySelector("#subscription") // чекбокс "прописью"
 
+const deleteModal = new bootstrap.Modal(document.getElementById('DeleteObjectModal'))
+export const groupModal = new bootstrap.Modal(document.getElementById('GroupModal'))
+export const objectModal = new bootstrap.Modal(document.getElementById('ObjectModal'))
+
 const type = document.querySelector("#type_of select") // поле выбора типа содержимого
 const types = { // допустимые типы содержимого
 	"text": 0,

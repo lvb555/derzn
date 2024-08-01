@@ -1,5 +1,5 @@
 import {show_message} from "./requirements.js"
-import {SelectObject, ExpandCollapseNodeChildren} from "../objects_tree.js"
+import {SelectObject, ExpandCollapseNodeChildren, objectModal, groupModal} from "../objects_tree.js"
 import {ObjectInfoRequest} from "../requests/objects_tree.js"
 import {SelectObjectToDelete} from "../objects_tree.js"
 import { SelectObjectToUpdate } from "../objects_tree.js"
@@ -130,21 +130,31 @@ export function UpdateSelectorTree(ans) {
 
 // Заполнить форму данными объекта для его дальнейшего изменения
 export function FillForm(ans) {
-	document.querySelector("#ObjectModal .modal-title").innerHTML = "Редактирование объекта шаблона"
 
-	if (ans["res"] !== "ok") {
+	if (ans.res !== "ok") {
 		return
 	}
-	document.querySelectorAll(".edit-menu > .field input, .edit-menu > .field select").forEach((i) => {
+	let form
+	if (ans.object.is_main){
+		document.querySelector("#GroupModal .modal-title").innerHTML = "Редактирование объекта шаблона"
+		form = document.querySelector("#GroupModal .modal-body")
+		groupModal.show()
+	} else {
+		form = document.querySelector(".edit-menu")	
+		document.querySelector("#ObjectModal .modal-title").innerHTML = "Редактирование объекта шаблона"
+		objectModal.show()
+		form.querySelector("textarea").value = ans.object.fill_title
+	}
+
+	form.querySelectorAll(".field input, .field select").forEach((i) => {
 		if (i.type == "checkbox") {
-			i.checked = ans["object"][i.name]
+			i.checked = ans.object[i.name]
 		} else if (i.type == "radio") {
-			i.checked = i.value == ans["object"][i.name]
+			i.checked = i.value == ans.object[i.name]
 		} else {
-			i.value = ans["object"][i.name] !== null ? ans["object"][i.name] : ""
+			i.value = ans.object[i.name] !== null ? ans.object[i.name] : ""
 		}
 	})
-	document.querySelector(".edit-menu textarea").value = ans["object"]["fill_title"]
 }
 
 //Удалить объект из дерева

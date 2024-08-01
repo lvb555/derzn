@@ -49,7 +49,7 @@ export function ObjectProcessingBody (action, editing_var) {
 export function GroupProcessingBody() {
 	const body = new FormData()
 	body.append("name", document.querySelector("#GroupModal .field #id_name").value)
-	body.append("connected_to", document.querySelector("#GroupModal .field #id_parent").value)
+	body.append("connected_to", document.querySelector("#GroupModal .field #id_connected_to").value)
 	body.append("knowledge", document.querySelector("#GroupModal .field #id_knowledge").value)
 
 	const necessary_fields = [
