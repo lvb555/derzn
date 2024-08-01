@@ -71,7 +71,6 @@ export function GroupProcessingBody() {
 export function SaveTemplateBody() {
 	const zn_pk = document.querySelector(".template #document_pk").value
 	const pk = document.querySelector(".template #id_pk").value
-	const message_block = document.querySelector(".log-container")
 	const body = new FormData()
 	
 	body.append("content", CKEDITOR.instances.id_content.getData())

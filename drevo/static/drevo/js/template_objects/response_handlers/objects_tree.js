@@ -2,7 +2,8 @@ import {show_message} from "./requirements.js"
 import {SelectObject, ExpandCollapseNodeChildren, objectModal, groupModal} from "../objects_tree.js"
 import {ObjectInfoRequest} from "../requests/objects_tree.js"
 import {SelectObjectToDelete} from "../objects_tree.js"
-import { SelectObjectToUpdate } from "../objects_tree.js"
+import {SelectObjectToUpdate} from "../objects_tree.js"
+
 
 // В этом файле хранятся функции, меняющие DOM дерево в зависимости от ответа бекенда на запросы.
 // со страницы drevo/znanie/<id>/document-template/object-select
