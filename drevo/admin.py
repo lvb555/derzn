@@ -1025,6 +1025,7 @@ class TemplateObjectAdmin(admin.ModelAdmin):
     search_fields = ('knowledge__name', 'connected_to__name', 'name')
     sortable_by = ('id', 'weight')
     autocomplete_fields = ('knowledge', )
+    ordering = ('weight', )
     form = TemplateObjectAdminForm
 
     
