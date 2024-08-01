@@ -184,7 +184,7 @@ ol.breadcrumb {
 /*стиль блока, оповещающего пользователя*/
 .log-container {
 	position: fixed;
-	top: 15vh;
+	top: 25vh;
 	display: none;
 	right: 2vw;
 	width: 20vw;

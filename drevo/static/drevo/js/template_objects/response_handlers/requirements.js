@@ -15,6 +15,6 @@ export function show_message(text) {
 				message.remove()
 				message_block.style.display = "none"
 			}, 510)
-		}, 1500)
+		}, 3000)
 	}, 10)
 }
