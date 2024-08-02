@@ -1082,6 +1082,7 @@ class TableStateAdmin(admin.ModelAdmin):
 
         return HttpResponseRedirect('../')
 
+
     def check_integrity(self, request):
         report = []
 
