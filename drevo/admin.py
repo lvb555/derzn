@@ -87,7 +87,7 @@ from .models.site_page import SitePage, StatusType, PageHistory
 from .models.users_documents import UsersDocuments
 from .models.appeal import Appeal
 
-from .models.bd_models import  TableState
+from .models.bd_models import TableState
 
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
@@ -1057,7 +1057,6 @@ class PageHistoryAdmin(admin.ModelAdmin):
     list_display = ('page', 'prop', 'previous_value', 'last_value', 'staff_member', 'date')
 
 
-
 @admin.register(TableState)
 class TableStateAdmin(admin.ModelAdmin):
     change_list_template = "admin/drevo/bd/bd_state.html"
@@ -1078,10 +1077,10 @@ class TableStateAdmin(admin.ModelAdmin):
                 name = model._meta.verbose_name
                 num_records = model.objects.all().count()
                 aware_datetime = timezone.make_aware(datetime.datetime.now())
-                TableState.objects.create(table_name=name, num_records=num_records, date_time=aware_datetime,difference=0)
+                TableState.objects.create(table_name=name, num_records=num_records, date_time=aware_datetime,
+                                          difference=0)
 
         return HttpResponseRedirect('../')
-
 
     def check_integrity(self, request):
         report = []
@@ -1090,24 +1089,21 @@ class TableStateAdmin(admin.ModelAdmin):
             if model.__name__ != 'TableState':
 
                 name = model._meta.verbose_name
-                
+
                 table_state = TableState.objects.get(table_name=name)
                 num_records_after = model.objects.all().count()
                 num_records_before = table_state.num_records
                 difference = num_records_after - num_records_before
                 table_state.difference = difference
 
-
                 if difference > 0:
-                    report.append([name, num_records_before,  num_records_after, difference])
+                    report.append([name, num_records_before, num_records_after, difference])
                 else:
                     table_state.delete()
 
             if not report:
                 report = "Проверка прошла успешно. Все таблицы целостны."
 
-
         return render(request, 'admin/drevo/bd/check_integrity.html', {'result': report})
-
 
 
