@@ -1,0 +1,14 @@
+{% extends 'admin/change_list.html' %}
+{% block object-tools %}
+  <div>
+    <form action="save_state/" method="POST">
+      {% csrf_token %}
+      <input type="submit" value="Сохранить состояние БД" />
+    </form>
+    <form action="check_integrity/" method="POST">
+      {% csrf_token %}
+      <input type="submit" value="Контроль целостности БД" />
+    </form>
+    {{ block.super }}
+  </div>
+{% endblock %}
