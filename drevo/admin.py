@@ -1106,3 +1106,4 @@ class TableStateAdmin(admin.ModelAdmin):
 
         return render(request, 'admin/drevo/bd/check_integrity.html', {'result': report})
 
+
