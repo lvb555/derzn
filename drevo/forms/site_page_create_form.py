@@ -16,7 +16,7 @@ class SitePageCreateForm(forms.ModelForm):
     """
     Форма создания сущности Страницы сайта
     """
-    page = forms.ModelChoiceField(queryset=Znanie.objects.order_by('name'), label='Выберите знание')
+    page = forms.ModelChoiceField(queryset=Znanie.objects.order_by('name'), label='Выберите знание', required=False)
     status = forms.ModelChoiceField(queryset=StatusType.objects, label='Статус', required=False)
     parent = TreeNodeChoiceField(queryset=SitePage.objects, label='Выберите родителя', required=False)
     type = forms.ChoiceField(choices=TYPE_CHOICES, label='Тип', widget=forms.RadioSelect())
@@ -51,13 +51,13 @@ class SitePageRedactForm(forms.ModelForm):
 
     class Meta:
         model = SitePage
-        exclude = ('id', 'page')
+        exclude = ('id',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['disabled'] = True
-            if field_name in ('status', 'parent', 'link', 'base_page', 'subscribers', 'order'):
+            if field_name in ('page', 'status', 'parent', 'link', 'base_page', 'subscribers', 'order'):
                 field.widget.attrs['class'] = 'form-control py-2 text-grey'
             else:
                 field.widget.attrs['class'] = 'm-0 p-0 text-grey'

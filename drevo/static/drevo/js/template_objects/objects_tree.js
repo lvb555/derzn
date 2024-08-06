@@ -1,19 +1,37 @@
-import {ObjectProcessingBody, GroupProcessingBody, csrftoken} from "./setup_queries.js"
-import {update_state} from "./dynamic_form.js"
+// Код для страницы drevo/znanie/<int:doc_pk>/document-template/edit-text/<int:text_pk>
+// не затрагивающий HTTP-запросы
 
-const url = window.location.href.split("document-template")[0] + "document-template"
-const message_block = document.querySelector(".log-container")
 const expand_children = document.querySelectorAll(".node__expand-btn")
 const collapse_children = document.querySelectorAll(".node__collapse-btn")
-const object_template = document.querySelector(".node.clone")
-const objects_contaning_list = document.querySelector(".objects-tree__containing-list")
 
-function select_obejct(e) {
+const turple_block = document.querySelector("#tuple") // поле выбора справочника
+
+const subscription_block = document.querySelector("#subscription") // чекбокс "прописью"
+
+const type = document.querySelector("#type_of select") // поле выбора типа содержимого
+const types = { // допустимые типы содержимого
+	"text": 0,
+	"number": 1,
+	"date": 2,
+	"tuple": 3,
+	"complex": 4
+}
+
+export let deleting_object = null
+export let action = null
+export let editing_var = null
+
+function update_state(e) {
+	// обновить форму
+	let is_turple = type.value == types["tuple"]
+	subscription_block.style.display = type.value == types["number"] || type.value == types["date"] ? "block" : "none"
+	turple_block.style.display = type.value == types["tuple"] ? "block" : "none"
+}
+
+export function SelectObject(e) {
 	const object = e.target.closest(".node")
-	const object_name = object.querySelector("span").innerHTML
-	const id = Number(object.id.split("-")[1])
-	let availability = -1
-	let optional = false
+
+	let availability
 	if (object.classList.contains("local"))
 		availability = 0
 	else if (object.classList.contains("global"))
@@ -21,22 +39,18 @@ function select_obejct(e) {
 	else if (object.classList.contains("general"))
 		availability = 2
 
-	if (object.classList.contains("optional"))
-		optional = true
-
-
 	window.opener.postMessage(
 		JSON.stringify({
-			"name": object_name,
-			"id": id,
-			"availability": availability,
-			"optional": optional
+			name: object.querySelector("span").innerHTML,
+			id: Number(object.id.split("-")[1]),
+			select: true,
+			optional: object.classList.contains("optional")
 		}),
 		window.opener.location.href)
 	window.close()
 }
 
-function expand_collapse_node_children(e) {
+export function ExpandCollapseNodeChildren(e) {
 	e.target.closest(".img-block").classList.toggle("hidden")
 	e.target.closest(".node").querySelector(".node-children").classList.toggle("hidden")
 
@@ -45,88 +59,61 @@ function expand_collapse_node_children(e) {
 		another_btn_class_name = ".node__expand-btn"
 	else
 		another_btn_class_name = ".node__collapse-btn"
-	console.log(another_btn_class_name)
 	e.target.closest(".node").querySelector(another_btn_class_name).classList.toggle("hidden")
 }
 
-document.querySelectorAll(".node:not(.group) > .node-name").forEach((i) => {
-	i.addEventListener("dblclick", select_obejct)
+export function SelectObjectToDelete(e) {
+	deleting_object = Number(e.target.closest(".node").id.split('-')[1])
+}
+
+export function SelectObjectToUpdate(e) {
+	action = "edit"
+    editing_var = e.target.closest(".node").id.split("-")[1]
+}
+
+document.querySelector(".edit-menu #type_of select").addEventListener("change", update_state)
+
+document.querySelectorAll(".node:not(.group) > .node-label .node-label__name").forEach((i) => {
+	i.addEventListener("dblclick", SelectObject)
 })
 
-document.querySelectorAll(".edit-menu__save-btn").forEach((i) => i.addEventListener('click', (e) => {
-	let body
-	if (e.target.closest("#ObjectModal"))
-		body = ObjectProcessingBody("create", null)
-	else
-		body = GroupProcessingBody()
-
-	fetch(url + "/document_object_processing", {"method": "post", "body": body, "headers": {"X-CSRFToken": csrftoken}})
-	.then((response) => { return response.json() })
-	.then((ans) => {
-		let message = document.createElement("p")
-		message.classList.add("log-container__log")
-		if (ans["res"] == "ok") {
-			message.innerHTML = "Объект создан"
-			const object = object_template.cloneNode(true)
-			let parent
-			if (ans["object"].connected_to) {
-				parent = document.querySelector(`.node#id-${ans["object"].connected_to}`)
-				if (parent.classList.contains("leaf")) {
-					parent.classList.remove("leaf")
-					const ul = document.createElement("ul")
-					ul.classList.add("node-children")
-					parent.appendChild(ul)
-					parent = ul
-				} else {
-					parent = parent.querySelector(".node-children")
-				}
-				object.classList.add("child-node")
-			} else {
-				parent = objects_contaning_list
-			}
-			if (ans["object"].is_main) {
-				object.classList.add("group")
-			} else {
-				object.querySelector(".node-name").addEventListener("dblclick", select_obejct)
-			}
-
-			if (ans["object"].optional) {
-				object.classList.add("optional")
-			}
-			
-			object.classList.add("leaf")
-			object.setAttribute("id", `id-${ans["object"].id}`)
-
-			object.querySelector('.node-name span').innerHTML = (ans["object"].name)
-			object.querySelector(".node__expand-btn").addEventListener("click", expand_collapse_node_children)
-			object.querySelector(".node__collapse-btn").addEventListener("click", expand_collapse_node_children)
-			object.classList.remove("clone")
-			parent.appendChild(object)
-
-		} else if (ans["res"] === "validation error") {
-			message.innerHTML = ans["errors"]["__all__"][0]
-		}
-		message_block.insertBefore(message, message_block.firstChild)
-		setTimeout(() => {
-			message_block.style.display = "block"
-			message.style.opacity = "100%"
-			setTimeout(() => {
-				message.style.opacity = "0%"
-				setTimeout(() => {
-					message.remove()
-					message_block.style.display = "none"
-				}, 510)
-			}, 1500)
-		}, 10)
-	})
-}))
-
 expand_children.forEach((i) => {
-	i.addEventListener('click', expand_collapse_node_children)
+	i.addEventListener('click', ExpandCollapseNodeChildren)
 })
 
 collapse_children.forEach((i) => {
-	i.addEventListener('click', expand_collapse_node_children)
+	i.addEventListener('click', ExpandCollapseNodeChildren)
 })
 
 document.querySelector(".tree-actions button:first-child").addEventListener("click", update_state)
+
+document.querySelectorAll(".node-actions .delete").forEach((btn) => {
+	btn.addEventListener("click", SelectObjectToDelete)
+})
+
+document.querySelectorAll(".node-actions .edit").forEach(edit_btn => {
+	edit_btn.addEventListener("click", SelectObjectToUpdate)
+})
+document.querySelector(".tree-actions .btn:first-child").addEventListener("click", (e) => {
+    action = "create"
+    editing_var = null
+
+	document.querySelectorAll('.edit-menu input[type="text"], .edit-menu select, .edit-menu textarea').forEach((elem) => {
+		elem.value = ""
+	})
+
+	document.querySelectorAll('.edit-menu input[type="checkbox"]').forEach((elem) => {
+		elem.checked = false
+	})
+
+	document.querySelectorAll('.edit-menu input[type="number"]').forEach((elem) => {
+		elem.value = 100
+	})
+})
+document.querySelector(".tree-actions .btn:last-child").addEventListener("click", (e) => {
+	action="create"
+	editing_var = null
+
+	document.querySelector("#GroupModal .field input").value = ""
+	document.querySelector("#GroupModal .field select").value = ""
+})

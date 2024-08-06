@@ -1022,11 +1022,13 @@ class RefuseReasonAdmin(admin.ModelAdmin):
 
 @admin.register(TurpleElement)
 class TurpleElementAdmin(admin.ModelAdmin):
-    list_display = ('value', 'turple')
-    list_filter = ('turple',)
-    ordering = ('weight',)
+    list_display = ('id', 'weight', 'value', 'turple', 'object')
+    list_filter = ('turple', 'object')
+    search_fields = ('object',)
+    ordering = ('weight', )
+    sortable_by = ('id', 'weight')
 
-
+    
 @admin.register(Turple)
 class TurpleAdmin(admin.ModelAdmin):
     list_display = ('name',)
@@ -1036,11 +1038,11 @@ class TurpleAdmin(admin.ModelAdmin):
 @admin.register(TemplateObject)
 class TemplateObjectAdmin(admin.ModelAdmin):
     list_display = ('id', 'weight', 'name', 'availability', 'type_of', 'connected_to', 'knowledge', 'user')
-    list_display_links = ('name',)
-    list_filter = ('structure', 'availability', 'knowledge', 'type_of',)
+    list_display_links = ('name', )
+    list_filter = ('structure', 'availability', 'knowledge', 'type_of', )
     search_fields = ('knowledge__name', 'connected_to__name', 'name')
     sortable_by = ('id', 'weight')
-    autocomplete_fields = ('knowledge',)
+    autocomplete_fields = ('knowledge', )
     form = TemplateObjectAdminForm
 
 

@@ -15,10 +15,31 @@
 
 {% block content %}
 
-<h1 class="page-title">Шаблон документа: {{ knowledge.name }}</h1>
+{% if not request.user.is_authenticated %} 
+	<div class="card alert-warning">
+		<div class="card-body">
+			<span class="card-text">
+				<a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
+                или
+				<a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                чтобы внести предложение.
+			</span>
+		</div>
+	</div>
+{% else %}
+<h1 class="page-title">Конструктор шаблона текста</h1>
+<nav style="--bs-breadcrumb-divider: '-';display: inline-flex; justify-content: space-between; width: 100%; align-items: self-end; margin: 0px;">
+	<ol class="breadcrumb m-0">
+		<li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+		<li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+		<li class="breadcrumb-item">Подготовка знаний</li>
+		<li class="breadcrumb-item">Конструктор документов</li>
+		<li class="breadcrumb-item opened">Конструктор шаблона текста</li>
+	</ol>
+</nav>
 
 <div class="content">
-<h3 class="page-sub-title">Конструктор шаблона текста</h3>
+<h3 class="page-sub-title">Шаблон документа: "{{ knowledge.name }}"</h3>
 <form class="template" action="" method="post">
 	{% csrf_token %}
 	{{ form.media }}
@@ -39,14 +60,6 @@
 			<h6>Текущий объект</h6>
 			<div class="object-card" id="">
 				<p class="object-card__header">Название объекта</p>
-				<div class="object-card__btns">
-					<button class="object-card__btn edit btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">
-						<img src="{% static 'drevo/img/pencil.svg'%}" alt="Изменить">
-					</button>
-					<button class="object-card__btn delete btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#DeleteObjectModal">
-						<img src="{% static 'drevo/img/bin.svg'%}" alt="Удалить">
-					</button>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -75,13 +88,10 @@
         </div>
 	</div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block jsfiles %}
-<script type="module" src="{% static 'drevo/js/template_objects/paste_object.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/setup_queries.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/dynamic_form.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/object_processing.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/save_template.js' %}"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/requests/document_text_template.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/document_text_template.js'%}"></script>
 {% endblock %}

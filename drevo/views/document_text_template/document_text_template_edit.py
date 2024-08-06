@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
 from drevo.models import Znanie, TemplateObject, Turple
-from django.http import HttpResponse
+from django.http import JsonResponse
 from drevo.forms import ContentTemplate, TemplateObjectForm
 from django.db.models import Q
 import json
@@ -15,6 +15,8 @@ class DocumentTextTemplateEdit(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        if not self.request.user.is_authenticated:
+            return context
 
         document_knowledge = Znanie.objects.get(id=context['doc_pk'])  # шаблон документа
         objects = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) |  Q(user=self.request.user, availability=1) | Q(user=None, availability=1) | Q(availability=2))
@@ -39,12 +41,3 @@ class DocumentTextTemplateEdit(TemplateView):
         context['knowledge'] = document_knowledge
 
         return context
-
-        def post(self, request, **kwargs):
-            template = ContentTemplate(request.POST)
-            if template.is_valid():
-                template.cleaned_data['pk'].content = template.cleaned_data['content']
-                template.cleaned_data['pk'].save()
-                return HttpResponse(json.dumps({'res': 'ok'}, content_type='application/json'))
-            else:
-                return HttpResponse(json.dumps({'res': 'err', 'errors': template.errors}, content_type='application/json'))
