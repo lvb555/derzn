@@ -28,6 +28,7 @@ const types = { // допустимые типы содержимого
 export let deleting_object = null
 export let action = null
 export let editing_var = null
+export let group_leafs_attentions = []
 
 function update_state(e) {
 	// обновить форму
