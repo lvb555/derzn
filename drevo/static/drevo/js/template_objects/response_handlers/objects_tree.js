@@ -22,11 +22,11 @@ import {SelectObjectToUpdate} from "../objects_tree.js"
 export function CreateNewObjec(ans) {
 	const object_template = document.querySelector(".node.clone")
 
-	if (ans["res"] == "ok") {
+	if (ans.res == "ok") {
 		const object = object_template.cloneNode(true)
 		let parent
-		if (ans["object"].connected_to) {
-			parent = document.querySelector(`.node#id-${ans["object"].connected_to}`)
+		if (ans.object.connected_to) {
+			parent = document.querySelector(`.node#id-${ans.object.connected_to}`)
 			if (parent.classList.contains("leaf")) {
 				parent.classList.remove("leaf")
 				const ul = document.createElement("ul")
@@ -40,18 +40,19 @@ export function CreateNewObjec(ans) {
 		} else {
 			parent = document.querySelector(".objects-tree__containing-list")
 		}
-		if (ans["object"].is_main) {
+		if (ans.object.is_main) {
 			object.classList.add("group")
 		} else {
 			object.querySelector(".node-label__name").addEventListener("dblclick", SelectObject)
 		}
 
-		if (ans["object"].optional) {
+		if (ans.object.optional) {
 			object.classList.add("optional")
 		}
 			
 		object.classList.add("leaf")
-		object.setAttribute("id", `id-${ans["object"].id}`)
+		object.setAttribute("data-weight", ans.object.weight)
+		object.setAttribute("id", `id-${ans.object.id}`)
 
 		object.querySelector('.node-label__name span').innerHTML = (ans["object"].name)
 		object.querySelector(".node__expand-btn").addEventListener("click", ExpandCollapseNodeChildren)
@@ -60,7 +61,7 @@ export function CreateNewObjec(ans) {
 		object.querySelector(".node__actions .edit").addEventListener("click", SelectObjectToUpdate)
 		object.querySelector(".node__actions .delete").addEventListener("click", SelectObjectToDelete)
 		object.classList.remove("clone")
-		parent.appendChild(object)
+		parent.insertBefore(object, FindNextElement(Array.from(parent.querySelectorAll(">.node")), ans.object.weight))
 
 		show_message("Объект создан")
 
@@ -77,6 +78,7 @@ export function UpdateTree(ans) {
 		//обновить имя
 		object_node.querySelector(".node-label__name > span").innerHTML = ans.object.name
 
+		object_node.setAttribute("data-weight", ans.object.weight)
 		//Если сменился родитель объекта
 		const object_parent_node = object_node.parentElement.closest(".node")
 		if ((object_parent_node !== null ^ ans.object.connected_to !== null) || object_parent_node && (object_parent_node.id !== `id-${ans.object.connected_to}`)) {
@@ -93,7 +95,7 @@ export function UpdateTree(ans) {
 					object_new_parent_node.appendChild(ul)
 				}
 
-				object_new_parent_node.querySelector(".node-children").appendChild(object_node)
+				object_new_parent_node.querySelector(".node-children").insertBefore(object_node, FindNextElement(Array.from(object_new_parent_node.querySelectorAll(".>.node"))), ans.object.weight)
 
 				if (!object_node.classList.contains("child-node"))
 					object_node.classList.add("child-node")
@@ -179,4 +181,10 @@ export function ObjectDeletionHandler(ans) {
 	else {
 		show_message(ans["error"])
 	}
+}
+
+export function SaveAttentions(ans) {
+	console.log(ans)
+	SetGroupLeafsAttentions(ans.group_leafs)
+	attentionButton.style.display = group_leafs_attentions.length === 0 ? "none" : "inline-block"
 }
