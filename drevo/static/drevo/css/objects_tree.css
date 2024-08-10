@@ -16,7 +16,7 @@ ol.breadcrumb {
 
 .btn {
 	color: black;
-	margin: 0 5px;
+	margin: 5px;
 }
 
 .field select, .field option {
@@ -218,6 +218,12 @@ ol.breadcrumb {
 .btn-icon.edit, .btn-icon.delete {
 	width: 25px;
 	height: 25px;
+	padding: 0;
+}
+
+.btn-icon.attention {
+	width: 36px;
+	height: 36px;
 	padding: 0;
 }
 

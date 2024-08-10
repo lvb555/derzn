@@ -1,5 +1,14 @@
 import {show_message} from "./requirements.js"
-import {SelectObject, ExpandCollapseNodeChildren, objectModal, groupModal} from "../objects_tree.js"
+import {
+	SelectObject,
+	ExpandCollapseNodeChildren,
+	objectModal,
+	groupModal,
+	SetGroupLeafsAttentions,
+	attentionButton,
+	group_leafs_attentions,
+	FindNextElement
+} from "../objects_tree.js"
 import {ObjectInfoRequest} from "../requests/objects_tree.js"
 import {SelectObjectToDelete} from "../objects_tree.js"
 import {SelectObjectToUpdate} from "../objects_tree.js"

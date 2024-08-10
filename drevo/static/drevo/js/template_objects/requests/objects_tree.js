@@ -1,5 +1,13 @@
 import {ObjectProcessingBody, GroupProcessingBody} from "../setup_queries.js"
-import {CreateNewObjec, FillForm, UpdateTree, UpdateName, UpdateSelectorTree, ObjectDeletionHandler} from "../response_handlers/objects_tree.js"
+import {
+	CreateNewObjec,
+	FillForm,
+	UpdateTree,
+	UpdateName,
+	UpdateSelectorTree,
+	ObjectDeletionHandler,
+	SaveAttentions
+} from "../response_handlers/objects_tree.js"
 import {url, csrftoken} from "./requirements.js"
 import {action, editing_var, deleting_object} from "../objects_tree.js"
 
