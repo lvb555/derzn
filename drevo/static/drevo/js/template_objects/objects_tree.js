@@ -151,7 +151,7 @@ document.querySelector(".tree-actions .btn:first-child").addEventListener("click
 		elem.value = 100
 	})
 })
-document.querySelector(".tree-actions .btn:last-child").addEventListener("click", (e) => {
+document.querySelector(".tree-actions .btn:nth-child(2)").addEventListener("click", (e) => {
 	action="create"
 	editing_var = null
 
