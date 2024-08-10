@@ -14,6 +14,8 @@ const deleteModal = new bootstrap.Modal(document.getElementById('DeleteObjectMod
 export const groupModal = new bootstrap.Modal(document.getElementById('GroupModal'))
 export const objectModal = new bootstrap.Modal(document.getElementById('ObjectModal'))
 
+export const attentionButton = document.querySelector(".btn-icon.attention")
+
 const type = document.querySelector("#type_of select") // поле выбора типа содержимого
 const types = { // допустимые типы содержимого
 	"text": 0,
@@ -32,6 +34,10 @@ function update_state(e) {
 	let is_turple = type.value == types["tuple"]
 	subscription_block.style.display = type.value == types["number"] || type.value == types["date"] ? "block" : "none"
 	turple_block.style.display = type.value == types["tuple"] ? "block" : "none"
+}
+
+export function SetGroupLeafsAttentions(attentions) {
+	group_leafs_attentions = attentions
 }
 
 export function SelectObject(e) {
@@ -82,6 +88,12 @@ export function SelectObjectToUpdate(e) {
 	action = "edit"
     editing_var = e.target.closest(".node").id.split("-")[1]
 }
+
+attentionButton.addEventListener('click', (e) => {
+	group_leafs_attentions.forEach((i) => {
+		show_message(`Группа ${i.name} не содержит другие объекты`)
+	})
+})
 
 document.querySelector(".edit-menu #type_of select").addEventListener("change", update_state)
 
