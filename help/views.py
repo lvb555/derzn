@@ -26,6 +26,6 @@ def help_view(request, pk=None):
     # На дереве открытыми ветвями будут только те, которые идут до текущего раздела.
     if pk:
         cur_help = get_object_or_404(Help, pk=pk)
-        context['active_nodes'] = cur_help.get_ancestors()
-        context['cur_help'] = cur_help
+        context['active_nodes'] = (cur_help.alias if cur_help.alias else cur_help).get_ancestors()
+        context['cur_help'] = cur_help.alias if cur_help.alias else cur_help
     return render(request, "help/help.html", context)
