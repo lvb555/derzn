@@ -1078,7 +1078,7 @@ class TableStateAdmin(admin.ModelAdmin):
         for model in django.apps.apps.get_models():
 
             if model.__name__ != 'TableState':
-                name = model._meta.verbose_name
+                name = model._meta.verbose_name_plural
                 num_records = model.objects.all().count()
                 aware_datetime = timezone.make_aware(datetime.datetime.now())
                 TableState.objects.create(table_name=name, num_records=num_records, date_time=aware_datetime,
@@ -1092,18 +1092,21 @@ class TableStateAdmin(admin.ModelAdmin):
         for model in django.apps.apps.get_models():
             if model.__name__ != 'TableState':
 
-                name = model._meta.verbose_name
+                name = model._meta.verbose_name_plural
 
-                table_state = TableState.objects.get(table_name=name)
-                num_records_after = model.objects.all().count()
-                num_records_before = table_state.num_records
-                difference = num_records_after - num_records_before
-                table_state.difference = difference
-
-                if difference > 0:
-                    report.append([name, num_records_before, num_records_after, difference])
-                else:
-                    table_state.delete()
+                try:
+                    table_state = TableState.objects.get(table_name=name)
+                    num_records_after = model.objects.all().count()
+                    num_records_before = table_state.num_records
+                    difference = num_records_after - num_records_before
+                    table_state.difference = difference
+                    print(difference)
+                    if difference != 0:
+                        report.append([name, num_records_before, num_records_after, difference])
+                    else:
+                        table_state.delete()
+                except TableState.DoesNotExist:
+                    continue
 
             if not report:
                 report = "Проверка прошла успешно. Все таблицы целостны."
