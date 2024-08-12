@@ -48,6 +48,7 @@ function ObjectProcessingRequest(e) {
 	})
 }
 
+// удалить объект
 function ObjectDeletionRequest(e) {
 	return fetch(url + `/document_object_deletion?id=${deleting_object}`, {"method": "delete", "headers": {"X-CSRFToken": csrftoken}})
 	.then((response) => response.json())
@@ -59,6 +60,7 @@ function ObjectDeletionRequest(e) {
 	})
 }
 
+// Проверка наличия ошибок в дереве
 function ObjectTreeCorrectnessCheck(e) {
 	fetch(url + "/object_tree_correctness", {"method": "get", "headers": {"X-CSRFToken": csrftoken}})
 	.then(response => response.json())

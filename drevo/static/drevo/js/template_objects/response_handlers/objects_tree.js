@@ -27,7 +27,6 @@ export function CreateNewObjec(ans) {
 		if (ans.object.connected_to) {
 			parent = document.querySelector(`.node#id-${ans.object.connected_to}`)
 			if (parent.classList.contains("leaf")) {
-				console.log(parent)
 				parent.classList.remove("leaf")
 				const ul = document.createElement("ul")
 				ul.classList.add("node-children")
@@ -83,22 +82,24 @@ export function UpdateTree(ans) {
 		object_node.querySelector(".node-label__name > span").innerHTML = ans.object.name
 
 		object_node.setAttribute("data-weight", ans.object.weight)
-		//Если сменился родитель объекта
+		//Если сменился родитель объекта 
 		const object_parent_node = object_node.parentElement.closest(".node")
 		if ((object_parent_node !== null ^ ans.object.connected_to !== null) || object_parent_node && (object_parent_node.id !== `id-${ans.object.connected_to}`)) {
 			object_node.remove()
 			if (object_parent_node && object_parent_node.querySelectorAll(".node").length == 0)
 				object_parent_node.classList.add("leaf")
+			//Если объект не корневой
 			if (ans.object.connected_to !== null) {
 				let object_new_parent_node = document.querySelector(`.node#id-${ans.object.connected_to}`)
 				object_new_parent_node.classList.remove("leaf")
-
+				
 				if (!object_new_parent_node.querySelector(".node-children")) {
 					const ul = document.createElement("ul")
 					ul.classList.add("node-children")
 					object_new_parent_node.appendChild(ul)
 				}
 
+				// вставить в список детей родителя соотвествии с весом объекта
 				const elem_to_insert_before = FindNextElement(Array.from(object_new_parent_node.querySelector(".node-children").children), ans.object.weight)
 				if (elem_to_insert_before)
 					object_new_parent_node.querySelector(".node-children").insertBefore(object_node, elem_to_insert_before)
@@ -111,9 +112,12 @@ export function UpdateTree(ans) {
 
 				if (object_node.classList.contains("child-node"))
 					object_node.classList.remove("child-node")
-
-				const elem_to_insert_before = FindNextElement(Array.from(document.querySelector(".objects-tree__containing-list").children), ans.object.weight)
-				console.log(elem_to_insert_before, object_node, Array.from(object_new_parent_node.querySelector(".node-children").children))
+				
+				// вставить в список корневых элементов в соотвествии с весом объекта
+				const elem_to_insert_before = FindNextElement(
+												Array.from(document.querySelector(".objects-tree__containing-list").children),
+												ans.object.weight
+											)
 				if (elem_to_insert_before)
 					document.querySelector(".objects-tree__containing-list").insertBefore(object_node, elem_to_insert_before)
 				else
@@ -126,9 +130,9 @@ export function UpdateTree(ans) {
 			else
 				object_cur_parent = object_parent_node.querySelector(".node-children")
 			
+			// вставить в список детей родителя соотвествии с весом объекта
 			object_node.remove()
 			const elem_to_insert_before = FindNextElement(Array.from(object_cur_parent.children), ans.object.weight)
-			console.log(elem_to_insert_before, object_node, Array.from(object_cur_parent.children))
 			if (elem_to_insert_before)
 				object_cur_parent.insertBefore(object_node, elem_to_insert_before)
 			else
@@ -211,8 +215,8 @@ export function ObjectDeletionHandler(ans) {
 	}
 }
 
+// Сохранить все ошибки дерева объектов
 export function SaveAttentions(ans) {
-	console.log(ans)
 	SetGroupLeafsAttentions(ans.group_leafs)
 	attentionButton.style.display = group_leafs_attentions.length === 0 ? "none" : "inline-block"
 }

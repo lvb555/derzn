@@ -3,17 +3,19 @@
 
 import {show_message} from "./response_handlers/requirements.js"
 
+// кнопки сворачивания и разворачивания поддеревьев
 const expand_children = document.querySelectorAll(".node__expand-btn")
 const collapse_children = document.querySelectorAll(".node__collapse-btn")
 
 const turple_block = document.querySelector("#tuple") // поле выбора справочника
-
 const subscription_block = document.querySelector("#subscription") // чекбокс "прописью"
 
+// модальные окна
 const deleteModal = new bootstrap.Modal(document.getElementById('DeleteObjectModal'))
 export const groupModal = new bootstrap.Modal(document.getElementById('GroupModal'))
 export const objectModal = new bootstrap.Modal(document.getElementById('ObjectModal'))
 
+// кнопки вывода ошибок в дереве
 export const attentionButton = document.querySelector(".btn-icon.attention")
 
 const type = document.querySelector("#type_of select") // поле выбора типа содержимого
@@ -25,10 +27,10 @@ const types = { // допустимые типы содержимого
 	"complex": 4
 }
 
-export let deleting_object = null
-export let action = null
-export let editing_var = null
-export let group_leafs_attentions = []
+export let deleting_object = null // уляемый объект
+export let action = null // текущее действие над объекто(создать / изменить)
+export let editing_var = null // редактиреумый объект
+export let group_leafs_attentions = [] // список всех групп дез наследникав
 
 function update_state(e) {
 	// обновить форму
@@ -41,6 +43,7 @@ export function SetGroupLeafsAttentions(attentions) {
 	group_leafs_attentions = attentions
 }
 
+// выбор объекта для редактирования
 export function SelectObject(e) {
 	const object = e.target.closest(".node")
 
@@ -63,6 +66,7 @@ export function SelectObject(e) {
 	window.close()
 }
 
+// сворачивание/разворачивание поддерева
 export function ExpandCollapseNodeChildren(e) {
 	e.target.closest(".img-block").classList.toggle("hidden")
 	e.target.closest(".node").querySelector(".node-children").classList.toggle("hidden")
@@ -75,6 +79,7 @@ export function ExpandCollapseNodeChildren(e) {
 	e.target.closest(".node").querySelector(another_btn_class_name).classList.toggle("hidden")
 }
 
+//удаление объекта
 export function SelectObjectToDelete(e) {
 	const node = e.target.closest(".node")
 	deleting_object = Number(node.id.split('-')[1])
@@ -85,11 +90,13 @@ export function SelectObjectToDelete(e) {
 		deleteModal.show()
 }
 
+// редактирование объекта
 export function SelectObjectToUpdate(e) {
 	action = "edit"
     editing_var = e.target.closest(".node").id.split("-")[1]
 }
 
+// привязка функций к событиям
 attentionButton.addEventListener('click', (e) => {
 	group_leafs_attentions.forEach((i) => {
 		show_message(`Группа ${i.name} не содержит другие объекты`)

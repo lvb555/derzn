@@ -19,6 +19,7 @@ export function show_message(text) {
 	}, 10)
 }
 
+//найти объект с минимальным весом из objects, вес которого не меньше weight
 export function FindNextElement(objects, weight) {
 	let l = 0
 	let r = objects.length
