@@ -1,4 +1,4 @@
-import {show_message} from "./requirements.js"
+import {show_message, FindNextElement} from "./requirements.js"
 import {
 	SelectObject,
 	ExpandCollapseNodeChildren,
@@ -6,8 +6,7 @@ import {
 	groupModal,
 	SetGroupLeafsAttentions,
 	attentionButton,
-	group_leafs_attentions,
-	FindNextElement
+	group_leafs_attentions
 } from "../objects_tree.js"
 import {ObjectInfoRequest} from "../requests/objects_tree.js"
 import {SelectObjectToDelete} from "../objects_tree.js"
@@ -28,6 +27,7 @@ export function CreateNewObjec(ans) {
 		if (ans.object.connected_to) {
 			parent = document.querySelector(`.node#id-${ans.object.connected_to}`)
 			if (parent.classList.contains("leaf")) {
+				console.log(parent)
 				parent.classList.remove("leaf")
 				const ul = document.createElement("ul")
 				ul.classList.add("node-children")
@@ -57,11 +57,15 @@ export function CreateNewObjec(ans) {
 		object.querySelector('.node-label__name span').innerHTML = (ans["object"].name)
 		object.querySelector(".node__expand-btn").addEventListener("click", ExpandCollapseNodeChildren)
 		object.querySelector(".node__collapse-btn").addEventListener("click", ExpandCollapseNodeChildren)
-		object.querySelector(".node__actions .edit").addEventListener("click", ObjectInfoRequest)
-		object.querySelector(".node__actions .edit").addEventListener("click", SelectObjectToUpdate)
-		object.querySelector(".node__actions .delete").addEventListener("click", SelectObjectToDelete)
+		object.querySelector(".node-actions .edit").addEventListener("click", ObjectInfoRequest)
+		object.querySelector(".node-actions .edit").addEventListener("click", SelectObjectToUpdate)
+		object.querySelector(".node-actions .delete").addEventListener("click", SelectObjectToDelete)
 		object.classList.remove("clone")
-		parent.insertBefore(object, FindNextElement(Array.from(parent.querySelectorAll(">.node")), ans.object.weight))
+		const elem_to_insert_before = FindNextElement(Array.from(parent.children), ans.object.weight)
+		if (elem_to_insert_before)
+			parent.insertBefore(object, elem_to_insert_before)
+		else
+			parent.appendChild(object)
 
 		show_message("Объект создан")
 
@@ -95,7 +99,11 @@ export function UpdateTree(ans) {
 					object_new_parent_node.appendChild(ul)
 				}
 
-				object_new_parent_node.querySelector(".node-children").insertBefore(object_node, FindNextElement(Array.from(object_new_parent_node.querySelectorAll(".>.node"))), ans.object.weight)
+				const elem_to_insert_before = FindNextElement(Array.from(object_new_parent_node.querySelector(".node-children").children), ans.object.weight)
+				if (elem_to_insert_before)
+					object_new_parent_node.querySelector(".node-children").insertBefore(object_node, elem_to_insert_before)
+				else
+					object_new_parent_node.querySelector(".node-children").appendChild(object_node)
 
 				if (!object_node.classList.contains("child-node"))
 					object_node.classList.add("child-node")
@@ -103,8 +111,28 @@ export function UpdateTree(ans) {
 
 				if (object_node.classList.contains("child-node"))
 					object_node.classList.remove("child-node")
-				document.querySelector(".objects-tree__containing-list").appendChild(object_node)
+
+				const elem_to_insert_before = FindNextElement(Array.from(document.querySelector(".objects-tree__containing-list").children), ans.object.weight)
+				console.log(elem_to_insert_before, object_node, Array.from(object_new_parent_node.querySelector(".node-children").children))
+				if (elem_to_insert_before)
+					document.querySelector(".objects-tree__containing-list").insertBefore(object_node, elem_to_insert_before)
+				else
+					document.querySelector(".objects-tree__containing-list").appendChild(object_node)
 			}
+		} else {
+			let object_cur_parent
+			if (!object_parent_node)
+				object_cur_parent = document.querySelector(".objects-tree__containing-list")
+			else
+				object_cur_parent = object_parent_node.querySelector(".node-children")
+			
+			object_node.remove()
+			const elem_to_insert_before = FindNextElement(Array.from(object_cur_parent.children), ans.object.weight)
+			console.log(elem_to_insert_before, object_node, Array.from(object_cur_parent.children))
+			if (elem_to_insert_before)
+				object_cur_parent.insertBefore(object_node, elem_to_insert_before)
+			else
+				object_cur_parent.appendChild(object_node)
 		}	
 		show_message("Изменения сохранены")
 	} else {
@@ -174,7 +202,7 @@ export function ObjectDeletionHandler(ans) {
 	if (ans.res === "ok") {
 		document.querySelector(`.node#id-${ans.object.id}`).remove()
 		const parent = document.querySelector(`.node#id-${ans.object.connected_to}`)
-		if (parent && document.querySelectorAll(`node#id-${ans.object.connected_to} > ul > li`).length === 0)
+		if (parent && document.querySelectorAll(`.node#id-${ans.object.connected_to} > ul > li`).length === 0)
 			parent.classList.add("leaf")
 		show_message(`Объект ${ans.object.name} удaлен.`)
 	}

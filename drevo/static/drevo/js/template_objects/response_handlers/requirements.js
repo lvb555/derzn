@@ -18,3 +18,19 @@ export function show_message(text) {
 		}, 3000)
 	}, 10)
 }
+
+export function FindNextElement(objects, weight) {
+	let l = 0
+	let r = objects.length
+	while(r > l) {
+		let w = Math.trunc((r + l) / 2)
+		if (objects[w].dataset.weight >= weight) {
+			r = w - 1
+		} else {
+			l = w + 1
+		}
+	}
+	if (l == objects.length)
+		return null
+	return objects[l]
+}

@@ -85,22 +85,6 @@ export function SelectObjectToDelete(e) {
 		deleteModal.show()
 }
 
-export function FindNextElement(objects, weight) {
-	let l = 0
-	let r = objects.length()
-	let w = Math.trunc((r + l) / 2)
-	while(r - l > 1) {
-		if (objects[w].dataset.weight < weight) {
-			l = w
-		} else {
-			r = w
-		}
-	}
-	if (r == object.length())
-		return null
-	return objects[r]
-}
-
 export function SelectObjectToUpdate(e) {
 	action = "edit"
     editing_var = e.target.closest(".node").id.split("-")[1]
