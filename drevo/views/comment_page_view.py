@@ -5,6 +5,7 @@ from django.views.generic.edit import ProcessFormView
 from ..models import Znanie, Comment
 from ..models import Znanie, Comment
 from loguru import logger
+from drevo.models.comment import Comment
 
 
 logger.add('logs/main.log',

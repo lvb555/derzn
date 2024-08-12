@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404 , redirect , reverse , HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.http import Http404, JsonResponse
 from django.views.generic.edit import ProcessFormView
@@ -6,7 +6,7 @@ from ..models import Znanie,Comment
 from ..models import Znanie, Comment
 from users.models import User
 from loguru import logger
-
+from drevo.models.comment import Comment
 
 logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
@@ -67,3 +67,30 @@ class CommentSendView(ProcessFormView):
                 )
 
         raise Http404
+
+
+def like(request, pk):
+    if request.user.is_authenticated:
+        comment = get_object_or_404(Comment, id=pk)
+        if comment.likes.filter(id=request.user.id):
+            comment.likes.remove(request.user)
+        else:
+            comment.likes.add(request.user)
+            comment.dislikes.remove(request.user)
+        return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+    else:
+        return redirect('users:login')
+
+def dislike(request, pk):
+    if request.user.is_authenticated:
+        comment = get_object_or_404(Comment, id=pk)
+        if comment.dislikes.filter(id=request.user.id):
+            comment.dislikes.remove(request.user)
+        else:
+            comment.dislikes.add(request.user)
+            comment.likes.remove(request.user)
+        return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+    else:
+        return redirect('users:login')
+
+
