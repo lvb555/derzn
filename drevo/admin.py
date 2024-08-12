@@ -1100,7 +1100,7 @@ class TableStateAdmin(admin.ModelAdmin):
                     num_records_before = table_state.num_records
                     difference = num_records_after - num_records_before
                     table_state.difference = difference
-                    print(difference)
+
                     if difference != 0:
                         report.append([name, num_records_before, num_records_after, difference])
                     else:
