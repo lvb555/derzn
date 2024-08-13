@@ -77,26 +77,34 @@ def search_page(request):
         message = 'Результаты поиска:'
 
         filters = {
-            'functional': request.GET.get('functional', False) == 'on',
-            'layout': request.GET.get('layout', False) == 'on',
-            'design_needed': request.GET.get('design_needed', False) == 'on',
-            'design': request.GET.get('design', False) == 'on',
-            'help_page_content': request.GET.get('help_page_content', False) == 'on',
-            'help_page': request.GET.get('help_page', False) == 'on',
-            'notification': request.GET.get('notification', False) == 'on',
+            'functional': request.GET.get('functional'),
+            'layout': request.GET.get('layout'),
+            'design_needed': request.GET.get('design_needed'),
+            'design': request.GET.get('design'),
+            'help_page_content': request.GET.get('help_page_content'),
+            'help_page': request.GET.get('help_page'),
+            'notification': request.GET.get('notification'),
             'status_id': request.GET.get('status')
         }
-
+        try:
+            status_id = int(filters.get('status_id'))
+        except ValueError:
+            status_id = ''
         query = Q()
         for key, value in filters.items():
-            if value:
-                query.add(Q(**{key: value}), Q.AND)
+            if value and value != 'Выбрать':
+                if value == 'yes':
+                    query.add(Q(**{key: True}), Q.AND)
+                elif value == 'no':
+                    query.add(Q(**{key: False}), Q.AND)
+                else:
+                    query.add(Q(**{key: value}), Q.AND)
 
         pages = SitePage.objects.filter(query)
         if not pages:
             message = 'Страниц сайта не найдено'
 
-        context = {'all_status': all_status, 'pages': pages, 'message': message}
+        context = {'all_status': all_status, 'pages': pages, 'message': message,'status_id':status_id}
         return render(request, 'drevo/search_page.html', context)
 
     else:
