@@ -1077,7 +1077,7 @@ class TableStateAdmin(admin.ModelAdmin):
     def save_state(self, request):
         for model in django.apps.apps.get_models():
 
-            if model.__name__ != 'TableState':
+            if model.__name__ != 'TableState' and model.__name__ != 'LogEntry':
                 name = model._meta.verbose_name_plural
                 num_records = model.objects.all().count()
                 aware_datetime = timezone.make_aware(datetime.datetime.now())
@@ -1090,7 +1090,7 @@ class TableStateAdmin(admin.ModelAdmin):
         report = []
 
         for model in django.apps.apps.get_models():
-            if model.__name__ != 'TableState':
+            if model.__name__ != 'TableState' and model.__name__ != 'LogEntry':
 
                 name = model._meta.verbose_name_plural
 
@@ -1108,7 +1108,7 @@ class TableStateAdmin(admin.ModelAdmin):
                 except TableState.DoesNotExist:
                     continue
 
-            if not report:
-                report = "Проверка прошла успешно. Все таблицы целостны."
+        if not report:
+            report = "Проверка прошла успешно. Все таблицы целостны."
 
         return render(request, 'admin/drevo/bd/check_integrity.html', {'result': report})
