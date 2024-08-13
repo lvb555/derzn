@@ -84,7 +84,7 @@ export function SelectObjectToDelete(e) {
 	const node = e.target.closest(".node")
 	deleting_object = Number(node.id.split('-')[1])
 	//является ли элемент родителем
-	if (node.querySelector(".node-children"))
+	if (!node.classList.contains("leaf"))
 		show_message("Нельзя удалить родителя")
 	else
 		deleteModal.show()
