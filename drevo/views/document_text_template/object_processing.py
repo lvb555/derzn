@@ -58,21 +58,9 @@ class DocumentObjectProcessingView(View):
             form.cleaned_data['structure'] = int(form.cleaned_data['structure'])
 
             if form.cleaned_data['action'] == 'create':
-                obj_to_return = TemplateObject.objects.create(
-                    name=form.cleaned_data['name'],
-                    structure=form.cleaned_data['structure'],
-                    is_main=form.cleaned_data['is_main'],
-                    availability=form.cleaned_data['availability'],
-                    weight=form.cleaned_data['weight'],
-                    fill_title=form.cleaned_data['fill_title'],
-                    subscription=form.cleaned_data['subscription'],
-                    optional=form.cleaned_data['optional'],
-                    type_of=form.cleaned_data['type_of'],
-                    knowledge=form.cleaned_data['knowledge'],
-                    connected_to=form.cleaned_data['connected_to'],
-                    turple=form.cleaned_data['turple'],
-                    comment=form.cleaned_data['comment'],
-                    user=request.user)
+                form.cleaned_data.pop('pk')
+                form.cleaned_data.pop('action')
+                obj_to_return = TemplateObject.objects.create(user=request.user, **form.cleaned_data)
             elif form.cleaned_data['action'] == 'edit':
                 obj_to_return = form.cleaned_data['pk']
                 form.cleaned_data['pk'].name = form.cleaned_data['name']
