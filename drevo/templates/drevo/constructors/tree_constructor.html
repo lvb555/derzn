@@ -17,6 +17,9 @@
         <script src="{% static 'drevo/js/constructors/algorithm_constructor.js' %}"></script>
     {% else %}
         <script src="{% static 'drevo/js/constructors/document_constructor.js' %}"></script>
+    {% if type_of_zn == 'algorithm' %}
+        <script src="{% static 'drevo/js/constructors/discussion_constructor.js' %}"></script>
+    {% endif %}
     {% endif %}
 {% endblock %}
 
