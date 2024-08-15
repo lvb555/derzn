@@ -1,10 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views import View
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-
+from django.contrib.contenttypes.fields import GenericRelation
 
 
 User = get_user_model()
@@ -82,4 +78,9 @@ class Comment(models.Model):
     @property
     def get_max_length(self):
         return self.CONTENT_MAX_LENGTH
+
+
+
+
+
 
