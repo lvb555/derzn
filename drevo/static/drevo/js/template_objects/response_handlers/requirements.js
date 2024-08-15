@@ -23,7 +23,7 @@ export function show_message(text) {
 export function FindNextElement(objects, weight) {
 	let l = -1
 	let r = objects.length
-	while(r > l) {
+	while(r - 1 > l) {
 		let w = Math.trunc((r + l) / 2)
 		if (objects[w].dataset.weight >= weight) {
 			r = w
