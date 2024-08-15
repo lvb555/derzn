@@ -21,17 +21,17 @@ export function show_message(text) {
 
 //найти объект с минимальным весом из objects, вес которого не меньше weight
 export function FindNextElement(objects, weight) {
-	let l = 0
+	let l = -1
 	let r = objects.length
 	while(r > l) {
 		let w = Math.trunc((r + l) / 2)
 		if (objects[w].dataset.weight >= weight) {
-			r = w - 1
+			r = w
 		} else {
-			l = w + 1
+			l = w
 		}
 	}
-	if (l == objects.length)
+	if (r == objects.length)
 		return null
-	return objects[l]
+	return objects[r]
 }
