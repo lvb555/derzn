@@ -6,7 +6,7 @@ from ..models import Znanie,Comment
 from ..models import Znanie, Comment
 from users.models import User
 from loguru import logger
-from drevo.models.comment import Comment
+
 
 logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
@@ -73,7 +73,7 @@ def like(request, pk):
     if request.user.is_authenticated:
         comment = get_object_or_404(Comment, id=pk)
         if comment.likes.filter(id=request.user.id):
-            comment.likes.remove(request.user)
+            comment.likes.remove(request.user)                  # повторный вызов функции убирает лайк
         else:
             comment.likes.add(request.user)
             comment.dislikes.remove(request.user)
@@ -85,11 +85,11 @@ def dislike(request, pk):
     if request.user.is_authenticated:
         comment = get_object_or_404(Comment, id=pk)
         if comment.dislikes.filter(id=request.user.id):
-            comment.dislikes.remove(request.user)
+            comment.dislikes.remove(request.user)               # повторный вызов функции убирает дизлайк
         else:
             comment.dislikes.add(request.user)
             comment.likes.remove(request.user)
-        return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+        return redirect(request.META.get('HTTP_REFERER', '/'))
     else:
         return redirect('users:login')
 
