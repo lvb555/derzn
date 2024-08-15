@@ -42,7 +42,7 @@ def document_object_deletion_view(request, doc_pk):
     if templates_that_use.count():
 
         error_text = f'Этот объект используется в следующих шаблонах:<br>'
-        error_text = ', '.join([template.name for template in templates_that_use])
+        error_text += ', '.join([template.name for template in templates_that_use])
 
         return JsonResponse({'res': 'err', 'error': error_text})
     if not obj.is_leaf_node():
