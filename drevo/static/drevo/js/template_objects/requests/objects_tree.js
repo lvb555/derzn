@@ -1,6 +1,6 @@
 import {ObjectProcessingBody, GroupProcessingBody} from "../setup_queries.js"
 import {
-	CreateNewObjec,
+	CreateNewObject,
 	FillForm,
 	UpdateTree,
 	UpdateName,
@@ -37,7 +37,7 @@ function ObjectProcessingRequest(e) {
 	.then((response) => response.json())
 	.then((ans) => {
 		if(action === "create")
-			CreateNewObjec(ans)
+			CreateNewObject(ans)
 		else {
 			UpdateTree(ans)
 			UpdateName(ans)

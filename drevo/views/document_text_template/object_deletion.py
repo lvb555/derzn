@@ -39,13 +39,12 @@ def document_object_deletion_view(request, doc_pk):
         return JsonResponse({'res': 'err', 'error': 'Нельзя удалить общий объект.'})
 
     templates_that_use = obj.templates_that_use.all()
-    if templates_that_use.count() != 0:
+    if templates_that_use.count():
 
         error_text = f'Этот объект используется в следующих шаблонах:<br>'
-        for template in templates_that_use:
-            error_text += f'{template.name}, '
+        error_text = ', '.join([template.name for template in templates_that_use])
 
-        return JsonResponse({'res': 'err', 'error': error_text[:-2]})
+        return JsonResponse({'res': 'err', 'error': error_text})
     if not obj.is_leaf_node():
         return JsonResponse({'res': 'err', 'error': 'Нельзя удалить родителя.'})
 

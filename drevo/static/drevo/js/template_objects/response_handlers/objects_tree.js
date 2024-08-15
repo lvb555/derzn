@@ -18,7 +18,7 @@ import {SelectObjectToUpdate} from "../objects_tree.js"
 
 
 // Добавляет новою вершину(лист) в дерево объектов. Вершина соответсвует новому объекту.
-export function CreateNewObjec(ans) {
+export function CreateNewObject(ans) {
 	const object_template = document.querySelector(".node.clone")
 
 	if (ans.res == "ok") {

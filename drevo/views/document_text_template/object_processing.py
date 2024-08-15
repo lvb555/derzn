@@ -51,10 +51,10 @@ class DocumentObjectProcessingView(View):
                 })
         try:
             form.cleaned_data['type_of'] = int(form.cleaned_data['type_of']) if form.cleaned_data['type_of'] != '' else 0
-            form.cleaned_data['weight'] = int(form.cleaned_data['weight']) if form.cleaned_data['weight'] is not None else 100
+            form.cleaned_data['weight'] = int(form.cleaned_data['weight'] or 100)
             form.cleaned_data['availability'] = int(form.cleaned_data['availability'])
-            form.cleaned_data['fill_title'] = form.cleaned_data['fill_title'] if form.cleaned_data['fill_title'] is not None else ''
-            form.cleaned_data['comment'] = form.cleaned_data['comment'] if form.cleaned_data['comment'] is not None else ''
+            form.cleaned_data['fill_title'] = form.cleaned_data['fill_title'] or ''
+            form.cleaned_data['comment'] = form.cleaned_data['comment'] or ''
             form.cleaned_data['structure'] = int(form.cleaned_data['structure'])
 
             if form.cleaned_data['action'] == 'create':
