@@ -1025,6 +1025,7 @@ class TurpleElementAdmin(admin.ModelAdmin):
     list_display = ('id', 'weight', 'value', 'turple', 'object')
     list_filter = ('turple', 'object')
     search_fields = ('object',)
+    autocomplete_fields = ('object', )
     ordering = ('weight', )
     sortable_by = ('id', 'weight')
 
@@ -1043,6 +1044,7 @@ class TemplateObjectAdmin(admin.ModelAdmin):
     search_fields = ('knowledge__name', 'connected_to__name', 'name')
     sortable_by = ('id', 'weight')
     autocomplete_fields = ('knowledge', )
+    ordering = ('weight', )
     form = TemplateObjectAdminForm
 
 

@@ -18,6 +18,7 @@ class ObjectsTree(TemplateView):
 
         document_knowledge = Znanie.objects.get(id=context['doc_pk'])
         objects = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0) | Q(user=self.request.user, availability=1) | Q(user=None, availability=1) | Q(availability=2))
+        groups = TemplateObject.objects.filter(Q(knowledge=document_knowledge, availability=0, is_main=True) | Q(user=self.request.user, availability=1, is_main=True) | Q(user=None, availability=1, is_main=True) | Q(availability=2, is_main=True))
 
         context['knowledge'] = document_knowledge
         context['objects'] = objects
@@ -28,6 +29,6 @@ class ObjectsTree(TemplateView):
         context['var_form'].fields['connected_to'].queryset = objects
 
         context['group_form'] = GroupForm(initial={'knowledge': document_knowledge})
-        context['group_form'].fields['parent'].queryset = objects
+        context['group_form'].fields['connected_to'].queryset = groups
 
         return context

@@ -143,9 +143,11 @@ from .relations_preparing_work import (
 
 from .document_text_template import (
     DocumentTextTemplateEdit,
-    document_object_processing_view,
+    DocumentObjectProcessingView,
     ObjectsTree,
-    save_text_template_view
+    save_text_template_view,
+    document_object_deletion_view,
+    object_tree_correctnes_check_view
 )
 
 __all__ = [
