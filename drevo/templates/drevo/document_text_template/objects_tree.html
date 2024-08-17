@@ -41,11 +41,11 @@
 			<p class="node-label__name">
 				<span></span>
 			</p>
-			<div class="node__actions">
-				<button class="edit btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">
+			<div class="node-actions">
+				<button class="edit btn btn-icon" type="button">
 					<img src="{% static 'drevo/img/pencil.svg'%}" alt="Изменить">
 				</button>
-				<button class="delete btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#DeleteObjectModal">
+				<button class="delete btn btn-icon" type="button">
 					<img src="{% static 'drevo/img/bin.svg'%}" alt="Удалить">
 				</button>
 			</div>
@@ -73,7 +73,7 @@
 				</h3>
 			<ul class="objects-tree__containing-list">
 				{% recursetree objects %}
-					<li id="id-{{node.id}}" class="node{% if node.level > 0 %} child-node{% endif %}{% if node.is_leaf_node %} leaf{% endif %} {% if node.is_main %} group{% endif %} {% if node.availability == 0 %} local {% elif node.availability == 1 %} global {% else %} general {% endif %} {% if node.optional%} optional{% endif %}">
+					<li id="id-{{node.id}}" class="node{% if node.level > 0 %} child-node{% endif %}{% if node.is_leaf_node %} leaf{% endif %} {% if node.is_main %} group{% endif %} {% if node.availability == 0 %} local {% elif node.availability == 1 %} global {% else %} general {% endif %} {% if node.optional%} optional{% endif %}" data-weight="{{node.weight}}">
 					<div class="node__collapse-expand-btns">
 						<button class="img-block node__expand-btn hidden">
 							<img src="{% static 'drevo/img/knowledge_search/plus.svg'%}" alt="">
@@ -87,10 +87,10 @@
 							<span>{{ node.name }}</span>
 						</p>
 						<div class="node-actions">
-							<button class="edit btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">
+							<button class="edit btn btn-icon" type="button">
 								<img src="{% static 'drevo/img/pencil.svg'%}" alt="Изменить">
 							</button>
-							<button class="delete btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#DeleteObjectModal">
+							<button class="delete btn btn-icon" type="button">
 								<img src="{% static 'drevo/img/bin.svg'%}" alt="Удалить">
 							</button>
 						</div>
@@ -108,6 +108,7 @@
 		<div class="tree-actions">
 			<button class="btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">Новый объект</button>
 			<button class="btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#GroupModal">Новая группа</button>
+			<button class="attention btn btn-icon" type="button"><img src="{% static 'drevo/img/warning.png' %}" alt=""></button>
 		</div>
 	</div>
 

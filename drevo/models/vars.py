@@ -94,3 +94,4 @@ class TemplateObject(MPTTModel):
 
     class MPTTMeta:
         parent_attr = 'connected_to'
+        order_insertion_by = ('weight', )

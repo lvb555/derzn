@@ -37,7 +37,10 @@ from .views import (AdminsPermissionsDeleteView, AlgorithmDetailView,
                     advance_search_by_tree_view, check_related,
                     create_additional_knowledge, delete_competence_admin,
                     delete_competence_expert, delete_editor_permissions,
-                    document_object_processing_view, friends_added_view,
+                    DocumentObjectProcessingView,
+                    document_object_deletion_view,
+                    object_tree_correctnes_check_view,
+                    friends_added_view,
                     friends_view, get_related_tz, get_required_rz,
                     get_required_tr, knowledge_feed_view, knowledges_grades,
                     messages_feed_view, my_knowledge_grade,
@@ -256,7 +259,15 @@ urlpatterns = [
     ),
     path(
         "znanie/<int:doc_pk>/document-template/document_object_processing",
-        document_object_processing_view,
+        DocumentObjectProcessingView.as_view(),
+    ),
+    path(
+        "znanie/<int:doc_pk>/document-template/document_object_deletion",
+        document_object_deletion_view
+    ),
+    path(
+        "znanie/<int:doc_pk>/document-template/object_tree_correctness",
+        object_tree_correctnes_check_view
     ),
     path(
         "znanie/<int:doc_pk>/document-template/object-select",
