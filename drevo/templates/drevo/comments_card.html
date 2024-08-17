@@ -1,5 +1,6 @@
 {% load humanize %}
 {% load static %}
+
 <div class="{% if comment.parent %} comment-answer {% else %} comment-card {% endif %} card rounded-3 mb-4"
      id="{{ comment.id }}" {% if card_is_hidden %} hidden {% endif %}>
     <div class="card-body" style="padding: 24px;">
@@ -60,20 +61,6 @@
                     {% if not comment.get_answers.exists %} disabled {% endif %}>
                 <span class="comment-answer" style="color: #083E2F;">Ответы (<span id="answersCount{{ comment.id }}">{{ comment.get_answers.count }}</span>)</span>
             </button>
-        <a href="{% url 'like' comment.id %}">
-<i class="bi-hand-thumbs-up-fill bi-hand-thumbs-up fs-10 btn btn-icon"
-   id="likeIcon">
-    <img src="{% static 'drevo/img/grey_arm.png' %}" width="10px">
-    <span id="likesCounter" class="header_info breadcrumb-item">{{ comment.number_of_likes }}</span>
-</i>
-</a>
-<a href="{% url 'dislike' comment.id %}">
-<i class="bi-hand-thumbs-up-fill bi-hand-thumbs-down fs-10 btn btn-icon"
-   id="likeIcon">
-    <img src="{% static 'drevo/img/grey_arm.png' %}" width="10px">
-    <span id="likesCounter" class="header_info breadcrumb-item">{{ comment.number_of_dislikes }}</span>
-</i>
-</a>
             <button data-bs-toggle="collapse" data-bs-target="#collapsedReplyForm{{ comment.id }}"
                     aria-expanded="false" aria-controls="collapsedReplyForm{{ comment.id }}"
                     {% if not is_authenticated or not comment.is_published %} disabled {% endif %}
@@ -83,6 +70,7 @@
             </button>
         </div>
     </div>
+
     <div class="reply-form-block collapse" id="collapsedReplyForm{{ comment.id }}">
         <div class="p-3">
             {% include 'drevo/comments_form.html' with comment=comment %}
@@ -94,7 +82,3 @@
         {% include 'drevo/comments_list.html' with comments=comment.get_answers %}
     {% endif %}
 </div>
-
-
-
-
