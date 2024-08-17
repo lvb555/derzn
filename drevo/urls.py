@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 
+from drevo.views.comment_send_view import like,dislike
 from drevo.views.interviews_statistics_view import dimensional_distributions_1, dimensional_distributions_2
 from drevo.views.interviews_all_view import interviews_all
 from drevo.views.interview_table_view import interview_table
@@ -98,6 +99,12 @@ from .views.subscription_by_tag_view import sub_by_tag
 from .views.user_suggestion_view import UserSuggestionView
 from .views.users_documents import (ChangeDocumentView, CreateDocumentView,
                                     DeleteDocumentView)
+from django.conf.urls import url
+from django.contrib.auth.decorators import login_required
+
+from . import views
+from drevo.models import Comment
+
 
 urlpatterns = [
     # Общие
@@ -593,7 +600,11 @@ urlpatterns = [
     # служебное? возвращает json
     path("get_required_tr", get_required_tr, name="get_required_tr"),
     path("get_required_rz", get_required_rz, name="get_required_rz"),
-]
+    # лайк дизлайк в комментариях
+    path("like/<int:pk>", like, name="like"),
+    path("dislike/<int:pk>", dislike, name="dislike"),
+    ]
+
 
 # пути для работы конструкторов знаний
 urlpatterns += urls_constructor

@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.contrib.contenttypes.fields import GenericRelation
+
 
 User = get_user_model()
 
@@ -47,6 +49,14 @@ class Comment(models.Model):
         verbose_name='Дата и время изменения',
     )
     objects = models.Manager()
+    likes = models.ManyToManyField(User, related_name="comments_like", blank=True)
+    dislikes = models.ManyToManyField(User, related_name="comments_dislike", blank=True)
+
+    def number_of_likes(self):
+            return self.likes.count()
+
+    def number_of_dislikes(self):
+            return self.dislikes.count()
 
     class Meta:
         verbose_name = 'Комментарий знания'
@@ -68,3 +78,9 @@ class Comment(models.Model):
     @property
     def get_max_length(self):
         return self.CONTENT_MAX_LENGTH
+
+
+
+
+
+

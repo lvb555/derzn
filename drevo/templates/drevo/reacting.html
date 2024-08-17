@@ -15,7 +15,7 @@
               </div>
               <div class="mx-3" style="white-space: nowrap">
                     <button type="button" id="dislikeButton" class="btn btn-icon"
-                    {% if not user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
+                    {% if not   user.is_authenticated %} data-bs-toggle="modal" data-bs-target="#authModal" {% endif %}>
                         <i class="bi {% if user_vote.dislike %} bi-hand-thumbs-down-fill {% else %} bi-hand-thumbs-down {% endif %} fs-5"
                             id="dislikeIcon">
                             <img src="{% static 'drevo/img/grey_arm.png' %}" width="14px">
