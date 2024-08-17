@@ -65,20 +65,20 @@
                     {{ unread }}
                 </span>
             </button>
-
+            
             <div class="d-flex flex-row mt-3">
                 <select id="select_data" class="me-4 select_box shadow-none">
                     <option value="1" selected>Все знания</option>
                     <option value="2">Прочитанное</option>
                     <option value="3">Непрочитанное</option>
                 </select>
-
+            
                 <form class="d-flex" role="search">
                     <i id="search_icon" class="cart-icon material-icons" style="color: #BFBFBF">search</i><input id="search_bar_more_width" class="form-control shadow-none" type="search" placeholder="Поиск">
                 </form>
             </div>
         </div>
-
+    
         <div class="mt-3" style="border-radius: 10px; background: #FFFFFF">
             {% for message in messages %}
                 <div class="{% if message.was_read %} card message was_read read_message {% else %} card message unread_message {% endif %}">
@@ -122,7 +122,7 @@
                     </div>
 
                     <div class="card-body" style="border: none; background: none">
-
+                        
                         <div class="d-flex justify-content-between">
 
                             <div class="d-flex flex-row">
@@ -142,14 +142,14 @@
                             <p>{{message.text}}</p>
                         </div>
 
-                        <div class="d-flex flex-row mt-4">
+                        <div class="d-flex flex-row mt-4">                          
                             <button class="btn btn_accept open-popup me-2 shadow-none">Переслать</button>
                             <div class="popup__bg">
                                 <form class="popup" method="post" id="feedmessage_form" novalidate" onsubmit="return false;">
                                     {% csrf_token %}
                                     <svg class="close-popup" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="#BFBFBF" d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/></svg>
                                     <h6 class="text-center send_mess">Отправка знания друзьям</h6>
-
+    
                                     <div class="mt-1 d-flex flex-row flex-grow-1">
                                         {% if message.znanie.tz.name == 'Тезис' %}
                                             <img src="{% static 'drevo/img/knowledge_icons/thesis.png' %}" height="26px" width="20px">
@@ -170,7 +170,7 @@
                                         {% endif %}
                                         <p name="znanie" class="ms-1 znanie_popup" required id="id_znanie">{{message.znanie.name}}</p>
                                     </div>
-
+    
                                     <div class="mt-3">
                                         <label>Выберите ярлык <span class="text-danger">*</span></label>
                                         <select class="form-select shadow-none" name="label" required id="id_label">
@@ -180,7 +180,7 @@
                                             {% endfor %}
                                         </select>
                                     </div>
-
+    
                                     <div class="mt-3 col-auto message-text">
                                         <label>Текст письма <span class="text-danger">*</span></label>
                                         <textarea name="text" cols="40" rows="10" class="form-control shadow-none" maxlength="511" required id="id_text"></textarea>
@@ -190,7 +190,7 @@
                                             {{form.errors.text}}
                                         </ul>
                                     {% endif %}
-
+    
                                     <div id="send_to">
                                         {% if friends_count > 0 %}
                                             <label>Получатели <span class="text-danger">*</span></label>
@@ -233,7 +233,7 @@
                 <div class="container">
                     <p id="part">{{part_message}}</p>
                 </div>
-
+                
                 <nav>
                     <ul class="pagination justify-content-end">
                       <li>
@@ -328,7 +328,7 @@
 
     <script>
         // обработка открытия и закрытия модального окна
-
+        
         var popupBgs = document.querySelectorAll('.popup__bg');
         var popupBg = document.querySelector('.popup__bg');
         var popups = document.querySelectorAll('.popup');
@@ -392,9 +392,9 @@
         });
 
     </script>
-
+    
     <script>
-        // проверка, надо ли показывать "Счетчик непрочитанных сообщений"
+        // проверка, надо ли показывать "Счетчик непрочитанных сообщений" 
         // если непрочитанных = 0, то счетчик скрывается
         // вызывается после изменения чек-бокса "Прочитано" у каждого сообщения
 
@@ -442,13 +442,13 @@
 
         var all_checkboxes = document.getElementsByClassName('message-checkbox');
 
-        // ajax-запрос на изменение значения was_read выбранного сообщения
+        // ajax-запрос на изменение значения was_read выбранного сообщения 
         Array.from(all_checkboxes).forEach(element => {
             element.onchange = function(event) {
                 event.preventDefault();
-                $.ajax({
-                url:  `{% url 'knowledge_feed' %}`,
-                type: 'POST',
+                $.ajax({ 
+                url:  `{% url 'knowledge_feed' %}`, 
+                type: 'POST', 
                 data: {csrfmiddlewaretoken: '{{ csrf_token }}', "message_id": element.value, "task": "read_message"},
                 error: function(data){
                     element.checked = data.done;
@@ -552,7 +552,7 @@
 
             // если чекбокс прожат
             if(element.checked) {
-
+                
                 // добавление всех id всех чекбоксов в массив
                 for (var i = 0; i < all_checkboxes.length; i++) {
                     if(!friends_ids_array.includes(Number(all_checkboxes[i].value))) {
@@ -560,7 +560,7 @@
                     }
                 }
 
-                // включение всех чекбоксов
+                // включение всех чекбоксов 
                 for (var i = 0; i < all_checkboxes.length; i++) {
                     all_checkboxes[i].checked = true;
                 }
@@ -580,16 +580,16 @@
         element.addEventListener('click', function() {
 
         // получение элементов формы, которые идут сразу после нажатой кнопки
-        var text = element.parentElement.parentElement.querySelector("textarea").value;
-        var label_id = element.parentElement.parentElement.querySelector("select").value;
+        var text = element.parentElement.parentElement.querySelector("textarea").value;      
+        var label_id = element.parentElement.parentElement.querySelector("select").value;       
         var znanie_name = element.parentElement.parentElement.querySelector("p").innerHTML;
 
         if(!(text == '') & friends_ids_array.length > 0) {
             // ajax-запрос в базу данных, передаю текст сообщения, ярлык и список пользователей-получателей сообщения
-            $.ajax({
-                url:  `{% url 'knowledge_feed' %}`,
-                type: 'POST',
-                data: {csrfmiddlewaretoken: '{{ csrf_token }}', "text": text, "label_id": label_id,
+            $.ajax({ 
+                url:  `{% url 'knowledge_feed' %}`, 
+                type: 'POST', 
+                data: {csrfmiddlewaretoken: '{{ csrf_token }}', "text": text, "label_id": label_id, 
                     "send_to_ids[]": friends_ids_array, "znanie_name": znanie_name, "task": "send_message"},
                 error: function(data){
                     alert(data.responseJSON.error); // текст ошибки

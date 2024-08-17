@@ -150,6 +150,4 @@ class ZnanieDetailView(DetailView):
 
         context['suggestion_url'] = reverse('create-suggestion', args=[pk])
 
-
         return context
-
