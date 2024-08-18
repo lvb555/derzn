@@ -6,6 +6,8 @@ from drevo.forms.knowledge_create_form import ZnanieCreateForm
 from drevo.forms.site_page_create_form import SitePageCreateForm, SitePageRedactForm
 from drevo.models.site_page import SitePage, PageHistory, StatusType
 
+from drevo.utils.common import validate_parameter_int
+
 
 def site_pages_view(request):
     context = dict(nodes=SitePage.tree_objects.all())
@@ -86,21 +88,14 @@ def search_page(request):
             'notification': request.GET.get('notification'),
             'status_id': request.GET.get('status')
         }
-        try:
-            status_id = int(filters.get('status_id'))
-        except ValueError:
-            status_id = ''
-        query = Q()
-        for key, value in filters.items():
-            if value and value != 'Выбрать':
-                if value == 'yes':
-                    query.add(Q(**{key: True}), Q.AND)
-                elif value == 'no':
-                    query.add(Q(**{key: False}), Q.AND)
-                else:
-                    query.add(Q(**{key: value}), Q.AND)
 
-        pages = SitePage.objects.filter(query)
+        status_id = validate_parameter_int(filters.get('status_id'), default=None)
+
+        filters = {key: True if value == 'yes' else False if value == 'no' else value for key, value in filters.items()
+                   if value and value != 'Выбрать'}
+
+        pages = SitePage.objects.filter(**filters)
+
         if not pages:
             message = 'Страниц сайта не найдено'
 
