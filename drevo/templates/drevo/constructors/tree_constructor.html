@@ -15,8 +15,10 @@
     <script src="{% static 'drevo/js/get_cookie.js' %}"></script>
     {% if type_of_zn == 'algorithm' %}
         <script src="{% static 'drevo/js/constructors/algorithm_constructor.js' %}"></script>
-    {% else %}
+    {% elif type_of_zn == 'document' %}
         <script src="{% static 'drevo/js/constructors/document_constructor.js' %}"></script>
+    {% elif type_of_zn == 'discussion' %}
+        <script src="{% static 'drevo/js/constructors/discussion_constructor.js' %}"></script>
     {% endif %}
 {% endblock %}
 
