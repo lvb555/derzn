@@ -131,6 +131,10 @@ export function UpdateTree(ans) {
 				object_cur_parent = object_parent_node.querySelector(".node-children")
 			
 			// вставить в список детей родителя соотвествии с весом объекта
+			// если новый вес нарушает порядок в массиве детей
+			if (object_node.previousSibling.dataset.weight <= ans.object.weight && ans.object.weight <= object_node.nextSibling.dataset.weight)
+				return
+
 			object_node.remove()
 			const elem_to_insert_before = FindNextElement(Array.from(object_cur_parent.children), ans.object.weight)
 			if (elem_to_insert_before)
