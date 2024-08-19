@@ -121,7 +121,7 @@ class TemplateObjectForm(forms.Form):
             raise ValidationError(f'Объект с именем {name} существует уже в контексте этого документа')
         
         # Проверка того, что родитель объекта не является его наследником
-        if action == 'edit' and var.get_descendants(include_self=True).filter(id=connected_to.id).count():
+        if action == 'edit' and connected_to is not None and var.get_descendants(include_self=True).filter(id=connected_to.id).count():
             raise ValidationError(f'Наследование объекта {var.name} от объекта {connected_to.name} образует цикл. Изменения отменены.')
 
     name = forms.CharField(max_length=255, label='Имя объекта')
