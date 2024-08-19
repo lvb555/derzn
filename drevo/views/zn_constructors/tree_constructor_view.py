@@ -80,8 +80,8 @@ class TreeConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView):
             except Relation.DoesNotExist:
                 context['relative_znaniya'] = []
         else:
-            context['title'] = 'Конструктор документа' or "Дискуссии для экспертов"
-            context['relative_znaniya'] = get_descendants_for_knowledge(selected_zn)
+            context['title'] = 'Конструктор документа'
+            context['relative_znaniya'] = get_descendants_for_knowledge(selected_zn).order_by('related__order')
 
         main_zn_edit_form = MainZnInConstructorCreateEditForm(instance=selected_zn,
                                                               user=self.request.user,

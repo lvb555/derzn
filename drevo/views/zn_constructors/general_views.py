@@ -133,7 +133,7 @@ class MainZnInConstructorCreateView(LoginRequiredMixin, DispatchMixin, CreateVie
             create_zn_for_constructor(knowledge, form, request, author=True, image_form=image_form)
             self.object = knowledge
 
-            if self.type_of_zn == 'algorithm' or self.type_of_zn == 'document' or self.type_of_zn == 'discussion':
+            if self.type_of_zn in ('algorithm', 'document', 'discussion'):
                 return HttpResponseRedirect(reverse('tree_constructor', kwargs={'type': self.type_of_zn, 'pk': knowledge.pk}))
             elif self.type_of_zn == 'quiz':
                 return HttpResponseRedirect(reverse('quiz_constructor', kwargs={'pk': knowledge.pk}))
