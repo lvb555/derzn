@@ -132,7 +132,7 @@ export function UpdateTree(ans) {
 			
 			// вставить в список детей родителя соотвествии с весом объекта
 			// если новый вес нарушает порядок в массиве детей
-			if (object_node.previousSibling.dataset.weight <= ans.object.weight && ans.object.weight <= object_node.nextSibling.dataset.weight)
+			if ((object_node.previousSibling.dataset.weight ?? ans.object.weight) <= ans.object.weight && ans.object.weight <= (object_node.nextSibling.dataset.weight ?? ans.object.weight))
 				return
 
 			object_node.remove()
