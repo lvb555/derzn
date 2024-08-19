@@ -2,14 +2,10 @@ from django.shortcuts import get_object_or_404 , redirect
 from django.template.loader import render_to_string
 from django.http import Http404, JsonResponse
 from django.views.generic.edit import ProcessFormView
-from ..models import Znanie,Comment
 from ..models import Znanie, Comment
 from users.models import User
 from loguru import logger
-import json
-from django.http import HttpResponse
-from django.views import View
-from django.contrib.contenttypes.models import ContentType
+
 
 
 logger.add('logs/main.log',
@@ -81,7 +77,7 @@ def like(request, pk):
         else:
             comment.likes.add(request.user)
             comment.dislikes.remove(request.user)
-        return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+        return redirect(request.META.get('HTTP_REFERER', '/'))
     else:
         return redirect('users:login')
 
