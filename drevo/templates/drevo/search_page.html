@@ -35,7 +35,7 @@
             <select id="id_status" name="status">
                 <option value="">Выберите статус</option>
                 {% for status in all_status %}
-                <option value="{{ status.id }}">{{ status.name }}</option>
+                    <option value="{{ status.id }}" {% if status.id == status_id %} selected {% endif %}>{{ status.name }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -44,12 +44,20 @@
         <h4>Состояние страницы</h4>
         <div class="d-flex gap-5">
             <div>
-                <input type="checkbox" class="search-checkbox" name="functional">
-                <label for="id_functional">Функционал</label>
+                <label for="id_functional">Функционал:</label>
+                <select name="functional">
+                    <option value="" selected>Выбрать</option>
+                    <option value="yes" {% if request.GET.functional == 'yes' %}selected{% endif %}>Да</option>
+                    <option value="no" {% if request.GET.functional == 'no' %}selected{% endif %}>Нет</option>
+                </select>
             </div>
             <div>
-                <input type="checkbox" class="search-checkbox" name="layout">
-                <label for="id_layout">Верстка</label>
+                <label for="id_layout">Верстка:</label>
+                <select name="layout">
+                    <option value="" selected>Выбрать</option>
+                    <option value="yes" {% if request.GET.layout == 'yes' %}selected{% endif %}>Да</option>
+                    <option value="no" {% if request.GET.layout == 'no' %}selected{% endif %}>Нет</option>
+                </select>
             </div>
         </div>
     </div>
@@ -59,13 +67,20 @@
         <div>
             <h5>Макет дизайна</h5>
             <div>
-                <input type="checkbox" class="search-checkbox" name="design_needed">
-                <label for="id_design_needed">Необходимость</label>
+                <label for="id_design_needed">Необходимость:</label>
+                <select name="design_needed">
+                    <option value="" selected>Выбрать</option>
+                    <option value="yes" {% if request.GET.design_needed == 'yes' %}selected{% endif %}>Да</option>
+                    <option value="no" {% if request.GET.design_needed == 'no' %}selected{% endif %}>Нет</option>
+                </select>
             </div>
             <div>
-                <input type="checkbox" class="search-checkbox" name="design">
-                <label for="id_design">Наличие</label>
-
+                <label for="id_design">Наличие:</label>
+                <select name="design">
+                    <option value="" selected>Выбрать</option>
+                    <option value="yes" {% if request.GET.design == 'yes' %}selected{% endif %}>Да</option>
+                    <option value="no" {% if request.GET.design == 'no' %}selected{% endif %}>Нет</option>
+                </select>
             </div>
 
         </div>
@@ -73,20 +88,35 @@
         <div>
             <h5>Страница помощи</h5>
             <div>
-                <input type="checkbox" class="search-checkbox" name="help_page">
-                <label for="id_help_page">Наличие</label>
+                <label for="id_help_page">Наличие:</label>
+                <select name="help_page">
+                    <option value="" selected>Выбрать</option>
+                    <option value="yes" {% if request.GET.help_page == 'yes' %}selected{% endif %}>Да</option>
+                    <option value="no" {% if request.GET.help_page == 'no' %}selected{% endif %}>Нет</option>
+                </select>
+
             </div>
             <div>
-                <input type="checkbox" class="search-checkbox" name="help_page_content">
-                <label for="id_help_page_content">Контент</label>
+                <label for="id_help_page_content">Контент:</label>
+                <select name="help_page_content">
+                    <option value="" selected>Выбрать</option>
+                    <option value="yes" {% if request.GET.help_page_content == 'yes' %}selected{% endif %}>Да</option>
+                    <option value="no" {% if request.GET.help_page_content == 'no' %}selected{% endif %}>Нет</option>
+                </select>
+
             </div>
         </div>
 
     </div>
     <br>
     <div>
-        <input type="checkbox" class="search-checkbox" name="notification">
-        <label for="id_notification">Оповещение, уведомление</label>
+        <label for="id_notification">Оповещение, уведомление:</label>
+        <select name="notification">
+            <option value="" selected>Выбрать</option>
+            <option value="yes" {% if request.GET.notification == 'yes' %}selected{% endif %}>Да</option>
+            <option value="no" {% if request.GET.notification == 'no' %}selected{% endif %}>Нет</option>
+        </select>
+
     </div>
     <br>
     <button type="submit" style="background-color: black; color: white; margin-left: 200px;" name="searchForm">Найти</button>
