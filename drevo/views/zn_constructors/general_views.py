@@ -35,6 +35,7 @@ class ZnaniyaForConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView)
             'filling_tables': 'Таблица',
             'table': 'Таблица',
             'quiz': 'Тест',
+            'discussion_director': 'Дискуссии',
         }
 
         user_competencies = SpecialPermissions.objects.filter(expert=user).first()
@@ -59,7 +60,8 @@ class ZnaniyaForConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView)
             'table': 'Конструктор таблиц',
             'quiz': 'Конструктор тестов',
             'algorithm': 'Конструктор алгоритмов',
-            'document': 'Конструктор документов'
+            'document': 'Конструктор документов',
+            'discussion_director': 'Дерево создаваемых дискуссий'
         }
         context['title'] = title_mapping.get(self.type_of_zn)
         context['type_of_page'] = self.type_of_zn
@@ -93,6 +95,7 @@ class MainZnInConstructorCreateView(LoginRequiredMixin, DispatchMixin, CreateVie
             'document': 'Создание документа',
             'table': 'Создание таблицы',
             'quiz': 'Создание теста',
+            'discussion_director': 'Создание дискуссии',
         }
         self.type_of_zn = self.kwargs.get('type_of_zn')
         context['type_of_zn'] = self.type_of_zn
@@ -130,7 +133,7 @@ class MainZnInConstructorCreateView(LoginRequiredMixin, DispatchMixin, CreateVie
             create_zn_for_constructor(knowledge, form, request, author=True, image_form=image_form)
             self.object = knowledge
 
-            if self.type_of_zn == 'algorithm' or self.type_of_zn == 'document':
+            if self.type_of_zn in ('algorithm', 'document', 'discussion_director'):
                 return HttpResponseRedirect(reverse('tree_constructor', kwargs={'type': self.type_of_zn, 'pk': knowledge.pk}))
             elif self.type_of_zn == 'quiz':
                 return HttpResponseRedirect(reverse('quiz_constructor', kwargs={'pk': knowledge.pk}))
