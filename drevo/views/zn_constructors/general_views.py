@@ -61,7 +61,7 @@ class ZnaniyaForConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView)
             'quiz': 'Конструктор тестов',
             'algorithm': 'Конструктор алгоритмов',
             'document': 'Конструктор документов',
-            'discussion_user': 'Дерево Дискуссий'
+            'discussion_user': 'Дерево Дискуссий',
         }
         context['title'] = title_mapping.get(self.type_of_zn)
         context['type_of_page'] = self.type_of_zn
