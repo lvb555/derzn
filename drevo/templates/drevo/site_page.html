@@ -74,11 +74,11 @@
             <div>
                 <h4>Состояние страницы</h4>
                 <div class="d-flex gap-5">
-                    <div>
+                    <div class="d-flex align-items-center gap-2">
                         <label for="id_functional">Функционал:</label>
                         {{form.functional}}
                     </div>
-                    <div>
+                    <div class="d-flex align-items-center gap-2">
                         <label for="id_layout">Верстка:</label>
                         {{form.layout}}
                     </div>
@@ -87,29 +87,29 @@
             <div class="d-flex gap-5">
                 <div>
                     <h5>Макет дизайна</h5>
-                    <div>
+                    <div class="d-flex align-items-center gap-2">
                         <label for="id_design_needed">Необходимость:</label>
                         {{form.design_needed}}
                     </div>
-                    <div>
+                    <div class="d-flex align-items-center gap-2">
                         <label for="id_design">Наличие:</label>
                         {{form.design}}
                     </div>
                 </div>
                 <div>
                     <h5>Страница помощи</h5>
-                    <div>
+                    <div class="d-flex align-items-center gap-2">
                         <label for="id_help_page">Необходимость:</label>
                         {{form.help_page}}
                     </div>
-                    <div>
+                    <div class="d-flex align-items-center gap-2">
                         <label for="id_help_page_content">Наличие:</label>
                         {{form.help_page_content}}
                     </div>
                 </div>
             </div>
         </div>
-        <div>
+        <div class="d-flex align-items-center gap-2">
             <label for="id_notification">Оповещение, уведомление:</label>
             {{form.notification}}
         </div>
