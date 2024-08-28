@@ -1,0 +1,125 @@
+{% extends 'drevo/base.html' %}
+
+{% load grades %}
+{% load static %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/knowledge_grade.css' %}">
+{% scale_color_styles %}
+{% endblock %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block jsfiles %}
+<script src="{% static 'drevo/js/htmx.min.js' %}"></script>
+<script>
+    let error = document.querySelector("#errors")
+    let error_txt = document.querySelector("#error_txt")
+
+
+    // добавляем заголовок csrf для htmx
+    let CSRF_TOKEN = '{{ csrf_token }}';
+    document.body.addEventListener('htmx:configRequest', (event) => {
+    event.detail.headers['X-CSRFToken'] = CSRF_TOKEN; })
+
+    // сохраняем предыдущее значение select
+    let prev_value = 0
+    document.querySelectorAll('select').forEach((select) => {
+        select.addEventListener('focus', (event) => {prev_value = select.value})
+    });
+
+
+     function showError(msg) {
+        if (!msg) {
+            error_txt.innerHTML = '';
+            error.hidden = true;
+        }
+        else {
+            error.hidden = false;
+            error_txt.innerHTML = msg;
+        }
+     }
+     //восстанавливаем предыдущее значение
+     function undoSelect(){
+        event.detail.elt.value = prev_value;
+     }
+
+ htmx.on('htmx:beforeSwap', function (event) {
+
+    if (!event.detail.isError) {
+        showError('');
+        }
+    });
+
+ htmx.on('htmx:sendError', function (event) {
+            error_msg = 'Ошибка связи с сервером'
+            showError(error_msg);
+            });
+
+ htmx.on('htmx:responseError', function (event) {
+            error_msg = 'Сервер ответил ошибкой (' + event.detail.error + ')'
+            showError(error_msg);
+            });
+
+
+ htmx.on('htmx:error', function (event) {
+        //восстанавливаем предыдущее значение
+        undoSelect();
+    });
+
+
+</script>
+{% endblock jsfiles %}
+
+{% block content %}
+<h2 class="my-2 header">{{ title }}</h2>
+<div class="d-flex justify-content-between">
+    <div class="breadcrumbs">
+        <p>
+            <a class="text-decoration-none breadcrumbs" href="/">Главная</a> -
+            <a class="text-decoration-none breadcrumbs" href="/drevo/knowledge">Дерево знаний</a> -
+            <a class="text-decoration-none breadcrumbs" href="{{ knowledge.get_absolute_url }}">Знание</a> -
+            <span style="color: #212529;">Оценка знания</span>
+        </p>
+    </div>
+    <div class="d-flex justify-content-around">
+        {% if father_knowledge %}
+        <a class="btn btn-filled-white mx-2"
+           href="{{ father_knowledge.bz.get_absolute_url }}/grade?variant={{ variant }}">
+            Назад
+        </a>
+        {% endif %}
+        <a href="{% url 'grade_statistic' knowledge.id %}" class="btn btn-filled mx-2">Статистика оценок</a>
+        <a href="{% url 'group_knowledge' knowledge.id %}?variant={{ variant }}" class="btn btn-filled mx-2">Групповая
+            оценка знания</a>
+        <a href="{% url 'grade_infographics' knowledge.id %}?variant={{ variant }}" class="btn btn-filled mx-2">Инфографика</a>
+    </div>
+</div>
+
+<div class="non-bootsctrap-card">
+    <div class="breadcrumbs">
+        <p>{{ title }}</p>
+    </div>
+    <div class="d-flex justify-content-between">
+        <div>
+            <i class="bi bi-file-earmark-fill text-success">
+                <span class="header">{{ knowledge.name }}</span>
+            </i>
+            <br>
+
+        </div>
+        <a class="btn btn-filled-gray" href="{{ knowledge.get_absolute_url }}">
+            Вернуться на страницу знания
+        </a>
+    </div>
+</div>
+<div id="errors" hidden class="fixed-bottom  alert alert-warning alert-dismissible fade show" role="alert">
+    <div id="error_txt"></div>
+    <button type="button" class="btn-close"  aria-label="Close" onclick="showError('')"></button>
+</div>
+<div id="score_card">
+    {% include "./score_card.html" %}
+</div>
+{% endblock %}

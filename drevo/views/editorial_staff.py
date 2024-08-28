@@ -57,8 +57,8 @@ def update_roles(request):
     else:
         user.is_employee = False
         user.is_superuser = False
-        message += "Лишение права Сотрудника редакции."
-        subject = "Вы лишены права Сотрудника редакции."
+        message += "Вы лишены права Сотрудника редакции"
+        subject = "Лишение права Сотрудника редакции."
 
     message += '\n\nРедакция портала "Дерево знаний" '
     user.save()
@@ -76,7 +76,6 @@ def update_user_permissions(request):
     if not request.user.is_superuser or not request.method == 'POST':
         return JsonResponse({'error': 'Invalid request'}, status=400)
     data = json.loads(request.body)
-
     user_id = data.get('userId')
     group = Group.objects.get(name=data.get('group'))
     granted = data.get('granted')

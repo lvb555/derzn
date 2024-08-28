@@ -1,4 +1,7 @@
-export const csrftoken = getCookie("csrftoken")
+// Здесь описаны функции по сбору тела для HTTP-зарпросов
+// со страниц drevo/znanie/<int:doc_pk>/document-template/edit-text/<int:text_pk>
+// и drevo/znanie/<id>/document-template/object-select
+
 
 export function TurpleEditID() {
 	// собрать тело для запроса данных редактируемого справочника
@@ -7,28 +10,6 @@ export function TurpleEditID() {
 	return body
 }
 
-// export function TurpleProcessingBody(editing_turple) {
-// 	// собрать тело для запроса создания/изменения справочника
-
-// 	const form = document.querySelector(".turple-form")
-// 	const body = new FormData()
-
-// 	if (editing_turple !== null) {
-// 		body.append("id", editing_turple)
-// 	}
-// 	body.append("name", form.querySelector("#id_name").value)
-// 	body.append("weight", form.querySelector("#id_weight").value)
-// 	body.append("knowledge", document.querySelector("#document_pk").value)
-
-// 	document.querySelectorAll(".turple-menu__element").forEach((i) => {
-// 		i.querySelectorAll("input").forEach((j) => {
-// 			body.append(j.name, j.value)
-// 		})
-// 	})
-
-// 	return body
-// }
-
 export function ObjectProcessingBody (action, editing_var) {
 	// собрать тело для запроса создания/редактирования объекта
 
@@ -36,7 +17,6 @@ export function ObjectProcessingBody (action, editing_var) {
 	const edit_menu = document.querySelector(".edit-menu") // меню создания-редактирования переменной
 	document.querySelectorAll(".edit-menu > .field input").forEach((i) => {
 
-		console.log(i)
 
 		if (i.type !== "checkbox" && i.type !== "radio"){
 			body.append(i.name, i.value)
@@ -56,7 +36,8 @@ export function ObjectProcessingBody (action, editing_var) {
 	})
 
 	body.append("action", action)
-	body.append("knowledge", document.querySelector("#document_pk").value)
+	body.append("knowledge", document.querySelector("#id_knowledge").value)
+	body.append("is_main", false)
 
 	if (editing_var !== null) {
 		body.append("pk", editing_var)	
@@ -65,18 +46,45 @@ export function ObjectProcessingBody (action, editing_var) {
 	return body
 }
 
-function getCookie(name) {
-	//получить нужный параметр из куки
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + "=")) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+export function GroupProcessingBody() {
+	const body = new FormData()
+	body.append("name", document.querySelector("#GroupModal .field #id_name").value)
+	body.append("connected_to", document.querySelector("#GroupModal .field #id_connected_to").value)
+	body.append("knowledge", document.querySelector("#GroupModal .field #id_knowledge").value)
+
+	const necessary_fields = [
+		["action", "create"],
+		["is_main", true],
+		["type_of", 0],
+		["optional", false],
+		["structure", 0],
+		["availability", false],
+		["subscription", ""]
+	]
+	necessary_fields.forEach((i) => {
+		body.append(i[0], i[1])
+	})
+
+	return body
+}
+
+export function SaveTemplateBody() {
+	const zn_pk = document.querySelector(".template #document_pk").value
+	const pk = document.querySelector(".template #id_pk").value
+	const body = new FormData()
+	
+	body.append("content", CKEDITOR.instances.id_content.getData())
+	body.append("zn_pk", zn_pk)
+	body.append("pk", pk)
+	const objects = CKEDITOR.instances.id_content.document.$.querySelectorAll("span.template-object")
+	let set = new Set()
+	objects.forEach((i) => {
+		set.add(i.id.split('-')[1])
+	})
+
+	Array.from(set).forEach((i) => {
+		body.append("objects", i)
+	})
+
+	return body
 }

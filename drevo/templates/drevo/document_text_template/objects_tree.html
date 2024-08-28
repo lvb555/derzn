@@ -2,44 +2,168 @@
 {% load mptt_tags %}
 {% load static %}
 
+{% block title %}
+Дерево объектов
+{% endblock %}
+
 {% block cssfiles %}
-	<!-- <link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}"> -->
+	<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
 	<link rel="stylesheet" href="{% static '/drevo/css/main_page.css' %}">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 	<link rel="stylesheet" href="{% static '/drevo/css/objects_tree.css'%}">
 {% endblock %}
 
 {% block content %}
-	<h1 class="title page-title">
-		Документ: {{ knowledge.name }}
-	</h1>
-	<div class="objects-tree-block">
-		<h3 class="title page-sub-title">
-			Дерево объектов шаблонов
-		</h3>
-	<ul>
-		{% recursetree objects %}
-			<li class="node {% if node.level > 0 %} child-node {% endif %}">
-			<p class="node-name {% if node.availability == 0 %} local {% elif node.availability == 1 %} global {% else %} general {% endif %}" id="id-{{node.id}}">
-				{% if not node.is_leaf_node%}
-					<!-- <button class="img-block node-name__expand-btn">
-						<img src="{% static 'drevo/img/knowledge_search/minus.svg'%}" alt="">
-					</button> -->
-				{% endif %}
-				<span>{{ node.name }}</span>
-			</p>
-				{% if not node.is_leaf_node %}
-					<ul class="node-children" >
-						{{ children }}
-					</ul>
-				{% endif %}
-			</li>
-		{% endrecursetree %}
-	</ul>
+	
+{% if not request.user.is_authenticated %} 
+	<div class="card alert-warning">
+		<div class="card-body">
+			<span class="card-text">
+				<a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
+                или
+				<a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                чтобы внести предложение.
+			</span>
+		</div>
 	</div>
+{% else %}
+
+	<li class="node clone">
+		<div class="node__collapse-expand-btns">
+			<button class="img-block node__expand-btn hidden">
+				<img src="{% static 'drevo/img/knowledge_search/plus.svg'%}" alt="">
+			</button>
+			<button class="img-block node__collapse-btn">
+				<img src="{% static 'drevo/img/knowledge_search/minus.svg'%}" alt="">
+			</button>
+		</div>
+		<div class="node-label">
+			<p class="node-label__name">
+				<span></span>
+			</p>
+			<div class="node-actions">
+				<button class="edit btn btn-icon" type="button">
+					<img src="{% static 'drevo/img/pencil.svg'%}" alt="Изменить">
+				</button>
+				<button class="delete btn btn-icon" type="button">
+					<img src="{% static 'drevo/img/bin.svg'%}" alt="Удалить">
+				</button>
+			</div>
+		</div>
+	</li>
+
+	<h1 class="title page-title">
+		Дерево объектов шаблонов
+	</h1>
+	<nav style="--bs-breadcrumb-divider: '-';display: inline-flex; justify-content: space-between; width: 100%; align-items: self-end; margin: 0px;">
+		<ol class="breadcrumb m-0">
+			<li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+			<li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+			<li class="breadcrumb-item">Подготовка знаний</li>
+			<li class="breadcrumb-item">Конструктор документов</li>
+			<li class="breadcrumb-item">Конструктор шаблона текста</li>
+			<li class="breadcrumb-item opened">Дерево объектов документа</li>
+		</ol>
+	</nav>
+	<div class="content">
+		<div class="objects-tree">
+			<div class="objects-tree__block">
+				<h3 class="title page-sub-title">
+					Документ: "{{ knowledge.name }}"
+				</h3>
+			<ul class="objects-tree__containing-list">
+				{% recursetree objects %}
+					<li id="id-{{node.id}}" class="node{% if node.level > 0 %} child-node{% endif %}{% if node.is_leaf_node %} leaf{% endif %} {% if node.is_main %} group{% endif %} {% if node.availability == 0 %} local {% elif node.availability == 1 %} global {% else %} general {% endif %} {% if node.optional%} optional{% endif %}" data-weight="{{node.weight}}">
+					<div class="node__collapse-expand-btns">
+						<button class="img-block node__expand-btn hidden">
+							<img src="{% static 'drevo/img/knowledge_search/plus.svg'%}" alt="">
+						</button>
+						<button class="img-block node__collapse-btn">
+							<img src="{% static 'drevo/img/knowledge_search/minus.svg'%}" alt="">
+						</button>
+					</div>
+					<div class="node-label">
+						<p class="node-label__name">
+							<span>{{ node.name }}</span>
+						</p>
+						<div class="node-actions">
+							<button class="edit btn btn-icon" type="button">
+								<img src="{% static 'drevo/img/pencil.svg'%}" alt="Изменить">
+							</button>
+							<button class="delete btn btn-icon" type="button">
+								<img src="{% static 'drevo/img/bin.svg'%}" alt="Удалить">
+							</button>
+						</div>
+					</div>
+						{% if not node.is_leaf_node %}
+							<ul class="node-children" >
+								{{ children }}
+							</ul>
+						{% endif %}
+					</li>
+				{% endrecursetree %}
+			</ul>
+			</div>
+		</div>
+		<div class="tree-actions">
+			<button class="btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">Новый объект</button>
+			<button class="btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#GroupModal">Новая группа</button>
+			<button class="attention btn btn-icon" type="button"><img src="{% static 'drevo/img/warning.png' %}" alt=""></button>
+		</div>
+	</div>
+
+	<div class="log-container">
+		<p class="log-container__log"></p>
+	</div>
+
+	<div class="modal fade" id="GroupModal" tabindex="-1" aria-labelledby="GroupModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        	<div class="modal-header turple-menu">
+				<h5 class="modal-title">Создание группы</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        	</div>
+        	<div class="modal-body">
+        			{% for field in group_form %}
+        			<div class="field">
+        				{% if field != group_form.knowledge %}
+        					<label for="{{ field.id_for_label }}" class="edit-menu__type-field">{{ field.label }}</label>
+        				{% endif %}
+        				{{ field }}
+        			</div>
+        			{% endfor %}
+					<button type="button" data-bs-dismiss="modal" class="btn-icon btn edit-menu__save-btn">Сохранить</button>
+				</form>
+        	</div>
+		</div>
+    </div>
+</div>
+
+
+	{% include "drevo/document_text_template/object_form.html" %}
+
+<div class="modal fade" id="DeleteObjectModal" tabindex="-1" aria-labelledby="DeleteObjectModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+	            <h5 class="modal-title" id="DeleteObjectModalLabel">Удаление объекта</h5>
+            	<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        	</div>
+        	<div class="modal-body">
+        		<p>Вы действительно хотите удалить объект <span id="delete-object-name"></span> ?</p>
+	        	<div class="object-delete-menu">
+        			<button data-bs-dismiss="modal" class="btn btn-icon">Да</button>
+        			<button data-bs-dismiss="modal" class="btn btn-icon">Нет</button>
+        		</div>
+        	</div>
+        </div>
+	</div>
+</div>
+
+{% endif %}
 {% endblock %}
 
 {% block jsfiles %}
-	<script type="application/javascript" src="{% static 'drevo/js/template_objects/objects_tree.js'%}"></script>
-	<script type="application/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script type="module" src="{% static 'drevo/js/template_objects/objects_tree.js'%}"></script>
+	<script type="module" src="{% static 'drevo/js/template_objects/requests/objects_tree.js'%}"></script>
 {% endblock %}

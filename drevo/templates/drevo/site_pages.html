@@ -15,6 +15,12 @@
         width: 70vh!important;
         margin-right: 4vh!important;
     }
+    .add-button{
+    position: relative;
+    top: -10px;
+     right: 30px;
+    }
+
 </style>
 <div class="container header_info p-0">
     <h1>Дерево страниц сайта</h1>
@@ -27,17 +33,28 @@
         </ol>
     </nav>
 </div>
+
+{% include 'drevo/include/profile_header.html' with pub_user=pub_user link=link id=id activity=activity sections=sections invite_count=invite_count new_knowledge_feed=new_knowledge_feed new_messages=new_messages new=new %}
+
 <div class="basic" style="justify-content: space-between;">
+    {% if messages %}
+    <ul class="messages" style="color: red; border: 3px solid black; border-radius: inherit;">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
     <div style="display: inline-flex; justify-content: space-between; width: 100%;">
         <div>
             <button type="button" class="btn tree-btn" onclick="showAll();">Развернуть</button>
             <button type="button" class="btn tree-btn" onclick="hiddenAll();">Свернуть</button>
         </div>
         {% if user.is_superuser %}
-        <i id="create-form" class="mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+        <i id="create-form" class="mb-4" onclick="hiddenAll();">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-lg add-button" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
             </svg>
+            <a href="{% url 'search_page' %}" type="button" class="btn tree-btn search-button">Найти</a>
         </i>
         {% endif %}
     </div>
@@ -79,16 +96,19 @@
                     <i class="family bi-file-minus-fill circle_icon"
                        onclick="toggleHiddenElement(this);"></i>
                 {% endif %}
-                {% if node.type == 'page' or node.type == 'complicated_knowledge'%}
-                    <a  href="{% url 'site_page' node.pk %}" class="centered dashed small-title">
-                        {{ node.page }}
+                {% if node.type == 'label' %}
+                    <a href="{% url 'site_page' node.base_page.pk %}" class="centered small-title" style="color: darkslategray;">
+                        {{ node.base_page.page }}
                     </a>
-                {% elif node.type == 'label' %}
-                    <a  href="{% url 'site_page' node.base_page.pk %}" class="centered dashed small-title">
-                        {{ node.page }}
+                    <a href="{% url 'site_page' node.pk %}" style="vertical-align: 0.3vh;">
+                        <i class="bi bi-pencil"></i>
                     </a>
                 {% else %}
-                    <a class="centered dashed small-title">
+                    <a href="{% url 'site_page' node.pk %}" class="centered small-title" style="color:
+                        {% if node.type == 'group' %}red
+                        {% elif node.type == 'page' %}green
+                        {% elif node.type == 'type_of_complicated_knowledge' %}blue
+                        {% else %}darkred{% endif %};">
                         {{ node.page }}
                     </a>
                 {% endif %}
@@ -102,6 +122,16 @@
             </li>
             {% endrecursetree %}
         </ul>
+    </div>
+    <div class="legend mt-4 pb-3">
+        <p class="title">Легенда:</p>
+        <div class="d-flex" style="gap: 24px;">
+            <p class="small-title py-3 px-3 align-self-center rounded-pill" style="background: rgba(248, 215, 218, 0.5); color: red;">Группа</p>
+            <p class="small-title py-3 px-3 align-self-center rounded-pill" style="background: rgba(25, 135, 84, 0.2); color: green;">Страница</p>
+            <p class="small-title py-3 px-3 align-self-center rounded-pill" style="background: rgba(23, 35, 150, 0.2); color: blue;">Вид сложного знания</p>
+            <p class="small-title py-3 px-3 align-self-center rounded-pill" style="background: rgba(247, 139, 45, 0.2); color: darkred;">Сложное знание</p>
+            <p class="small-title py-3 px-3 align-self-center rounded-pill" style="background: rgba(171, 168, 166, 0.25); color: darkslategray;">Ярлык</p>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -122,35 +152,36 @@ $(document).ready(function () {
 });
 
 document.querySelectorAll('form.scrollbar p label').forEach((elem) => {
-    if(elem.nextElementSibling && ['page', 'parent'].indexOf(elem.nextElementSibling.name) == -1){
+    if(elem.nextElementSibling && ['page', 'parent', 'order'].indexOf(elem.nextElementSibling.name) == -1){
         elem.parentNode.hidden = true;
     }
 });
 
 document.querySelector('ul#id_type').addEventListener('click', (e) => {
     if(document.querySelector('input[value="page"]').checked == true){
-        ShowFields(['base_page'], false, ['status', 'link'])
+        ShowFields(['base_page'], false, ['status', 'link', 'page'])
     }else if(document.querySelector('input[value="label"]').checked == true){
         ShowFields(['base_page'], true, ['base_page'])
+        $('#id_page').val(null).trigger('change');
     }else if(document.querySelector('input[value="type_of_complicated_knowledge"]').checked == true){
-        ShowFields(['status', 'link', 'subscribers', 'base_page'], false, [])
+        ShowFields(['status', 'link', 'subscribers', 'base_page'], false, ['page'])
     }else if(document.querySelector('input[value="complicated_knowledge"]').checked == true){
-        ShowFields(['status', 'link', 'subscribers'], true, ['status', 'link'])
+        ShowFields(['status', 'link', 'subscribers', 'page'], true, ['status', 'link', 'page'])
     }else if(document.querySelector('input[value="group"]').checked == true){
-        ShowFields([], true, [])
+        ShowFields(['page'], true, ['page'])
     }
 })
 
 
 function ShowFields(fields, ability, required_fields){
     document.querySelectorAll('form.scrollbar p label').forEach((elem) => {
-        if(elem.nextElementSibling && ['page', 'parent'].indexOf(elem.nextElementSibling.name) == -1){
+        if(elem.nextElementSibling && ['parent', 'order'].indexOf(elem.nextElementSibling.name) == -1){
             if(fields.indexOf(elem.nextElementSibling.name) == -1){
                 elem.parentNode.hidden = ability;
             }else{
                 elem.parentNode.hidden = !ability;
             }
-            if(!(['status', 'link', 'base_page'].indexOf(elem.nextElementSibling.name) == -1)){
+            if(!(['status', 'link', 'base_page', 'page'].indexOf(elem.nextElementSibling.name) == -1)){
                 if(required_fields.indexOf(elem.nextElementSibling.name) == -1){
                     elem.nextElementSibling.required = false;
                 }else{
@@ -160,6 +191,14 @@ function ShowFields(fields, ability, required_fields){
         }
     });
 }
+
+document.querySelector('#id_status').addEventListener('click', (e) => {
+    if(/Эксплуатация|Ремонт/.test(document.querySelector('#id_status option:checked').textContent)){
+        document.querySelector('#id_link').required = true;
+    }else{
+        document.querySelector('#id_link').required = false;
+    }
+})
 
 document.getElementById('create-form').addEventListener('click', (e) => {
     saveBg.classList.add('active');

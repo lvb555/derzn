@@ -21,7 +21,7 @@ class HelpAdminForm(forms.ModelForm):
 
     class Meta:
         model = Help
-        fields = ('name', 'content', 'parent', 'url_tag', 'is_published', 'is_group',)
+        fields = ('name', 'content', 'parent', 'url_tag', 'is_published', 'is_group', 'alias')
 
 
 @admin.register(Help)

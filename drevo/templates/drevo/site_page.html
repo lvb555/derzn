@@ -22,14 +22,30 @@
     </nav>
 </div>
 <div class="basic" style="justify-content: space-between;">
+    {% if messages %}
+    <ul class="messages" style="color: red; border: 3px solid black; border-radius: inherit;">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
     <div style="text-align: end;">
         {% if user.is_superuser %}
             <button class="me-2 btn btn-header" onclick="redaction();" style="background-color: lightseagreen;">Редактировать</button>
+            <form method="post" class="btn" onsubmit="return confirm('Вы уверены, что хотите удалить эту страницу?');">
+                {% csrf_token %}
+                <input type="hidden" name="delete" value="1">
+                <button type="submit" class="me-2 btn btn-header" style="background-color: red;">Удалить страницу</button>
+            </form>
         {% endif %}
         <button id="history" class="btn btn-header" style="background-color: grey">История</button>
     </div>
-    <form method="post" style="display: grid; gap: 2vh;">
+    <form method="post" class="mt-2" style="display: grid; gap: 2vh;">
         {% csrf_token %}
+        <div style="display: flex; align-items: center; gap: 24px; width: fit-content;">
+            <label for="id_page">Знание:</label>
+            {{form.page}}
+        </div>
         <div style="display: flex; align-items: center; gap: 24px; width: fit-content;">
             <label for="id_status">Статус:</label>
             {{form.status}}
@@ -97,8 +113,32 @@
             <label for="id_notification">Оповещение, уведомление:</label>
             {{form.notification}}
         </div>
-        <button class="btn btn-header" type="submit" style="width: fit-content;" hidden>Сохранить изменения</button>
+        <div>
+            <label for="id_order">Порядок:</label>
+            {{form.order}}
+        </div>
+        <button id="save" class="btn btn-header" type="submit" style="width: fit-content;" hidden>Сохранить изменения</button>
     </form>
+
+    <!-- Модальное окно для создания нового знания -->
+    <div class="modal fade" id="create_zn_modal" style="z-index: 1065;">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-white text-dark">
+                <div class="modal-header" style="justify-content: center;">
+                    <h3 class="modal-title text-center">Создание знания</h3>
+                    <button type="button" class="btn-close" style="position: absolute; right: 1rem;" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body scrollbar" style="overflow-y: scroll; max-height: 70vh;">
+                    <form method="post" id="create_zn">
+                        {% csrf_token %}
+                        {{ znanie_form.as_p }}
+                        <input type="submit" class="btn btn-success" value="Сохранить">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="history popup__bg">
         <div class="popup p-5" style="max-height: 80vh;">
             <i class="bi bi-x-lg close-popup"></i>
@@ -131,23 +171,29 @@
 var historyBg = document.querySelector('.history.popup__bg');
 var historyPopup = historyBg.querySelector('.popup');
 var historyClosePopupButton = historyBg.querySelector('.close-popup');
+var iconForNewZnanie = document.createElement("i");
+iconForNewZnanie.className = "bi bi-plus-lg text-secondary";
+document.getElementsByName('page')[0].parentNode.appendChild(iconForNewZnanie);
+let create_zn = document.getElementById('create_zn');
+
 
 
 function showProperFields(){
     if(document.querySelector('option[value="page"]').selected == true){
-        showFields(['base_page'], false, ['status', 'link']);
+        showFields(['base_page'], false, ['status', 'link', 'page']);
         document.getElementById('page_condition').style.display = 'block';
     }else if(document.querySelector('option[value="label"]').selected == true){
         showFields(['base_page'], true, ['base_page']);
+        $('#id_page').val(null).trigger('change');
         document.getElementById('page_condition').style.display = 'none';
     }else if(document.querySelector('option[value="type_of_complicated_knowledge"]').selected == true){
-        showFields(['status', 'link', 'subscribers', 'base_page'], false, []);
+        showFields(['status', 'link', 'subscribers', 'base_page'], false, ['page']);
         document.getElementById('page_condition').style.display = 'block';
     }else if(document.querySelector('option[value="complicated_knowledge"]').selected == true){
-        showFields(['status', 'link', 'subscribers'], true, ['status', 'link']);
+        showFields(['status', 'link', 'subscribers', 'page'], true, ['status', 'link', 'page']);
         document.getElementById('page_condition').style.display = 'none';
     }else if(document.querySelector('option[value="group"]').selected == true){
-        showFields([], true, []);
+        showFields(['page'], true, ['page']);
         document.getElementById('page_condition').style.display = 'none';
     }
 }
@@ -155,18 +201,20 @@ function showProperFields(){
 showProperFields()
 
 function redaction(){
-    if(document.querySelector('form button').hidden == true){
+    if(document.querySelector('form button#save').hidden == true){
         document.querySelectorAll('form select, form input').forEach((elem) =>{
             elem.disabled = false;
         });
         document.querySelector('.basic button').textContent = 'Прекратить редактирование'
-        document.querySelector('form button').hidden = false;
+        document.querySelector('form button#save').hidden = false;
+        iconForNewZnanie.setAttribute("onclick", "add_znanie();");
     }else{
         document.querySelectorAll('form select, form input').forEach((elem) =>{
             elem.disabled = true;
         });
         document.querySelector('.basic button').textContent = 'Редактировать'
-        document.querySelector('form button').hidden = true;
+        document.querySelector('form button#save').hidden = true;
+        iconForNewZnanie.setAttribute("onclick", "");
     }
 }
 
@@ -174,15 +222,23 @@ document.querySelector('select#id_type').addEventListener('click', (e) => {
     showProperFields();
 })
 
+document.querySelector('#id_status').addEventListener('click', (e) => {
+    if(/Эксплуатация|Ремонт/.test(document.querySelector('#id_status option:checked').textContent)){
+        document.querySelector('#id_link').required = true;
+    }else{
+        document.querySelector('#id_link').required = false;
+    }
+})
+
 function showFields(fields, ability, required_fields){
     document.querySelectorAll('form div select, form div input').forEach((elem) => {
-        if(['page', 'parent', 'type'].indexOf(elem.name) == -1){
+        if(['parent', 'type', 'order'].indexOf(elem.name) == -1){
             if(fields.indexOf(elem.name) == -1){
                 elem.parentNode.hidden = ability;
             }else{
                 elem.parentNode.hidden = !ability;
             }
-            if(!(['status', 'link', 'base_page'].indexOf(elem.name) == -1)){
+            if(!(['status', 'link', 'base_page', 'page'].indexOf(elem.name) == -1)){
                 if(required_fields.indexOf(elem.name) == -1){
                     elem.required = false;
                 }else{
@@ -192,6 +248,25 @@ function showFields(fields, ability, required_fields){
         }
     });
 }
+
+function add_znanie() {
+    create_zn.reset();
+    $('#create_zn_modal').modal('show');
+}
+
+create_zn.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const formData = new FormData(create_zn);
+    fetch('/drevo/site_pages/create_new_zn/', {
+     method: 'POST',
+     body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        $('#id_page').append(`<option value="${data.zn_id}" selected>${data.zn_name}</option>`);
+        $('#create_zn_modal').modal('hide');
+    });
+})
 
 document.getElementById('history').addEventListener('click', (e) => {
     historyBg.classList.add('active');

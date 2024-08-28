@@ -6,12 +6,54 @@ a {
     text-decoration: none;
 }
 
-.objects-tree-block {
-	background: white;
-	border-radius: 1.3rem;
-	padding: 20px;
+ol.breadcrumb {
+	font-size: 0.9rem;
 }
 
+.clone {
+	display: none;
+}
+
+.btn {
+	color: black;
+	margin: 5px;
+}
+
+.field select, .field option {
+	text-overflow: ellipsis;
+	max-width: 450px;
+}
+
+.content {
+	background: white;
+	display: flex;
+	justify-content: space-between;
+	border-radius: 1.3rem;
+	padding: 20px;
+	max-width: 100vw;
+	margin-top: 20px;
+}
+
+.objects-tree {
+	flex: 5;
+	font-size: 0.8rem;
+}
+
+.tree-actions {
+	flex: 2;
+}
+
+.img-block {
+	display: block;
+	margin: 0.5rem 0;
+}
+
+.img-block img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+}
 
 /*Заголовки страницы*/
 .title {
@@ -32,34 +74,56 @@ a {
 
 .node {
 	position: relative;
-	font-size: 1.2rem;
-	margin: 0 0 10px 0;
+	padding-left: 2rem;
+	position: relative;
+
+	border-block-end: dashed 1px;
+	border-color: #DFDFE3;
+  	padding-bottom: 1vh;
+  	padding-top: 1vh;
+}
+
+.node.leaf {
+	padding-left: 0;
+}
+
+.child-node {
+	border: none;
 }
 
 .child-node:before {
 	content: "";
 	position: absolute;
-	top: 0;
-	left: -15px;
+	top: 0px;
+	left: -20px;
 	border-radius: 0 0 0 10px;
-	border-bottom: dotted 2px black;
-	border-left: dotted 2px black;
-	width: 20px;
-	height: 20px;
+	border-bottom: dotted 1px #ccc;
+	border-left: dotted 1px #ccc;
+	width: 18px;
+	height: 18px;
 }
 
-.node-name {
-	font-size: 1.2rem;
-	margin: 0;
+
+/*имя объекта*/
+.node-label {
+	display: flex;
+	justify-content: start;
+	align-items: center;
 }
 
-.node-name span:hover {
+.node-label:hover .node-actions {
+	visibility: visible;
+}
+
+.node:not(.group) > .node-label .node-label__name:hover {
 	background: #DFDBDB;
 }
 
-.node-name span {
-	padding: 5px 0 5px 10px;
-	display: inline-block;
+.node.group > .node-label span {
+	color: #5BBAF2;
+}
+
+.node-label__name span {
 	border-radius: 0.3rem;
 	width: 15vw;
 
@@ -70,29 +134,107 @@ a {
   	-ms-user-select: none;       /* Internet Explorer/Edge */
 }
 
-.node-name__expand-btn {
-	display: inline-block;
-	margin: 0 7px 0 0;
-	height: 1.8rem;
-	width: 1.8rem;
-	margin: 0.5rem 0;
-	background: silver;
-	border: none;
-	border-radius: 100%;
-	padding: 5px;
+.node-label__name {
+	margin: 0;
+	padding: 0 5px 0 5px;
+	border-radius: 0.3rem;
+
+	font-family: "Rubik";
+	font-weight: 500;
 }
 
-.node-name__expand-btn img {
-	display: block;
-	width: 100%;
-	height: 100%;
+/*кнопки свернуть и развернуть*/
+
+.node__collapse-expand-btns {
+	position: absolute;
+	top: 3px;
+	left: 8px;
+}
+
+.node.leaf .node__collapse-expand-btns {
+	display: none;
+}
+
+.node__collapse-expand-btns > button {
+	background: #F3E5AD;
+	border: none;
+	border-radius: 100%;
+	margin: 0;
+}
+
+.node.group > .node__collapse-expand-btns button {
+	background: #5BBAF2;
+}
+
+.node__collapse-btn, .node__expand-btn {
+	height: 1.5rem;
+	width: 1.5rem;
+}
+
+.node__expand-btn.hidden, .node__collapse-btn.hidden, .node-children.hidden {
+	display: none;
+}
+
+/*стили наследников*/
+
+.node-children {
+	padding-left: 12px;
+}
+
+/*стиль блока, оповещающего пользователя*/
+.log-container {
+	position: fixed;
+	top: 25vh;
+	display: none;
+	right: 2vw;
+	width: 20vw;
+}
+
+.log-container__log {
+	min-height: 100px;
+	width: 95%;
+	margin: auto;
+	border-radius: 0.5rem;
+
+	padding: 10px;
+	margin-bottom: 5px;
+	text-align: center;
+	background: #353535;
+	color: white;
+	
+	transition: 0.5s;
+	opacity: 0%;
+}
+
+/*кнопки удаления и редактирования объектов*/
+
+.node-actions {
+	justify-content: start;
+	align-items: center;
+	display: flex;
+	visibility: hidden;
+}
+
+.btn-icon.edit, .btn-icon.delete {
+	width: 25px;
+	height: 25px;
 	padding: 0;
 }
 
-.node-name__expand-btn_inactive {
-	opacity: 30%;
+.btn-icon.attention {
+	width: 36px;
+	height: 36px;
+	padding: 0;
 }
 
-.node-children {
-	margin: 0;
+.btn-icon img {
+	display: block;
+	margin: auto;
+	width: 65%;
+	height: 65%;
+}
+
+.btn-icon.edit img {
+	width: 70%;
+	height: 70%;
 }

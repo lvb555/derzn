@@ -165,7 +165,7 @@
                         <input type="checkbox" class="admin-checkbox" data-userid="{{ user.id }}" data-isadmin="{{ user.is_superuser }}" {% if user.is_superuser %}checked="checked"{% endif %} {% if not user.is_employee %}disabled{% endif %}>
                     </td>
                     <td>
-                    <a class="show-info" data-userid="{{ user.id }}" style="font-style: italic; cursor: pointer;">Права сотрудника</a>
+                    <a class="show-info" data-userid="{{ user.id }}" style="font-style: italic; cursor: pointer;">Права администратора</a>
                         <div class="popup container user-info-{{ user.id }}">
                             <button class="close-popup">X</button>
                             <h2>Панель управления</h2>

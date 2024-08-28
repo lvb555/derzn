@@ -7,7 +7,7 @@ from django.views.generic import CreateView, TemplateView
 
 from drevo.forms.knowledge_create_form import ZnImageFormSet, ZnFilesFormSet
 from drevo.forms.constructor_knowledge_form import MainZnInConstructorCreateEditForm
-from drevo.models import Znanie, SpecialPermissions, Tz
+from drevo.models import Znanie, SpecialPermissions, Tz, Suggestion
 
 from .supplementary_functions import create_zn_for_constructor, get_images_from_request, \
     get_file_from_request
@@ -36,6 +36,8 @@ class ZnaniyaForConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView)
             'table': 'Таблица',
             'quiz': 'Тест',
             'discussion': 'Дискуссии',
+            'discussion_user': 'Дискуссии',
+            'discussion_director': 'Дискуссии',
         }
 
         user_competencies = SpecialPermissions.objects.filter(expert=user).first()
@@ -61,7 +63,9 @@ class ZnaniyaForConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView)
             'quiz': 'Конструктор тестов',
             'algorithm': 'Конструктор алгоритмов',
             'document': 'Конструктор документов',
-            'discussion': 'Дискуссии для экспертов'
+            'discussion': 'Дискуссии для экспертов',
+            'discussion_user': 'Дерево Дискуссий',
+            'discussion_director': 'Дерево создаваемых дискуссий',
         }
         context['title'] = title_mapping.get(self.type_of_zn)
         context['type_of_page'] = self.type_of_zn
@@ -96,6 +100,8 @@ class MainZnInConstructorCreateView(LoginRequiredMixin, DispatchMixin, CreateVie
             'table': 'Создание таблицы',
             'quiz': 'Создание теста',
             'discussion': 'Создание дискуссии',
+            'discussion_user': 'Создание дискуссии',
+            'discussion_director': 'Создание дискуссии',
         }
         self.type_of_zn = self.kwargs.get('type_of_zn')
         context['type_of_zn'] = self.type_of_zn
@@ -132,8 +138,7 @@ class MainZnInConstructorCreateView(LoginRequiredMixin, DispatchMixin, CreateVie
             knowledge = form.save(commit=False)
             create_zn_for_constructor(knowledge, form, request, author=True, image_form=image_form)
             self.object = knowledge
-
-            if self.type_of_zn in ('algorithm', 'document', 'discussion'):
+            if self.type_of_zn in ('algorithm', 'document', 'discussion_director', 'discussion_user', 'discussion'):
                 return HttpResponseRedirect(reverse('tree_constructor', kwargs={'type': self.type_of_zn, 'pk': knowledge.pk}))
             elif self.type_of_zn == 'quiz':
                 return HttpResponseRedirect(reverse('quiz_constructor', kwargs={'pk': knowledge.pk}))
@@ -173,3 +178,28 @@ def delete_complex_zn(request):
         zn.delete()
     main_zn.delete()
     return HttpResponse(status=200)
+
+
+
+class UnprocessedSuggestionsTreeView(LoginRequiredMixin, TemplateView):
+    template_name = 'drevo/constructors/constructor_start_page.html'
+
+    def get_unprocessed_suggestions(self, user):
+        user_competencies = SpecialPermissions.objects.filter(expert=user).first().admin_competencies.all()
+        knowledge_with_unprocessed_suggestions_ids = Suggestion.objects.filter(
+            parent_knowlege__category__in=user_competencies,
+            is_approve=None).values_list('parent_knowlege', flat=True).distinct()
+
+        knowledge_with_unprocessed_suggestions = Znanie.objects.filter(
+            id__in=knowledge_with_unprocessed_suggestions_ids)
+
+        return knowledge_with_unprocessed_suggestions
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        knowledge_with_unprocessed_suggestions = self.get_unprocessed_suggestions(user)
+
+        context['knowledge'] = knowledge_with_unprocessed_suggestions
+        context['type_of_page'] = 'suggestion'
+        return context

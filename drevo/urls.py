@@ -2,6 +2,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 
+from drevo.views.interviews_statistics_view import dimensional_distributions_1, dimensional_distributions_2
+from drevo.views.interviews_all_view import interviews_all
+from drevo.views.interview_table_view import interview_table
 from drevo.views.developer_view import developer_view
 from drevo.views.interviews_view import interview_view
 from drevo.views.my_interview_view import my_interview_view
@@ -33,7 +36,10 @@ from .views import (AdminsPermissionsDeleteView, AlgorithmDetailView,
                     advance_search_by_tree_view, check_related,
                     create_additional_knowledge, delete_competence_admin,
                     delete_competence_expert, delete_editor_permissions,
-                    document_object_processing_view, friends_added_view,
+                    DocumentObjectProcessingView,
+                    document_object_deletion_view,
+                    object_tree_correctnes_check_view,
+                    friends_added_view,
                     friends_view, get_related_tz, get_required_rz,
                     get_required_tr, knowledge_feed_view, knowledges_grades,
                     messages_feed_view, my_knowledge_grade,
@@ -41,7 +47,7 @@ from .views import (AdminsPermissionsDeleteView, AlgorithmDetailView,
                     relation_expertise_view, relation_publication_view,
                     relation_update_view, save_text_template_view,
                     search_by_tree_view, send_message_view, send_znanie,
-                    turple_processing_view, update_user_settings)
+                    update_user_settings)
 from .views.admin_interview_work.views import (AdminEditingKnowledgeView,
                                                AllInterviewView,
                                                InterviewQuestionsView,
@@ -50,7 +56,7 @@ from .views.admin_interview_work.views import (AdminEditingKnowledgeView,
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
-from .views.site_pages import site_pages_view, site_page_view, create_new_zn
+from .views.site_pages import site_pages_view, site_page_view, create_new_zn, search_page
 from .views.editorial_staff import editorial_staff_view, update_roles
 from .views.editorial_staff import editorial_staff_view, update_roles, update_user_permissions
 from .views.expert_work.views import (ExpertProposalDeleteView,
@@ -245,12 +251,16 @@ urlpatterns = [
         name="edit_text_template",
     ),
     path(
-        "znanie/<int:doc_pk>/document-template/turple_processing",
-        turple_processing_view,
+        "znanie/<int:doc_pk>/document-template/document_object_processing",
+        DocumentObjectProcessingView.as_view(),
     ),
     path(
-        "znanie/<int:doc_pk>/document-template/document_object_processing",
-        document_object_processing_view,
+        "znanie/<int:doc_pk>/document-template/document_object_deletion",
+        document_object_deletion_view
+    ),
+    path(
+        "znanie/<int:doc_pk>/document-template/object_tree_correctness",
+        object_tree_correctnes_check_view
     ),
     path(
         "znanie/<int:doc_pk>/document-template/object-select",
@@ -286,6 +296,7 @@ urlpatterns = [
     path("site_pages/", site_pages_view, name="site_pages"),
     path("site_pages/<int:pk>/", site_page_view, name="site_page"),
     path("site_pages/create_new_zn/", create_new_zn, name="create_new_zn"),
+    path('site_pages/search/', search_page, name='search_page'),
     # --------------------------------------------------------------------------------------------------
     # документ????
     path(
@@ -301,6 +312,11 @@ urlpatterns = [
     # интервью
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
+    path("interview_table/<int:id>/", interview_table, name="interview_table"),
+    path("interviews_all", interviews_all, name="interviews_all"), 
+    path("dimensional_distributions_1/<int:id>/", dimensional_distributions_1, name="dimensional_distributions_1"), 
+    path("dimensional_distributions_2/<int:id>/", dimensional_distributions_2, name="dimensional_distributions_2"), 
+  
     path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/expertise",
         QuestionExpertWorkPage.as_view(),

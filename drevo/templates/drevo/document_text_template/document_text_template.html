@@ -15,10 +15,31 @@
 
 {% block content %}
 
-<h1 class="page-title">Шаблона документа: {{ knowledge.name }}</h1>
+{% if not request.user.is_authenticated %} 
+	<div class="card alert-warning">
+		<div class="card-body">
+			<span class="card-text">
+				<a href="{% url 'users:login' %}?next={{ request.path }}" style="text-decoration: none">Войдите</a>
+                или
+				<a href="{% url 'users:register' %}" style="text-decoration: none">зарегистрируйтесь</a>,
+                чтобы внести предложение.
+			</span>
+		</div>
+	</div>
+{% else %}
+<h1 class="page-title">Конструктор шаблона текста</h1>
+<nav style="--bs-breadcrumb-divider: '-';display: inline-flex; justify-content: space-between; width: 100%; align-items: self-end; margin: 0px;">
+	<ol class="breadcrumb m-0">
+		<li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+		<li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
+		<li class="breadcrumb-item">Подготовка знаний</li>
+		<li class="breadcrumb-item">Конструктор документов</li>
+		<li class="breadcrumb-item opened">Конструктор шаблона текста</li>
+	</ol>
+</nav>
 
 <div class="content">
-<h3 class="page-sub-title">Конструктор шаблона текста</h3>
+<h3 class="page-sub-title">Шаблон документа: "{{ knowledge.name }}"</h3>
 <form class="template" action="" method="post">
 	{% csrf_token %}
 	{{ form.media }}
@@ -27,160 +48,29 @@
 	{{ form.pk }}
 	<div class="template__menu">
 		<div class="template__template-actions">
-			<button class="template-btn save btn btn-icon" type="button">Сохранить</button>
-			<button class="template-btn select-obj btn btn-icon" type="button">Выбрать объект</button>
-			<button class="template-btn create btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">Новый объект</button>
-			<button class="template-btn paste btn btn-icon" type="button">Вставить</button>
+				<div class="template__obj-actions">
+					<button class="template-btn select-obj btn btn-icon" type="button">Выбрать объект</button>
+					<button class="template-btn paste btn btn-icon" type="button">Вставить</button>
+				</div>
+				<div class="template__save-action">
+					<button class="template-btn save btn btn-icon" type="button">Сохранить</button>
+				</div>
 		</div>
 		<div class="template__selected-object" id="unselected">
 			<h6>Текущий объект</h6>
 			<div class="object-card" id="">
 				<p class="object-card__header">Название объекта</p>
-				<div class="object-card__btns">
-					<button class="object-card__btn edit btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#ObjectModal">
-						<img src="{% static 'drevo/img/pencil.svg'%}" alt="Изменить">
-					</button>
-					<button class="object-card__btn delete btn btn-icon" type="button" data-bs-toggle="modal" data-bs-target="#DeleteObjectModal">
-						<img src="{% static 'drevo/img/bin.svg'%}" alt="Удалить">
-					</button>
-				</div>
 			</div>
 		</div>
 	</div>
 </form>
 
-<div class="modal fade" id="ObjectModal" tabindex="-1" aria-labelledby="ObjectModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-        	<div class="modal-header turple-menu">
-				<h5 class="modal-title">Создание объекта шаблона</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-        	</div>
-        	<div class="modal-body">
-        		<form class="edit-menu">
-					<div id="name" class="field">
-						<label class="edit-menu__label" for="name">{{var_form.name.label}}</label>
-						{{var_form.name}}
-					</div>
-
-					<div id="structure" class="field">
-						<label for="{{ var_form.structure.id_for_label }}" class="edit-menu__type-field">{{ var_form.structure.label }}</label>
-						{{ var_form.structure }}
-					</div>
-
-					<div id="type_of" class="field">
-						<label class="edit-menu__label">{{var_form.type_of.label}}</label>
-						{{var_form.type_of}}
-					</div>
-
-					<div id="connected-to" class="field">
-						<label class="edit-menu__label" for="{{ var_form.connected_to.id_for_label }}">{{ var_form.connected_to.label }}</label>
-						{{ var_form.connected_to }}
-					</div>
-					<div id="availability" class="field">
-						<label for="{{ var_form.availability.id_for_label }}" class="edit-menu__label">{{ var_form.availability.label }}</label>
-						{{ var_form.availability }}
-					</div>
-					<div id="main" class="field">
-						<label for="{{ var_form.is_main.id_for_label }}" class="edit-menu__label">{{ var_form.is_main.label }}</label>
-						{{ var_form.is_main }}
-					</div>
-					<div id="subscription" class="field">
-						<label for="{{ var_form.subscription.id_for_label }}" class="edit-menu__label">{{ var_form.subscription.label }}</label>
-						{{ var_form.subscription }}
-					</div>
-					<div id="optional" class="field">
-						<label for="{{ var_form.optional.id_for_label }}" class="edit-menu__label">{{ var_form.optional.label }}</label>
-						{{ var_form.optional }}
-					</div>
-					<div id="comment" class="field">
-						<label for="{{ var_form.comment.id_for_label }}" class="edit-menu__label"> {{ var_form.comment.label }}</label>
-						{{var_form.comment}}
-					</div>
-					<div id="intro" class="field">
-						<label class="edit-menu__label" for="fill-title">{{var_form.fill_title.label}}</label>
-						{{ var_form.fill_title }}
-					</div>
-
-					<div id="weight" class="field">
-						<label for="weight" class="edit-menu__label">Порядок</label>
-						<input class="form-control" type="number" id="weight" name="weight" min="1" max="1000">
-					</div>
-
-					<div id="turple" class="field turple-selection">
-						<label for="{{ var_form.turple.id_for_label }}" class="edit-menu__header">{{ var_form.turple.label}}</label>
-						<div class="turple-selection-body">
-							<div class="turple-selection__field">
-								{{ var_form.turple }}
-							</div>
-							<!-- <div class="turple-selection-btns">
-								<button class="btn btn-icon create turple-selection__btn" type="button" data-bs-toggle="modal" data-bs-target="#TurpleModal">
-									<img src="{% static 'drevo/img/knowledge_search/plus.svg'%}" alt="">
-								</button>
-								<button class="btn btn-icon edit turple-selection__btn" type="button" data-bs-toggle="modal" data-bs-target="#TurpleModal">
-									<img src="{% static 'drevo/img/pencil.svg'%}" alt="">
-								</button>
-								<button class="btn btn-icon turple-selection__btn" type="button">
-									<img src="{% static 'drevo/img/bin.svg'%}" alt="">
-								</button>
-							</div> -->
-						</div>
-					</div>
-
-					{{ var_form.knowledge }}
-
-					<button type="button" class="btn-icon btn edit-menu__save-btn">Сохранить</button>
-				</form>
-        	</div>
-		</div>
-    </div>
-</div>
+{% include "drevo/document_text_template/object_form.html" %}
 
 <div class="log-container">
 	<p class="log-container__log"></p>
 </div>
 
-<!-- <div class="modal fade" id="TurpleModal" tabindex="-1" aria-labelledby="TurpleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header turple-menu">
-              	<h5 class="modal-title" id="createTurpleModalLabel">Справочник</h5>
-              	<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-            </div>
-            <div class="modal-body">
-				<form action="" method="post" class="turple-form">
-						<div class="field">							
-							<label for="{{turple_form.name.id_for_label}}" class="turple-form__label">{{turple_form.name.label}}</label>
-							{{turple_form.name}}
-						</div>
-						<div class="field">							
-							<label for="{{turple_form.weight.id_for_label}}" class="turple-form__label">{{turple_form.weight.label}}</label>
-							{{turple_form.weight}}
-						</div>
-					<button type="button" class="btn-icon btn turple-form__save-btn">Сохранить</button>
-				</form>
-				<div class="turple-form-elements">
-					<h5 class="sub-title turple-form-elements__header">Элементы:</h5>
-					<form action="" class="element-form">
-						<div class="field">
-							<label for="{{ turple_element_form.value.id_for_label }}" class="element-for__label">{{ turple_element_form.value.label }}</label>
-							{{ turple_element_form.value }}
-						</div>
-
-						<div class="field">
-							<label for="{{ turple_element_form.weight.id_for_label }}" class="element-for__label">{{ turple_element_form.weight.label }}</label>
-							{{ turple_element_form.weight }}
-						</div>
-						<button type="button" class="btn btn-icon element-form__save-btn">Создать</button>
-					</form>
-				</div>
-				<div class="objects-list turple-menu__objects-list">
-				</div>
-            </div>
-        </div>
-    </div>
-</div>
- -->
 <div class="modal fade" id="DeleteObjectModal" tabindex="-1" aria-labelledby="DeleteObjectModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content">
@@ -198,13 +88,10 @@
         </div>
 	</div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block jsfiles %}
-<script type="module" src="{% static 'drevo/js/template_objects/paste_object.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/setup_queries.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/dynamic_form.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/object_processing.js' %}"></script>
-<script type="module" src="{% static 'drevo/js/template_objects/save_template.js' %}"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/requests/document_text_template.js' %}"></script>
+<script type="module" src="{% static 'drevo/js/template_objects/document_text_template.js'%}"></script>
 {% endblock %}

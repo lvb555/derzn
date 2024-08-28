@@ -1,0 +1,65 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/dimensional_distributions.css' %}">
+<script src="{% static 'drevo/js/dimensional_distributions.js' %}?v=1.0"></script>
+{% endblock %}
+{% block title %}Одномерные распределения{% endblock %}
+
+{% block content %}
+
+<h3>Таблица одномерных распределений</h3>
+
+<p><strong>Интервью: </strong>{{ selected_interview.name }}</p>
+{% if questions %}
+<form method="get">
+  <label for="questionSelect"><strong>Вопрос:</strong></label>
+  <select name="selected_question_id" onchange="this.form.submit()">
+    {% if selected_question %}
+      <option value="{{ selected_question.id }}">{{ selected_question.name }}</option>
+    {% else %}
+      <option value="">Выбрать вопрос</option>
+    {% endif %}
+    {% for question in questions %}
+      {% if question.question__id != selected_question.id %}
+        <option value="{{ question.question__id }}">{{ question.question__name }}</option>
+      {% endif %}
+    {% endfor %}
+  </select>
+</form>
+{% else %}
+<h5>Вопросов интервью нет</h5>
+{% endif %}
+
+{% if table %}
+  <table id="answers" border='2px'>
+    <tr>
+        <td class="graphs">Ответ</td>
+        <td class="graphs">Число голосов % к проголосовавшим</td>
+    </tr>
+    {% for row in table %}
+      <tr>
+          <td class="answers" rowspan="2">{{ row.answer_name }}</td>
+          <td class="numbers">{{ row.agreed_count }}</td>
+      </tr>
+      <tr>
+          <td class="numbers">{{ row.percent|floatformat:2 }}%</td>
+      </tr>
+    {% endfor %}
+    <tr>
+        <td class="graphs" rowspan="2">Всего проголосовавших:</td>
+        <td class="numbers">{{ total_voters }}</td>
+    </tr>
+    <tr>
+        <td class="numbers">100%</td>
+    </tr>
+    <tr>
+        <td class="graphs">Всего участников интервью</td>
+        <td class="numbers">{{ all_participants }}</td>
+    </tr>
+  </table>
+{% endif %}
+{% if questions|length >= 2 %}
+  <a class="btn btn-success" href="{% url 'dimensional_distributions_2' id=selected_interview.id %}">Таблицы двумерных распределений</a> 
+{% endif %}
+{% endblock %}

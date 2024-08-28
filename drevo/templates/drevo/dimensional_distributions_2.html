@@ -1,0 +1,82 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/dimensional_distributions.css' %}">
+<script src="{% static 'drevo/js/dimensional_distributions.js' %}?v=1.0"></script>
+{% endblock %}
+{% block title %}Двумерные распределения{% endblock %}
+
+{% block content %}
+
+<h3>Таблица двумерных распределений</h3>
+
+<p><strong>Интервью: </strong>{{ selected_interview.name }}</p>
+<h7>Выберите оба вопроса интервью, названия вопросов не должны совпадать</h7>
+
+<form method="get">
+    <select id="question1" name="selected_question_1_id" onchange="enableQuestion2()">
+        {% if selected_question_1 %}
+            <option value="">{{ selected_question_1 }}</option>
+        {% else %}
+            <option value="">Вопрос-1</option>
+        {% endif %}
+        {% for question in questions %}
+            {% if question.question__id != selected_question_1.id %}
+            <option value="{{ question.question__id }}">{{ question.question__name }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <select id="question2" name="selected_question_2_id" onchange="this.form.submit()" disabled>
+        {% if selected_question_2 %}
+            <option value="">{{ selected_question_2 }}</option>
+        {% else %}
+            <option value="">Вопрос-2</option>
+        {% endif %}
+        {% for question in questions %}
+            {% if question.question__id != selected_question_2.id %}
+            <option value="{{ question.question__id }}">{{ question.question__name }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+</form>
+{% if selected_question_1 and selected_question_2 and selected_question_1 != selected_question_2 %}
+    {% if table %}
+    <table border="4px">
+        <tr>
+            <td class="upper-td" rowspan="2">{{ selected_question_1 }}</td>
+            <td class="upper-td" colspan="{{ answers_2|length }}">{{ selected_question_2 }}</td>
+        </tr>
+        <tr>
+            {% for answer2 in answers_2 %}
+                <td class="upper-td">{{ answer2 }}</td>
+            {% endfor %}
+        </tr>
+        {% for row in table %}
+        <tr>
+            <td class="lower-td" rowspan="2">{{ row.answer1 }}</td>
+            {% for cell in row.cells %}
+                <td class="numbers">{{ cell.count }}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for cell in row.cells %}
+                <td class="numbers">{{ cell.percentage|floatformat:2 }}%</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr><td class="upper-td" rowspan="2">Всего проголосовавших:</td>
+            {% for total in table.0.totals %}  
+                <td class="numbers">{{ total }}</td>
+            {% endfor %}</tr><tr>
+            {% for total in table.0.totals %}  
+                <td class="numbers">100%</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td class="upper-td">Всего участников интервью: {{ all_participants }}</td>
+        </tr>
+    </table>
+    {% endif %}
+{% endif %}
+<a class="btn btn-success" href="{% url 'dimensional_distributions_1' id=selected_interview.id %}">Таблицы одномерных распределениий</a>
+{% endblock %}

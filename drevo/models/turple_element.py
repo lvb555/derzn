@@ -12,6 +12,12 @@ class TurpleElement(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Справочник")
     weight = models.IntegerField(default=1, verbose_name="Порядок")
+    object = models.ForeignKey('TemplateObject',
+                               on_delete=models.CASCADE,
+                               verbose_name='Объект',
+                               related_name='tuple_elements',
+                               null=True, 
+                               blank=True)
 
     class Meta:
         verbose_name = 'Элемент справочника'

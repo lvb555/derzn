@@ -36,7 +36,7 @@ class SitePage(MPTTModel):
         ('label', 'Ярлык')
     ]
 
-    page = models.ForeignKey(Znanie, verbose_name='Страница', on_delete=models.CASCADE)
+    page = models.ForeignKey(Znanie, verbose_name='Страница', on_delete=models.CASCADE, null=True, blank=True)
     parent = TreeForeignKey(verbose_name='Родитель', to='self', on_delete=models.CASCADE, null=True, blank=True,
                             related_name='children')
     type = models.CharField(max_length=255, verbose_name='Тип', choices=TYPE_CHOICES)
@@ -49,22 +49,23 @@ class SitePage(MPTTModel):
     help_page = models.BooleanField(default=False, verbose_name='Страница помощи')
     help_page_content = models.BooleanField(default=False, verbose_name='Контент помощи')
     notification = models.BooleanField(default=False, verbose_name='Оповещение')
-    status = models.ForeignKey(StatusType, verbose_name='Статус', on_delete=models.PROTECT, null=True)
+    status = models.ForeignKey(StatusType, verbose_name='Статус', on_delete=models.PROTECT, null=True, blank=True)
     link = models.URLField(max_length=256, verbose_name='URL-адрес', null=True, blank=True)
     subscribers = models.ManyToManyField('users.User', verbose_name='Подписчики', blank=True)
+    order = models.IntegerField(verbose_name='Порядок', null=True, blank=True)
 
     objects = models.Manager()
     tree_objects = TreeManager()
 
     def __str__(self):
-        return self.page.name
+        return self.page.name if self.page else 'Ярлык'
 
     class Meta:
         verbose_name = 'Страница сайта'
         verbose_name_plural = 'Страницы сайта'
 
     class MPTTMeta:
-        order_insertion_by = ['page']
+        order_insertion_by = ['order']
 
 
 class PageHistory(models.Model):
@@ -84,7 +85,8 @@ class PageHistory(models.Model):
         ('notification', 'Оповещение'),
         ('status', 'Статус'),
         ('link', 'URL-адрес'),
-        ('subscribers', 'Подписчики')
+        ('subscribers', 'Подписчики'),
+        ('order', 'Порядок')
     ]
 
     page = models.ForeignKey(SitePage, verbose_name='Страница', on_delete=models.CASCADE)

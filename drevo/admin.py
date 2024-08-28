@@ -1,3 +1,6 @@
+import datetime
+
+import django
 from adminsortable2.admin import SortableAdminMixin
 from django.conf.urls import url
 from django.contrib import admin
@@ -6,11 +9,13 @@ from django.db import IntegrityError
 from django.db.models import Q, F
 from django.db.models.functions import Lower
 from django.forms.models import model_to_dict
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
-from django.urls import reverse
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse, path
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
 from mptt.admin import DraggableMPTTAdmin
 
 from drevo.models import InterviewAnswerExpertProposal
@@ -47,6 +52,7 @@ from .forms import (
     GlossaryTermForm,
     CategoryForm,
     CtegoryExpertForm,
+    TemplateObjectAdminForm
 )
 from .models import (
     Znanie,
@@ -80,6 +86,9 @@ from .models.algorithms_data import AlgorithmData, AlgorithmWork
 from .models.site_page import SitePage, StatusType, PageHistory
 from .models.users_documents import UsersDocuments
 from .models.appeal import Appeal
+
+from .models.bd_models import TableState
+
 from .services import send_notify_interview
 from .views.send_email_message import send_email_messages
 
@@ -179,7 +188,7 @@ class ExtraKnowledgeFilter(admin.SimpleListFilter):
 
         if self.value() == 'extra_knowledge':
             return extra
-        
+
         if self.value() == 'incoherent_knowledge':
             relation = Relation.objects.exclude(Q(bz=None) | Q(rz=None))
             incoherent = extra.exclude(
@@ -268,7 +277,8 @@ class ZnanieAdmin(admin.ModelAdmin):
         sending_emails = send_email_messages()
         if str(sending_emails).endswith('1'):
             mail = 'письмо'
-        elif str(sending_emails).endswith('2') or str(sending_emails).endswith('3') or str(sending_emails).endswith('4'):
+        elif str(sending_emails).endswith('2') or str(sending_emails).endswith('3') or str(sending_emails).endswith(
+                '4'):
             mail = 'письма'
         else:
             mail = 'писем'
@@ -451,7 +461,7 @@ class RelationAdmin(admin.ModelAdmin):
             if period:
                 period_relation = period.rz.name
                 # Передаем параметры в функцию send_notify_interview, которая формирует текст сообщения
-                result = send_notify_interview(interview, period_relation)    
+                result = send_notify_interview(interview, period_relation)
 
     class Media:
         # css = {"all": ("drevo/css/style.css",)}
@@ -462,7 +472,7 @@ class RootDocumentFilter(admin.SimpleListFilter):
     """
     Описывает фильтр модели "Пользовательские документы" по полю "Родительский документ".
     """
-    
+
     title = 'Родительский документ'
     parameter_name = 'root_document'
 
@@ -473,7 +483,6 @@ class RootDocumentFilter(admin.SimpleListFilter):
         return [(document.pk, document) for document in documents]
 
     def queryset(self, request, queryset):
-
         if self.value():
             return queryset.filter(root_document=self.value())
 
@@ -494,7 +503,7 @@ class UsersDocumentsAdmin(admin.ModelAdmin):
     list_filter = (
         RootDocumentFilter,
         "owner",
-    )    
+    )
 
 
 admin.site.register(UsersDocuments, UsersDocumentsAdmin)
@@ -502,8 +511,8 @@ admin.site.register(UsersDocuments, UsersDocumentsAdmin)
 
 class GlossaryTermAdmin(admin.ModelAdmin):
     list_display = ("order", "name", "description", "category")
-    ordering = ("order", "name", )
-    list_display_links = ('name', )
+    ordering = ("order", "name",)
+    list_display_links = ('name',)
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs["form"] = GlossaryTermForm
@@ -515,8 +524,9 @@ admin.site.register(GlossaryTerm, GlossaryTermAdmin)
 
 class GlossaryCategoryAdmin(admin.ModelAdmin):
     list_display = ('order', 'name')
-    list_display_links = ('name', )
-    ordering = ('order', 'name', )
+    list_display_links = ('name',)
+    ordering = ('order', 'name',)
+
 
 admin.site.register(GlossaryCategories, GlossaryCategoryAdmin)
 
@@ -527,8 +537,8 @@ class ChapterDescriptionsAdmin(admin.ModelAdmin):
     """
 
     list_display = ('id', 'order', 'name')
-    list_display_links = ('id', 'name', )
-    ordering = ('order', )
+    list_display_links = ('id', 'name',)
+    ordering = ('order',)
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs["form"] = ChapterForm
@@ -622,6 +632,7 @@ class KnowledgeGradeColorAdmin(admin.ModelAdmin):
         "low_light",
         "knowledge_type",
     )
+
 
 admin.site.register(KnowledgeGradeColor, KnowledgeGradeColorAdmin)
 
@@ -911,8 +922,10 @@ class AlgorithmWorkAdmin(admin.ModelAdmin):
     autocomplete_fields = ["algorithm", "user"]
     search_fields = ["work_name"]
     list_filter = ("algorithm", "work_name", "user")
+
     def display_algorithm(self, obj):
         return str(obj.algorithm)
+
     display_algorithm.short_description = "Алгоритм"
 
 
@@ -922,12 +935,15 @@ class AlgorithmDataAdmin(admin.ModelAdmin):
     autocomplete_fields = ["algorithm", "user"]
     search_fields = ["algorithm__name", "work__work_name"]
     list_filter = ("algorithm", "work", "user", "element_type")
+
     def display_algorithm(self, obj):
         return str(obj.algorithm)
+
     display_algorithm.short_description = "Алгоритм"
 
     def display_work(self, obj):
         return str(obj.work)
+
     display_work.short_description = "Работа"
 
 
@@ -937,12 +953,15 @@ class AlgorithmAdditionalElementsAdmin(admin.ModelAdmin):
     autocomplete_fields = ["algorithm", "user"]
     search_fields = ["parent_element__name", "element_name"]
     list_filter = ("algorithm", "work", "relation_type", "insertion_type", "user")
+
     def display_algorithm(self, obj):
         return str(obj.algorithm)
+
     display_algorithm.short_description = "Алгоритм"
 
     def display_work(self, obj):
         return str(obj.work)
+
     display_work.short_description = "Работа"
 
 
@@ -977,16 +996,15 @@ class UserAnswerToQuestionAdmin(admin.ModelAdmin):
     )
     search_fields = ["knowledge__name", "answer", "question__question"]
     list_display_links = ("knowledge", "answer")
-    
+
     class Media:
         css = {"all": ("drevo/css/width_form.css",)}
-
 
 
 @admin.register(Suggestion)
 class UserSuggestionAdmin(admin.ModelAdmin):
     list_display = ('id', 'parent_knowlege', 'name', 'user', 'expert', 'is_approve', 'suggestions_type')
-    list_filter = ('suggestions_type', 'user', 'parent_knowlege')
+    list_filter = ('suggestions_type', 'is_approve', 'user', 'parent_knowlege')
     form = AdminSuggestionUserForm
 
 
@@ -994,39 +1012,105 @@ class UserSuggestionAdmin(admin.ModelAdmin):
 class SuggestionTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'type_name', 'weight')
     list_filter = ('type_name', 'weight')
-    ordering = ('weight', )
+    ordering = ('weight',)
 
 
 @admin.register(RefuseReason)
 class RefuseReasonAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(TurpleElement)
 class TurpleElementAdmin(admin.ModelAdmin):
-    list_display = ('value', 'turple')
-    list_filter = ('turple', )
+    list_display = ('id', 'weight', 'value', 'turple', 'object')
+    list_filter = ('turple', 'object')
+    search_fields = ('object',)
+    autocomplete_fields = ('object', )
     ordering = ('weight', )
+    sortable_by = ('id', 'weight')
 
+    
 @admin.register(Turple)
 class TurpleAdmin(admin.ModelAdmin):
     list_display = ('name',)
-    ordering = ('weight', )
+    ordering = ('weight',)
+
 
 @admin.register(TemplateObject)
-class TemplateObjectAdmin(DraggableMPTTAdmin):
-    list_display = ('tree_actions', 'indented_title')
-    list_display_links = ('indented_title', )
+class TemplateObjectAdmin(admin.ModelAdmin):
+    list_display = ('id', 'weight', 'name', 'availability', 'type_of', 'connected_to', 'knowledge', 'user')
+    list_display_links = ('name', )
+    list_filter = ('structure', 'availability', 'knowledge', 'type_of', )
     search_fields = ('knowledge__name', 'connected_to__name', 'name')
-    mptt_level_indent = 20
-    
+    sortable_by = ('id', 'weight')
+    autocomplete_fields = ('knowledge', )
+    ordering = ('weight', )
+    form = TemplateObjectAdminForm
+
+
 @admin.register(SitePage)
 class SitePageAdmin(admin.ModelAdmin):
     list_display = ('id', 'page', 'parent', 'type', 'status')
+
 
 @admin.register(StatusType)
 class StatusTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'text_for_users')
 
+
 @admin.register(PageHistory)
 class PageHistoryAdmin(admin.ModelAdmin):
     list_display = ('page', 'prop', 'previous_value', 'last_value', 'staff_member', 'date')
+
+
+@admin.register(TableState)
+class TableStateAdmin(admin.ModelAdmin):
+    change_list_template = "admin/drevo/bd/bd_state.html"
+    list_display = ('table_name', 'num_records', 'date_time')
+
+    def get_urls(self):
+        urls = super(TableStateAdmin, self).get_urls()
+        custom_urls = [
+            path('save_state/', self.save_state, name='save_state'),
+            path('check_integrity/', self.check_integrity, name='check_integrity')
+        ]
+        return custom_urls + urls
+
+    def save_state(self, request):
+        for model in django.apps.apps.get_models():
+
+            if model.__name__ != 'TableState' and model.__name__ != 'LogEntry':
+                name = model._meta.verbose_name_plural
+                num_records = model.objects.all().count()
+                aware_datetime = timezone.make_aware(datetime.datetime.now())
+                TableState.objects.create(table_name=name, num_records=num_records, date_time=aware_datetime,
+                                          difference=0)
+
+        return HttpResponseRedirect('../')
+
+    def check_integrity(self, request):
+        report = []
+
+        for model in django.apps.apps.get_models():
+            if model.__name__ != 'TableState' and model.__name__ != 'LogEntry':
+
+                name = model._meta.verbose_name_plural
+
+                try:
+                    table_state = TableState.objects.get(table_name=name)
+                    num_records_after = model.objects.all().count()
+                    num_records_before = table_state.num_records
+                    difference = num_records_after - num_records_before
+                    table_state.difference = difference
+
+                    if difference != 0:
+                        report.append([name, num_records_before, num_records_after, difference])
+                    else:
+                        table_state.delete()
+                except TableState.DoesNotExist:
+                    continue
+
+        if not report:
+            report = "Проверка прошла успешно. Все таблицы целостны."
+
+        return render(request, 'admin/drevo/bd/check_integrity.html', {'result': report})

@@ -53,6 +53,14 @@ class Help(MPTTModel):
         default=False,
         verbose_name='Группа'
     )
+    alias = models.ForeignKey(
+        to='self',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='aliases',
+        verbose_name='Ярлык'
+    )
 
     objects = models.Manager()
     tree_objects = TreeManager()

@@ -49,7 +49,7 @@ class TreeConstructorView(LoginRequiredMixin, DispatchMixin, TemplateView):
         selected_zn = Znanie.objects.filter(id=self.kwargs.get('pk')).first()
         if (type_of_zn == 'algorithm' and selected_zn.tz.name != 'Алгоритм') or (type_of_zn == 'document' and
                                                                                  selected_zn.tz.name != 'Документ') \
-                or (type_of_zn == 'discussion' and
+                or (type_of_zn == 'discussion_user' or type_of_zn == 'discussion_director' or type_of_zn == 'discussion' and
                     selected_zn.tz.name != 'Дискуссии'):
             return HttpResponseRedirect(reverse('drevo'))
 
