@@ -9,7 +9,7 @@
 {% if is_constructor_type and is_constructor_type != 'filling_tables' and is_constructor_type != 'suggestion'%}
     <a href="{% url 'main_znanie_in_constructor_create' type_of_zn=is_constructor_type %}" class="btn btn-success mb-1 btn-header" style="position: absolute; top: 35px; right: 160px; padding: 4px 12px;">
         Создать {% if is_constructor_type == 'algorithm' %}алгоритм{% elif is_constructor_type == 'table' %}таблицу
-        {% elif is_constructor_type == 'quiz' %}тест {% elif is_constructor_type == 'document' %}документ {% elif is_constructor_type == 'discussion_user' or is_constructor_type == 'discussion_director' %}дискуссию {% endif %}
+        {% elif is_constructor_type == 'quiz' %}тест {% elif is_constructor_type == 'document' %}документ {% elif is_constructor_type == 'discussion_user' or is_constructor_type == 'discussion_director' or is_constructor_type == 'discussion' %}дискуссию {% endif %}
     </a>
 {% endif %}
 {% if show_searchbar %}
