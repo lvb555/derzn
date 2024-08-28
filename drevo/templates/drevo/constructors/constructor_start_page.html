@@ -17,12 +17,8 @@
         <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
-                {% if title == 'Дерево Дискуссий' %}
-              <li class="breadcrumb-item opened"><a>Мнения</a></li>
-                    {% else %}
               <li class="breadcrumb-item"><a href="{% url 'users:my_profile' %}">Профиль</a></li>
               <li class="breadcrumb-item opened"><a>Подготовка знаний</a></li>
-                {% endif %}
               <li class="breadcrumb-item opened"><a>{{ title }}</a></li>
             </ol>
         </nav>
