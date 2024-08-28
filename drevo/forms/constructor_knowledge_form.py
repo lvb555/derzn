@@ -61,6 +61,7 @@ class MainZnInConstructorCreateEditForm(ZnanieCreateForm):
             'filling_tables': 'Таблица',
             'table': 'Таблица',
             'quiz': 'Тест',
+            'discussion_user': 'Дискуссии',
             'discussion_director': 'Дискуссии'
         }
         if type_of_zn:
