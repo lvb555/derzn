@@ -59,5 +59,7 @@ class SitePageRedactForm(forms.ModelForm):
             field.widget.attrs['disabled'] = True
             if field_name in ('page', 'status', 'parent', 'link', 'base_page', 'subscribers', 'order'):
                 field.widget.attrs['class'] = 'form-control py-2 text-grey'
-            else:
+            elif field_name == 'type':
                 field.widget.attrs['class'] = 'm-0 p-0 text-grey'
+            else:
+                field.widget.attrs['class'] = 'form-check-input m-0 p-0 text-grey'

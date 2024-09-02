@@ -12,6 +12,8 @@ from users.views import access_sections
 from django.contrib import messages
 from drevo.models.site_page import SitePage, PageHistory, StatusType
 
+from drevo.utils.common import validate_parameter_int
+
 
 def site_pages_view(request):
     context = dict(nodes=SitePage.tree_objects.all())
@@ -116,26 +118,27 @@ def search_page(request):
         message = 'Результаты поиска:'
 
         filters = {
-            'functional': request.GET.get('functional', False) == 'on',
-            'layout': request.GET.get('layout', False) == 'on',
-            'design_needed': request.GET.get('design_needed', False) == 'on',
-            'design': request.GET.get('design', False) == 'on',
-            'help_page_content': request.GET.get('help_page_content', False) == 'on',
-            'help_page': request.GET.get('help_page', False) == 'on',
-            'notification': request.GET.get('notification', False) == 'on',
+            'functional': request.GET.get('functional'),
+            'layout': request.GET.get('layout'),
+            'design_needed': request.GET.get('design_needed'),
+            'design': request.GET.get('design'),
+            'help_page_content': request.GET.get('help_page_content'),
+            'help_page': request.GET.get('help_page'),
+            'notification': request.GET.get('notification'),
             'status_id': request.GET.get('status')
         }
 
-        query = Q()
-        for key, value in filters.items():
-            if value:
-                query.add(Q(**{key: value}), Q.AND)
+        status_id = validate_parameter_int(filters.get('status_id'), default=None)
 
-        pages = SitePage.objects.filter(query)
+        filters = {key: True if value == 'yes' else False if value == 'no' else value for key, value in filters.items()
+                   if value and value != 'Выбрать'}
+
+        pages = SitePage.objects.filter(**filters)
+
         if not pages:
             message = 'Страниц сайта не найдено'
 
-        context = {'all_status': all_status, 'pages': pages, 'message': message}
+        context = {'all_status': all_status, 'pages': pages, 'message': message,'status_id':status_id}
         return render(request, 'drevo/search_page.html', context)
 
     else:

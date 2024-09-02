@@ -1,0 +1,57 @@
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+  <script>
+    $(document).ready(function(){
+      $('#checkIntegrityModal').modal('show');
+    });
+  </script>
+
+  <div id="checkIntegrityModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="checkIntegrityModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="checkIntegrityModalLabel">Результат проверки целостности БД</h5>
+          <a href="../" type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+            <span aria-hidden="true">&times;</span>
+          </a>
+        </div>
+        <div class="modal-body">
+                <h3>Отчет о целостности базы данных:</h3>
+          {% if result != 'Проверка прошла успешно. Все таблицы целостны.' %}
+          <table class="table">
+          <thead>
+            <tr>
+              <th>Название таблицы в Админке</th>
+              <th>Число записей До</th>
+              <th>Число записей После</th>
+              <th>После - До</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in result %}
+            <tr>
+              <td>{{ entry.0 }}</td>
+              <td>{{ entry.1 }}</td>
+              <td>{{ entry.2 }}</td>
+              <td>{{ entry.3  }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+          {% else %}
+            <h1>{{result}}</h1>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+<style>
+  .modal-header .close {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+  }
+</style>

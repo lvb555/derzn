@@ -48,6 +48,7 @@ redactElementIcon.setAttribute("onclick", "redactOrDelete(this, 'new', 'redact')
 var addElementIcon = document.createElement("i");
 addElementIcon.setAttribute('class', 'bi bi-plus-lg text-success p-2');
 addElementIcon.setAttribute("onclick", "addNewElement(this);");
+const normalizeString = (s) => s.replace(/:/g, '').replace(/\s+/g, ' ');
 
 
 function openNext(type){
@@ -449,7 +450,7 @@ function rebuildResult(list_of_elements){
     if(document.querySelector('.basic input[type="checkbox"]').parentNode.lastChild.tagName == 'UL' && document.querySelector('.basic input[type="checkbox"]').parentNode.lastChild.getElementsByTagName('li').length > 0){
         level = document.querySelector('.basic input[type="checkbox"]').parentNode.lastChild.childNodes
     }else{
-        level = document.querySelector('.basic ul').childNodes
+        level = document.querySelector('.basic ul ul').childNodes
     }
     previous_element = document.querySelector('.basic input[type="checkbox"]');
     for(let pair in list_of_elements){
@@ -481,7 +482,7 @@ function findCheckbox(lay, name, previous_element){
     founded_checkbox = '';
     if(previous_element.parentNode.lastChild.tagName == 'UL'){
         previous_element.parentNode.lastChild.childNodes.forEach((child) => {
-            if(!(child.firstChild && child.firstChild.style.display == 'none') && child.querySelector('.algorithm-element a').innerText == name){
+            if(!(child.firstChild && child.firstChild.style.display == 'none') && normalizeString(child.querySelector('.algorithm-element a').innerText) == normalizeString(name)){
                 if(child.lastChild.tagName == 'UL' && child.lastChild.getElementsByTagName('li').length > 0){
                     lay = child.lastChild.childNodes;
                 }
@@ -492,7 +493,7 @@ function findCheckbox(lay, name, previous_element){
     if(founded_checkbox == ''){
         while(founded_checkbox == ''){
             lay[0].parentNode.childNodes.forEach((child) => {
-            if(((!(child.style.display == 'none') && !(child.firstChild && child.firstChild.style.display == 'none')) || child.getAttribute('value') == 'Вариант') && child.querySelector('.algorithm-element a').innerText == name){
+            if(!(child.nodeName == '#text') && ((!(child.style.display == 'none') && !(child.firstChild && child.firstChild.style.display == 'none')) || child.getAttribute('value') == 'Вариант') && child.querySelector('.algorithm-element a').innerText == name){
                     if(child.lastChild.tagName == 'UL' && child.lastChild.getElementsByTagName('li').length > 0){
                         lay = child.lastChild.childNodes;
                     }
@@ -504,7 +505,7 @@ function findCheckbox(lay, name, previous_element){
             lay = lay[0].parentNode.parentNode.parentNode.childNodes
         }
         if(founded_checkbox == ''){
-            elements_with_similar_name = Array.from(document.querySelectorAll('.algorithm-element a')).filter(item => item.innerText == name);
+            elements_with_similar_name = Array.from(document.querySelectorAll('.algorithm-element a')).filter(item => normalizeString(item.innerText) == normalizeString(name));
             if(elements_with_similar_name.length > 1){
                 elements_with_similar_name = elements_with_similar_name.filter(item => /green|blue/.test(item.parentNode.parentNode.parentNode.parentNode.querySelector('span.algorithm-element').style.color)
                 || item.parentNode.parentNode.previousSibling && /green|blue/.test(item.parentNode.parentNode.previousSibling.querySelector('span.algorithm-element').style.color));

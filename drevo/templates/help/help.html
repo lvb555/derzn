@@ -64,7 +64,11 @@
                     {% endif %}
 
                     <a href="{{ node.get_absolute_url }}" class="centered {% if node == cur_help %} current-page {% endif %} {% if node.is_group %} disabled {% else %} dashed {% endif %} small-title">
+                        {% if node.alias %}
+                        {{ node.alias.name }}
+                        {% else %}
                         {{ node.name }}
+                        {% endif %}
                     </a>
 
                     {% if not node.is_leaf_node %}

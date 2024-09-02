@@ -32,7 +32,7 @@ class KnowledgeGradeScale(models.Model):
     )
 
     class Meta:
-        verbose_name = "Градация"
+        verbose_name = "Шкала оценки знаний"
         verbose_name_plural = "Шкала оценок знаний"
         ordering = ("order",)
 
