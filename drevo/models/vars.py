@@ -82,7 +82,11 @@ class TemplateObject(MPTTModel):
         verbose_name='Включающие шаблоны',
         related_name='template_objects_set',
         blank=True)
-
+    template = models.TextField(
+        verbose_name='Шаблон объекта',
+        max_length=2048,
+        blank=True,
+        null=True)
 
     def __str__(self):
         return self.name
