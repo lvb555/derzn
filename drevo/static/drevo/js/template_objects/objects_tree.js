@@ -9,6 +9,7 @@ const collapse_children = document.querySelectorAll(".node__collapse-btn")
 
 const turple_block = document.querySelector("#tuple") // поле выбора справочника
 const subscription_block = document.querySelector("#subscription") // чекбокс "прописью"
+const object_template = document.querySelector(".field#template") // поле шаблона составного объекта
 
 // модальные окна
 const deleteModal = new bootstrap.Modal(document.getElementById('DeleteObjectModal'))
@@ -34,9 +35,10 @@ export let group_leafs_attentions = [] // список всех групп де�
 
 function update_state(e) {
 	// обновить форму
-	let is_turple = type.value == types["tuple"]
 	subscription_block.style.display = type.value == types["number"] || type.value == types["date"] ? "block" : "none"
 	turple_block.style.display = type.value == types["tuple"] ? "block" : "none"
+	object_template.style.display = type.value == types["complex"] ? "block" : "none"
+
 }
 
 export function SetGroupLeafsAttentions(attentions) {
