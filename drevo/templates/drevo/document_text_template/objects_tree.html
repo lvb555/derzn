@@ -86,7 +86,6 @@
 						<p class="node-label__name">
 							<span>{{ node.name }}</span>
 						</p>
-						{% if node.availability != 2%}
 						<div class="node-actions">
 							<button class="edit btn btn-icon" type="button">
 								<img src="{% static 'drevo/img/pencil.svg'%}" alt="Изменить">
@@ -95,7 +94,6 @@
 								<img src="{% static 'drevo/img/bin.svg'%}" alt="Удалить">
 							</button>
 						</div>
-						{% endif %}
 					</div>
 						{% if not node.is_leaf_node %}
 							<ul class="node-children" >
