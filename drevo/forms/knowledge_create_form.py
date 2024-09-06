@@ -62,3 +62,37 @@ ZnFilesFormSet = inlineformset_factory(
     extra=1,
     can_delete=False
 )
+
+class DiscussionCreateForm(forms.ModelForm, ZnanieValidators):
+    """
+    Форма создания сущности Знание
+    """
+    name = forms.ModelChoiceField(queryset=Znanie.objects.all().order_by('name'), label="Знание", empty_label='Выберите знание')
+
+    content = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
+                                                           'rows': 3,
+                                                           }
+                                                    ),
+                              label='Название дискуссии',
+                              required=False
+                              )
+
+    category = TreeNodeChoiceField(queryset=get_model_or_stub(Category).published.all(),
+                                   empty_label="(нет категории)",
+                                   label='Категория',
+                                   required=False)
+
+    date = forms.DateField(widget=forms.DateInput(format='%d.%m.%Y', attrs={'type': 'date',}))
+
+    tz = forms.ModelChoiceField(queryset=Tz.objects.all().order_by('name'), label='Вид знания')
+
+    class Meta:
+        model = Znanie
+        exclude = ('id', 'updated_at', 'user', 'expert', 'redactor', 'director', 'is_published', 'meta_info', 'labels', 'show_link',
+                   'notification', 'several_works', 'author', 'href', 'order', 'source_com')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if field_name != 'is_send' and not isinstance(field, forms.BooleanField):
+                field.widget.attrs['class'] = 'form-control'

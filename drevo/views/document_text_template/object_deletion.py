@@ -45,8 +45,12 @@ def document_object_deletion_view(request, doc_pk):
         error_text += ', '.join([template.name for template in templates_that_use])
 
         return JsonResponse({'res': 'err', 'error': error_text})
+
     if not obj.is_leaf_node():
         return JsonResponse({'res': 'err', 'error': 'Нельзя удалить родителя.'})
+
+    if obj.availability == 2:
+        return JsonResponse({'res': 'err', 'error': 'Нельзя удалить общий объект.'})
 
     object_in_json = model_to_dict(obj, exclude=['templates_that_use'])
     obj.delete()
