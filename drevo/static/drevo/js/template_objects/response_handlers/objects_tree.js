@@ -24,7 +24,6 @@ export function CreateNewObject(ans) {
 	if (ans.res == "ok") {
 		const object = object_template.cloneNode(true)
 		let parent
-
 		if (ans.object.connected_to) {
 			parent = document.querySelector(`.node#id-${ans.object.connected_to}`)
 			if (parent.classList.contains("leaf")) {
@@ -40,7 +39,6 @@ export function CreateNewObject(ans) {
 		} else {
 			parent = document.querySelector(".objects-tree__containing-list")
 		}
-
 		if (ans.object.is_main) {
 			object.classList.add("group")
 		} else {
@@ -52,8 +50,6 @@ export function CreateNewObject(ans) {
 		}
 			
 		object.classList.add("leaf")
-		object.classList.remove("clone")
-
 		object.setAttribute("data-weight", ans.object.weight)
 		object.setAttribute("id", `id-${ans.object.id}`)
 
@@ -63,7 +59,7 @@ export function CreateNewObject(ans) {
 		object.querySelector(".node-actions .edit").addEventListener("click", ObjectInfoRequest)
 		object.querySelector(".node-actions .edit").addEventListener("click", SelectObjectToUpdate)
 		object.querySelector(".node-actions .delete").addEventListener("click", SelectObjectToDelete)
-
+		object.classList.remove("clone")
 		const elem_to_insert_before = FindNextElement(Array.from(parent.children), ans.object.weight)
 		if (elem_to_insert_before)
 			parent.insertBefore(object, elem_to_insert_before)
@@ -134,14 +130,7 @@ export function UpdateTree(ans) {
 			else
 				object_cur_parent = object_parent_node.querySelector(".node-children")
 			
-
-			// закончить работу, если новый вес не нарушает порядок в массиве детей
-			if ((object_node.previousSibling.dataset ?? ans.object).weight <= ans.object.weight && ans.object.weight <= (object_node.nextSibling.dataset ?? ans.object).weight) {
-				show_message("Изменения сохранены")
-				return
-			}
-
-			// вставить в список детей родителя в соотвествии с весом объекта
+			// вставить в список детей родителя соотвествии с весом объекта
 			object_node.remove()
 			const elem_to_insert_before = FindNextElement(Array.from(object_cur_parent.children), ans.object.weight)
 			if (elem_to_insert_before)
