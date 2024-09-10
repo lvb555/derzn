@@ -67,33 +67,6 @@
         {% include 'drevo/base_cookie_agree.html' %}
         {% include 'drevo/base_footer.html' %}
 
-        <script>
-            // Для визуализации активных кнопок меню
-            let menuLinks = document.querySelectorAll(".auto_active_link");
-            for (let link of menuLinks) {
-                link.classList.remove("active");
-            }
-            for (let link of menuLinks) {
-                let currentLink = localStorage.getItem("active_link");
-                if (link.id === currentLink) {
-                    link.classList.add("active");
-                }
-            }
-
-            document.addEventListener("click", (event) => saveNextLink(event));
-
-            function saveNextLink(event) {
-                let link = event.target.closest(".auto_active_link");
-                if (link) {
-                    localStorage.setItem("active_link", link.id);
-                }
-            }
-
-            function logAndStop(event) {
-                event.stopPropagation();
-            }
-        </script>
-
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"

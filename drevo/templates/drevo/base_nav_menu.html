@@ -115,3 +115,31 @@
         </div>
     </div>
 </nav>
+<script>
+    // Для визуализации активных кнопок меню
+    //!!!!Зачем этот код?
+
+    let menuLinks = document.querySelectorAll(".auto_active_link");
+    for (let link of menuLinks) {
+        link.classList.remove("active");
+    }
+    for (let link of menuLinks) {
+        let currentLink = localStorage.getItem("active_link");
+        if (link.id === currentLink) {
+            link.classList.add("active");
+        }
+    }
+
+    document.addEventListener("click", (event) => saveNextLink(event));
+
+    function saveNextLink(event) {
+        let link = event.target.closest(".auto_active_link");
+        if (link) {
+            localStorage.setItem("active_link", link.id);
+        }
+    }
+
+    function logAndStop(event) {
+        event.stopPropagation();
+    }
+</script>
