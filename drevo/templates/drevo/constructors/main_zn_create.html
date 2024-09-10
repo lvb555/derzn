@@ -13,12 +13,25 @@
     <form class="form-horizontal" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ rel_attr_form.as_p }}
+        {% if title == "Создание дискуссии" %}
+        {{ disc_form.media }}
+        {{ disc_form.as_p }}
+            {{ image_form.management_form }}
+        {% else %}
         {{ zn_form.media }}
         {{ zn_form.as_p }}
-        {{ image_form.management_form }}
+            {{ image_form.management_form }}
         {% for frm in image_form %}
             {{ frm.as_p }}
         {% endfor %}
+        {% endif %}
+        {% if title == "Создание дискуссии" %}
         <input type="submit" class="btn btn-success" value="Сохранить">
+            <input type="submit" class="btn btn-success" value="Завершить">
+            <input type="submit" class="btn btn-success" value="Повторная отправка">
+          {% else %}
+            <input type="submit" class="btn btn-success" value="Сохранить">
+        {% endif %}
     </form>
 {% endblock %}
+

@@ -6,7 +6,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import CreateView, TemplateView
 
 from drevo.forms.knowledge_create_form import ZnImageFormSet, ZnFilesFormSet
-from drevo.forms.constructor_knowledge_form import MainZnInConstructorCreateEditForm
+from drevo.forms.constructor_knowledge_form import MainZnInConstructorCreateEditForm , DiscussionCreateEditForm
 from drevo.models import Znanie, SpecialPermissions, Tz, Suggestion
 
 from .supplementary_functions import create_zn_for_constructor, get_images_from_request, \
@@ -110,9 +110,11 @@ class MainZnInConstructorCreateView(LoginRequiredMixin, DispatchMixin, CreateVie
         # Передаем формы для создания знания и добавления фотографий к знанию
         if self.request.POST:
             context['zn_form'] = MainZnInConstructorCreateEditForm(self.request.POST, type_of_zn=self.type_of_zn)
+            context['disc_form'] = DiscussionCreateEditForm(self.request.POST, type_of_zn=self.type_of_zn)
             context['image_form'] = ZnImageFormSet(self.request.POST)
         else:
             context['zn_form'] = MainZnInConstructorCreateEditForm(user=self.request.user, type_of_zn=self.type_of_zn)
+            context['disc_form'] = DiscussionCreateEditForm(user=self.request.user, type_of_zn=self.type_of_zn)
             context['image_form'] = ZnImageFormSet()
         return context
 

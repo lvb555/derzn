@@ -9,7 +9,7 @@ from ckeditor.widgets import CKEditorWidget
 from drevo.models import Znanie, Category, Tz
 from drevo.models.utils import get_model_or_stub
 
-from .knowledge_create_form import ZnanieCreateForm
+from .knowledge_create_form import ZnanieCreateForm, DiscussionCreateForm
 
 
 def add_css_for_fields(items):
@@ -64,6 +64,44 @@ class MainZnInConstructorCreateEditForm(ZnanieCreateForm):
             'discussion': 'Дискуссии',
             'discussion_user': 'Дискуссии',
             'discussion_director': 'Дискуссии'
+        }
+        if type_of_zn:
+            self.fields['tz'].initial = Tz.objects.get(name=tz_name_mapping.get(type_of_zn))
+        self.fields['tz'].widget = forms.HiddenInput()
+
+        # Динамическое присвоение уникального ID виджету CKEditor
+        self.fields['content'].widget.attrs['id'] = uuid.uuid4()
+
+        # Выбор всех категорий в компетенции конкретного пользователя
+        self.fields['category'] = TreeNodeChoiceField(queryset=special_permissions_for_user(type_of_zn, user),
+                                                      empty_label='Выберите категорию',
+                                                      label='Категория',
+                                                      required=True)
+        add_css_for_fields(self.fields.items())
+
+
+class DiscussionCreateEditForm(DiscussionCreateForm):
+    content = forms.CharField(widget=forms.Textarea(attrs={
+                                                           'cols': 40,
+                                                           'rows': 3,
+                                                           }
+                                                    ),
+                              label='Название дискуссии',
+                              required=False
+                              )
+
+    def __init__(self, user, type_of_zn=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Присваивание вида знания
+        tz_name_mapping = {
+            'discussion': 'Дискуссии',
+            'discussion_user': 'Дискуссии',
+            'discussion_director': 'Дискуссии',
+            'algorithm': 'Алгоритм',
+            'document': 'Документ',
+            'filling_tables': 'Таблица',
+            'table': 'Таблица',
+            'quiz': 'Тест',
         }
         if type_of_zn:
             self.fields['tz'].initial = Tz.objects.get(name=tz_name_mapping.get(type_of_zn))
