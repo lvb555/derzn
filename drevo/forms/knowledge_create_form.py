@@ -65,7 +65,7 @@ ZnFilesFormSet = inlineformset_factory(
 
 class DiscussionCreateForm(forms.ModelForm, ZnanieValidators):
     """
-    Форма создания сущности Знание
+    Форма создания Дискуссии
     """
     name = forms.ModelChoiceField(queryset=Znanie.objects.all().order_by('name'), label="Знание", empty_label='Выберите знание')
 
