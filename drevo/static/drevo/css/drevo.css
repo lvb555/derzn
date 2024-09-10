@@ -144,7 +144,7 @@ span.algorithm-element a {
 }
 
 .header_info .breadcrumb-item {
-    height: hug(14px);
+    height: 14px;
     font-family: 'Rubik';
     font-style: normal;
     font-weight: 400 !important;
