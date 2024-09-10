@@ -39,12 +39,18 @@
                 <img style="height: 6px; weight: 10.5px" src="{% static 'drevo/img/main_page/arrow-down.png' %}" />
             </a>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item from-nav" href="{% url 'knowledge' %}" id="tree_link">Всё дерево</a></li>
+                <li>
+                    <a class="dropdown-item from-nav" href="{% url 'knowledge' %}" id="tree_link">Всё дерево</a>
+                </li>
                 <li>
                     <a class="dropdown-item from-nav" href="{% url 'popular_knowledges' %}" id="popular_link">Популярные знания</a>
                 </li>
-                <li><a class="dropdown-item from-nav" href="{% url 'authors' %}" id="authors_link">Авторы</a></li>
-                <li><a class="dropdown-item from-nav" href="{% url 'labels' %}" id="tags_link">Теги</a></li>
+                <li>
+                    <a class="dropdown-item from-nav" href="{% url 'authors' %}" id="authors_link">Авторы</a>
+                </li>
+                <li>
+                    <a class="dropdown-item from-nav" href="{% url 'labels' %}" id="tags_link">Теги</a>
+                </li>
                 <li>
                     <a class="dropdown-item from-nav" href="{% url 'new_knowledge'%}" id="new_knowledge_link">Новые знания</a>
                 </li>
@@ -88,13 +94,19 @@
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <li>
                     <a class="dropdown-item from-nav" href="{% url 'interviews_all' %}">Все интервью</a>
-                    <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=discussion_user" id="" class="dropdown-item">Дискуссии</a>
                 </li>
-                {% if user.is_expert %} {% get_interview_in_categories user as interview %} {% if interview %}
                 <li>
-                    <a class="dropdown-item from-nav" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
+                    <a class="dropdown-item from-nav"
+                       href="{% url 'znaniya_for_constructor'%}?type_of_zn=discussion_user">Дискуссии</a>
                 </li>
-                {% endif %} {% endif %}
+                {% if user.is_expert %}
+                    {% get_interview_in_categories user as interview %}
+                    {% if interview %}
+                    <li>
+                        <a class="dropdown-item from-nav" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a>
+                    </li>
+                    {% endif %}
+                {% endif %}
             </ul>
         </div>
         <div class="btn-group">
@@ -103,15 +115,21 @@
                 Другое <img style="height: 6px; weight: 10.5px" src="{% static 'drevo/img/main_page/arrow-down.png' %}" />
             </a>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item from-nav" href="{% url 'all_quizzes' %}">Тесты</a></li>
-                <li><a class="dropdown-item from-nav" href="{% url 'public_people' %}">Публичные люди</a></li>
                 <li>
-                    <a class="dropdown-item from-nav" href="{% url 'knowledges_grades' %}" id="grades_link">Оценки знаний</a>
+                    <a class="dropdown-item from-nav" href="{% url 'all_quizzes' %}">Тесты</a>
+                </li>
+                <li>
+                    <a class="dropdown-item from-nav" href="{% url 'public_people' %}">Публичные люди</a>
+                </li>
+                <li>
+                    <a class="dropdown-item from-nav"
+                       href="{% url 'knowledges_grades' %}" id="grades_link">Оценки знаний</a>
                 </li>
             </ul>
         </div>
         <div class="btn-group">
-            <a href="{% url 'all_algorithms' %}" style="border-radius: 8px" class="btn shadow-none group-title nav-header" type="button">Алгоритмы</a>
+            <a href="{% url 'all_algorithms' %}" style="border-radius: 8px"
+               class="btn shadow-none group-title nav-header" type="button">Алгоритмы</a>
         </div>
     </div>
 </nav>
