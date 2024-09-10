@@ -1,324 +1,126 @@
+{# Базовый шаблон #}
+
 {% load static %}
-{% load base_tags %}
-{% load expert_work_tags %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <!-- Bootstrap CSS -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
+        <link rel="icon" type="image/x-icon" href="{% static 'drevo/img/favicon.svg' %}" />
 
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-    <link rel="icon" type="image/x-icon" href="{% static 'drevo/img/favicon.svg' %}">
-    <!-- Project CSS -->
-    <link rel="stylesheet" type="text/css" href="/static/drevo/css/main_page.css">
+        <!-- Project CSS -->
+        <link rel="stylesheet" type="text/css" href="/static/drevo/css/main_page.css" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        {% block cssfiles %}
+        {% endblock %}
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    {% block cssfiles %}{% endblock %}
+        <title>{% block title %}Дeрево{% endblock %}</title>
+    </head>
 
-    <title>{% block title %}Дeрево{% endblock %}</title>
-</head>
-
-<body class="d-flex flex-column min-vh-100" style="background-color: #F1F2F7;">
-
-<!-- Navigation bar start -->
-<div class="sticky-top">
-    <div class="container-fluid header-bottom" style="background-color: #FFFFFF;">
-        <div class="container" style="display: grid; align-content: center; height: 100%;">
-            <div class="d-flex flex-wrap align-items-center " style="justify-content:space-between">
-                <div class="col-auto">
-                    <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
-                        <li class="nav-item row">
-                            <div class="logo me-2 col-auto">
-                                <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
-                                    <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height='46px' alt="logo-tree">
-                                </a>
-                            </div>
-                            <div class="col p-0">
-                                <div class="header-bottom-title">
-                                    Дерево знаний
-                                </div>
-                                <div class="header-bottom-subtitle">
-                                    Научно-образовательный проект
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <nav class="navbar px-3 m-3">
-                <div id="nav-dropdown" class="dropdown table-hover"  style="display: flex;justify-content: center;">
-                    <div class="btn-group">
-                            <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                              Наш проект <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                            </a>
-                              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item from-nav" href="{% url 'about_proj' %}">О проекте</a></li>
-                                <li><a class="dropdown-item from-nav" href="{% url 'appeal' %}">Обратная связь</a></li>
-                                <li><a class="dropdown-item from-nav" href="{% url 'glossary' %}">Глоссарий</a></li>
-                                <li>
-                                <div class="btn-group dropend">
-                                    <a onclick="logAndStop(event)" class="dropdown-item from-nav" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Команда <img style="height: 6px;weight: 10.5px;transform: rotate(-90deg);" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                                        <span class="visually-hidden"></span>
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item from-nav" href="#">Руководители</a></li>
-                                        <li><a class="dropdown-item from-nav" href="#">Редакторы</a></li>
-                                        <li><a class="dropdown-item from-nav" href="#">Эксперты</a></li>
-                                        <li><a class="dropdown-item from-nav" href="{% url 'developer_page' %}">Разработчики</a></li>
-                                    </ul>
-                                </div>
+    <body class="d-flex flex-column min-vh-100" style="background-color: #f1f2f7">
+        <!-- Navigation bar start -->
+        <div class="sticky-top">
+            <div class="container-fluid header-bottom" style="background-color: #ffffff">
+                <div class="container" style="display: grid; align-content: center; height: 100%">
+                    <div class="d-flex flex-wrap align-items-center" style="justify-content: space-between">
+                        <div class="col-auto">
+                            <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+                                <li class="nav-item row">
+                                    <div class="logo me-2 col-auto">
+                                        <a class="auto_active_link" href="{% url 'drevo' %}" id="tree_link">
+                                            <img src="{% static 'drevo\img\main_page\navbar_tree_white.png' %}" height="46px" alt="logo-tree" />
+                                        </a>
+                                    </div>
+                                    <div class="col p-0">
+                                        <div class="header-bottom-title">Дерево знаний</div>
+                                        <div class="header-bottom-subtitle">Научно-образовательный проект</div>
+                                    </div>
                                 </li>
-                              </ul>
-                            </div>
-                    <div class="btn-group">
-                    <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                      Дерево знаний <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                    </a>
-                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><a class="dropdown-item from-nav" href="{% url 'knowledge' %}" id="tree_link">Всё дерево</a></li>
-                        <li><a class="dropdown-item from-nav" href="{% url 'popular_knowledges' %}" id="popular_link">Популярные знания</a></li>
-                        <li><a class="dropdown-item from-nav" href="{% url 'authors' %}" id="authors_link">Авторы</a></li>
-                        <li><a class="dropdown-item from-nav" href="{% url 'labels' %}" id="tags_link">Теги</a></li>
-                        <li><a class="dropdown-item from-nav" href="{% url 'new_knowledge'%}" id="new_knowledge_link">Новые знания</a></li>
-                        <li>
-                            <div class="btn-group dropstart">
-                                <a onclick="logAndStop(event)" class="dropdown-item from-nav change-arrow" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Виды знаний <img src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                                    <span class="visually-hidden"></span>
-                                </a>
-                                <ul class="dropdown-menu scrollbar" style="overflow: auto; height:200px;">
-                                    {% get_knowledge_types as knowledge_types %}
-                                    {% for knowledge_type in knowledge_types %}
-                                    <li><a class="dropdown-item from-nav" href="{% url 'knowledge_type' knowledge_type.pk %}">{{knowledge_type}}</a></li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="btn-group dropstart">
-                                <a onclick="logAndStop(event)" class="dropdown-item from-nav change-arrow" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Виды связей <img src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                                    <span class="visually-hidden"></span>
-                                </a>
-                                <ul class="dropdown-menu scrollbar" style="overflow: auto; height:200px;">
-                                    {% get_relation_types as relation_types %}
-                                    {% for relation_type in relation_types %}
-                                    <li><a class="dropdown-item from-nav" href="{% url 'relation_type' relation_type.pk %}">{{relation_type}}</a></li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </li>
-                      </ul>
-                    </div>
-                    <div class="btn-group">
-                      <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                        Мнения <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                      </a>
-                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><a class="dropdown-item from-nav" href="{% url 'interviews_all' %}">Все интервью</a>
-                        <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=discussion_user" id="" class="dropdown-item">Дискуссии</a></li>
-                        {% if user.is_expert %}
-                            {% get_interview_in_categories user as interview %}
-                            {% if interview %}
-                                <li><a class="dropdown-item from-nav" href="{% url 'my_interview' %}" id="my_interview_link">Мои интервью</a></li>
-                            {% endif %}
-                        {% endif %}
-                      </ul>
-                    </div>
-                    <div class="btn-group">
-                    <a style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                      Другое <img style="height: 6px;weight: 10.5px;" src="{% static 'drevo/img/main_page/arrow-down.png' %}">
-                    </a>
-                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><a class="dropdown-item from-nav" href="{% url 'all_quizzes' %}">Тесты</a></li>
-                        <li><a class="dropdown-item from-nav" href="{% url 'public_people' %}">Публичные люди</a></li>
-                          <li><a class="dropdown-item from-nav" href="{% url 'knowledges_grades' %}" id="grades_link">Оценки знаний</a></li>
-                      </ul>
-                    </div>
-                    <div class="btn-group">
-                        <a href="{% url 'all_algorithms' %}" style="border-radius: 8px;" class="btn shadow-none group-title nav-header" type="button">Алгоритмы</a>
-                    </div>
-
-                </div>
-                </nav>
-                <div class="d-flex text-end align-items-center">
-                    <a class='btn btn' href="{% url 'help' %}"><img src="{% static 'drevo/img/main_page/help.png' %}"></a>
-                    {% if user.is_authenticated %}
-                    <div class="nav-item mx-2 col dropdown">
-                        <a href="#" class="dropdown-toggle nav-link header-menu" data-bs-toggle="dropdown" role="button">
-                            <img width="30" height="30"
-                                 src="{% if user.profile.avatar %} {{ user.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}"
-                                 class="header-avatar m-0">
-                        </a>
-                        <div class="dropdown-menu profile-menu">
-                            <div class="row dropdown-item from-nav row dropdown-menu-profile pt-0 px-0" style="margin-bottom:16px; background-color:#fff;">
-                                <div class="logo p-0 me-2 col-auto">
-                                    <a class="auto_active_link" href="{% url 'users:my_profile' %}">
-                                        <img width="50" height="50"
-                                         src="{% if user.profile.avatar %} {{ user.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}"
-                                         class="header-avatar">
-                                    </a>
-                                </div>
-                                <div class="col p-0" style="display: flex; flex-direction: column; align-items: start; justify-content: center;">
-                                    <div class="header-menu-username">
-                                        {{ user.username }}
-                                    </div>
-                                    <div class="header-menu-email">
-                                        {{ user.email }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="dropdown-item exit-button">
-                                <a class="btn btn-outline-light" aria-current="page" href="{% url 'users:logout' %}">
-                                    <img
-                                     src="{% static 'drevo/img/knowledge_search/exit.svg' %}"
-                                     alt="" style="width:10px">
-                                    <span>Выйти</span>
-                                </a>
-                            </div>
+                            </ul>
                         </div>
+                        {% include 'drevo/base_nav_menu.html' %}
+                        {% include 'drevo/base_profile_menu.html' %}
                     </div>
-                {% else %}
-                    <a class="btn btn btn-light btn-header" aria-current="page"
-                       href="{% url 'users:login' %}?next={{ request.path }}">
-                        <span>Войти </span>
-                    </a>
-                {% endif %}
                 </div>
             </div>
         </div>
-    </div>
-</div>
+        <!-- Navigation bar end -->
 
-<!-- Navigation bar end -->
+        <div class="container-fluid px-0">{% block precontent %}{% endblock %}</div>
 
-<div class="container-fluid px-0">
-    {% block precontent %}
-    {% endblock %}
-</div>
-<div class="container">
-    <div class="row">
-        <div class="col mt-3" style="position: relative;">
-            {% block content %}
-            {% endblock %}
+        <!-- Main content -->
+        <div class="container">
+            <div class="row">
+                <div class="col mt-3" style="position: relative">{% block content %} {% endblock %}</div>
+            </div>
         </div>
-        {% if user.is_authenticated %}
-        {% if not user.cookie_acceptance %}
-        <div id="cookie-consent">
-            <div>
-          <p class="title col" style="color: white; font-weight: 400;">Для обеспечения работоспособности этот сайт может хранить файлы cookie. Продолжая пользоваться сайтом,
-              вы принимаете условия обработки персональных данных в соответствии с
-              <a style="text-decoration-line: underline; color: white;" href="{% url 'privacy' %}">Политикой обработки Персональных данных</a>.</p></div>
-          <button onclick="cookieSendClick()" class="col btn open-popup btn-icon" style="background-color: #fff; color: #083E2F; padding: 8px 24px;">Принимаю</button>
+        {% include 'drevo/base_cookie_agree.html' %}
+        <!-- Main content end-->
+
+        <!-- Footer - start -->
+        <div class="container container-fluid mt-auto">
+            <footer class="static-bottom d-flex flex-wrap justify-content-between align-items-center py-3 mt-5 border-top">
+                <div class="d-flex">
+                    <p class="mb-0 text-muted">© 2020–2023 Все права защищены</p>
+                    <p class="mb-0 ms-3" style="color: #212529">Научно-образовательный проект «Дерево знаний»</p>
+                </div>
+                <ul class="nav col-md-4 justify-content-end">
+                    <li class="nav-item"><a href="{% url 'about_proj' %}" class="nav-link px-2 text-muted">О проекте</a></li>
+                    <li class="nav-item">
+                        <a href="{% url 'privacy' %}" class="nav-link px-2 text-muted">Политика обработки Персональных данных</a>
+                    </li>
+                </ul>
+            </footer>
         </div>
-        {% endif %}
-        {% else %}
-        <div id="cookie-consent" style="display: none;">
-            <div>
-          <p class="title col" style="color: white; font-weight: 400;">Для обеспечения работоспособности этот сайт может хранить файлы cookie. Продолжая пользоваться сайтом,
-              вы принимаете условия обработки персональных данных в соответствии с
-              <a style="text-decoration-line: underline; color: white;" href="{% url 'privacy' %}">Политикой обработки Персональных данных</a>.</p></div>
-          <button id="cookie-accept" class="col btn open-popup btn-icon" style="background-color: #fff; color: #083E2F; padding: 8px 24px;">Принимаю</button>
-        </div>
-        {% endif %}
-    </div>
-</div>
+        <!-- Footer - end -->
 
-<!-- Footer - start -->
-<div class="container container-fluid mt-auto">
-    <footer class="static-bottom d-flex flex-wrap justify-content-between align-items-center py-3 mt-5 border-top">
-        <div class="d-flex">
-            <p class="mb-0 text-muted">© 2020–2023 Все права защищены</p>
-            <p class="mb-0 ms-3" style="color: #212529;">Научно-образовательный проект «Дерево знаний»</p>
-        </div>
-      <ul class="nav col-md-4 justify-content-end">
-        <li class="nav-item"><a href="{% url 'about_proj' %}" class="nav-link px-2 text-muted">О проекте</a></li>
-        <li class="nav-item"><a href="{% url 'privacy' %}" class="nav-link px-2 text-muted">Политика обработки Персональных данных</a></li>
-      </ul>
-    </footer>
-</div>
-<!-- Footer - end -->
+        <script>
+            // Для визуализации активных кнопок меню
+            let menuLinks = document.querySelectorAll(".auto_active_link");
+            for (let link of menuLinks) {
+                link.classList.remove("active");
+            }
+            for (let link of menuLinks) {
+                let currentLink = localStorage.getItem("active_link");
+                if (link.id === currentLink) {
+                    link.classList.add("active");
+                }
+            }
 
-<script>
-    // Для визуализации активных кнопок меню
-    let menuLinks = document.querySelectorAll('.auto_active_link');
-    for (let link of menuLinks) {
-      link.classList.remove('active');
-    }
-    for (let link of menuLinks) {
-      let currentLink = localStorage.getItem('active_link');
-      if (link.id === currentLink) {
-        link.classList.add('active');
-      }
-    }
+            document.addEventListener("click", (event) => saveNextLink(event));
 
-    document.addEventListener('click', (event) => saveNextLink(event));
+            function saveNextLink(event) {
+                let link = event.target.closest(".auto_active_link");
+                if (link) {
+                    localStorage.setItem("active_link", link.id);
+                }
+            }
 
-    function saveNextLink(event) {
-      let link = event.target.closest('.auto_active_link');
-      if (link) {
-        localStorage.setItem('active_link', link.id);
-      }
-    }
+            function logAndStop(event) {
+                event.stopPropagation();
+            }
+        </script>
 
-    if(document.getElementById('cookie-accept')){
-      // Обработчик события для кнопки "Принимаю"
-      document.getElementById('cookie-accept').addEventListener('click', function() {
-        // Сохранение состояния согласия пользователя, например, с помощью localStorage
-        localStorage.setItem('cookieConsent', 'true');
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
 
-        // Удаление уведомления о файле cookie
-        document.getElementById('cookie-consent').style.display = 'none';
-      });
-        // Проверка состояния согласия пользователя при загрузке страницы
-      window.addEventListener('load', function() {
-        var cookieConsent = localStorage.getItem('cookieConsent');
-        if (cookieConsent === null) {
-          // Если пользователь еще не дал согласие, показать уведомление о файле cookie
-          document.getElementById('cookie-consent').style.display = 'block';
-        }
-      });
-  }else{
-        window.addEventListener('load', function() {
-        var cookieConsent = localStorage.getItem('cookieConsent');
-        if (cookieConsent === 'true' && document.getElementById('cookie-consent') !== null) {
-          cookieSendClick();
-        }
-      });
-  }
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+                integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+                crossorigin="anonymous"></script>
 
-  function cookieSendClick(){
-    $.ajax({
-        data: {},
-        url: '/drevo/cookie_acceptance/',
-        success: function (response) {
-        }
-    });
+        {% block jsfiles %} {% endblock jsfiles %}
 
-    document.getElementById('cookie-consent').style.display = 'none';
-}
-</script>
-
-<script>
-function logAndStop(event) {
-    event.stopPropagation();
-}
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script>
-
-<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-
-{% block jsfiles %}
-{% endblock jsfiles %}
-
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-</body>
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    </body>
 </html>
