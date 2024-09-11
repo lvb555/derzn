@@ -36,7 +36,7 @@
 }
 
 .header_info .breadcrumb-item {
-    height: hug(14px);
+    height: 14px;
 
     font-family: 'Rubik';
     font-style: normal;
@@ -53,7 +53,7 @@
 }
 
 .header_info .opened {
-    height: hug(14px);
+    height: 14px;
 
     font-family: 'Rubik';
     font-style: normal;
@@ -116,8 +116,8 @@
     background: #E7ECEB;
     border-radius: 8px;
 
-    width: hug(199px);
-    height: hug(30px);
+    width: 199px;
+    height: 30px;
 
     color: #083E2F;
 
@@ -140,7 +140,7 @@
 
     background: #FFFFFF;
     border-radius: 10px;
-    height: hug(231px);
+    height: 231px;
 }
 
 .btn_accept {
