@@ -47,6 +47,8 @@
             <div class="container-fluid header-bottom" style="background-color: #ffffff">
                 <div class="container" style="display: grid; align-content: center; height: 100%">
                     <div class="d-flex flex-wrap align-items-center" style="justify-content: space-between">
+
+                        {# Логотип и название #}
                         <div class="col-auto">
                             <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
                                 <li class="nav-item row">
@@ -62,7 +64,11 @@
                                 </li>
                             </ul>
                         </div>
+
+                        {# Меню сайта #}
                         {% include 'drevo/base_nav_menu.html' %}
+
+                        {# Кнопка "Войти" или с пользователем #}
                         {% include 'drevo/base_profile_menu.html' %}
                     </div>
                 </div>
@@ -80,7 +86,10 @@
         </div>
         <!-- Main content end-->
 
+        {# Функционал окна согласия с cookie #}
         {% include 'drevo/base_cookie_agree.html' %}
+
+        {# Подвал #}
         {% include 'drevo/base_footer.html' %}
 
         {% block jsfiles %} {% endblock jsfiles %}
