@@ -56,6 +56,7 @@ from .views.admin_interview_work.views import (AdminEditingKnowledgeView,
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
+from .views.participation_in_the_discussion_view import ParticipationInTheDiscussionView
 from .views.site_pages import site_pages_view, site_page_view, create_new_zn, search_page
 from .views.editorial_staff import editorial_staff_view, update_roles
 from .views.editorial_staff import editorial_staff_view, update_roles, update_user_permissions
@@ -313,10 +314,10 @@ urlpatterns = [
     path("my_interview/", my_interview_view, name="my_interview"),
     path("interview/<int:pk>/", interview_view, name="interview"),
     path("interview_table/<int:id>/", interview_table, name="interview_table"),
-    path("interviews_all", interviews_all, name="interviews_all"), 
-    path("dimensional_distributions_1/<int:id>/", dimensional_distributions_1, name="dimensional_distributions_1"), 
-    path("dimensional_distributions_2/<int:id>/", dimensional_distributions_2, name="dimensional_distributions_2"), 
-  
+    path("interviews_all", interviews_all, name="interviews_all"),
+    path("dimensional_distributions_1/<int:id>/", dimensional_distributions_1, name="dimensional_distributions_1"),
+    path("dimensional_distributions_2/<int:id>/", dimensional_distributions_2, name="dimensional_distributions_2"),
+
     path(
         "interview/<int:interview_pk>/questions/<int:question_pk>/expertise",
         QuestionExpertWorkPage.as_view(),
@@ -593,11 +594,14 @@ urlpatterns = [
     # служебное? возвращает json
     path("get_required_tr", get_required_tr, name="get_required_tr"),
     path("get_required_rz", get_required_rz, name="get_required_rz"),
+    # ------------------------------------------------------------------------------------------------
+    # эксперты - дискуссии
+    path("participation_in_the_discussion/<int:pk>/", ParticipationInTheDiscussionView.as_view(),
+         name="participation_in_the_discussion"),
 ]
 
 # пути для работы конструкторов знаний
 urlpatterns += urls_constructor
-
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
