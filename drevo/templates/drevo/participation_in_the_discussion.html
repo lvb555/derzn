@@ -99,7 +99,8 @@
             const baseKn = match ? match[1] : '0';
 
             // Устанавливаем новое значение атрибута href
-            anchor.setAttribute('href', `../../relations/preparing/create_stage/new_relation?base_kn=${baseKn}`);
+            const currentUrl = encodeURIComponent(window.location.href);
+            anchor.setAttribute('href', `../create_participation?base_kn=${baseKn}&backup=${currentUrl}`);
 
             // Удаляем атрибут onClick
             anchor.removeAttribute('onClick');

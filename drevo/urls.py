@@ -56,6 +56,7 @@ from .views.admin_interview_work.views import (AdminEditingKnowledgeView,
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
+from .views.create_participation import CreateParticipationView
 from .views.participation_in_the_discussion_view import ParticipationInTheDiscussionView
 from .views.site_pages import site_pages_view, site_page_view, create_new_zn, search_page
 from .views.editorial_staff import editorial_staff_view, update_roles
@@ -598,6 +599,8 @@ urlpatterns = [
     # эксперты - дискуссии
     path("participation_in_the_discussion/<int:pk>/", ParticipationInTheDiscussionView.as_view(),
          name="participation_in_the_discussion"),
+    path("participation_in_the_discussion/create_participation", CreateParticipationView.as_view(),
+         name="create_participation"),
 ]
 
 # пути для работы конструкторов знаний

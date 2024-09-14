@@ -1,0 +1,156 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block title %} Создание новой связи знаний {% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="text-center">
+        <h2>Создание новой связи знания</h2>
+        <h3>< {{ base_knowledge.name }} ></h3>
+    </div>
+    <div class="container">
+        <a href="{{ backup_url }}" class="btn btn-warning">Назад</a>
+        <form action="{% url 'create_relation' %}" method="post">
+            {% csrf_token %}
+            <input type="number" name="base_kn" value="{{ base_knowledge.pk }}" hidden>
+            <label for="relation_type" id="relation_type_label">Вид связи</label>
+            <select name="relation_type" id="relation_type" class="form-control" required></select>
+
+            <div class="row">
+                <label for="related_knowledge">Знание</label>
+                <div class="col">
+                    <select name="related_knowledge" id="related_knowledge" class="form-control" required disabled>
+                        <option value="">-----</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <div class="btn-group">
+                        <a href="" target="_blank" class="text-dark mt-1 me-2" id="show_knowledge" style="pointer-events: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                            </svg>
+                        </a>
+                        <a href="" class="text-info mt-1 me-2 disabled" id="update_knowledge" style="pointer-events: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pen" viewBox="0 0 16 16">
+                                <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z"/>
+                            </svg>
+                        </a>
+                        <a href="" class="text-success mt-1 me-2" data-bs-toggle="modal" id="add_knowledge" data-bs-target="#create_addention_knowledge" style="pointer-events: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <label for="relation_status">Статус связи</label>
+            <select name="relation_status" id="relation_status" class="form-control">
+                {% for value, name in relation_statuses %}
+                <option value="{{ value }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="submit" class="btn btn-outline-warning mt-3" value="Сохранить">
+        </form>
+    </div>
+</div>
+
+
+<!-- Модальное окно создания дополнительного знания -->
+<div class="modal fade" id="create_addention_knowledge" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered  modal-xl">
+        <div class="modal-content bg-secondary text-light">
+            <div class="modal-title p-3 text-center border-bottom">
+                <h3>Создание дополнительного знания</h3>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="addition_create">
+                    {% csrf_token %}
+                    <input type="text" name="bz_pk" value="{{ base_knowledge.pk }}" hidden>
+                    {{ create_form.as_p }}
+                    {{ create_form.media }}
+                    {{ image_form.management_form }}
+                    {% for frm in image_form %}
+                        {{ frm.as_p }}
+                    {% endfor %}
+                    <input type="submit" class="btn btn-warning" value="Сохранить">
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- -->
+
+{% endblock %}
+
+{% block jsfiles %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
+
+<script src="{% static 'drevo/js/relations_preparing/refresh_rz_field.js' %}" data-bz-id="{{ base_knowledge.pk }}"></script>
+<script src="{% static 'drevo/js/relations_preparing/on_select_rz.js' %}" data-bz-id="{{ base_knowledge.pk }}"></script>
+<script data-bz-id="{{ base_knowledge.pk }}" data-selected-tr="">
+    function fill_tr_field() {
+        // Получаем ссылку на выпадающий список видов связей
+        const tr_list = document.getElementById('relation_type');
+        // Получаем id базового знания
+        const bz_id = document.querySelector('script[data-bz-id]').getAttribute('data-bz-id');
+        const selected_tr = document.querySelector('script[data-selected-tr]').getAttribute('data-selected-tr');
+
+        // Отправляем запрос на сервер с выбранным значением
+        fetch(`/drevo/get_required_tr?bz_id=${bz_id}`).then(response => response.json()).then(data => {
+            if (Object.entries(data).length != 0){
+                const null_option = document.createElement('option');
+                null_option.text = '-----';
+                null_option.value = '';
+                tr_list.appendChild(null_option);
+
+                // Добавляем новые элементы в список связанных знаний
+                data.required_tr.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.text = item.name;
+                    if (item.id == selected_tr){
+                        option.selected = true;
+                    }
+                    tr_list.appendChild(option);
+                });
+            };
+        });
+
+
+        // Заполнение списка видов знания для формы создания дополнительного знания
+        fetch(`/drevo/relations/preparing/related_tz?bz_id=${bz_id}&tr_id=${selected_tr}`).then(response => response.json()).then(data => {
+            if (Object.entries(data).length != 0){
+                const tz_list = document.querySelector('#addition_create').querySelector('#id_tz');
+                tz_list.innerHTML = '';
+
+                const null_option = document.createElement('option');
+                null_option.text = '-----';
+                tz_list.appendChild(null_option);
+
+                // Добавляем новые элементы в список связанных знаний
+                data.related_tz.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.text = item.name;
+                    tz_list.appendChild(option);
+                });
+            };
+        });
+    }
+</script>
+<script src="{% static 'drevo/js/relations_preparing/add_additional_knowledge.js' %}"></script>
+<script>
+    window.onload = function() {
+      fill_tr_field();
+    }
+</script>
+{% endblock %}
