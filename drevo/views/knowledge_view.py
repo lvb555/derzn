@@ -25,8 +25,7 @@ class KnowledgeView(TemplateView):
         # context['ztypes'] = categories
 
         # формирование списка Знаний по категориям
-        zn = Znanie.published.all()
-
+        zn = Znanie.published.all().prefetch_related('tz', 'author')
         context['zn_queryset'] = zn
         # zn_dict = {}
         # for category in categories:
