@@ -183,8 +183,8 @@ div#sections > div:last-child{
     padding: 8px 24px;
     background: #E7ECEB;
     border-radius: 8px;
-    width: hug(199px);
-    height: hug(30px);
+    width: 199px;
+    height: 30px;
     color: #083E2F;
     font-family: 'Rubik';
     font-size: 12px;

@@ -1,0 +1,41 @@
+{# Меню авторизации и профиля #}
+
+{% load static %}
+
+<div class="d-flex text-end align-items-center">
+    <a class="btn btn" href="{% url 'help' %}"><img src="{% static 'drevo/img/main_page/help.png' %}" /></a>
+    {% if user.is_authenticated %}
+        <div class="nav-item mx-2 col dropdown">
+            <a href="#" class="dropdown-toggle nav-link header-menu" data-bs-toggle="dropdown" role="button">
+                <img width="30" height="30" src="{% if user.profile.avatar %} {{ user.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}" class="header-avatar m-0" />
+            </a>
+            <div class="dropdown-menu profile-menu">
+                <div class="row dropdown-item from-nav row dropdown-menu-profile pt-0 px-0" style="margin-bottom: 16px; background-color: #fff">
+                    <div class="logo p-0 me-2 col-auto">
+                        <a class="auto_active_link" href="{% url 'users:my_profile' %}">
+                            <img
+                                width="50"
+                                height="50"
+                                src="{% if user.profile.avatar %} {{ user.profile.avatar.url }} {% else %} {% static 'src/default_avatar.jpg' %} {% endif %}"
+                                class="header-avatar" />
+                        </a>
+                    </div>
+                    <div class="col p-0" style="display: flex; flex-direction: column; align-items: start; justify-content: center">
+                        <div class="header-menu-username">{{ user.username }}</div>
+                        <div class="header-menu-email">{{ user.email }}</div>
+                    </div>
+                </div>
+                <div class="dropdown-item exit-button">
+                    <a class="btn btn-outline-light" aria-current="page" href="{% url 'users:logout' %}">
+                        <img src="{% static 'drevo/img/knowledge_search/exit.svg' %}" alt="" style="width: 10px" />
+                        <span>Выйти</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <a class="btn btn btn-light btn-header" aria-current="page" href="{% url 'users:login' %}?next={{ request.path }}">
+            <span>Войти </span>
+        </a>
+    {% endif %}
+</div>

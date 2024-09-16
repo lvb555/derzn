@@ -43,13 +43,13 @@ class KnowledgeTreeBuilder:
         if not self.is_constructor_type:
             relations = (
                 Relation.objects
-                .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
+                .prefetch_related('bz', 'tr', 'bz__tz', 'bz__author')
                 .filter(filter_lookups, tr__is_systemic=False)
             )
         else:
             relations = (
                 Relation.objects
-                .prefetch_related('bz', 'rz', 'tr', 'bz__tz', 'rz__tz')
+                .prefetch_related('bz', 'tr', 'bz__tz', 'bz__author')
                 .filter(filter_lookups)
             )
         if self.edit_mode:
@@ -57,17 +57,20 @@ class KnowledgeTreeBuilder:
             statuses_data = {rel_status.relation.id: rel_status.status for rel_status in relations_statuses}
         else:
             statuses_data = {}
-        relations_data = {rel.rz.id: [] for rel in relations}
+
+        relations_data = {}
         for rel in relations:
             if self.show_only and rel.rz.id in self.building_knowledge and rel.tr != self.show_only:
                 continue
-            self.relations_info[(rel.bz.id, rel.rz.id)] = {'id': '', 'name': '', 'status': '', 'author': ''}
+
+            self.relations_info[(rel.bz.id, rel.rz_id)] = {'id': rel.id, 'name': rel.tr.name,
+                                                           'status': '', 'author': ''}
+
             if self.edit_mode and rel.id in statuses_data:
-                self.relations_info[(rel.bz.id, rel.rz.id)]['status'] = statuses_data.get(rel.id)
-                self.relations_info[(rel.bz.id, rel.rz.id)]['author'] = rel.user_id
-            self.relations_info[(rel.bz.id, rel.rz.id)]['id'] = rel.id
-            self.relations_info[(rel.bz.id, rel.rz.id)]['name'] = rel.tr.name
-            relations_data[rel.rz.id].append(rel.bz)
+                self.relations_info[(rel.bz.id, rel.rz_id)]['status'] = statuses_data.get(rel.id)
+                self.relations_info[(rel.bz.id, rel.rz_id)]['author'] = rel.user_id
+
+            relations_data.setdefault(rel.rz_id, []).append(rel.bz)
         return relations_data
 
     def get_tree_knowledge_list(self, with_struct_knowledge: bool = False) -> list:
