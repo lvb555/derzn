@@ -9,9 +9,10 @@ from .category import Category
 from .knowledge_grade_scale import KnowledgeGradeScale
 from .knowledge_rating import ZnRating
 from ..managers import ZManager
+from .mixin_meta_info import MetaInfoMixin
 
 
-class Znanie(models.Model):
+class Znanie(MetaInfoMixin, models.Model):
     """
     Класс для описания сущности 'Знание'
     """
@@ -93,8 +94,6 @@ class Znanie(models.Model):
     )
     notification = models.BooleanField(default=False, verbose_name="Уведомления")
     several_works = models.BooleanField(default=False, verbose_name="Несколько работ")
-
-    meta_info = models.CharField(max_length=1024, blank=True, null=True, verbose_name="Метаинформация")
 
     # Для обработки записей (сортировка, фильтрация) вызывается собственный Manager,
     # в котором уже установлена фильтрация по is_published и сортировка
