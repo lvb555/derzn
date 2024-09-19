@@ -56,10 +56,9 @@ from .views.admin_interview_work.views import (AdminEditingKnowledgeView,
 from .views.appeal_in_support import appeal
 from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
-from .views.create_participation import CreateParticipationView
-from .views.participation_in_the_discussion_view import ParticipationInTheDiscussionView
+from drevo.views.participations.create_participation import CreateParticipationView
+from drevo.views.participations.participation_in_the_discussion_view import ParticipationInTheDiscussionView
 from .views.site_pages import site_pages_view, site_page_view, create_new_zn, search_page
-from .views.editorial_staff import editorial_staff_view, update_roles
 from .views.editorial_staff import editorial_staff_view, update_roles, update_user_permissions
 from .views.expert_work.views import (ExpertProposalDeleteView,
                                       proposal_update_view, propose_answer,
