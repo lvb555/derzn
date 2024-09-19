@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from django.views.generic import DetailView
 
 from drevo.models import Znanie
