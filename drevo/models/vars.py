@@ -83,7 +83,7 @@ class TemplateObject(MPTTModel):
         related_name='template_objects_set',
         blank=True)
     template = models.TextField(
-        verbose_name='Шаблон объекта',
+        verbose_name='Шаблон',
         max_length=2048,
         blank=True,
         null=True)
