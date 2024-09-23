@@ -70,6 +70,8 @@ export function CreateNewObject(ans) {
 		else
 			parent.appendChild(object)
 
+		objectModal.hide()
+		groupModal.hide()
 		show_message("Объект создан")
 
 	} else if (ans["res"] === "validation error") {
@@ -81,6 +83,8 @@ export function CreateNewObject(ans) {
 export function UpdateTree(ans) {
 	if (ans.res === "ok") {
 		const object_node = document.querySelector(`.node#id-${ans.object.id}`)
+		objectModal.hide()
+		groupModal.hide()
 
 		//обновить имя
 		object_node.querySelector(".node-label__name > span").innerHTML = ans.object.name
