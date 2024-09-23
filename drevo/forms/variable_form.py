@@ -157,4 +157,4 @@ class TemplateObjectForm(forms.Form):
     pk = forms.ModelChoiceField(queryset=TemplateObject.objects.all(), required=False)
     action = forms.CharField(max_length=100)
     comment = forms.CharField(max_length=255, label='Комментарий', required=False)
-    template = forms.CharField(widget=CKEditorWidget(), label='Шаблон')
+    template = forms.CharField(widget=CKEditorWidget(), label='Шаблон', required=False)
