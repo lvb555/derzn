@@ -10,7 +10,7 @@ import {
 } from "../objects_tree.js"
 import {ObjectInfoRequest} from "../requests/objects_tree.js"
 import {SelectObjectToDelete} from "../objects_tree.js"
-import {SelectObjectToUpdate} from "../objects_tree.js"
+import {SelectObjectToUpdate, update_state} from "../objects_tree.js"
 
 
 // В этом файле хранятся функции, меняющие DOM дерево в зависимости от ответа бекенда на запросы.
@@ -190,6 +190,21 @@ export function FillForm(ans) {
 		return
 	}
 	let form
+
+	const children_select_tag = document.querySelector(".object-template-editor__children")
+	const children = []
+
+	ans.children.push({id: -1, name: "Выберите объект"})
+	ans.children.forEach((child) => {
+		const option = document.createElement("option")
+		option.innerHTML = child.name
+		option.value = child.id
+		children.push(option)
+	})
+	children_select_tag.replaceChildren(...children)
+	children_select_tag.value = "Выберите объект"
+	
+
 	if (ans.object.is_main){
 		document.querySelector("#GroupModal .modal-title").innerHTML = "Редактирование объекта шаблона"
 		form = document.querySelector("#GroupModal .modal-body")
@@ -210,6 +225,10 @@ export function FillForm(ans) {
 			i.value = ans.object[i.name] !== null ? ans.object[i.name] : ""
 		}
 	})
+
+	CKEDITOR.instances.id_template.setData(ans.object.template)
+
+	update_state()
 }
 
 //Удалить объект из дерева

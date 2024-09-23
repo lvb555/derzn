@@ -33,7 +33,9 @@ export let action = null // текущее действие над объект�
 export let editing_var = null // редактиреумый объект
 export let group_leafs_attentions = [] // список всех групп дез наследникав
 
-function update_state(e) {
+const object_child_select = document.querySelector(".object-template-editor__children")
+
+export function update_state(e) {
 	// обновить форму
 	subscription_block.style.display = type.value == types["number"] || type.value == types["date"] ? "block" : "none"
 	turple_block.style.display = type.value == types["tuple"] ? "block" : "none"
