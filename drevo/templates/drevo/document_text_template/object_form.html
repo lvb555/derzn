@@ -1,9 +1,8 @@
 {% load static %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 <link rel="stylesheet" href="{% static 'drevo/css/object_form.css'%}">
 <div class="modal fade" id="ObjectModal" tabindex="-1" aria-labelledby="ObjectModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
         	<div class="modal-header turple-menu">
 				<h5 class="modal-title">Создание объекта шаблона</h5>
@@ -11,6 +10,8 @@
         	</div>
         	<div class="modal-body">
         		<form class="edit-menu">
+					{{ var_form.media }}
+
 					<div id="name" class="field">
 						<label class="edit-menu__label" for="name">{{var_form.name.label}}</label>
 						{{var_form.name}}
@@ -58,12 +59,21 @@
 
 					<div id="tuple" class="field">
 						<label class="edit-menu__label" for="{{ var_form.turple.id_for_label }}">{{var_form.turple.label}}</label>
-						{{ var_form.turple }}
 					</div>
 
-					{{ var_form.knowledge }}
+					<div id="template" class="field">
+						<label class="edit-menu__label" for="{{ var_form.template.id_for_label }}">{{ var_form.template.label }}</label>
+						<br>
+						<div class="object-template-editor">
+							{{ var_form.template }}
+							<div class="object-template-editor__tools">
+								<select name="object-children" class="object-template-editor__children"></select>
+								<button type="button" class="btn-icon btn">Вставить</button>
+							</div>
+						</div>
+					</div>
 
-					<button type="button" data-bs-dismiss="modal" class="btn-icon btn edit-menu__save-btn">Сохранить</button>
+					<button type="button" class="btn-icon btn edit-menu__save-btn">Сохранить</button>
 				</form>
         	</div>
 		</div>
