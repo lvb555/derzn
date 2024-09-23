@@ -206,7 +206,8 @@ export function FillForm(ans) {
 		children.push(option)
 	})
 	children_select_tag.replaceChildren(...children)
-	children_select_tag.value = "Выберите объект"
+	children_select_tag.value = "-1"
+	
 	
 
 	if (ans.object.is_main){
@@ -220,7 +221,7 @@ export function FillForm(ans) {
 		form.querySelector("textarea").value = ans.object.fill_title
 	}
 
-	form.querySelectorAll(".field input, .field select").forEach((i) => {
+	form.querySelectorAll(".field > input, .field > select").forEach((i) => {
 		if (i.type == "checkbox") {
 			i.checked = ans.object[i.name]
 		} else if (i.type == "radio") {
