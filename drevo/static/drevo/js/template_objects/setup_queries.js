@@ -35,6 +35,8 @@ export function ObjectProcessingBody (action, editing_var) {
 		body.append(i.name, i.innerHTML)
 	})
 
+	body.append("template", CKEDITOR.instances.id_template.getData())
+
 	body.append("action", action)
 	body.append("knowledge", document.querySelector("#id_knowledge").value)
 	body.append("is_main", false)
