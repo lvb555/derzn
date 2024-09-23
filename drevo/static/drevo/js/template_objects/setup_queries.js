@@ -27,7 +27,7 @@ export function ObjectProcessingBody (action, editing_var) {
 		}
 	})
 
-	edit_menu.querySelectorAll(".edit-menu > .field select").forEach((i) => {
+	edit_menu.querySelectorAll(".edit-menu > .field > select").forEach((i) => {
 		body.append(i.name, i.value)
 	})
 
