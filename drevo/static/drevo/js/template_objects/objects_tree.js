@@ -151,3 +151,13 @@ document.querySelector(".tree-actions .btn:nth-child(2)").addEventListener("clic
 	document.querySelector("#GroupModal .field input").value = ""
 	document.querySelector("#GroupModal .field select").value = ""
 })
+
+document.querySelector(".object-template-editor__tools .btn").addEventListener("click", (e) => {
+	if (document.readyState === 'complete') {
+		const element = CKEDITOR.dom.element.createFromHtml(`<span class="template-object" id="id-${object_child_select.value}" contenteditable="false">&lt;${object_child_select.options[object_child_select.selectedIndex].text}&gt;</span>`)
+		CKEDITOR.instances.id_template.insertElement(element)
+
+		const space = CKEDITOR.dom.element.createFromHtml("<span>&nbsp;</span>")
+		CKEDITOR.instances.id_template.insertElement(space)
+	}
+})
