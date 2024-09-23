@@ -145,6 +145,8 @@ document.querySelector(".tree-actions .btn:first-child").addEventListener("click
 	document.querySelectorAll('.edit-menu input[type="number"]').forEach((elem) => {
 		elem.value = 100
 	})
+
+	update_state()
 })
 document.querySelector(".tree-actions .btn:nth-child(2)").addEventListener("click", (e) => {
 	action="create"
