@@ -86,7 +86,7 @@ class TemplateObject(MPTTModel):
         verbose_name='Шаблон',
         max_length=2048,
         blank=True,
-        null=True)
+        default="")
 
     def __str__(self):
         return self.name
