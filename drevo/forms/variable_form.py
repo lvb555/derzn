@@ -5,6 +5,7 @@ from mptt.forms import TreeNodeChoiceField
 from drevo.models import TemplateObject, Znanie, Turple
 from users.models import User
 from django.core.exceptions import ValidationError
+from ckeditor.widgets import CKEditorWidget
 
 
 class TemplateObjectAdminForm(forms.ModelForm):
@@ -15,7 +16,10 @@ class TemplateObjectAdminForm(forms.ModelForm):
             label='Родитель',
             required=False)
         
-        self.fields['user'] = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
+        self.fields['user'] = forms.ModelChoiceField(
+            queryset=User.objects.all(),
+            required=False,
+            label='Пользователь')
 
     def clean(self):
         user = self.cleaned_data.get('user')
@@ -23,6 +27,10 @@ class TemplateObjectAdminForm(forms.ModelForm):
 
         if availability == 1 and not user:
             raise ValidationError('У глобального объекта должен быть указан пользователь')
+
+    template = forms.CharField(
+        widget=CKEditorWidget(),
+        label='Шаблон')
 
     class Meta:
         model = TemplateObject
@@ -149,3 +157,4 @@ class TemplateObjectForm(forms.Form):
     pk = forms.ModelChoiceField(queryset=TemplateObject.objects.all(), required=False)
     action = forms.CharField(max_length=100)
     comment = forms.CharField(max_length=255, label='Комментарий', required=False)
+    template = forms.CharField(widget=CKEditorWidget(), label='Шаблон', required=False)

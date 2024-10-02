@@ -10,7 +10,7 @@ import {
 } from "../objects_tree.js"
 import {ObjectInfoRequest} from "../requests/objects_tree.js"
 import {SelectObjectToDelete} from "../objects_tree.js"
-import {SelectObjectToUpdate} from "../objects_tree.js"
+import {SelectObjectToUpdate, update_state} from "../objects_tree.js"
 
 
 // В этом файле хранятся функции, меняющие DOM дерево в зависимости от ответа бекенда на запросы.
@@ -70,6 +70,8 @@ export function CreateNewObject(ans) {
 		else
 			parent.appendChild(object)
 
+		objectModal.hide()
+		groupModal.hide()
 		show_message("Объект создан")
 
 	} else if (ans["res"] === "validation error") {
@@ -81,6 +83,8 @@ export function CreateNewObject(ans) {
 export function UpdateTree(ans) {
 	if (ans.res === "ok") {
 		const object_node = document.querySelector(`.node#id-${ans.object.id}`)
+		objectModal.hide()
+		groupModal.hide()
 
 		//обновить имя
 		object_node.querySelector(".node-label__name > span").innerHTML = ans.object.name
@@ -190,6 +194,22 @@ export function FillForm(ans) {
 		return
 	}
 	let form
+
+	const children_select_tag = document.querySelector(".object-template-editor__children")
+	const children = []
+
+	ans.children.push({id: -1, name: "Выберите объект"})
+	ans.children.forEach((child) => {
+		const option = document.createElement("option")
+		option.innerHTML = child.name
+		option.value = child.id
+		children.push(option)
+	})
+	children_select_tag.replaceChildren(...children)
+	children_select_tag.value = "-1"
+	
+	
+
 	if (ans.object.is_main){
 		document.querySelector("#GroupModal .modal-title").innerHTML = "Редактирование объекта шаблона"
 		form = document.querySelector("#GroupModal .modal-body")
@@ -201,7 +221,7 @@ export function FillForm(ans) {
 		form.querySelector("textarea").value = ans.object.fill_title
 	}
 
-	form.querySelectorAll(".field input, .field select").forEach((i) => {
+	form.querySelectorAll(".field > input, .field > select").forEach((i) => {
 		if (i.type == "checkbox") {
 			i.checked = ans.object[i.name]
 		} else if (i.type == "radio") {
@@ -210,6 +230,10 @@ export function FillForm(ans) {
 			i.value = ans.object[i.name] !== null ? ans.object[i.name] : ""
 		}
 	})
+
+	CKEDITOR.instances.id_template.setData(ans.object.template)
+
+	update_state()
 }
 
 //Удалить объект из дерева

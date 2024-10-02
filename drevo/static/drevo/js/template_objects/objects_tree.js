@@ -9,6 +9,7 @@ const collapse_children = document.querySelectorAll(".node__collapse-btn")
 
 const turple_block = document.querySelector("#tuple") // поле выбора справочника
 const subscription_block = document.querySelector("#subscription") // чекбокс "прописью"
+const object_template = document.querySelector(".field#template") // поле шаблона составного объекта
 
 // модальные окна
 const deleteModal = new bootstrap.Modal(document.getElementById('DeleteObjectModal'))
@@ -32,11 +33,14 @@ export let action = null // текущее действие над объект�
 export let editing_var = null // редактиреумый объект
 export let group_leafs_attentions = [] // список всех групп дез наследникав
 
-function update_state(e) {
+const object_child_select = document.querySelector(".object-template-editor__children")
+
+export function update_state(e) {
 	// обновить форму
-	let is_turple = type.value == types["tuple"]
 	subscription_block.style.display = type.value == types["number"] || type.value == types["date"] ? "block" : "none"
 	turple_block.style.display = type.value == types["tuple"] ? "block" : "none"
+	object_template.style.display = type.value == types["complex"] ? "block" : "none"
+
 }
 
 export function SetGroupLeafsAttentions(attentions) {
@@ -141,6 +145,8 @@ document.querySelector(".tree-actions .btn:first-child").addEventListener("click
 	document.querySelectorAll('.edit-menu input[type="number"]').forEach((elem) => {
 		elem.value = 100
 	})
+
+	update_state()
 })
 document.querySelector(".tree-actions .btn:nth-child(2)").addEventListener("click", (e) => {
 	action="create"
@@ -148,4 +154,14 @@ document.querySelector(".tree-actions .btn:nth-child(2)").addEventListener("clic
 
 	document.querySelector("#GroupModal .field input").value = ""
 	document.querySelector("#GroupModal .field select").value = ""
+})
+
+document.querySelector(".object-template-editor__tools .btn").addEventListener("click", (e) => {
+	if (document.readyState === 'complete') {
+		const element = CKEDITOR.dom.element.createFromHtml(`<span class="template-object" id="id-${object_child_select.value}" contenteditable="false">&lt;${object_child_select.options[object_child_select.selectedIndex].text}&gt;</span>`)
+		CKEDITOR.instances.id_template.insertElement(element)
+
+		const space = CKEDITOR.dom.element.createFromHtml("<span>&nbsp;</span>")
+		CKEDITOR.instances.id_template.insertElement(space)
+	}
 })

@@ -27,13 +27,15 @@ export function ObjectProcessingBody (action, editing_var) {
 		}
 	})
 
-	edit_menu.querySelectorAll(".edit-menu > .field select").forEach((i) => {
+	edit_menu.querySelectorAll(".edit-menu > .field > select").forEach((i) => {
 		body.append(i.name, i.value)
 	})
 
 	edit_menu.querySelectorAll(".edit-menu > .field textarea").forEach((i) => {
 		body.append(i.name, i.innerHTML)
 	})
+
+	body.append("template", CKEDITOR.instances.id_template.getData())
 
 	body.append("action", action)
 	body.append("knowledge", document.querySelector("#id_knowledge").value)

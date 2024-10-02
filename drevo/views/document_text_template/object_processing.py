@@ -31,6 +31,7 @@ class DocumentObjectProcessingView(View):
         try:
             obj = get_object(request.GET['id'])
             obj_in_dict = model_to_dict(obj)
+            children = list(map(lambda x: model_to_dict(x, exclude='templates_that_use'), obj.get_children()))
             obj_in_dict['templates_that_use'] = [i.id for i in obj_in_dict['templates_that_use']]
         except Exception as e:
             return JsonResponse({
@@ -38,7 +39,7 @@ class DocumentObjectProcessingView(View):
                     'error': str(e)
                 })
 
-        return JsonResponse({'res': 'ok', 'object': obj_in_dict})
+        return JsonResponse({'res': 'ok', 'object': obj_in_dict, 'children': children})
     
     def post(self, request, doc_pk):
         form = TemplateObjectForm(request.POST)
@@ -75,6 +76,7 @@ class DocumentObjectProcessingView(View):
                 form.cleaned_data['pk'].turple = form.cleaned_data['turple']
                 form.cleaned_data['pk'].comment = form.cleaned_data['comment']
                 form.cleaned_data['pk'].connected_to = form.cleaned_data['connected_to']
+                form.cleaned_data['pk'].template = form.cleaned_data['template']
                 form.cleaned_data['pk'].save()
         except Exception as e:
             return JsonResponse({'res': 'database error', 'error': e})
