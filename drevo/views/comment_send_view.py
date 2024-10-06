@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.http import Http404, JsonResponse
 from django.views.generic.edit import ProcessFormView
@@ -7,6 +7,7 @@ from ..models import Znanie, Comment
 from users.models import User
 from loguru import logger
 
+from ..models.comment import ReactionComment
 
 logger.add('logs/main.log',
            format="{time} {level} {message}", rotation='100Kb', level="ERROR")
@@ -67,3 +68,20 @@ class CommentSendView(ProcessFormView):
                 )
 
         raise Http404
+
+def toggle_reaction(request, pk, reaction_type):
+    if request.user.is_authenticated:
+        comment = get_object_or_404(Comment, id=pk)
+        try:
+            reaction = ReactionComment.objects.get(user=request.user, comment=comment)
+            if reaction.reaction_type == reaction_type:
+                reaction.delete()
+            else:
+                reaction.reaction_type = reaction_type
+                reaction.save()
+        except ReactionComment.DoesNotExist:
+            ReactionComment.objects.create(user=request.user, comment=comment, reaction_type=reaction_type)
+
+        return redirect(request.META['HTTP_REFERER'],'/')
+    else:
+        return redirect('users:login')

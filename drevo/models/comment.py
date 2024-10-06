@@ -53,6 +53,12 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии знаний'
         ordering = ('-created_at',)
 
+    def get_number_of_likes(self):
+        return self.reactioncomment_set.filter(reaction_type=ReactionComment.LIKE).count()
+
+    def get_number_of_dislikes(self):
+        return self.reactioncomment_set.filter(reaction_type=ReactionComment.DISLIKE).count()
+
     def __str__(self):
         return f'{self.id} - {self.author} - {self.znanie} ({self.created_at:%d.%m.%Y %H:%M})'
 
@@ -68,3 +74,19 @@ class Comment(models.Model):
     @property
     def get_max_length(self):
         return self.CONTENT_MAX_LENGTH
+
+
+class ReactionComment(models.Model):
+    LIKE = 'like'
+    DISLIKE = 'dislike'
+    REACTION_CHOICES = [
+        (LIKE, 'Like'),
+        (DISLIKE, 'Dislike'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    reaction_type = models.CharField(max_length=7, choices=REACTION_CHOICES)
+
+    class Meta:
+        unique_together = ('user', 'comment')

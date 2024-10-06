@@ -8,7 +8,7 @@ from drevo.views.interview_table_view import interview_table
 from drevo.views.developer_view import developer_view
 from drevo.views.interviews_view import interview_view
 from drevo.views.my_interview_view import my_interview_view
-
+from drevo.views.comment_send_view import toggle_reaction
 from .urls_constructor import urlpatterns as urls_constructor
 from .views import (AdminsPermissionsDeleteView, AlgorithmDetailView,
                     AlgorithmListView, AlgorithmResultAdd, AuthorDetailView,
@@ -600,6 +600,8 @@ urlpatterns = [
          name="participation_in_the_discussion"),
     path("participation_in_the_discussion/create_participation", CreateParticipationView.as_view(),
          name="create_participation"),
+    # реакции в комментариях
+    path("react/<int:pk>/<str:reaction_type>", toggle_reaction, name="toggle_reaction"),
 ]
 
 # пути для работы конструкторов знаний
