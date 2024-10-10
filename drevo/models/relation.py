@@ -4,9 +4,10 @@ from django.db import models
 from drevo.models.knowledge_grade_scale import KnowledgeGradeScale
 from drevo.models.relation_grade_scale import RelationGradeScale
 from users.models import User
+from .mixin_meta_info import MetaInfoMixin
 
 
-class Relation(models.Model):
+class Relation(MetaInfoMixin, models.Model):
     """
     Класс для связи Знание-Знание
     """
@@ -69,9 +70,6 @@ class Relation(models.Model):
         null=True,
         blank=True,
     )
-    meta_info = models.CharField(
-        max_length=1024, blank=True, null=True, verbose_name="Метаинформация"
-    )
 
     objects = models.Manager()
 
@@ -117,7 +115,6 @@ class Relation(models.Model):
 
             if not related_knowledge_grade:
                 related_knowledge_grade = KnowledgeGradeScale.get_default_value()
-
 
         # получаем оценку связи
         rel_grade = self.grades.filter(user=request.user).first()
