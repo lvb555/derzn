@@ -13,11 +13,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='templateobject',
-            name='template',
-            field=models.TextField(blank=True, default='', max_length=2048, verbose_name='Шаблон'),
-        ),
         migrations.CreateModel(
             name='ReactionComment',
             fields=[
