@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from django.views.generic import DetailView
 
 from drevo.models import Znanie
@@ -17,7 +15,5 @@ class ParticipationInTheDiscussionView(DetailView):
         knowledge = Znanie.objects.get(pk=pk)
         context['znanie'] = knowledge
         context['relative_znania'] = get_descendants_for_knowledge(knowledge)
-
-        pprint(context['relative_znania'])
 
         return context
