@@ -20,7 +20,6 @@ from drevo.models import Relation, SpecialPermissions, Tr, Tz, Znanie
 from drevo.views.my_interview_view import search_node_categories
 
 from ...utils.knowledge_proxy import KnowledgeProxyError, TableProxy
-from .mixins import DispatchMixin
 from .supplementary_functions import (create_relation,
                                       create_zn_for_constructor,
                                       get_file_from_request,
@@ -546,6 +545,7 @@ def row_and_column_existence(request):
 
     return JsonResponse({"is_row_and_column_exist": is_row_and_column_exist})
 
+from .mixins import PrevNextMixin, DispatchMixin
 
 """
  #####################################################################
@@ -555,95 +555,6 @@ def row_and_column_existence(request):
  #####################################################################
 """
 
-
-class PrevNextMixin:
-    """
-    Миксин для добавления referer в контекст
-    Нужен чтобы кнопка Назад работала правильно
-    Так же добавляется поддержка параметра next - перенаправление на другую страницу после успешного сохранения
-    """
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # берем поле prev из POST, если его там нет - из HTTP_REFERER
-        # по этому полю будем уходить по кнопке «Назад»
-        if self.request.GET.get("next"):
-            context["next"] = self.request.GET.get("next")
-
-        if self.request.GET.get("prev"):
-            context["prev"] = self.request.GET.get("prev")
-
-        elif self.request.POST.get("prev"):
-            context["prev"] = self.request.POST.get("prev")
-
-        elif self.request.META.get("HTTP_REFERER"):
-            context["prev"] = self.request.META.get("HTTP_REFERER")
-        else:
-            # если же пришли из ниоткуда - при закрытии уходим на главную страницу
-            context["prev"] = "/"
-        return context
-
-    def form_valid(self):
-        # если есть параметр next - уходим по нему
-        # если нет - уходим по prev (только если там не корень)
-        # если и его нет - уходим обратно на эту же страницу
-
-        if self.request.POST.get("next"):
-            return redirect(self.request.POST.get("next"))
-
-        context = self.get_context_data()
-
-        if "prev" in context:
-            if context["prev"] != "/":
-                return redirect(context["prev"])
-
-        # если не было prev и next - остаемся на этой странице
-        return self.get(self.request)
-
-
-class TableConstructView(
-    LoginRequiredMixin, DispatchMixin, PrevNextMixin, TemplateView
-):
-    """Представление для страницы «Конструктор таблицы»"""
-
-    template_name = "drevo/constructors/table_construct.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        table = TableProxy(Znanie.objects.get(id=self.kwargs["pk"]))
-        context["title"] = "Конструктор таблицы"
-        context["table"] = table.knowledge
-        context["table_info"] = json.dumps(table.get_header(), ensure_ascii=False)
-
-        return context
-
-    def post(self, request, *args, **kwargs):
-        table_data = self.request.POST.get("table_info")
-        if not table_data:
-            raise ValueError("Не удалось получить данные таблицы")
-
-        table_data = json.loads(table_data)
-
-        knowledge = Znanie.objects.get(id=kwargs["pk"])
-        table = TableProxy(knowledge)
-
-        try:
-            table.update_header(table_data)
-
-        except KnowledgeProxyError as e:
-            messages.warning(self.request, e)
-            return self.form_invalid()
-
-        return self.form_valid()
-
-    def form_invalid(self):
-        return self.get(self.request)
-
-    def form_valid(self):
-        messages.info(self.request, 'Таблица обновлена')
-        return self.get(self.request)
 
 class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, TemplateView):
     """Представление для страницы «Наполнение таблицы»"""
