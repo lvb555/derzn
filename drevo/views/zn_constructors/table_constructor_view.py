@@ -56,6 +56,6 @@ class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, Templat
             table.update_table(table_data, self.request.user)
 
         except KnowledgeProxyError as e:
-            return JsonResponse({'result': str(e)}, status=409)
+            return JsonResponse({"result": str(e)}, status=409)
 
-        return JsonResponse({'result': self.ok_message}, status=200)
+        return JsonResponse({"result": self.ok_message}, status=200)
