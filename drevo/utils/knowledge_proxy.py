@@ -209,14 +209,19 @@ class TableProxy:
                                   "value": cell.rz.name}
 
         if in_list:
-            for cell in cells.values():
-                del cell["knowledge"]
-            return cells
+            # удаляем ячейку с объектом Знание - она не нужна в этом формате
+            # Этот словарь потом пойдет в редактор (в JSON)
+            json_result = {key: {"id": value.get("id", 0), "text": value["value"]}
+                           for key, value in cells.items()}
+            return json_result
 
+        # создаем матрицу таблицы для рендера.
+        # В ячейке либо объект Знание, либо текст
+        # Если ячейка пустая - в ячейке будет None
         matrix = [[None] * len(cols) for _ in range(len(rows))]
         for key, value in cells.items():
             row, col = map(int, key.split(":"))
-            matrix[rows[row]][cols[col]] = value["knowledge"]
+            matrix[rows[row]][cols[col]] = value.get("knowledge", None) or value["value"]
 
         return matrix
 
