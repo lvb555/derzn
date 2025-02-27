@@ -112,7 +112,7 @@ class TableProxy:
         """
         return not bool(self.get_cells(in_list=True))
 
-    def get_header(self):
+    def get_header(self, remove_cells=False):
         """
         Возвращает словарь со структурой таблицы
         {
@@ -137,13 +137,18 @@ class TableProxy:
             }
         # версия структуры таблицы по умолчанию = 1 (самая первая)
         header.setdefault("version", 1)
+
+        # удаляем словарь cells из заголовка
+        if remove_cells and 'cells' in header:
+            header.pop('cells')
+
         return header
 
     def get_render_data(self):
         """ Возвращает данные для рендера таблицы
             Заголовки и матрицу ячеек
         """
-        header = self.get_header()
+        header = self.get_header(remove_cells=True)
         values = self.get_cells(in_list=False)
 
         return header, values
@@ -233,7 +238,7 @@ class TableProxy:
         """
         Возвращает заголовок и список ячеек для формы заполнения
         """
-        header = self.get_header()
+        header = self.get_header(remove_cells=True)
         cells = self.get_cells(in_list=True)
         return header, cells
 
