@@ -149,6 +149,31 @@ class TableProxy:
 
         return header, values
 
+    def extract_header_cells(self, header) -> dict:
+        """
+           Извлекаем ячейки из заголовка - в зависимости от формата хранения
+           возвращает словарь с данными о ячейках в последнем действующем формате
+        """
+        header_cells = header.get("cells", {})
+        # получаем данные о ячейках
+        # раньше в cells хранился словарь {"row:col" : "text"}
+        # теперь - {"row:col" : {"user_id": id, "value": 'text'}}
+        # если по ключу "value" значения нет, берем все значение (для совместимости со старым форматом)
+        cells = {}
+
+        # владелец табличного знания. Если пользователь не указан - значит владелец он
+        owner_id = self.knowledge.user_id
+
+        for key, value in header_cells.items():
+            if header["version"] > 1 and not isinstance(value, dict):
+                raise KnowledgeProxyError(f"Неверный формат данных в ячейке {key}: {value}")
+
+            text = value.get("value", value) if hasattr(value, "get") else value
+            user_id = value.get("user_id", owner_id) if hasattr(value, "get") else owner_id
+
+            cells[key] = {"value": text, "user_id": user_id}
+        return cells
+
     def get_cells(self, in_list=True):
         """
         если in_list=True
@@ -160,14 +185,11 @@ class TableProxy:
         knowledge или None (если ячейка пустая)
         """
         header = self.get_header()
-        header_cells = header.get("cells", {})
+        cells = self.extract_header_cells(header)
         relation_cells = self.knowledge.base.filter(tr=Tr.t_(self.cell_relation)).select_related("rz")
 
         rows = {row["id"]: i for i, row in enumerate(header["rows"])}
         cols = {col["id"]: i for i, col in enumerate(header["cols"])}
-
-        # получаем данные о ячейках
-        cells = {key: {'id': 0, "knowledge": value, "text": value} for key, value in header_cells.items()}
 
         for cell in relation_cells:
             row_id, col_id = self.get_cell_data(cell)
