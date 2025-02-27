@@ -30,9 +30,8 @@ class TableProxy:
         'group_col': 'Заголовок колонок',
         'cols': [{'id':12, 'name': 'колонка 1'}],
         'rows': [{'id':10, 'name': 'Строка 1'}],
-        cells: {'row_id:col_id': 'text', ...} - текст ячейки, который хранится в метаданных
-
-        ]
+        cells: {'row_id:col_id': {'value': 'текст в ячейке', 'user_id': 'идентификатор пользователя'}, ...}
+        - текст ячейки, который хранится в метаданных и id автора - нужно для проверки прав на изменения
     }
     порядок колонок/строк важен и задает их порядок при просмотре таблицы
     id новых колонок/строк высчитываются как максимальный id колонок/строк +1
@@ -178,7 +177,7 @@ class TableProxy:
         """
         если in_list=True
         получаем данные о ячейках - возвращает словарь
-        {'row:col': {'id': id, 'text': text}, ...]
+        {'row:col': {'id': id, 'text': text}, ...}
 
         если in_list=False
         возвращает матрицу row x col со значениями ячеек
@@ -195,12 +194,19 @@ class TableProxy:
             row_id, col_id = self.get_cell_data(cell)
 
             # проверяем, что ячейка существует
+            # она может не существовать - если данные неконсистентны
             if row_id in rows and col_id in cols:
                 key = f'{row_id}:{col_id}'
+
+                # если ячейка уже забита текстом из заголовка таблицы - пропускаем
+                # спорный вопрос - что в этом случае приоритетнее
                 if key in cells:
                     pass
                 else:
-                    cells[key] = {'id': cell.rz.pk, "knowledge": cell.rz, "text": cell.rz.name}
+                    # добавляем данные в общий словарь значений ячеек
+                    cells[key] = {"id": cell.rz.pk,
+                                  "knowledge": cell.rz,
+                                  "value": cell.rz.name}
 
         if in_list:
             for cell in cells.values():
