@@ -304,37 +304,76 @@ class TableProxy:
         result = [item for item in counter if counter[item] > 1]
         return bool(result)
 
+    def check_can_update(self, new_header: dict,
+                         new_data_cells: dict, new_header_cells: dict, user: User):
+        """
+        Проверяет права пользователя на возможность обновления таблицы.
+        Выбрасывает исключения если нет такой возможности
+        """
+
+        # так как установлено требование уникальности для связи -
+        # нельзя привязать больше одного раза знание к таблице
+        if self._has_repeats(new_data_cells):
+            raise KnowledgeProxyError("Значения в таблице повторяются!")
+
+    def update_header(self, new_header: dict, new_cells: dict, user: User):
+        """
+        Обновляет заголовок таблицы
+        и устанавливает новые значения и заменяет значения и пользователя-владельца
+        считаем что проверка на возможность обновления уже проведена
+        """
+        old_header = self.get_header()
+        old_cells = self.extract_header_cells(old_header)
+        # решаем кто автор текста
+        for key, value in new_cells.items():
+            # ячейка есть такая и значение не поменялось
+            if (key in old_cells) and (old_cells[key]["value"] != value["value"]):
+                # значения не поменялись - оставляем авторство старое
+                value["user_id"] = old_cells[key]["user_id"]
+            else:
+                value["user_id"] = user.pk
+
+        new_header['cells'] = new_cells
+        self._set_data(self.table_key, new_header)
+        self.knowledge.save()
+
     def update_table(self, new_table_data: dict, user: User):
         """
         Обновляет таблицу в соответствии с новыми данными
         """
-        header = {
-            'group': new_table_data.get("group", ""),
-            'group_row': new_table_data.get("group_row", ""),
-            'group_col': new_table_data.get("group_col", ""),
-            'cols': new_table_data.get("cols", []),
-            'rows': new_table_data.get("rows", []),
-        }
-        cells = new_table_data.get("cells", {})
 
-        header_cells = {}
-        data_cells = {}
+        def split_table_data(table_data):
+            """
+            Разделяет полученные данные на те, что хранятся в Связях и те, что хранятся в метаданных (текст)
+            """
+            _header = {
+                'version': CURRENT_TABLE_VERSION,
+                'group': table_data.get("group", ""),
+                'group_row': table_data.get("group_row", ""),
+                'group_col': table_data.get("group_col", ""),
+                'cols': table_data.get("cols", []),
+                'rows': table_data.get("rows", []),
+            }
+            cells = table_data.get("cells", {})
 
-        # разделяем данные на те, что хранятся в Связях и те, что хранятся в метаданных (текст)
-        for key, value in cells.items():
-            row, col = key.split(':')
-            if value['id']:
-                data_cells[(int(row), int(col))] = value['id']
-            else:
-                header_cells[key] = value['text']
+            _header_cells = {}
+            _data_cells = {}
 
-        header['cells'] = header_cells
+            # разделяем данные на те, что хранятся в Связях и те, что хранятся в метаданных (текст)
+            for key, value in cells.items():
+                row, col = key.split(':')
+                # значит это знание в ячейке
+                if value['id']:
+                    _data_cells[(int(row), int(col))] = value['id']
+                else:
+                    _header_cells[key] = {'value': value['text']}
 
-        # так как установлено требование уникальности для связи - нельзя привязать больше одного раза знание к таблице
-        if self._has_repeats(data_cells):
-            raise KnowledgeProxyError("Значения в таблице повторяются!")
+            return _header, _header_cells, _data_cells
 
-        self._set_data(self.table_key, header)
-        self.knowledge.save()
+        header, header_cells, data_cells = split_table_data(new_table_data)
 
+        self.check_can_update(header, data_cells, header_cells, user)
+
+        # надо бы все в транзакцию заключить????
+        self.update_header(header, header_cells, user)
         self.update_relations(data_cells, user)
