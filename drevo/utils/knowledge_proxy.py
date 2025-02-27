@@ -233,11 +233,12 @@ class TableProxy:
         cells = self.get_cells(in_list=True)
         return header, cells
 
-    def update_relations(self, new_cells: dict, user: User):
+    def update_relations(self, new_cells: dict, user: User, update_owner=False):
         """ Обновляет связи с таблицей"""
 
         # получаем все текущие ячейки
         cells = self.knowledge.base.filter(tr=Tr.t_(self.cell_relation)).select_related("rz")
+        author = Author.get_author_by_user(user)
 
         # получаем словарь старых ячеек
         old_cells = {}
@@ -260,18 +261,33 @@ class TableProxy:
         for cell in for_update_cells:
             old_pk = int(old_cells[cell].rz.pk)
             new_pk = new_cells[cell]
+            update_fields = []
 
             # если pk изменился - меняем запись
             if old_pk != new_pk:
                 old_cells[cell].rz = Znanie.objects.get(pk=new_pk)
-                old_cells[cell].save(update_fields=["rz"])
+                update_fields.append("rz")
+
+            # если проверяем создателя
+            if update_owner:
+                # если не совпадает user - меняем запись
+                if old_cells[cell].user != user:
+                    old_cells[cell].user = user
+                    update_fields.append("user")
+
+                # если не совпадает author - меняем запись
+                if old_cells[cell].author != author:
+                    old_cells[cell].author = author
+                    update_fields.append("author")
+
+            # если есть изменения - сохраняем
+            if update_fields:
+                old_cells[cell].save(update_fields=update_fields)
 
         for cell in for_add_cells:
             # добавляем новую ячейку
             cell_knowledge = Znanie.objects.get(pk=new_cells[cell])
             meta_info = json.dumps({"cell": {"row": cell[0], "col": cell[1]}})
-
-            author = Author.get_author_by_user(user)
 
             self.knowledge.base.create(
                 tr=Tr.t_(self.cell_relation),
