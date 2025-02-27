@@ -206,12 +206,16 @@ class TableProxy:
                     # добавляем данные в общий словарь значений ячеек
                     cells[key] = {"id": cell.rz.pk,
                                   "knowledge": cell.rz,
-                                  "value": cell.rz.name}
+                                  "value": cell.rz.name,
+                                  "user_id": cell.user_id
+                                  }
 
         if in_list:
             # удаляем ячейку с объектом Знание - она не нужна в этом формате
             # Этот словарь потом пойдет в редактор (в JSON)
-            json_result = {key: {"id": value.get("id", 0), "text": value["value"]}
+            json_result = {key: {"id": value.get("id", 0),
+                                 "text": value["value"],
+                                 "user_id": value["user_id"]}
                            for key, value in cells.items()}
             return json_result
 
