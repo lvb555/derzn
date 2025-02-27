@@ -13,6 +13,10 @@ class KnowledgeProxyError(Exception):
     pass
 
 
+# текущая версия формата метаданных
+CURRENT_TABLE_VERSION = 2
+
+
 class TableProxy:
     """
     Для упрощения работы с таблицами
@@ -20,6 +24,7 @@ class TableProxy:
     У модели Znanie есть поле Метаданные.
     В поле метаданные в JSON словаре по ключу 'table' хранится описание структуры таблицы типа
     {
+        'version': 2, # текущая версия структуры - подозреваю, что потребуется скоро :)
         'group': 'Заголовок верхний левый угол таблицы',
         'group_row': 'Заголовок строк',
         'group_col': 'Заголовок колонок',
@@ -112,6 +117,7 @@ class TableProxy:
         """
         Возвращает словарь со структурой таблицы
         {
+        'version': 2, # версия структуры таблицы
         'group': 'Заголовок верхний левый угол таблицы',
         'group_row': 'Заголовок строк',
         'group_col': 'Заголовок колонок',
@@ -120,13 +126,18 @@ class TableProxy:
         }
         """
         header = self._get_data(self.table_key)
+        # возвращаем пустую структуру, если нет данных
         if not header:
-            header = {"group": "",
-                      "group_row": "",
-                      "group_col": "",
-                      "cols": [],
-                      "rows": []}
-
+            header = {
+                "version": CURRENT_TABLE_VERSION,
+                "group": "",
+                "group_row": "",
+                "group_col": "",
+                "cols": [],
+                "rows": []
+            }
+        # версия структуры таблицы по умолчанию = 1 (самая первая)
+        header.setdefault("version", 1)
         return header
 
     def get_render_data(self):
