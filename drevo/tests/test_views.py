@@ -12,8 +12,8 @@ import pytest
 import pytz as pytz
 from django.test import TestCase
 
-from .forms import DateNewForm
-from .models import Znanie, Category, Tz, AuthorType, Author
+from drevo.forms import DateNewForm
+from drevo.models import Znanie, Category, Tz, AuthorType, Author
 from users.models import User
 from django.urls import reverse
 import time_machine

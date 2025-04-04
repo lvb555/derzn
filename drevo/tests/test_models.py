@@ -16,7 +16,7 @@ test_meta_{Meta class option}
 from django.test import TestCase
 from users.models import User
 
-from .models import Author, AuthorType, Category, Tz, Znanie
+from drevo.models import Author, AuthorType, Category, Tz, Znanie
 
 
 class TestCategory(TestCase):

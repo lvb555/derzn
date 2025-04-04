@@ -5,8 +5,8 @@
 from django.test import TestCase
 
 from users.models import User
-from .models import Author, AuthorType, Category, Tr, Tz, Znanie
-from .utils.knowledge_proxy import TableProxy
+from drevo.models import Author, AuthorType, Category, Tr, Tz, Znanie
+from drevo.utils.knowledge_proxy import TableProxy
 
 
 class TestTableProxy(TestCase):
