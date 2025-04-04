@@ -14,7 +14,7 @@ class KnowledgeProxyError(Exception):
 
 
 # текущая версия формата метаданных
-CURRENT_TABLE_VERSION = 2
+CURRENT_TABLE_VERSION = 3
 
 
 class TableProxy:
@@ -30,8 +30,8 @@ class TableProxy:
         'group_col': 'Заголовок колонок',
         'cols': [{'id':12, 'name': 'колонка 1'}],
         'rows': [{'id':10, 'name': 'Строка 1'}],
-        cells: {'row_id:col_id': {'value': 'текст в ячейке', 'user_id': 'идентификатор пользователя'}, ...}
-        - текст ячейки, который хранится в метаданных и id автора - нужно для проверки прав на изменения
+        cells: {'row_id:col_id': {'state':1, 'value': 'текст в ячейке', 'user_id': 'идентификатор пользователя'}, ...}
+        - статус ячейки, текст ячейки, который хранится в метаданных и id автора - нужно для проверки прав на изменения
     }
     порядок колонок/строк важен и задает их порядок при просмотре таблицы
     id новых колонок/строк высчитываются как максимальный id колонок/строк +1
@@ -116,12 +116,13 @@ class TableProxy:
         """
         Возвращает словарь со структурой таблицы
         {
-        'version': 2, # версия структуры таблицы
+        'version': 3, # версия структуры таблицы
         'group': 'Заголовок верхний левый угол таблицы',
         'group_row': 'Заголовок строк',
         'group_col': 'Заголовок колонок',
         'cols': [{'id':12, 'name: 'колонка 1'}],
-        'rows': [{'id':10, 'name: 'Строка 1'}]
+        'rows': [{'id':10, 'name: 'Строка 1'}],
+        'cells' : {'row_id:col_id': {'state':1, 'value': 'текст в ячейке', 'user_id': 'идентификатор пользователя'}},
         }
         """
         header = self._get_data(self.table_key)
@@ -133,7 +134,7 @@ class TableProxy:
                 "group_row": "",
                 "group_col": "",
                 "cols": [],
-                "rows": []
+                "rows": [],
             }
         # версия структуры таблицы по умолчанию = 1 (самая первая)
         header.setdefault("version", 1)
@@ -163,6 +164,7 @@ class TableProxy:
         # раньше в cells хранился словарь {"row:col" : "text"}
         # теперь - {"row:col" : {"user_id": id, "value": 'text'}}
         # если по ключу "value" значения нет, берем все значение (для совместимости со старым форматом)
+        # UPD теперь - {"row:col" : {"state":1, "user_id": id, "value": 'text'}}
         cells = {}
 
         # владелец табличного знания. Если пользователь не указан - значит владелец он
@@ -174,8 +176,9 @@ class TableProxy:
 
             text = value.get("value", value) if hasattr(value, "get") else value
             user_id = value.get("user_id", owner_id) if hasattr(value, "get") else owner_id
+            state = value.get("state", 0) if hasattr(value, "get") else 0
 
-            cells[key] = {"value": text, "user_id": user_id}
+            cells[key] = {"value": text, "user_id": user_id, "state": state}
         return cells
 
     def get_cells(self, in_list=True):
@@ -206,13 +209,22 @@ class TableProxy:
                 # если ячейка уже забита текстом из заголовка таблицы - пропускаем
                 # спорный вопрос - что в этом случае приоритетнее
                 if key in cells:
-                    pass
+                    # если ячейка уже забита текстом - пропускаем
+                    if cells[key].get("value", None):
+                        pass
+                    else:
+                        # если ячейка без текста - дополняем ее данными из базы
+                        cells[key]["value"] = cell.rz.name
+                        cells[key]["knowledge"] = cell.rz
+                        cells[key]["id"] = cell.rz.pk
+
                 else:
                     # добавляем данные в общий словарь значений ячеек
                     cells[key] = {"id": cell.rz.pk,
                                   "knowledge": cell.rz,
                                   "value": cell.rz.name,
-                                  "user_id": cell.user_id
+                                  "user_id": cell.user_id,
+                                  "state": 0,
                                   }
 
         if in_list:
@@ -220,7 +232,8 @@ class TableProxy:
             # Этот словарь потом пойдет в редактор (в JSON)
             json_result = {key: {"id": value.get("id", 0),
                                  "text": value["value"],
-                                 "user_id": value["user_id"]}
+                                 "user_id": value["user_id"],
+                                 "state": value.get("state", 0)}
                            for key, value in cells.items()}
             return json_result
 
@@ -372,10 +385,14 @@ class TableProxy:
             for key, value in cells.items():
                 row, col = key.split(':')
                 # значит это знание в ячейке
+                if 'state' in value:
+                    _header_cells[key] = {'state': value['state']}
+
                 if value['id']:
                     _data_cells[(int(row), int(col))] = value['id']
+
                 else:
-                    _header_cells[key] = {'value': value['text']}
+                    _header_cells.setdefault(key, {})['value'] = value['text']
 
             return _header, _header_cells, _data_cells
 
