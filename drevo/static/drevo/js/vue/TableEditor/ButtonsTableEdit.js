@@ -7,7 +7,7 @@ export default {
   computed: {
     classObject() {
         return {
-            disabled: (store.selected.elementType!='c' && store.selected.elementType!='r'),
+            disabled: (!store.userPermissions.changeTable || store.selected.elementType!='c' && store.selected.elementType!='r'),
             btn: true,  
             'btn-primary': true }
     },

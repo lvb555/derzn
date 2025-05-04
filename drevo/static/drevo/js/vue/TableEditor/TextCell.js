@@ -1,7 +1,7 @@
 import {store} from './store.js'
 
 export default {
-    props: ['caption'],
+    props: ['caption', 'source'],
     emits: ['update:caption'],
     data(){
         return {
@@ -14,11 +14,17 @@ export default {
             this.editing = false
             this.$emit('update:caption', e.target.value)
             store.isChanged=true
-        }
+        },
+        onDblClick(e) {
+            if (store.userPermissions.changeTableText) this.editing=true;
+            if (this.source === 'group') return;
+
+            if (store.selected.isNew()) this.editing=true;
+        },
     },
 
 template: `
-<div class="text_cell" @dblclick="editing = true">
+<div class="text_cell" @dblclick="onDblClick">
     <textarea
       v-if="editing"
       :value="caption"

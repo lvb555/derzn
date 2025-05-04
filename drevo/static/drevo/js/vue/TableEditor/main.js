@@ -44,6 +44,14 @@ const app = Vue.createApp({
     tryTextEdit(){
             const [rowId, colId ] = store.selected.elementId
             const cell = store.tableData.getCell(rowId, colId)
+            if (cell.text) {
+                if (!store.tableData.canEditText(rowId, colId)) return
+            }
+            else
+            {
+               if (!store.tableData.canFillEmpty(rowId, colId)) return
+            }
+
 
             if (cell.id) {
                 this.alert("Для ввода текста в ячейку со знанием необходимо сначала очистить её")
@@ -57,11 +65,14 @@ const app = Vue.createApp({
             this.alert("Для изменения знания в непустой ячейке необходимо сначала очистить её")
             return
         }
+
+        const [rowId, colId ] = store.selected.elementId
+        if (!store.tableData.canFillEmpty(rowId, colId)) return
+
         this.$refs.createKnowledge.show()
             .then(value => {
             if (value && store.selected.elementType=='d') {
-                const [rowId, colId] = store.selected.elementId
-                store.tableData.setCell(rowId, colId, {id:value.id, text:value.name})
+                  store.tableData.setCell(rowId, colId, {id:value.id, text:value.name})
                 }
             })
     },
@@ -70,10 +81,13 @@ const app = Vue.createApp({
             this.alert("Для изменения знания в непустой ячейке необходимо сначала очистить её")
             return
         }
+
+        const [rowId, colId ] = store.selected.elementId
+        if (!store.tableData.canFillEmpty(rowId, colId)) return
+
         this.$refs.selectKnowledge.show()
         .then(value => {
             if (value && store.selected.elementType=='d') {
-                const [rowId, colId] = store.selected.elementId
                 store.tableData.setCell(rowId, colId, {id:value.id, text:value.name})
             }
         })
