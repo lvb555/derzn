@@ -14,6 +14,17 @@ function array_move(arr, old_index, new_index) {
 export const store = reactive({
     app: 0,
     isChanged: false,
+    user_id: 0,
+    userLevel: 0,
+    userPermissions: {
+            changeTable: 0,
+            changeTableText: 0,
+            setValue: 0,
+            changeValue: 0,
+            clearValue: 0,
+            changeValueOwn: 0,
+            clearValueOwn: 0,
+    },
     // выбранная ячейка -'r' - строка, 'c' - колонка, 'd' - ячейка таблицы
     selected: {
         elementType: '',
@@ -53,6 +64,8 @@ export const store = reactive({
         },
         rows: [{'id':1, 'name': 'Строка 1'}, {'id':2, 'name': 'Строка 2'}, {'id':3, 'name': 'Строка 3'} ],
         move(itemPos, newPos, elType){
+            if (!store.userPermissions.changeTable) return
+
             if (elType=='c') {
                 array_move(this.cols, itemPos, newPos)
                 store.isChanged = true
@@ -73,6 +86,8 @@ export const store = reactive({
         // what = 'r','c' direction='+','-'
 
         headerMove(id, what, direction) {
+            if (!store.userPermissions.changeTable) return
+
             let arr = 0
             if (what=='r') arr=this.rows
             else if (what=='c') arr=this.cols
@@ -106,6 +121,8 @@ export const store = reactive({
             }
         },
         addRow(caption) {
+            if (!store.userPermissions.changeTable) return
+
             const id = this.newRowId()
             this.rows.push({id: id, 'name': caption, 'isNew': true})
             store.selected.select_element('r', id)
@@ -113,6 +130,8 @@ export const store = reactive({
             store.isChanged = true
         },
         addCol(caption) {
+            if (!store.userPermissions.changeTable) return
+
             const id = this.newColId()
             this.cols.push({id: id, 'name': caption, 'isNew': true})
             store.selected.select_element('c', id)
@@ -120,6 +139,8 @@ export const store = reactive({
             store.isChanged = true
         },
         delColRow(elementType, id) {
+            if (!store.userPermissions.changeTable) return
+
             if (elementType=='r') {
                 if (this.rows.length==1) {
                     store.app.alert('Должна присутствовать минимум одна строка!')
@@ -174,6 +195,10 @@ export const store = reactive({
             }
         },
         clearCell(rowId, colId) {
+           if (!this.canDelete(rowId, colId)) {
+                console.log('Нет прав на удаление')
+                return
+           }
            const key = this.hashById(rowId, colId)
            this.cells.delete(key)
            store.isChanged = true
@@ -184,6 +209,15 @@ export const store = reactive({
         },
         setCell(rowId, colId, value) {
               const key = this.hashById(rowId, colId)
+              //если было пустое значение - значит это новое значение
+              //даже если перед этим удалили
+              if (!this.cells.has(key)) {
+                value.is_new = true
+              }
+              else
+              {
+                if (this.cells.get(key).is_new) value.is_new = true
+              }
               this.cells.set(key, value)
               store.isChanged = true
 
@@ -207,5 +241,27 @@ export const store = reactive({
             const cell = store.tableData.getCell(rowId, colId)
             return Boolean(!cell.id && !cell.text)
         },
+        canDelete(rowId, colId){
+        const key = this.hashById(rowId, colId)
+           if (!this.cells.has(key)) return
+
+           let cell = this.cells.get(key)
+           let state = cell.state || 0
+
+           //если state=0 и пользователи не равны - удалять нельзя
+           if (state>store.user_state) {
+                return false
+            }
+            return true
+        },
+        canFillEmpty(rowId, colId){
+            console.log('try fill ', rowId, colId)
+            return true
+        },
+        canEditText(rowId, colId){
+            console.log('try edit ', rowId, colId)
+            return true
+        },
+
     },
 })

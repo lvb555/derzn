@@ -24,15 +24,14 @@ const app = Vue.createApp({
         store.tableData.group = headerData.group? headerData.group: ''
         store.tableData.group_col = headerData.group_col? headerData.group_col: ''
         store.tableData.group_row = headerData.group_row? headerData.group_row: ''
-
+        store.userPermissions = userPermissions
+        store.userLevel = userLevel
         if (headerData.cols&&headerData.cols.length)  store.tableData.cols = headerData.cols
         if (headerData.rows&&headerData.rows.length) store.tableData.rows = headerData.rows
 
         store.tableData.cells = new Map(Object.entries(tableData))
-
-
-
-
+        store.isChanged = true
+        console.log(store.permissions)
    },
   methods: {
     alert(message) {
