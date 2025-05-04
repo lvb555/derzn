@@ -39,7 +39,7 @@ export default {
                 <tr>
                     <th v-for="(col, index_col) of store.tableData.cols" scope="col"
                           :key="'c'+col.id"
-                          :class="{ selected: store.selected.isSelected('c', col.id) }"
+                          :class="{ selected: store.selected.isSelected('c', col.id), newColRow: store.tableData.cols[index_col].isNew  }"
                           @click="store.selected.select_element('c', col.id)"
                           :draggable="isDragable"
                           @dragstart.shift.capture.exact="startDrag($event, index_col, 'c')"
@@ -57,7 +57,7 @@ export default {
                     </th>
                     <th scope="row"
                         :key="'r'+row.id"
-                        :class="{ selected: store.selected.isSelected('r', row.id) }"
+                        :class="{ selected: store.selected.isSelected('r', row.id), newColRow: store.tableData.rows[index_row].isNew }"
                           :draggable="isDragable"
                           @click="store.selected.select_element('r', row.id)"
                           @dragstart.shift.capture.exact="startDrag($event, index_row, 'r')"

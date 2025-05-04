@@ -24,6 +24,19 @@ export const store = reactive({
         },
         isSelected (elementType, elementId) {
             return this.elementType == elementType && JSON.stringify(this.elementId)==JSON.stringify(elementId)
+        },
+        isNew(){
+            if (!(this.elementType == 'r') &&  !(this.elementType == 'c')) return false;
+            let element = 0
+            if (this.elementType == 'r'){
+                    element = store.tableData.rows.find(item => item.id==this.elementId)
+                }
+                else
+                {
+                    element = store.tableData.cols.find(item => item.id==this.elementId)
+                }
+            console.log(element)
+            return element.isNew
         }
     },
     tableData:{
@@ -94,14 +107,14 @@ export const store = reactive({
         },
         addRow(caption) {
             const id = this.newRowId()
-            this.rows.push({id: id, 'name': caption})
+            this.rows.push({id: id, 'name': caption, 'isNew': true})
             store.selected.select_element('r', id)
 
             store.isChanged = true
         },
         addCol(caption) {
             const id = this.newColId()
-            this.cols.push({id: id, 'name': caption})
+            this.cols.push({id: id, 'name': caption, 'isNew': true})
             store.selected.select_element('c', id)
 
             store.isChanged = true
