@@ -26,6 +26,7 @@ const app = Vue.createApp({
         store.tableData.group_row = headerData.group_row? headerData.group_row: ''
         store.userPermissions = userPermissions
         store.userLevel = userLevel
+        store.user_id = userId
         if (headerData.cols&&headerData.cols.length)  store.tableData.cols = headerData.cols
         if (headerData.rows&&headerData.rows.length) store.tableData.rows = headerData.rows
 
@@ -34,6 +35,11 @@ const app = Vue.createApp({
         console.log(store.permissions)
    },
   methods: {
+    permissionAlert(message) {
+        //console.log(message)
+        this.alert(message)
+         //ElMessage.error(message)
+        },
     alert(message) {
          ElMessageBox.alert(message, 'Внимание', {autofocus: false, confirmButtonText: 'OK',})
          },
@@ -44,25 +50,27 @@ const app = Vue.createApp({
     tryTextEdit(){
             const [rowId, colId ] = store.selected.elementId
             const cell = store.tableData.getCell(rowId, colId)
+             if (cell.id) {
+                this.alert("Для ввода текста в ячейку со знанием необходимо сначала очистить её")
+                return
+            }
 
             if (cell.text) {
                 if (!store.tableData.canChange(rowId, colId)) {
-                console.log('Нет прав на редактирование')
+                //console.log('Нет прав на редактирование')
+                this.permissionAlert('Нет прав на редактирование')
                 return
                 }
             }
             else
             {
                if (!store.tableData.canFillEmpty(rowId, colId)) {
-               console.log('Нет прав на заполнение')
+               //console.log('Нет прав на заполнение')
+               this.permissionAlert('Нет прав на заполнение')
                return
                }
             }
 
-            if (cell.id) {
-                this.alert("Для ввода текста в ячейку со знанием необходимо сначала очистить её")
-                return
-            }
 
             this.prompt(cell.text, (value) => {if (value)  store.tableData.setCellText(rowId, colId, value) })
     },
@@ -74,7 +82,8 @@ const app = Vue.createApp({
 
         const [rowId, colId ] = store.selected.elementId
         if (!store.tableData.canFillEmpty(rowId, colId)) {
-            console.log('Нет прав на заполнение')
+            //console.log('Нет прав на заполнение')
+            this.permissionAlert('Нет прав на заполнение')
             return
         }
 
@@ -92,7 +101,11 @@ const app = Vue.createApp({
         }
 
         const [rowId, colId ] = store.selected.elementId
-        if (!store.tableData.canFillEmpty(rowId, colId)) return
+        if (!store.tableData.canFillEmpty(rowId, colId)) {
+            //console.log('Нет прав на заполнение')
+            this.permissionAlert('Нет прав на заполнение')
+            return
+        }
 
         this.$refs.selectKnowledge.show()
         .then(value => {
@@ -136,9 +149,9 @@ template: `
         <div class="col"><DataTable/></div>
     </div>
     <div class="row mb-3">
-        <div class="col-4"><ButtonsTableEdit/></div>
-        <div class="col-4"><ButtonsEditData/></div>
-        <div class="col-4"><ButtonsOkCancel :onSave="onSave" :SaveEnabled="store.isChanged"  /> </div>
+        <div class="col"><ButtonsTableEdit/></div>
+        <div class="col"><ButtonsEditData/></div>
+        <div class="col"><ButtonsOkCancel :onSave="onSave" :SaveEnabled="store.isChanged"  /> </div>
     </div>
 
     <div class="row mb-5">

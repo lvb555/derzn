@@ -202,7 +202,8 @@ export const store = reactive({
         },
         clearCell(rowId, colId) {
            if (!this.canDelete(rowId, colId)) {
-                console.log('Нет прав на удаление')
+                //console.log('Нет прав на удаление')
+                store.app.permissionAlert('Нет прав на удаление')
                 return
            }
            const key = this.hashById(rowId, colId)
@@ -218,13 +219,9 @@ export const store = reactive({
               //если было пустое значение - значит это новое значение
               //даже если перед этим удалили
               value.isNew = !this.cells.has(key) || this.cells.get(key).isNew
-//              if (!this.cells.has(key)) {
-//                value.isNew = true
-//              }
-//              else
-//              {
-//                if (this.cells.get(key).isNew) value.isNew = true
-//              }
+              value.user_id = store.user_id
+              console.log('user id:', store.user_id)
+//
               this.cells.set(key, value)
               store.isChanged = true
 
@@ -250,8 +247,7 @@ export const store = reactive({
         },
         canDelete(rowId, colId){
         // если вообще ничего не может удалять
-            if (!store.userPermissions.clearValue && !store.userPermissions.clearValueOwn ) return false
-
+            if (!(store.userPermissions.clearValue || store.userPermissions.clearValueOwn)) return false
             const key = this.hashById(rowId, colId)
             if (!this.cells.has(key)) return true
 
@@ -283,8 +279,7 @@ export const store = reactive({
             return true
         },
         canChange(rowId, colId){
-            if (!store.userPermissions.changeValue && !store.userPermissions.changeValueOwn ) return false
-
+            if (!(store.userPermissions.changeValue || store.userPermissions.changeValueOwn)) return false
             const key = this.hashById(rowId, colId)
             if (!this.cells.has(key)) return true
 

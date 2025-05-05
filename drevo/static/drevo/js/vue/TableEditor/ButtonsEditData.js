@@ -59,9 +59,9 @@ export default {
         </div>
         <div class="card-header text-center">Уровни</div>
         <div class="btn-group" role="group">
-            <button @click="onState(1)" id="btn_data_1" title="I" type="button" class="btn btn-primary" :class="[classObject, stateButtonEnabled(1)]">I</button>
-            <button @click="onState(2)" id="btn_data_2" title="II" type="button" class="btn btn-primary" :class="[classObject, stateButtonEnabled(2)]">II</button>
-            <button @click="onState(3)" id="btn_data_3" title="III" type="button" class="btn btn-primary" :class="[classObject, stateButtonEnabled(3)]">III</button>
+            <button @click="onState(1)" id="btn_data_1" title="I" type="button" class="btn btn-primary" :class="[classObject, stateButtonEnabled(1)]">СОЗД</button>
+            <button @click="onState(2)" id="btn_data_2" title="II" type="button" class="btn btn-primary" :class="[classObject, stateButtonEnabled(2)]">РЕД</button>
+            <button @click="onState(3)" id="btn_data_3" title="III" type="button" class="btn btn-primary" :class="[classObject, stateButtonEnabled(3)]">ПУБЛ</button>
         </div>
         </div>`
 }
