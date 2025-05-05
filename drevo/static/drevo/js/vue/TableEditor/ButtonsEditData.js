@@ -57,7 +57,7 @@ export default {
             <button @click="onSelect" id="btn_data_select" title="Выбрать знание" type="button" class="btn btn-primary" :class="classObject">🗀</button>
             <button @click="onClear" id="btn_data_clear" title="Очистить ячейку" type="button" class="btn btn-primary" :class="classObject">🗑</button>
         </div>
-        <div class="card-header text-center">Уровни</div>
+        <div class="card-header text-center">Этап</div>
         <div class="btn-group" role="group">
             <button @click="onState(1)" id="btn_data_1" title="I" type="button" class="btn btn-primary" :class="[classObject, stateButtonEnabled(1)]">СОЗД</button>
             <button @click="onState(2)" id="btn_data_2" title="II" type="button" class="btn btn-primary" :class="[classObject, stateButtonEnabled(2)]">РЕД</button>
