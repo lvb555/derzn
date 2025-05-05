@@ -16,6 +16,18 @@ export default {
         const [rowId, colId ] = store.selected.elementId
         store.tableData.clearCell(rowId, colId)
    },
+   onState(val) {
+        val = val - 1
+        if (store.userLevel<val) return
+
+
+        const [rowId, colId ] = store.selected.elementId
+        let cell = store.tableData.getCell(rowId, colId, true)
+        console.log(cell)
+        // только свой уровень и ниже можем изменять
+        if (cell.state > store.userLevel) return
+            cell.state = val
+    },
   },
   template: `
         <div class="card">
