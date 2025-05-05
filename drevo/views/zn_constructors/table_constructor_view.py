@@ -6,8 +6,15 @@ from django.http import JsonResponse
 from django.views.generic import TemplateView
 
 from drevo.models import Znanie
-from ...utils.knowledge_proxy import KnowledgeProxyError, TableProxy
-from .mixins import PrevNextMixin, DispatchMixin
+from drevo.utils.knowledge_proxy import (
+    KnowledgeProxyError,
+    TableProxy,
+    get_table_editor_permissions,
+    get_user_editor_level,
+    get_user_roles,
+)
+
+from .mixins import DispatchMixin, PrevNextMixin
 
 """
  #####################################################################
@@ -33,8 +40,15 @@ class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, Templat
 
         table = TableProxy(object)
         header, cells = table.get_header_and_cells()
+        user = self.request.user
+
+        roles = get_user_roles(user, object)
+
         context["table_data"] = cells
         context["table_header"] = header
+        context["permissions"] = get_table_editor_permissions(roles)
+        context["user_level"] = get_user_editor_level(roles)
+        context["user_roles_info"] = ", ".join([role.value for role in roles])
 
         return context
 
@@ -48,14 +62,23 @@ class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, Templat
             messages.warning(request, "Неверный формат запроса")
             return self.form_invalid()
 
-        knowledge = Znanie.objects.get(id=kwargs["pk"])
-        table = TableProxy(knowledge)
-        table_data = json.loads(self.request.body)
+        try:
+            knowledge = Znanie.objects.get(id=kwargs["pk"])
+        except Znanie.DoesNotExist:
+            return JsonResponse({"result": "Таблица не найдена"}, status=404)
 
         try:
-            table.update_table(table_data, self.request.user)
+            table_data = json.loads(self.request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"result": "Неверный формат данных"}, status=400)
 
+        try:
+            table = TableProxy(knowledge)
+            table.update_table(table_data, self.request.user)
         except KnowledgeProxyError as e:
             return JsonResponse({"result": str(e)}, status=409)
+
+        except Exception as e:
+            return JsonResponse({"result": str(e)}, status=500)
 
         return JsonResponse({"result": self.ok_message}, status=200)

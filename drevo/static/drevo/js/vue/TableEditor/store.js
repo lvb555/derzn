@@ -14,6 +14,17 @@ function array_move(arr, old_index, new_index) {
 export const store = reactive({
     app: 0,
     isChanged: false,
+    user_id: 0,
+    userLevel: 0,
+    userPermissions: {
+            changeTable: 0,
+            changeTableText: 0,
+            setValue: 0,
+            changeValue: 0,
+            clearValue: 0,
+            changeValueOwn: 0,
+            clearValueOwn: 0,
+    },
     // выбранная ячейка -'r' - строка, 'c' - колонка, 'd' - ячейка таблицы
     selected: {
         elementType: '',
@@ -24,6 +35,19 @@ export const store = reactive({
         },
         isSelected (elementType, elementId) {
             return this.elementType == elementType && JSON.stringify(this.elementId)==JSON.stringify(elementId)
+        },
+        isNew(){
+            if (!(this.elementType == 'r') &&  !(this.elementType == 'c')) return false;
+            let element = 0
+            if (this.elementType == 'r'){
+                    element = store.tableData.rows.find(item => item.id==this.elementId)
+                }
+                else
+                {
+                    element = store.tableData.cols.find(item => item.id==this.elementId)
+                }
+            console.log(element)
+            return element.isNew
         }
     },
     tableData:{
@@ -40,6 +64,8 @@ export const store = reactive({
         },
         rows: [{'id':1, 'name': 'Строка 1'}, {'id':2, 'name': 'Строка 2'}, {'id':3, 'name': 'Строка 3'} ],
         move(itemPos, newPos, elType){
+            if (!store.userPermissions.changeTable) return
+
             if (elType=='c') {
                 array_move(this.cols, itemPos, newPos)
                 store.isChanged = true
@@ -60,6 +86,8 @@ export const store = reactive({
         // what = 'r','c' direction='+','-'
 
         headerMove(id, what, direction) {
+            if (!store.userPermissions.changeTable) return
+
             let arr = 0
             if (what=='r') arr=this.rows
             else if (what=='c') arr=this.cols
@@ -93,20 +121,26 @@ export const store = reactive({
             }
         },
         addRow(caption) {
+            if (!store.userPermissions.changeTable) return
+
             const id = this.newRowId()
-            this.rows.push({id: id, 'name': caption})
+            this.rows.push({id: id, 'name': caption, 'isNew': true})
             store.selected.select_element('r', id)
 
             store.isChanged = true
         },
         addCol(caption) {
+            if (!store.userPermissions.changeTable) return
+
             const id = this.newColId()
-            this.cols.push({id: id, 'name': caption})
+            this.cols.push({id: id, 'name': caption, 'isNew': true})
             store.selected.select_element('c', id)
 
             store.isChanged = true
         },
         delColRow(elementType, id) {
+            if (!store.userPermissions.changeTable) return
+
             if (elementType=='r') {
                 if (this.rows.length==1) {
                     store.app.alert('Должна присутствовать минимум одна строка!')
@@ -151,16 +185,27 @@ export const store = reactive({
         cells: new Map(),
         hashByIndex(i, j) {   return this.rows[i].id+':'+ this.cols[j].id },
         hashById(rowId, colId)  { return rowId+':'+ colId },
-        getCell (rowId, colId) {
+        getCell (rowId, colId, emptyAdd=false) {
             const key = this.hashById(rowId, colId)
             if (this.cells.has(key)) {
                 return this.cells.get(key)
             }
             else {
-                return {id:0, text:''}
+                if (emptyAdd) {
+                   let value = {id:0, text:'', isNew: true}
+                   this.cells.set(key, value)
+                   return value
+                }
+                else{
+                return {id:0, text:''}}
             }
         },
         clearCell(rowId, colId) {
+           if (!this.canDelete(rowId, colId)) {
+                //console.log('Нет прав на удаление')
+                store.app.permissionAlert('Нет прав на удаление')
+                return
+           }
            const key = this.hashById(rowId, colId)
            this.cells.delete(key)
            store.isChanged = true
@@ -171,6 +216,12 @@ export const store = reactive({
         },
         setCell(rowId, colId, value) {
               const key = this.hashById(rowId, colId)
+              //если было пустое значение - значит это новое значение
+              //даже если перед этим удалили
+              value.isNew = !this.cells.has(key) || this.cells.get(key).isNew
+              value.user_id = store.user_id
+              console.log('user id:', store.user_id)
+//
               this.cells.set(key, value)
               store.isChanged = true
 
@@ -194,5 +245,55 @@ export const store = reactive({
             const cell = store.tableData.getCell(rowId, colId)
             return Boolean(!cell.id && !cell.text)
         },
+        canDelete(rowId, colId){
+        // если вообще ничего не может удалять
+            if (!(store.userPermissions.clearValue || store.userPermissions.clearValueOwn)) return false
+            const key = this.hashById(rowId, colId)
+            if (!this.cells.has(key)) return true
+
+            let cell = this.cells.get(key)
+            let state = cell.state || 0
+
+            //нельзя удалить если уровень выше
+            if (state>store.userLevel) return false
+            let owner = cell.user_id
+            // есть права удалять или есть права удалять свое и пользователь это автор ячейки
+            return store.userPermissions.clearValue || (store.userPermissions.clearValueOwn && owner==store.user_id)
+
+        },
+        canFillEmpty(rowId, colId){
+            // если нет прав
+            if (!store.userPermissions.setValue) return false
+
+            const key = this.hashById(rowId, colId)
+
+            // если это новая ячейка
+            if (!this.cells.has(key)) return true
+
+            let cell = this.cells.get(key)
+            let state = cell.state || 0
+
+            //нельзя заполнить если уровень ячейки выше
+            if (state>store.userLevel) return false
+            console.log('try fill ', rowId, colId)
+            return true
+        },
+        canChange(rowId, colId){
+            if (!(store.userPermissions.changeValue || store.userPermissions.changeValueOwn)) return false
+            const key = this.hashById(rowId, colId)
+            if (!this.cells.has(key)) return true
+
+            let cell = this.cells.get(key)
+            let state = cell.state || 0
+
+            //нельзя удалить если уровень выше
+            if (state>store.userLevel) return false
+            let owner = cell.user_id
+            // есть права удалять или есть права удалять свое и пользователь это автор ячейки
+            return store.userPermissions.changeValue || (store.userPermissions.changeValueOwn && owner==store.user_id)
+            console.log('try edit ', rowId, colId)
+            return true
+        },
+
     },
 })

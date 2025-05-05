@@ -4,13 +4,18 @@
 
 import json
 from collections import Counter
+from enum import Enum
 
-from drevo.models import Author, Relation, Tr, Tz, Znanie
+from drevo.models import Author, Category, Relation, SpecialPermissions, Tr, Tz, Znanie
 from users.models import User
 
 
 class KnowledgeProxyError(Exception):
     pass
+
+
+# текущая версия формата метаданных
+CURRENT_TABLE_VERSION = 3
 
 
 class TableProxy:
@@ -20,14 +25,14 @@ class TableProxy:
     У модели Znanie есть поле Метаданные.
     В поле метаданные в JSON словаре по ключу 'table' хранится описание структуры таблицы типа
     {
+        'version': 2, # текущая версия структуры - подозреваю, что потребуется скоро :)
         'group': 'Заголовок верхний левый угол таблицы',
         'group_row': 'Заголовок строк',
         'group_col': 'Заголовок колонок',
         'cols': [{'id':12, 'name': 'колонка 1'}],
         'rows': [{'id':10, 'name': 'Строка 1'}],
-        cells: {'row_id:col_id': 'text', ...} - текст ячейки, который хранится в метаданных
-
-        ]
+        cells: {'row_id:col_id': {'state':1, 'value': 'текст в ячейке', 'user_id': 'идентификатор пользователя'}, ...}
+        - статус ячейки, текст ячейки, который хранится в метаданных и id автора - нужно для проверки прав на изменения
     }
     порядок колонок/строк важен и задает их порядок при просмотре таблицы
     id новых колонок/строк высчитываются как максимальный id колонок/строк +1
@@ -76,6 +81,11 @@ class TableProxy:
         self.knowledge.set_meta_info(key, data)
 
     @staticmethod
+    def get_cell_default_metadata(user_id: int = 0) -> dict:
+        """Возвращает словарь с метаданными по умолчанию для ячейки"""
+        return {"state": 0, "user_id": user_id}
+
+    @staticmethod
     def get_cell_data(cell: Relation):
         """возвращает row_id и col_id для ячейки"""
 
@@ -108,76 +118,148 @@ class TableProxy:
         """
         return not bool(self.get_cells(in_list=True))
 
-    def get_header(self):
+    def get_header(self, remove_cells=False):
         """
         Возвращает словарь со структурой таблицы
         {
+        'version': 3, # версия структуры таблицы
         'group': 'Заголовок верхний левый угол таблицы',
         'group_row': 'Заголовок строк',
         'group_col': 'Заголовок колонок',
         'cols': [{'id':12, 'name: 'колонка 1'}],
-        'rows': [{'id':10, 'name: 'Строка 1'}]
+        'rows': [{'id':10, 'name: 'Строка 1'}],
+        'cells' : {'row_id:col_id': {'state':1, 'value': 'текст в ячейке', 'user_id': 'идентификатор пользователя'}},
         }
         """
         header = self._get_data(self.table_key)
+        # возвращаем пустую структуру, если нет данных
         if not header:
-            header = {"group": "",
-                      "group_row": "",
-                      "group_col": "",
-                      "cols": [],
-                      "rows": []}
+            header = {
+                "version": CURRENT_TABLE_VERSION,
+                "group": "",
+                "group_row": "",
+                "group_col": "",
+                "cols": [],
+                "rows": [],
+            }
+        # версия структуры таблицы по умолчанию = 1 (самая первая)
+        header.setdefault("version", 1)
+
+        # удаляем словарь cells из заголовка
+        if remove_cells and "cells" in header:
+            header.pop("cells")
 
         return header
 
     def get_render_data(self):
-        """ Возвращает данные для рендера таблицы
-            Заголовки и матрицу ячеек
+        """Возвращает данные для рендера таблицы
+        Заголовки и матрицу ячеек
         """
-        header = self.get_header()
+        header = self.get_header(remove_cells=True)
         values = self.get_cells(in_list=False)
 
         return header, values
+
+    def extract_header_cells(self, header) -> dict:
+        """
+        Извлекаем ячейки из заголовка - в зависимости от формата хранения
+        возвращает словарь с данными о ячейках в последнем действующем формате
+        """
+        header_cells = header.get("cells", {})
+        # получаем данные о ячейках
+        # раньше в cells хранился словарь {"row:col" : "text"}
+        # теперь - {"row:col" : {"user_id": id, "value": 'text'}}
+        # если по ключу "value" значения нет, берем все значение (для совместимости со старым форматом)
+        # UPD теперь - {"row:col" : {"state":1, "user_id": id, "value": 'text'}}
+        cells = {}
+
+        # владелец табличного знания. Если пользователь не указан - значит владелец он
+        owner_id = self.knowledge.user_id
+
+        for key, value in header_cells.items():
+            if header["version"] > 1 and not isinstance(value, dict):
+                raise KnowledgeProxyError(f"Неверный формат данных в ячейке {key}: {value}")
+
+            if isinstance(value, str):
+                #  преобразуем в новый формат
+                cells[key] = self.get_cell_default_metadata(user_id=owner_id)
+                cells[key]["value"] = value
+            else:
+                cells[key] = value
+        return cells
+
+    @staticmethod
+    def to_frontend_json_data(cell: dict):
+        """
+        Преобразуем ячейку в данные для фронтенда
+        """
+        result = {
+            "id": cell.get("id", 0),
+            "text": cell["value"],
+            "user_id": cell["user_id"],
+            "state": cell.get("state", 0),
+            "state_user_id": cell.get("state_user_id", cell["user_id"]),
+        }
+        return result
 
     def get_cells(self, in_list=True):
         """
         если in_list=True
         получаем данные о ячейках - возвращает словарь
-        {'row:col': {'id': id, 'text': text}, ...]
+        {'row:col': {'id': id, 'text': text}, ...}
 
         если in_list=False
         возвращает матрицу row x col со значениями ячеек
         knowledge или None (если ячейка пустая)
         """
         header = self.get_header()
-        header_cells = header.get("cells", {})
+        cells = self.extract_header_cells(header)
         relation_cells = self.knowledge.base.filter(tr=Tr.t_(self.cell_relation)).select_related("rz")
 
         rows = {row["id"]: i for i, row in enumerate(header["rows"])}
         cols = {col["id"]: i for i, col in enumerate(header["cols"])}
 
-        # получаем данные о ячейках
-        cells = {key: {'id': 0, "knowledge": value, "text": value} for key, value in header_cells.items()}
-
         for cell in relation_cells:
             row_id, col_id = self.get_cell_data(cell)
 
             # проверяем, что ячейка существует
+            # она может не существовать - если данные не консистентны
             if row_id in rows and col_id in cols:
-                key = f'{row_id}:{col_id}'
+                key = f"{row_id}:{col_id}"
+
+                # если ячейка уже забита текстом из заголовка таблицы - пропускаем
+                # спорный вопрос - что в этом случае приоритетнее
                 if key in cells:
-                    pass
+                    # если ячейка уже забита текстом - пропускаем
+                    if cells[key].get("value", None):
+                        pass
+                    else:
+                        # если ячейка без текста - дополняем ее данными из базы
+                        cells[key]["value"] = cell.rz.name
+                        cells[key]["knowledge"] = cell.rz
+                        cells[key]["id"] = cell.rz.pk
+
                 else:
-                    cells[key] = {'id': cell.rz.pk, "knowledge": cell.rz, "text": cell.rz.name}
+                    # ячейки нет в метаданных таблицы
+                    # добавляем данные в общий словарь значений ячеек
+                    cells[key] = self.get_cell_default_metadata(user_id=cell.user_id)
+                    cells[key]["value"] = cell.rz.name
+                    cells[key]["knowledge"] = cell.rz
+                    cells[key]["id"] = cell.rz.pk
 
         if in_list:
-            for cell in cells.values():
-                del cell["knowledge"]
-            return cells
+            # преобразуем в выходной формат
+            # Этот словарь потом пойдет в редактор (в JSON)
+            json_result = {key: self.to_frontend_json_data(data) for key, data in cells.items()}
+            return json_result
 
+        # создаем матрицу таблицы для рендера.
+        # В ячейке либо объект Знание, либо текст
+        # Если ячейка пустая - в ячейке будет None
         matrix = [[None] * len(cols) for _ in range(len(rows))]
         for key, value in cells.items():
             row, col = map(int, key.split(":"))
-            matrix[rows[row]][cols[col]] = value["knowledge"]
+            matrix[rows[row]][cols[col]] = value.get("knowledge", None) or value["value"]
 
         return matrix
 
@@ -185,15 +267,16 @@ class TableProxy:
         """
         Возвращает заголовок и список ячеек для формы заполнения
         """
-        header = self.get_header()
+        header = self.get_header(remove_cells=True)
         cells = self.get_cells(in_list=True)
         return header, cells
 
-    def update_relations(self, new_cells: dict, user: User):
-        """ Обновляет связи с таблицей"""
+    def update_relations(self, new_cells: dict, user: User, update_owner=False):
+        """Обновляет связи с таблицей"""
 
         # получаем все текущие ячейки
         cells = self.knowledge.base.filter(tr=Tr.t_(self.cell_relation)).select_related("rz")
+        author = Author.get_author_by_user(user)
 
         # получаем словарь старых ячеек
         old_cells = {}
@@ -216,18 +299,33 @@ class TableProxy:
         for cell in for_update_cells:
             old_pk = int(old_cells[cell].rz.pk)
             new_pk = new_cells[cell]
+            update_fields = []
 
             # если pk изменился - меняем запись
             if old_pk != new_pk:
                 old_cells[cell].rz = Znanie.objects.get(pk=new_pk)
-                old_cells[cell].save(update_fields=["rz"])
+                update_fields.append("rz")
+
+            # если проверяем создателя
+            if update_owner:
+                # если не совпадает user - меняем запись
+                if old_cells[cell].user != user:
+                    old_cells[cell].user = user
+                    update_fields.append("user")
+
+                # если не совпадает author - меняем запись
+                if old_cells[cell].author != author:
+                    old_cells[cell].author = author
+                    update_fields.append("author")
+
+            # если есть изменения - сохраняем
+            if update_fields:
+                old_cells[cell].save(update_fields=update_fields)
 
         for cell in for_add_cells:
             # добавляем новую ячейку
             cell_knowledge = Znanie.objects.get(pk=new_cells[cell])
             meta_info = json.dumps({"cell": {"row": cell[0], "col": cell[1]}})
-
-            author = Author.get_author_by_user(user)
 
             self.knowledge.base.create(
                 tr=Tr.t_(self.cell_relation),
@@ -244,37 +342,250 @@ class TableProxy:
         result = [item for item in counter if counter[item] > 1]
         return bool(result)
 
+    @staticmethod
+    def _clear_keys(data: dict, allowed_keys: list) -> dict:
+        """Удаляет ключи из словаря оставляя только разрешенные"""
+        return {key: value for key, value in data.items() if key in allowed_keys}
+
+    def check_can_update(self, new_header: dict, new_data_cells: dict, new_header_cells: dict, user: User):
+        """
+        Проверяет права пользователя на возможность обновления таблицы.
+        Выбрасывает исключения если нет такой возможности
+        """
+
+        # так как установлено требование уникальности для связи -
+        # нельзя привязать больше одного раза знание к таблице
+        if self._has_repeats(new_data_cells):
+            raise KnowledgeProxyError("Значения в таблице повторяются!")
+
+    def update_header(self, new_header: dict, new_cells: dict):
+        """
+        Обновляет заголовок таблицы
+        считаем что проверка на возможность обновления уже проведена
+        """
+        new_header["cells"] = new_cells
+        self._set_data(self.table_key, new_header)
+        self.knowledge.save()
+
     def update_table(self, new_table_data: dict, user: User):
         """
         Обновляет таблицу в соответствии с новыми данными
         """
-        header = {
-            'group': new_table_data.get("group", ""),
-            'group_row': new_table_data.get("group_row", ""),
-            'group_col': new_table_data.get("group_col", ""),
-            'cols': new_table_data.get("cols", []),
-            'rows': new_table_data.get("rows", []),
-        }
-        cells = new_table_data.get("cells", {})
 
-        header_cells = {}
-        data_cells = {}
+        def split_table_data(table_data):
+            """
+            Разделяет полученные данные на те, что хранятся в Связях и те, что хранятся в метаданных (текст)
+            """
+            _header = {
+                "version": CURRENT_TABLE_VERSION,
+                "group": table_data.get("group", ""),
+                "group_row": table_data.get("group_row", ""),
+                "group_col": table_data.get("group_col", ""),
+                "cols": table_data.get("cols", []),
+                "rows": table_data.get("rows", []),
+            }
 
-        # разделяем данные на те, что хранятся в Связях и те, что хранятся в метаданных (текст)
-        for key, value in cells.items():
-            row, col = key.split(':')
-            if value['id']:
-                data_cells[(int(row), int(col))] = value['id']
-            else:
-                header_cells[key] = value['text']
+            # удаляем ненужные ключи, вдруг что-то пришло дополнительно
+            cols_rows_allowed_keys = ["id", "name"]
+            _header["cols"] = [self._clear_keys(col, allowed_keys=cols_rows_allowed_keys) for col in _header["cols"]]
+            _header["rows"] = [self._clear_keys(row, allowed_keys=cols_rows_allowed_keys) for row in _header["rows"]]
 
-        header['cells'] = header_cells
+            cells = table_data.get("cells", {})
 
-        # так как установлено требование уникальности для связи - нельзя привязать больше одного раза знание к таблице
-        if self._has_repeats(data_cells):
-            raise KnowledgeProxyError("Значения в таблице повторяются!")
+            _header_cells = {}
+            _data_cells = {}
+            cell_allowed_keys = ["user_id", "state", "state_user_id"]
+            # разделяем данные на те, что хранятся в Связях и те, что хранятся в метаданных (текст)
+            for key, value in cells.items():
+                row, col = key.split(":")
+                # в любом случаем сохраняем ячейку в метаданных
+                _header_cells[key] = self._clear_keys(value, allowed_keys=cell_allowed_keys)
 
-        self._set_data(self.table_key, header)
-        self.knowledge.save()
+                if value["id"]:
+                    # значит это знание в ячейке
+                    _data_cells[(int(row), int(col))] = value["id"]
 
+                else:
+                    # значит это текстовое значение в ячейке
+                    _header_cells[key]["value"] = value["text"]
+
+            return _header, _header_cells, _data_cells
+
+        def update_user_ids(new_cells: dict, data_cells: dict):
+            """
+            Обновляет значения user_id в метаданных
+            определяя поменялись ли данные с последнего раза
+            """
+            old_cells = self.get_cells(in_list=True)
+            # решаем кто автор ячейки
+            for key, value in new_cells.items():
+                # была такая ячейка раньше
+                if key in old_cells:
+                    old_value = old_cells[key].get("value", None) or old_cells[key].get("id", 0)
+                    new_value = value.get("value", None) or data_cells.get(key, 0)
+                    data_is_changed = old_value == new_value
+                else:
+                    # новая ячейка - значит данные поменялись
+                    data_is_changed = True
+
+                # данные изменились - сохраняем нового автора
+                if data_is_changed:
+                    value["user_id"] = user.pk
+                else:
+                    value["user_id"] = old_cells[key].get("user_id", user.pk)
+
+        header, header_cells, data_cells = split_table_data(new_table_data)
+        update_user_ids(header_cells, data_cells)
+
+        self.check_can_update(header, data_cells, header_cells, user)
+
+        # надо бы все в транзакцию заключить????
+        self.update_header(header, header_cells)
         self.update_relations(data_cells, user)
+
+
+class UserRoles(str, Enum):
+    """
+    Роли пользователя по отношению к конкретному знанию
+    """
+
+    author = "Автор"
+    expert = "Эксперт"
+    editor = "Редактор"
+    director = "Руководитель"
+
+
+def _check_categories_relationship(category_id: int, categories_ids: tuple) -> bool:
+    """
+    Вспомогательная функция для проверки отношений между категориями
+    """
+    category = Category.objects.get(id=category_id)
+    ancestor_ids = set(category.get_ancestors(include_self=True).values_list("id", flat=True))
+    return bool(ancestor_ids & set(categories_ids))
+
+
+def get_user_roles(user: User, knowledge: Znanie) -> list[UserRoles]:
+    """
+    Возвращает роли пользователя относительно знания
+
+    Args:
+        user: Пользователь
+        knowledge: Объект знания
+
+    Returns:
+        List[Roles]: Список ролей пользователя
+
+    Note:
+        Возможные роли: Автор, Эксперт, Редактор, Руководитель
+    """
+    roles = []
+
+    # Проверка на авторство знания
+    if knowledge.user == user:
+        roles.append(UserRoles.author)
+
+    # Быстрый выход, если у пользователя нет специальных прав
+    if not any([user.is_expert, user.is_director, user.is_redactor]):
+        return roles
+
+    # Проверка категории знания
+    knowledge_category = knowledge.category
+    if not knowledge_category:
+        return roles
+
+    # Получение специальных прав с оптимизацией запросов
+    permissions = (
+        SpecialPermissions.objects.prefetch_related("categories", "admin_competencies").filter(expert=user).first()
+    )
+
+    if not permissions:
+        return roles
+
+    # Получаем ID категорий один раз для оптимизации
+    expert_categories_ids = tuple(permissions.categories.values_list("id", flat=True))
+    admin_categories_ids = tuple(permissions.admin_competencies.values_list("id", flat=True))
+
+    # Проверяем права эксперта
+    if (
+        any([user.is_expert, user.is_redactor])
+        and expert_categories_ids
+        and _check_categories_relationship(knowledge_category.id, expert_categories_ids)
+    ):
+
+        if user.is_expert:
+            roles.append(UserRoles.expert)
+        if user.is_redactor:
+            roles.append(UserRoles.editor)
+
+    # Проверяем права руководителя
+    if (
+        user.is_director
+        and admin_categories_ids
+        and _check_categories_relationship(knowledge_category.id, admin_categories_ids)
+    ):
+        roles.append(UserRoles.director)
+
+    return roles
+
+
+def get_table_editor_permissions(roles) -> dict:
+    """Функция определяет права на редактирование таблицы исходя из ролей"""
+
+    permissions = {
+        "changeTable": 0,  # изменение структуры таблицы
+        "changeTableText": 0,  # изменение заголовка таблицы
+        "setValue": 0,  # изменение пустой ячейки
+        "changeValue": 0,  # изменение заполненной ячейки
+        "clearValue": 0,  # очистка ячейки
+        "changeValueOwn": 0,  # изменение ячейки если я владелец
+        "clearValueOwn": 0,  # очистка ячейки если я владелец
+    }
+
+    if UserRoles.author in roles:
+        permissions["changeTable"] = 1
+        permissions["changeTableText"] = 1
+        permissions["setValue"] = 1
+        permissions["changeValue"] = 1
+        permissions["clearValue"] = 1
+        permissions["changeValueOwn"] = 1
+        permissions["clearValueOwn"] = 1
+
+    if UserRoles.expert in roles:
+        permissions["setValue"] = 1
+        permissions["clearValueOwn"] = 1
+        permissions["changeValueOwn"] = 1
+
+    if UserRoles.editor in roles:
+        permissions["changeTable"] = 1
+        permissions["changeTableText"] = 1
+        permissions["setValue"] = 1
+        permissions["changeValue"] = 1
+        permissions["clearValue"] = 1
+        permissions["changeValueOwn"] = 1
+        permissions["clearValueOwn"] = 1
+
+    if UserRoles.director in roles:
+        permissions["changeTable"] = 1
+        permissions["changeTableText"] = 1
+        permissions["setValue"] = 1
+        permissions["changeValue"] = 1
+        permissions["clearValue"] = 1
+        permissions["changeValueOwn"] = 1
+        permissions["clearValueOwn"] = 1
+
+    return permissions
+
+
+def get_user_editor_level(roles) -> int:
+    # определяем "уровень" пользователя от роли
+    level = 0
+    if UserRoles.author in roles:
+        level = max(level, 0)
+    if UserRoles.expert in roles:
+        level = max(level, 0)
+    if UserRoles.editor in roles:
+        level = max(level, 1)
+    if UserRoles.director in roles:
+        level = max(level, 2)
+
+    return level

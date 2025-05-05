@@ -14,9 +14,14 @@ export default {
    computed: {
     classObject() {
         let cell = store.tableData.getCell(this.rowId,this.colId)
+        let state = cell.state ? cell.state : 0
+        
         return {
                 selected: store.selected.isSelected('d', [this.rowId,this.colId]),
-                is_text: !cell.id
+                is_text: !cell.id,
+                'state-0': state === 0,  // обычное состояние
+                'state-1': state === 1,  // проверено
+                'state-2': state === 2,  // опублковано
             }
     }
   },

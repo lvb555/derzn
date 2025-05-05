@@ -24,17 +24,22 @@ const app = Vue.createApp({
         store.tableData.group = headerData.group? headerData.group: ''
         store.tableData.group_col = headerData.group_col? headerData.group_col: ''
         store.tableData.group_row = headerData.group_row? headerData.group_row: ''
-
+        store.userPermissions = userPermissions
+        store.userLevel = userLevel
+        store.user_id = userId
         if (headerData.cols&&headerData.cols.length)  store.tableData.cols = headerData.cols
         if (headerData.rows&&headerData.rows.length) store.tableData.rows = headerData.rows
 
         store.tableData.cells = new Map(Object.entries(tableData))
-
-
-
-
+        store.isChanged = true
+        console.log(store.permissions)
    },
   methods: {
+    permissionAlert(message) {
+        //console.log(message)
+        this.alert(message)
+         //ElMessage.error(message)
+        },
     alert(message) {
          ElMessageBox.alert(message, 'Внимание', {autofocus: false, confirmButtonText: 'OK',})
          },
@@ -45,11 +50,27 @@ const app = Vue.createApp({
     tryTextEdit(){
             const [rowId, colId ] = store.selected.elementId
             const cell = store.tableData.getCell(rowId, colId)
-
-            if (cell.id) {
+             if (cell.id) {
                 this.alert("Для ввода текста в ячейку со знанием необходимо сначала очистить её")
                 return
             }
+
+            if (cell.text) {
+                if (!store.tableData.canChange(rowId, colId)) {
+                //console.log('Нет прав на редактирование')
+                this.permissionAlert('Нет прав на редактирование')
+                return
+                }
+            }
+            else
+            {
+               if (!store.tableData.canFillEmpty(rowId, colId)) {
+               //console.log('Нет прав на заполнение')
+               this.permissionAlert('Нет прав на заполнение')
+               return
+               }
+            }
+
 
             this.prompt(cell.text, (value) => {if (value)  store.tableData.setCellText(rowId, colId, value) })
     },
@@ -58,11 +79,18 @@ const app = Vue.createApp({
             this.alert("Для изменения знания в непустой ячейке необходимо сначала очистить её")
             return
         }
+
+        const [rowId, colId ] = store.selected.elementId
+        if (!store.tableData.canFillEmpty(rowId, colId)) {
+            //console.log('Нет прав на заполнение')
+            this.permissionAlert('Нет прав на заполнение')
+            return
+        }
+
         this.$refs.createKnowledge.show()
             .then(value => {
             if (value && store.selected.elementType=='d') {
-                const [rowId, colId] = store.selected.elementId
-                store.tableData.setCell(rowId, colId, {id:value.id, text:value.name})
+                  store.tableData.setCell(rowId, colId, {id:value.id, text:value.name})
                 }
             })
     },
@@ -71,10 +99,17 @@ const app = Vue.createApp({
             this.alert("Для изменения знания в непустой ячейке необходимо сначала очистить её")
             return
         }
+
+        const [rowId, colId ] = store.selected.elementId
+        if (!store.tableData.canFillEmpty(rowId, colId)) {
+            //console.log('Нет прав на заполнение')
+            this.permissionAlert('Нет прав на заполнение')
+            return
+        }
+
         this.$refs.selectKnowledge.show()
         .then(value => {
             if (value && store.selected.elementType=='d') {
-                const [rowId, colId] = store.selected.elementId
                 store.tableData.setCell(rowId, colId, {id:value.id, text:value.name})
             }
         })
@@ -114,19 +149,12 @@ template: `
         <div class="col"><DataTable/></div>
     </div>
     <div class="row mb-3">
-        <div class="col-4"><ButtonsTableEdit/></div>
-        <div class="col-4"><ButtonsEditData/></div>
-        <div class="col-4"><ButtonsOkCancel :onSave="onSave" :SaveEnabled="store.isChanged"  /> </div>
+        <div class="col"><ButtonsTableEdit/></div>
+        <div class="col"><ButtonsEditData/></div>
+        <div class="col"><ButtonsOkCancel :onSave="onSave" :SaveEnabled="store.isChanged"  /> </div>
     </div>
 
     <div class="row mb-5">
-        <div v-show="false" class="col">
-            <p>isChanged={{ store.isChanged }}</p>
-            <p>selected={{ store.selected.elementType}} , {{store.selected.elementId }}</p>
-            <p>cols={{store.tableData.cols}}</p>
-            <p>rows={{store.tableData.rows}}</p>
-            <p>cells={{store.tableData.cells}}</p>
-        </div>
         <DialogPrompt ref='prompt' />
         <DialogCreate ref='createKnowledge' title="Создание знания" :dialog_url="knowledge_create_url" />
         <DialogSelectKnowledge ref='selectKnowledge' />

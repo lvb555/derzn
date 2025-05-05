@@ -30,16 +30,16 @@ export default {
         <table  border="1">
             <thead>
                 <tr>
-                  <th colspan="2" rowspan="2" @dblclick="$refs.group.editing=true">
-                    <TextCell ref="group" v-model:caption="store.tableData.group"/>
+                  <th colspan="2" rowspan="2" @dblclick="$refs.group.editing=store.userPermissions.changeTableText">
+                    <TextCell ref="group" source='group' v-model:caption="store.tableData.group"/>
                   </th>
-                  <th :colspan="store.tableData.cols.length"><TextCell v-model:caption="store.tableData.group_col" /></th>
+                  <th :colspan="store.tableData.cols.length"><TextCell source='group' v-model:caption="store.tableData.group_col" /></th>
 
                 </tr>
                 <tr>
                     <th v-for="(col, index_col) of store.tableData.cols" scope="col"
                           :key="'c'+col.id"
-                          :class="{ selected: store.selected.isSelected('c', col.id) }"
+                          :class="{ selected: store.selected.isSelected('c', col.id), newColRow: store.tableData.cols[index_col].isNew  }"
                           @click="store.selected.select_element('c', col.id)"
                           :draggable="isDragable"
                           @dragstart.shift.capture.exact="startDrag($event, index_col, 'c')"
@@ -52,12 +52,12 @@ export default {
             </thead>
             <tbody>
                 <tr v-for="(row, index_row) in store.tableData.rows" :key="row.id" class="">
-                    <th @dblclick="$refs.group_row[0].editing=true" v-if="!index_row" :rowspan="store.tableData.rows.length">
-                        <TextCell ref="group_row" v-model:caption="store.tableData.group_row" />
+                    <th @dblclick="$refs.group_row[0].editing=store.userPermissions.changeTableText" v-if="!index_row" :rowspan="store.tableData.rows.length">
+                        <TextCell ref="group_row" source='group' v-model:caption="store.tableData.group_row" />
                     </th>
                     <th scope="row"
                         :key="'r'+row.id"
-                        :class="{ selected: store.selected.isSelected('r', row.id) }"
+                        :class="{ selected: store.selected.isSelected('r', row.id), newColRow: store.tableData.rows[index_row].isNew }"
                           :draggable="isDragable"
                           @click="store.selected.select_element('r', row.id)"
                           @dragstart.shift.capture.exact="startDrag($event, index_row, 'r')"
