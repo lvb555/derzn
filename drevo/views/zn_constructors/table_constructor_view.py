@@ -62,13 +62,23 @@ class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, Templat
             messages.warning(request, "Неверный формат запроса")
             return self.form_invalid()
 
-        knowledge = Znanie.objects.get(id=kwargs["pk"])
-        table = TableProxy(knowledge)
-        table_data = json.loads(self.request.body)
         try:
-            table.update_table(table_data, self.request.user)
+            knowledge = Znanie.objects.get(id=kwargs["pk"])
+        except Znanie.DoesNotExist:
+            return JsonResponse({"result": "Таблица не найдена"}, status=404)
 
+        try:
+            table_data = json.loads(self.request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"result": "Неверный формат данных"}, status=400)
+
+        try:
+            table = TableProxy(knowledge)
+            table.update_table(table_data, self.request.user)
         except KnowledgeProxyError as e:
             return JsonResponse({"result": str(e)}, status=409)
+
+        except Exception as e:
+            return JsonResponse({"result": str(e)}, status=500)
 
         return JsonResponse({"result": self.ok_message}, status=200)
