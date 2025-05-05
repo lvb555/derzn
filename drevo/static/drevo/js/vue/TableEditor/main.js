@@ -155,13 +155,6 @@ template: `
     </div>
 
     <div class="row mb-5">
-        <div v-show="false" class="col">
-            <p>isChanged={{ store.isChanged }}</p>
-            <p>selected={{ store.selected.elementType}} , {{store.selected.elementId }}</p>
-            <p>cols={{store.tableData.cols}}</p>
-            <p>rows={{store.tableData.rows}}</p>
-            <p>cells={{store.tableData.cells}}</p>
-        </div>
         <DialogPrompt ref='prompt' />
         <DialogCreate ref='createKnowledge' title="Создание знания" :dialog_url="knowledge_create_url" />
         <DialogSelectKnowledge ref='selectKnowledge' />
