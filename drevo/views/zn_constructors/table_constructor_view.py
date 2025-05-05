@@ -42,7 +42,6 @@ class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, Templat
         context["table_data"] = cells
         context["table_header"] = header
         context["permissions"] = get_table_editor_permissions(roles)
-        context["permissions"]['changeTableText'] = 0
         context["user_level"] = get_user_editor_level(roles)
         context["user_roles_info"] = ', '.join([role.value for role in roles])
 
