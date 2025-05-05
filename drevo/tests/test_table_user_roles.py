@@ -1,7 +1,7 @@
 from django.test import TestCase
 from drevo.models import Znanie, Category, SpecialPermissions, Tz
 from users.models import User
-from drevo.utils.common import get_user_roles, UserRoles
+from drevo.utils.knowledge_proxy import get_user_roles, UserRoles
 
 
 class TestGetUserRoles(TestCase):
