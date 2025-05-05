@@ -4,8 +4,9 @@
 
 import json
 from collections import Counter
+from enum import Enum
 
-from drevo.models import Author, Relation, Tr, Tz, Znanie
+from drevo.models import Author, Relation, Tr, Tz, Znanie, SpecialPermissions, Category
 from users.models import User
 
 
@@ -444,3 +445,152 @@ class TableProxy:
         # надо бы все в транзакцию заключить????
         self.update_header(header, header_cells)
         self.update_relations(data_cells, user)
+
+
+class UserRoles(str, Enum):
+    """
+    Роли пользователя по отношению к конкретному знанию
+    """
+    author = 'Автор'
+    expert = 'Эксперт'
+    editor = 'Редактор'
+    director = 'Руководитель'
+
+
+def _check_categories_relationship(category_id: int, categories_ids: tuple) -> bool:
+    """
+    Вспомогательная функция для проверки отношений между категориями
+    """
+    category = Category.objects.get(id=category_id)
+    ancestor_ids = set(
+        category.get_ancestors(include_self=True).values_list('id', flat=True)
+    )
+    return bool(ancestor_ids & set(categories_ids))
+
+
+def get_user_roles(user: User, knowledge: Znanie) -> list[UserRoles]:
+    """
+    Возвращает роли пользователя относительно знания
+
+    Args:
+        user: Пользователь
+        knowledge: Объект знания
+
+    Returns:
+        List[Roles]: Список ролей пользователя
+
+    Note:
+        Возможные роли: Автор, Эксперт, Редактор, Руководитель
+    """
+    roles = []
+
+    # Проверка на авторство знания
+    if knowledge.user == user:
+        roles.append(UserRoles.author)
+
+    # Быстрый выход, если у пользователя нет специальных прав
+    if not any([user.is_expert, user.is_director, user.is_redactor]):
+        return roles
+
+    # Проверка категории знания
+    knowledge_category = knowledge.category
+    if not knowledge_category:
+        return roles
+
+    # Получение специальных прав с оптимизацией запросов
+    permissions = (SpecialPermissions.objects
+                   .prefetch_related('categories', 'admin_competencies')
+                   .filter(expert=user)
+                   .first())
+
+    if not permissions:
+        return roles
+
+    # Получаем ID категорий один раз для оптимизации
+    expert_categories_ids = tuple(
+        permissions.categories.values_list('id', flat=True)
+    )
+    admin_categories_ids = tuple(
+        permissions.admin_competencies.values_list('id', flat=True)
+    )
+
+    # Проверяем права эксперта
+    if (any([user.is_expert, user.is_redactor])
+            and expert_categories_ids
+            and _check_categories_relationship(knowledge_category.id, expert_categories_ids)):
+
+        if user.is_expert:
+            roles.append(UserRoles.expert)
+        if user.is_redactor:
+            roles.append(UserRoles.editor)
+
+    # Проверяем права руководителя
+    if (user.is_director
+            and admin_categories_ids
+            and _check_categories_relationship(knowledge_category.id, admin_categories_ids)):
+        roles.append(UserRoles.director)
+
+    return roles
+
+
+def get_table_editor_permissions(roles) -> dict:
+    """ Функция определяет права на редактирование таблицы исходя из ролей"""
+
+    permissions = {
+        'changeTable': 0,  # изменение структуры таблицы
+        'changeTableText': 0,  # изменение заголовка таблицы
+        'setValue': 0,  # изменение пустой ячейки
+        'changeValue': 0,  # изменение заполненной ячейки
+        'clearValue': 0,  # очистка ячейки
+        'changeValueOwn': 0,  # изменение ячейки если я владелец
+        'clearValueOwn': 0  # очистка ячейки если я владелец
+    }
+
+    if UserRoles.author in roles:
+        permissions['changeTable'] = 1
+        permissions['changeTableText'] = 1
+        permissions['setValue'] = 1
+        permissions['changeValue'] = 1
+        permissions['clearValue'] = 1
+        permissions['changeValueOwn'] = 1
+        permissions['clearValueOwn'] = 1
+
+    if UserRoles.expert in roles:
+        permissions['setValue'] = 1
+        permissions['clearValueOwn'] = 1
+        permissions['changeValueOwn'] = 1
+
+    if UserRoles.editor in roles:
+        permissions['changeTable'] = 1
+        permissions['changeTableText'] = 1
+        permissions['setValue'] = 1
+        permissions['changeValue'] = 1
+        permissions['clearValue'] = 1
+        permissions['changeValueOwn'] = 1
+        permissions['clearValueOwn'] = 1
+
+    if UserRoles.director in roles:
+        permissions['changeTable'] = 1
+        permissions['changeTableText'] = 1
+        permissions['setValue'] = 1
+        permissions['changeValue'] = 1
+        permissions['clearValue'] = 1
+        permissions['changeValueOwn'] = 1
+        permissions['clearValueOwn'] = 1
+
+    return permissions
+
+
+def get_user_editor_level(roles) -> int:
+    # определяем "уровень" пользователя от роли
+    level = 0
+    if UserRoles.author in roles:
+        level = max(level, 0)
+    if UserRoles.expert in roles:
+        level = max(level, 0)
+    if UserRoles.editor in roles:
+        level = max(level, 1)
+    if UserRoles.director in roles:
+        level = max(level, 2)
+
+    return level
