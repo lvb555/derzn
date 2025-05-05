@@ -6,10 +6,15 @@ from django.http import JsonResponse
 from django.views.generic import TemplateView
 
 from drevo.models import Znanie
-from drevo.utils.knowledge_proxy import (KnowledgeProxyError, TableProxy,
-                                         get_user_roles, get_user_editor_level,
-                                         get_table_editor_permissions)
-from .mixins import PrevNextMixin, DispatchMixin
+from drevo.utils.knowledge_proxy import (
+    KnowledgeProxyError,
+    TableProxy,
+    get_table_editor_permissions,
+    get_user_editor_level,
+    get_user_roles,
+)
+
+from .mixins import DispatchMixin, PrevNextMixin
 
 """
  #####################################################################
@@ -43,7 +48,7 @@ class TableFillingView(LoginRequiredMixin, DispatchMixin, PrevNextMixin, Templat
         context["table_header"] = header
         context["permissions"] = get_table_editor_permissions(roles)
         context["user_level"] = get_user_editor_level(roles)
-        context["user_roles_info"] = ', '.join([role.value for role in roles])
+        context["user_roles_info"] = ", ".join([role.value for role in roles])
 
         return context
 
