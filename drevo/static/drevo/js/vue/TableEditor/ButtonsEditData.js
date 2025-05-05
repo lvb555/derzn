@@ -4,9 +4,26 @@ export default {
   computed: {
     classObject() {
         return {disabled: store.selected.elementType!='d'}
-    }
+    },
+
   },
   methods:{
+  stateButtonEnabled(level) {
+//        if (!store.selected.elementId) return false
+//        if (store.selected.elementType!='d') return false
+//        const [rowId, colId] = store.selected.elementId
+//        const cell = store.tableData.getCell(rowId, colId)
+//        //const state = cell.state || 0
+        //return {disabled: true}
+        return {disabled: !(store.userLevel>=(level-1))}
+
+
+//        switch(state) {
+//            case store.user_state: return '❌' // не проверить
+//            case store.user_state-1: return '✓' // проверить
+//            default: return '❓'
+
+  },
    onEdit (){
        this.$root.tryTextEdit()
         },
@@ -19,14 +36,16 @@ export default {
    onState(val) {
         val = val - 1
         if (store.userLevel<val) return
-
-
         const [rowId, colId ] = store.selected.elementId
         let cell = store.tableData.getCell(rowId, colId, true)
-        console.log(cell)
+
         // только свой уровень и ниже можем изменять
         if (cell.state > store.userLevel) return
-            cell.state = val
+
+        cell.state = val
+        cell.state_user_id = store.user_id
+        store.isChanged = true
+
     },
   },
   template: `
@@ -37,6 +56,12 @@ export default {
             <button @click="onCreate" id="btn_data_add" title="Добавить знание" type="button" class="btn btn-primary" :class="classObject">+</button>
             <button @click="onSelect" id="btn_data_select" title="Выбрать знание" type="button" class="btn btn-primary" :class="classObject">🗀</button>
             <button @click="onClear" id="btn_data_clear" title="Очистить ячейку" type="button" class="btn btn-primary" :class="classObject">🗑</button>
+        </div>
+        <div class="card-header text-center">Уровни</div>
+        <div class="btn-group" role="group">
+            <button @click="onState(1)" id="btn_data_1" title="I" type="button" class="btn btn-primary" :class="[classObject, stateButtonEnabled(1)]">I</button>
+            <button @click="onState(2)" id="btn_data_2" title="II" type="button" class="btn btn-primary" :class="[classObject, stateButtonEnabled(2)]">II</button>
+            <button @click="onState(3)" id="btn_data_3" title="III" type="button" class="btn btn-primary" :class="[classObject, stateButtonEnabled(3)]">III</button>
         </div>
         </div>`
 }

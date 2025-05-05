@@ -44,14 +44,20 @@ const app = Vue.createApp({
     tryTextEdit(){
             const [rowId, colId ] = store.selected.elementId
             const cell = store.tableData.getCell(rowId, colId)
+
             if (cell.text) {
-                if (!store.tableData.canEditText(rowId, colId)) return
+                if (!store.tableData.canChange(rowId, colId)) {
+                console.log('Нет прав на редактирование')
+                return
+                }
             }
             else
             {
-               if (!store.tableData.canFillEmpty(rowId, colId)) return
+               if (!store.tableData.canFillEmpty(rowId, colId)) {
+               console.log('Нет прав на заполнение')
+               return
+               }
             }
-
 
             if (cell.id) {
                 this.alert("Для ввода текста в ячейку со знанием необходимо сначала очистить её")
@@ -67,7 +73,10 @@ const app = Vue.createApp({
         }
 
         const [rowId, colId ] = store.selected.elementId
-        if (!store.tableData.canFillEmpty(rowId, colId)) return
+        if (!store.tableData.canFillEmpty(rowId, colId)) {
+            console.log('Нет прав на заполнение')
+            return
+        }
 
         this.$refs.createKnowledge.show()
             .then(value => {

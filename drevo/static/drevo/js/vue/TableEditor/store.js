@@ -185,13 +185,19 @@ export const store = reactive({
         cells: new Map(),
         hashByIndex(i, j) {   return this.rows[i].id+':'+ this.cols[j].id },
         hashById(rowId, colId)  { return rowId+':'+ colId },
-        getCell (rowId, colId) {
+        getCell (rowId, colId, emptyAdd=false) {
             const key = this.hashById(rowId, colId)
             if (this.cells.has(key)) {
                 return this.cells.get(key)
             }
             else {
-                return {id:0, text:''}
+                if (emptyAdd) {
+                   let value = {id:0, text:'', isNew: true}
+                   this.cells.set(key, value)
+                   return value
+                }
+                else{
+                return {id:0, text:''}}
             }
         },
         clearCell(rowId, colId) {
@@ -211,13 +217,14 @@ export const store = reactive({
               const key = this.hashById(rowId, colId)
               //если было пустое значение - значит это новое значение
               //даже если перед этим удалили
-              if (!this.cells.has(key)) {
-                value.is_new = true
-              }
-              else
-              {
-                if (this.cells.get(key).is_new) value.is_new = true
-              }
+              value.isNew = !this.cells.has(key) || this.cells.get(key).isNew
+//              if (!this.cells.has(key)) {
+//                value.isNew = true
+//              }
+//              else
+//              {
+//                if (this.cells.get(key).isNew) value.isNew = true
+//              }
               this.cells.set(key, value)
               store.isChanged = true
 
@@ -242,23 +249,53 @@ export const store = reactive({
             return Boolean(!cell.id && !cell.text)
         },
         canDelete(rowId, colId){
-        const key = this.hashById(rowId, colId)
-           if (!this.cells.has(key)) return
+        // если вообще ничего не может удалять
+            if (!store.userPermissions.clearValue && !store.userPermissions.clearValueOwn ) return false
 
-           let cell = this.cells.get(key)
-           let state = cell.state || 0
+            const key = this.hashById(rowId, colId)
+            if (!this.cells.has(key)) return true
 
-           //если state=0 и пользователи не равны - удалять нельзя
-           if (state>store.user_state) {
-                return false
-            }
-            return true
+            let cell = this.cells.get(key)
+            let state = cell.state || 0
+
+            //нельзя удалить если уровень выше
+            if (state>store.userLevel) return false
+            let owner = cell.user_id
+            // есть права удалять или есть права удалять свое и пользователь это автор ячейки
+            return store.userPermissions.clearValue || (store.userPermissions.clearValueOwn && owner==store.user_id)
+
         },
         canFillEmpty(rowId, colId){
+            // если нет прав
+            if (!store.userPermissions.setValue) return false
+
+            const key = this.hashById(rowId, colId)
+
+            // если это новая ячейка
+            if (!this.cells.has(key)) return true
+
+            let cell = this.cells.get(key)
+            let state = cell.state || 0
+
+            //нельзя заполнить если уровень ячейки выше
+            if (state>store.userLevel) return false
             console.log('try fill ', rowId, colId)
             return true
         },
-        canEditText(rowId, colId){
+        canChange(rowId, colId){
+            if (!store.userPermissions.changeValue && !store.userPermissions.changeValueOwn ) return false
+
+            const key = this.hashById(rowId, colId)
+            if (!this.cells.has(key)) return true
+
+            let cell = this.cells.get(key)
+            let state = cell.state || 0
+
+            //нельзя удалить если уровень выше
+            if (state>store.userLevel) return false
+            let owner = cell.user_id
+            // есть права удалять или есть права удалять свое и пользователь это автор ячейки
+            return store.userPermissions.changeValue || (store.userPermissions.changeValueOwn && owner==store.user_id)
             console.log('try edit ', rowId, colId)
             return true
         },
