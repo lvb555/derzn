@@ -120,12 +120,35 @@ td {
         <div class="row my-3">
             <div class="col">
                 <h1>{{ title }}</h1>
-                <div>
-                    <h4>{{object.name}}</h4>
-                </div>
+                <h4>{{object.name}}</h4>
+            </div>
+            <div class="col-auto d-flex align-items-start justify-content-end">                    
+                <button type="button" class="btn btn-info ms-2" data-bs-toggle="modal" data-bs-target="#infoModal">
+                    ℹ️
+                  </button>
             </div>
         </div>
     </header>
+    <!-- Модальное окно с информацией о пользователе -->
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="infoModalLabel">Информация о пользователе</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+            <h4>Ваши права: {{ user_roles_info }}</h4>
+            <h4>Ваши роли: {{ user_roles }}</h4>
+            <h4>Ваши права: {{ permissions }}</h4>
+            <h4>Ваш уровень: {{ user_level }}</h4>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+        </div>
+    </div>
 
      <div id="app">
         <!-- Vue will load here -->
