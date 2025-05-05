@@ -107,17 +107,17 @@ td {
     {% include 'drevo/include/messages.html' %}
     {{ table_data|json_script:"tableData" }}
     {{ table_header|json_script:"headerData" }}
-    {{ user_roles|json_script:"user_roles" }}
     {{ permissions|json_script:"user_permissions" }}
     {{ user_level|json_script:"user_level" }}
+    {{ request.user.pk|json_script:"userId" }}
 
 
     <script id="initialize" >
         let tableData = JSON.parse(document.getElementById('tableData').textContent)
         let headerData = JSON.parse(document.getElementById('headerData').textContent)
-        let userRoles = JSON.parse(document.getElementById('user_roles').textContent)
         let userPermissions = JSON.parse(document.getElementById('user_permissions').textContent)
         let userLevel = JSON.parse(document.getElementById('user_level').textContent)
+        let userId = JSON.parse(document.getElementById('userId').textContent)
 
         let knowledge_create_url = "{% url 'knowledge_create' %}?modal"
     </script>
