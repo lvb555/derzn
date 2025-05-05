@@ -81,13 +81,22 @@ td {
 
 .state-1 {
     /* проверено */
-
     background-color: cyan;
 }
 
 .state-2 {
     /* опубликовано */
     background-color: lightgreen;
+}
+
+.legend-cell {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    vertical-align: middle;
+    margin-right: 4px;
 }
 
 </style>
@@ -138,12 +147,26 @@ td {
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
             <div class="modal-body">
+                <div class="row">
                 <h4>Создатель: {{ object.user }}</h4>
-                <h4>Вы: {{ request.user }}</h4>
+                <h4>Вы: {{ request.user }} id:{{ request.user.pk }}</h4>
                 <h4>Ваши роли: {{ user_roles_info }}</h4>
                 <h4>Ваш уровень: {{ user_level }}</h4>
                 <h4>Ваши права: {{ permissions }}</h4>
+                </div>
+                <div class="row align-items-center my-3">
+                    <div class="col-auto"><h3>Статусы</h3></div>
+                    <div class="col-auto d-flex align-items-center">
+                    <div class="legend-cell state-0 me-2"></div>
+                        <span class="me-3">Создание</span>
+                    <div class="legend-cell state-1 me-2"></div>
+                        <span class="me-3">Редактирование</span>
+                    <div class="legend-cell state-2 me-2"></div>
+                        <span>Публикация</span>
+                    </div>
+                </div>
             </div>
+
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
             </div>
