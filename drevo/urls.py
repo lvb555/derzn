@@ -8,7 +8,7 @@ from drevo.views.interview_table_view import interview_table
 from drevo.views.developer_view import developer_view
 from drevo.views.interviews_view import interview_view
 from drevo.views.my_interview_view import my_interview_view
-
+from drevo.views.comment_send_view import toggle_reaction
 from .urls_constructor import urlpatterns as urls_constructor
 from .views import (AdminsPermissionsDeleteView, AlgorithmDetailView,
                     AlgorithmListView, AlgorithmResultAdd, AuthorDetailView,
@@ -58,6 +58,7 @@ from .views.browsing_history import browsing_history
 from .views.cookie_acceptance_process_view import CookieAcceptance
 from drevo.views.participations.create_participation import CreateParticipationView
 from drevo.views.participations.participation_in_the_discussion_view import ParticipationInTheDiscussionView
+from .views.search_knowledge_view import search_knowledge_by_name
 from .views.site_pages import site_pages_view, site_page_view, create_new_zn, search_page
 from .views.editorial_staff import editorial_staff_view, update_roles, update_user_permissions
 from .views.expert_work.views import (ExpertProposalDeleteView,
@@ -290,6 +291,7 @@ urlpatterns = [
     # --------------------------------------------------------------------------------------------------
     # Поиск...
     path("search/knowledge", KnowledgeSearchView.as_view(), name="search_knowledge"),
+    path("search/knowledge_by_name", search_knowledge_by_name, name="search_knowledge_name"),
     path("search/author", AuthorSearchView.as_view(), name="search_author"),
     path("search/tag", TagSearchView.as_view(), name="search_tag"),
     # --------------------------------------------------------------------------------------------------
@@ -600,6 +602,8 @@ urlpatterns = [
          name="participation_in_the_discussion"),
     path("participation_in_the_discussion/create_participation", CreateParticipationView.as_view(),
          name="create_participation"),
+    # реакции в комментариях
+    path("react/<int:pk>/<str:reaction_type>", toggle_reaction, name="toggle_reaction"),
 ]
 
 # пути для работы конструкторов знаний

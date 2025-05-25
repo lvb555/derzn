@@ -61,6 +61,20 @@
                     {% if not comment.get_answers.exists %} disabled {% endif %}>
                 <span class="comment-answer" style="color: #083E2F;">Ответы (<span id="answersCount{{ comment.id }}">{{ comment.get_answers.count }}</span>)</span>
             </button>
+        <a href="{% url 'toggle_reaction' comment.id 'like'%} ">
+<i class="bi-hand-thumbs-up-fill bi-hand-thumbs-up fs-10 btn btn-icon"
+   id="likeIcon">
+    <img src="{% static 'drevo/img/grey_arm.png' %}" width="10px">
+    <span id="likesCounter" class="header_info breadcrumb-item">{{ comment.get_number_of_likes }}</span>
+</i>
+</a>
+<a href="{% url 'toggle_reaction' comment.id 'dislike'%} ">
+<i class="bi-hand-thumbs-up-fill bi-hand-thumbs-down fs-10 btn btn-icon"
+   id="likeIcon">
+    <img src="{% static 'drevo/img/grey_arm.png' %}" width="10px">
+    <span id="likesCounter" class="header_info breadcrumb-item">{{ comment.get_number_of_dislikes }}</span>
+</i>
+</a>
             <button data-bs-toggle="collapse" data-bs-target="#collapsedReplyForm{{ comment.id }}"
                     aria-expanded="false" aria-controls="collapsedReplyForm{{ comment.id }}"
                     {% if not is_authenticated or not comment.is_published %} disabled {% endif %}

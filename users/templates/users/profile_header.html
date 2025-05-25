@@ -266,7 +266,6 @@
                                     <span class="visually-hidden"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                     <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=table" class="dropdown-item">Конструктор таблиц</a>
                                     <a href="{% url 'znaniya_for_suggestions'%}" class="dropdown-item">Обработка предложений</a>
                                     <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=discussion_director" id="" class="dropdown-item">Дискуссии</a>
                                 </ul>
@@ -285,7 +284,9 @@
                                     <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=document" id="" class="dropdown-item">Конструктор документов</a>
                                     <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=quiz" id="" class="dropdown-item">Конструктор тестов</a>
                                     <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=discussion" id="" class="dropdown-item">Дискуссии</a>
-                                    <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=filling_tables" id="filling_tables" class="dropdown-item">Наполнение таблиц</a>
+                                    {% if expert_can_filling_tables %}
+                                    <a href="{% url 'znaniya_for_constructor'%}?type_of_zn=table" id="table" class="dropdown-item">Конструктор таблиц</a>
+                                    {% endif %}
                                     <a href="{% url 'my_interview' %}" class="dropdown-item">Мои интервью</a>
                                 </ul>
 						    </div>
@@ -324,24 +325,4 @@ function logAndStop(event) {
 </script>
 
 <script src="{% static 'drevo/js/get_cookie.js'%}"></script>
-
-<script>
-    // Проверка перед открытием страницы "Наполнение таблиц"
-    let filling_tables = document.getElementById("filling_tables")
-    showFillingTables()
-
-    function showFillingTables() {
-      return fetch("{% url 'show_filling_tables_page' %}")
-      .then(response => response.json())
-      .then(data => {
-          if (!data.show) {
-              filling_tables.remove()
-          }
-      })
-      .catch((error) => {
-      console.log('Error:', error);
-      });
-    }
-</script>
-
 {% endblock %}

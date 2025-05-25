@@ -86,6 +86,7 @@ class TableRender(KnowledgeRender):
 
         header, values = TableProxy(knowledge).get_render_data()
 
+        group = header.get("group", None)
         group_col = header.get("group_col", None)
         group_row = header.get("group_row", None)
 
@@ -94,8 +95,8 @@ class TableRender(KnowledgeRender):
 
         if not (cols and rows):
             return self.show_message("[Пустая таблица]")
-
         context = {
+            "group": group,
             "group_col": group_col,
             "group_row": group_row,
             "cols": cols,

@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from users.models import User
-from .models import Znanie, Relation, Tz, AuthorType, Author, Tr
+from drevo.models import Znanie, Relation, Tz, AuthorType, Author, Tr
 
 
 class TestMixinMetaInfo(TestCase):

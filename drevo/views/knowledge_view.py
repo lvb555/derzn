@@ -1,8 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views import View
 from django.views.generic import TemplateView, CreateView
 
 from drevo.forms.knowledge_create_form import ZnanieCreateForm, ZnImageFormSet, ZnFilesFormSet
@@ -38,6 +37,7 @@ class KnowledgeCreateView(LoginRequiredMixin, CreateView):
     form_class = ZnanieCreateForm
     template_name = 'drevo/tmpl_knowledge/knowledge_create.html'
     template_name_modal = 'drevo/tmpl_knowledge/knowledge_create_modal.html'
+    error_message = 'Произошла ошибка при создании Знания'
 
     def get_context_data(self, **kwargs):
         """Передает контекст в шаблон"""
@@ -88,6 +88,10 @@ class KnowledgeCreateView(LoginRequiredMixin, CreateView):
             return JsonResponse(data={'id': self.object.pk, 'name': self.object.name},
                                 status=201,  # created
                                 json_dumps_params={'ensure_ascii': False})
+
+    def form_invalid(self, form):
+        form.add_error(None, self.error_message)
+        return super().form_invalid(form)
 
     def get_success_url(self):
         # если задан параметр next, то переходим по нему

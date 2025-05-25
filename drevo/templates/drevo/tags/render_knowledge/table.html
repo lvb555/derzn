@@ -64,7 +64,7 @@
 
             {# выводим строки заголовка #}
             <tr>
-                <th class="knowledge_table__head_empty" colspan="{{ col_span }}" rowspan="{{ row_span }}"></th>
+                <th class="knowledge_table__head_empty" colspan="{{ col_span }}" rowspan="{{ row_span }}">{{ group }}</th>
             {% if group_col %}
                 <th class="knowledge_table__head_group_col" colspan="{{ cols|length }}">{{ group_col }}</th>
             </tr>
@@ -92,6 +92,17 @@
 
                         <td class="knowledge_table__data" data-row="{{forloop.parentloop.counter0}}" data-col="{{forloop.counter0}}">
                             {% if cell_value %}
+                                        {% if cell_value.tz %} {# это знание #}
+                                            {% if cell_value.show_link %} {# надо показать ссылку #}
+                                                <a href ="{{ cell_value.get_absolute_url }}">{{ cell_value.name }}</a>
+                                            {% else %}
+                                                {{ cell_value.name }}
+                                            {% endif %}
+
+                                        {% else %} {# это обычный текст #}
+                                            {{ cell_value }}
+                                        {% endif %}
+
                                         {% comment %}
                                         Надо разбираться, возможно старый функционал????
 
@@ -106,12 +117,12 @@
                                         {% else %}
                                         <i class="kn_type" style="color: #424141;"><img src="{% static 'drevo/img/grey_file.png' %}"></i>
                                         {% endif %}
-                                        {% endcomment %}
                                         {% if cell_value.show_link %}
                                             <a>{{ cell_value.name }}</a>
                                         {% else %}
                                             {{ cell_value.name }}
                                         {% endif %}
+                                        {% endcomment %}
                             {% endif %}
                         </td>
                     {% endfor %}

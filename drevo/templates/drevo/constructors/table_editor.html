@@ -1,0 +1,181 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block jsfiles %}
+    <script src="{% static 'drevo/js/htmx.min.js' %}"></script>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="//unpkg.com/element-plus"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="module" src="{% static 'drevo/js/vue/TableEditor/main.js' %}"></script>
+
+{% endblock %}
+
+{% block cssfiles %}
+    <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css" />
+<style>
+
+    table {
+    border: 1px solid green;
+    width:100%;
+    height: 50vh;
+    word-wrap:break-word;
+    display: block;
+    overflow-x: scroll;
+    overflow-y: scroll;
+    table-layout: fixed;
+
+}
+th {
+  word-wrap:break-word;
+  background-color: yellow;
+  border: 1px solid green;
+  text-align: center;
+}
+
+
+.text_cell {
+    width: 100%;
+    height: 100%;
+    overflow:auto;
+    min-width: 50px;
+    min-height: 50px;
+    box-sizing: border-box;
+    display: block ruby;
+
+}
+
+td {
+  word-wrap:break-word;
+  background-color: white;
+  border: 1px solid green;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.selected {
+  border: 3px solid red;
+}
+
+.newColRow {
+    background-color : YellowGreen;
+}
+
+.is_text {
+    color: darkgreen;
+    font-style: italic;
+}
+
+.alert-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+  .state-0 {
+    /* стиль по умолчанию */
+    background-color: white;
+
+}
+
+.state-1 {
+    /* проверено */
+    background-color: cyan;
+}
+
+.state-2 {
+    /* опубликовано */
+    background-color: lightgreen;
+}
+
+.legend-cell {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+    {% include 'drevo/include/messages.html' %}
+    {{ table_data|json_script:"tableData" }}
+    {{ table_header|json_script:"headerData" }}
+    {{ permissions|json_script:"user_permissions" }}
+    {{ user_level|json_script:"user_level" }}
+    {{ request.user.pk|json_script:"userId" }}
+
+
+    <script id="initialize" >
+        let tableData = JSON.parse(document.getElementById('tableData').textContent)
+        let headerData = JSON.parse(document.getElementById('headerData').textContent)
+        let userPermissions = JSON.parse(document.getElementById('user_permissions').textContent)
+        let userLevel = JSON.parse(document.getElementById('user_level').textContent)
+        let userId = JSON.parse(document.getElementById('userId').textContent)
+
+        let knowledge_create_url = "{% url 'knowledge_create' %}?modal"
+    </script>
+        <!--        для переходов-->
+        <input type="hidden" name="prev" id="prev" value="{{ prev }}">
+        <input type="hidden" name="next" id="next" value="{{ next }}">
+
+    <header>
+        <div class="row my-3">
+            <div class="col">
+                <h1>{{ title }}</h1>
+                <h4>{{object.name}}</h4>
+            </div>
+            <div class="col-auto d-flex align-items-start justify-content-end">                    
+                <button type="button" class="btn btn-info ms-2" data-bs-toggle="modal" data-bs-target="#infoModal">
+                    ℹ️
+                  </button>
+            </div>
+        </div>
+    </header>
+    <!-- Модальное окно с информацией -->
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="infoModalLabel">Информация</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                <h4>Создатель: {{ object.user }}</h4>
+                <h4>Вы: {{ request.user }} id:{{ request.user.pk }}</h4>
+                <h4>Ваши роли: {{ user_roles_info }}</h4>
+                <h4>Ваш уровень: {{ user_level }}</h4>
+                <h4>Ваши права: {{ permissions }}</h4>
+                </div>
+                <div class="row align-items-center my-3">
+                    <div class="col-auto"><h3>Этапы ячейки</h3></div>
+                    <div class="col-auto d-flex align-items-center">
+                    <div class="legend-cell state-0 me-2"></div>
+                        <span class="me-3">Создание</span>
+                    <div class="legend-cell state-1 me-2"></div>
+                        <span class="me-3">Редактирование</span>
+                    <div class="legend-cell state-2 me-2"></div>
+                        <span>Публикация</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+     <div id="app">
+        <!-- Vue will load here -->
+    </div>
+{% endblock %}
+

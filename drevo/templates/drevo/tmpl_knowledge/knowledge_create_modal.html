@@ -1,32 +1,67 @@
 <!-- модальная форма для создания знания
- в основной форме обязательно надо загрузить htmx!!!!
-{% load static %}
-<script src="{% static 'drevo/js/htmx.min.js' %}"></script> -->
+    в диалоге надо все заключить в <form></form> и добавить кнопки
+-->
+  <div class="container">
+        <div class="row">
+              <input type="hidden" name="modal" value="1">
+                {% csrf_token %}
+                {{ form.media }}
 
-<form hx-post="{{ request.path }}?modal" class="modal-content form-horizontal " enctype="multipart/form-data">
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-  <div class="modal-header">
-    <h5 class="modal-title">{{ title }}</h5>
-  </div>
-  <div class="modal-body">
-        <input type="hidden" name="modal" value="1">
-        {% csrf_token %}
-        {{ form.media }}
-        {{ form.as_p }}
-        {{ image_form.management_form }}
-        {% for frm in image_form %}
-            {{ frm.as_p }}
-        {% endfor %}
-        <br>
+                {% for hidden_field in form.hidden_fields %}
+                    {{ hidden_field.errors }}
+                    {{ hidden_field }}
+                {% endfor %}
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                {% for field in form %}
+                    {% if forloop.counter < 5 %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {{ field.errors }}
 
-        {{ files_form.management_form }}
-        {% for frm in files_form %}
-            {{ frm.as_p }}
-        {% endfor %}
-        <br>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                <br>
+            </div>
+
+            <div class="col-md-6">
+                 {% for field in form %}
+                    {% if forloop.counter >= 5 %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <div class="row mt-3">
+                    <div class="col">
+                        <h6>Изображения</h6>
+                        {{ image_form.management_form }}
+                        {% for frm in image_form %}
+                            {{ frm.as_p }}
+                        {% endfor %}
+                    </div>
+                    <div class="col">
+                        <h6>Файлы</h6>
+                        {{ files_form.management_form }}
+                        {% for frm in files_form %}
+                            {{ frm.as_p }}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+      </div>
   </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-    <input type="submit" class="btn btn-primary" value="Сохранить">
-  </div>
-</form>

@@ -1,4 +1,6 @@
 import re
+
+from django.http import JsonResponse
 from django.urls import reverse_lazy
 from drevo.models import Category
 from drevo.forms import KnowledgeSearchForm
@@ -240,3 +242,21 @@ class KnowledgeSearchView(FormView, SearchEngineMixin):
             context['paginator'] = paginator
             context['page_obj'] = page_obj
         return context
+
+
+def search_knowledge_by_name(request):
+    """Поиск знаний по имени
+    возвращает size результатов
+    query=параметр поиска
+    используется для подбора знаний
+    """
+    DEFAULT_SIZE = 100
+    size = request.GET.get('size') or DEFAULT_SIZE
+    query = request.GET.get('query') or ''
+
+    result = (Znanie.objects
+                .filter(tz__is_systemic=False, is_published=True, name__icontains=query)
+                .values("id", "name")
+                .order_by("name")[:int(size)])
+
+    return JsonResponse(list(result), safe=False)

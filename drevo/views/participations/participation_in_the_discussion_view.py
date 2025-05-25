@@ -13,6 +13,7 @@ class ParticipationInTheDiscussionView(DetailView):
         context = super().get_context_data(**kwargs)
         pk = self.object.pk
         knowledge = Znanie.objects.get(pk=pk)
+        context['znanie'] = knowledge
         context['relative_znania'] = get_descendants_for_knowledge(knowledge)
 
         return context

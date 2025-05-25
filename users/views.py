@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth import update_session_auth_hash, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
@@ -14,6 +16,8 @@ import json
 import uuid
 import base64
 from django.core.files.base import ContentFile
+from pytz import timezone
+
 from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory, \
     FriendsInviteTerm, Message, Tz, Tr
 from drevo.models.users_documents import UsersDocuments
@@ -101,6 +105,16 @@ class RegistrationFormView(CreateView):
 
             if not self.password_validation(form):
                 messages.error(self.request, 'Введенные пароли не совпадают.')
+
+            # TODO: Блокировка создания до 31.12.2025
+            now_msk: datetime.datetime = datetime.datetime.now(tz=timezone("Europe/Moscow"))
+            border_time: datetime.datetime = datetime.datetime(2025, 12, 31, 23, 59, 59)
+
+            if now_msk < border_time:
+                messages.error(
+                    self.request,
+                    "К сожалению, вы не можете зарегистрироваться сейчас, так как запуск сайта планируется на декабрь 2025 года",
+                )
 
         return form
 
@@ -448,12 +462,25 @@ class MenuSectionsAdd(ProcessFormView):
         raise Http404
 
 
+def expert_can_filling_tables(user):
+    """ Опцию меню профиля "Подготовка знаний" - Эксперт - Конструктор таблиц" должна появляться
+     в меню для любого эксперта, т.е. Пользователя, у которого в записи таблицы
+    "Особые права" поле "Компетенции эксперта" не является пустым """
+
+    permissions = SpecialPermissions.objects.filter(expert=user).first()
+    if not permissions:
+        return False
+    return permissions.categories.exists()
+
+
+
 @login_required
 def my_profile(request):
     if request.method == 'GET':
         success_url = reverse_lazy('users:my_profile')
         context = {}
         user = User.objects.get(id=request.user.id)
+
         context['user'] = user
         context['sections'] = access_sections(user)
         invite_count = FriendsInviteTerm.objects.filter(recipient=request.user.id).count()
@@ -462,6 +489,9 @@ def my_profile(request):
         context['new_messages'] = Message.objects.filter(recipient=user, was_read=False).count()
         context['new'] = int(context['new_knowledge_feed']) + int(
             context['invite_count'] + int(context['new_messages']))
+
+        context['expert_can_filling_tables'] = expert_can_filling_tables(user)
+
     return render(request, 'users/profile_header.html', context)
 
 def access_sections(user):

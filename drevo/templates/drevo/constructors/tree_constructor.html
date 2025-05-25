@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block jsfiles %}
+    <script src="{% static 'drevo/js/htmx.min.js' %}"></script>
     <script src="{% static 'drevo/js/constructors/tree_constructor.js' %}"></script>
     <script src="{% static 'drevo/js/get_cookie.js' %}"></script>
     {% if type_of_zn == 'algorithm' %}

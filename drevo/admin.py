@@ -858,6 +858,7 @@ class KnowledgeStatusesAdmin(admin.ModelAdmin):
     list_display = ('knowledge', 'status', 'user', 'time_limit', 'is_active', 'created_at')
     autocomplete_fields = ['knowledge']
     search_fields = ['knowledge__name']
+    list_filter = ('status', 'user', 'is_active')
 
 
 @admin.register(RelationStatuses)
@@ -865,7 +866,7 @@ class RelationStatusesAdmin(admin.ModelAdmin):
     list_display = ('relation', 'status', 'user', 'time_limit', 'is_active', 'created_at')
     autocomplete_fields = ('relation',)
     search_fields = ('relation__name',)
-    list_filter = ('status',)
+    list_filter = ('status', 'user', 'is_active')
     save_as = True
 
 

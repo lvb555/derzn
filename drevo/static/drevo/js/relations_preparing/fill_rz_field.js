@@ -33,9 +33,6 @@ function fill_rz_field() {
   fetch(`/drevo/relations/preparing/check_related?rz_id=${selected_rz}`)
     .then(response => response.json())
     .then(data => {
-        if (readonly === true){
-            return
-        }
         const update_knowledge = document.getElementById('update_knowledge')
         if (data.user_knowledge === true) {
             update_knowledge.style.pointerEvents = 'auto'
