@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth import update_session_auth_hash, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
@@ -14,6 +16,8 @@ import json
 import uuid
 import base64
 from django.core.files.base import ContentFile
+from pytz import timezone
+
 from drevo.models import InterviewAnswerExpertProposal, Znanie, KnowledgeStatuses, QuizResult, BrowsingHistory, \
     FriendsInviteTerm, Message, Tz, Tr
 from drevo.models.users_documents import UsersDocuments
@@ -101,6 +105,16 @@ class RegistrationFormView(CreateView):
 
             if not self.password_validation(form):
                 messages.error(self.request, 'Введенные пароли не совпадают.')
+
+            # TODO: Блокировка создания до 31.12.2025
+            now_msk: datetime.datetime = datetime.datetime.now(tz=timezone("Europe/Moscow"))
+            border_time: datetime.datetime = datetime.datetime(2025, 12, 31, 23, 59, 59)
+
+            if now_msk < border_time:
+                messages.error(
+                    self.request,
+                    "К сожалению, вы не можете зарегистрироваться сейчас, так как запуск сайта планируется на декабрь 2025 года",
+                )
 
         return form
 
