@@ -74,6 +74,18 @@ const app = Vue.createApp({
 
             this.prompt(cell.text, (value) => {if (value)  store.tableData.setCellText(rowId, colId, value) })
     },
+    tryClear(){
+        const [rowId, colId ] = store.selected.elementId
+        ElMessageBox.confirm(
+                'Очистить ячейку?',
+                'Подтвердите действие',
+                {
+                confirmButtonText: 'Да',
+                cancelButtonText: 'Нет',
+                type: 'warning',
+                }
+        ).then(() => {store.tableData.clearCell(rowId, colId)})
+    },
     createKnowledge() {
         if (!store.tableData.isCellFree()) {
             this.alert("Для изменения знания в непустой ячейке необходимо сначала очистить её")

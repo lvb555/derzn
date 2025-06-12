@@ -29,10 +29,7 @@ export default {
         },
    onCreate() { this.$root.createKnowledge() },
    onSelect() {this.$root.selectKnowledge() },
-   onClear() {
-        const [rowId, colId ] = store.selected.elementId
-        store.tableData.clearCell(rowId, colId)
-   },
+   onClear() {this.$root.tryClear() },
    onState(val) {
         val = val - 1
         if (store.userLevel<val) return
