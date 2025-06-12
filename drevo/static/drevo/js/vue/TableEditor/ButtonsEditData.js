@@ -53,6 +53,14 @@ export default {
    onCreate() { this.$root.createKnowledge() },
    onSelect() {this.$root.selectKnowledge() },
    onClear() {this.$root.tryClear() },
+   onInfo() {
+     const [rowId, colId ] = store.selected.elementId
+     const cell = store.tableData.getCell(rowId, colId)
+     const text = `ID Автор ячейки: ${cell.user_id},
+     ID Автор статуса ячейки: ${cell.state_user_id},
+     ${JSON.stringify(cell)}`
+    this.$root.alert(text)
+   },
    onState(val) {
         val = val - 1
         if (store.userLevel<val) return
@@ -81,6 +89,7 @@ export default {
             <button @click="onCreate" id="btn_data_add" title="Добавить знание" type="button" class="btn btn-primary" :class="editButtonEnabled('create')">+</button>
             <button @click="onSelect" id="btn_data_select" title="Выбрать знание" type="button" class="btn btn-primary" :class="editButtonEnabled('select')">🗀</button>
             <button @click="onClear" id="btn_data_clear" title="Очистить ячейку" type="button" class="btn btn-primary" :class="editButtonEnabled('clear')">🗑</button>
+            <button @click="onInfo" id="btn_data_info" title="Информация" type="button" class="btn btn-primary" :class="editButtonEnabled('info')">ℹ</button>
         </div>
         <div class="card-header text-center">Этап</div>
         <div class="btn-group" role="group">
