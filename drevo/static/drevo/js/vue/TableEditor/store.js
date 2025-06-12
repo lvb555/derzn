@@ -197,7 +197,7 @@ export const store = reactive({
                    return value
                 }
                 else{
-                return {id:0, text:''}}
+                return {id:0, text:'', state: -1}}
             }
         },
         clearCell(rowId, colId) {
@@ -222,6 +222,7 @@ export const store = reactive({
               value.user_id = store.user_id
               // сбрасываем статус на 0. Хотя можно было бы сохранять предыдущий статус
               value.state = 0
+              value.state_user_id = store.user_id
 //
               this.cells.set(key, value)
               store.isChanged = true
@@ -256,7 +257,7 @@ export const store = reactive({
             let state = cell.state || 0
 
             //нельзя удалить если уровень выше
-            if (state>store.userLevel) return false
+            if (state>=store.userLevel) return false
             let owner = cell.user_id
             // есть права удалять или есть права удалять свое и пользователь это автор ячейки
             return store.userPermissions.clearValue || (store.userPermissions.clearValueOwn && owner==store.user_id)
@@ -275,7 +276,7 @@ export const store = reactive({
             let state = cell.state || 0
 
             //нельзя заполнить если уровень ячейки выше
-            if (state>store.userLevel) return false
+            if (state>=store.userLevel) return false
             return true
         },
         canChange(rowId, colId){
@@ -287,7 +288,7 @@ export const store = reactive({
             let state = cell.state || 0
 
             //нельзя удалить если уровень выше
-            if (state>store.userLevel) return false
+            if (state>=store.userLevel) return false
             let owner = cell.user_id
             // есть права удалять или есть права удалять свое и пользователь это автор ячейки
             return store.userPermissions.changeValue || (store.userPermissions.changeValueOwn && owner==store.user_id)

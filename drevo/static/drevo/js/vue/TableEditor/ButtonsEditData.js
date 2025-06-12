@@ -9,20 +9,20 @@ export default {
   },
   methods:{
   stateButtonEnabled(level) {
-//        if (!store.selected.elementId) return false
-//        if (store.selected.elementType!='d') return false
-//        const [rowId, colId] = store.selected.elementId
-//        const cell = store.tableData.getCell(rowId, colId)
-//        //const state = cell.state || 0
-        //return {disabled: true}
-         if (store.selected.elementType!='d') {return {disabled: true}}
+        if (store.selected.elementType!='d') {return {disabled: true}}
+
+        const [rowId, colId ] = store.selected.elementId
+        let cell = store.tableData.getCell(rowId, colId)
+        //если уровень ячейки выше или равен, но не этот пользователь автор статуса
+        if ((cell.state > store.userLevel) ||
+            (
+            (cell.state == store.userLevel) &&
+            (cell.state_user_id && (cell.state_user_id != store.user_id))
+            )) {
+                return {disabled: true}
+            }
         return {disabled: !(store.userLevel>=(level-1))}
 
-
-//        switch(state) {
-//            case store.user_state: return '❌' // не проверить
-//            case store.user_state-1: return '✓' // проверить
-//            default: return '❓'
 
   },
   editButtonEnabled(button) {
@@ -57,11 +57,16 @@ export default {
         val = val - 1
         if (store.userLevel<val) return
         const [rowId, colId ] = store.selected.elementId
-        let cell = store.tableData.getCell(rowId, colId, true)
+        let cell = store.tableData.getCell(rowId, colId)
 
         // только свой уровень и ниже можем изменять
         if (cell.state > store.userLevel) return
+        // если статусы равны, то можно если это автор статуса
+        if ((cell.state == store.userLevel) &&
+            (cell.state_user_id && cell.state_user_id != store.user_id)) return
 
+        // создаем ячейку если ее нет
+        cell = store.tableData.getCell(rowId, colId, true)
         cell.state = val
         cell.state_user_id = store.user_id
         store.isChanged = true
