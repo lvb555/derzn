@@ -276,7 +276,6 @@ export const store = reactive({
 
             //нельзя заполнить если уровень ячейки выше
             if (state>store.userLevel) return false
-            console.log('try fill ', rowId, colId)
             return true
         },
         canChange(rowId, colId){
@@ -292,8 +291,6 @@ export const store = reactive({
             let owner = cell.user_id
             // есть права удалять или есть права удалять свое и пользователь это автор ячейки
             return store.userPermissions.changeValue || (store.userPermissions.changeValueOwn && owner==store.user_id)
-            console.log('try edit ', rowId, colId)
-            return true
         },
 
     },
