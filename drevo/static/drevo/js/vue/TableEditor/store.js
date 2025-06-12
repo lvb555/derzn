@@ -220,7 +220,8 @@ export const store = reactive({
               //даже если перед этим удалили
               value.isNew = !this.cells.has(key) || this.cells.get(key).isNew
               value.user_id = store.user_id
-              console.log('user id:', store.user_id)
+              // сбрасываем статус на 0. Хотя можно было бы сохранять предыдущий статус
+              value.state = 0
 //
               this.cells.set(key, value)
               store.isChanged = true
