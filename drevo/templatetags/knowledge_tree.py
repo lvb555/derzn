@@ -39,10 +39,6 @@ def build_knowledge_tree(context: RequestContext,
         active_knowledge=queryset,
         **tree_builder_context
     )
-
-    # Добавляем отладочный вывод структуры дерева в контекст под ключом 'debug_tree'
-    tree_context['debug_tree'] = str(tree_builder_context)
-
     # Search block (остальная логика остается без изменений)
     search_word = context.request.POST.get('search_word', '')
     param_names = (

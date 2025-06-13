@@ -57,11 +57,10 @@ def get_knowledges_by_categories(knowledges_queryset):
     categories_id_list = [Category.objects.get(name=x).id for x in ids]
 
     # формируем список категорий в соответствии с порядком, заданным mptt
-    
-    categories = (Category.tree_objects
-                    .filter(pk__in=categories_id_list)
-                    .exclude(is_published=False))
 
+    categories = (Category.tree_objects
+                  .filter(pk__in=categories_id_list)
+                  .exclude(is_published=False))
 
     return categories, knowledges_by_categories
 
@@ -85,8 +84,10 @@ def get_category_for_knowledge(knowledge: Znanie) -> [None, Category]:
             base_knowledge = relation.bz
             # для предотвращения бесконечной рекурсии проверется, указывают ли связи base_knowledge и текущего знания
             # друг на друга и есть ли у base_knowledge опубликованная категория
-            if new_relation := Relation.objects.filter(rz=base_knowledge, is_published=True).exclude(tr__is_systemic=True).first():
-                if new_relation.bz == knowledge and not (base_knowledge.category and base_knowledge.category.is_published):
+            if new_relation := Relation.objects.filter(rz=base_knowledge, is_published=True).exclude(
+                    tr__is_systemic=True).first():
+                if new_relation.bz == knowledge and not (
+                        base_knowledge.category and base_knowledge.category.is_published):
                     return None
             return get_category_for_knowledge(base_knowledge)
         else:
@@ -133,19 +134,32 @@ def get_ancestors_for_knowledge(knowledge: Znanie) -> list:
 
 def get_children_for_knowledge(knowledge):
     """
-    Возвращает queryset знаний, для которых непосредственным предком
-    является knowledge.
+    Возвращает queryset знаний, для которых непосредственным предком является knowledge.
+    Учитываются как связи через Relation (поле related__bz), так и ярлыковые связи через модель KnowledgeLabel.
     """
-    if knowledge.is_published:
-        return Znanie.published.filter(related__bz=knowledge,
-                                       related__is_published=True
-                                       ).order_by('related__order')
-    else:
+    if not knowledge.is_published:
         return None
+
+    # Получаем детей по стандартной связи (через Relation)
+    qs_relation = Znanie.published.filter(
+        related__bz=knowledge,
+        related__is_published=True
+    )
+
+    # Получаем детей по ярлыкам (через KnowledgeLabel)
+    qs_label = Znanie.published.filter(
+        knowledgelabel__parent_knowledge=knowledge
+    )
+
+    # Объединяем оба QuerySet. При этом применяем distinct(), чтобы избежать дублей.
+    combined_qs = (qs_relation | qs_label).distinct()
+
+    # Если нужно задать порядок – можно, например, отсортировать по pk или другому полю.
+    # В связи с тем, что ярлыковые связи могут не иметь поля order, часто разумно выбрать универсальное упорядочивание.
+    return combined_qs.order_by('pk')
 
 
 def get_children_by_relation_type_for_knowledge(knowledge):
-
     def sort_by_relation_type(s):
         relation_type = Tr.objects.get(name=s[0])
         order = relation_type.order
