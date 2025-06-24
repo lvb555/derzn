@@ -49,3 +49,7 @@ class RelationAdminForm(forms.ModelForm):
     class Meta:
         model = Relation
         fields = '__all__'
+        widgets = {
+            'bz': forms.Select(attrs={'style': 'width: 300px; height: 60px;'}),
+            'rz': forms.Select(attrs={'style': 'width: 300px; height: 60px;'}),
+        }
