@@ -1,8 +1,8 @@
-/* Стиль для поля "order" в списке (20px) */
+/* Стиль для поля "order" в списке (40px) */
 th.column-order, td.field-order {
-    width: 20px !important;
-    min-width: 20px !important;
-    max-width: 20px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
 }
 
 /* Стиль для полей "bz" и "rz" в списке (300px × 60px) */
