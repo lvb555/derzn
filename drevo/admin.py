@@ -203,7 +203,6 @@ class ZnanieAdmin(admin.ModelAdmin):
         "order",
         "name",
         "tz",
-        "href2link",
         "author",
         "updated_at",
         "user",
