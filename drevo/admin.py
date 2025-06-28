@@ -464,7 +464,7 @@ class RelationAdmin(admin.ModelAdmin):
                 result = send_notify_interview(interview, period_relation)
 
     class Media:
-        # css = {"all": ("drevo/css/style.css",)}
+        css = {"all": ("drevo/css/relation_admin.css",)}
         js = ("drevo/js/notify_interview.js",)
 
 

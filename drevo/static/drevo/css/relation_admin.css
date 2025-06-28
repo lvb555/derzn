@@ -1,0 +1,16 @@
+/* Стиль для полей bz и rz */
+.select2-container--default .select2-selection--single {
+    height: 60px !important;
+    min-width: 300px !important;
+}
+
+/* Увеличиваем высоту выпадающего списка */
+.select2-results__option {
+    padding: 10px !important;
+    line-height: 1.5 !important;
+}
+
+/* Уменьшаем ширину поля order */
+#id_order {
+    width: 60px !important;
+}
