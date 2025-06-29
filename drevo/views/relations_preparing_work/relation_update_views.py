@@ -8,6 +8,8 @@ from django.views.decorators.http import require_http_methods
 from drevo.forms import RelationStatusesForm, AdditionalKnowledgeForm, ZnImageFormSet
 from drevo.utils.preparing_relations import PreparingRelationsMixin
 from drevo.models import Relation, Znanie, Tr, RelationStatuses
+from django.http import JsonResponse
+from django.db import IntegrityError
 
 
 class PreparingRelationsUpdateView(LoginRequiredMixin, TemplateView, PreparingRelationsMixin):
@@ -130,3 +132,50 @@ def relation_update_view(request, relation_pk):
         RelationStatuses.objects.create(relation=relation, status=new_status, user=request.user)
 
     return redirect('preparing_relations_update_page')
+
+
+@login_required
+@require_http_methods(['DELETE'])
+@transaction.atomic  # Добавляем атомарность операции
+def delete_knowledge(request):
+    # Проверяем наличие обязательных параметров
+    rz_id = request.GET.get('rz_id')
+    bz_id = request.GET.get('bz_id')
+    tr_id = request.GET.get('tr_id')
+
+    if not all([rz_id, bz_id, tr_id]):
+        return JsonResponse({'success': False, 'error': 'Не указаны все необходимые параметры'}, status=400)
+
+    try:
+        # Получаем объекты с проверкой существования
+        rz = get_object_or_404(Znanie, pk=rz_id)
+        bz = get_object_or_404(Znanie, pk=bz_id)
+        tr = get_object_or_404(Tr, pk=tr_id)
+
+        # Проверка прав на удаление
+        if not (request.user.is_expert or rz.user == request.user):
+            return JsonResponse(
+                {'success': False, 'error': 'Недостаточно прав для удаления'},
+                status=403
+            )
+
+        # Удаление связи
+        relation = Relation.objects.filter(bz=bz, rz=rz, tr=tr).first()
+        if relation:
+            relation.delete()
+
+        # Удаление знания
+        rz.delete()
+
+        return JsonResponse({'success': True})
+
+    except IntegrityError as e:
+        return JsonResponse(
+            {'success': False, 'error': 'Ошибка целостности данных при удалении'},
+            status=500
+        )
+    except Exception as e:
+        return JsonResponse(
+            {'success': False, 'error': str(e)},
+            status=500
+        )

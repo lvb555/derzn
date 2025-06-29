@@ -1,0 +1,37 @@
+{% extends 'drevo/base.html' %}
+{% load static %}
+
+{% block title %}Вставка нового знания{% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static '/drevo/css/drevo.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Вставка нового знания</h2>
+    <h3>Между "{{ base_knowledge.name }}" и "{{ rz.name }}"</h3>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="bz_id" value="{{ bz_id }}">
+        <input type="hidden" name="tr_id" value="{{ tr_id }}">
+
+        {{ form.as_p }}
+        {{ form.media }}
+
+        <!-- Для изображений, если нужно -->
+        {% if image_form %}
+            {{ image_form.management_form }}
+            {% for form in image_form %}
+                {{ form.as_p }}
+            {% endfor %}
+        {% endif %}
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-warning">Сохранить</button>
+            <a href="{{ back_url }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

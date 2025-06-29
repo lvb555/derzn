@@ -212,7 +212,8 @@ def get_category_counts(data, category):
 def get_color_by_tz(type, flag_only=False):
     colors = {'Тезис': ['#1CA053', '#A6F7A0'], 'Факт': ['#FC918F', '#FAD5CA'], 'Цитата': ['#C5CC41', '#E2C231'],
               'Вопрос': ['#1BA2F1', '#7CBBDB'], 'Группа': ['#231740', '#8B76BF'],
-              'Таблица': ['#8E653C', '#DFD2C5'], 'Классификация': ['#BA7507', '#F2C6AB']}
+              'Таблица': ['#8E653C', '#DFD2C5'], 'Классификация': ['#BA7507', '#F2C6AB'],
+              'Комментарий': ['#6c757d', '#e9ecef']}
     if str(type) in colors.keys():
         html = f'<i class="kn_type" style="color: {colors[type][0]};">'\
                f'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="26" viewBox="0 0 20 26" fill="none">'\
