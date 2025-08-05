@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'rest_framework',
     'colorfield',
     'mptt',
     'ckeditor',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'users',
     'drevo',
     'help',
+    'api'
 ]
 
 MIDDLEWARE = [
