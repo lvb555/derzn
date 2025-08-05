@@ -1,0 +1,32 @@
+{% extends "drevo/base.html" %}
+{% load static %}
+
+{% block content %}
+   <div class="container header_info" style="padding-left: 0px;">
+        <h1 class="page-title">Дерево знаний</h1>
+        <nav style="--bs-breadcrumb-divider: '-';" class="mt-3">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+              <li class="breadcrumb-item opened"><a>Дерево знаний</a></li>
+            </ol>
+        </nav>
+    </div>
+<div style="background-color: #FFFFFF; padding: 32px;border-radius: 10px;" >
+    <div id="knowledge-tree-app"></div>
+</div>
+
+{% endblock %}
+
+{% block jsfiles %}
+<!-- Подключаем Vue 3 и Axios -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!-- Подключаем компонент -->
+<script type="module" src="{% static 'drevo/js/vue/KnowledgeTree/app.js' %}"></script>
+{% endblock %}
+
+{% block cssfiles %}
+<!-- Подключаем стили -->
+<link rel="stylesheet" href="{% static 'drevo/css/knowledge-tree.css' %}">
+<link rel="stylesheet" href="{% static  'drevo/css/drevo.css' %}">
+{% endblock %}
