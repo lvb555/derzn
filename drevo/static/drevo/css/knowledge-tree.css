@@ -1,0 +1,255 @@
+/* Основные стили */
+.knowledge-tree {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    width: 100%;
+}
+
+/* Корневые категории - без отступа */
+.category-node[depth="0"] {
+    padding-left: 0;
+    margin-left: 0;
+}
+
+/* Вложенные категории */
+.category-node {
+    margin: 3px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Контейнер содержимого узла */
+.node-content-wrapper {
+    width: 100%;
+}
+
+/* Заголовок категории - на всю ширину */
+.category-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.category-header:hover {
+    background: #e9ecef;
+}
+
+.category-header.is-open {
+    background: #e2e6ea;
+    font-weight: 500;
+}
+
+/* Иконка раскрытия/закрытия */
+.toggle-icon {
+    width: 16px;
+    text-align: center;
+    margin-right: 8px;
+    color: #6c757d;
+    flex-shrink: 0;
+}
+
+/* Название категории и счетчики */
+.category-name-wrapper {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    min-width: 0; /* Для правильной работы ellipsis */
+}
+
+.category-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Круглые счётчики - теперь сразу после названия */
+.children-count,
+.knowledge-count {
+    position: relative; /* Необходимо для позиционирования tooltip */
+    border: 1px solid;
+    border-radius: 8px;
+    padding: 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+    font-size: 0.75em;
+    font-weight: 500;
+    margin-left: 8px;
+    flex-shrink: 0;
+    cursor: help; /* Изменяем курсор на "справку" */
+}
+
+.children-count {
+    color: #4285f4;
+    background: #e7f1ff;
+
+}
+
+.knowledge-count {
+    color: #34a853;
+    background: #e6f4ea;
+
+}
+
+/* Подсказка для счетчика дочерних категорий */
+.children-count::after {
+    content: 'Дочерних категорий: ' attr(data-count);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 10;
+    margin-bottom: 5px;
+}
+
+/* Подсказка для счетчика знаний */
+.knowledge-count::after {
+    content: 'Элементов знаний: ' attr(data-count);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 10;
+    margin-bottom: 5px;
+}
+
+/* Показываем подсказку при наведении */
+.children-count:hover::after,
+.knowledge-count:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Треугольник-указатель для подсказки */
+.children-count::before,
+.knowledge-count::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% - 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 11;
+}
+
+.children-count:hover::before,
+.knowledge-count:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Дочерние элементы */
+.children-container {
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 10px; /* Отступ для вложенных элементов */
+}
+
+.knowledge-list {
+    width: 100%;
+    margin: 5px 0;
+}
+
+.knowledge-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 8px 12px;
+    margin: 3px 0;
+    background: #fff;
+    border-radius: 4px;
+    border: 1px solid #eee;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.knowledge-item:hover {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.knowledge-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    opacity: 0.8;
+    flex-shrink: 0;
+}
+
+.knowledge-type {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-right: 12px;
+    min-width: 80px;
+    flex-shrink: 0;
+}
+
+.knowledge-title {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 8px;
+}
+
+.knowledge-author {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+.loading {
+    padding: 10px;
+    color: #6c757d;
+    font-style: italic;
+    text-align: center;
+}
+
+.uncategorized-section {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.uncategorized-section .category-header {
+    background: #f1f3f5;
+}
+
+.tree-container > .category-node {
+    margin-bottom: 10px;
+}
