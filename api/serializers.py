@@ -3,18 +3,19 @@ from drevo.models import Category, Znanie
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    children_count = serializers.SerializerMethodField()
-    knowledge_count = serializers.SerializerMethodField()
+    children_count = serializers.IntegerField(read_only=True)
+    knowledge_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Category
         fields = ['id', 'name', 'children_count', 'knowledge_count']
 
-    def get_children_count(self, obj):
-        return obj.get_children().count()
-
-    def get_knowledge_count(self, obj):
-        return Znanie.objects.filter(category=obj).count()
+    def to_representation(self, instance):
+        # Используем аннотации, которые были добавлены в queryset
+        representation = super().to_representation(instance)
+        representation['children_count'] = instance.children_count
+        representation['knowledge_count'] = instance.knowledge_count
+        return representation
 
 
 class KnowledgeSerializer(serializers.ModelSerializer):
