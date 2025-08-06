@@ -252,3 +252,12 @@
     background: var(--color-uncategorized-bg);
 }
 
+.toggle-icon::before {
+    content: '+'; '►';
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.toggle-icon.is-open::before {
+    content: '-';'▼';
+}

@@ -48,9 +48,7 @@ export default {
                                     @click="toggle"
                                     :class="{ 'is-open': isOpen }"
                                 >
-                                    <span class="toggle-icon" v-if="hasChildren">
-                                        {{ isOpen ? '▼' : '►' }}
-                                    </span>
+                                    <span class="toggle-icon" :class="{'is-open': isOpen}" v-if="hasChildren"></span>
                                     <span class="category-name">{{ category.name }}</span>
                                     <span
                                         class="children-count"
