@@ -1,49 +1,81 @@
-/* Основные стили */
+:root {
+    /* Цвета */
+    --color-primary: #4285f4;
+    --color-primary-light: #e7f1ff;
+    --color-success: #34a853;
+    --color-success-light: #e6f4ea;
+    --color-gray-100: #f8f9fa;
+    --color-gray-200: #e9ecef;
+    --color-gray-300: #dee2e6;
+    --color-gray-400: #e2e6ea;
+    --color-gray-500: #6c757d;
+    --color-gray-600: #666;
+    --color-gray-700: #333;
+    --color-white: #fff;
+    --color-border: #eee;
+    --color-uncategorized-bg: yellow;
+
+    /* Размеры */
+    --spacing-xs: 3px;
+    --spacing-sm: 5px;
+    --spacing-md: 8px;
+    --spacing-lg: 10px;
+    --spacing-xl: 12px;
+    --spacing-xxl: 15px;
+
+    /* Радиусы */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+
+    /* Тени и эффекты */
+    --transition: all 0.2s;
+}
+
+/* ==================== ОСНОВНЫЕ СТИЛИ ==================== */
 .knowledge-tree {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 14px;
     line-height: 1.5;
     width: 100%;
+    overflow: visible;
 }
 
-/* Корневые категории - без отступа */
-.category-node[depth="0"] {
-    padding-left: 0;
-    margin-left: 0;
+.tree-container {
+    width: 100%;
+    overflow: visible;
 }
 
-/* Вложенные категории */
+/* ==================== СТИЛИ КАТЕГОРИЙ ==================== */
 .category-node {
-    margin: 3px 0;
+    margin: var(--spacing-xs) 0;
     width: 100%;
     box-sizing: border-box;
 }
 
-/* Контейнер содержимого узла */
 .node-content-wrapper {
     width: 100%;
 }
 
-/* Заголовок категории - на всю ширину */
+/* Заголовок категории */
 .category-header {
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 8px 12px;
-    background: #f8f9fa;
-    border-radius: 4px;
-    border: 1px solid #dee2e6;
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: var(--color-gray-100);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-gray-300);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: var(--transition);
     box-sizing: border-box;
 }
 
 .category-header:hover {
-    background: #e9ecef;
+    background: var(--color-gray-200);
 }
 
 .category-header.is-open {
-    background: #e2e6ea;
+    background: var(--color-gray-400);
     font-weight: 500;
 }
 
@@ -51,170 +83,128 @@
 .toggle-icon {
     width: 16px;
     text-align: center;
-    margin-right: 8px;
-    color: #6c757d;
+    margin-right: var(--spacing-md);
+    color: var(--color-gray-500);
     flex-shrink: 0;
 }
 
-/* Название категории и счетчики */
-.category-name-wrapper {
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-    min-width: 0; /* Для правильной работы ellipsis */
-}
-
+/* Название категории */
 .category-name {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* Круглые счётчики - теперь сразу после названия */
+/* Контейнер дочерних элементов */
+.children-container {
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: var(--spacing-lg);
+    overflow: visible;
+    position: relative;
+
+}
+
+/* ==================== СТИЛИ СЧЕТЧИКОВ ==================== */
 .children-count,
 .knowledge-count {
-    position: relative; /* Необходимо для позиционирования tooltip */
+    position: relative;
     border: 1px solid;
-    border-radius: 8px;
+    border-radius: 50%;
     padding: 4px 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 50%;
     font-size: 0.75em;
     font-weight: 500;
-    margin-left: 8px;
+    margin-left: var(--spacing-md);
     flex-shrink: 0;
-    cursor: help; /* Изменяем курсор на "справку" */
+    cursor: help;
 }
 
 .children-count {
-    color: #4285f4;
-    background: #e7f1ff;
-
+    color: var(--color-primary);
+    background: var(--color-primary-light);
 }
 
 .knowledge-count {
-    color: #34a853;
-    background: #e6f4ea;
-
+    color: var(--color-success);
+    background: var(--color-success-light);
 }
 
-/* Подсказка для счетчика дочерних категорий */
+/* Подсказки для счетчиков */
+.children-count::after,
+.knowledge-count::after {
+    content: attr(data-count);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-gray-700);
+    color: var(--color-white);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+    z-index: 1000;
+    margin-bottom: var(--spacing-sm);
+}
+
 .children-count::after {
     content: 'Дочерних категорий: ' attr(data-count);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s, visibility 0.2s;
-    z-index: 10;
-    margin-bottom: 5px;
 }
 
-/* Подсказка для счетчика знаний */
 .knowledge-count::after {
     content: 'Элементов знаний: ' attr(data-count);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s, visibility 0.2s;
-    z-index: 10;
-    margin-bottom: 5px;
 }
 
-/* Показываем подсказку при наведении */
 .children-count:hover::after,
 .knowledge-count:hover::after {
     opacity: 1;
     visibility: visible;
 }
 
-/* Треугольник-указатель для подсказки */
-.children-count::before,
-.knowledge-count::before {
-    content: '';
-    position: absolute;
-    bottom: calc(100% - 5px);
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 5px;
-    border-style: solid;
-    border-color: #333 transparent transparent transparent;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s, visibility 0.2s;
-    z-index: 11;
-}
-
-.children-count:hover::before,
-.knowledge-count:hover::before {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Дочерние элементы */
-.children-container {
-    width: 100%;
-    box-sizing: border-box;
-    padding-left: 10px; /* Отступ для вложенных элементов */
-}
-
+/* ==================== СТИЛИ ЗНАНИЙ ==================== */
 .knowledge-list {
     width: 100%;
-    margin: 5px 0;
+    margin: var(--spacing-sm) 0;
 }
 
 .knowledge-item {
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 8px 12px;
-    margin: 3px 0;
-    background: #fff;
-    border-radius: 4px;
-    border: 1px solid #eee;
+    padding: var(--spacing-md) var(--spacing-xl);
+    margin: var(--spacing-xs) 0;
+    background: var(--color-white);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
     text-decoration: none;
-    color: #333;
-    transition: all 0.2s;
+    color: var(--color-gray-700);
+    transition: var(--transition);
     box-sizing: border-box;
 }
 
 .knowledge-item:hover {
-    background: #f8f9fa;
-    border-color: #dee2e6;
+    background: var(--color-gray-100);
+    border-color: var(--color-gray-300);
 }
 
 .knowledge-icon {
     width: 16px;
     height: 16px;
-    margin-right: 8px;
+    margin-right: var(--spacing-md);
     opacity: 0.8;
     flex-shrink: 0;
 }
 
 .knowledge-type {
     font-size: 0.85em;
-    color: #6c757d;
-    margin-right: 12px;
+    color: var(--color-gray-500);
+    margin-right: var(--spacing-xl);
     min-width: 80px;
     flex-shrink: 0;
 }
@@ -224,32 +214,41 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-right: 8px;
+    margin-right: var(--spacing-md);
 }
 
 .knowledge-author {
     font-size: 0.85em;
-    color: #6c757d;
-    margin-left: 8px;
+    color: var(--color-gray-500);
+    margin-left: var(--spacing-md);
     flex-shrink: 0;
 }
 
-.loading {
-    padding: 10px;
-    color: #6c757d;
+/* ==================== СОСТОЯНИЯ ==================== */
+.loading,
+.loading-more {
+    padding: var(--spacing-lg);
+    color: var(--color-gray-500);
     font-style: italic;
     text-align: center;
 }
 
-.uncategorized-section {
+.loading-more {
+    color: var(--color-gray-600);
+    font-size: 0.9em;
+    margin: var(--spacing-lg) 0;
+}
+
+.scroll-sentinel {
+    height: 1px;
     width: 100%;
-    margin-bottom: 15px;
+    background: transparent;
+    pointer-events: none;
 }
 
-.uncategorized-section .category-header {
-    background: #f1f3f5;
+/* ==================== СПЕЦИАЛЬНЫЕ СТИЛИ ==================== */
+/* Стили для категории "Знания без категории" */
+.category-node[data-id="uncategorized"] .category-header {
+    background: var(--color-uncategorized-bg);
 }
 
-.tree-container > .category-node {
-    margin-bottom: 10px;
-}
