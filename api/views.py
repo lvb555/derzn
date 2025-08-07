@@ -8,6 +8,32 @@ from drevo.models import Category, Znanie
 published_map = {"all": None, "yes": True, "no": False}
 
 
+class FakeQuerySet:
+    def __init__(self, total_size):
+        self._total_size = total_size
+        self._offset = 0
+        self._limit = total_size
+
+    def count(self):
+        return self._total_size
+
+    def __len__(self):
+        return min(self._limit, self._total_size - self._offset)
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            new_qs = self.__class__(self._total_size)
+            new_qs._offset = self._offset + (key.start or 0)
+            new_qs._limit = (key.stop or self._total_size) - (key.start or 0)
+            return new_qs
+        raise TypeError("Индексирование не поддерживается")
+
+    def __iter__(self):
+        # Заглушка для итерации
+        for i in range(len(self)):
+            yield None
+
+
 class CustomPagination(PageNumberPagination):
     page_size = 100  # Количество элементов на странице
     page_size_query_param = "page_size"  # Параметр для изменения размера страницы
@@ -22,19 +48,20 @@ class CustomPagination(PageNumberPagination):
 
     def paginate_dual(self, request, category_queryset, knowledge_queryset):
         page_number, page_size = self.get_page_values(request)
-        print(f'{page_number=} {page_size=}')
+        #print(f'{page_number=} {page_size=}')
         # надо получить полные размеры, иначе непонятно сколько страниц
         category_count = category_queryset.count()
         knowledge_count = knowledge_queryset.count()
 
-        fake_qs = [0] * (category_count + knowledge_count)
-
+        #я не знаю что еще придумать чтобы без велосипеда работала пагинация
+        fake_qs = FakeQuerySet(category_count + knowledge_count)
         self.paginate_queryset(fake_qs, request)
+
 
         offset = (page_number - 1) * page_size
         limit = page_size
         end = limit + offset
-        #print(f'{offset} {end} {category_count} {knowledge_count}')
+        # print(f'{offset} {end} {category_count} {knowledge_count}')
         qs1_pair = None
         qs2_pair = None
 
@@ -57,7 +84,6 @@ class CustomPagination(PageNumberPagination):
             limit = end - category_count
             end2 = min(offset + limit, knowledge_count)
             qs2_pair = (offset, end2)
-
 
         qs1 = [] if qs1_pair is None else category_queryset[qs1_pair[0]:qs1_pair[1]]
         qs2 = [] if qs2_pair is None else knowledge_queryset[qs2_pair[0]:qs2_pair[1]]
