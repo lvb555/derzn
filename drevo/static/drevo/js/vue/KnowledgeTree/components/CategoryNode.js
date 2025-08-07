@@ -22,6 +22,7 @@ export default {
                             :items="knowledgeItems"
                             :depth="0"
                             :margin="margin"
+                            :categoryId="0"
                         />
 
                         <div v-if="isLoadingMore" class="loading-more">
@@ -79,6 +80,7 @@ export default {
                                     :items="knowledgeItems"
                                     :depth="0"
                                     :margin="margin"
+                                    :categoryId="category.id"
                                 />
 
                                 <div v-if="isLoadingMore" class="loading-more">

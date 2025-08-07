@@ -21,7 +21,7 @@ export default {
         items: Array,
         depth: Number,
         margin: Number,
-        categoryId: Number,
+        categoryId: [Number, String],
     },
     methods: {
         selectKnowledge(knowledgeId) {

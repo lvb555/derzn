@@ -261,3 +261,17 @@
 .toggle-icon.is-open::before {
     content: '-';'▼';
 }
+
+/* Стили для выбранной категории */
+.category-header.is-selected {
+  background-color: #e3f2fd;
+  border-left: 3px solid #2196f3;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+/* Стили для выбранного знания */
+.knowledge-item.is-selected {
+  background-color: #f5f5f5;
+  border-left: 3px solid #4caf50;
+  font-weight: 500;
+}
