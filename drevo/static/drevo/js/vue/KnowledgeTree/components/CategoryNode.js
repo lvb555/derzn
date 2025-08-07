@@ -17,19 +17,12 @@ export default {
                             :margin="margin"
                         />
 
-                        <div class="knowledge-list">
-                            <a
-                                v-for="item in knowledgeItems"
-                                :key="'knowledge-' + item.id"
-                                :href="item.url"
-                                class="knowledge-item"
-                            >
-                                <img :src="item.type_icon" class="knowledge-icon" alt="Тип">
-                                <span class="knowledge-type">{{ item.type_name }}</span>
-                                <span class="knowledge-title">{{ item.name }}</span>
-                                <span class="knowledge-author" v-if="item.author">({{ item.author }})</span>
-                            </a>
-                        </div>
+                        <!--! Элементы - их не должно быть  -->
+                        <knowledge-list
+                            :items="knowledgeItems"
+                            :depth="0"
+                            :margin="margin"
+                        />
 
                         <div v-if="isLoadingMore" class="loading-more">
                             <span>Загрузка...</span>
@@ -37,7 +30,7 @@ export default {
                         <div class="scroll-sentinel" ref="sentinel"></div>
                     </template>
                 </div>
-
+                <!--! Не корневые директории -->
                 <template v-else>
                     <div class="category-node"  :data-id="category.id">
                         <div class="node-content-wrapper" :style="{'margin-left': depth * margin + 'px'}">
@@ -46,7 +39,8 @@ export default {
                                 <div
                                     class="category-header"
                                     @click="toggle"
-                                    :class="{ 'is-open': isOpen }"
+                                    :class="{ 'is-open': isOpen, 'is-selected': isCurrentCategory}"
+                                    @click.stop="selectCategory"
                                 >
                                     <span class="toggle-icon" :class="{'is-open': isOpen}" v-if="hasChildren"></span>
                                     <span class="category-name">{{ category.name }}</span>
@@ -81,19 +75,11 @@ export default {
                                     :margin="margin"
                                 />
 
-                                <div class="knowledge-list" :style="{'margin-left': (depth + 1) * margin + 'px'}">
-                                    <a
-                                        v-for="item in knowledgeItems"
-                                        :key="'knowledge-' + item.id"
-                                        :href="item.url"
-                                        class="knowledge-item"
-                                    >
-                                        <img :src="item.type_icon" class="knowledge-icon" alt="Тип">
-                                        <span class="knowledge-type">{{ item.type_name }}</span>
-                                        <span class="knowledge-title">{{ item.name }}</span>
-                                        <span class="knowledge-author" v-if="item.author">({{ item.author }})</span>
-                                    </a>
-                                </div>
+                                <knowledge-list
+                                    :items="knowledgeItems"
+                                    :depth="0"
+                                    :margin="margin"
+                                />
 
                                 <div v-if="isLoadingMore" class="loading-more">
                                     <span>Загрузка...</span>
@@ -106,7 +92,7 @@ export default {
             </div>
         </div>
     `,
-
+    inject: ['onItemSelected','getSelectedItems'],
     props: {
         category: {
             type: Object,
@@ -164,10 +150,20 @@ export default {
             }
 
             return params;
-        }
+        },
+        isCurrentCategory() {
+            return this.category?.id === this.getSelectedItems().category
+        },
+
     },
 
     methods: {
+       selectCategory() {
+           this.onItemSelected({
+           type: 'category',
+           id: this.category.id
+        })
+       },
         async toggle() {
             if (!this.isOpen) {
                 this.isOpen = true;
@@ -198,8 +194,10 @@ export default {
                     ? '/api/categories/'
                     : `/api/categories/${this.category.id}/children/`;
 
+                let params = this.requestParams;
+                params['page'] = page;
                 const response = await axios.get(url, {
-                    params: this.requestParams
+                    params: params
                 });
 
                 const data = response.data;
@@ -247,6 +245,7 @@ export default {
                             entry.intersectionRatio > 0.5 && // Видно более 50% элемента
                             !this.isLoading &&
                             this.hasMore) {
+
                         this.loadChildren(this.currentPage + 1);
                         }
                     });
