@@ -13,6 +13,56 @@ class CustomPagination(PageNumberPagination):
     page_size_query_param = "page_size"  # Параметр для изменения размера страницы
     max_page_size = 200  # Максимальный размер страницы
 
+    def get_page_values(self, request):
+        page_size = self.get_page_size(request)
+        page_number = int(request.query_params.get(self.page_query_param, 1))
+        if page_number in self.last_page_strings:
+            page_number = float('inf')
+        return page_number, page_size
+
+    def paginate_dual(self, request, category_queryset, knowledge_queryset):
+        page_number, page_size = self.get_page_values(request)
+        print(f'{page_number=} {page_size=}')
+        # надо получить полные размеры, иначе непонятно сколько страниц
+        category_count = category_queryset.count()
+        knowledge_count = knowledge_queryset.count()
+
+        fake_qs = [0] * (category_count + knowledge_count)
+
+        self.paginate_queryset(fake_qs, request)
+
+        offset = (page_number - 1) * page_size
+        limit = page_size
+        end = limit + offset
+        #print(f'{offset} {end} {category_count} {knowledge_count}')
+        qs1_pair = None
+        qs2_pair = None
+
+        if end <= category_count:
+            # берем только из категорий
+            qs1_pair = (offset, end)
+
+        elif offset >= category_count:
+            # берем только из знаний
+            offset -= category_count
+            if offset < knowledge_count:
+                end = min(offset + limit, knowledge_count)
+                qs2_pair = (offset, end)
+        else:
+            # берем из категорий и остаток из знаний
+            end1 = category_count
+            qs1_pair = (offset, end1)
+
+            offset = 0
+            limit = end - category_count
+            end2 = min(offset + limit, knowledge_count)
+            qs2_pair = (offset, end2)
+
+
+        qs1 = [] if qs1_pair is None else category_queryset[qs1_pair[0]:qs1_pair[1]]
+        qs2 = [] if qs2_pair is None else knowledge_queryset[qs2_pair[0]:qs2_pair[1]]
+        return qs1, qs2
+
 
 class CategoryChildrenAPIView(APIView):
     pagination_class = CustomPagination
@@ -23,7 +73,8 @@ class CategoryChildrenAPIView(APIView):
         filter_published = published_map.get(request.query_params.get("published", "yes").lower())
         filter_system = published_map.get(request.query_params.get("system", "no").lower())
 
-        page = int(request.query_params.get("page", 1))
+        paginator = self.pagination_class()
+        page, page_size = paginator.get_page_values(request)
 
         uncategorized_record = None
         sub_knowledge = Znanie.objects.none()
@@ -64,13 +115,11 @@ class CategoryChildrenAPIView(APIView):
                     "id": "uncategorized",
                     "name": "Знания без категории",
                     "children_count": 0,
-                    "knowledge_count": Znanie.objects.filter(category=None).count(),
+                    "knowledge_count": set_filters(Znanie.objects).filter(category=None).count(),
                 }
 
         # Пагинация
-        paginator = self.pagination_class()
-        result_categories = []
-        result_knowledge = []
+        # paginator = self.pagination_class()
 
         # устанавливаем фильтры
         sub_category = set_filters(sub_category)
@@ -80,14 +129,12 @@ class CategoryChildrenAPIView(APIView):
         sub_category = optimize_queryset(sub_category)
         sub_knowledge = optimize_queryset(sub_knowledge)
 
-        if sub_category.exists():
+        paginated_categories, paginated_knowledge = paginator.paginate_dual(request,
+                                                                            sub_category,
+                                                                            sub_knowledge)
 
-            paginated_categories = paginator.paginate_queryset(sub_category, request)
-            result_categories = CategorySerializer(paginated_categories, many=True).data
-
-        if sub_knowledge.exists():
-            paginated_knowledge = paginator.paginate_queryset(sub_knowledge, request)
-            result_knowledge = KnowledgeSerializer(paginated_knowledge, many=True).data
+        result_categories = CategorySerializer(paginated_categories, many=True).data
+        result_knowledge = KnowledgeSerializer(paginated_knowledge, many=True).data
 
         # Добавляем категорию "Знания без категории"
         if uncategorized_record:
