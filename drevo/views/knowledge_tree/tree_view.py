@@ -5,7 +5,7 @@ from drevo.models import Znanie
 
 
 class KnowledgeTreeView(TemplateView):
-    template_name = "drevo/knowledge_tree_view/tree.html"
+    template_name = "drevo/knowledge_tree_view/knowledge_tree.html"
 
 
 class KnowledgeGraphView(TemplateView):
