@@ -1,0 +1,389 @@
+{% extends "drevo/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container header_info" style="padding-left: 0px">
+    <h1 class="page-title">Граф знаний: {{ knowledge.name }}</h1>
+    <nav style="--bs-breadcrumb-divider: '-'" class="mt-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'drevo' %}">Главная</a></li>
+            <li class="breadcrumb-item opened"><a>Граф знаний</a></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="graph-container">
+    <div class="controls mb-3">
+        <button id="expand-all" class="graph-btn btn-primary">Развернуть уровень</button>
+        <button id="cose-layout" class="graph-btn btn-primary">Разместить (COSE)</button>
+        <button id="layout-hierarchical" class="graph-btn btn-primary">Иерархический вид</button>
+        <button id="reset-graph" class="graph-btn btn-primary">Сброс</button>
+    </div>
+
+    <div id="cy"></div>
+</div>
+{% endblock %}
+
+{% block jsfiles %}
+<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-node-html-label@1.2.2/dist/cytoscape-node-html-label.min.js"></script>
+
+<script>
+    (function() {
+        // Конфигурация
+        const config = {
+            rootId: '{{ knowledge.id }}',
+            apiEndpoint: '/api/knowledge',
+            nodeStyle: {
+                width: '200px',
+                height: '150px',
+                opacity: 0,
+                shape: 'round-rectangle'
+            },
+            edgeStyle: {
+                width: 2,
+                'line-color': '#ccc',
+                'curve-style': 'bezier',
+                'target-arrow-shape': 'triangle',
+                'target-arrow-color': '#ccc',
+                label: 'data(label)',
+                'arrow-scale': 1.5,
+                'font-size': '12px',
+                'text-background-opacity': 1,
+                'text-background-color': '#fff',
+                'text-background-padding': '3px',
+                'text-border-width': 1,
+                'text-border-color': '#ddd',
+                'control-point-step-size': 80
+            }
+        };
+
+        // Инициализация Cytoscape
+        const cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: [],
+            style: [
+                { selector: 'node', style: config.nodeStyle },
+                { selector: 'edge', style: config.edgeStyle }
+            ]
+        });
+
+        // Состояние приложения
+        const state = {
+            expandedNodes: new Set(),
+            isLoading: false
+        };
+
+        // Вспомогательные функции
+        const utils = {
+            debounce: function(func, wait) {
+                let timeout;
+                return function() {
+                    const context = this, args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), wait);
+                };
+            },
+            fetchData: async function(url) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return await response.json();
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    return null;
+                }
+            }
+        };
+
+        // Шаблон для узлов
+        function createNodeTemplate(data) {
+            const isRoot = data.id === config.rootId;
+            const hasChildren = data.relations_count > 0;
+            const isExpanded = data.expanded;
+
+            const nodeColor = isRoot ? '#ffebee' : (hasChildren ? '#ffffff' : '#e8f5e9');
+            const counterStyle = isExpanded ?
+                'background: #4a6fa5; color: white; border-color: #3a5a8a;' :
+                'background: #f0f0f0; color: #333; border-color: #ddd;';
+
+            return `
+                <div class="cy-node" data-node-id="${data.id}" style="background: ${nodeColor}">
+                    <div class="cy-node-type">${data.type || 'Тип'}</div>
+                    <div class="cy-node-name">${data.name || 'Название'}</div>
+                    ${hasChildren ? `
+                    <div class="cy-node-counter" style="${counterStyle}">
+                        ${data.relations_count}
+                    </div>` : ''}
+                    <a href="${data.url}" class="cy-node-link" target="_blank">Подробнее</a>
+                </div>
+            `;
+        }
+
+        // Инициализация HTML-меток
+        cy.nodeHtmlLabel([
+            {
+                query: 'node[expanded=0]',
+                halign: 'center',
+                valign: 'center',
+                tpl: createNodeTemplate
+            },
+            {
+                query: 'node[expanded=1]',
+                halign: 'center',
+                valign: 'center',
+                tpl: createNodeTemplate
+            }
+        ]);
+
+        // Основные функции графа
+        const graph = {
+            async loadNode(nodeId, parentId = null, initialLoad = false) {
+                if (state.isLoading) return;
+                if (!initialLoad && state.expandedNodes.has(nodeId)) return;
+
+                state.isLoading = true;
+
+                try {
+                    const data = await utils.fetchData(`${config.apiEndpoint}/${nodeId}/relations/`);
+                    if (!data) return;
+
+                    // Добавляем основной узел, если это начальная загрузка
+                    if (initialLoad && !cy.$id(data.id.toString()).length) {
+                        cy.add({
+                            group: 'nodes',
+                            data: {
+                                id: data.id.toString(),
+                                name: data.name,
+                                type: data.knowledge_type,
+                                relations_count: data.related_count,
+                                url: data.url,
+                                expanded: 1
+                            }
+                        });
+                    }
+
+                    // Добавляем связанные узлы и связи
+                    data.relations.forEach(rel => {
+                        const knowledgeId = rel.knowledge.id.toString();
+
+                        if (!cy.$id(knowledgeId).length) {
+                            cy.add({
+                                group: 'nodes',
+                                data: {
+                                    id: knowledgeId,
+                                    name: rel.knowledge.name,
+                                    type: rel.knowledge.knowledge_type,
+                                    relations_count: rel.knowledge.related_count,
+                                    url: rel.knowledge.url,
+                                    expanded: rel.knowledge.related_count > 0 ? 0 : 1
+                                }
+                            });
+                        }
+
+                        // Добавляем связь
+                        const edgeId = `rel-${rel.id}`;
+                        if (!cy.$id(edgeId).length) {
+                            cy.add({
+                                group: 'edges',
+                                data: {
+                                    id: edgeId,
+                                    source: data.id.toString(),
+                                    target: rel.knowledge.id.toString(),
+                                    label: rel.relation_name
+                                }
+                            });
+                        }
+                    });
+
+                    state.expandedNodes.add(nodeId);
+                    cy.$(`#${nodeId}`).data('expanded', 1);
+                    this.applyBreadthFirstLayout(nodeId);
+
+                } catch (error) {
+                    console.error('Ошибка при загрузке узла:', error);
+                } finally {
+                    state.isLoading = false;
+                }
+            },
+
+            expandAllNodes: utils.debounce(function() {
+                const nodesToExpand = cy.nodes().filter(node => {
+                    return node.data('relations_count') > 0 && !node.data('expanded');
+                });
+
+                nodesToExpand.forEach(node => {
+                    this.loadNode(node.id());
+                });
+            }, 300),
+
+            applyCoseLayout: function() {
+                cy.layout({
+                    name: 'cose',
+                    fit: true,
+                    padding: 10,
+                    randomize: false,
+                    animate: true,
+                    animationDuration: 1000,
+                    nodeRepulsion: 450000,
+                    idealEdgeLength: 100,
+                    edgeElasticity: 0.45,
+                    gravity: 0.25,
+                    numIter: 2500,
+                    initialTemp: 2000,
+                    coolingFactor: 0.99,
+                    minTemp: 1.0,
+                    nodeDimensionsIncludeLabels: true,
+                    nestingFactor: 10,
+                    gravityRange: 3
+                }).run();
+            },
+
+            applyBreadthFirstLayout: function(rootId) {
+                cy.layout({
+                    name: "breadthfirst",
+                    animate: true,
+                    animationDuration: 800,
+                    fit: true,
+                    padding: 10,
+                    spacingFactor: 1.5,
+                    roots: `#${rootId}`,
+                    directed: true,
+                    avoidOverlap: true,
+                    grid: true
+                }).run();
+                cy.fit(cy.elements(), 50);
+            },
+
+            resetGraph: function() {
+                state.expandedNodes.clear();
+                cy.elements().remove();
+                this.loadNode(config.rootId, null, true);
+            }
+        };
+
+        // Обработчики событий
+        function setupEventHandlers() {
+            // Кнопки управления
+            document.getElementById('expand-all').addEventListener('click', () => graph.expandAllNodes());
+            document.getElementById('cose-layout').addEventListener('click', () => graph.applyCoseLayout());
+            document.getElementById('reset-graph').addEventListener('click', () => graph.resetGraph());
+            document.getElementById('layout-hierarchical').addEventListener('click', () =>
+                graph.applyBreadthFirstLayout(config.rootId));
+
+            // Клики по узлам
+            cy.on('tap', 'node', function(event) {
+                const node = event.target;
+                const originalTarget = event.originalEvent.originalTarget;
+
+                if (originalTarget.classList?.contains('cy-node-link')) {
+                    window.open(node.data('url'), '_blank');
+                    event.stopPropagation();
+                    return;
+                }
+
+                if (node.data('expanded') == 0) {
+                    graph.loadNode(node.id());
+                }
+            });
+        }
+
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventHandlers();
+            graph.loadNode(config.rootId, null, true);
+        });
+    })();
+</script>
+{% endblock %}
+
+{% block cssfiles %}
+<link rel="stylesheet" href="{% static 'drevo/css/drevo.css' %}" />
+<style>
+    .graph-container {
+        background-color: #ffffff;
+        padding: 32px;
+        border-radius: 10px;
+    }
+
+    #cy {
+        width: 100%;
+        height: 70vh;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+
+    .controls {
+        margin-bottom: 15px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .graph-btn {
+        padding: 8px 15px;
+        background: #4a6fa5;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .graph-btn:hover {
+        background: #3a5a8a;
+    }
+
+    /* Стили для узлов */
+    .cy-node {
+        background: white;
+        border: 1px solid #666;
+        border-radius: 10px;
+        padding: 10px;
+        text-align: center;
+        width: 200px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        font-family: Arial, sans-serif;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .cy-node-type {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+        font-size: 12px;
+    }
+
+    .cy-node-name {
+        color: #222;
+        margin-bottom: 5px;
+        font-size: 14px;
+        word-break: break-word;
+    }
+
+    .cy-node-counter {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 1px solid;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .cy-node-link {
+        font-size: 11px;
+        color: #3498db;
+        text-decoration: none;
+        pointer-events: auto;
+    }
+</style>
+{% endblock %}

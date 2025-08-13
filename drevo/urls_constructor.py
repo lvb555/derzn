@@ -27,7 +27,7 @@ from .views import (MainZnInConstructorCreateView, QuizConstructorView,
                     is_current_user_creator_of_zn, make_copy_of_algorithm,
                     question_create_update_in_quiz, save_rel_in_tree_constructor,
                     )
-from .views.knowledge_tree.tree_view import KnowledgeTreeView
+from .views.knowledge_tree.tree_view import KnowledgeTreeView, KnowledgeGraphView
 
 urlpatterns = [
     # квиз
@@ -148,4 +148,5 @@ urlpatterns = [
     path("delete_algorithm/", delete_algorithm, name="delete_algorithm"),
 
     path('knowledge_tree/', KnowledgeTreeView.as_view(), name="knowledge_tree"),
+    path('knowledge/<int:id>/graph/', KnowledgeGraphView.as_view(), name='knowledge-graph'),
 ]
