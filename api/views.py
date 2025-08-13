@@ -122,7 +122,8 @@ class CategoryChildrenAPIView(APIView):
                     .annotate(type_name=F("tz__name"), author_name=F("author__name"))
                 )
             elif queryset.model == Category:
-                queryset = queryset.annotate(knowledge_count=Count("znanie"), children_count=Count("children"))
+                queryset = queryset.annotate(knowledge_count=Count("znanie", distinct=True),
+                                             children_count=Count("children", distinct=True))
             return queryset
 
         if pk == "uncategorized":  # Специальный случай для знаний без категории
