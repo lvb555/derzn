@@ -11,6 +11,7 @@ export default {
             >
                 <img :src="item.type_icon" class="knowledge-icon" alt="Тип">
                 <span class="knowledge-type">{{ item.type_name }}</span>
+                <span class="knowledge-icon" @click="handleGraphView(item.id)">🔍 </span>
                 <a :href="item.url" class="knowledge-title">{{ item.name }}</a>
                 <span class="knowledge-author" v-if="item.author">({{ item.author }})</span>
             </div>
@@ -34,7 +35,10 @@ export default {
        isCurrentKnowledge(itemId) {
             return itemId === this.getSelectedItems().knowledge
         },
-
+        handleGraphView(knowledgeId) {
+            let graph_url = `/drevo/knowledge/${knowledgeId}/graph`;
+            window.open(graph_url, '_blank');
+        }
     }
 
 };
