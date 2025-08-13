@@ -29,13 +29,19 @@ class KnowledgeSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'type_name', 'type_icon', 'author', 'url']
 
     def get_type_icon(self, obj):
-        # Возвращаем путь к иконке в зависимости от типа
+        #Возвращаем путь к иконке в зависимости от типа
         type_icon_map = {
-            'fact': '/static/drevo/img/knowledge_icons/fact.png',
-            'table': '/static/drevo/img/knowledge_icons/table.png',
+            'Факт': '/static/drevo/img/knowledge_icons/fact.png',
+            'Таблица': '/static/drevo/img/knowledge_icons/table.png',
+            'Классификация': '/static/drevo/img/knowledge_icons/classification.png',
+            'Группа': '/static/drevo/img/knowledge_icons/group.png',
+            'Вопрос': '/static/drevo/img/knowledge_icons/question.png',
+            'Тезис': '/static/drevo/img/knowledge_icons/thesis.png',
+            'Цитата': '/static/drevo/img/knowledge_icons/quote.png',
             # ... другие типы ...
         }
-        return type_icon_map.get(obj.tz.name, '/static/drevo/img/knowledge_icons/fact.png')
+        return type_icon_map.get(obj.tz.name, '/static/drevo/img/knowledge_icons/other.png')
+
 
     def get_url(self, obj):
         url = obj.get_absolute_url()
