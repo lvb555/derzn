@@ -43,20 +43,19 @@ class CustomPagination(PageNumberPagination):
         page_size = self.get_page_size(request)
         page_number = int(request.query_params.get(self.page_query_param, 1))
         if page_number in self.last_page_strings:
-            page_number = float('inf')
+            page_number = float("inf")
         return page_number, page_size
 
     def paginate_dual(self, request, category_queryset, knowledge_queryset):
         page_number, page_size = self.get_page_values(request)
-        #print(f'{page_number=} {page_size=}')
+        # print(f'{page_number=} {page_size=}')
         # надо получить полные размеры, иначе непонятно сколько страниц
         category_count = category_queryset.count()
         knowledge_count = knowledge_queryset.count()
 
-        #я не знаю что еще придумать чтобы без велосипеда работала пагинация
+        # я не знаю что еще придумать чтобы без велосипеда работала пагинация
         fake_qs = FakeQuerySet(category_count + knowledge_count)
         self.paginate_queryset(fake_qs, request)
-
 
         offset = (page_number - 1) * page_size
         limit = page_size
@@ -85,8 +84,8 @@ class CustomPagination(PageNumberPagination):
             end2 = min(offset + limit, knowledge_count)
             qs2_pair = (offset, end2)
 
-        qs1 = [] if qs1_pair is None else category_queryset[qs1_pair[0]:qs1_pair[1]]
-        qs2 = [] if qs2_pair is None else knowledge_queryset[qs2_pair[0]:qs2_pair[1]]
+        qs1 = [] if qs1_pair is None else category_queryset[qs1_pair[0] : qs1_pair[1]]
+        qs2 = [] if qs2_pair is None else knowledge_queryset[qs2_pair[0] : qs2_pair[1]]
         return qs1, qs2
 
 
@@ -122,8 +121,9 @@ class CategoryChildrenAPIView(APIView):
                     .annotate(type_name=F("tz__name"), author_name=F("author__name"))
                 )
             elif queryset.model == Category:
-                queryset = queryset.annotate(knowledge_count=Count("znanie", distinct=True),
-                                             children_count=Count("children", distinct=True))
+                queryset = queryset.annotate(
+                    knowledge_count=Count("znanie", distinct=True), children_count=Count("children", distinct=True)
+                )
             return queryset
 
         if pk == "uncategorized":  # Специальный случай для знаний без категории
@@ -156,9 +156,7 @@ class CategoryChildrenAPIView(APIView):
         sub_category = optimize_queryset(sub_category)
         sub_knowledge = optimize_queryset(sub_knowledge)
 
-        paginated_categories, paginated_knowledge = paginator.paginate_dual(request,
-                                                                            sub_category,
-                                                                            sub_knowledge)
+        paginated_categories, paginated_knowledge = paginator.paginate_dual(request, sub_category, sub_knowledge)
 
         result_categories = CategorySerializer(paginated_categories, many=True).data
         result_knowledge = KnowledgeSerializer(paginated_knowledge, many=True).data

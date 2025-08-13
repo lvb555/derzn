@@ -12,8 +12,8 @@ class KnowledgeGraphView(TemplateView):
     template_name = "drevo/knowledge_tree_view/knowledge_graph.html"
 
     def get_context_data(self, **kwargs):
-        idx = self.kwargs.get('id')
+        idx = self.kwargs.get("id")
         context = super().get_context_data(**kwargs)
         knowledge = get_object_or_404(Znanie, id=idx)
-        context['knowledge'] = knowledge
+        context["knowledge"] = knowledge
         return context
