@@ -147,6 +147,8 @@ urlpatterns = [
     path("get_order_of_relation/", get_order_of_relation, name="get_order_of_relation"),
     path("delete_algorithm/", delete_algorithm, name="delete_algorithm"),
 
+    # ---------------------------------------------------------------------------------------
+    # дерево
     path('knowledge_tree/', KnowledgeTreeView.as_view(), name="knowledge_tree"),
     path('knowledge/<int:id>/graph/', KnowledgeGraphView.as_view(), name='knowledge-graph'),
 ]
