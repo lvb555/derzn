@@ -45,14 +45,12 @@ class KnowledgeTreeBuilder:
                 Relation.objects
                 .prefetch_related('bz', 'tr', 'bz__tz', 'bz__author')
                 .filter(filter_lookups, tr__is_systemic=False)
-                .exclude(bz__tz__name='Комментарий')
             )
         else:
             relations = (
                 Relation.objects
                 .prefetch_related('bz', 'tr', 'bz__tz', 'bz__author')
                 .filter(filter_lookups)
-                .exclude(bz__tz_name='Комментарий')
             )
         if self.edit_mode:
             relations_statuses = RelationStatuses.objects.filter(is_active=True)

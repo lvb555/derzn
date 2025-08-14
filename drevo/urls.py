@@ -1,10 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
-from . import views
 
-from drevo.views.relations_preparing_work.relation_create_views import insert_knowledge_view
-from drevo.views.relations_preparing_work.relation_update_views import delete_knowledge
 from drevo.views.interviews_statistics_view import dimensional_distributions_1, dimensional_distributions_2
 from drevo.views.interviews_all_view import interviews_all
 from drevo.views.interview_table_view import interview_table
@@ -276,11 +273,6 @@ urlpatterns = [
         "znanie/<int:doc_pk>/document-template/save-text-template",
         save_text_template_view,
         name="save_text_template",
-    ),
-    path(
-        'relation/preparing/additional_knowledge/insert/<int:rz_id>',
-        insert_knowledge_view,
-        name='insert_knowledge'
     ),
     # --------------------------------------------------------------------------------------------------
     # квизы
@@ -594,11 +586,6 @@ urlpatterns = [
         "relations/publication/<int:relation_pk>",
         relation_publication_view,
         name="relation_publication",
-    ),
-    path(
-        "relations/delete_knowledge/",
-        delete_knowledge,
-        name="delete_knowledge",
     ),
     # --------------------------------------------------------------------------------------------------
     # сотрудники редакции

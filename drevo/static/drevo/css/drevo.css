@@ -1246,11 +1246,3 @@ a.question {
     gap: 20px;
     padding: 20px;
 }
-.bi-action-icon::before {
-    content: "+";
-    color: #083E2F;
-    font-weight: bold;
-    font-size: 1.2em;
-    margin-right: 5px;
-    vertical-align: middle;
-}
