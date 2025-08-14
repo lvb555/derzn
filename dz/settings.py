@@ -54,12 +54,15 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
-
 # для использования django-debug-toolbar
 if USE_DEBUG_TOOLBAR:
-    INTERNAL_IPS = ("127.0.0.1",)
+    INTERNAL_IPS = ['127.0.0.1','::1']
     MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
     INSTALLED_APPS.append("debug_toolbar")
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+    }
+
 
 ROOT_URLCONF = 'dz.urls'
 

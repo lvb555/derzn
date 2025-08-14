@@ -1,7 +1,7 @@
 from django.urls import path
 
 from api.knowledge_relations_view import KnowledgeRelationsAPIView
-from api.views import CategoryChildrenAPIView
+from api.category_knowledge_view import CategoryChildrenAPIView
 
 urlpatterns = [
     path("categories/", CategoryChildrenAPIView.as_view(), name="category-root"),

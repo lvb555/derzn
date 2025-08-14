@@ -2,7 +2,7 @@ from django.db.models import Count, F
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 
-from api.serializers import CategorySerializer, KnowledgeSerializer
+from api.category_knowledge_serializers import CategorySerializer, KnowledgeSerializer
 from drevo.models import Category, Znanie
 
 published_map = {"all": None, "yes": True, "no": False}
