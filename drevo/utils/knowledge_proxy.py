@@ -556,11 +556,8 @@ def get_table_editor_permissions(roles) -> dict:
         permissions["changeValueOwn"] = 1
 
     if UserRoles.editor in roles:
-        permissions["changeTable"] = 1
         permissions["changeTableText"] = 1
-        permissions["setValue"] = 1
         permissions["changeValue"] = 1
-        permissions["clearValue"] = 1
         permissions["changeValueOwn"] = 1
         permissions["clearValueOwn"] = 1
 

@@ -36,6 +36,7 @@ urlpatterns = [
                            )),
     path('users/', include('users.urls', namespace='users')),
     path('help/', include('help.urls')),
+    path('api/', include('api.urls')),
 ]
 
 if settings.DEBUG:

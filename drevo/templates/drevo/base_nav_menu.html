@@ -39,6 +39,9 @@
                 <img style="height: 6px; weight: 10.5px" src="{% static 'drevo/img/main_page/arrow-down.png' %}" />
             </a>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                 <li>
+                    <a class="dropdown-item from-nav" href="{% url 'knowledge_tree' %}" id="tree_link_new">ТЕСТ дерево</a>
+                </li>
                 <li>
                     <a class="dropdown-item from-nav" href="{% url 'knowledge' %}" id="tree_link">Всё дерево</a>
                 </li>

@@ -1,0 +1,277 @@
+:root {
+    /* Цвета */
+    --color-primary: #4285f4;
+    --color-primary-light: #e7f1ff;
+    --color-success: #34a853;
+    --color-success-light: #e6f4ea;
+    --color-gray-100: #f8f9fa;
+    --color-gray-200: #e9ecef;
+    --color-gray-300: #dee2e6;
+    --color-gray-400: #e2e6ea;
+    --color-gray-500: #6c757d;
+    --color-gray-600: #666;
+    --color-gray-700: #333;
+    --color-white: #fff;
+    --color-border: #eee;
+    --color-uncategorized-bg: yellow;
+
+    /* Размеры */
+    --spacing-xs: 3px;
+    --spacing-sm: 5px;
+    --spacing-md: 8px;
+    --spacing-lg: 10px;
+    --spacing-xl: 12px;
+    --spacing-xxl: 15px;
+
+    /* Радиусы */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+
+    /* Тени и эффекты */
+    --transition: all 0.2s;
+}
+
+/* ==================== ОСНОВНЫЕ СТИЛИ ==================== */
+.knowledge-tree {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    width: 100%;
+    overflow: visible;
+}
+
+.tree-container {
+    width: 100%;
+    overflow: visible;
+}
+
+/* ==================== СТИЛИ КАТЕГОРИЙ ==================== */
+.category-node {
+    margin: var(--spacing-xs) 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.node-content-wrapper {
+    width: 100%;
+}
+
+/* Заголовок категории */
+.category-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: var(--color-gray-100);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-gray-300);
+    cursor: pointer;
+    transition: var(--transition);
+    box-sizing: border-box;
+}
+
+.category-header:hover {
+    background: var(--color-gray-200);
+}
+
+.category-header.is-open {
+    background: var(--color-gray-400);
+    font-weight: 500;
+}
+
+/* Иконка раскрытия/закрытия */
+.toggle-icon {
+    width: 16px;
+    text-align: center;
+    margin-right: var(--spacing-md);
+    color: var(--color-gray-500);
+    flex-shrink: 0;
+}
+
+/* Название категории */
+.category-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Контейнер дочерних элементов */
+.children-container {
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: var(--spacing-lg);
+    overflow: visible;
+    position: relative;
+
+}
+
+/* ==================== СТИЛИ СЧЕТЧИКОВ ==================== */
+.children-count,
+.knowledge-count {
+    position: relative;
+    border: 1px solid;
+    border-radius: 50%;
+    padding: 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75em;
+    font-weight: 500;
+    margin-left: var(--spacing-md);
+    flex-shrink: 0;
+    cursor: help;
+}
+
+.children-count {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.knowledge-count {
+    color: var(--color-success);
+    background: var(--color-success-light);
+}
+
+/* Подсказки для счетчиков */
+.children-count::after,
+.knowledge-count::after {
+    content: attr(data-count);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-gray-700);
+    color: var(--color-white);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+    z-index: 1000;
+    margin-bottom: var(--spacing-sm);
+}
+
+.children-count::after {
+    content: 'Дочерних категорий: ' attr(data-count);
+}
+
+.knowledge-count::after {
+    content: 'Элементов знаний: ' attr(data-count);
+}
+
+.children-count:hover::after,
+.knowledge-count:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ==================== СТИЛИ ЗНАНИЙ ==================== */
+.knowledge-list {
+    width: 100%;
+    margin: var(--spacing-sm) 0;
+}
+
+.knowledge-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-xl);
+    margin: var(--spacing-xs) 0;
+    background: var(--color-white);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    text-decoration: none;
+    color: var(--color-gray-700);
+    transition: var(--transition);
+    box-sizing: border-box;
+}
+
+.knowledge-item:hover {
+    background: var(--color-gray-100);
+    border-color: var(--color-gray-300);
+}
+
+.knowledge-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: var(--spacing-md);
+    opacity: 0.8;
+    flex-shrink: 0;
+}
+
+.knowledge-type {
+    font-size: 0.85em;
+    color: var(--color-gray-500);
+    margin-right: var(--spacing-xl);
+    min-width: 80px;
+    flex-shrink: 0;
+}
+
+.knowledge-title {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: var(--spacing-md);
+}
+
+.knowledge-author {
+    font-size: 0.85em;
+    color: var(--color-gray-500);
+    margin-left: var(--spacing-md);
+    flex-shrink: 0;
+}
+
+/* ==================== СОСТОЯНИЯ ==================== */
+.loading,
+.loading-more {
+    padding: var(--spacing-lg);
+    color: var(--color-gray-500);
+    font-style: italic;
+    text-align: center;
+}
+
+.loading-more {
+    color: var(--color-gray-600);
+    font-size: 0.9em;
+    margin: var(--spacing-lg) 0;
+}
+
+.scroll-sentinel {
+    height: 1px;
+    width: 100%;
+    background: transparent;
+    pointer-events: none;
+}
+
+/* ==================== СПЕЦИАЛЬНЫЕ СТИЛИ ==================== */
+/* Стили для категории "Знания без категории" */
+.category-node[data-id="uncategorized"] .category-header {
+    background: var(--color-uncategorized-bg);
+}
+
+.toggle-icon::before {
+    content: '+'; '►';
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.toggle-icon.is-open::before {
+    content: '-';'▼';
+}
+
+/* Стили для выбранной категории */
+.category-header.is-selected {
+  background-color: #e3f2fd;
+  border-left: 3px solid #2196f3;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+/* Стили для выбранного знания */
+.knowledge-item.is-selected {
+  background-color: #f5f5f5;
+  border-left: 3px solid #4caf50;
+  font-weight: 500;
+}
