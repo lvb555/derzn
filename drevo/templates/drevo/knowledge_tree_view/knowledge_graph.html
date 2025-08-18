@@ -274,9 +274,8 @@
             // Клики по узлам
             cy.on('tap', 'node', function(event) {
                 const node = event.target;
-                const originalTarget = event.originalEvent.originalTarget;
-
-                if (originalTarget.classList?.contains('cy-node-link')) {
+                const originalTarget = event.originalEvent.target;
+                if (originalTarget?.classList?.contains('cy-node-link')) {
                     window.open(node.data('url'), '_blank');
                     event.stopPropagation();
                     return;
