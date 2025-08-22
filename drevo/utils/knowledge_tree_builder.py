@@ -7,29 +7,27 @@ class KnowledgeTreeBuilder:
         Конструктор дерева знаний.
         Данный класс реализует функционал постройки дерева по знаниям и категориям.
     """
-    def __init__(self,
-                 queryset: QuerySet[Znanie],
-                 show_only: Tr = None,
-                 show_complex: bool = False,
-                 edit_mode: bool = False,
-                 empty_categories: bool = False,
-                 is_constructor_type: str = None
-                 ):
+
+    def __init__(self, queryset: QuerySet[Znanie], show_only: Tr = None,
+                 show_complex: bool = False, edit_mode: bool = False,
+                 empty_categories: bool = False, is_constructor_type: str = None):
         self.queryset = queryset
         self.edit_mode = edit_mode
         self.empty_categories = empty_categories
         self.is_constructor_type = is_constructor_type
-        self.building_knowledge = set(kn.id for kn in queryset)  # Множество знаний используемых для построения дерева
+        self.building_knowledge = set(kn.id for kn in queryset)
         self.categories_data = {}
         self.knowledge = {}
+        # Глобальная карта узлов: будем сохранять поддерево для каждого встреченного знания.
+        self.node_map = {}
         self._systemic_types = Tz.objects.filter(is_systemic=True).values_list('pk', flat=True)
         self.show_complex = show_complex
         complex_tz_names = ('Таблица', 'Тест')
         self.complex_tz = Tz.objects.filter(name__in=complex_tz_names).values_list('pk', flat=True)
-        self.relations_info = {}  # {(<parent_id>, <child_id>): {name: <str>, status: <str>, author: <int>}, }
-        self.show_only = show_only  # Вид связи, который необходимо отображать на дереве для знаний из queryset
-        self.category_rel_counts = dict()  # {category_pk: {'knowledge_count': 0, 'base_knowledge_count': 0}
-        self.knowledge_rel_counts = dict()  # {knowledge: {'knowledge_count': 0, 'child_count': 0}
+        self.relations_info = {}
+        self.show_only = show_only
+        self.category_rel_counts = dict()
+        self.knowledge_rel_counts = dict()
         self.relations_data = self._gather_relations_data()
 
     def _gather_relations_data(self) -> dict:
@@ -133,59 +131,88 @@ class KnowledgeTreeBuilder:
 
     def get_data_for_tree(self) -> dict:
         """
-            Метод для разделения данных знаний на категории \n
-            Возвращает вложенный словарь: \n
-            {
-                category_pk_1: [{
-                    base_knowledge_1: {
-                        knowledge_1: {knowledge_1_1: {}, knowledge_1_2: {},},
-                        knowledge_2: {knowledge_2_1: {}, knowledge_2_2: {},}
-                    },
-                }],
-            }
+        Метод для разделения данных знаний на категории.
+        Возвращает вложенный словарь вида:
+          {
+             category_pk_1: [{
+                 base_knowledge_1: {
+                     knowledge_1: {knowledge_1_1: {}, knowledge_1_2: {}},
+                     knowledge_2: {knowledge_2_1: {}, knowledge_2_2: {}}
+                 }
+             }],
+             ...
+          }
         """
+        # Сбрасываем накопленные данные
+        self.knowledge = {}
+        self.categories_data = {}
+
+        # Собираем отношения – для каждого знания получаем цепочки
         self._gather_knowledge_relations()
-        
-        for base_knowledge, related_knowledge in self.knowledge.items():
+
+        # Группируем данные по категориям: для каждого базового знания (ключ в self.knowledge)
+        # если у него есть категория, добавляем его поддерево в словарь категорий.
+        for base_knowledge, related_tree in self.knowledge.items():
             if not base_knowledge.category_id:
                 continue
             category = base_knowledge.category_id
-            if category in self.categories_data.keys():
-                self.categories_data[category].append({base_knowledge: related_knowledge})
+            if category in self.categories_data:
+                self.categories_data[category].append({base_knowledge: related_tree})
             else:
-                self.categories_data[category] = [{base_knowledge: related_knowledge}]
+                self.categories_data[category] = [{base_knowledge: related_tree}]
         return self.categories_data
 
     def _gather_knowledge_relations(self) -> None:
         """
-            Метод для сбора последовательного списка связанных знаний для каждого знания
+        Собирает цепочки знаний, полученные из _get_ancestors_for_knowledge_list,
+        и для каждой цепочки вызывает _build_tree_data().
         """
         ancestors_knowledge = self._get_ancestors_for_knowledge_list()
-        for ancestors in ancestors_knowledge:
-            self._build_tree_data(ancestors)
-    
+        for chain in ancestors_knowledge:
+            self._build_tree_data(chain)
+
     def _build_tree_data(self, knowledge_list: list) -> None:
         """
-            Метод, который рекурсивно обходит текущие данные для дерева, следуя цепочке связей знаний,
-            которые передаются в виде списка. Если такого знания нет в данных, то оно добавляется
-        """
-        def check_exists(tree: dict, knowledge: list) -> None:
-            while knowledge:
-                parent = knowledge.pop(0)
-                if parent.tz_id in self.complex_tz and not self.show_complex:
-                    knowledge.clear()
-                    return
-                elif parent.tz_id in self.complex_tz and self.show_complex:
-                    knowledge.clear()
-                if parent.tz_id in self._systemic_types and not self.is_constructor_type:
-                    continue
-                if parent not in tree:
-                    tree[parent] = {}
-                check_exists(tree[parent], knowledge)
-            return
+        Обходит цепочку знаний и добавляет элементы в глобальную структуру дерева.
 
-        knowledge_data = knowledge_list.copy()
-        check_exists(self.knowledge, knowledge_data)
+        Для каждого узла из knowledge_list:
+          - Если узел является «сложным» (его tz_id в self.complex_tz) и self.show_complex=False,
+            прерывается обработка всей цепочки.
+          - Если узел является системным (его tz_id в self._systemic_types) и self.is_constructor_type=False,
+            узел пропускается (continue) и обработка переходит к следующему.
+          - Проверяется глобальная карта: если узел уже встречался, используется его поддерево,
+            иначе создаётся новый пустой словарь для поддерева и сохраняется в карте.
+          - Затем поддерево присоединяется к текущему локальному уровню.
+
+        Это обеспечивает, что если узел (например, 'В') уже построен с поддеревом (например, {'Г': {}}),
+        то при повторном появлении тот же словарь подключается и для другой ветви.
+        """
+        current_level = self.knowledge  # Начинаем с корневого уровня
+
+        for node in knowledge_list:
+            # Если узел является сложным и показывать сложное отключено — прекращаем обработку цепочки
+            if node.tz_id in self.complex_tz and not self.show_complex:
+                return
+
+            # Если узел является системным и мы не в режиме конструктора — пропускаем этот узел
+            if node.tz_id in self._systemic_types and not self.is_constructor_type:
+                continue
+
+            # Используем глобальную карту для получения или создания поддерева
+            if node in self.node_map:
+                subtree = self.node_map[node]
+            else:
+                subtree = {}
+                self.node_map[node] = subtree
+
+            # Присоединяем subtree к текущему локальному уровню, если узел ещё не добавлен — добавляем
+            if node not in current_level:
+                current_level[node] = subtree
+            else:
+                subtree = current_level[node]
+
+            # Переходим в поддерево для обработки следующего узла в цепочке.
+            current_level = current_level[node]
 
     def _get_ancestors_for_knowledge_list(self) -> list[list[Znanie]]:
         """

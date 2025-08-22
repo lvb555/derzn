@@ -23,33 +23,33 @@ def build_knowledge_tree(context: RequestContext,
                          is_constructor_type: str = None
                          ):
     """
-        Тег для построения дерева знаний \n
-        tree_num: номер дерева (на случай если необходимо на одной странице создать несколько деревьев); \n
+           Тег для построения дерева знаний \n
+           tree_num: номер дерева (на случай если необходимо на одной странице создать несколько деревьев); \n
 
-        show_searchbar: отображать поле поиска по дереву; \n
+           show_searchbar: отображать поле поиска по дереву; \n
 
-        empty_tree_message: если дерево по какой либо причине нельзя построить, то будет выводиться сообщение указанное
-        в данном параметре; \n
+           empty_tree_message: если дерево по какой либо причине нельзя построить, то будет выводиться сообщение указанное
+           в данном параметре; \n
 
-        show_only: принимает объект вида связи, если передан данный параметр, то будут отображаться только связи
-        данного вида для переданных знаний (используется если у одного знания из queryset есть несколько связей разных
-        видов и необходимо отобразить связи только определённого вида); \n
+           show_only: принимает объект вида связи, если передан данный параметр, то будут отображаться только связи
+           данного вида для переданных знаний (используется если у одного знания из queryset есть несколько связей разных
+           видов и необходимо отобразить связи только определённого вида); \n
 
-        hidden_author: принимает объект автора, около знаний данного автора он не указывается; \n
+           hidden_author: принимает объект автора, около знаний данного автора он не указывается; \n
 
-        show_complex: если данный параметр имеет значение True, то на дереве будут отображаться сложные знания.
-        В настоящее время для отображения на дереве существует 2 вида сложных знаний: "Таблица", "Тест"
+           show_complex: если данный параметр имеет значение True, то на дереве будут отображаться сложные знания.
+           В настоящее время для отображения на дереве существует 2 вида сложных знаний: "Таблица", "Тест"
 
-        edit_widgets: список виджетов для редактирования дерева. Допустимые значения: \n
-        create - создать новую ветвь (связь)
-        delete - удалить ветвь (связь)
-        update - удалить ветвь (связь)
+           edit_widgets: список виджетов для редактирования дерева. Допустимые значения: \n
+           create - создать новую ветвь (связь)
+           delete - удалить ветвь (связь)
+           update - удалить ветвь (связь)
 
-        empty_categories: если данный параметр имеет значение True, то на дереве будут отображаться категории, которые
-        не имеют знаний.
+           empty_categories: если данный параметр имеет значение True, то на дереве будут отображаться категории, которые
+           не имеют знаний.
 
-        is_constructor_type: является ли данное дерево конструктором
-    """
+           is_constructor_type: является ли данное дерево конструктором
+       """
     if not queryset:
         raise EmptyResultSet('Для построения дерева необходим queryset знаний')
     edit_mode = True if edit_widgets else False
@@ -67,9 +67,8 @@ def build_knowledge_tree(context: RequestContext,
         active_knowledge=queryset,
         **tree_builder_context
     )
-    # Search block
+    # Search block (остальная логика остается без изменений)
     search_word = context.request.POST.get('search_word', '')
-
     param_names = (
         'Искать в поле "Содержание"', 'Искать в поле "Комментарий к источнику"', 'Учитывать структурные знания'
     )
@@ -78,7 +77,6 @@ def build_knowledge_tree(context: RequestContext,
         'Искать в поле "Комментарий к источнику"': 'source_com',
         'Учитывать структурные знания': 'use_struct'
     }
-
     if context.request.user.is_anonymous:
         params = SettingsOptions.objects.filter(name__in=param_names)
         user_search_param = {(fields_by_param.get(param.name), param.name): param.default_param for param in params}
@@ -93,10 +91,8 @@ def build_knowledge_tree(context: RequestContext,
         user_search_param = {param.get('param__name'): param.get('param_value') for param in user_params_queryset}
         show_struct_param = True if user_search_param.get('Учитывать структурные знания') else False
         user_search_param = {(fields_by_param.get(name), name): value for name, value in user_search_param.items()}
-
     if is_constructor_type:
         tree_context['is_constructor_type'] = is_constructor_type
-
     tree_context['user_search_param'] = user_search_param
     tree_knowledge = tree_builder.get_tree_knowledge_list(with_struct_knowledge=show_struct_param)
     tree_context['empty_result'] = context.request.GET.get('empty_result', '')
