@@ -77,3 +77,10 @@
 .legend {
     margin: 40px;
 }
+
+/* Стиль для поля списка знаний "order" в списке (40px) */
+th.column-order, td.field-order {
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+}

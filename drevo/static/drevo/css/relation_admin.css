@@ -1,0 +1,17 @@
+/* Стиль для поля "order" в списке (40px) */
+th.column-order, td.field-order {
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+}
+
+/* Стиль для полей "bz" и "rz" в списке (300px × 60px) */
+th.column-bz, td.field-bz,
+th.column-rz, td.field-rz {
+    width: 300px !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
+    height: 60px !important;
+    white-space: normal !important;  /* Разрешаем перенос текста */
+    line-height: 1.3 !important;     /* Улучшаем читаемость */
+}
